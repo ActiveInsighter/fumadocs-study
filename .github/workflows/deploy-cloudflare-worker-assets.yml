@@ -58,9 +58,9 @@ jobs:
         shell: bash
         run: npm run postinstall
 
-      - name: Run static docs tests
+      - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts
 
       - name: Restore Next/Turbopack build cache
         uses: actions/cache@v5
@@ -78,7 +78,7 @@ jobs:
 
       - name: Prepare Cloudflare Static Assets metadata
         shell: bash
-        run: node scripts/prepare-cloudflare-static-assets.mjs
+        run: npm run prepare:cloudflare-assets
 
       - name: Validate Cloudflare asset package
         shell: bash
@@ -101,7 +101,8 @@ jobs:
             ! -name 'edgeone.json' \
             ! -name '.assetsignore' \
             ! -name '_redirects' \
-            -printf '%s\n' | sort -nr | head -n 1)"
+            -printf '%s\n' \
+            | awk 'BEGIN { max = 0 } $1 > max { max = $1 } END { print max }')"
 
           if (( file_count > 20000 )); then
             echo "::error::Cloudflare Free Static Assets file limit exceeded: ${file_count}/20000."
@@ -122,6 +123,10 @@ jobs:
             echo '- Worker JavaScript: none (assets-only deployment)'
             echo '- RSC dedupe aliases: restored through two Cloudflare 200 proxy rules'
           } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Validate Wrangler configuration with a dry run
+        shell: bash
+        run: npx --yes wrangler@4.129.0 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
 
       - name: Check Cloudflare deployment credentials
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == true }}
