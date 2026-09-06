@@ -52,9 +52,11 @@ function addBucket(map, key, size) {
   map.set(key, bucket);
 }
 
-function printBuckets(title, map) {
+function printBuckets(title, map, limit = Infinity) {
   console.log(`[footprint] ${title}`);
-  for (const [name, bucket] of [...map.entries()].sort((a, b) => b[1].bytes - a[1].bytes)) {
+  for (const [name, bucket] of [...map.entries()]
+    .sort((a, b) => b[1].bytes - a[1].bytes)
+    .slice(0, limit)) {
     console.log(`[footprint]   ${name}: ${bucket.files} files, ${mib(bucket.bytes)}`);
   }
 }
@@ -64,6 +66,7 @@ const records = [];
 const areaBuckets = new Map();
 const extensionBuckets = new Map();
 const docsExtensionBuckets = new Map();
+const docsTxtBasenameBuckets = new Map();
 let totalBytes = 0;
 
 for (const filePath of files) {
@@ -75,13 +78,17 @@ for (const filePath of files) {
   totalBytes += size;
   addBucket(areaBuckets, area, size);
   addBucket(extensionBuckets, ext, size);
-  if (area === 'docs') addBucket(docsExtensionBuckets, ext, size);
+  if (area === 'docs') {
+    addBucket(docsExtensionBuckets, ext, size);
+    if (ext === '.txt') addBucket(docsTxtBasenameBuckets, path.basename(relativePath), size);
+  }
 }
 
 console.log(`[footprint] total: ${files.length} files, ${mib(totalBytes)}`);
 printBuckets('top-level areas', areaBuckets);
 printBuckets('extensions', extensionBuckets);
 printBuckets('docs extensions', docsExtensionBuckets);
+printBuckets('docs RSC payload basenames', docsTxtBasenameBuckets, 30);
 
 console.log('[footprint] largest files');
 for (const record of [...records].sort((a, b) => b.size - a.size).slice(0, 25)) {
