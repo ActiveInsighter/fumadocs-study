@@ -26,6 +26,7 @@ jobs:
           python <<'PY'
           from pathlib import Path
           import re
+          from collections import Counter
 
           chapter = Path('content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx')
           text = chapter.read_text(encoding='utf-8')
@@ -102,10 +103,10 @@ jobs:
                           formula = '\n'.join(block)
                           if formula.count('{') != formula.count('}'):
                               problems.append(f'{file_name}:{start_line}-{lineno}: unbalanced braces in display math')
-                          begins = re.findall(r'\\begin\{([^}]+)\}', formula)
-                          ends = re.findall(r'\\end\{([^}]+)\}', formula)
+                          begins = Counter(re.findall(r'\\begin\{([^}]+)\}', formula))
+                          ends = Counter(re.findall(r'\\end\{([^}]+)\}', formula))
                           if begins != ends:
-                              problems.append(f'{file_name}:{start_line}-{lineno}: mismatched LaTeX environments {begins} vs {ends}')
+                              problems.append(f'{file_name}:{start_line}-{lineno}: mismatched LaTeX environments {dict(begins)} vs {dict(ends)}')
                           in_math = False
                           block = []
                           start_line = None
