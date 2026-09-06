@@ -1,0 +1,140 @@
+name: One-shot repair probability chapter and deployment triggers
+
+on:
+  push:
+    branches:
+      - codex/fix-probability7-deploy
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@v6
+        with:
+          ref: codex/fix-probability7-deploy
+          fetch-depth: 0
+
+      - name: Repair formulas, validate recent math docs, and make EdgeOne manual-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          chapter = Path('content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx')
+          text = chapter.read_text(encoding='utf-8')
+          old = r'\mu=\overline X\$$4pt]'
+          new = r'\mu=\overline X\\[4pt]'
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one malformed probability formula, found {count}')
+          chapter.write_text(text.replace(old, new), encoding='utf-8')
+
+          edge = Path('.github/workflows/deploy-edgeone-docs.yml')
+          edge_text = edge.read_text(encoding='utf-8')
+          old_trigger = '''on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:\n'''
+          new_trigger = '''on:\n  workflow_dispatch:\n'''
+          if edge_text.count(old_trigger) != 1:
+              raise SystemExit('Unexpected EdgeOne workflow trigger block; refusing broad edit')
+          edge.write_text(edge_text.replace(old_trigger, new_trigger, 1), encoding='utf-8')
+
+          cf = Path('.github/workflows/deploy-cloudflare-worker-assets.yml').read_text(encoding='utf-8')
+          cf_trigger = '''on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:\n'''
+          if cf_trigger not in cf:
+              raise SystemExit('Cloudflare workflow is not configured for automatic main pushes')
+
+          recent_math = [
+              'content/docs/math/knowledge/linear-algebra/05-eigenvalues-diagonalization.mdx',
+              'content/docs/math/knowledge/linear-algebra/06-quadratic-forms.mdx',
+              'content/docs/math/knowledge/probability-statistics/06-statistical-foundations.mdx',
+              'content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx',
+              'content/docs/math/problem-solving/linear-algebra/08-quadratic-forms.mdx',
+              'content/docs/math/problem-solving/probability-statistics/07-statistical-foundations.mdx',
+              'content/docs/math/problem-solving/probability-statistics/08-parameter-estimation-hypothesis-testing.mdx',
+          ]
+
+          def strip_fenced_code(src: str) -> str:
+              out = []
+              in_fence = False
+              fence = None
+              for line in src.splitlines():
+                  s = line.lstrip()
+                  if s.startswith('```') or s.startswith('~~~'):
+                      marker = s[:3]
+                      if not in_fence:
+                          in_fence = True
+                          fence = marker
+                      elif marker == fence:
+                          in_fence = False
+                          fence = None
+                      out.append('')
+                      continue
+                  out.append('' if in_fence else line)
+              return '\n'.join(out)
+
+          problems = []
+          for file_name in recent_math:
+              src = Path(file_name).read_text(encoding='utf-8')
+              scan = strip_fenced_code(src)
+              unescaped = re.sub(r'\\\$', '', scan)
+              if unescaped.count('$') % 2:
+                  problems.append(f'{file_name}: odd number of unescaped dollar signs')
+              if r'\$$' in scan:
+                  problems.append(f'{file_name}: suspicious \\$$ sequence remains')
+
+              # Validate display-math blocks delimited by standalone $$ lines.
+              in_math = False
+              block = []
+              start_line = None
+              for lineno, line in enumerate(scan.splitlines(), 1):
+                  if line.strip() == '$$':
+                      if not in_math:
+                          in_math = True
+                          block = []
+                          start_line = lineno
+                      else:
+                          formula = '\n'.join(block)
+                          if formula.count('{') != formula.count('}'):
+                              problems.append(f'{file_name}:{start_line}-{lineno}: unbalanced braces in display math')
+                          begins = re.findall(r'\\begin\{([^}]+)\}', formula)
+                          ends = re.findall(r'\\end\{([^}]+)\}', formula)
+                          if begins != ends:
+                              problems.append(f'{file_name}:{start_line}-{lineno}: mismatched LaTeX environments {begins} vs {ends}')
+                          in_math = False
+                          block = []
+                          start_line = None
+                      continue
+                  if in_math:
+                      block.append(line)
+              if in_math:
+                  problems.append(f'{file_name}:{start_line}: unclosed standalone $$ display block')
+
+          if problems:
+              print('Math validation problems:')
+              for p in problems:
+                  print(' -', p)
+              raise SystemExit(1)
+
+          one_shot = Path('.github/workflows/one-shot-fix-probability7-deploy.yml')
+          one_shot.unlink()
+          print('Validated recent math additions; no other delimiter/environment errors detected.')
+          PY
+
+          git diff --check
+          git status --short
+
+      - name: Commit repair to branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx .github/workflows/deploy-edgeone-docs.yml .github/workflows/one-shot-fix-probability7-deploy.yml
+          git commit -m 'fix: repair probability formula and deployment triggers'
+          git push origin HEAD:codex/fix-probability7-deploy
