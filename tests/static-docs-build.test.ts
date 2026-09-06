@@ -21,7 +21,9 @@ describe('static docs build', () => {
     const config = getStaticDocsConfig();
 
     expect(config.output).toBe('export');
-    expect(config.trailingSlash).toBe(true);
+    // Temporary A/B benchmark: verify the slashless export configuration is
+    // actually active while measuring Next's generated RSC aliases.
+    expect(config.trailingSlash).toBe(false);
     expect(config.rewrites).toBeUndefined();
     expect(config.headers).toBeUndefined();
     expect(config.experimental?.turbopackFileSystemCacheForBuild).toBe(true);
