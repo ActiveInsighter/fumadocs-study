@@ -11,7 +11,10 @@ const isStaticDocsBuild = process.env.STATIC_DOCS_BUILD === '1';
 export const docs = defineDocs({
   dir: 'content/docs',
   docs: {
-    async: true,
+    // Fumadocs Dynamic Mode compiles each document on demand instead of feeding
+    // every MD/MDX file into the bundler graph up front. This keeps Turbopack's
+    // production graph bounded as the documentation corpus grows.
+    dynamic: true,
     // The pure-static CDN build generates direct .md files itself, so avoid
     // generating duplicate processed Markdown during that build.
     postprocess: isStaticDocsBuild
