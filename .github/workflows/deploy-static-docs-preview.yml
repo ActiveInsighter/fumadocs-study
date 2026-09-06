@@ -13,6 +13,7 @@ on:
       - 'components/**'
       - 'lib/**'
       - 'scripts/build-static-docs.mjs'
+      - 'scripts/analyze-static-output.mjs'
       - 'scripts/build-search-index.mjs'
       - 'scripts/search-manifest.mjs'
       - 'scripts/static-docs-config.mjs'
@@ -287,8 +288,8 @@ jobs:
             "${router_url}" \
             "${core_url}" \
             "${body_url}" \
-            '/docs/math/advanced-mathematics/01-limits-continuity/' \
-            '/docs/math/advanced-mathematics/01-limits-continuity.md' \
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             | xargs -P 8 -I '{}' bash -c '
                 status="$(curl --silent --show-error --max-time 60 -L -o /dev/null -w "%{http_code}" "${base_url}$1?${preview_query}")"
                 echo "route $1 -> ${status}"
