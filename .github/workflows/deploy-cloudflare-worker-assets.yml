@@ -167,16 +167,30 @@ jobs:
             exit 1
           }
           base_url="${DEPLOYMENT_URL%/}"
+
+          wait_for_route() {
+            local path="$1"
+            local status=''
+            for attempt in $(seq 1 18); do
+              status="$(curl --silent --show-error --max-time 60 -L -o /dev/null -w '%{http_code}' "${base_url}${path}")"
+              echo "${path} attempt ${attempt}/18 -> ${status}"
+              if [[ "${status}" == '200' ]]; then
+                return 0
+              fi
+              sleep 5
+            done
+            echo "::error::Cloudflare route ${path} did not reach HTTP 200; last status ${status}."
+            return 1
+          }
+
+          wait_for_route '/'
           for path in \
-            '/' \
             '/docs/' \
             '/search-index.json' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt'; do
-            status="$(curl --silent --show-error --max-time 60 -L -o /dev/null -w '%{http_code}' "${base_url}${path}")"
-            echo "${path} -> ${status}"
-            [[ "${status}" == '200' ]]
+            wait_for_route "${path}"
           done
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
