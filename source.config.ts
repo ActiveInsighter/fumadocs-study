@@ -56,11 +56,12 @@ export default defineConfig({
     ],
     // Do not make production builds depend on third-party image hosts.
     remarkImageOptions: { external: false },
-    // Silence KaTeX strict-mode compatibility warnings (for example CJK text
-    // accidentally placed inside $...$), while keeping real parse errors fatal.
-    // KaTeX's default throwOnError remains enabled.
+    // Benchmark KaTeX's HTML-only output on the isolated static-build branch.
+    // KaTeX defaults to htmlAndMathml, which duplicates each formula's visual
+    // HTML with an accessibility MathML tree. This experiment measures the
+    // deploy-size impact; it is not a production accessibility decision.
     rehypePlugins: (plugins) => [
-      [rehypeKatex, { strict: 'ignore' }],
+      [rehypeKatex, { strict: 'ignore', output: 'html' }],
       ...plugins,
     ],
   },
