@@ -7,11 +7,7 @@
 export function getStaticDocsConfig() {
   return {
     output: 'export',
-    // Benchmark the default no-trailing-slash export layout. The current static
-    // package shows a full RSC payload duplicated as both __next._full.txt and
-    // index.txt for every docs route; this experiment checks whether directory
-    // index routing is responsible for that duplication.
-    trailingSlash: false,
+    trailingSlash: true,
     images: {
       unoptimized: true,
     },
