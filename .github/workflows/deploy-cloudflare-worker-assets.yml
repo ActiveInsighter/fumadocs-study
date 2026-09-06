@@ -1,19 +1,19 @@
-name: Validate and deploy Cloudflare Worker Assets
+name: Deploy Fumadocs to Cloudflare
 
 on:
   push:
     branches:
-      - codex/cloudflare-worker-assets
+      - main
   workflow_dispatch:
     inputs:
       deploy:
         description: Deploy the validated static package to Cloudflare Workers Static Assets
         required: true
-        default: false
+        default: true
         type: boolean
 
 concurrency:
-  group: cloudflare-static-docs-${{ github.ref }}
+  group: fumadocs-cloudflare-production-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   validate-and-deploy:
-    name: Build and validate Cloudflare static docs
+    name: Deploy Worker Static Assets
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
@@ -129,7 +129,7 @@ jobs:
         run: npx --yes wrangler@4.129.0 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
 
       - name: Check Cloudflare deployment credentials
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == true }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -147,7 +147,7 @@ jobs:
 
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == true }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -156,7 +156,7 @@ jobs:
           command: deploy --config wrangler.jsonc
 
       - name: Verify Cloudflare deployment
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy == true }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
         shell: bash
         env:
           DEPLOYMENT_URL: ${{ steps.cloudflare-deploy.outputs.deployment-url }}
