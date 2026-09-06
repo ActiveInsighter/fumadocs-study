@@ -1,4 +1,4 @@
-name: One-shot repair probability chapter and deployment triggers
+name: One-shot repair probability chapter
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
           ref: codex/fix-probability7-deploy
           fetch-depth: 0
 
-      - name: Repair formulas, validate recent math docs, and make EdgeOne manual-only
+      - name: Repair formula and validate recent math docs
         shell: bash
         run: |
           set -euo pipefail
@@ -36,19 +36,6 @@ jobs:
           if count != 1:
               raise SystemExit(f'Expected exactly one malformed probability formula, found {count}')
           chapter.write_text(text.replace(old, new), encoding='utf-8')
-
-          edge = Path('.github/workflows/deploy-edgeone-docs.yml')
-          edge_text = edge.read_text(encoding='utf-8')
-          old_trigger = '''on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:\n'''
-          new_trigger = '''on:\n  workflow_dispatch:\n'''
-          if edge_text.count(old_trigger) != 1:
-              raise SystemExit('Unexpected EdgeOne workflow trigger block; refusing broad edit')
-          edge.write_text(edge_text.replace(old_trigger, new_trigger, 1), encoding='utf-8')
-
-          cf = Path('.github/workflows/deploy-cloudflare-worker-assets.yml').read_text(encoding='utf-8')
-          cf_trigger = '''on:\n  push:\n    branches:\n      - main\n  workflow_dispatch:\n'''
-          if cf_trigger not in cf:
-              raise SystemExit('Cloudflare workflow is not configured for automatic main pushes')
 
           recent_math = [
               'content/docs/math/knowledge/linear-algebra/05-eigenvalues-diagonalization.mdx',
@@ -89,7 +76,6 @@ jobs:
               if r'\$$' in scan:
                   problems.append(f'{file_name}: suspicious \\$$ sequence remains')
 
-              # Validate display-math blocks delimited by standalone $$ lines.
               in_math = False
               block = []
               start_line = None
@@ -122,8 +108,6 @@ jobs:
                   print(' -', p)
               raise SystemExit(1)
 
-          one_shot = Path('.github/workflows/one-shot-fix-probability7-deploy.yml')
-          one_shot.unlink()
           print('Validated recent math additions; no other delimiter/environment errors detected.')
           PY
 
@@ -136,6 +120,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx .github/workflows/deploy-edgeone-docs.yml .github/workflows/one-shot-fix-probability7-deploy.yml
-          git commit -m 'fix: repair probability formula and deployment triggers'
+          git add content/docs/math/knowledge/probability-statistics/07-parameter-estimation-hypothesis-testing.mdx
+          git commit -m 'fix: repair probability chapter formula'
           git push origin HEAD:codex/fix-probability7-deploy
