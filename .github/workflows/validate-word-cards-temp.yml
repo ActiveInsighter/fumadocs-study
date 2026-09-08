@@ -20,5 +20,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test -- tests/word-cards.test.tsx
-      - run: npm run typecheck
       - run: npm run search:build
+      - run: npm run build
