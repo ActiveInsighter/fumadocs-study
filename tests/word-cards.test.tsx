@@ -151,4 +151,50 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-example\[data-open='true'\]\s+\.wc-example-tooltip/u);
     expect(css).toMatch(/\.wc-mode-button\[data-active='true'\]/u);
   });
+
+  it('keeps the mode control compact and gives the example tooltip a clear anchor', () => {
+    const css = readFileSync(
+      new URL('../styles/word-card-interactions.css', import.meta.url),
+      'utf8',
+    );
+
+    expect(css).toMatch(/\.wc-mode-button\s*\{[^}]*min-width:\s*42px/u);
+    expect(css).toMatch(
+      /\.wc-mode-button\[data-active='true'\]\s*\{[^}]*box-shadow:\s*none/u,
+    );
+    expect(css).toMatch(/\.wc-example-trigger\s*\{[^}]*text-decoration:\s*underline\s+dashed/u);
+    expect(css).toMatch(/\.wc-example-tooltip::after\s*\{/u);
+  });
+
+  it('turns compact cards into an adaptive capped waterfall layout', () => {
+    const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(
+      /\.word-list-shell\s*\{[^}]*container:\s*word-cards\s*\/\s*inline-size/u,
+    );
+    expect(css).toMatch(
+      /\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*column-count:\s*2/u,
+    );
+    expect(css).toMatch(
+      /@container\s+word-cards\s*\(min-width:\s*1440px\)[\s\S]*?column-count:\s*3/u,
+    );
+    expect(css).toMatch(
+      /@media\s+screen\s+and\s*\(min-width:\s*1920px\)[\s\S]*?column-count:\s*3/u,
+    );
+    expect(css).toMatch(
+      /\.word-list\[data-word-card-mode='compact'\]\s*>\s*\.word-card\s*\{[^}]*display:\s*inline-flex/u,
+    );
+    expect(css).toMatch(
+      /\.word-list\[data-word-card-mode='compact'\]\s*>\s*\.word-card\s*\{[^}]*break-inside:\s*avoid/u,
+    );
+  });
+
+  it('wraps compact card headers before a long word can cover its frequency label', () => {
+    const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(/\.wc-header\s*\{[^}]*flex-wrap:\s*wrap/u);
+    expect(css).toMatch(/\.wc-title\s*\{[^}]*flex:\s*1\s+1\s+0/u);
+    expect(css).toMatch(/\.wc-word\s*\{[^}]*min-width:\s*0/u);
+    expect(css).toMatch(/\.wc-word\s*\{[^}]*overflow-wrap:\s*anywhere/u);
+  });
 });
