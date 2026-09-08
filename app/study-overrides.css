@@ -3,21 +3,27 @@
 /*
  * `text-wrap: balance` deliberately makes multi-line headings similar in width,
  * which can force an early break even when the first line still has room.
- * Documentation headings should use normal greedy wrapping instead.
+ * Documentation headings should use normal greedy wrapping instead. Keep this
+ * important because Fumadocs/Tailwind may attach balancing utilities directly
+ * to heading elements.
  */
 #docs-body :where(h1, h2, h3, h4, h5, h6) {
-  text-wrap: wrap;
+  text-wrap: wrap !important;
 }
 
 /*
- * Keep wide tables inside the article column. The wrapper scrolls horizontally
- * only when the table's intrinsic width exceeds the available width, matching
- * the display-math behavior. The track always uses the page background.
+ * Keep wide tables inside the article column and let the table, rather than the
+ * page grid, own horizontal overflow. Chinese text has a legal line-break
+ * opportunity between almost every character, so `width: max-content` alone is
+ * not enough to keep columns readable; cells explicitly stay on one line and
+ * the wrapper becomes the horizontal scroll container.
  */
 #docs-body :where(div):has(> table) {
+  width: 100%;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  overscroll-behavior-x: contain;
   background: var(--background) !important;
   scrollbar-color: color-mix(in oklch, var(--foreground) 32%, var(--background))
     var(--background);
@@ -28,7 +34,14 @@
   width: max-content;
   min-width: 100%;
   max-width: none;
+  table-layout: auto;
   background: var(--background) !important;
+}
+
+#docs-body :where(div):has(> table) > table :where(th, td) {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar {
