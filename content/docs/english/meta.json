@@ -3,6 +3,7 @@
   "description": "考研英语学习资料",
   "root": true,
   "pages": [
-    "index"
+    "index",
+    "word-cards-demo"
   ]
 }
