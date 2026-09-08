@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { WordCards, type WordCardData } from '../components/vocabulary/word-cards';
@@ -71,5 +72,25 @@ describe('WordCards', () => {
   it('returns the supplied empty state when there are no cards', () => {
     const html = renderToStaticMarkup(<WordCards words={[]} empty={<span>暂无词汇</span>} />);
     expect(html).toBe('<span>暂无词汇</span>');
+  });
+
+  it('keeps sense examples on the same line-height as their metadata row', () => {
+    const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(/\.wc-sense-examples\s*\{[^}]*line-height:\s*inherit/u);
+  });
+
+  it('centers sense dots against the gloss text', () => {
+    const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+
+    expect(css).toMatch(/\.wc-sense-dot\s*\{[^}]*margin-top:\s*0\.63em/u);
+    expect(css).not.toMatch(/\.word-list\s*>\s*\.word-card\s+\.wc-sense-dot/u);
+  });
+
+  it('keeps cards static instead of applying hover motion', () => {
+    const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+
+    expect(css).not.toMatch(/\.word-list\s*>\s*\.word-card:hover/u);
+    expect(css).not.toMatch(/transition:\s*transform/u);
   });
 });
