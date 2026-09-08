@@ -1,4 +1,5 @@
 import '@/styles/word-cards.css';
+import '@/styles/word-card-interactions.css';
 
 import { source } from '@/lib/source';
 import { baseOptions } from '@/lib/layout.shared';

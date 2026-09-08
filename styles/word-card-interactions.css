@@ -1,0 +1,191 @@
+/* Interactive vocabulary controls layered on top of the base card stylesheet. */
+
+.wc-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin: 8px 0 14px;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.86rem;
+  line-height: 1;
+}
+
+.wc-mode-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wc-mode-segments {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--color-fd-border);
+  border-radius: 9px;
+  background: var(--color-fd-muted);
+}
+
+.wc-mode-button {
+  appearance: none;
+  min-width: 48px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-fd-muted-foreground);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.wc-mode-button:hover {
+  color: var(--color-fd-foreground);
+}
+
+.wc-mode-button[data-active='true'] {
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 9%);
+}
+
+.wc-mode-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-fd-foreground) 36%, transparent);
+  outline-offset: 2px;
+}
+
+/* Tooltips must be able to escape the rounded card bounds. */
+.word-list > .word-card {
+  overflow: visible;
+}
+
+.wc-example {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.wc-example + .wc-example {
+  margin-top: 3px;
+}
+
+.wc-example-trigger {
+  appearance: none;
+  display: inline;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--phrase-text) 38%, transparent);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: help;
+}
+
+.wc-example-trigger:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid color-mix(in srgb, var(--phrase-text) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.wc-example-tooltip {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  bottom: calc(100% + 7px);
+  width: max-content;
+  max-width: min(360px, calc(100vw - 56px));
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--meaning-text) 16%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card-bg) 90%, white);
+  color: var(--meaning-text);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 8%),
+    0 10px 28px rgb(0 0 0 / 8%);
+  font-style: normal;
+  font-weight: 560;
+  line-height: 1.45;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    visibility 120ms ease;
+}
+
+.wc-example:hover .wc-example-tooltip,
+.wc-example:focus-within .wc-example-tooltip,
+.wc-example[data-open='true'] .wc-example-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dark .wc-mode-button[data-active='true'] {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 6%),
+    0 1px 3px rgb(0 0 0 / 34%);
+}
+
+.dark .wc-example-tooltip {
+  border-color: rgb(255 255 255 / 10%);
+  background: color-mix(in srgb, var(--card-bg) 18%, #111);
+  color: #eef1ee;
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 28%),
+    0 12px 30px rgb(0 0 0 / 34%);
+}
+
+@media screen and (max-width: 760px) {
+  .wc-mode-toggle {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .wc-mode-button {
+    min-width: 44px;
+    padding-inline: 9px;
+  }
+
+  .wc-example-tooltip {
+    max-width: min(320px, calc(100vw - 40px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-mode-button,
+  .wc-example-tooltip {
+    transition: none;
+  }
+}
+
+@media print {
+  .wc-mode-toggle,
+  .wc-example-tooltip {
+    display: none !important;
+  }
+
+  .wc-example-trigger {
+    border-bottom: 0;
+    cursor: default;
+  }
+}

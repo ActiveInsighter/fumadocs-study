@@ -1,4 +1,12 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import {
+  createContext,
+  useContext,
+  useId,
+  useState,
+  type ReactNode,
+} from 'react';
 
 export type WordMeaning = {
   pos?: string;
@@ -8,10 +16,15 @@ export type WordMeaning = {
   phrase?: boolean;
 };
 
+export type WordExample = {
+  text: string;
+  translation: string;
+};
+
 export type WordSense = {
   gloss: string;
   count: number;
-  examples?: string[];
+  examples?: WordExample[];
   percentage?: number;
 };
 
@@ -24,10 +37,24 @@ export type WordCardData = {
   senses?: WordSense[];
 };
 
+export type WordCardMode = 'compact' | 'full';
+
 type WordCardsProps = {
   words: readonly WordCardData[];
   empty?: ReactNode;
 };
+
+type WordCardsProviderProps = {
+  children: ReactNode;
+  defaultMode?: WordCardMode;
+};
+
+type WordCardsContextValue = {
+  mode: WordCardMode;
+  setMode: (mode: WordCardMode) => void;
+};
+
+const WordCardsContext = createContext<WordCardsContextValue | null>(null);
 
 function clampPercentage(value: number) {
   if (!Number.isFinite(value)) return 0;
@@ -58,11 +85,84 @@ function MeaningText({ meaning }: { meaning: WordMeaning }) {
   return meaning.key ? <span className="wc-key">{content}</span> : content;
 }
 
+function SenseExample({ example }: { example: WordExample }) {
+  const tooltipId = useId();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="wc-example" data-open={open}>
+      <button
+        type="button"
+        className="wc-example-trigger"
+        aria-describedby={tooltipId}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        onBlur={() => setOpen(false)}
+      >
+        {example.text}
+      </button>
+      <span className="wc-example-tooltip" id={tooltipId} role="tooltip">
+        {example.translation}
+      </span>
+    </span>
+  );
+}
+
+export function WordCardsProvider({
+  children,
+  defaultMode = 'full',
+}: WordCardsProviderProps) {
+  const [mode, setMode] = useState<WordCardMode>(defaultMode);
+
+  return (
+    <WordCardsContext.Provider value={{ mode, setMode }}>
+      {children}
+    </WordCardsContext.Provider>
+  );
+}
+
+export function WordCardModeToggle() {
+  const context = useContext(WordCardsContext);
+  if (!context) return null;
+
+  return (
+    <div className="wc-mode-toggle" aria-label="词汇卡片显示模式">
+      <span className="wc-mode-label">显示模式</span>
+      <div className="wc-mode-segments" role="group" aria-label="切换词汇卡片显示模式">
+        {(
+          [
+            ['compact', '精简'],
+            ['full', '完整'],
+          ] as const
+        ).map(([mode, label]) => {
+          const active = context.mode === mode;
+
+          return (
+            <button
+              key={mode}
+              type="button"
+              className="wc-mode-button"
+              data-active={active}
+              aria-pressed={active}
+              onClick={() => context.setMode(mode)}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function WordCards({ words, empty = null }: WordCardsProps) {
+  const context = useContext(WordCardsContext);
+  const mode = context?.mode ?? 'full';
+
   if (words.length === 0) return empty;
 
   return (
-    <div className="word-list">
+    <div className="word-list" data-word-card-mode={mode}>
       {words.map((word, wordIndex) => {
         const frequencyLabel = getFrequencyLabel(word);
         const senseTotal = word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
@@ -88,7 +188,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
               ))}
             </div>
 
-            {word.senses?.length ? (
+            {mode === 'full' && word.senses?.length ? (
               <div className="wc-senses">
                 {word.senses.map((sense, senseIndex) => (
                   <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
@@ -104,7 +204,10 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                     {sense.examples?.length ? (
                       <div className="wc-sense-examples">
                         {sense.examples.map((example, exampleIndex) => (
-                          <div key={`${example}-${exampleIndex}`}>{example}</div>
+                          <SenseExample
+                            key={`${example.text}-${exampleIndex}`}
+                            example={example}
+                          />
                         ))}
                       </div>
                     ) : null}
