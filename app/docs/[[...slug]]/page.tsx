@@ -1,4 +1,5 @@
 import { getMDXComponents } from '@/components/mdx';
+import { WordCardsProvider } from '@/components/vocabulary/word-cards';
 import { source } from '@/lib/source';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -54,13 +55,15 @@ export default async function Page({ params }: PageParameters) {
           className="docs-page-action"
         />
       </div>
-      <DocsBody id="docs-body" className="pb-10 pt-4">
-        <MDX
-          components={getMDXComponents({
-            a: createRelativeLink(source, page),
-          })}
-        />
-      </DocsBody>
+      <WordCardsProvider>
+        <DocsBody id="docs-body" className="pb-10 pt-4">
+          <MDX
+            components={getMDXComponents({
+              a: createRelativeLink(source, page),
+            })}
+          />
+        </DocsBody>
+      </WordCardsProvider>
     </DocsPage>
   );
 }

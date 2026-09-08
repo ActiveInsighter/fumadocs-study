@@ -1,0 +1,12 @@
+---
+title: 词汇卡片测试
+description: 使用结构化测试数据验证单词卡片、义项占比、例句翻译、显示模式、长单词、卡片标签、短语与深色模式。
+---
+
+import demoWords from '../../../data/vocabulary/word-cards-demo.mjs';
+
+这是一页专门用于验证词汇卡片组件的测试数据。测试覆盖普通单词、多义项、自动占比、例句翻译、精简/完整模式、长单词、自定义卡片标签、语法搭配、无义项统计以及短语卡片。
+
+<WordCardModeToggle />
+
+<WordCards words={demoWords} />

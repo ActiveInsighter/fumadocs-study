@@ -1,0 +1,169 @@
+[
+  {
+    "word": "constitute",
+    "phonetic": "/ˈkɒnstɪtjuːt/",
+    "label": "考频 8",
+    "meanings": [
+      { "pos": "v.", "text": "构成；组成", "key": true },
+      { "pos": "v.", "text": "设立；成立" }
+    ],
+    "senses": [
+      {
+        "gloss": "构成；组成",
+        "count": 6,
+        "examples": [
+          {
+            "text": "Women constitute about half of the workforce.",
+            "translation": "女性约占劳动力的一半。"
+          }
+        ]
+      },
+      {
+        "gloss": "设立；成立",
+        "count": 2,
+        "examples": [
+          {
+            "text": "A new committee was constituted to review the plan.",
+            "translation": "一个新委员会被成立，用于审查该计划。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "word": "sustain",
+    "phonetic": "/səˈsteɪn/",
+    "label": "考频 11",
+    "meanings": [
+      { "pos": "v.", "text": "维持；使持续", "key": true },
+      { "pos": "v.", "text": "支撑；承受" }
+    ],
+    "senses": [
+      {
+        "gloss": "维持；使持续",
+        "count": 7,
+        "examples": [
+          {
+            "text": "The policy aims to sustain long-term economic growth.",
+            "translation": "该政策旨在维持长期经济增长。"
+          }
+        ]
+      },
+      {
+        "gloss": "支撑；承受",
+        "count": 3,
+        "examples": [
+          {
+            "text": "The bridge can sustain heavy loads.",
+            "translation": "这座桥能够承受重载。"
+          }
+        ]
+      },
+      {
+        "gloss": "遭受（伤害等）",
+        "count": 1,
+        "examples": [
+          {
+            "text": "The company sustained significant losses.",
+            "translation": "公司遭受了重大损失。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "word": "inevitable",
+    "phonetic": "/ɪnˈevɪtəbl/",
+    "label": "考频 5",
+    "meanings": [
+      { "pos": "adj.", "text": "不可避免的；必然发生的", "key": true }
+    ],
+    "senses": [
+      { "gloss": "不可避免的", "count": 4 },
+      { "gloss": "必然的结果", "count": 1 }
+    ]
+  },
+  {
+    "word": "counterintuitive",
+    "phonetic": "/ˌkaʊntərɪnˈtjuːɪtɪv/",
+    "label": "外刊 4",
+    "meanings": [
+      { "pos": "adj.", "text": "反直觉的；与通常判断相反的", "key": true }
+    ],
+    "senses": [
+      {
+        "gloss": "反直觉的",
+        "count": 4,
+        "examples": [
+          {
+            "text": "The result may seem counterintuitive at first.",
+            "translation": "这个结果乍看之下可能有悖直觉。"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "word": "derive",
+    "phonetic": "/dɪˈraɪv/",
+    "label": "考频 7",
+    "meanings": [
+      { "pos": "v.", "grammar": "derive A from B", "text": "从 B 中获得 A", "key": true },
+      { "pos": "v.", "text": "源自；起源于" }
+    ],
+    "senses": [
+      {
+        "gloss": "获得；取得",
+        "count": 5,
+        "examples": [
+          {
+            "text": "Many medicines are derived from plants.",
+            "translation": "许多药物来源于植物。"
+          }
+        ]
+      },
+      { "gloss": "源自；起源于", "count": 2 }
+    ]
+  },
+  {
+    "word": "resilience",
+    "phonetic": "/rɪˈzɪliəns/",
+    "label": "考频 6",
+    "meanings": [
+      { "pos": "n.", "text": "恢复力；韧性", "key": true },
+      { "pos": "n.", "text": "系统抵御冲击的能力" }
+    ],
+    "senses": [
+      { "gloss": "恢复力；韧性", "count": 5 },
+      { "gloss": "系统抗冲击能力", "count": 1 }
+    ]
+  },
+  {
+    "word": "notwithstanding",
+    "phonetic": "/ˌnɒtwɪθˈstændɪŋ/",
+    "label": "考频 3",
+    "meanings": [
+      { "pos": "prep.", "text": "尽管；虽然", "key": true },
+      { "pos": "adv.", "text": "不过；仍然" }
+    ]
+  },
+  {
+    "word": "in terms of",
+    "label": "短语 9",
+    "meanings": [
+      { "text": "就……而言；从……方面来看", "phrase": true, "key": true }
+    ],
+    "senses": [
+      {
+        "gloss": "就某方面而言",
+        "count": 9,
+        "examples": [
+          {
+            "text": "The two approaches differ greatly in terms of cost.",
+            "translation": "这两种方法在成本方面差异很大。"
+          }
+        ]
+      }
+    ]
+  }
+]

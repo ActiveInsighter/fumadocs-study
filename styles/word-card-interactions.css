@@ -1,0 +1,218 @@
+/* Interactive vocabulary controls layered on top of the base card stylesheet. */
+
+.wc-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  width: 100%;
+  margin: 8px 0 14px;
+  color: var(--color-fd-muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.wc-mode-label {
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.78;
+}
+
+.wc-mode-segments {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 2px;
+  border: 1px solid color-mix(in srgb, var(--color-fd-border) 82%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-fd-muted) 62%, transparent);
+}
+
+.wc-mode-button {
+  appearance: none;
+  min-width: 42px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-fd-muted-foreground);
+  font: inherit;
+  font-weight: 650;
+  line-height: 1.1;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.wc-mode-button:not([data-active='true']):hover {
+  background: color-mix(in srgb, var(--color-fd-background) 58%, transparent);
+  color: var(--color-fd-foreground);
+}
+
+.wc-mode-button[data-active='true'] {
+  background: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+  box-shadow: none;
+}
+
+.wc-mode-button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-fd-foreground) 36%, transparent);
+  outline-offset: 2px;
+}
+
+/* Tooltips must be able to escape the rounded card bounds. */
+.word-list > .word-card {
+  overflow: visible;
+}
+
+.wc-example {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.wc-example + .wc-example {
+  margin-top: 3px;
+}
+
+.wc-example-trigger {
+  appearance: none;
+  display: inline;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-decoration: underline dashed;
+  text-decoration-color: color-mix(in srgb, var(--phrase-text) 42%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  cursor: help;
+}
+
+.wc-example-trigger:focus-visible {
+  border-radius: 3px;
+  text-decoration-thickness: 2px;
+  outline: 2px solid color-mix(in srgb, var(--phrase-text) 34%, transparent);
+  outline-offset: 2px;
+}
+
+.wc-example-tooltip {
+  position: absolute;
+  z-index: 30;
+  inset-inline-start: 0;
+  bottom: calc(100% + 9px);
+  width: max-content;
+  max-width: min(360px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 8px 11px;
+  border: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
+  border-inline-start: 3px solid color-mix(in srgb, var(--phrase-text) 62%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--card-bg) 94%, white);
+  color: var(--meaning-text);
+  box-shadow:
+    0 5px 12px rgb(0 0 0 / 9%),
+    0 12px 24px rgb(0 0 0 / 7%);
+  font-size: 0.92em;
+  font-style: normal;
+  font-weight: 560;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(5px) scale(0.98);
+  transform-origin: bottom left;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    visibility 120ms ease;
+}
+
+.wc-example-tooltip::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 14px;
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  border-inline-end: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
+  background: color-mix(in srgb, var(--card-bg) 94%, white);
+  transform: rotate(45deg);
+}
+
+.wc-example:hover .wc-example-tooltip,
+.wc-example:focus-within .wc-example-tooltip,
+.wc-example[data-open='true'] .wc-example-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.dark .wc-mode-button[data-active='true'] {
+  background: color-mix(in srgb, var(--color-fd-background) 86%, white);
+  box-shadow: none;
+}
+
+.dark .wc-example-tooltip {
+  border-color: rgb(255 255 255 / 12%);
+  border-inline-start-color: color-mix(in srgb, var(--phrase-text) 72%, transparent);
+  background: color-mix(in srgb, var(--card-bg) 18%, #111);
+  color: #eef1ee;
+  box-shadow:
+    0 5px 12px rgb(0 0 0 / 28%),
+    0 12px 26px rgb(0 0 0 / 28%);
+}
+
+.dark .wc-example-tooltip::after {
+  border-color: rgb(255 255 255 / 12%);
+  border-top: 0;
+  border-inline-start: 0;
+  background: color-mix(in srgb, var(--card-bg) 18%, #111);
+}
+
+@media screen and (max-width: 760px) {
+  .wc-mode-toggle {
+    gap: 6px;
+  }
+
+  .wc-mode-button {
+    min-width: 40px;
+    padding-inline: 7px;
+  }
+
+  .wc-example-tooltip {
+    max-width: min(320px, calc(100vw - 32px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-mode-button,
+  .wc-example-tooltip {
+    transition: none;
+  }
+}
+
+@media print {
+  .wc-mode-toggle,
+  .wc-example-tooltip {
+    display: none !important;
+  }
+
+  .wc-example-trigger {
+    text-decoration: none;
+    cursor: default;
+  }
+}
