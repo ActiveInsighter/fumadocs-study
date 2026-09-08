@@ -40,6 +40,9 @@ export default async function Page({ params }: PageParameters) {
       <DocsDescription className="mb-1 font-normal">
         {page.data.description}
       </DocsDescription>
+      {data.lastModified && (
+        <PageLastUpdate date={data.lastModified} className="mb-3 mt-1" />
+      )}
       <div id="docs-page-actions" className="flex items-center gap-2 border-b pb-6 pt-2">
         <MarkdownCopyButton
           markdownUrl={markdownUrl}
@@ -58,7 +61,6 @@ export default async function Page({ params }: PageParameters) {
           })}
         />
       </DocsBody>
-      {data.lastModified && <PageLastUpdate date={data.lastModified} />}
     </DocsPage>
   );
 }
