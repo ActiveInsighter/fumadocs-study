@@ -102,7 +102,7 @@
   letter-spacing: 0.01em;
   opacity: 0.62;
 }
-.wc-freq,
+.wc-label,
 .wc-pos,
 .wc-key,
 .wc-gram {
@@ -111,7 +111,7 @@
   line-height: 1;
   vertical-align: middle;
 }
-.wc-freq {
+.wc-label {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;

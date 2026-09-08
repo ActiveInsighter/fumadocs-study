@@ -12,7 +12,7 @@ const words: WordCardData[] = [
   {
     word: 'constitute',
     phonetic: '/ˈkɒnstɪtjuːt/',
-    frequency: 8,
+    label: '考频 8',
     meanings: [
       { pos: 'v.', text: '构成；组成', key: true },
       { pos: 'v.', text: '设立；成立' },
@@ -33,7 +33,7 @@ const words: WordCardData[] = [
   },
   {
     word: 'notwithstanding',
-    frequencyLabel: '外刊 3',
+    label: '外刊 3',
     meanings: [{ pos: 'prep.', text: '尽管；虽然' }],
   },
   {
@@ -52,6 +52,7 @@ describe('WordCards', () => {
     expect(html).toContain('class="word-card"');
     expect(html).toContain('constitute');
     expect(html).toContain('考频 8');
+    expect(html).toContain('class="wc-label"');
     expect(html).toContain('75%');
     expect(html).toContain('25%');
     expect(html).toContain('Example sentence.');
@@ -189,7 +190,7 @@ describe('WordCards', () => {
     );
   });
 
-  it('wraps compact card headers before a long word can cover its frequency label', () => {
+  it('wraps compact card headers before a long word can cover its card label', () => {
     const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
 
     expect(css).toMatch(/\.wc-header\s*\{[^}]*flex-wrap:\s*wrap/u);

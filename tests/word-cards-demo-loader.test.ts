@@ -19,6 +19,18 @@ describe('word cards MDX data loader', () => {
     expect(words).toHaveLength(8);
     expect(words[0]?.word).toBe('constitute');
     expect(words.at(-1)?.word).toBe('in terms of');
+    expect(words[0]?.label).toBe('考频 8');
+    expect(words.at(-1)?.label).toBe('短语 9');
+    expect(
+      words.every((word) => {
+        const record = word as unknown as Record<string, unknown>;
+        return (
+          typeof word.label === 'string' &&
+          !('frequency' in record) &&
+          !('frequencyLabel' in record)
+        );
+      }),
+    ).toBe(true);
 
     const firstExample = words[0]?.senses?.[0]?.examples?.[0];
     expect(firstExample).toEqual({

@@ -31,8 +31,7 @@ export type WordSense = {
 export type WordCardData = {
   word: string;
   phonetic?: string;
-  frequency?: number;
-  frequencyLabel?: string;
+  label?: string;
   meanings: WordMeaning[];
   senses?: WordSense[];
 };
@@ -67,10 +66,9 @@ function getSensePercentage(sense: WordSense, total: number) {
   return clampPercentage((sense.count / total) * 100);
 }
 
-function getFrequencyLabel(word: WordCardData) {
-  if (word.frequencyLabel?.trim()) return word.frequencyLabel.trim();
-  if (word.frequency !== undefined) return `考频 ${word.frequency}`;
-  return null;
+function getWordLabel(word: WordCardData) {
+  const label = word.label?.trim();
+  return label || null;
 }
 
 function MeaningText({ meaning }: { meaning: WordMeaning }) {
@@ -165,7 +163,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
     <div className="word-list-shell">
       <div className="word-list" data-word-card-mode={mode}>
         {words.map((word, wordIndex) => {
-          const frequencyLabel = getFrequencyLabel(word);
+          const label = getWordLabel(word);
           const senseTotal =
             word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
 
@@ -177,7 +175,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                   {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
                 </div>
 
-                {frequencyLabel ? <span className="wc-freq">{frequencyLabel}</span> : null}
+                {label ? <span className="wc-label">{label}</span> : null}
               </div>
 
               <div className="wc-meaning">
