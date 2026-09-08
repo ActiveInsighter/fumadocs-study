@@ -1,0 +1,75 @@
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
+import { WordCards, type WordCardData } from '../components/vocabulary/word-cards';
+
+const words: WordCardData[] = [
+  {
+    word: 'constitute',
+    phonetic: '/ˈkɒnstɪtjuːt/',
+    frequency: 8,
+    meanings: [
+      { pos: 'v.', text: '构成；组成', key: true },
+      { pos: 'v.', text: '设立；成立' },
+    ],
+    senses: [
+      { gloss: '构成；组成', count: 6, examples: ['Example sentence.'] },
+      { gloss: '设立；成立', count: 2 },
+    ],
+  },
+  {
+    word: 'notwithstanding',
+    frequencyLabel: '外刊 3',
+    meanings: [{ pos: 'prep.', text: '尽管；虽然' }],
+  },
+  {
+    word: 'in terms of',
+    meanings: [{ text: '就……而言', phrase: true, key: true }],
+    senses: [{ gloss: '就某方面而言', count: 1, percentage: 120 }],
+  },
+];
+
+describe('WordCards', () => {
+  it('renders the vocabulary card structure and automatic sense percentages', () => {
+    const html = renderToStaticMarkup(<WordCards words={words} />);
+
+    expect(html).toContain('class="word-list"');
+    expect(html).toContain('class="word-card"');
+    expect(html).toContain('constitute');
+    expect(html).toContain('考频 8');
+    expect(html).toContain('75%');
+    expect(html).toContain('25%');
+    expect(html).toContain('Example sentence.');
+  });
+
+  it('supports custom labels, missing phonetics or senses, grammar and phrase styling', () => {
+    const html = renderToStaticMarkup(
+      <WordCards
+        words={[
+          ...words,
+          {
+            word: 'derive',
+            meanings: [
+              {
+                pos: 'v.',
+                grammar: 'derive A from B',
+                text: '从 B 中获得 A',
+                key: true,
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    expect(html).toContain('外刊 3');
+    expect(html).toContain('class="wc-phrase"');
+    expect(html).toContain('class="wc-gram"');
+    expect(html).toContain('derive A from B');
+    expect(html).toContain('100%');
+  });
+
+  it('returns the supplied empty state when there are no cards', () => {
+    const html = renderToStaticMarkup(<WordCards words={[]} empty={<span>暂无词汇</span>} />);
+    expect(html).toBe('<span>暂无词汇</span>');
+  });
+});
