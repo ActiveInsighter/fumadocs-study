@@ -90,6 +90,14 @@ async function prepareStage(stageRoot) {
     await copyProjectEntry(stageRoot, entry);
   }
 
+  // Fumadocs' lastModified plugin resolves timestamps from Git during Dynamic
+  // MDX compilation. The isolated static stage deliberately does not copy the
+  // repository history, so expose the original Git directory through the
+  // standard worktree pointer file instead. This keeps per-page timestamps
+  // accurate without duplicating the full .git directory into the build stage.
+  const gitDirectory = path.join(projectRoot, '.git').replaceAll('\\', '/');
+  await writeFile(path.join(stageRoot, '.git'), `gitdir: ${gitDirectory}\n`);
+
   await cp(
     path.join(projectRoot, 'scripts', 'static-root-layout.tsx'),
     path.join(stageRoot, 'app', 'layout.tsx'),
