@@ -1,0 +1,129 @@
+[
+  {
+    "word": "constitute",
+    "phonetic": "/ˈkɒnstɪtjuːt/",
+    "frequency": 8,
+    "meanings": [
+      { "pos": "v.", "text": "构成；组成", "key": true },
+      { "pos": "v.", "text": "设立；成立" }
+    ],
+    "senses": [
+      {
+        "gloss": "构成；组成",
+        "count": 6,
+        "examples": ["Women constitute about half of the workforce."]
+      },
+      {
+        "gloss": "设立；成立",
+        "count": 2,
+        "examples": ["A new committee was constituted to review the plan."]
+      }
+    ]
+  },
+  {
+    "word": "sustain",
+    "phonetic": "/səˈsteɪn/",
+    "frequency": 11,
+    "meanings": [
+      { "pos": "v.", "text": "维持；使持续", "key": true },
+      { "pos": "v.", "text": "支撑；承受" }
+    ],
+    "senses": [
+      {
+        "gloss": "维持；使持续",
+        "count": 7,
+        "examples": ["The policy aims to sustain long-term economic growth."]
+      },
+      {
+        "gloss": "支撑；承受",
+        "count": 3,
+        "examples": ["The bridge can sustain heavy loads."]
+      },
+      {
+        "gloss": "遭受（伤害等）",
+        "count": 1,
+        "examples": ["The company sustained significant losses."]
+      }
+    ]
+  },
+  {
+    "word": "inevitable",
+    "phonetic": "/ɪnˈevɪtəbl/",
+    "frequency": 5,
+    "meanings": [
+      { "pos": "adj.", "text": "不可避免的；必然发生的", "key": true }
+    ],
+    "senses": [
+      { "gloss": "不可避免的", "count": 4 },
+      { "gloss": "必然的结果", "count": 1 }
+    ]
+  },
+  {
+    "word": "counterintuitive",
+    "phonetic": "/ˌkaʊntərɪnˈtjuːɪtɪv/",
+    "frequencyLabel": "外刊 4",
+    "meanings": [
+      { "pos": "adj.", "text": "反直觉的；与通常判断相反的", "key": true }
+    ],
+    "senses": [
+      {
+        "gloss": "反直觉的",
+        "count": 4,
+        "examples": ["The result may seem counterintuitive at first."]
+      }
+    ]
+  },
+  {
+    "word": "derive",
+    "phonetic": "/dɪˈraɪv/",
+    "frequency": 7,
+    "meanings": [
+      { "pos": "v.", "grammar": "derive A from B", "text": "从 B 中获得 A", "key": true },
+      { "pos": "v.", "text": "源自；起源于" }
+    ],
+    "senses": [
+      {
+        "gloss": "获得；取得",
+        "count": 5,
+        "examples": ["Many medicines are derived from plants."]
+      },
+      { "gloss": "源自；起源于", "count": 2 }
+    ]
+  },
+  {
+    "word": "resilience",
+    "phonetic": "/rɪˈzɪliəns/",
+    "frequency": 6,
+    "meanings": [
+      { "pos": "n.", "text": "恢复力；韧性", "key": true },
+      { "pos": "n.", "text": "系统抵御冲击的能力" }
+    ],
+    "senses": [
+      { "gloss": "恢复力；韧性", "count": 5 },
+      { "gloss": "系统抗冲击能力", "count": 1 }
+    ]
+  },
+  {
+    "word": "notwithstanding",
+    "phonetic": "/ˌnɒtwɪθˈstændɪŋ/",
+    "frequency": 3,
+    "meanings": [
+      { "pos": "prep.", "text": "尽管；虽然", "key": true },
+      { "pos": "adv.", "text": "不过；仍然" }
+    ]
+  },
+  {
+    "word": "in terms of",
+    "frequencyLabel": "短语 9",
+    "meanings": [
+      { "text": "就……而言；从……方面来看", "phrase": true, "key": true }
+    ],
+    "senses": [
+      {
+        "gloss": "就某方面而言",
+        "count": 9,
+        "examples": ["The two approaches differ greatly in terms of cost."]
+      }
+    ]
+  }
+]
