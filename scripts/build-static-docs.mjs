@@ -19,6 +19,7 @@ const projectEntries = [
   'app',
   'components',
   'content',
+  'data',
   'lib',
   'public',
   'styles',
