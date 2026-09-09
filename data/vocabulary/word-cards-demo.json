@@ -2,7 +2,7 @@
   {
     "word": "constitute",
     "phonetic": "/ˈkɒnstɪtjuːt/",
-    "label": "考频 8",
+    "label": "重要性 8",
     "meanings": [
       { "pos": "v.", "text": "构成；组成", "key": true },
       { "pos": "v.", "text": "设立；成立" }

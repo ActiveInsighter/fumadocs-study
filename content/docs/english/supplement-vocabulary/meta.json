@@ -1,0 +1,11 @@
+{
+  "title": "其他词频词卡",
+  "description": "按重要性顺序整理的 410 张补充词卡。",
+  "pages": [
+    "index",
+    "module-01",
+    "module-02",
+    "module-03"
+  ],
+  "defaultOpen": false
+}

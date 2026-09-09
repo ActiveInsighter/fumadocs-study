@@ -17,6 +17,14 @@ describe('study module metadata structure', () => {
   const mathExamMeta = readJson(join(docsRoot, 'math', 'exam', 'meta.json'));
   const politicsMeta = readJson(join(docsRoot, 'politics', 'meta.json'));
   const examPoliticsMeta = readJson(join(docsRoot, 'politics', 'exam-politics', 'meta.json'));
+  const englishMeta = readJson(join(docsRoot, 'english', 'meta.json'));
+  const englishVocabularyMeta = readJson(
+    join(docsRoot, 'english', 'vocabulary', 'meta.json'),
+  );
+  const englishSupplementMeta = readJson(
+    join(docsRoot, 'english', 'supplement-vocabulary', 'meta.json'),
+  );
+  const englishPhraseMeta = readJson(join(docsRoot, 'english', 'phrases', 'meta.json'));
   const coursesMeta = readJson(join(docsRoot, '408', 'meta.json'));
   const coursesKnowledgeMeta = readJson(join(docsRoot, '408', 'knowledge', 'meta.json'));
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
@@ -80,5 +88,67 @@ describe('study module metadata structure', () => {
   it('keeps the politics module unchanged', () => {
     expect(politicsMeta.pages).toEqual(['index', 'exam-politics']);
     expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
+  });
+
+  it('organizes English vocabulary as a dedicated eight-part study path', () => {
+    expect(englishMeta.pages).toEqual([
+      'index',
+      'vocabulary',
+      'supplement-vocabulary',
+      'phrases',
+      'word-cards-demo',
+    ]);
+    expect(englishVocabularyMeta.pages).toEqual([
+      'index',
+      'module-01',
+      'module-02',
+      'module-03',
+      'module-04',
+      'module-05',
+      'module-06',
+      'module-07',
+      'module-08',
+    ]);
+  });
+
+  it('organizes additional English card sets into focused review paths', () => {
+    expect(englishSupplementMeta.pages).toEqual([
+      'index',
+      'module-01',
+      'module-02',
+      'module-03',
+    ]);
+    expect(englishPhraseMeta.pages).toEqual([
+      'index',
+      'module-01',
+      'module-02',
+      'module-03',
+      'module-04',
+    ]);
+  });
+
+  it('keeps vocabulary overview cards inside the vocabulary route', () => {
+    const vocabularyIndex = readFileSync(
+      join(docsRoot, 'english', 'vocabulary', 'index.mdx'),
+      'utf8',
+    );
+
+    expect(vocabularyIndex).toContain('href={`/docs/english/vocabulary/${module.slug}`}');
+    expect(vocabularyIndex).not.toContain('href={`./${module.slug}`}');
+  });
+
+  it('keeps additional card overview links inside their own routes', () => {
+    const supplementIndex = readFileSync(
+      join(docsRoot, 'english', 'supplement-vocabulary', 'index.mdx'),
+      'utf8',
+    );
+    const phraseIndex = readFileSync(join(docsRoot, 'english', 'phrases', 'index.mdx'), 'utf8');
+
+    expect(supplementIndex).toContain(
+      'href={`/docs/english/supplement-vocabulary/${module.slug}`}',
+    );
+    expect(phraseIndex).toContain('href={`/docs/english/phrases/${module.slug}`}');
+    expect(supplementIndex).not.toContain('href={`./${module.slug}`}');
+    expect(phraseIndex).not.toContain('href={`./${module.slug}`}');
   });
 });

@@ -1,0 +1,29 @@
+---
+title: 考研短语卡片
+description: 680 张结构化短语卡片，按重要性顺序拆成 4 个可复习单元。
+---
+
+import { phraseModules } from '../../../../data/vocabulary/phrase-cards.mjs';
+
+这组卡片集中整理考研英语中常见的固定搭配、句型和介词短语。短语会保留语法提示、中文释义、义项频次、例句与中文翻译，按原始重要性拆成 4 个单元。
+
+<Callout type="info" title="建议用法">
+  精简模式适合快速识别搭配；完整模式会展开语法提示、义项占比和例句。带颜色标记的短语释义用于提醒固定表达，不替代完整语境判断。
+</Callout>
+
+<Cards>
+  {phraseModules.map((module) => (
+    <Card
+      key={module.slug}
+      href={`/docs/english/phrases/${module.slug}`}
+      title={module.title}
+      description={module.description}
+    >
+      {module.count} 张卡片 · {module.firstWord} → {module.lastWord}
+    </Card>
+  ))}
+</Cards>
+
+## 复习路径
+
+按模块顺序复习即可从核心连接词和常见搭配开始，再覆盖阅读与写作中更灵活的短语组合；遇到不熟悉的表达时切换完整模式查看例句。
