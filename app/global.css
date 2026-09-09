@@ -229,13 +229,12 @@
   }
 
   /*
-   * Fumadocs Typography defaults to 16px. Chinese prose looks slightly smaller
-   * with the Inter/system-font combination, so the documentation body is set
-   * to 17px with a relaxed line height.
+   * Keep documentation prose readable without making the vertical rhythm too
+   * loose. Headings below intentionally use a restrained scale for dense notes.
    */
   #docs-body {
-    font-size: 1.0625rem;
-    line-height: 1.85;
+    font-size: 1.125rem;
+    line-height: 1.7;
   }
 
   #docs-body :where(p, li, blockquote) {
@@ -248,12 +247,44 @@
     text-wrap: balance;
   }
 
+  #docs-body :where(h1) {
+    margin-bottom: 0.75em;
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  #docs-body :where(h2) {
+    margin-top: 1.6em;
+    margin-bottom: 0.8em;
+    font-size: 1.5rem;
+    line-height: 1.35;
+  }
+
+  #docs-body :where(h3) {
+    margin-top: 1.35em;
+    margin-bottom: 0.55em;
+    font-size: 1.25rem;
+    line-height: 1.45;
+  }
+
+  #docs-body :where(h4, h5, h6) {
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+
   #docs-body :where(h2, h3, h4, h5, h6) {
     scroll-margin-top: 6rem;
   }
 
   #docs-body :where(p, li) {
     text-wrap: pretty;
+  }
+
+  #docs-page-title {
+    font-size: 1.75rem;
+    line-height: 1.25;
   }
 }
 

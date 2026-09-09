@@ -1,0 +1,12 @@
+{
+  "title": "短语卡片",
+  "description": "按重要性顺序整理的 680 张考研英语短语卡片。",
+  "pages": [
+    "index",
+    "module-01",
+    "module-02",
+    "module-03",
+    "module-04"
+  ],
+  "defaultOpen": false
+}

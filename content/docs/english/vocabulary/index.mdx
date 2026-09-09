@@ -1,0 +1,31 @@
+---
+title: 考研英语词卡
+description: 1,779 张结构化词卡，按重要性顺序拆成 8 个可复习单元。
+---
+
+import { kaoyanWordModules } from '../../../../data/vocabulary/kaoyan-word-cards.mjs';
+
+这套词卡来自四份互不重复的 JSON 导出。数据按重要性从高到低合并，保留每个单词的音标、词性释义、义项频次、例句与中文翻译；每个单元控制在约 225 张卡片，方便分次复习和定位。
+
+<Callout type="info" title="建议用法">
+  精简模式适合第一次扫读；完整模式会展开义项占比和例句。把鼠标移到例句上，或用键盘聚焦例句，即可查看中文翻译。
+</Callout>
+
+<Cards>
+  {kaoyanWordModules.map((module) => (
+    <Card
+      key={module.slug}
+      href={`/docs/english/vocabulary/${module.slug}`}
+      title={module.title}
+      description={module.description}
+    >
+      {module.count} 张卡片 · {module.firstWord} → {module.lastWord}
+    </Card>
+  ))}
+</Cards>
+
+## 复习路径
+
+按模块顺序学习即可保持原始重要性梯度：先掌握高频核心词，再用中频和低频单元补齐阅读、翻译与写作中的词义覆盖。完整模式中的“次数”和百分比来自原始义项统计，只用于提示语境权重，不替代具体语境判断。
+
+每个模块页顶部都提供“精简 / 完整”切换，切换会作用于当前页面的全部词卡。

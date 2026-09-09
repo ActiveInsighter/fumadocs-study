@@ -4,6 +4,9 @@
   "root": true,
   "pages": [
     "index",
+    "vocabulary",
+    "supplement-vocabulary",
+    "phrases",
     "word-cards-demo"
   ]
 }
