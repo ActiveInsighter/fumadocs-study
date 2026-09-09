@@ -1,3 +1,4 @@
+import './docs-typography.css';
 import '@/styles/word-cards.css';
 import '@/styles/word-card-interactions.css';
 
