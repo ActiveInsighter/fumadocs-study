@@ -1,12 +1,14 @@
 /* Interactive vocabulary controls layered on top of the base card stylesheet. */
 
 .wc-mode-toggle {
+  --wc-control-accent: #7c8a6a;
+  --wc-control-accent-ink: #f6f7f1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 7px;
+  gap: 10px;
   width: 100%;
-  margin: 8px 0 14px;
+  margin: 8px 0 18px;
   color: var(--color-fd-muted-foreground);
   font-size: 0.78rem;
   line-height: 1.2;
@@ -21,19 +23,19 @@
 .wc-mode-segments {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
-  padding: 2px;
-  border: 1px solid color-mix(in srgb, var(--color-fd-border) 82%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--color-fd-muted) 62%, transparent);
+  gap: 2px;
+  padding: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fd-foreground) 7%, transparent);
 }
 
 .wc-mode-button {
   appearance: none;
   min-width: 42px;
-  padding: 5px 8px;
+  padding: 7px 14px;
   border: 0;
-  border-radius: 5px;
+  border-radius: 999px;
   background: transparent;
   color: var(--color-fd-muted-foreground);
   font: inherit;
@@ -51,8 +53,8 @@
 }
 
 .wc-mode-button[data-active='true'] {
-  background: var(--color-fd-background);
-  color: var(--color-fd-foreground);
+  background: var(--wc-control-accent);
+  color: var(--wc-control-accent-ink);
   box-shadow: none;
 }
 
@@ -110,7 +112,7 @@
   position: absolute;
   z-index: 30;
   inset-inline-start: 0;
-  bottom: calc(100% + 9px);
+  top: calc(100% + 6px);
   width: max-content;
   max-width: min(360px, calc(100vw - 32px));
   box-sizing: border-box;
@@ -131,8 +133,8 @@
   white-space: normal;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(5px) scale(0.98);
-  transform-origin: bottom left;
+  transform: translateY(-3px) scale(0.98);
+  transform-origin: top left;
   pointer-events: none;
   transition:
     opacity 120ms ease,
@@ -144,11 +146,11 @@
   content: '';
   position: absolute;
   inset-inline-start: 14px;
-  bottom: -5px;
+  top: -5px;
   width: 8px;
   height: 8px;
-  border-inline-end: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
+  border-inline-start: 1px solid color-mix(in srgb, var(--meaning-text) 18%, transparent);
   background: color-mix(in srgb, var(--card-bg) 94%, white);
   transform: rotate(45deg);
 }
@@ -162,7 +164,8 @@
 }
 
 .dark .wc-mode-button[data-active='true'] {
-  background: color-mix(in srgb, var(--color-fd-background) 86%, white);
+  background: #b9c6a4;
+  color: #1d211b;
   box-shadow: none;
 }
 
@@ -178,8 +181,8 @@
 
 .dark .wc-example-tooltip::after {
   border-color: rgb(255 255 255 / 12%);
-  border-top: 0;
-  border-inline-start: 0;
+  border-inline-end: 0;
+  border-bottom: 0;
   background: color-mix(in srgb, var(--card-bg) 18%, #111);
 }
 
@@ -190,7 +193,7 @@
 
   .wc-mode-button {
     min-width: 40px;
-    padding-inline: 7px;
+    padding-inline: 10px;
   }
 
   .wc-example-tooltip {

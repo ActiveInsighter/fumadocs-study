@@ -81,10 +81,41 @@ describe('WordCards', () => {
     );
 
     expect(html).toContain('外刊 3');
-    expect(html).toContain('class="wc-phrase"');
+    expect(html).toContain('class="wc-text wc-key wc-phrase"');
     expect(html).toContain('class="wc-gram"');
     expect(html).toContain('derive A from B');
     expect(html).toContain('100%');
+  });
+
+  it('groups meanings into scannable rows and marks phrase cards', () => {
+    const html = renderToStaticMarkup(<WordCards words={words} />);
+
+    expect(html).toContain('class="word-card has-phrase"');
+    expect(html).toContain('class="wc-meaning-item is-key is-phrase"');
+    expect(html).toContain('class="wc-text wc-key wc-phrase"');
+    expect(html.match(/class="wc-meaning-item/gu)).toHaveLength(4);
+  });
+
+  it('renders a visual sense bar and a clear empty-example state', () => {
+    const html = renderToStaticMarkup(
+      <WordCards
+        words={[
+          {
+            word: 'abandon',
+            meanings: [{ pos: 'v.', text: '放弃', key: true }],
+            senses: [
+              { gloss: '停止做某事', count: 3 },
+              { gloss: '遗弃', count: 1, examples: [] },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    expect(html).toContain('class="wc-bar"');
+    expect(html).toContain('class="wc-bar-fill"');
+    expect(html).toContain('style="width:75%"');
+    expect(html).toContain('暂无例句');
   });
 
   it('returns the supplied empty state when there are no cards', () => {
@@ -167,26 +198,26 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-example-tooltip::after\s*\{/u);
   });
 
-  it('turns compact cards into an adaptive capped waterfall layout', () => {
+  it('turns compact cards into an adaptive two-or-three-column grid', () => {
     const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
 
     expect(css).toMatch(
       /\.word-list-shell\s*\{[^}]*container:\s*word-cards\s*\/\s*inline-size/u,
     );
     expect(css).toMatch(
-      /\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*column-count:\s*2/u,
+      /\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*display:\s*grid/u,
     );
     expect(css).toMatch(
-      /@container\s+word-cards\s*\(min-width:\s*1440px\)[\s\S]*?column-count:\s*3/u,
+      /\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*1fr\)/u,
     );
     expect(css).toMatch(
-      /@media\s+screen\s+and\s*\(min-width:\s*1920px\)[\s\S]*?column-count:\s*3/u,
+      /@container\s+word-cards\s*\(min-width:\s*1440px\)[\s\S]*?grid-template-columns:\s*repeat\(3,\s*1fr\)/u,
     );
     expect(css).toMatch(
-      /\.word-list\[data-word-card-mode='compact'\]\s*>\s*\.word-card\s*\{[^}]*display:\s*inline-flex/u,
+      /@media\s+screen\s+and\s*\(max-width:\s*760px\)[\s\S]*?grid-template-columns:\s*1fr/u,
     );
     expect(css).toMatch(
-      /\.word-list\[data-word-card-mode='compact'\]\s*>\s*\.word-card\s*\{[^}]*break-inside:\s*avoid/u,
+      /\.word-list\[data-word-card-mode='compact'\]\s+\.word-card\s*\{[^}]*margin-bottom:\s*0/u,
     );
   });
 

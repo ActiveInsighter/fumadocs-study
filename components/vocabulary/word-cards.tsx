@@ -72,15 +72,17 @@ function getWordLabel(word: WordCardData) {
 }
 
 function MeaningText({ meaning }: { meaning: WordMeaning }) {
-  const content = (
+  return (
     <>
       {meaning.grammar ? <span className="wc-gram">{meaning.grammar}</span> : null}
       {meaning.grammar ? ' ' : null}
-      {meaning.phrase ? <span className="wc-phrase">{meaning.text}</span> : meaning.text}
+      <span
+        className={`wc-text${meaning.key ? ' wc-key' : ''}${meaning.phrase ? ' wc-phrase' : ''}`}
+      >
+        {meaning.text}
+      </span>
     </>
   );
-
-  return meaning.key ? <span className="wc-key">{content}</span> : content;
 }
 
 function SenseExample({ example }: { example: WordExample }) {
@@ -164,11 +166,16 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
       <div className="word-list" data-word-card-mode={mode}>
         {words.map((word, wordIndex) => {
           const label = getWordLabel(word);
+          const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
           const senseTotal =
             word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
 
           return (
-            <article className="word-card" key={`${word.word}-${wordIndex}`} data-word={word.word}>
+            <article
+              className={`word-card${hasPhrase ? ' has-phrase' : ''}`}
+              key={`${word.word}-${wordIndex}`}
+              data-word={word.word}
+            >
               <div className="wc-header">
                 <div className="wc-title">
                   <span className="wc-word">{word.word}</span>
@@ -180,41 +187,57 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
 
               <div className="wc-meaning">
                 {word.meanings.map((meaning, meaningIndex) => (
-                  <span key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}>
+                  <div
+                    className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${
+                      meaning.phrase ? ' is-phrase' : ''
+                    }`}
+                    key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
+                  >
                     {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
                     <MeaningText meaning={meaning} />
-                    {meaningIndex < word.meanings.length - 1 ? '；' : null}
-                  </span>
+                  </div>
                 ))}
               </div>
 
               {mode === 'full' && word.senses?.length ? (
                 <div className="wc-senses">
-                  {word.senses.map((sense, senseIndex) => (
-                    <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
-                      <div className="wc-sense-row">
-                        <span className="wc-sense-dot" aria-hidden="true" />
-                        <span className="wc-sense-gloss">
-                          {sense.gloss}
-                          <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
-                        </span>
-                        <span className="wc-sense-pct">
-                          {getSensePercentage(sense, senseTotal)}%
-                        </span>
-                      </div>
+                  {word.senses.map((sense, senseIndex) => {
+                    const percentage = getSensePercentage(sense, senseTotal);
 
-                      {sense.examples?.length ? (
-                        <div className="wc-sense-examples">
-                          {sense.examples.map((example, exampleIndex) => (
-                            <SenseExample
-                              key={`${example.text}-${exampleIndex}`}
-                              example={example}
-                            />
-                          ))}
+                    return (
+                      <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
+                        <div className="wc-sense-main">
+                          <div className="wc-sense-row">
+                            <span className="wc-sense-dot" aria-hidden="true" />
+                            <span className="wc-sense-gloss">{sense.gloss}</span>
+                          </div>
+                          <div className="wc-stats">
+                            <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
+                            <span className="wc-bar" aria-hidden="true">
+                              <span
+                                className="wc-bar-fill"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </span>
+                            <span className="wc-sense-pct">{percentage}%</span>
+                          </div>
                         </div>
-                      ) : null}
-                    </div>
-                  ))}
+
+                        <div className="wc-sense-examples">
+                          {sense.examples?.length ? (
+                            sense.examples.map((example, exampleIndex) => (
+                              <SenseExample
+                                key={`${example.text}-${exampleIndex}`}
+                                example={example}
+                              />
+                            ))
+                          ) : (
+                            <span className="wc-no-example">暂无例句</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
             </article>
