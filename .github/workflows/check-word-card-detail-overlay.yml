@@ -1,0 +1,59 @@
+name: Check word card detail overlay
+
+on:
+  push:
+    branches:
+      - codex/word-card-detail-overlay
+    paths:
+      - 'components/vocabulary/word-cards.tsx'
+      - 'styles/word-cards.css'
+      - 'styles/word-card-interactions.css'
+      - 'tests/word-cards.test.tsx'
+      - '.github/workflows/check-word-card-detail-overlay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Test and typecheck overlay
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Restore dependencies
+        id: node-modules-cache
+        uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node22-modules-v1-${{ hashFiles('package-lock.json') }}
+
+      - name: Restore npm cache
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-v1-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Refresh generated source
+        run: npm run postinstall
+
+      - name: Run word-card tests
+        run: npm test -- tests/word-cards.test.tsx
+
+      - name: Typecheck
+        run: npm run typecheck
