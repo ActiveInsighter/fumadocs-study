@@ -142,7 +142,9 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       const rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
       const height = card.getBoundingClientRect().height;
       const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
-      card.style.gridRowEnd = `span ${span}`;
+      const nextValue = `span ${span}`;
+
+      if (card.style.gridRowEnd !== nextValue) card.style.gridRowEnd = nextValue;
     };
 
     const measureAll = () => {
