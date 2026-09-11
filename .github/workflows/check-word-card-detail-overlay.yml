@@ -57,7 +57,7 @@ jobs:
 
       - name: Typecheck word-card component
         run: >-
-          npx tsc --noEmit --skipLibCheck
+          npx tsc --ignoreConfig --noEmit --skipLibCheck
           --jsx react-jsx
           --module preserve
           --moduleResolution bundler
