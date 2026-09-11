@@ -222,6 +222,7 @@ describe('WordCards', () => {
     expect(css).not.toMatch(/grid-auto-flow:\s*dense/u);
     expect(component).toContain('new ResizeObserver');
     expect(component).toContain('card.style.gridRowEnd = nextValue');
+    expect(component).toContain('const scheduleMeasureAll = () =>');
     expect(component).toContain("list.setAttribute('data-masonry-ready', 'true')");
     expect(css).toMatch(
       /@container\s+word-cards\s*\(min-width:\s*1440px\)[\s\S]*?grid-template-columns:\s*repeat\(3,\s*1fr\)/u,
