@@ -116,6 +116,27 @@ describe('WordCards', () => {
     expect(html).toContain('构成；组成');
   });
 
+  it('adds a detail button only to compact cards', () => {
+    const compactHtml = renderToStaticMarkup(
+      <WordCardsProvider defaultMode="compact">
+        <WordCards words={words.slice(0, 1)} />
+      </WordCardsProvider>,
+    );
+    const fullHtml = renderToStaticMarkup(<WordCards words={words.slice(0, 1)} />);
+    expect(compactHtml).toContain('class="wc-expand-button"');
+    expect(compactHtml).toContain('aria-label="查看 constitute 完整卡片"');
+    expect(fullHtml).not.toContain('class="wc-expand-button"');
+  });
+
+  it('implements the compact detail view as a native modal dialog with focus return and scroll locking', () => {
+    const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
+    expect(component).toContain('<dialog');
+    expect(component).toContain('dialog.showModal()');
+    expect(component).toContain("document.body.style.overflow = 'hidden'");
+    expect(component).toContain('triggerRef.current?.focus()');
+    expect(component).toContain('showSenses />');
+  });
+
   it('renders a shared compact/full segmented control from the provider state', () => {
     const html = renderToStaticMarkup(
       <WordCardsProvider>
@@ -152,6 +173,15 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-example:focus-within\s+\.wc-example-tooltip/u);
     expect(css).toMatch(/\.wc-example\[data-open='true'\]\s+\.wc-example-tooltip/u);
     expect(css).toMatch(/\.wc-mode-button\[data-active='true'\]/u);
+  });
+
+  it('styles the detail overlay, backdrop and keyboard focus states', () => {
+    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*position:\s*fixed/u);
+    expect(css).toMatch(/\.wc-detail-dialog::backdrop\s*\{/u);
+    expect(css).toMatch(/\.wc-detail-dialog:not\(\[open\]\)\s*\{[^}]*display:\s*none/u);
+    expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
+    expect(css).toMatch(/\.wc-detail-close:focus-visible/u);
   });
 
   it('keeps the mode control compact and gives the example tooltip a clear anchor', () => {
