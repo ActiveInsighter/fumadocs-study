@@ -319,12 +319,21 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
     if (!selectedWord || mode !== 'compact') return;
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+
+    const body = document.body;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarWidth = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+    const bodyPaddingRight = Number.parseFloat(window.getComputedStyle(body).paddingRight) || 0;
+
+    body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
     if (!dialog.open) dialog.showModal();
+
     return () => {
-      document.body.style.overflow = previousOverflow;
       if (dialog.open) dialog.close();
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
     };
   }, [mode, selectedWord]);
 
@@ -336,11 +345,18 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
 
   const handleDialogClose = () => {
     setSelectedWord(null);
-    window.requestAnimationFrame(() => triggerRef.current?.focus());
+    window.requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }));
   };
 
   const handleDialogBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) event.currentTarget.close();
+    if (event.target !== event.currentTarget) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clickedBackdrop =
+      event.clientX < rect.left ||
+      event.clientX > rect.right ||
+      event.clientY < rect.top ||
+      event.clientY > rect.bottom;
+    if (clickedBackdrop) event.currentTarget.close();
   };
 
   return (
@@ -390,16 +406,21 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
           onClose={handleDialogClose}
           onClick={handleDialogBackdropClick}
         >
-          <button
-            type="button"
-            className="wc-detail-close"
-            aria-label="关闭完整词汇卡片"
-            title="关闭"
-            onClick={() => dialogRef.current?.close()}
-          >
-            <CloseIcon />
-          </button>
-          <WordCardContent word={selectedWord.word} showSenses />
+          <WordCardContent
+            word={selectedWord.word}
+            showSenses
+            headerAction={
+              <button
+                type="button"
+                className="wc-detail-close"
+                aria-label="关闭完整词汇卡片"
+                title="关闭"
+                onClick={() => dialogRef.current?.close()}
+              >
+                <CloseIcon />
+              </button>
+            }
+          />
         </dialog>
       ) : null}
     </div>
