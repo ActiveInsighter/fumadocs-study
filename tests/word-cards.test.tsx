@@ -21,18 +21,12 @@ const words: WordCardData[] = [
       {
         gloss: '构成；组成',
         count: 6,
-        examples: [
-          { text: 'Example sentence.', translation: '示例句子的翻译。' },
-        ],
+        examples: [{ text: 'Example sentence.', translation: '示例句子的翻译。' }],
       },
       { gloss: '设立；成立', count: 2 },
     ],
   },
-  {
-    word: 'notwithstanding',
-    label: '外刊 3',
-    meanings: [{ pos: 'prep.', text: '尽管；虽然' }],
-  },
+  { word: 'notwithstanding', label: '外刊 3', meanings: [{ pos: 'prep.', text: '尽管；虽然' }] },
   {
     word: 'in terms of',
     meanings: [{ text: '就……而言', phrase: true, key: true }],
@@ -63,14 +57,7 @@ describe('WordCards', () => {
           ...words,
           {
             word: 'derive',
-            meanings: [
-              {
-                pos: 'v.',
-                grammar: 'derive A from B',
-                text: '从 B 中获得 A',
-                key: true,
-              },
-            ],
+            meanings: [{ pos: 'v.', grammar: 'derive A from B', text: '从 B 中获得 A', key: true }],
           },
         ]}
       />,
@@ -112,8 +99,7 @@ describe('WordCards', () => {
   });
 
   it('returns the supplied empty state when there are no cards', () => {
-    const html = renderToStaticMarkup(<WordCards words={[]} empty={<span>暂无词汇</span>} />);
-    expect(html).toBe('<span>暂无词汇</span>');
+    expect(renderToStaticMarkup(<WordCards words={[]} empty={<span>暂无词汇</span>} />)).toBe('<span>暂无词汇</span>');
   });
 
   it('applies compact mode to every WordCards instance inside the page provider', () => {
