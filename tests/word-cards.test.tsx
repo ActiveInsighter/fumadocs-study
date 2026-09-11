@@ -132,9 +132,13 @@ describe('WordCards', () => {
     const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
     expect(component).toContain('<dialog');
     expect(component).toContain('dialog.showModal()');
-    expect(component).toContain("document.body.style.overflow = 'hidden'");
-    expect(component).toContain('triggerRef.current?.focus()');
-    expect(component).toContain('showSenses />');
+    expect(component).toContain("body.style.overflow = 'hidden'");
+    expect(component).toContain('window.innerWidth - document.documentElement.clientWidth');
+    expect(component).toContain('body.style.paddingRight');
+    expect(component).toContain('focus({ preventScroll: true })');
+    expect(component).toContain('getBoundingClientRect()');
+    expect(component).toContain('className="wc-detail-close"');
+    expect(component).toContain('showSenses');
   });
 
   it('renders a shared compact/full segmented control from the provider state', () => {
@@ -178,10 +182,20 @@ describe('WordCards', () => {
   it('styles the detail overlay, backdrop and keyboard focus states', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*position:\s*fixed/u);
+    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*width:\s*min\(820px/u);
     expect(css).toMatch(/\.wc-detail-dialog::backdrop\s*\{/u);
     expect(css).toMatch(/\.wc-detail-dialog:not\(\[open\]\)\s*\{[^}]*display:\s*none/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
     expect(css).toMatch(/\.wc-detail-close:focus-visible/u);
+  });
+
+  it('keeps long detail cards scrollable without exposing a scrollbar gutter', () => {
+    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*overflow-y:\s*auto/u);
+    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*scrollbar-width:\s*none/u);
+    expect(css).toMatch(/\.wc-detail-dialog::-webkit-scrollbar\s*\{[^}]*width:\s*0/u);
+    expect(css).not.toMatch(/scrollbar-gutter:\s*stable/u);
+    expect(css).toMatch(/@keyframes\s+wc-detail-enter/u);
   });
 
   it('keeps the mode control compact and gives the example tooltip a clear anchor', () => {
