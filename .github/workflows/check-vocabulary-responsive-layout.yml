@@ -4,12 +4,6 @@ on:
   push:
     branches:
       - codex/vocabulary-responsive-layout
-    paths:
-      - 'app/docs/[[...slug]]/page.tsx'
-      - 'app/docs/layout.tsx'
-      - 'styles/vocabulary-responsive-layout.css'
-      - 'tests/vocabulary-responsive-layout.test.ts'
-      - '.github/workflows/check-vocabulary-responsive-layout.yml'
   workflow_dispatch:
 
 permissions:
