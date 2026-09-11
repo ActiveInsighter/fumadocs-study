@@ -78,9 +78,7 @@ function MeaningText({ meaning }: { meaning: WordMeaning }) {
     <>
       {meaning.grammar ? <span className="wc-gram">{meaning.grammar}</span> : null}
       {meaning.grammar ? ' ' : null}
-      <span
-        className={`wc-text${meaning.key ? ' wc-key' : ''}${meaning.phrase ? ' wc-phrase' : ''}`}
-      >
+      <span className={`wc-text${meaning.key ? ' wc-key' : ''}${meaning.phrase ? ' wc-phrase' : ''}`}>
         {meaning.text}
       </span>
     </>
@@ -192,10 +190,7 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
   return listRef;
 }
 
-export function WordCardsProvider({
-  children,
-  defaultMode = 'full',
-}: WordCardsProviderProps) {
+export function WordCardsProvider({ children, defaultMode = 'full' }: WordCardsProviderProps) {
   const [mode, setMode] = useState<WordCardMode>(defaultMode);
   return <WordCardsContext.Provider value={{ mode, setMode }}>{children}</WordCardsContext.Provider>;
 }
@@ -208,12 +203,7 @@ export function WordCardModeToggle() {
     <div className="wc-mode-toggle" aria-label="词汇卡片显示模式">
       <span className="wc-mode-label">显示模式</span>
       <div className="wc-mode-segments" role="group" aria-label="切换词汇卡片显示模式">
-        {(
-          [
-            ['compact', '精简'],
-            ['full', '完整'],
-          ] as const
-        ).map(([mode, label]) => {
+        {([['compact', '精简'], ['full', '完整']] as const).map(([mode, label]) => {
           const active = context.mode === mode;
           return (
             <button
@@ -245,8 +235,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
         {words.map((word, wordIndex) => {
           const label = getWordLabel(word);
           const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
-          const senseTotal =
-            word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
+          const senseTotal = word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
 
           return (
             <article
@@ -265,9 +254,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
               <div className="wc-meaning">
                 {word.meanings.map((meaning, meaningIndex) => (
                   <div
-                    className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${
-                      meaning.phrase ? ' is-phrase' : ''
-                    }`}
+                    className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${meaning.phrase ? ' is-phrase' : ''}`}
                     key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
                   >
                     {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
@@ -299,10 +286,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                         <div className="wc-sense-examples">
                           {sense.examples?.length ? (
                             sense.examples.map((example, exampleIndex) => (
-                              <SenseExample
-                                key={`${example.text}-${exampleIndex}`}
-                                example={example}
-                              />
+                              <SenseExample key={`${example.text}-${exampleIndex}`} example={example} />
                             ))
                           ) : (
                             <span className="wc-no-example">暂无例句</span>
