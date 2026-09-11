@@ -1,0 +1,99 @@
+/* Vocabulary pages use the full docs column and let card width drive column count. */
+
+.vocabulary-docs-body {
+  max-width: none;
+}
+
+.vocabulary-docs-body > p {
+  max-width: 900px;
+}
+
+.vocabulary-docs-body .wc-mode-toggle,
+.vocabulary-docs-body .word-list-shell {
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+}
+
+.vocabulary-docs-body .word-list-shell {
+  padding: 24px 0 96px;
+}
+
+.vocabulary-docs-body .word-list[data-word-card-mode='compact'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  column-gap: 16px;
+}
+
+.vocabulary-docs-body .word-list[data-word-card-mode='compact'][data-masonry-ready='true'] {
+  column-gap: 16px;
+}
+
+.vocabulary-docs-body .word-list:not([data-word-card-mode='compact']) {
+  max-width: 900px;
+}
+
+.vocabulary-docs-body .word-list[data-word-card-mode='compact'] .wc-word {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+/* Let the detail card grow to its content before falling back to viewport scrolling. */
+.wc-detail-dialog {
+  width: fit-content;
+  min-width: min(620px, calc(100vw - 32px));
+  max-width: min(980px, calc(100vw - 32px));
+  max-height: calc(100dvh - 20px);
+  padding: 22px 26px 24px;
+}
+
+.wc-detail-dialog .wc-title {
+  flex-basis: 260px;
+}
+
+.wc-detail-dialog .wc-word {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+@media screen and (max-width: 980px) {
+  .vocabulary-docs-body .word-list[data-word-card-mode='compact'] {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  }
+
+  .wc-detail-dialog {
+    min-width: min(560px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 16px);
+    padding: 20px 22px 22px;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .vocabulary-docs-body .word-list-shell {
+    padding: 18px 0 64px;
+  }
+
+  .vocabulary-docs-body .word-list[data-word-card-mode='compact'] {
+    grid-template-columns: 1fr;
+  }
+
+  .wc-detail-dialog {
+    width: calc(100vw - 12px);
+    min-width: 0;
+    max-width: calc(100vw - 12px);
+    max-height: calc(100dvh - 12px);
+    padding: 17px 16px 19px;
+  }
+
+  .wc-detail-dialog .wc-title {
+    flex-basis: 180px;
+  }
+}
+
+@media print {
+  .vocabulary-docs-body .word-list-shell {
+    max-width: none;
+    padding: 0;
+  }
+}

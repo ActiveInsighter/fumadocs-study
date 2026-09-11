@@ -34,9 +34,11 @@ export default async function Page({ params }: PageParameters) {
   const data = await page.data.load();
   const MDX = data.body;
   const markdownUrl = `${page.url}.md`;
+  const isVocabularyPage = page.path.startsWith('english/vocabulary/');
+  const useFullPage = Boolean(page.data.full) || isVocabularyPage;
 
   return (
-    <DocsPage toc={data.toc} full={page.data.full}>
+    <DocsPage toc={data.toc} full={useFullPage}>
       <DocsTitle className="docs-page-title font-medium">{page.data.title}</DocsTitle>
       <DocsDescription className="mb-1 font-normal">
         {page.data.description}
@@ -56,7 +58,10 @@ export default async function Page({ params }: PageParameters) {
         />
       </div>
       <WordCardsProvider>
-        <DocsBody id="docs-body" className="pb-10 pt-4">
+        <DocsBody
+          id="docs-body"
+          className={`pb-10 pt-4${isVocabularyPage ? ' vocabulary-docs-body' : ''}`}
+        >
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(source, page),
