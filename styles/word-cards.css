@@ -38,7 +38,7 @@
   break-inside: avoid;
 }
 
-.word-list > .word-card {
+.word-card {
   --wc-body-font:
     "HarmonyOS Sans SC", "MiSans", "Noto Sans SC", "Source Han Sans SC",
     "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
@@ -102,6 +102,13 @@
   flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
+}
+
+.wc-card-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .wc-word {
@@ -355,43 +362,50 @@
   opacity: 0.7;
 }
 
-.word-list > .word-card:nth-of-type(7n + 1) {
+.word-list > .word-card:nth-of-type(7n + 1),
+.word-card[data-tone='1'] {
   --wc-surface: #dfe9dc;
   --wc-accent: #6d866e;
   --wc-ink: #34473a;
 }
 
-.word-list > .word-card:nth-of-type(7n + 2) {
+.word-list > .word-card:nth-of-type(7n + 2),
+.word-card[data-tone='2'] {
   --wc-surface: #eadfd4;
   --wc-accent: #8a6f59;
   --wc-ink: #4a3b31;
 }
 
-.word-list > .word-card:nth-of-type(7n + 3) {
+.word-list > .word-card:nth-of-type(7n + 3),
+.word-card[data-tone='3'] {
   --wc-surface: #eadbdf;
   --wc-accent: #8d6875;
   --wc-ink: #4b373e;
 }
 
-.word-list > .word-card:nth-of-type(7n + 4) {
+.word-list > .word-card:nth-of-type(7n + 4),
+.word-card[data-tone='4'] {
   --wc-surface: #d7e5eb;
   --wc-accent: #607f8d;
   --wc-ink: #304751;
 }
 
-.word-list > .word-card:nth-of-type(7n + 5) {
+.word-list > .word-card:nth-of-type(7n + 5),
+.word-card[data-tone='5'] {
   --wc-surface: #e1dbe8;
   --wc-accent: #756686;
   --wc-ink: #40374c;
 }
 
-.word-list > .word-card:nth-of-type(7n + 6) {
+.word-list > .word-card:nth-of-type(7n + 6),
+.word-card[data-tone='6'] {
   --wc-surface: #ebe3d2;
   --wc-accent: #87704d;
   --wc-ink: #493e30;
 }
 
-.word-list > .word-card:nth-of-type(7n + 7) {
+.word-list > .word-card:nth-of-type(7n + 7),
+.word-card[data-tone='7'] {
   --wc-surface: #dae3c9;
   --wc-accent: #71844f;
   --wc-ink: #3d4b30;
@@ -480,7 +494,7 @@
   }
 }
 
-.dark .word-list > .word-card {
+.dark .word-card {
   background: color-mix(in srgb, var(--wc-surface) 17%, #050505);
   --freq-bg: color-mix(in srgb, var(--wc-accent) 20%, #111);
   --freq-text: color-mix(in srgb, var(--wc-accent) 42%, #eef2ee);

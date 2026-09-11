@@ -63,6 +63,100 @@
   outline-offset: 2px;
 }
 
+.wc-expand-button,
+.wc-detail-close {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--wc-accent) 12%, transparent);
+  color: color-mix(in srgb, var(--wc-accent) 60%, var(--wc-ink));
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+.wc-expand-button svg,
+.wc-detail-close svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wc-expand-button:hover,
+.wc-detail-close:hover {
+  background: color-mix(in srgb, var(--wc-accent) 20%, transparent);
+  color: var(--wc-ink);
+}
+
+.wc-expand-button:hover {
+  transform: scale(1.04);
+}
+
+.wc-expand-button:focus-visible,
+.wc-detail-close:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--wc-accent) 56%, transparent);
+  outline-offset: 2px;
+}
+
+.wc-detail-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(760px, calc(100vw - 32px));
+  max-width: 760px;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 20px 22px 22px;
+  border: 0;
+  border-radius: 18px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  box-shadow:
+    0 24px 64px rgb(0 0 0 / 24%),
+    0 8px 24px rgb(0 0 0 / 14%);
+}
+
+.wc-detail-dialog:not([open]) {
+  display: none;
+}
+
+.wc-detail-dialog[open] {
+  display: flex;
+}
+
+.wc-detail-dialog::backdrop {
+  background: rgb(15 18 16 / 48%);
+  backdrop-filter: blur(3px);
+}
+
+.wc-detail-dialog .wc-header {
+  padding-inline-end: 38px;
+}
+
+.wc-detail-close {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  width: 32px;
+  height: 32px;
+  background: color-mix(in srgb, var(--wc-accent) 14%, var(--wc-surface));
+}
+
 /* Tooltips must be able to escape the rounded card bounds. */
 .word-list > .word-card {
   overflow: visible;
@@ -169,6 +263,22 @@
   box-shadow: none;
 }
 
+.dark .wc-expand-button,
+.dark .wc-detail-close {
+  background: color-mix(in srgb, var(--wc-accent) 18%, #111);
+  color: color-mix(in srgb, var(--wc-accent) 38%, #eef2ee);
+}
+
+.dark .wc-expand-button:hover,
+.dark .wc-detail-close:hover {
+  background: color-mix(in srgb, var(--wc-accent) 26%, #151515);
+  color: #f3f5f3;
+}
+
+.dark .wc-detail-dialog::backdrop {
+  background: rgb(0 0 0 / 64%);
+}
+
 .dark .wc-example-tooltip {
   border-color: rgb(255 255 255 / 12%);
   border-inline-start-color: color-mix(in srgb, var(--phrase-text) 72%, transparent);
@@ -196,6 +306,27 @@
     padding-inline: 10px;
   }
 
+  .wc-expand-button {
+    width: 29px;
+    height: 29px;
+  }
+
+  .wc-detail-dialog {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 20px);
+    padding: 17px 16px 19px;
+    border-radius: 16px;
+  }
+
+  .wc-detail-dialog .wc-header {
+    padding-inline-end: 34px;
+  }
+
+  .wc-detail-close {
+    inset-block-start: 10px;
+    inset-inline-end: 10px;
+  }
+
   .wc-example-tooltip {
     max-width: min(320px, calc(100vw - 32px));
   }
@@ -203,6 +334,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .wc-mode-button,
+  .wc-expand-button,
+  .wc-detail-close,
   .wc-example-tooltip {
     transition: none;
   }
@@ -210,6 +343,8 @@
 
 @media print {
   .wc-mode-toggle,
+  .wc-expand-button,
+  .wc-detail-dialog,
   .wc-example-tooltip {
     display: none !important;
   }
