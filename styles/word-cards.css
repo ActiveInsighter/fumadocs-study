@@ -48,7 +48,6 @@
   --wc-phonetic-font:
     "Gentium Plus", "Charis SIL", "Doulos SIL", "Cambria", "Segoe UI", serif;
 
-  /* Three theme tokens drive every card surface and accent treatment. */
   --wc-surface: #dfe9dc;
   --wc-accent: #6d866e;
   --wc-ink: #34473a;
@@ -474,7 +473,6 @@
   }
 }
 
-/* Fumadocs dark-mode bridge: preserve each card hue while keeping a near-black surface. */
 .dark .word-list > .word-card {
   background: color-mix(in srgb, var(--wc-surface) 17%, #050505);
   --freq-bg: color-mix(in srgb, var(--wc-accent) 20%, #111);
