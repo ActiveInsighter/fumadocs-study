@@ -7,6 +7,7 @@ import {
   useId,
   useRef,
   useState,
+  type MouseEvent,
   type ReactNode,
 } from 'react';
 
@@ -53,6 +54,11 @@ type WordCardsProviderProps = {
 type WordCardsContextValue = {
   mode: WordCardMode;
   setMode: (mode: WordCardMode) => void;
+};
+
+type SelectedWord = {
+  word: WordCardData;
+  index: number;
 };
 
 const WordCardsContext = createContext<WordCardsContextValue | null>(null);
@@ -104,6 +110,95 @@ function SenseExample({ example }: { example: WordExample }) {
         {example.translation}
       </span>
     </span>
+  );
+}
+
+function WordCardContent({
+  word,
+  showSenses,
+  headerAction,
+}: {
+  word: WordCardData;
+  showSenses: boolean;
+  headerAction?: ReactNode;
+}) {
+  const label = getWordLabel(word);
+  const senseTotal = word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
+  return (
+    <>
+      <div className="wc-header">
+        <div className="wc-title">
+          <span className="wc-word">{word.word}</span>
+          {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
+        </div>
+        {label || headerAction ? (
+          <div className="wc-card-actions">
+            {label ? <span className="wc-label">{label}</span> : null}
+            {headerAction}
+          </div>
+        ) : null}
+      </div>
+      <div className="wc-meaning">
+        {word.meanings.map((meaning, meaningIndex) => (
+          <div
+            className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${meaning.phrase ? ' is-phrase' : ''}`}
+            key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
+          >
+            {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
+            <MeaningText meaning={meaning} />
+          </div>
+        ))}
+      </div>
+      {showSenses && word.senses?.length ? (
+        <div className="wc-senses">
+          {word.senses.map((sense, senseIndex) => {
+            const percentage = getSensePercentage(sense, senseTotal);
+            return (
+              <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
+                <div className="wc-sense-main">
+                  <div className="wc-sense-row">
+                    <span className="wc-sense-dot" aria-hidden="true" />
+                    <span className="wc-sense-gloss">{sense.gloss}</span>
+                  </div>
+                  <div className="wc-stats">
+                    <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
+                    <span className="wc-bar" aria-hidden="true">
+                      <span className="wc-bar-fill" style={{ width: `${percentage}%` }} />
+                    </span>
+                    <span className="wc-sense-pct">{percentage}%</span>
+                  </div>
+                </div>
+                <div className="wc-sense-examples">
+                  {sense.examples?.length ? (
+                    sense.examples.map((example, exampleIndex) => (
+                      <SenseExample key={`${example.text}-${exampleIndex}`} example={example} />
+                    ))
+                  ) : (
+                    <span className="wc-no-example">暂无例句</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function ExpandIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
   );
 }
 
@@ -216,71 +311,97 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
   const context = useContext(WordCardsContext);
   const mode = context?.mode ?? 'full';
   const listRef = useCompactMasonry(mode, words.length);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [selectedWord, setSelectedWord] = useState<SelectedWord | null>(null);
+
+  useEffect(() => {
+    if (!selectedWord || mode !== 'compact') return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    if (!dialog.open) dialog.showModal();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (dialog.open) dialog.close();
+    };
+  }, [mode, selectedWord]);
+
+  useEffect(() => {
+    if (mode !== 'compact' && selectedWord) setSelectedWord(null);
+  }, [mode, selectedWord]);
+
   if (words.length === 0) return empty;
+
+  const handleDialogClose = () => {
+    setSelectedWord(null);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+
+  const handleDialogBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
+    if (event.target === event.currentTarget) event.currentTarget.close();
+  };
+
   return (
     <div className="word-list-shell">
       <div ref={listRef} className="word-list" data-word-card-mode={mode}>
         {words.map((word, wordIndex) => {
-          const label = getWordLabel(word);
           const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
-          const senseTotal = word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
+          const tone = (wordIndex % 7) + 1;
           return (
-            <article className={`word-card${hasPhrase ? ' has-phrase' : ''}`} key={`${word.word}-${wordIndex}`} data-word={word.word}>
-              <div className="wc-header">
-                <div className="wc-title">
-                  <span className="wc-word">{word.word}</span>
-                  {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
-                </div>
-                {label ? <span className="wc-label">{label}</span> : null}
-              </div>
-              <div className="wc-meaning">
-                {word.meanings.map((meaning, meaningIndex) => (
-                  <div
-                    className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${meaning.phrase ? ' is-phrase' : ''}`}
-                    key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
-                  >
-                    {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
-                    <MeaningText meaning={meaning} />
-                  </div>
-                ))}
-              </div>
-              {mode === 'full' && word.senses?.length ? (
-                <div className="wc-senses">
-                  {word.senses.map((sense, senseIndex) => {
-                    const percentage = getSensePercentage(sense, senseTotal);
-                    return (
-                      <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
-                        <div className="wc-sense-main">
-                          <div className="wc-sense-row">
-                            <span className="wc-sense-dot" aria-hidden="true" />
-                            <span className="wc-sense-gloss">{sense.gloss}</span>
-                          </div>
-                          <div className="wc-stats">
-                            <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
-                            <span className="wc-bar" aria-hidden="true">
-                              <span className="wc-bar-fill" style={{ width: `${percentage}%` }} />
-                            </span>
-                            <span className="wc-sense-pct">{percentage}%</span>
-                          </div>
-                        </div>
-                        <div className="wc-sense-examples">
-                          {sense.examples?.length ? (
-                            sense.examples.map((example, exampleIndex) => (
-                              <SenseExample key={`${example.text}-${exampleIndex}`} example={example} />
-                            ))
-                          ) : (
-                            <span className="wc-no-example">暂无例句</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
+            <article
+              className={`word-card${hasPhrase ? ' has-phrase' : ''}`}
+              key={`${word.word}-${wordIndex}`}
+              data-word={word.word}
+              data-tone={tone}
+            >
+              <WordCardContent
+                word={word}
+                showSenses={mode === 'full'}
+                headerAction={
+                  mode === 'compact' ? (
+                    <button
+                      type="button"
+                      className="wc-expand-button"
+                      aria-label={`查看 ${word.word} 完整卡片`}
+                      title="查看完整卡片"
+                      onClick={(event) => {
+                        triggerRef.current = event.currentTarget;
+                        setSelectedWord({ word, index: wordIndex });
+                      }}
+                    >
+                      <ExpandIcon />
+                    </button>
+                  ) : null
+                }
+              />
             </article>
           );
         })}
       </div>
+      {mode === 'compact' && selectedWord ? (
+        <dialog
+          ref={dialogRef}
+          className={`word-card wc-detail-dialog${selectedWord.word.meanings.some((meaning) => meaning.phrase) ? ' has-phrase' : ''}`}
+          data-word={selectedWord.word.word}
+          data-tone={(selectedWord.index % 7) + 1}
+          aria-label={`${selectedWord.word.word} 完整词汇卡片`}
+          onClose={handleDialogClose}
+          onClick={handleDialogBackdropClick}
+        >
+          <button
+            type="button"
+            className="wc-detail-close"
+            aria-label="关闭完整词汇卡片"
+            title="关闭"
+            onClick={() => dialogRef.current?.close()}
+          >
+            <CloseIcon />
+          </button>
+          <WordCardContent word={selectedWord.word} showSenses />
+        </dialog>
+      ) : null}
     </div>
   );
 }
