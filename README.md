@@ -11,10 +11,6 @@ npm run dev
 
 Open `http://localhost:3000/docs`.
 
-## Vocabulary cards
-
-Compact vocabulary-card mode uses an adaptive masonry grid on multi-column layouts. Each card keeps its natural content height and receives a measured grid-row span through `ResizeObserver`; the implementation intentionally avoids `grid-auto-flow: dense` so the visual flow does not backfill earlier gaps out of source order. Single-column mobile layouts fall back to the ordinary document flow.
-
 ## ZBSearch
 
 Documentation search uses Fumadocs' built-in ZBSearch engine and remains fully
