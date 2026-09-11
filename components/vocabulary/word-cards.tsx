@@ -163,12 +163,16 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       list.setAttribute('data-masonry-ready', 'true');
     };
 
-    frame = window.requestAnimationFrame(measureAll);
+    const scheduleMeasureAll = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(measureAll);
+    };
+
+    scheduleMeasureAll();
 
     const observer = new ResizeObserver((entries) => {
       if (entries.some((entry) => entry.target === list)) {
-        window.cancelAnimationFrame(frame);
-        frame = window.requestAnimationFrame(measureAll);
+        scheduleMeasureAll();
         return;
       }
 
