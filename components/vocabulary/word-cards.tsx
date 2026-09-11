@@ -3,7 +3,9 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useId,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -108,6 +110,79 @@ function SenseExample({ example }: { example: WordExample }) {
   );
 }
 
+function getGridColumnCount(element: HTMLElement) {
+  const columns = getComputedStyle(element).gridTemplateColumns.trim();
+  if (!columns || columns === 'none') return 1;
+  return columns.split(/\s+/u).filter(Boolean).length;
+}
+
+function useCompactMasonry(mode: WordCardMode, wordCount: number) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    const cards = Array.from(list.querySelectorAll<HTMLElement>(':scope > .word-card'));
+    let frame = 0;
+
+    const reset = () => {
+      list.removeAttribute('data-masonry-ready');
+      for (const card of cards) card.style.removeProperty('grid-row-end');
+    };
+
+    if (mode !== 'compact' || cards.length === 0) {
+      reset();
+      return;
+    }
+
+    const measureCard = (card: HTMLElement) => {
+      const style = getComputedStyle(list);
+      const rowSize = Number.parseFloat(style.getPropertyValue('--wc-masonry-row')) || 2;
+      const rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
+      const height = card.getBoundingClientRect().height;
+      const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
+      card.style.gridRowEnd = `span ${span}`;
+    };
+
+    const measureAll = () => {
+      if (getGridColumnCount(list) <= 1) {
+        reset();
+        return;
+      }
+
+      for (const card of cards) measureCard(card);
+      list.setAttribute('data-masonry-ready', 'true');
+    };
+
+    frame = window.requestAnimationFrame(measureAll);
+
+    const observer = new ResizeObserver((entries) => {
+      if (entries.some((entry) => entry.target === list)) {
+        window.cancelAnimationFrame(frame);
+        frame = window.requestAnimationFrame(measureAll);
+        return;
+      }
+
+      if (!list.hasAttribute('data-masonry-ready')) return;
+      for (const entry of entries) {
+        if (entry.target instanceof HTMLElement) measureCard(entry.target);
+      }
+    });
+
+    observer.observe(list);
+    for (const card of cards) observer.observe(card);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+      reset();
+    };
+  }, [mode, wordCount]);
+
+  return listRef;
+}
+
 export function WordCardsProvider({
   children,
   defaultMode = 'full',
@@ -158,12 +233,13 @@ export function WordCardModeToggle() {
 export function WordCards({ words, empty = null }: WordCardsProps) {
   const context = useContext(WordCardsContext);
   const mode = context?.mode ?? 'full';
+  const listRef = useCompactMasonry(mode, words.length);
 
   if (words.length === 0) return empty;
 
   return (
     <div className="word-list-shell">
-      <div className="word-list" data-word-card-mode={mode}>
+      <div ref={listRef} className="word-list" data-word-card-mode={mode}>
         {words.map((word, wordIndex) => {
           const label = getWordLabel(word);
           const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
