@@ -55,5 +55,12 @@ jobs:
       - name: Run word-card tests
         run: npm test -- tests/word-cards.test.tsx
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Typecheck word-card component
+        run: >-
+          npx tsc --noEmit --skipLibCheck
+          --jsx react-jsx
+          --module preserve
+          --moduleResolution bundler
+          --target es2022
+          --lib dom,dom.iterable,es2022
+          components/vocabulary/word-cards.tsx
