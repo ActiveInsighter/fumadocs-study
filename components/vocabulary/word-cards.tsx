@@ -125,6 +125,8 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
 
     const cards = Array.from(list.querySelectorAll<HTMLElement>(':scope > .word-card'));
     let frame = 0;
+    let rowSize = 2;
+    let rowGap = 10;
 
     const reset = () => {
       list.removeAttribute('data-masonry-ready');
@@ -136,10 +138,13 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       return;
     }
 
-    const measureCard = (card: HTMLElement) => {
+    const refreshMetrics = () => {
       const style = getComputedStyle(list);
-      const rowSize = Number.parseFloat(style.getPropertyValue('--wc-masonry-row')) || 2;
-      const rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
+      rowSize = Number.parseFloat(style.getPropertyValue('--wc-masonry-row')) || 2;
+      rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
+    };
+
+    const measureCard = (card: HTMLElement) => {
       const height = card.getBoundingClientRect().height;
       const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
       const nextValue = `span ${span}`;
@@ -153,6 +158,7 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
         return;
       }
 
+      refreshMetrics();
       for (const card of cards) measureCard(card);
       list.setAttribute('data-masonry-ready', 'true');
     };
