@@ -50,7 +50,7 @@ jobs:
         run: npm test -- tests/word-cards.test.tsx tests/word-card-study-modes.test.tsx tests/vocabulary-responsive-layout.test.ts
 
       - name: Check vocabulary component TypeScript
-        run: npx tsc --noEmit --jsx preserve --module nodenext --moduleResolution nodenext --target es2022 --lib dom,dom.iterable,es2022 --allowSyntheticDefaultImports --esModuleInterop --skipLibCheck --strict components/vocabulary/word-cards.tsx
+        run: npx tsc --noEmit --ignoreConfig --jsx react-jsx --module esnext --moduleResolution bundler --target es2022 --lib dom,dom.iterable,es2022 --allowSyntheticDefaultImports --esModuleInterop --skipLibCheck --strict components/vocabulary/word-cards.tsx
 
       - name: Build static documentation package
         run: npm run build:static-docs
