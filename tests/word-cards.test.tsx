@@ -198,8 +198,12 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-example-tooltip::after\s*\{/u);
   });
 
-  it('turns compact cards into an adaptive two-or-three-column grid', () => {
+  it('turns compact cards into an adaptive two-or-three-column masonry grid', () => {
     const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+    const component = readFileSync(
+      new URL('../components/vocabulary/word-cards.tsx', import.meta.url),
+      'utf8',
+    );
 
     expect(css).toMatch(
       /\.word-list-shell\s*\{[^}]*container:\s*word-cards\s*\/\s*inline-size/u,
@@ -210,6 +214,15 @@ describe('WordCards', () => {
     expect(css).toMatch(
       /\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*1fr\)/u,
     );
+    expect(css).toMatch(/--wc-masonry-row:\s*2px/u);
+    expect(css).toMatch(/--wc-masonry-gap:\s*10px/u);
+    expect(css).toMatch(
+      /\.word-list\[data-word-card-mode='compact'\]\[data-masonry-ready='true'\]\s*\{[^}]*grid-auto-rows:\s*var\(--wc-masonry-row\)/u,
+    );
+    expect(css).not.toMatch(/grid-auto-flow:\s*dense/u);
+    expect(component).toContain('new ResizeObserver');
+    expect(component).toContain("card.style.gridRowEnd = `span ${span}`");
+    expect(component).toContain("list.setAttribute('data-masonry-ready', 'true')");
     expect(css).toMatch(
       /@container\s+word-cards\s*\(min-width:\s*1440px\)[\s\S]*?grid-template-columns:\s*repeat\(3,\s*1fr\)/u,
     );
