@@ -88,7 +88,6 @@ function MeaningText({ meaning }: { meaning: WordMeaning }) {
 function SenseExample({ example }: { example: WordExample }) {
   const tooltipId = useId();
   const [open, setOpen] = useState(false);
-
   return (
     <span className="wc-example" data-open={open}>
       <button
@@ -116,11 +115,9 @@ function getGridColumnCount(element: HTMLElement) {
 
 function useCompactMasonry(mode: WordCardMode, wordCount: number) {
   const listRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
-
     const cards = Array.from(list.querySelectorAll<HTMLElement>(':scope > .word-card'));
     let frame = 0;
     let rowSize = 2;
@@ -130,7 +127,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       list.removeAttribute('data-masonry-ready');
       for (const card of cards) card.style.removeProperty('grid-row-end');
     };
-
     if (mode !== 'compact' || cards.length === 0) {
       reset();
       return;
@@ -141,14 +137,12 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       rowSize = Number.parseFloat(style.getPropertyValue('--wc-masonry-row')) || 2;
       rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
     };
-
     const measureCard = (card: HTMLElement) => {
       const height = card.getBoundingClientRect().height;
       const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
       const nextValue = `span ${span}`;
       if (card.style.gridRowEnd !== nextValue) card.style.gridRowEnd = nextValue;
     };
-
     const measureAll = () => {
       if (getGridColumnCount(list) <= 1) {
         reset();
@@ -158,14 +152,12 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       for (const card of cards) measureCard(card);
       list.setAttribute('data-masonry-ready', 'true');
     };
-
     const scheduleMeasureAll = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(measureAll);
     };
 
     scheduleMeasureAll();
-
     const observer = new ResizeObserver((entries) => {
       if (entries.some((entry) => entry.target === list)) {
         scheduleMeasureAll();
@@ -176,7 +168,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
         if (entry.target instanceof HTMLElement) measureCard(entry.target);
       }
     });
-
     observer.observe(list);
     for (const card of cards) observer.observe(card);
 
@@ -186,7 +177,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       reset();
     };
   }, [mode, wordCount]);
-
   return listRef;
 }
 
@@ -198,7 +188,6 @@ export function WordCardsProvider({ children, defaultMode = 'full' }: WordCardsP
 export function WordCardModeToggle() {
   const context = useContext(WordCardsContext);
   if (!context) return null;
-
   return (
     <div className="wc-mode-toggle" aria-label="词汇卡片显示模式">
       <span className="wc-mode-label">显示模式</span>
@@ -228,7 +217,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
   const mode = context?.mode ?? 'full';
   const listRef = useCompactMasonry(mode, words.length);
   if (words.length === 0) return empty;
-
   return (
     <div className="word-list-shell">
       <div ref={listRef} className="word-list" data-word-card-mode={mode}>
@@ -236,13 +224,8 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
           const label = getWordLabel(word);
           const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
           const senseTotal = word.senses?.reduce((sum, sense) => sum + Math.max(0, sense.count), 0) ?? 0;
-
           return (
-            <article
-              className={`word-card${hasPhrase ? ' has-phrase' : ''}`}
-              key={`${word.word}-${wordIndex}`}
-              data-word={word.word}
-            >
+            <article className={`word-card${hasPhrase ? ' has-phrase' : ''}`} key={`${word.word}-${wordIndex}`} data-word={word.word}>
               <div className="wc-header">
                 <div className="wc-title">
                   <span className="wc-word">{word.word}</span>
@@ -250,7 +233,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                 </div>
                 {label ? <span className="wc-label">{label}</span> : null}
               </div>
-
               <div className="wc-meaning">
                 {word.meanings.map((meaning, meaningIndex) => (
                   <div
@@ -262,7 +244,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                   </div>
                 ))}
               </div>
-
               {mode === 'full' && word.senses?.length ? (
                 <div className="wc-senses">
                   {word.senses.map((sense, senseIndex) => {
@@ -282,7 +263,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                             <span className="wc-sense-pct">{percentage}%</span>
                           </div>
                         </div>
-
                         <div className="wc-sense-examples">
                           {sense.examples?.length ? (
                             sense.examples.map((example, exampleIndex) => (
