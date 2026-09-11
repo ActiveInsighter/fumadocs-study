@@ -148,7 +148,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       const height = card.getBoundingClientRect().height;
       const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
       const nextValue = `span ${span}`;
-
       if (card.style.gridRowEnd !== nextValue) card.style.gridRowEnd = nextValue;
     };
 
@@ -157,7 +156,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
         reset();
         return;
       }
-
       refreshMetrics();
       for (const card of cards) measureCard(card);
       list.setAttribute('data-masonry-ready', 'true');
@@ -175,7 +173,6 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
         scheduleMeasureAll();
         return;
       }
-
       if (!list.hasAttribute('data-masonry-ready')) return;
       for (const entry of entries) {
         if (entry.target instanceof HTMLElement) measureCard(entry.target);
@@ -200,12 +197,7 @@ export function WordCardsProvider({
   defaultMode = 'full',
 }: WordCardsProviderProps) {
   const [mode, setMode] = useState<WordCardMode>(defaultMode);
-
-  return (
-    <WordCardsContext.Provider value={{ mode, setMode }}>
-      {children}
-    </WordCardsContext.Provider>
-  );
+  return <WordCardsContext.Provider value={{ mode, setMode }}>{children}</WordCardsContext.Provider>;
 }
 
 export function WordCardModeToggle() {
@@ -223,7 +215,6 @@ export function WordCardModeToggle() {
           ] as const
         ).map(([mode, label]) => {
           const active = context.mode === mode;
-
           return (
             <button
               key={mode}
@@ -246,7 +237,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
   const context = useContext(WordCardsContext);
   const mode = context?.mode ?? 'full';
   const listRef = useCompactMasonry(mode, words.length);
-
   if (words.length === 0) return empty;
 
   return (
@@ -269,7 +259,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                   <span className="wc-word">{word.word}</span>
                   {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
                 </div>
-
                 {label ? <span className="wc-label">{label}</span> : null}
               </div>
 
@@ -291,7 +280,6 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                 <div className="wc-senses">
                   {word.senses.map((sense, senseIndex) => {
                     const percentage = getSensePercentage(sense, senseTotal);
-
                     return (
                       <div className="wc-sense" key={`${sense.gloss}-${senseIndex}`}>
                         <div className="wc-sense-main">
@@ -302,10 +290,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                           <div className="wc-stats">
                             <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
                             <span className="wc-bar" aria-hidden="true">
-                              <span
-                                className="wc-bar-fill"
-                                style={{ width: `${percentage}%` }}
-                              />
+                              <span className="wc-bar-fill" style={{ width: `${percentage}%` }} />
                             </span>
                             <span className="wc-sense-pct">{percentage}%</span>
                           </div>
