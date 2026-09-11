@@ -39,7 +39,7 @@ export type WordCardData = {
   senses?: WordSense[];
 };
 
-export type WordCardMode = 'compact' | 'full';
+export type WordCardMode = 'compact' | 'dictation' | 'translation' | 'full';
 
 type WordCardsProps = {
   words: readonly WordCardData[];
@@ -116,10 +116,14 @@ function SenseExample({ example }: { example: WordExample }) {
 function WordCardContent({
   word,
   showSenses,
+  hideHeadword = false,
+  hideMeanings = false,
   headerAction,
 }: {
   word: WordCardData;
   showSenses: boolean;
+  hideHeadword?: boolean;
+  hideMeanings?: boolean;
   headerAction?: ReactNode;
 }) {
   const label = getWordLabel(word);
@@ -128,8 +132,14 @@ function WordCardContent({
     <>
       <div className="wc-header">
         <div className="wc-title">
-          <span className="wc-word">{word.word}</span>
-          {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
+          {hideHeadword ? (
+            <span className="wc-recall-blank" role="img" aria-label="单词和音标已隐藏" />
+          ) : (
+            <>
+              <span className="wc-word">{word.word}</span>
+              {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
+            </>
+          )}
         </div>
         {label || headerAction ? (
           <div className="wc-card-actions">
@@ -138,17 +148,19 @@ function WordCardContent({
           </div>
         ) : null}
       </div>
-      <div className="wc-meaning">
-        {word.meanings.map((meaning, meaningIndex) => (
-          <div
-            className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${meaning.phrase ? ' is-phrase' : ''}`}
-            key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
-          >
-            {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
-            <MeaningText meaning={meaning} />
-          </div>
-        ))}
-      </div>
+      {!hideMeanings ? (
+        <div className="wc-meaning">
+          {word.meanings.map((meaning, meaningIndex) => (
+            <div
+              className={`wc-meaning-item${meaning.key ? ' is-key' : ''}${meaning.phrase ? ' is-phrase' : ''}`}
+              key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
+            >
+              {meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}
+              <MeaningText meaning={meaning} />
+            </div>
+          ))}
+        </div>
+      ) : null}
       {showSenses && word.senses?.length ? (
         <div className="wc-senses">
           {word.senses.map((sense, senseIndex) => {
@@ -208,7 +220,7 @@ function getGridColumnCount(element: HTMLElement) {
   return columns.split(/\s+/u).filter(Boolean).length;
 }
 
-function useCompactMasonry(mode: WordCardMode, wordCount: number) {
+function useCompactMasonry(compactLayout: boolean, wordCount: number) {
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const list = listRef.current;
@@ -222,7 +234,7 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       list.removeAttribute('data-masonry-ready');
       for (const card of cards) card.style.removeProperty('grid-row-end');
     };
-    if (mode !== 'compact' || cards.length === 0) {
+    if (!compactLayout || cards.length === 0) {
       reset();
       return;
     }
@@ -271,7 +283,7 @@ function useCompactMasonry(mode: WordCardMode, wordCount: number) {
       observer.disconnect();
       reset();
     };
-  }, [mode, wordCount]);
+  }, [compactLayout, wordCount]);
   return listRef;
 }
 
@@ -287,7 +299,14 @@ export function WordCardModeToggle() {
     <div className="wc-mode-toggle" aria-label="词汇卡片显示模式">
       <span className="wc-mode-label">显示模式</span>
       <div className="wc-mode-segments" role="group" aria-label="切换词汇卡片显示模式">
-        {([['compact', '精简'], ['full', '完整']] as const).map(([mode, label]) => {
+        {(
+          [
+            ['compact', '精简'],
+            ['dictation', '默写'],
+            ['translation', '翻译'],
+            ['full', '完整'],
+          ] as const
+        ).map(([mode, label]) => {
           const active = context.mode === mode;
           return (
             <button
@@ -310,13 +329,14 @@ export function WordCardModeToggle() {
 export function WordCards({ words, empty = null }: WordCardsProps) {
   const context = useContext(WordCardsContext);
   const mode = context?.mode ?? 'full';
-  const listRef = useCompactMasonry(mode, words.length);
+  const compactLayout = mode !== 'full';
+  const listRef = useCompactMasonry(compactLayout, words.length);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [selectedWord, setSelectedWord] = useState<SelectedWord | null>(null);
 
   useEffect(() => {
-    if (!selectedWord || mode !== 'compact') return;
+    if (!selectedWord || !compactLayout) return;
     const dialog = dialogRef.current;
     if (!dialog) return;
 
@@ -335,11 +355,11 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
       body.style.overflow = previousOverflow;
       body.style.paddingRight = previousPaddingRight;
     };
-  }, [mode, selectedWord]);
+  }, [compactLayout, selectedWord]);
 
   useEffect(() => {
-    if (mode !== 'compact' && selectedWord) setSelectedWord(null);
-  }, [mode, selectedWord]);
+    if (!compactLayout && selectedWord) setSelectedWord(null);
+  }, [compactLayout, selectedWord]);
 
   if (words.length === 0) return empty;
 
@@ -359,9 +379,17 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
     if (clickedBackdrop) event.currentTarget.close();
   };
 
+  const hideHeadword = mode === 'dictation';
+  const hideMeanings = mode === 'translation';
+
   return (
     <div className="word-list-shell">
-      <div ref={listRef} className="word-list" data-word-card-mode={mode}>
+      <div
+        ref={listRef}
+        className="word-list"
+        data-word-card-mode={compactLayout ? 'compact' : 'full'}
+        data-word-study-mode={mode}
+      >
         {words.map((word, wordIndex) => {
           const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
           const tone = (wordIndex % 7) + 1;
@@ -369,18 +397,20 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
             <article
               className={`word-card${hasPhrase ? ' has-phrase' : ''}`}
               key={`${word.word}-${wordIndex}`}
-              data-word={word.word}
+              data-word={hideHeadword ? undefined : word.word}
               data-tone={tone}
             >
               <WordCardContent
                 word={word}
-                showSenses={mode === 'full'}
+                showSenses={!compactLayout}
+                hideHeadword={hideHeadword}
+                hideMeanings={hideMeanings}
                 headerAction={
-                  mode === 'compact' ? (
+                  compactLayout ? (
                     <button
                       type="button"
                       className="wc-expand-button"
-                      aria-label={`查看 ${word.word} 完整卡片`}
+                      aria-label={hideHeadword ? '查看完整卡片' : `查看 ${word.word} 完整卡片`}
                       title="查看完整卡片"
                       onClick={(event) => {
                         triggerRef.current = event.currentTarget;
@@ -396,7 +426,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
           );
         })}
       </div>
-      {mode === 'compact' && selectedWord ? (
+      {compactLayout && selectedWord ? (
         <dialog
           ref={dialogRef}
           className={`word-card wc-detail-dialog${selectedWord.word.meanings.some((meaning) => meaning.phrase) ? ' has-phrase' : ''}`}
