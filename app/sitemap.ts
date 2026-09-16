@@ -2,6 +2,9 @@ import { toAbsoluteSiteUrl } from '@/lib/site-url';
 import { source } from '@/lib/source';
 import type { MetadataRoute } from 'next';
 
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = source.getPages().map((page) => ({
     url: toAbsoluteSiteUrl(page.url),
