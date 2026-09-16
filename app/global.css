@@ -212,8 +212,15 @@
     margin: 0;
     background: var(--background);
     color: var(--foreground);
+    /*
+     * Mirrors the @theme `--font-sans` stack. `--font-outfit` used to sit here
+     * but no root layout ever defined it, so it silently resolved to nothing.
+     * `--font-inter` is set unconditionally by next/font (and by the static
+     * root layout). Do not reference `--font-sans` here: Tailwind only emits
+     * that variable when it considers the `font-sans` utility used.
+     */
     font-family:
-      var(--font-outfit), 'PingFang SC', 'Microsoft YaHei',
+      var(--font-inter), 'PingFang SC', 'Microsoft YaHei',
       'Noto Sans CJK SC', system-ui, sans-serif;
     overscroll-behavior: none;
     text-rendering: optimizeLegibility;
@@ -229,24 +236,23 @@
   }
 
   /*
-   * Fumadocs Typography defaults to 16px. Chinese prose looks slightly smaller
-   * with the Inter/system-font combination, so the documentation body is set
-   * to 17px with a relaxed line height.
+   * Documentation body sizing is owned by app/docs/docs-typography.css. A rule
+   * here would be doubly ineffective: it sits inside `@layer base`, which loses
+   * to every unlayered rule, and the docs route loads its own stylesheet later.
+   * Only the inheritance hop is wired up here, so paragraphs, list items and
+   * blockquotes follow whatever that file sets on #docs-body.
    */
-  #docs-body {
-    font-size: 1.0625rem;
-    line-height: 1.85;
-  }
-
   #docs-body :where(p, li, blockquote) {
     line-height: inherit;
   }
 
-  /* Animate UI uses medium-weight documentation headings. */
-  #docs-body :where(h1, h2, h3, h4, h5, h6) {
-    font-weight: 500;
-    text-wrap: balance;
-  }
+  /*
+   * Heading weight and wrapping for the docs body are owned elsewhere:
+   * app/docs/docs-typography.css sets font-weight with !important, and
+   * app/claude-benchmarks.css forces `text-wrap: wrap` with !important. A rule
+   * here would lose twice over — it sits inside `@layer base` and this file is
+   * imported first, so any declaration would be dead code.
+   */
 
   #docs-body :where(h2, h3, h4, h5, h6) {
     scroll-margin-top: 6rem;
@@ -300,8 +306,8 @@
   background: var(--docs-code-block-background) !important;
 }
 
+/* Code font size is owned by app/claude-benchmarks.css; only the leading is set here. */
 #docs-body figure.shiki [role='region'] {
-  font-size: 0.875rem;
   line-height: 1.7;
 }
 
@@ -351,7 +357,7 @@
   margin: 0 !important;
 }
 
-/* Inline code: larger, quiet and borderless. Keep component-owned code untouched. */
+/* Inline code: quiet and borderless. Size is owned by app/claude-benchmarks.css. */
 #docs-body :where(code):not(:where(pre code, .not-prose code)) {
   border: 0 !important;
   border-radius: 0.35rem;
@@ -359,7 +365,6 @@
   box-shadow: none !important;
   padding: 0.12em 0.38em;
   color: inherit;
-  font-size: 0.95em;
   font-weight: 500;
 }
 

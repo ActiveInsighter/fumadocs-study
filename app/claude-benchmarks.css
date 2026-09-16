@@ -1,9 +1,11 @@
-/* Study-site refinements kept separate from the base Fumadocs theme. */
+/* Claude benchmark refinements kept separate from the base Fumadocs theme. */
 
-/* Keep the documentation type scale compact and consistent. */
-#docs-body {
-  font-size: 1rem;
-}
+/*
+ * The documentation body type scale lives in exactly one place:
+ * app/docs/docs-typography.css. Do not set `#docs-body` font-size or
+ * line-height here — a second declaration would silently win or lose
+ * depending on bundler CSS order.
+ */
 
 #docs-body figure.shiki [role='region'] {
   font-size: 0.9375rem;
@@ -11,6 +13,16 @@
 
 #docs-body :where(code):not(:where(pre code, .not-prose code)) {
   font-size: 1rem;
+}
+
+/*
+ * The Claude testimonial stage intentionally extends beyond the article column
+ * to mirror the source page's full-bleed carousel. Clip only pages that mount
+ * that component so regular Fumadocs tables and code blocks keep their own
+ * horizontal scrolling behavior.
+ */
+body:has([data-claude-full-bleed='true']) {
+  overflow-x: clip;
 }
 
 /*

@@ -1,12 +1,19 @@
 import './global.css';
 import 'katex/dist/katex.css';
 import './surface-overrides.css';
-import './study-overrides.css';
+import './claude-benchmarks.css';
 import { SearchProvider } from '@/components/search-provider';
 import type { Metadata } from 'next';
 import { Inter, Source_Serif_4 } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+/*
+ * NOTE: scripts/static-root-layout.tsx is copied over this file in the static
+ * build stage, so it is a second implementation of this root layout. Keep the
+ * `--font-inter` / `--font-source-serif` variable names and the `metadata`
+ * below in sync with it, and make sure both expose the same CSS variables that
+ * app/global.css depends on.
+ */
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',

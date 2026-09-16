@@ -1,0 +1,77 @@
+.shell {
+  display: grid;
+  gap: 96px;
+  width: 100%;
+  font-family: "Anthropic Sans Local", Arial, Helvetica, sans-serif;
+}
+
+.section {
+  min-width: 0;
+}
+
+.tabsRoot {
+  width: 100%;
+  gap: 0;
+}
+
+.tabPanel {
+  min-width: 0;
+  outline: none;
+}
+
+.tabStage {
+  position: relative;
+  height: var(--benchmark-tab-height, auto);
+  overflow: clip;
+  transition: height 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.tabStage > .tabPanel {
+  width: 100%;
+}
+
+.sectionHeading {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  color: var(--foreground, #141413);
+  font-family: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 400;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.scienceLead {
+  max-width: 640px;
+  margin: 0 auto 32px;
+  color: var(--muted-foreground, #5e5d59);
+  font-family: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  line-height: 1.52;
+}
+
+@media (max-width: 991px) {
+  .shell {
+    gap: 80px;
+  }
+}
+
+@media (max-width: 567px) {
+  .shell {
+    gap: 64px;
+  }
+
+  .sectionHeading {
+    font-size: 32px;
+  }
+
+  .scienceLead {
+    font-size: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabStage {
+    transition: none;
+  }
+}

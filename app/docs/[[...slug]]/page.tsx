@@ -1,4 +1,5 @@
 import { getMDXComponents } from '@/components/mdx';
+import { getPageMDXComponents } from '@/components/mdx/page-components';
 import { WordCardsProvider } from '@/components/vocabulary/word-cards';
 import { source } from '@/lib/source';
 import type { Metadata } from 'next';
@@ -36,6 +37,7 @@ export default async function Page({ params }: PageParameters) {
   const markdownUrl = `${page.url}.md`;
   const isVocabularyPage = page.path.startsWith('english/vocabulary/');
   const useFullPage = Boolean(page.data.full) || isVocabularyPage;
+  const pageComponents = getPageMDXComponents(page.path);
 
   return (
     <DocsPage toc={data.toc} full={useFullPage}>
@@ -64,6 +66,7 @@ export default async function Page({ params }: PageParameters) {
         >
           <MDX
             components={getMDXComponents({
+              ...pageComponents,
               a: createRelativeLink(source, page),
             })}
           />

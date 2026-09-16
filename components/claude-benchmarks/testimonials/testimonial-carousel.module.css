@@ -1,0 +1,340 @@
+@font-face {
+  font-family: "Anthropic Sans Local";
+  src: url("/fonts/anthropic/AnthropicSans_Roman_Web.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Anthropic Serif Local";
+  src: url("/fonts/anthropic/AnthropicSerif_Roman_Web.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+}
+
+.carousel {
+  --card-max: 640px;
+  --card-ground: #ced6bf;
+  --background-primary: #faf9f5;
+  --foreground-primary: #141413;
+  --foreground-secondary: #30302e;
+  --color-slate-500: #87867f;
+  --border-subtle: #d1cfc5;
+  --testimonial-sans: "Anthropic Sans Local", Arial, Helvetica, sans-serif;
+  --testimonial-serif: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
+  width: 100%;
+  color: var(--foreground-primary);
+}
+
+.pagination {
+  display: flex;
+  width: min(var(--card-max), 100%);
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 auto 16px;
+  font-family: var(--testimonial-sans);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.paginationButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition: color 0.15s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.paginationButton:hover:not(:disabled) {
+  color: var(--foreground-primary);
+}
+
+.paginationButton:disabled {
+  visibility: hidden;
+}
+
+.paginationCount,
+.mobileCounter {
+  margin: 0;
+  color: var(--foreground-secondary);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.stage {
+  --slide-shift: calc(min(var(--card-max), calc(100% - 48px)) + 32px);
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+}
+
+.stage[data-measured="true"] {
+  height: var(--stage-height);
+  transition: height 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.stage[data-measured="false"] .slide[data-slide="active"] {
+  position: relative;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  grid-area: 1 / 1;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.34s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.slide[data-slide="active"] {
+  z-index: 2;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.slide[data-slide="prev"],
+.slide[data-slide="far-prev"] {
+  transform: translateX(calc(-1 * var(--slide-shift)));
+}
+
+.slide[data-slide="next"],
+.slide[data-slide="far-next"] {
+  transform: translateX(var(--slide-shift));
+}
+
+.slide[data-slide="prev"],
+.slide[data-slide="next"] {
+  opacity: 0.2;
+}
+
+.card {
+  box-sizing: border-box;
+  display: flex;
+  width: min(var(--card-max), calc(100% - 48px));
+  height: auto;
+  flex-direction: column;
+  margin: 0 auto;
+  border: 1px solid var(--foreground-primary);
+  border-top-width: 4px;
+  background: var(--card-ground);
+  color: var(--foreground-primary);
+  font-family: var(--testimonial-serif);
+}
+
+.body {
+  padding: 16px;
+}
+
+.label {
+  display: block;
+  font-family: var(--testimonial-sans);
+  font-size: 0.625rem;
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.quote {
+  margin: 8px 0 0;
+}
+
+.quote p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-top: 1px solid var(--foreground-primary);
+}
+
+.cell + .cell {
+  border-left: 1px solid var(--foreground-primary);
+}
+
+.value {
+  font-family: var(--testimonial-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.veil {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  display: block;
+  width: 56px;
+  pointer-events: none;
+}
+
+.veilLeft {
+  left: 0;
+  background: linear-gradient(to right, var(--background-primary), transparent);
+}
+
+.veilRight {
+  right: 0;
+  background: linear-gradient(to left, var(--background-primary), transparent);
+}
+
+.stripControls {
+  display: none;
+}
+
+.arrowControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrowButton {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: background-color 0.2s ease;
+}
+
+.arrowButton:hover:not(:disabled) {
+  background: #f1f0eb;
+}
+
+.arrowButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.arrowIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--foreground-primary);
+}
+
+.arrowPrevious {
+  transform: rotate(90deg);
+}
+
+.arrowNext {
+  transform: rotate(-90deg);
+}
+
+@media (min-width: 992px) {
+  .stage {
+    --slide-shift: calc(min(var(--card-max), calc(100% - 48px)) + 64px);
+  }
+}
+
+@media (max-width: 992px) {
+  .pagination {
+    display: none;
+  }
+
+  .stage {
+    display: flex;
+    width: calc(100% + 48px);
+    margin-left: -24px;
+    align-items: stretch;
+    gap: 24px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+  }
+
+  .stage::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stage[data-measured="true"] {
+    height: var(--stage-height);
+  }
+
+  .slide,
+  .slide[data-slide="active"],
+  .slide[data-slide="prev"],
+  .slide[data-slide="next"],
+  .slide[data-slide="far-prev"],
+  .slide[data-slide="far-next"] {
+    position: static;
+    display: flex;
+    width: calc(100% - 48px);
+    min-width: 0;
+    flex: 0 0 calc(100% - 48px);
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    scroll-snap-align: center;
+  }
+
+  .slide:first-child {
+    margin-left: 24px;
+  }
+
+  .slide:has(+ .veilLeft) {
+    margin-right: 24px;
+  }
+
+  .slide .card {
+    width: 100%;
+    height: 100%;
+  }
+
+  .body {
+    flex: 1 1 0%;
+  }
+
+  .veil {
+    display: none;
+  }
+
+  .stripControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+    font-family: var(--testimonial-sans);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stage[data-measured="true"],
+  .slide,
+  .paginationButton,
+  .arrowButton {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}

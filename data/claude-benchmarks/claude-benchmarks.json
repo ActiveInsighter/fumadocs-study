@@ -1,0 +1,1231 @@
+{
+  "benchmarkModels": [
+    "Fable 5.1",
+    "Fable 5",
+    "Opus 5",
+    "GPT-5.6 Sol"
+  ],
+  "benchmarkViews": {
+    "tabs": [
+      {
+        "id": "scientific",
+        "label": "Agentic scientific research"
+      },
+      {
+        "id": "terminal",
+        "label": "Agentic terminal coding"
+      },
+      {
+        "id": "reasoning",
+        "label": "Multidisciplinary reasoning"
+      },
+      {
+        "id": "coding",
+        "label": "Agentic coding"
+      }
+    ],
+    "views": [
+      {
+        "id": "scientific",
+        "title": "Terminal-Bench-Science 0.1",
+        "subtitle": "Accuracy vs Cost",
+        "ariaLabel": "Terminal-Bench-Science 0.1",
+        "yTicks": [
+          {
+            "label": "0",
+            "value": 0
+          },
+          {
+            "label": "10",
+            "value": 10
+          },
+          {
+            "label": "20",
+            "value": 20
+          },
+          {
+            "label": "30",
+            "value": 30
+          },
+          {
+            "label": "40",
+            "value": 40
+          },
+          {
+            "label": "50",
+            "value": 50
+          },
+          {
+            "label": "60",
+            "value": 60
+          }
+        ],
+        "xTicks": [
+          {
+            "label": "10",
+            "value": 10
+          },
+          {
+            "label": "15",
+            "value": 15
+          },
+          {
+            "label": "20",
+            "value": 20
+          },
+          {
+            "label": "30",
+            "value": 30
+          },
+          {
+            "label": "40",
+            "value": 40
+          },
+          {
+            "label": "50",
+            "value": 50
+          }
+        ],
+        "xDomain": [
+          8,
+          50
+        ],
+        "yDomain": [
+          0,
+          60
+        ],
+        "yAxisLabel": "Score (%)",
+        "xAxisLabel": "Mean cost per task (USD, log scale)",
+        "series": [
+          {
+            "id": "fable-51",
+            "label": "Fable 5.1",
+            "color": "matcha",
+            "points": [
+              {
+                "effort": "low",
+                "score": 26.3,
+                "scoreLabel": "26.3%",
+                "cost": 11.1,
+                "costLabel": "$11.1"
+              },
+              {
+                "effort": "med",
+                "score": 35.7,
+                "scoreLabel": "35.7%",
+                "cost": 14.9,
+                "costLabel": "$14.9"
+              },
+              {
+                "effort": "high",
+                "score": 40,
+                "scoreLabel": "40.0%",
+                "cost": 20.3,
+                "costLabel": "$20.3"
+              },
+              {
+                "effort": "xhigh",
+                "score": 49.5,
+                "scoreLabel": "49.5%",
+                "cost": 31.8,
+                "costLabel": "$31.8"
+              },
+              {
+                "effort": "max",
+                "score": 52.6,
+                "scoreLabel": "52.6%",
+                "cost": 37.9,
+                "costLabel": "$37.9"
+              }
+            ]
+          },
+          {
+            "id": "fable-5",
+            "label": "Fable 5",
+            "color": "cloud",
+            "points": [
+              {
+                "effort": "low",
+                "score": 12.3,
+                "scoreLabel": "12.3%",
+                "cost": 17.1,
+                "costLabel": "$17.1",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "med",
+                "score": 21.4,
+                "scoreLabel": "21.4%",
+                "cost": 25,
+                "costLabel": "$25",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "high",
+                "score": 25,
+                "scoreLabel": "25.0%",
+                "cost": 34.3,
+                "costLabel": "$34.3",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "xhigh",
+                "score": 23.4,
+                "scoreLabel": "23.4%",
+                "cost": 36,
+                "costLabel": "$36",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "max",
+                "score": 24.7,
+                "scoreLabel": "24.7%",
+                "cost": 44.1,
+                "costLabel": "$44.1",
+                "labelPosition": "below"
+              }
+            ]
+          }
+        ],
+        "footnote": "Terminal-Bench-Science 0.1: The standard error is ±3.5–4.5 pts per model. The public leaderboard (3 trials/task, Claude Code harness) reports Claude Opus 5 at 30.0% and Claude Fable 5 at 21.4%; our setup reproduces them at 29.0% and 24.7%, respectively, both within noise."
+      },
+      {
+        "id": "terminal",
+        "title": "Terminal-Bench 4.0",
+        "subtitle": "Accuracy vs Cost",
+        "ariaLabel": "Terminal-Bench 4.0",
+        "yTicks": [
+          {
+            "label": "10",
+            "value": 10
+          },
+          {
+            "label": "20",
+            "value": 20
+          },
+          {
+            "label": "30",
+            "value": 30
+          },
+          {
+            "label": "40",
+            "value": 40
+          },
+          {
+            "label": "50",
+            "value": 50
+          },
+          {
+            "label": "60",
+            "value": 60
+          },
+          {
+            "label": "70",
+            "value": 70
+          }
+        ],
+        "xTicks": [
+          {
+            "label": "5",
+            "value": 5
+          },
+          {
+            "label": "8",
+            "value": 8
+          },
+          {
+            "label": "10",
+            "value": 10
+          },
+          {
+            "label": "15",
+            "value": 15
+          },
+          {
+            "label": "20",
+            "value": 20
+          },
+          {
+            "label": "30",
+            "value": 30
+          }
+        ],
+        "xDomain": [
+          4,
+          32
+        ],
+        "yDomain": [
+          0,
+          70
+        ],
+        "yAxisBreak": {
+          "lower": 10,
+          "upper": 70,
+          "lowerPlotPosition": 0.07253886010362694
+        },
+        "yAxisLabel": "Score (%)",
+        "xAxisLabel": "Mean cost per task (USD, log scale)",
+        "series": [
+          {
+            "id": "mythos-51",
+            "label": "Mythos 5.1",
+            "color": "matcha",
+            "pattern": "dots",
+            "points": [
+              {
+                "effort": "low",
+                "score": 41.7,
+                "scoreLabel": "41.7%",
+                "cost": 5.4,
+                "costLabel": "$5.4"
+              },
+              {
+                "effort": "med",
+                "score": 46.7,
+                "scoreLabel": "46.7%",
+                "cost": 7.4,
+                "costLabel": "$7.4"
+              },
+              {
+                "effort": "high",
+                "score": 57.1,
+                "scoreLabel": "57.1%",
+                "cost": 10.1,
+                "costLabel": "$10.1"
+              },
+              {
+                "effort": "xhigh",
+                "score": 59.7,
+                "scoreLabel": "59.7%",
+                "cost": 15,
+                "costLabel": "$15"
+              },
+              {
+                "effort": "max",
+                "score": 60.9,
+                "scoreLabel": "60.9%",
+                "cost": 18,
+                "costLabel": "$18"
+              }
+            ]
+          },
+          {
+            "id": "fable-51",
+            "label": "Fable 5.1",
+            "color": "matcha",
+            "points": [
+              {
+                "effort": "low",
+                "score": 40.2,
+                "scoreLabel": "40.2%",
+                "cost": 5.7,
+                "costLabel": "$5.7",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 43.4,
+                "scoreLabel": "43.4%",
+                "cost": 7.8,
+                "costLabel": "$7.8",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "high",
+                "score": 49.4,
+                "scoreLabel": "49.4%",
+                "cost": 10.5,
+                "costLabel": "$10.5",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "xhigh",
+                "score": 51.3,
+                "scoreLabel": "51.3%",
+                "cost": 15.8,
+                "costLabel": "$15.8",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "max",
+                "score": 55.8,
+                "scoreLabel": "55.8%",
+                "cost": 19.5,
+                "costLabel": "$19.5",
+                "labelPosition": "below"
+              }
+            ]
+          },
+          {
+            "id": "mythos-5",
+            "label": "Mythos 5",
+            "color": "cloud",
+            "pattern": "dots",
+            "points": [
+              {
+                "effort": "low",
+                "score": 21.5,
+                "scoreLabel": "21.5%",
+                "cost": 12.3,
+                "costLabel": "$12.3",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 32.6,
+                "scoreLabel": "32.6%",
+                "cost": 15.4,
+                "costLabel": "$15.4",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "high",
+                "score": 38.9,
+                "scoreLabel": "38.9%",
+                "cost": 17.9,
+                "costLabel": "$17.9",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "xhigh",
+                "score": 43.4,
+                "scoreLabel": "43.4%",
+                "cost": 22.7,
+                "costLabel": "$22.7",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "max",
+                "score": 45.8,
+                "scoreLabel": "45.8%",
+                "cost": 26.7,
+                "costLabel": "$26.7",
+                "labelPosition": "below"
+              }
+            ]
+          }
+        ],
+        "footnote": "Terminal-Bench 4.0 scores by cost (log scale), at each effort level. Claude Fable 5.1 and Claude Mythos 5.1 are the same underlying model; the gap between them reflects the tasks on which our earlier, less precise cyber safeguards intervened. With the improvements we’re making to these safeguards today, we expect the difference between the models to be much smaller."
+      },
+      {
+        "id": "reasoning",
+        "title": "Humanity's Last Exam",
+        "subtitle": "Accuracy vs Cost",
+        "ariaLabel": "Humanity's Last Exam",
+        "yTicks": [
+          {
+            "label": "50",
+            "value": 50
+          },
+          {
+            "label": "55",
+            "value": 55
+          },
+          {
+            "label": "60",
+            "value": 60
+          },
+          {
+            "label": "65",
+            "value": 65
+          }
+        ],
+        "xTicks": [
+          {
+            "label": "0.2",
+            "value": 0.2
+          },
+          {
+            "label": "0.5",
+            "value": 0.5
+          },
+          {
+            "label": "1",
+            "value": 1
+          },
+          {
+            "label": "2",
+            "value": 2
+          },
+          {
+            "label": "4",
+            "value": 4
+          }
+        ],
+        "xDomain": [
+          0.15,
+          4
+        ],
+        "yDomain": [
+          0,
+          68
+        ],
+        "yAxisBreak": {
+          "lower": 50,
+          "upper": 68,
+          "lowerPlotPosition": 0.16580310880829016
+        },
+        "yAxisLabel": "Pass rate (%)",
+        "xAxisLabel": "Mean cost per task (USD, log scale)",
+        "series": [
+          {
+            "id": "fable-51-tools",
+            "label": "Fable 5.1 (with tools)",
+            "color": "matcha",
+            "labelEfforts": [
+              "low",
+              "max"
+            ],
+            "pattern": "hatch",
+            "points": [
+              {
+                "effort": "low",
+                "score": 60,
+                "scoreLabel": "60.0%",
+                "cost": 0.52,
+                "costLabel": "$0.52"
+              },
+              {
+                "effort": "med",
+                "score": 63,
+                "scoreLabel": "63.0%",
+                "cost": 0.67,
+                "costLabel": "$0.67"
+              },
+              {
+                "effort": "high",
+                "score": 64.8,
+                "scoreLabel": "64.8%",
+                "cost": 1.05,
+                "costLabel": "$1.05"
+              },
+              {
+                "effort": "xhigh",
+                "score": 65.1,
+                "scoreLabel": "65.1%",
+                "cost": 2.28,
+                "costLabel": "$2.28"
+              },
+              {
+                "effort": "max",
+                "score": 65,
+                "scoreLabel": "65.0%",
+                "cost": 3.2,
+                "costLabel": "$3.2"
+              }
+            ]
+          },
+          {
+            "id": "fable-5-tools",
+            "label": "Fable 5 (with tools)",
+            "color": "cloud",
+            "labelEfforts": [
+              "low",
+              "max"
+            ],
+            "pattern": "hatch",
+            "points": [
+              {
+                "effort": "low",
+                "score": 59.6,
+                "scoreLabel": "59.6%",
+                "cost": 0.61,
+                "costLabel": "$0.61",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 61.4,
+                "scoreLabel": "61.4%",
+                "cost": 1.01,
+                "costLabel": "$1.01",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "high",
+                "score": 63.2,
+                "scoreLabel": "63.2%",
+                "cost": 1.42,
+                "costLabel": "$1.42"
+              },
+              {
+                "effort": "xhigh",
+                "score": 63.5,
+                "scoreLabel": "63.5%",
+                "cost": 1.92,
+                "costLabel": "$1.92"
+              },
+              {
+                "effort": "max",
+                "score": 63.8,
+                "scoreLabel": "63.8%",
+                "cost": 3.44,
+                "costLabel": "$3.44"
+              }
+            ]
+          },
+          {
+            "id": "fable-51-no-tools",
+            "label": "Fable 5.1 (no tools)",
+            "color": "matcha",
+            "labelEfforts": [
+              "low",
+              "max"
+            ],
+            "points": [
+              {
+                "effort": "low",
+                "score": 53.2,
+                "scoreLabel": "53.2%",
+                "cost": 0.3,
+                "costLabel": "$0.3",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 55.9,
+                "scoreLabel": "55.9%",
+                "cost": 0.46,
+                "costLabel": "$0.46",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "high",
+                "score": 58,
+                "scoreLabel": "58.0%",
+                "cost": 0.75,
+                "costLabel": "$0.75"
+              },
+              {
+                "effort": "xhigh",
+                "score": 60.4,
+                "scoreLabel": "60.4%",
+                "cost": 1.53,
+                "costLabel": "$1.53"
+              },
+              {
+                "effort": "max",
+                "score": 60.9,
+                "scoreLabel": "60.9%",
+                "cost": 2.23,
+                "costLabel": "$2.23"
+              }
+            ]
+          },
+          {
+            "id": "fable-5-no-tools",
+            "label": "Fable 5 (no tools)",
+            "color": "cloud",
+            "labelEfforts": [
+              "low",
+              "max"
+            ],
+            "points": [
+              {
+                "effort": "low",
+                "score": 50.6,
+                "scoreLabel": "50.6%",
+                "cost": 0.17,
+                "costLabel": "$0.17",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 55.9,
+                "scoreLabel": "55.9%",
+                "cost": 0.4,
+                "costLabel": "$0.4",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "high",
+                "score": 56.9,
+                "scoreLabel": "56.9%",
+                "cost": 0.62,
+                "costLabel": "$0.62"
+              },
+              {
+                "effort": "xhigh",
+                "score": 57.4,
+                "scoreLabel": "57.4%",
+                "cost": 0.91,
+                "costLabel": "$0.91"
+              },
+              {
+                "effort": "max",
+                "score": 57.8,
+                "scoreLabel": "57.8%",
+                "cost": 1.7,
+                "costLabel": "$1.7"
+              }
+            ]
+          }
+        ],
+        "legendOrder": [
+          "fable-51-tools",
+          "fable-51-no-tools",
+          "fable-5-tools",
+          "fable-5-no-tools"
+        ],
+        "footnote": "Humanity’s Last Exam scores by cost (log scale), at each effort level."
+      },
+      {
+        "id": "coding",
+        "title": "CursorBench 3.2.0",
+        "subtitle": "Accuracy vs Cost",
+        "ariaLabel": "CursorBench 3.2.0",
+        "yTicks": [
+          {
+            "label": "60",
+            "value": 60
+          },
+          {
+            "label": "65",
+            "value": 65
+          },
+          {
+            "label": "70",
+            "value": 70
+          },
+          {
+            "label": "75",
+            "value": 75
+          }
+        ],
+        "xTicks": [
+          {
+            "label": "2",
+            "value": 2
+          },
+          {
+            "label": "3",
+            "value": 3
+          },
+          {
+            "label": "5",
+            "value": 5
+          },
+          {
+            "label": "10",
+            "value": 10
+          },
+          {
+            "label": "20",
+            "value": 20
+          }
+        ],
+        "xDomain": [
+          1.5,
+          25
+        ],
+        "yDomain": [
+          0,
+          76
+        ],
+        "yAxisBreak": {
+          "lower": 60,
+          "upper": 76,
+          "lowerPlotPosition": 0.17616580310880828
+        },
+        "yAxisLabel": "Score (%)",
+        "xAxisLabel": "Cost per task (USD, log scale)",
+        "series": [
+          {
+            "id": "fable-51",
+            "label": "Fable 5.1",
+            "color": "matcha",
+            "points": [
+              {
+                "effort": "low",
+                "score": 66.2,
+                "scoreLabel": "66.2%",
+                "cost": 2.9,
+                "costLabel": "$2.9",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 68,
+                "scoreLabel": "68.0%",
+                "cost": 3.53,
+                "costLabel": "$3.53",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "high",
+                "score": 69.4,
+                "scoreLabel": "69.4%",
+                "cost": 4.8,
+                "costLabel": "$4.8",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "xhigh",
+                "score": 72.8,
+                "scoreLabel": "72.8%",
+                "cost": 6.96,
+                "costLabel": "$6.96",
+                "labelPosition": "above"
+              },
+              {
+                "effort": "max",
+                "score": 73.4,
+                "scoreLabel": "73.4%",
+                "cost": 9.64,
+                "costLabel": "$9.64",
+                "labelPosition": "above"
+              }
+            ]
+          },
+          {
+            "id": "fable-5",
+            "label": "Fable 5",
+            "color": "cloud",
+            "points": [
+              {
+                "effort": "low",
+                "score": 62.1,
+                "scoreLabel": "62.1%",
+                "cost": 4.46,
+                "costLabel": "$4.46",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "med",
+                "score": 65.2,
+                "scoreLabel": "65.2%",
+                "cost": 6.8,
+                "costLabel": "$6.8",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "high",
+                "score": 66.5,
+                "scoreLabel": "66.5%",
+                "cost": 8.77,
+                "costLabel": "$8.77",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "xhigh",
+                "score": 68.4,
+                "scoreLabel": "68.4%",
+                "cost": 11.73,
+                "costLabel": "$11.73",
+                "labelPosition": "below"
+              },
+              {
+                "effort": "max",
+                "score": 70.5,
+                "scoreLabel": "70.5%",
+                "cost": 17.32,
+                "costLabel": "$17.32",
+                "labelPosition": "below"
+              }
+            ]
+          }
+        ],
+        "footnote": "CursorBench 3.2.0 by cost (log scale), at each effort level."
+      }
+    ]
+  },
+  "benchmarkTableRows": [
+    {
+      "category": "Agentic scientific research",
+      "benchmark": "Terminal-Bench-Science 0.1 [1]",
+      "cells": [
+        {
+          "value": "52.6%"
+        },
+        {
+          "value": "24.7%"
+        },
+        {
+          "value": "29.0%"
+        },
+        {
+          "value": "22.4%"
+        }
+      ]
+    },
+    {
+      "category": "Agentic coding",
+      "benchmark": "Terminal-Bench 4.0",
+      "cells": [
+        {
+          "value": "55.8%",
+          "qualifier": "60.9% (Mythos 5.1)"
+        },
+        {
+          "value": "42.0%"
+        },
+        {
+          "value": "52.3%"
+        },
+        {
+          "value": "37.3%"
+        }
+      ]
+    },
+    {
+      "category": "Knowledge work",
+      "benchmark": "GDPval-AA v2",
+      "cells": [
+        {
+          "value": "1853"
+        },
+        {
+          "value": "1723"
+        },
+        {
+          "value": "1824"
+        },
+        {
+          "value": "1711"
+        }
+      ]
+    },
+    {
+      "category": "Computer use",
+      "benchmark": "OSWorld 2.0 [2]",
+      "cells": [
+        {
+          "value": "77.9%",
+          "qualifier": "partial"
+        },
+        {
+          "value": "72.9%",
+          "qualifier": "partial"
+        },
+        {
+          "value": "75.4%",
+          "qualifier": "partial"
+        },
+        {
+          "value": "—",
+          "qualifier": "partial"
+        }
+      ]
+    },
+    {
+      "category": "Computer use",
+      "benchmark": "OSWorld 2.0",
+      "cells": [
+        {
+          "value": "41.7%",
+          "qualifier": "strict"
+        },
+        {
+          "value": "36.1%",
+          "qualifier": "strict"
+        },
+        {
+          "value": "39.6%",
+          "qualifier": "strict"
+        },
+        {
+          "value": "—",
+          "qualifier": "strict"
+        }
+      ]
+    },
+    {
+      "category": "Multidisciplinary reasoning",
+      "benchmark": "Humanity's Last Exam",
+      "cells": [
+        {
+          "value": "60.9%",
+          "qualifier": "no tools"
+        },
+        {
+          "value": "57.8%",
+          "qualifier": "no tools"
+        },
+        {
+          "value": "56.6%",
+          "qualifier": "no tools"
+        },
+        {
+          "value": "—",
+          "qualifier": "no tools"
+        }
+      ]
+    },
+    {
+      "category": "Multidisciplinary reasoning",
+      "benchmark": "Humanity's Last Exam",
+      "cells": [
+        {
+          "value": "65.0%",
+          "qualifier": "with tools"
+        },
+        {
+          "value": "63.8%",
+          "qualifier": "with tools"
+        },
+        {
+          "value": "63.6%",
+          "qualifier": "with tools"
+        },
+        {
+          "value": "—",
+          "qualifier": "with tools"
+        }
+      ]
+    },
+    {
+      "category": "Business workflows",
+      "benchmark": "AutomationBench",
+      "cells": [
+        {
+          "value": "31.4%"
+        },
+        {
+          "value": "17.1%"
+        },
+        {
+          "value": "26.9%"
+        },
+        {
+          "value": "19.6%"
+        }
+      ]
+    },
+    {
+      "category": "Agentic coding",
+      "benchmark": "CursorBench 3.2.0",
+      "cells": [
+        {
+          "value": "73.4%"
+        },
+        {
+          "value": "70.5%"
+        },
+        {
+          "value": "70.0%"
+        },
+        {
+          "value": "67.2%"
+        }
+      ]
+    }
+  ],
+  "scientificTabs": [
+    {
+      "id": "inference",
+      "label": "Inference speedup"
+    },
+    {
+      "id": "genome-cost",
+      "label": "Estimated cost savings on genome-wide analyses"
+    }
+  ],
+  "inferenceRows": [
+    {
+      "label": "ChromBPNet (6M)",
+      "note": "2.1-kb DNA sequence",
+      "value": 1.6,
+      "valueLabel": "1.6×"
+    },
+    {
+      "label": "Flashzoi (200M)",
+      "note": "524-kb DNA sequence",
+      "value": 1.8,
+      "valueLabel": "1.8×"
+    },
+    {
+      "label": "Enformer (250M)",
+      "note": "196-kb DNA sequence",
+      "value": 1.4,
+      "valueLabel": "1.4×"
+    },
+    {
+      "label": "Profluent-E1 (600M)",
+      "note": "1,024-amino-acid protein",
+      "value": 1.6,
+      "valueLabel": "1.6×"
+    },
+    {
+      "label": "ProGen2 (6.4B)",
+      "note": "512-amino-acid protein",
+      "value": 2.5,
+      "valueLabel": "2.5×"
+    },
+    {
+      "label": "Evo 2 (7B)",
+      "note": "8-kb DNA sequence",
+      "value": 1.6,
+      "valueLabel": "1.6×"
+    },
+    {
+      "label": "Evo 2 (40B)",
+      "note": "8-kb DNA sequence",
+      "value": 1.4,
+      "valueLabel": "1.4×"
+    }
+  ],
+  "genomeCostRows": [
+    {
+      "label": "Enformer (250M)",
+      "note": "every mutation, 10-kb window around 20,000 genes",
+      "original": 30,
+      "optimized": 21,
+      "originalLabel": "$30k",
+      "optimizedLabel": "$21k"
+    },
+    {
+      "label": "Flashzoi (200M)",
+      "note": "every mutation, 10-kb window around 20,000 genes",
+      "original": 14,
+      "optimized": 7,
+      "originalLabel": "$14k",
+      "optimizedLabel": "$7k"
+    },
+    {
+      "label": "Evo 2 (40B)",
+      "note": "3 million ClinVar variants",
+      "original": 18,
+      "optimized": 8,
+      "originalLabel": "$18k",
+      "optimizedLabel": "$8k"
+    }
+  ],
+  "indexedCostGroups": [
+    {
+      "label": "Typical workload",
+      "savingsLabel": "75 (~25% less)",
+      "fable5": {
+        "cacheReads": 40,
+        "otherTokens": 60
+      },
+      "fable51": {
+        "cacheReads": 11,
+        "otherTokens": 64
+      }
+    },
+    {
+      "label": "Highly agentic workload",
+      "savingsLabel": "55 (~45% less)",
+      "fable5": {
+        "cacheReads": 65,
+        "otherTokens": 35
+      },
+      "fable51": {
+        "cacheReads": 17,
+        "otherTokens": 38
+      }
+    }
+  ],
+  "testimonials": [
+    {
+      "quote": "“In internal benchmarks, Claude Fable 5.1 solves more of our coding problems than Fable 5 or Opus 5, and achieves state of the art on trading intuition. While prior models became hard to follow the longer they worked, Fable 5.1 remains readable over long, multi-step tasks.”",
+      "company": "Jane Street Capital",
+      "author": "Craig Falls, Head of Quantitative Research"
+    },
+    {
+      "quote": "“We’re moving our Opus 5 traffic in Devin to Claude Fable 5.1 on launch day. It matched or edged out Fable 5 in our testing at a lower cost per task, and with the new cache read pricing a Fable-class model is finally economical for the workloads we’d kept on Opus, starting with code review.”",
+      "company": "Cognition",
+      "author": "Walden Yan, Co-founder and CPO"
+    },
+    {
+      "quote": "“A particular piece of code had an extremely rare crash, about one in a million runs, that nobody on our team had explained in four to five years. Every model I tried, including Fable 5, missed it. Claude Fable 5.1 was the first to find it. It disassembled an external vendor library, matched it against the core dump, and traced the crash to a bug in that library. The time it would have taken to conduct that analysis is hard to justify.”",
+      "company": "Millennium",
+      "author": "Damien, Senior Portfolio Manager"
+    },
+    {
+      "quote": "“Claude Fable 5.1 built a complex prototype in about three days. It did initial research across all of our services code and documentation to produce a novel and extensible design. It then ran for hours unattended, with strong verification loops, to implement the entire prototype. I would wake up in the morning to the next phase finished, with a full visual walkthrough of what it built and clear evidence of its success.”",
+      "company": "MongoDB",
+      "author": "Ron Sanzone, Staff Software Engineer"
+    },
+    {
+      "quote": "“It’s friendly Fable. Fable-level intelligence, Opus-level price, Sonnet-speed. In our tests it was about twice as fast as Opus 5 and used half as many tokens, so for anyone used to using Opus as their daily driver it’s an obvious upgrade.”",
+      "company": "Every",
+      "author": "Dan Shipper, CEO"
+    },
+    {
+      "quote": "“On our research suite, Claude Fable 5.1 set new best scores. On one task it came up with a novel solution along a completely different axis than we’d seen from other models or from human researchers in the past, which took its results well above the previous plateau. It's better at creative problem solving and getting that flash of insight you need to solve a difficult problem.”",
+      "company": "IMC",
+      "author": "Marquis Wong, Principal AI Engineer"
+    },
+    {
+      "quote": "“As part of our ongoing evaluation of AI models, Claude Fable 5.1 delivered impressive results in our tests. Using Claude Code, it correctly identified the root cause of every broken build we tested, across all the effort levels. It also communicates more effectively than earlier Anthropic models, with updates that are more concise and easier to follow.”",
+      "company": "Red Hat",
+      "author": "Josh Boyer, Distinguished Engineer"
+    },
+    {
+      "quote": "“We asked Claude Fable 5.1 to review a clinical research project for Rakuten Medical that three other frontier models had signed off on. It found a gap none of them had seen and insisted on testing it further. It then proposed a completely new hypothesis, turning a dataset we had written off into a new research direction in one afternoon. It’s the first time a frontier model like Claude has empowered us to explore new research in this way.”",
+      "company": "Rakuten",
+      "author": "Felix Giovanni Virgo, Principal AI Engineer"
+    },
+    {
+      "quote": "“Claude Fable 5.1 is very smart. On our 30-day simulated run-a-business eval, where the model gets full access to simulated Square tools, customers, employees, and vendors, it was far more efficient per token than Opus 5. We plan to use it to work through our most complex scenarios, the kind that used to take days of whiteboarding, so our engineering teams can keep moving fast.”",
+      "company": "Square (Block)",
+      "author": "Willem Avé, Global Head of Product"
+    },
+    {
+      "quote": "“For anything research, greenfield or long-horizon, I would absolutely use Claude Fable 5.1 as the orchestrator. One unattended 38-hour run on a machine learning problem diagnosed a prior result as a label artifact, made the correction, kicked off six parallel experiments that ran overnight, and returned with a result and next steps. Given an open-ended prompt to find the highest-leverage problem nobody owned, it surfaced an unowned alert tied to a production outage, pulled the logs and prescribed the fix.”",
+      "company": "Ramp",
+      "author": "Dwight Temple, Sr. Machine Learning Engineer"
+    },
+    {
+      "quote": "“The standout in Claude Fable 5.1 is the writing: more understandable, more meaningful, and it follows our writing guidance better. In blind tests against Fable 5, I preferred its writing and output. And in Canva Code it built a rhythm game with real music and on-beat gameplay matched to the level it generated, something no other model we tested delivered.”",
+      "company": "Canva",
+      "author": "Danny Wu, Head of AI"
+    },
+    {
+      "quote": "“On our PowerPoint eval, Claude Fable 5.1 produced the best decks of any model we’ve tested, both in slide craft and in fully answering our research topic. That same completeness showed up in our Citations eval, where it had the best fact recall over financial documents. And on complex, multi-part questions, it’s the first model we’ve seen answer every part.”",
+      "company": "Hebbia",
+      "author": "Aabhas Sharma, CTO"
+    },
+    {
+      "quote": "“We had a change that touched more than eight services across three codebases. Claude Fable 5.1 mapped the whole workflow end to end, in extremely fine detail, from the incoming service call down to the individual function and the database tables and rows, and it was accurate all the way down. We appreciated the opportunity to test the model and provide feedback, helping us prepare for a new frontier where we can increasingly rely on these tools to take on bolder initiatives.”",
+      "company": "Plaid",
+      "author": "Aditya Gupta, Staff Software Engineer"
+    },
+    {
+      "quote": "“Across our evaluation sets, our judges preferred Claude Fable 5.1’s answers roughly 2-to-1 over Fable 5 on everyday knowledge questions, high-intent research, and drafting and artifact work, all with improved response grounding over Fable. These results have made Fable 5.1 our go-to recommendation wherever Fable 5 was previously the choice.”",
+      "company": "Glean",
+      "author": "Nilesh Dalvi, Engineering Lead"
+    },
+    {
+      "quote": "“On the hardest problems we work on, Claude Fable 5.1 separates strongly from any other model we’ve tried. On a grand challenge-tier problem we‘ve used as a testbed for 18 months, it actually produced material progress. Rather than being trapped in stamp collecting, it made clear white-space connections I have yet to see elsewhere. It also optimized a compute kernel that Fable 5 had tapped out on by about 35%.”",
+      "company": "iGent",
+      "author": "Sean Ward, Co-founder and CEO"
+    },
+    {
+      "quote": "“On our hardest browser-agent benchmark, Claude Fable 5.1 completed 82% of tasks in about 10 minutes each, against 74% for Opus 5 and 57% for Fable 5, while using fewer tokens than either. It feels stronger than Fable 5 in every dimension we test. It also did exactly the right amount of work: never crossed a critical stop point across hundreds of measured tasks.”",
+      "company": "Browserbase",
+      "author": "Miguel Gonzalez, Technical Lead"
+    },
+    {
+      "quote": "“On our internal Finance benchmark, Claude Fable 5.1 matches Fable 5 on accuracy while using 20% fewer tokens. We also saw big gains in slide generation, with Fable 5.1 showing improvements in explaining complex data in simpler English and translating it into more banker-grade visuals.”",
+      "company": "Rogo",
+      "author": "Alex Wang, Applied AI"
+    },
+    {
+      "quote": "“Claude Fable 5.1 is more comfortable with long, unattended work than Fable 5. I’ve had workflows run for a long stretch without losing the plot: it keeps its own records, reprioritizes as things change, and picks up where it left off.”",
+      "company": "Shopify",
+      "author": "Ben Lafferty, Senior Staff Engineer"
+    },
+    {
+      "quote": "“Compared to Fable 5, Claude Fable 5.1 was a massive improvement on RedlineBench, our contract redlining benchmark, improving from 47.9 to 57.0. Most of the gain came on first-turn quality, where it doubled the previous score, with substantial gains on counterparty acceptance as well. Its edits were also more concise, with smaller changes on average to the documents.”",
+      "company": "Crosby",
+      "author": "Raymond Lin, Member of Technical Staff"
+    },
+    {
+      "quote": "“Claude Fable 5.1 is a leading model for our incident investigation evals, which use real production incidents to assess how effectively our agent, Bits Investigation, can produce root cause analyses. We evaluate our agent’s output against root causes identified by our engineers. In these evaluations, it has demonstrated stronger reasoning than Opus 5 and has successfully diagnosed the most complex production incidents we’ve tested.”",
+      "company": "Datadog",
+      "author": "Daniel Shan, Staff Engineer"
+    },
+    {
+      "quote": "“Claude Fable 5.1 is the most capable model we’ve run on CursorBench 3.2, scoring 73.4% at max effort. We found it especially skilled at verifying its own work, allowing it to take on difficult coding tasks from start to finish.”",
+      "company": "SpaceXAI",
+      "author": "Sualeh Asif, Director of ML"
+    },
+    {
+      "quote": "“We evaluate models and systems on real-world investor workflows. On FrontierFinance, our latest finance benchmark, Claude Fable 5.1 shows a clear gain over Fable 5, with a 55.9% rubric score compared to 49.2%. The gain comes from its ability to dig harder into grounded, authoritative sources: on one earnings question, it went straight to the call transcript and captured the exact figures management cited, where other models leaned on secondary coverage.”",
+      "company": "Samaya",
+      "author": "Yuhao Zhang, Research Lead"
+    }
+  ]
+}

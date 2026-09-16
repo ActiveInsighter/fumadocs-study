@@ -15,6 +15,7 @@ import type { MDXComponents } from 'mdx/types';
  * official component groups below are registered globally so documentation can
  * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards and the
  * shared vocabulary display toggle without repeating imports in every MDX file.
+ * Feature-specific components are imported by the MDX page that owns them.
  */
 export function getMDXComponents(components?: MDXComponents) {
   return {

@@ -97,6 +97,7 @@ describe('study module metadata structure', () => {
       'supplement-vocabulary',
       'phrases',
       'word-cards-demo',
+      'claude-benchmarks',
     ]);
     expect(englishVocabularyMeta.pages).toEqual([
       'index',
@@ -135,6 +136,32 @@ describe('study module metadata structure', () => {
 
     expect(vocabularyIndex).toContain('href={`/docs/english/vocabulary/${module.slug}`}');
     expect(vocabularyIndex).not.toContain('href={`./${module.slug}`}');
+  });
+
+  it('mounts the Claude benchmark figures inside a documentation page', () => {
+    const claudeBenchmarkPage = readFileSync(
+      join(docsRoot, 'english', 'claude-benchmarks.mdx'),
+      'utf8',
+    );
+
+    expect(claudeBenchmarkPage).toContain('<ClaudeBenchmarkCharts />');
+    expect(claudeBenchmarkPage).toContain('<ClaudeTestimonialCarousel />');
+    expect(claudeBenchmarkPage).not.toContain('from ../../../components');
+    expect(claudeBenchmarkPage).not.toContain('StudyShowcase');
+
+    const docsPage = readFileSync(
+      join(process.cwd(), 'app', 'docs', '[[...slug]]', 'page.tsx'),
+      'utf8',
+    );
+    expect(docsPage).toContain('getPageMDXComponents');
+
+    const pageComponentRegistry = readFileSync(
+      join(process.cwd(), 'components', 'mdx', 'page-components.tsx'),
+      'utf8',
+    );
+    expect(pageComponentRegistry).toContain('ClaudeBenchmarkCharts');
+    expect(pageComponentRegistry).toContain('ClaudeTestimonialCarousel');
+    expect(pageComponentRegistry).toContain("english/claude-benchmarks.mdx");
   });
 
   it('keeps additional card overview links inside their own routes', () => {

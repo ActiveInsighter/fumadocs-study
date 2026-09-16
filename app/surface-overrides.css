@@ -46,9 +46,29 @@
   transform: none !important;
 }
 
-/* Ensure component-owned dark surfaces do not fall back to charcoal shades. */
-.dark #docs-body [class*='bg-fd-'],
-.dark #nd-sidebar [class*='bg-fd-'] {
+/*
+ * Ensure component-owned dark surfaces do not fall back to charcoal shades.
+ * Scoped to exactly the surface tokens zeroed above. A blanket
+ * `[class*='bg-fd-']` match also caught semantic tints (`bg-fd-info`,
+ * `bg-fd-warning`, `bg-fd-success`, `bg-fd-error`) and `bg-fd-primary`, which
+ * flattened Callout colours to black in dark mode.
+ */
+.dark #docs-body :where(
+    [class*='bg-fd-background'],
+    [class*='bg-fd-card'],
+    [class*='bg-fd-popover'],
+    [class*='bg-fd-secondary'],
+    [class*='bg-fd-muted'],
+    [class*='bg-fd-accent']
+  ),
+.dark #nd-sidebar :where(
+    [class*='bg-fd-background'],
+    [class*='bg-fd-card'],
+    [class*='bg-fd-popover'],
+    [class*='bg-fd-secondary'],
+    [class*='bg-fd-muted'],
+    [class*='bg-fd-accent']
+  ) {
   background-color: #000 !important;
 }
 

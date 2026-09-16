@@ -1,3 +1,12 @@
+/*
+ * Single source of truth for the documentation body type scale.
+ *
+ * This file is imported by app/docs/layout.tsx, so it loads after the root
+ * layout's global.css / surface-overrides.css / claude-benchmarks.css. That
+ * makes it the last declaration in the cascade — keep every `#docs-body`
+ * sizing decision here and nowhere else, otherwise the outcome depends on
+ * bundler CSS order rather than on intent.
+ */
 #docs-body {
   font-size: 1.125rem;
   line-height: 1.8;
