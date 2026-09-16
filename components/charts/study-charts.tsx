@@ -193,10 +193,10 @@ function BarPlot({
         <CommonLegend show={showLegend} />
         {series.map((item, index) => {
           const isOuterStack = !stacked || index === series.length - 1
-          const radius = isOuterStack
+          const radius: number | [number, number, number, number] = isOuterStack
             ? horizontal
-              ? ([0, 5, 5, 0] as const)
-              : ([5, 5, 0, 0] as const)
+              ? [0, 5, 5, 0]
+              : [5, 5, 0, 0]
             : 0
 
           return (
