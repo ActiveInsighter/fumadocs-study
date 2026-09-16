@@ -1,11 +1,14 @@
+import { getSiteOrigin, toAbsoluteSiteUrl } from '@/lib/site-url';
 import { source } from '@/lib/source';
 
-const STUDY_ROOTS = [
+type TreeNode = ReturnType<typeof source.getPageTree>['children'][number];
+
+const ROOT_LABELS = new Map([
   ['408', '408'],
   ['math', '数学'],
   ['english', '英语'],
   ['politics', '政治'],
-] as const;
+]);
 
 function toMarkdownInline(value: string) {
   return value
@@ -14,64 +17,84 @@ function toMarkdownInline(value: string) {
     .trim();
 }
 
-export function buildLLMIndex() {
+function getFolderLabel(node: Extract<TreeNode, { type: 'folder' }>) {
+  const folderPath = node.$ref?.folder ?? '';
+  const rootLabel = ROOT_LABELS.get(folderPath);
+  if (rootLabel) return rootLabel;
+  if (typeof node.name === 'string' && node.name.trim()) return toMarkdownInline(node.name);
+  return toMarkdownInline(folderPath.split('/').filter(Boolean).at(-1) || '目录');
+}
+
+export function buildLLMIndex(siteOrigin = getSiteOrigin()) {
   const pages = source.getPages();
-  const pagesByRoot = new Map<string, typeof pages>();
-
-  for (const page of pages) {
-    const root = page.path.split('/')[0] ?? 'other';
-    const group = pagesByRoot.get(root) ?? [];
-    group.push(page);
-    pagesByRoot.set(root, group);
-  }
-
+  const pageByUrl = new Map(pages.map((page) => [page.url, page] as const));
   const lines = [
     '# Study 文档目录',
     '',
-    '> 这是为 AI、搜索工具和纯文本阅读自动生成的文档索引。优先访问每一项的 Markdown 链接读取完整正文。',
+    '> 这是为 AI、搜索工具和纯文本阅读自动生成的文档索引。',
     '',
-    '每条记录同时提供普通网页与 AI 友好的纯 Markdown 版本。目录直接来自 Fumadocs 页面源，新增、删除或改名文档后会在下一次构建时自动更新。',
+    `站点：${siteOrigin}`,
+    '',
+    '如果你是 AI，请优先直接打开下面的 Markdown 绝对链接读取正文，不要依赖搜索引擎重新检索站点。目录直接来自 Fumadocs 页面树，新增、删除、移动或改名文档后会在下一次构建时自动更新。',
     '',
   ];
 
-  const emittedRoots = new Set<string>();
+  const markdownUrl = (url: string) =>
+    toAbsoluteSiteUrl(`/llms.mdx${url}`, siteOrigin);
+  const browserUrl = (url: string) => toAbsoluteSiteUrl(url, siteOrigin);
 
-  for (const [root, label] of STUDY_ROOTS) {
-    const group = pagesByRoot.get(root);
-    if (!group?.length) continue;
+  function emitPage(url: string, indent = '') {
+    const page = pageByUrl.get(url);
+    if (!page) return;
 
-    emittedRoots.add(root);
-    lines.push(`## ${label}`, '');
+    const title = toMarkdownInline(String(page.data.title || page.path));
+    const description =
+      typeof page.data.description === 'string' && page.data.description.trim().length > 0
+        ? ` — ${toMarkdownInline(page.data.description)}`
+        : '';
 
-    for (const page of [...group].sort((a, b) => a.url.localeCompare(b.url))) {
-      const title = toMarkdownInline(String(page.data.title || page.path));
+    lines.push(
+      `${indent}- [${title}](${browserUrl(page.url)})${description} · [Markdown](${markdownUrl(page.url)})`,
+    );
+  }
+
+  function emitNode(node: TreeNode, depth: number) {
+    if (node.type === 'page') {
+      emitPage(node.url);
+      return;
+    }
+
+    if (node.type !== 'folder') return;
+
+    const headingLevel = Math.min(depth, 6);
+    const label = getFolderLabel(node);
+    lines.push(`${'#'.repeat(headingLevel)} ${label}`, '');
+
+    if (node.index) {
+      const indexPage = pageByUrl.get(node.index.url);
       const description =
-        typeof page.data.description === 'string' && page.data.description.trim().length > 0
-          ? ` — ${toMarkdownInline(page.data.description)}`
+        indexPage &&
+        typeof indexPage.data.description === 'string' &&
+        indexPage.data.description.trim().length > 0
+          ? ` — ${toMarkdownInline(indexPage.data.description)}`
           : '';
-      const markdownUrl = `/llms.mdx${page.url}`;
-
       lines.push(
-        `- [${title}](${page.url})${description} · [Markdown](${markdownUrl})`,
+        `- **目录页**：[网页](${browserUrl(node.index.url)})${description} · [Markdown](${markdownUrl(node.index.url)})`,
+        '',
       );
     }
 
+    for (const child of node.children) {
+      emitNode(child, depth + 1);
+    }
+
     lines.push('');
   }
 
-  for (const [root, group] of pagesByRoot) {
-    if (emittedRoots.has(root) || group.length === 0) continue;
-
-    lines.push(`## ${toMarkdownInline(root)}`, '');
-    for (const page of [...group].sort((a, b) => a.url.localeCompare(b.url))) {
-      const title = toMarkdownInline(String(page.data.title || page.path));
-      const markdownUrl = `/llms.mdx${page.url}`;
-      lines.push(`- [${title}](${page.url}) · [Markdown](${markdownUrl})`);
-    }
-    lines.push('');
+  for (const node of source.getPageTree().children) {
+    emitNode(node, 2);
   }
 
   lines.push(`共 ${pages.length} 篇文档。`, '');
-
   return lines.join('\n');
 }
