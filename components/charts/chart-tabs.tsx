@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 import {
   DropdownMenu,
@@ -58,7 +58,7 @@ export function ChartTabs({
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const [containerWidth, setContainerWidth] = useState(1440)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = rootRef.current
     if (!node) return
 
@@ -93,9 +93,9 @@ export function ChartTabs({
   const visibleIdSet = new Set(visibleIds)
   const overflowIds = getOverflowChartTabIds(tabs, containerWidth, visibilityOptions)
   const overflowIdSet = new Set(overflowIds)
-  const activeOverflowTab = tabs.find(
-    (tab) => tab.id === value && overflowIdSet.has(tab.id),
-  )
+  const visibleTabs = tabs.filter((tab) => visibleIdSet.has(tab.id))
+  const overflowTabs = tabs.filter((tab) => overflowIdSet.has(tab.id))
+  const activeOverflowTab = overflowTabs.find((tab) => tab.id === value)
 
   const focusTab = (id: string) => {
     window.requestAnimationFrame(() => tabRefs.current[id]?.focus())
@@ -124,48 +124,43 @@ export function ChartTabs({
         className={cn(styles.list, classNames?.list)}
         variant="line"
       >
-        {tabs.map((tab) => {
-          const isVisible = visibleIdSet.has(tab.id)
-
-          return (
-            <TabsTrigger
-              aria-controls={`${panelIdPrefix}-panel-${tab.id}`}
-              className={cn(styles.tab, classNames?.tab)}
-              data-selected={value === tab.id ? "true" : undefined}
-              id={`${panelIdPrefix}-tab-${tab.id}`}
-              key={tab.id}
-              ref={(node) => {
-                tabRefs.current[tab.id] = node
-              }}
-              style={{ display: isVisible ? undefined : "none" }}
-              value={tab.id}
-              onKeyDown={(event) => {
-                if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-                  event.preventDefault()
-                  moveFocus(tab.id, 1)
-                } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-                  event.preventDefault()
-                  moveFocus(tab.id, -1)
-                } else if (event.key === "Home") {
-                  event.preventDefault()
-                  const firstId = visibleIds[0] ?? tab.id
-                  onChange(firstId)
-                  focusTab(firstId)
-                } else if (event.key === "End") {
-                  event.preventDefault()
-                  const lastId = visibleIds.at(-1) ?? tab.id
-                  onChange(lastId)
-                  focusTab(lastId)
-                }
-              }}
-            >
-              {tab.label}
-            </TabsTrigger>
-          )
-        })}
+        {visibleTabs.map((tab) => (
+          <TabsTrigger
+            aria-controls={`${panelIdPrefix}-panel-${tab.id}`}
+            className={cn(styles.tab, classNames?.tab)}
+            data-selected={value === tab.id ? "true" : undefined}
+            id={`${panelIdPrefix}-tab-${tab.id}`}
+            key={tab.id}
+            ref={(node) => {
+              tabRefs.current[tab.id] = node
+            }}
+            value={tab.id}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                event.preventDefault()
+                moveFocus(tab.id, 1)
+              } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                event.preventDefault()
+                moveFocus(tab.id, -1)
+              } else if (event.key === "Home") {
+                event.preventDefault()
+                const firstId = visibleIds[0] ?? tab.id
+                onChange(firstId)
+                focusTab(firstId)
+              } else if (event.key === "End") {
+                event.preventDefault()
+                const lastId = visibleIds.at(-1) ?? tab.id
+                onChange(lastId)
+                focusTab(lastId)
+              }
+            }}
+          >
+            {tab.label}
+          </TabsTrigger>
+        ))}
       </TabsList>
 
-      {overflowIds.length > 0 ? (
+      {overflowTabs.length > 0 ? (
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label={
@@ -184,18 +179,16 @@ export function ChartTabs({
             sideOffset={8}
           >
             <DropdownMenuGroup>
-              {tabs
-                .filter((tab) => overflowIdSet.has(tab.id))
-                .map((tab) => (
-                  <DropdownMenuItem
-                    className={cn(styles.menuItem, classNames?.menuItem)}
-                    data-active={value === tab.id ? "true" : undefined}
-                    key={tab.id}
-                    onClick={() => onChange(tab.id)}
-                  >
-                    {tab.label}
-                  </DropdownMenuItem>
-                ))}
+              {overflowTabs.map((tab) => (
+                <DropdownMenuItem
+                  className={cn(styles.menuItem, classNames?.menuItem)}
+                  data-active={value === tab.id ? "true" : undefined}
+                  key={tab.id}
+                  onClick={() => onChange(tab.id)}
+                >
+                  {tab.label}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
