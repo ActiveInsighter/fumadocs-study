@@ -1,0 +1,78 @@
+.frame {
+  --study-chart-1: #657a48;
+  --study-chart-2: #6f76a8;
+  --study-chart-3: #c46f55;
+  --study-chart-4: #5f8c91;
+  --study-chart-5: #9a7558;
+  width: 100%;
+  margin: 1.75rem 0;
+  color: var(--foreground);
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+}
+
+.caption {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 1rem 0;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.description {
+  max-width: 72ch;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.legend {
+  padding: 0.75rem 1rem 0;
+}
+
+.plot {
+  min-width: 0;
+  padding: 0.75rem 0.75rem 0.85rem;
+}
+
+.footnote {
+  margin: 0.55rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+:global(.dark) .frame {
+  --study-chart-1: #a7bc80;
+  --study-chart-2: #aab0df;
+  --study-chart-3: #e69a80;
+  --study-chart-4: #8bc0c4;
+  --study-chart-5: #c6a286;
+}
+
+@media (max-width: 567px) {
+  .frame {
+    margin: 1.4rem 0;
+  }
+
+  .panel {
+    border-radius: 10px;
+  }
+
+  .caption {
+    padding: 0.9rem 0.85rem 0;
+  }
+
+  .plot {
+    padding: 0.6rem 0.45rem 0.75rem;
+  }
+}

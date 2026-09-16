@@ -1,0 +1,31 @@
+name: Trigger chart system preview
+
+on:
+  push:
+    branches:
+      - codex/chart-system-refactor
+    paths:
+      - 'components/**'
+      - 'content/docs/**'
+      - 'tests/**'
+      - '.github/workflows/preview-chart-system.yml'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch-preview:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Dispatch isolated static docs preview
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const ref = context.ref.replace('refs/heads/', '')
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-static-docs-preview.yml',
+              ref,
+            })

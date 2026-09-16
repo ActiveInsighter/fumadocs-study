@@ -44,7 +44,8 @@
 
 .tab:hover,
 .tab:focus-visible,
-.tab[data-active] {
+.tab[data-active],
+.tab[data-selected="true"] {
   color: var(--foreground, #141413);
 }
 
@@ -60,7 +61,7 @@
   z-index: 4;
   top: 0;
   right: 0;
-  display: none;
+  display: inline-flex;
   width: 36px;
   height: 36px;
   justify-content: center;
@@ -141,32 +142,6 @@
 .menuItem[data-active="true"] {
   background: rgb(20 20 19 / 4%) !important;
   color: #141413 !important;
-}
-
-@media (max-width: 991px) {
-  .switcherRow[data-tab-count="4"] > .tabs > .tab[data-tab-index="3"] {
-    display: none;
-  }
-
-  .switcherRow[data-tab-count="4"] > .moreButton {
-    display: inline-flex;
-  }
-}
-
-@media (max-width: 567px) {
-  .tabs {
-    min-height: 36px;
-  }
-
-  .switcherRow[data-tab-count="4"] > .tabs > .tab[data-tab-index]:not([data-tab-index="0"]),
-  .switcherRow[data-tab-count="2"] > .tabs > .tab[data-tab-index="1"] {
-    display: none;
-  }
-
-  .switcherRow[data-tab-count="4"] > .moreButton,
-  .switcherRow[data-tab-count="2"] > .moreButton {
-    display: inline-flex;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

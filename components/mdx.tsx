@@ -1,3 +1,11 @@
+import {
+  StudyAreaChart,
+  StudyBarChart,
+  StudyHistogram,
+  StudyLineChart,
+  StudyPieChart,
+  StudyScatterChart,
+} from '@/components/charts';
 import { Mermaid } from '@/components/mdx/mermaid';
 import { WordCardModeToggle, WordCards } from '@/components/vocabulary/word-cards';
 import * as AccordionComponents from 'fumadocs-ui/components/accordion';
@@ -13,9 +21,12 @@ import type { MDXComponents } from 'mdx/types';
  *
  * Cards and Callout are included by Fumadocs' default mapping. The additional
  * official component groups below are registered globally so documentation can
- * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards and the
- * shared vocabulary display toggle without repeating imports in every MDX file.
- * Feature-specific components are imported by the MDX page that owns them.
+ * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards, the shared
+ * vocabulary display toggle and the reusable Study chart family without
+ * repeating imports in every MDX file.
+ *
+ * Feature-specific compositions (for example the Claude benchmark experience)
+ * stay page-scoped in components/mdx/page-components.tsx.
  */
 export function getMDXComponents(components?: MDXComponents) {
   return {
@@ -25,6 +36,12 @@ export function getMDXComponents(components?: MDXComponents) {
     ...StepsComponents,
     ...TabsComponents,
     Mermaid,
+    StudyAreaChart,
+    StudyBarChart,
+    StudyHistogram,
+    StudyLineChart,
+    StudyPieChart,
+    StudyScatterChart,
     TypeTable,
     WordCardModeToggle,
     WordCards,
