@@ -83,6 +83,12 @@ function CommonLegend({ show }: { show: boolean }) {
   return <ChartLegend content={<ChartLegendContent />} />
 }
 
+function yAxisLabel(yLabel?: string) {
+  return yLabel
+    ? { value: yLabel, angle: -90, position: "insideLeft" as const }
+    : undefined
+}
+
 export function StudyBarChart({
   data,
   xKey,
@@ -147,18 +153,18 @@ function BarPlot({
   const { shouldAnimate } = useChartMotion()
 
   return (
-    <ChartContainer
-      className={styles.chart}
-      config={config}
-      style={{ height }}
-    >
+    <ChartContainer className={styles.chart} config={config} style={{ height }}>
       <BarChart
         accessibilityLayer
         data={chartData(data)}
         layout={horizontal ? "vertical" : "horizontal"}
         margin={{ top: 12, right: 14, bottom: 8, left: horizontal ? 20 : 4 }}
       >
-        <CartesianGrid vertical={!horizontal} horizontal={horizontal} strokeDasharray="3 3" />
+        <CartesianGrid
+          horizontal={!horizontal}
+          vertical={horizontal}
+          strokeDasharray="3 3"
+        />
         {horizontal ? (
           <>
             <XAxis type="number" tickLine={false} axisLine={false} />
@@ -176,11 +182,7 @@ function BarPlot({
             <YAxis
               tickLine={false}
               axisLine={false}
-              label={
-                yLabel
-                  ? { value: yLabel, angle: -90, position: "insideLeft" }
-                  : undefined
-              }
+              label={yAxisLabel(yLabel)}
             />
           </>
         )}
@@ -189,18 +191,27 @@ function BarPlot({
           content={<ChartTooltipContent />}
         />
         <CommonLegend show={showLegend} />
-        {series.map((item, index) => (
-          <Bar
-            dataKey={item.key}
-            fill={`var(--color-${item.key})`}
-            isAnimationActive={shouldAnimate}
-            key={item.key}
-            radius={stacked ? 0 : [5, 5, 0, 0]}
-            stackId={stacked ? "total" : undefined}
-            animationBegin={index * 60}
-            animationDuration={650}
-          />
-        ))}
+        {series.map((item, index) => {
+          const isOuterStack = !stacked || index === series.length - 1
+          const radius = isOuterStack
+            ? horizontal
+              ? ([0, 5, 5, 0] as const)
+              : ([5, 5, 0, 0] as const)
+            : 0
+
+          return (
+            <Bar
+              dataKey={item.key}
+              fill={`var(--color-${item.key})`}
+              isAnimationActive={shouldAnimate}
+              key={item.key}
+              radius={radius}
+              stackId={stacked ? "total" : undefined}
+              animationBegin={index * 60}
+              animationDuration={650}
+            />
+          )
+        })}
       </BarChart>
     </ChartContainer>
   )
@@ -273,15 +284,7 @@ function LinePlot({
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey={xKey} tickLine={false} axisLine={false} />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          label={
-            yLabel
-              ? { value: yLabel, angle: -90, position: "insideLeft" }
-              : undefined
-          }
-        />
+        <YAxis tickLine={false} axisLine={false} label={yAxisLabel(yLabel)} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <CommonLegend show={showLegend} />
         {series.map((item, index) => (
@@ -370,15 +373,7 @@ function AreaPlot({
       >
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey={xKey} tickLine={false} axisLine={false} />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          label={
-            yLabel
-              ? { value: yLabel, angle: -90, position: "insideLeft" }
-              : undefined
-          }
-        />
+        <YAxis tickLine={false} axisLine={false} label={yAxisLabel(yLabel)} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <CommonLegend show={showLegend} />
         {series.map((item, index) => (
@@ -581,11 +576,7 @@ function ScatterPlot({
           type="number"
           tickLine={false}
           axisLine={false}
-          label={
-            yLabel
-              ? { value: yLabel, angle: -90, position: "insideLeft" }
-              : undefined
-          }
+          label={yAxisLabel(yLabel)}
         />
         <ChartTooltip
           cursor={{ stroke: "var(--muted-foreground)", strokeDasharray: "3 3" }}
