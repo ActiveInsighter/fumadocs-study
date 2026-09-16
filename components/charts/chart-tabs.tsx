@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useSyncExternalStore } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import {
   DropdownMenu,
@@ -42,14 +42,6 @@ export type ChartTabsProps = ChartTabVisibilityOptions & {
   classNames?: ChartTabsClassNames
 }
 
-const subscribeToViewport = (onStoreChange: () => void) => {
-  window.addEventListener("resize", onStoreChange)
-  return () => window.removeEventListener("resize", onStoreChange)
-}
-
-const getViewportWidth = () => window.innerWidth
-const getServerViewportWidth = () => 1440
-
 export function ChartTabs({
   tabs,
   value,
@@ -62,21 +54,44 @@ export function ChartTabs({
   mediumBreakpoint,
   mediumVisibleCount,
 }: ChartTabsProps) {
-  const viewportWidth = useSyncExternalStore(
-    subscribeToViewport,
-    getViewportWidth,
-    getServerViewportWidth,
-  )
+  const rootRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [containerWidth, setContainerWidth] = useState(1440)
+
+  useEffect(() => {
+    const node = rootRef.current
+    if (!node) return
+
+    const updateWidth = () => {
+      const nextWidth = Math.round(node.getBoundingClientRect().width)
+      if (nextWidth > 0) {
+        setContainerWidth((currentWidth) =>
+          currentWidth === nextWidth ? currentWidth : nextWidth,
+        )
+      }
+    }
+
+    updateWidth()
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateWidth)
+      return () => window.removeEventListener("resize", updateWidth)
+    }
+
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   const visibilityOptions = {
     compactBreakpoint,
     compactVisibleCount,
     mediumBreakpoint,
     mediumVisibleCount,
   }
-  const visibleIds = getVisibleChartTabIds(tabs, viewportWidth, visibilityOptions)
+  const visibleIds = getVisibleChartTabIds(tabs, containerWidth, visibilityOptions)
   const visibleIdSet = new Set(visibleIds)
-  const overflowIds = getOverflowChartTabIds(tabs, viewportWidth, visibilityOptions)
+  const overflowIds = getOverflowChartTabIds(tabs, containerWidth, visibilityOptions)
   const overflowIdSet = new Set(overflowIds)
   const activeOverflowTab = tabs.find(
     (tab) => tab.id === value && overflowIdSet.has(tab.id),
@@ -91,7 +106,7 @@ export function ChartTabs({
       tabs,
       currentId,
       direction,
-      viewportWidth,
+      containerWidth,
       visibilityOptions,
     )
     onChange(nextId)
@@ -99,7 +114,11 @@ export function ChartTabs({
   }
 
   return (
-    <div className={cn(styles.root, classNames?.root)} data-tab-count={tabs.length}>
+    <div
+      className={cn(styles.root, classNames?.root)}
+      data-tab-count={tabs.length}
+      ref={rootRef}
+    >
       <TabsList
         aria-label={ariaLabel}
         className={cn(styles.list, classNames?.list)}
