@@ -35,7 +35,7 @@ title: "虚拟内存管理"
 解答题
 [12#45](https://csgraduates.com/study_methods/408quiz/2012/#45)
 
-![驻留集概念图解 进程虚拟内存 Page 0 Page 1 Page 2 Page 3 Page 4 Page 5 Page 6 Page 7 在内存 在内存 已换出 在内存 已换出 在内存 已换出 已换出 物理内存 (RAM) 驻留集 (Resident Set) Page 0 Page 1 Page 3 Page 5 其他 其他 空闲 其他 空闲 驻留集大小 = 4 页 磁盘存储 (交换区) Page 2 Page 4 Page 6 图例： 在物理内存中的页面 已换出到磁盘](/images/operating-system/operating-system-memory-management-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-001.svg" alt={"驻留集概念图解 进程虚拟内存 Page 0 Page 1 Page 2 Page 3 Page 4 Page 5 Page 6 Page 7 在内存 在内存 已换出 在内存 已换出 在内存 已换出 已换出 物理内存 (RAM) 驻留集 (Resident Set) Page 0 Page 1 Page 3 Page 5 其他 其他 空闲 其他 空闲 驻留集大小 = 4 页 磁盘存储 (交换区) Page 2 Page 4 Page 6 图例： 在物理内存中的页面 已换出到磁盘"} />
 
 **驻留集（Resident Set）** 是指某个进程在执行过程中，当前实际存放在物理内存中的页面集合。换句话说，它反映了该进程在某一时刻真正占用并可直接访问的物理页。由于进程的地址空间往往远大于物理内存，操作系统通过 **虚拟存储管理** 来实现“用部分物理内存支撑完整逻辑地址空间”，而驻留集正是这个机制下进程能够被立即访问的 **物理页子集**。
 
@@ -58,7 +58,7 @@ title: "虚拟内存管理"
 
 **抖动**（Thrashing）是指操作系统中频繁发生的页面置换现象，即刚被换出的页面马上又要被换入内存，刚被换入的页面马上又要被换出外存，导致系统大部分时间都用于页面的换入换出，而真正用于进程运行的时间很少。
 
-![抖动 (Thrashing) 现象图解 物理内存 页面 A 页面 B 页面 C 内存不足! 磁盘存储 页面 D 页面 E 页面 F 页面 G ... 换出到磁盘 从磁盘换入 工作集过大 进程需要的活跃页面 超过了物理内存容量 ↓ 导致频繁缺页中断 ↓ 刚换出的页面立即需要换入 CPU 使用率 大部分时间在等待I/O 系统性能 吞吐量 ↓ 响应时间 ↑ 系统变得迟钝无响应 抖动现象! 频繁交换区域](/images/operating-system/operating-system-memory-management-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-002.svg" alt={"抖动 (Thrashing) 现象图解 物理内存 页面 A 页面 B 页面 C 内存不足! 磁盘存储 页面 D 页面 E 页面 F 页面 G ... 换出到磁盘 从磁盘换入 工作集过大 进程需要的活跃页面 超过了物理内存容量 ↓ 导致频繁缺页中断 ↓ 刚换出的页面立即需要换入 CPU 使用率 大部分时间在等待I/O 系统性能 吞吐量 ↓ 响应时间 ↑ 系统变得迟钝无响应 抖动现象! 频繁交换区域"} />
 
 当系统为一个进程分配的物理内存不足以满足其 **工作集**（当前活跃的页面集合）的需求时，就会频繁发生 **缺页中断**。操作系统必须不停地从磁盘读取所需的页面到内存中，同时写出其他页面以释放空间。因为磁盘访问速度远慢于内存访问，这种频繁的磁盘 I/O 活动显著减慢了系统性能。
 
@@ -75,15 +75,15 @@ title: "虚拟内存管理"
   - 内存不是被划分为固定大小的区块，而是根据每个程序的需求动态分配。
   - 当一个程序请求内存时，操作系统查看可用内存并分配足够的空间给该程序，这个空间刚好满足其需求。
 
-![内存分配策略 固定分配 相同大小分区 每个区块大小相同 程序A 程序B 程序C 空闲 空闲 不同大小分区 区块大小可以不同 程序A 程序B 程序C 空闲 • 内存被预先划分为固定区块 • 程序分配到固定大小的区块中 可变分配 初始状态 空闲内存 动态分配后 程序A (90MB) 程序B (70MB) 程序C 剩余空闲 程序B结束，内存释放 程序A 空闲 程序C 空闲 • 根据程序需求动态分配内存 • 内存利用率更高 • 分配和释放更灵活 对比 总结: 固定分配简单但可能浪费内](/images/operating-system/operating-system-memory-management-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-003.svg" alt={"内存分配策略 固定分配 相同大小分区 每个区块大小相同 程序A 程序B 程序C 空闲 空闲 不同大小分区 区块大小可以不同 程序A 程序B 程序C 空闲 • 内存被预先划分为固定区块 • 程序分配到固定大小的区块中 可变分配 初始状态 空闲内存 动态分配后 程序A (90MB) 程序B (70MB) 程序C 剩余空闲 程序B结束，内存释放 程序A 空闲 程序C 空闲 • 根据程序需求动态分配内存 • 内存利用率更高 • 分配和释放更灵活 对比 总结: 固定分配简单但可能浪费内"} />
 
 **固定分配** 中可以分为两种方式，一种是将内存分为若干大小相同的分区，另一种是将内存分为大小不同的分区。
 
-![System Partition Partition 1 (10 MB) Partition 2 (10 MB) Partition 3 (10 MB) Partition 4 (10 MB) System Partition Partition 1 (2 MB) Partition 2 (2 MB) Partition 3 (4 MB) Partition 5 (8 MB) Partition 4 (6 MB) Partition 6 (12 MB) 内存（分区大小相同） ](/images/operating-system/operating-system-memory-management-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-004.svg" alt={"System Partition Partition 1 (10 MB) Partition 2 (10 MB) Partition 3 (10 MB) Partition 4 (10 MB) System Partition Partition 1 (2 MB) Partition 2 (2 MB) Partition 3 (4 MB) Partition 5 (8 MB) Partition 4 (6 MB) Partition 6 (12 MB) 内存（分区大小相同） "} />
 
 **可变分配** 也包含两种分配方式，一种就是将 [内存分为若干页面](https://csgraduates.com/constitution_principle/storage/virtual/#%e8%af%b7%e6%b1%82%e9%a1%b5%e5%bc%8f%e7%ae%a1%e7%90%86)，然后根据进程的需求为其动态地分配内存页面。另一种思路与 [动态分区分配](https://csgraduates.com/operating_system/memory/concepts/#%e5%8a%a8%e6%80%81%e5%88%86%e5%8c%ba%e5%88%86%e9%85%8d) 一致，在一块连续的内存上动态地申请连续的某个长度的存储空间。
 
-![Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1 Frame 2 Frame 3 Process 0 Process 2 Process 1 Process 3 空闲页面 Prcoess 0 Process 1 Process 2 Process 3 空闲空间 页式可变分配 动态分区可变分配](/images/operating-system/operating-system-memory-management-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-005.svg" alt={"Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1 Frame 2 Frame 3 Process 0 Process 2 Process 1 Process 3 空闲页面 Prcoess 0 Process 1 Process 2 Process 3 空闲空间 页式可变分配 动态分区可变分配"} />
 
 #### 内存置换策略
 
@@ -94,7 +94,7 @@ title: "虚拟内存管理"
 - **局部置换** 策略是指在选择要换出的页面时，仅限于该进程自身所拥有的内存页面范围内进行选择。也就是说，一个进程的 **缺页** 不会影响到其他进程的内存页面。
 - **全局置换** 策略是指在选择要换出的页面时，可以在整个系统的内存页面范围内进行选择。也就是说，一个进程的 **缺页** 可能会导致其他进程的内存页面被换出。
 
-![内存置换策略 局部置换 (Local Replacement) 初始状态 - 物理内存 A1 A2 A3 B1 B2 C1 进程A 进程B 进程C 进程A发生缺页，需要载入A4 A4 A2 A3 B1 B2 C1 A1被A4置换 不受影响 不受影响 • 只在进程自身页面内选择置换 • 不影响其他进程的内存页面 全局置换 (Global Replacement) 初始状态 - 物理内存 A1 A2 A3 B1 B2 C1 进程A 进程B 进程C 进程A发生缺页，需要载入A4 A](/images/operating-system/operating-system-memory-management-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-006.svg" alt={"内存置换策略 局部置换 (Local Replacement) 初始状态 - 物理内存 A1 A2 A3 B1 B2 C1 进程A 进程B 进程C 进程A发生缺页，需要载入A4 A4 A2 A3 B1 B2 C1 A1被A4置换 不受影响 不受影响 • 只在进程自身页面内选择置换 • 不影响其他进程的内存页面 全局置换 (Global Replacement) 初始状态 - 物理内存 A1 A2 A3 B1 B2 C1 进程A 进程B 进程C 进程A发生缺页，需要载入A4 A"} />
 
 注意
 
@@ -132,7 +132,7 @@ title: "虚拟内存管理"
 
 **FIFO** 的实现方法是把调入内存的页面按先后顺序放入队列中，当需要置换页面时，选择队头的页面即可。
 
-![A B A C B A D C B E D C A B A B C D E F Front Rear 清除 A 清除 B F E D C F 清除 C](/images/operating-system/operating-system-memory-management-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-007.svg" alt={"A B A C B A D C B E D C A B A B C D E F Front Rear 清除 A 清除 B F E D C F 清除 C"} />
 
 ##### Belady 异常
 
@@ -160,7 +160,7 @@ title: "虚拟内存管理"
 
 但这在实际情况下是不可能的，因而 **OPT** 算法通常用于理论研究和性能评估，以作为其他页面置换算法的性能上限的比较基准。
 
-![核心思想：选择在未来最长时间内不会被访问的页面进行置换 （需要预知未来的页面访问序列） ⚠️ 实际不可实现，仅用于理论研究和性能基准 算法演示示例 页面访问序列： A B C A D B E A 当前时刻 当前内存状态 (容量: 3页)： 页面 A 下次访问: +3 页面 B 下次访问: +2 页面 C 不再访问 OPT 算法选择：置换页面 C （未来不再访问） ✓ 算法优势 • 理论上最优解 • 缺页中断次数最少 • 性能评估基准 • 算法正确性证明标准 • 其他算法效果对](/images/operating-system/operating-system-memory-management-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-008.svg" alt={"核心思想：选择在未来最长时间内不会被访问的页面进行置换 （需要预知未来的页面访问序列） ⚠️ 实际不可实现，仅用于理论研究和性能基准 算法演示示例 页面访问序列： A B C A D B E A 当前时刻 当前内存状态 (容量: 3页)： 页面 A 下次访问: +3 页面 B 下次访问: +2 页面 C 不再访问 OPT 算法选择：置换页面 C （未来不再访问） ✓ 算法优势 • 理论上最优解 • 缺页中断次数最少 • 性能评估基准 • 算法正确性证明标准 • 其他算法效果对"} />
 
 举个 **实际例子** 来说明一下 OPT 页面置换算法的运行过程：
 
@@ -208,7 +208,7 @@ title: "虚拟内存管理"
 如果内存中包含 3 个页面，A 页面在 1 分钟前被使用过，B 页面在 2 分钟前被使用过，C 页面在 3 分钟前被使用过。  
 那么在这种情况下，**LRU** 算法会优先替换 C 页面，因为该页面上次使用的时间距离现在最远。
 
-![LRU 页面置换算法 时间 现在 1分钟前 2分钟前 3分钟前 内存中的页面 页面 A 1分钟前使用 较新 页面 B 2分钟前使用 中等 页面 C 3分钟前使用 最旧 LRU 算法决策 选择"最近最少使用"的页面进行替换 被替换 页面C距离现在时间最远，优先被替换出内存 算法原理：时间局部性 最近被使用的页面，在将来被再次使用的可能性更大 因此保留最近使用的页面，替换最久未使用的页面](/images/operating-system/operating-system-memory-management-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-009.svg" alt={"LRU 页面置换算法 时间 现在 1分钟前 2分钟前 3分钟前 内存中的页面 页面 A 1分钟前使用 较新 页面 B 2分钟前使用 中等 页面 C 3分钟前使用 最旧 LRU 算法决策 选择\"最近最少使用\"的页面进行替换 被替换 页面C距离现在时间最远，优先被替换出内存 算法原理：时间局部性 最近被使用的页面，在将来被再次使用的可能性更大 因此保留最近使用的页面，替换最久未使用的页面"} />
 
 我们可以使用一个队列来保存内存中的页面，**最近被使用过** 的页面放在 **队列尾部**，表示这些页面不会优先被替换。**最近没使用过** 的页面会放在 **队列头部**，表示这些页面会优先被替换。基于这种思路，**LRU** 算法可以用如下过程进行描述：
 
@@ -222,11 +222,11 @@ title: "虚拟内存管理"
 
 举个例子，在下图中，当进程访问 C 页面时，发现 C 页面出现在其驻留集中，所以需要将 C 移动到队列尾部，这样刚刚访问过的 C 页面的淘汰优先级就会降到最低。
 
-![A B A C B A D C B A E D C B A F E D C B A C F E D B G C F E D B A B C D E F C G Front Rear 移动 C 到尾部 清除 A 清除 B](/images/operating-system/operating-system-memory-management-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-010.svg" alt={"A B A C B A D C B A E D C B A F E D C B A C F E D B G C F E D B A B C D E F C G Front Rear 移动 C 到尾部 清除 A 清除 B"} />
 
 LRU 的 **执行流程** 可以通过以下流程图理解：
 
-![LRU_Algorithm](/images/operating-system/operating-system-memory-management-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-011.svg" alt={"LRU_Algorithm"} />
 
 ---
 
@@ -286,7 +286,7 @@ Clock 算法的提出是为了解决 LRU 算法在硬件实现上的复杂性，
 
 CLOCK 算法的核心思想是使用一个类似时钟的数据结构，以跟踪每个页面的访问状态。
 
-![Page 0 Page 1 Page 2 Page 3 Page 4 Page 5 Page 6 Page 7 1 1 1 0 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 进程有 8 个页面，每个页面用时钟中的一位来表示](/images/operating-system/operating-system-memory-management-012.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-012.svg" alt={"Page 0 Page 1 Page 2 Page 3 Page 4 Page 5 Page 6 Page 7 1 1 1 0 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 进程有 8 个页面，每个页面用时钟中的一位来表示"} />
 
 页面的访问状态用一个比特位（访问位）来表示：
 
@@ -297,7 +297,7 @@ CLOCK 算法的核心思想是使用一个类似时钟的数据结构，以跟�
 
 当一个新页面被添加时，时钟中的指针会不断旋转，直到找到一个访问位为 0 的页面将其替换。若当前页面的访问位为 1，则将其设置为 0，并移动到下一个位置进行查找。
 
-![1 → 0 1 1 0 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 访问位为 1，将其设置为 0， 并将指针移动到下个页面 1 1 0 → 1 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 访问位为 0，替换该页面， 并将访问位设置为 1 0 该页面 被替换](/images/operating-system/operating-system-memory-management-013.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-013.svg" alt={"1 → 0 1 1 0 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 访问位为 1，将其设置为 0， 并将指针移动到下个页面 1 1 0 → 1 0 0 0 0 page  0 page  1 page  2 page  3 page  4 page  5 page  6 page  7 访问位为 0，替换该页面， 并将访问位设置为 1 0 该页面 被替换"} />
 
 ---
 
@@ -319,11 +319,11 @@ Clock **替换策略** 如下：
 
 Clock 替换策略可以通过以下流程图理解：
 
-![ClockAlgorithm](/images/operating-system/operating-system-memory-management-014.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-014.svg" alt={"ClockAlgorithm"} />
 
 以下图为例，当首先访问页面 A、B、C 时，可以找到访问位为 0 的页面，直接替换页面；接下来访问页面 D，由于此时页面已满且访问位都为 1，指针会移动一个循环并且将所有页面的访问位都设置为 0，最后替换页面 A；然后访问页面 C 时，发现页面 C 已经存在，将对应的访问位设置为 1，指针位置不动；最后访问页面 E，发现指针指向的页面 B 访问位为 0，替换该页面，然后将指针后移一个位置。
 
-![0 0 0 A 1 0 0 A 1 B 1 0 A 1 B 1 C 1 D 1 B 0 C 0 D 1 B 0 C 1 D 1 E 1 C 1 A B C D C E A B 指针 页面号 访问位 替换 替换](/images/operating-system/operating-system-memory-management-015.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-015.svg" alt={"0 0 0 A 1 0 0 A 1 B 1 0 A 1 B 1 C 1 D 1 B 0 C 0 D 1 B 0 C 1 D 1 E 1 C 1 A B C D C E A B 指针 页面号 访问位 替换 替换"} />
 
 那么 **Clock** 算法是如何保证最近访问过的页面尽量晚被淘汰呢？这主要包含两点：
 
@@ -375,11 +375,11 @@ Clock 替换策略可以通过以下流程图理解：
 - 如果第一轮扫描没有找到 **(0, 0)** 类型的页面，则进行第二轮扫描，寻找 **(0, 1)** 类型的页面。
 - 如果前两轮都没有找到，那么会将所有访问位设置为 0 然后重复前两轮扫描。
 
-![0 0 0 A A B A B C 0 0 0 1 0 0 1 0 0 1 1 0 1 1 0 1 1 1 1 1 0 A B C 0 0 0 1 1 0 C A B D 0 0 1 1 1 0 Write(A) Read(C) Read(D) Read(D) 页面号 访问位 脏位 1. 首轮遍历页面查找 (0, 0) 的页面 2. 次轮遍历页面查找 (0, 1) 的页面 3. 将所有页面的访问位都设置为0 查找 (0, 0) 的页面进行替换 替换 指针](/images/operating-system/operating-system-memory-management-016.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-016.svg" alt={"0 0 0 A A B A B C 0 0 0 1 0 0 1 0 0 1 1 0 1 1 0 1 1 1 1 1 0 A B C 0 0 0 1 1 0 C A B D 0 0 1 1 1 0 Write(A) Read(C) Read(D) Read(D) 页面号 访问位 脏位 1. 首轮遍历页面查找 (0, 0) 的页面 2. 次轮遍历页面查找 (0, 1) 的页面 3. 将所有页面的访问位都设置为0 查找 (0, 0) 的页面进行替换 替换 指针"} />
 
 `(R, M)` 的四类页面以及两轮（最多四轮）扫描的执行顺序可参考下图理解：
 
-![改进型 Clock：基于 (R, M) 的四类页面与两轮扫描 四类页面与淘汰优先级 M=1 M (修改位) M=0 R=0 R (访问位) R=1 (0, 0) 最近未访问 + 未修改 直接淘汰，无需回写 优先级 ① 最高 (1, 0) 最近访问过 + 未修改 活跃但无脏数据 优先级 ③ (0, 1) 最近未访问 + 已修改 淘汰前需写回磁盘 优先级 ② (1, 1) 最近访问过 + 已修改 最不该淘汰 优先级 ④ 最低 两轮（最多四轮）扫描流程 第 1 轮：找 (0, 0)](/images/operating-system/operating-system-memory-management-017.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-017.svg" alt={"改进型 Clock：基于 (R, M) 的四类页面与两轮扫描 四类页面与淘汰优先级 M=1 M (修改位) M=0 R=0 R (访问位) R=1 (0, 0) 最近未访问 + 未修改 直接淘汰，无需回写 优先级 ① 最高 (1, 0) 最近访问过 + 未修改 活跃但无脏数据 优先级 ③ (0, 1) 最近未访问 + 已修改 淘汰前需写回磁盘 优先级 ② (1, 1) 最近访问过 + 已修改 最不该淘汰 优先级 ④ 最低 两轮（最多四轮）扫描流程 第 1 轮：找 (0, 0)"} />
 
 #### LFU
 
@@ -391,7 +391,7 @@ Clock 替换策略可以通过以下流程图理解：
 2. **页面命中**：如果要访问的页面已经在内存中，则增加该页面的访问计数。
 3. **页面置换**：当需要为新的页面腾出空间时（也就是说，当内存中的页面已满并且需要加载一个新页面时），系统会查看所有当前在内存中的页面的访问计数，选择访问次数最少的那个页面进行置换。
 
-![A D Front Rear B C D E 32 30 26 26 25 A B B D C E 32 30 27 26 25 A F B D C E 32 31 27 26 25 A B D C F 32 31 27 26 1 E Elimiate](/images/operating-system/operating-system-memory-management-018.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-018.svg" alt={"A D Front Rear B C D E 32 30 26 26 25 A B B D C E 32 30 27 26 25 A F B D C E 32 31 27 26 25 A B D C F 32 31 27 26 1 E Elimiate"} />
 
 ### 内存映射文件
 
@@ -410,7 +410,7 @@ Clock 替换策略可以通过以下流程图理解：
 - 操作系统在进程的虚拟地址空间中分配一段连续的虚拟内存，并建立虚拟地址与文件内容的映射关系。
 - 当进程访问这部分虚拟地址时，操作系统通过分页机制将文件内容加载到物理内存，并同步更新文件内容到磁盘。
 
-![栈 堆 bss 数据段 text 数据段 文件存储 映射部分 文件 进程地址空间 高地址 低地址 offset len](/images/operating-system/operating-system-memory-management-019.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-management-019.svg" alt={"栈 堆 bss 数据段 text 数据段 文件存储 映射部分 文件 进程地址空间 高地址 低地址 offset len"} />
 
 **那么 mmap 相对于常规文件的优势在哪里呢？**（了解）
 

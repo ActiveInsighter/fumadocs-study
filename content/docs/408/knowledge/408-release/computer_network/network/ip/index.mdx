@@ -32,7 +32,7 @@ IPv4 地址由 4 个字节（即 **32 位**）构成，例如：`11000000.101010
 
 在点分十进制中，**每个字节用十进制数表示**，并以点号分隔 4 个字节。例如，上述二进制地址对应的点分十进制形式为 `192.168.4.2`。
 
-![IP 图 1](/images/computer-network/computer-network-network-ip-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-001.svg" alt={"IP 图 1"} />
 
 #### 网络号和主机号
 
@@ -59,7 +59,7 @@ IP 地址的设计本质上是为了在互联网中唯一标识一台设备，�
 * **网络号（Network ID）**：用于标识设备所在的网络。
 * **主机号（Host ID）**：用于标识该网络中的具体主机。
 
-![IP 图 2](/images/computer-network/computer-network-network-ip-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-002.svg" alt={"IP 图 2"} />
 
 网络号负责确定目标网络，主机号用于在该网络中定位到具体设备。
 
@@ -81,7 +81,7 @@ IP 协议位于 OSI 7 层模型的网络层，其承载上层（传输层）的�
 
 封装的具体过程就是为 传输层的数据 加上 IP 协议的首部的二进制表示，IPv4 的首部的 逻辑格式 如下图所示，其中包含多个字段，长度通常为 **20 个字节**。
 
-![IP 图 3](/images/computer-network/computer-network-network-ip-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-003.svg" alt={"IP 图 3"} />
 
 这一小节简单介绍各个字段，帮助大家建立一个粗略的了解，部分字段的细节我会在后面几个小节详解说明。
 
@@ -124,7 +124,7 @@ IP 协议位于 OSI 7 层模型的网络层，其承载上层（传输层）的�
 
 因此，当 IP 数据报长度超过底层链路的 MTU 时，就需要将其拆分成多个更小的部分进行传输，这一过程称为 **IP 分片（IP Fragmentation）**。关于分片的详细内容可参考：[IP 数据报分片](/docs/408/knowledge/408-release/computer_network/network/ip/#ip-%e6%95%b0%e6%8d%ae%e6%8a%a5%e5%88%86%e7%89%87)。
 
-![IP 图 4](/images/computer-network/computer-network-network-ip-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-004.svg" alt={"IP 图 4"} />
 
 在进行分片时，会引出两个关键问题：
 
@@ -149,7 +149,7 @@ IP 首部的 checksum 为 IP 协议的差错校验字段，用于检验 IP 首�
 
 当 **路由器** 和 **目标机器** 在收到数据报时会重新计算首部校验和，并将计算得到的校验和和接收到的 IP 数据报中的 checksum 进行比较。如果 **不一致** 的话，则说明 IP 数据报中的某些数据在传输的过程中出现变动，就需要 **丢弃** 该 IP 数据报。
 
-![IP 图 5](/images/computer-network/computer-network-network-ip-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-005.svg" alt={"IP 图 5"} />
 
 需要注意的是，当 IP 数据报 经过某个路由器时，路由器需要 **重新计算** 并填充 checksum 字段，因为 IP 数据报中的某些字段在经过路由器时会被改变（比如 TTL 会减 1 等）。
 
@@ -161,13 +161,13 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 当 IP 分组经过 **路由器** 时，路由器会自动 IP 分组中的 **TTL 值减 1**，路由器 发现其 **TTL = 0**，则路由器会 **丢弃** 该 IP 分组，并且返回一个 [ICMP](/docs/408/knowledge/408-release/computer_network/network/icmp/) “Time Exceed” 消息。
 
-![IP 图 6](/images/computer-network/computer-network-network-ip-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-006.svg" alt={"IP 图 6"} />
 
 ### IPv4 分类寻址
 
 在互联网早期，IP 地址采用了 **分类寻址**（Classful Addressing）。具体而言，就是根据 IP 地址的 **网络号的前几位** 将地址分为 A、B、C、D、E 五类。
 
-![IP 图 7](/images/computer-network/computer-network-network-ip-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-007.svg" alt={"IP 图 7"} />
 
 在分类寻址中，如果给定一个 IP 地址，我们可以马上判断出该 IP 地址属于哪一类网络（根据前几位的值），以及该 IP 地址的 **网络编号** 和 **主机编号** 是多少。
 
@@ -215,7 +215,7 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 下表给出了 CIDR 中不同前缀长度对应的子网掩码：
 
-![IP 图 8](/images/computer-network/computer-network-network-ip-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-008.svg" alt={"IP 图 8"} />
 
 ### 子网划分
 
@@ -251,7 +251,7 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 那么子网划分如何实现呢？在 CIDR 中，IP 地址由 **网络部分 + 主机部分** 组成。子网划分的 **关键思想** 是：从主机部分 “借用” 若干位，加入到网络部分，用来表示新的子网：
 
-![IP 图 9](/images/computer-network/computer-network-network-ip-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-009.svg" alt={"IP 图 9"} />
 
 在子网划分过程中，子网掩码（Subnet Mask）用于区分 IP 地址的网络部分和主机部分。常见的做法是通过调整子网掩码的长度，将更多位分配给网络部分，减少主机部分的位数。
 
@@ -274,7 +274,7 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 可以用二叉树结构来处理上述 **VLSM** 问题：
 
-![IP 图 10](/images/computer-network/computer-network-network-ip-010.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-010.svg" alt={"IP 图 10"} />
 
 * 每向 **下一层表示子网掩码加 1 位**，即 **地址空间减半**。
 * 每个节点的 “0” 代表当前块的前半段，“1” 代表后半段。
@@ -305,7 +305,7 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 与 **VLSM** 类似，**FLSM**（Fixed Length Subnet Masking）也可以通过二叉树结构进行子网划分：
 
-![IP 图 11](/images/computer-network/computer-network-network-ip-011.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-011.svg" alt={"IP 图 11"} />
 
 不同之处在于，**FLSM** 中所有子网大小相同，因此划分过程会持续到每个子网达到相同掩码长度为止。最终，每个子网都对应于二叉树的 **最底层叶子结点**。
 
@@ -347,7 +347,7 @@ TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在�
 
 子网聚合的过程也可以根据二叉树来理解：子网划分是将一个中间结点（的网络）拆分为若干个叶子结点（的网络），子网聚合就是将若干个叶子结点合并为一个中间结点。
 
-![IP 图 12](/images/computer-network/computer-network-network-ip-012.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-012.svg" alt={"IP 图 12"} />
 
 补充
 
@@ -401,7 +401,7 @@ MTU 是指网络链路能够传输的最大数据报大小，不同网络链路�
 
 分片例子：
 
-![IP 图 13](/images/computer-network/computer-network-network-ip-013.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-013.svg" alt={"IP 图 13"} />
 
 以上图为例，假设我们有一个 IP 数据报，其总长度为 **10000 字节**，它需要通过两个链路，两个链路的 **MTU** 分别为 **4000** 和 **2500** 字节。当 IP 数据报经过第一个链路时，它需要被拆分为 3 个分片以通过链路：
 
@@ -439,7 +439,7 @@ MTU 是指网络链路能够传输的最大数据报大小，不同网络链路�
 
 IP 组播（IP Multicast）是一种 IP 通信模式，允许一台发送器将数据报发送到多个接收器，而不是传统的单播（点对点通信）模式。组播是一种多对多的通信方式，非常适合用于广播、多媒体流传输和分布式应用中。
 
-![IP 图 14](/images/computer-network/computer-network-network-ip-014.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-014.svg" alt={"IP 图 14"} />
 
 以下是 IP 组播的一些关键特点和概念：
 
@@ -481,7 +481,7 @@ IPv4 协议于 20 世纪 70 年代设计，经过互联网几十年的快速发�
 
 #### 首部
 
-![IP 图 15](/images/computer-network/computer-network-network-ip-015.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-ip-015.svg" alt={"IP 图 15"} />
 
 IPv6 首部包含 8 个字段，总长度固定为 **40 字节**。字段如下：
 

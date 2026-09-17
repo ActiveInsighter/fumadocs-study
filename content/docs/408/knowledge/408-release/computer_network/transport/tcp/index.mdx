@@ -28,7 +28,7 @@ source: "https://csgraduates.com/computer_network/transport/tcp/"
 解答题
 [12#47](/study_methods/408quiz/2012/#47)
 
-![TCP 图 1](/images/computer-network/computer-network-transport-tcp-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-001.svg" alt={"TCP 图 1"} />
 
 1. **源端口号**（Source Port）：16 位字段，指示发送端的端口号。
 2. **目标端口号**（Destination Port）：16 位字段，指示接收端的端口号。
@@ -65,7 +65,7 @@ source: "https://csgraduates.com/computer_network/transport/tcp/"
 [16#41](/study_methods/408quiz/2016/#41)
 [26#47](/study_methods/408quiz/2026/#47)
 
-![TCP 图 2](/images/computer-network/computer-network-transport-tcp-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-002.svg" alt={"TCP 图 2"} />
 
 TCP 通过 **三次握手** 建立连接，其具体过程如上图所示，每次握手的状态变化和字段解释如下：
 
@@ -133,7 +133,7 @@ ISN 一般设置是随机的，这样可以区分不同的连接和旧连接的�
 [23#47](/study_methods/408quiz/2023/#47)
 [26#47](/study_methods/408quiz/2026/#47)
 
-![TCP 图 3](/images/computer-network/computer-network-transport-tcp-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-003.svg" alt={"TCP 图 3"} />
 
 **第一次挥手：客户端发起关闭请求**
 
@@ -217,7 +217,7 @@ MSL
 [16#41](/study_methods/408quiz/2016/#41)
 [23#47](/study_methods/408quiz/2023/#47)
 
-![TCP 图 4](/images/computer-network/computer-network-transport-tcp-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-004.svg" alt={"TCP 图 4"} />
 
 上图展示了 **滑动窗口** 的基本结构。滑动窗口其实是一个“移动的视口”，它同时描述了 **发送方** 正在等待确认的已发送数据，以及 **接收方** 已经接收并准备好继续接收的空闲空间。换句话说，窗口中的每一个字节都是**当前正在传输**的字节，它们在整个数据流中占据一个连续的区段。
 
@@ -233,7 +233,7 @@ MSL
 
 但 TCP 报文头部的 **Sequence Number（seqno）** 只有 **32 位**，因此它不可能直接表示这个无限增长的绝对位置，而是采用了一个**取模映射**的方式。
 
-![TCP 图 5](/images/computer-network/computer-network-transport-tcp-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-005.svg" alt={"TCP 图 5"} />
 
 **1. 从“字节流”到“窗口”**
 
@@ -339,7 +339,7 @@ $2^{32}$**（通常最大也就几十 KB 到几 MB）
 
 #### 发送和接收窗口
 
-![TCP 图 6](/images/computer-network/computer-network-transport-tcp-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-006.svg" alt={"TCP 图 6"} />
 
 TCP 的 **发送窗口** 可以按照逻辑划分为四个部分：
 
@@ -350,7 +350,7 @@ TCP 的 **发送窗口** 可以按照逻辑划分为四个部分：
 
 其中第 2、3 个部分构成 TCP 的发送窗口，当发送方收到 **ackno** 在第 2 个部分内的确认报文时，调整滑动窗口的大小后向前移动滑动窗口，并且发送接下来可以发送的数据。
 
-![TCP 图 7](/images/computer-network/computer-network-transport-tcp-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-007.svg" alt={"TCP 图 7"} />
 
 TCP 的 **接收窗口** 可以按照逻辑划分为四个部分：
 
@@ -367,7 +367,7 @@ TCP 的 **接收窗口** 可以按照逻辑划分为四个部分：
 * **接收窗口（rwnd，receive window）**
 * **拥塞窗口（cwnd，congestion window）**
 
-![TCP 图 8](/images/computer-network/computer-network-transport-tcp-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-008.svg" alt={"TCP 图 8"} />
 
 下面分别说明这三种窗口的含义、它们是如何相互影响的，以及在 TCP 运行期间会受到哪些因素的调节。
 
@@ -439,13 +439,13 @@ TCP 可以看成在一条连续的**字节流**上维护一个“滑动窗口”
 
 > **ACK 推动窗口向前滑动，释放发送空间，从而实现连续高效的数据传输。**
 
-![TCP 图 9](/images/computer-network/computer-network-transport-tcp-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-009.svg" alt={"TCP 图 9"} />
 
 #### 流量控制
 
 **流量控制**（TCP Transmission Control Protocol）是一种端到端的机制，旨在协调发送方和接收方之间的数据传输速率，防止接收方因处理能力或缓冲区限制而被压垮，从而避免数据包的丢失和重传。流量控制的核心目标是保证数据的可靠交付，同时尽可能高效地利用可用的网络带宽。
 
-![TCP 图 10](/images/computer-network/computer-network-transport-tcp-010.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-010.svg" alt={"TCP 图 10"} />
 
 在 TCP 中，流量控制通过 **滑动窗口机制** 实现，具体过程如下：
 
@@ -474,7 +474,7 @@ TCP 通过 **序列号** 标识当前报文段中 **数据部分的第一个字�
 
 TCP 通过 **确认号** 表示 **截至哪个字节之前的数据已经被成功接收**，其值始终等于**接收方下一步期望收到的数据的第一个字节的序列号**，从而实现对已接收数据的累计确认。
 
-![TCP 图 11](/images/computer-network/computer-network-transport-tcp-011.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-011.svg" alt={"TCP 图 11"} />
 
 TCP 正是通过 **序列号** 和 **确认号** 的配合来检测数据是否被正确接收。由于网络传输过程中可能出现 **丢包**、**乱序** 等情况，因此发送方发送 **序列号** 和接收方返回 **确认号** 的交互通常有以下几种情况：
 
@@ -482,7 +482,7 @@ TCP 正是通过 **序列号** 和 **确认号** 的配合来检测数据是否�
 * **数据段乱序到达**：接收方收到了后续数据段，但前面的某个数据段尚未到达。由于 TCP 默认采用 **累计确认** 机制，接收方会反复发送相同的 **确认号**，表示自己仍然缺少某一段数据，并继续等待该数据段到达。当发送方连续收到多个相同的确认号时，会认为发生了丢包，并触发**快速重传**。
 * **数据段按序到达**：接收方按顺序收到了当前数据段，并且此前的数据也都已经收到，此时会返回一个新的 **确认号**，表示截至该确认号之前的所有数据都已成功接收，同时指出下一步期望接收的数据的第一个字节对应的序列号。
 
-![TCP 图 12](/images/computer-network/computer-network-transport-tcp-012.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-012.svg" alt={"TCP 图 12"} />
 
 > 这样三个 case 的逻辑分别对应：
 >
@@ -492,7 +492,7 @@ TCP 正是通过 **序列号** 和 **确认号** 的配合来检测数据是否�
 
 #### 超时重传
 
-![TCP 图 13](/images/computer-network/computer-network-transport-tcp-013.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-013.svg" alt={"TCP 图 13"} />
 
 TCP 是一种 **可靠传输协议**，它要确保发送的数据 **被对方接收并确认**。但网络中可能发生：
 
@@ -508,7 +508,7 @@ TCP 的超时重传机制介于 [回退 N 帧](/docs/408/knowledge/408-release/c
 
 因此现代 TCP 通常只重传丢失的数据段，而不会像 GBN 那样重传之后所有未确认的数据，并且只为发送窗口最左边那个还没有确认的数据段维护一个超时器。
 
-![TCP 图 14](/images/computer-network/computer-network-transport-tcp-014.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-014.svg" alt={"TCP 图 14"} />
 
 RTO
 
@@ -538,7 +538,7 @@ $\alpha=0.125,\beta=0.25$
 
 TCP 首部包含一个 **校验和**（Checksum）字段，用于检测数据在传输过程中的任何变化。如果 **接收方** 检测到校验和错误，该数据段会被 **丢弃**，然后接收方会要求发送方 **重传** 该数据段。
 
-![TCP 图 15](/images/computer-network/computer-network-transport-tcp-015.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-015.svg" alt={"TCP 图 15"} />
 
 TCP 的校验和计算方法和 [IP 校验和计算方法](/docs/408/knowledge/408-release/computer_network/network/ip/#%e5%b7%ae%e9%94%99%e6%a0%a1%e9%aa%8c%e5%ad%97%e6%ae%b5) 一致，不过两者校验的范围和目的有所不同。
 
@@ -586,7 +586,7 @@ TCP 的校验和计算方法和 [IP 校验和计算方法](/docs/408/knowledge/4
 * **指数增长**：对于每个收到的 `ACK`，`cwnd` 会增加一个 `MSS`。这意味着每个 `RTT`（往返时间）`cwnd` 都会翻倍，导致了指数增长。
 * **转换阈值**：当 `cwnd` 达到 `ssthresh`（慢开始阈值）时，TCP 会从慢开始模式转换到拥塞避免模式。
 
-![TCP 图 16](/images/computer-network/computer-network-transport-tcp-016.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-016.svg" alt={"TCP 图 16"} />
 
 注意
 
@@ -608,7 +608,7 @@ MSS 是 **Maxium Segment Size** 的简称，即最大段大小。MSS 通常是�
 
 具体来说：每收到一个 ACK，`cwnd` 增加约 `1/cwnd` 个 MSS（最大报文段长度）。由于在一个往返时间（RTT）内会收到大约 `cwnd` 个 ACK，这等价于在每个 RTT 结束时 `cwnd` 只增长约 **1 MSS**。这种“每 RTT 加 1 MSS”的线性增长可以避免窗口迅速膨胀，引起网络拥塞。
 
-![TCP 图 17](/images/computer-network/computer-network-transport-tcp-017.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-017.svg" alt={"TCP 图 17"} />
 
 补充
 
@@ -629,7 +629,7 @@ TCP 通过 [超时检测](/docs/408/knowledge/408-release/computer_network/trans
 
 在 **快速重传**（Fast Retransmission），当发送方 **连续收到三个冗余的 ACK** 时，说明网络中已经有一个 **数据段丢失**，而后续的 ACK 只能确认已经成功到达的后续段。此时，TCP 就会 **立即重传** 那个被认定为丢失的段，而不必等到重传计时器超时，这一过程被称为快速重传。
 
-![TCP 图 18](/images/computer-network/computer-network-transport-tcp-018.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-018.svg" alt={"TCP 图 18"} />
 
 三个冗余的 ACK 的准确理解
 
@@ -710,7 +710,7 @@ TCP 规范里说的 **“收到 3 个冗余 ACK”** 的意思是：
 
 ### TCP 拥塞方案对比
 
-![TCP 图 19](/images/computer-network/computer-network-transport-tcp-019.svg)
+<InlineSvg src="/images/computer-network/computer-network-transport-tcp-019.svg" alt={"TCP 图 19"} />
 
 * 当 `cwnd < ssthresh` 时，使用 **慢开始** 算法，`cwnd` 以指数增长
 * 当 `cwnd >= ssthresh` 时，使用 **拥塞避免** 算法，`cwnd` 线性增长

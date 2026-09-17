@@ -23,13 +23,13 @@ source: "https://csgraduates.com/computer_network/application/dns/"
 
 例如， `www.example.com` 中， `.com` 是顶级域名， `example.com` 是二级域名， `www.example.com` 是子域名。
 
-![DNS 图 1](/images/computer-network/computer-network-application-dns-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-001.svg" alt={"DNS 图 1"} />
 
 **DNS** **层次域名空间** 的设计使得域名分布在不同的管理区域中，每个管理区域负责管理其自己的域名空间。这种分层结构有助于提高可扩展性和效率。
 
 ### 域名服务器
 
-![DNS 图 2](/images/computer-network/computer-network-application-dns-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-002.svg" alt={"DNS 图 2"} />
 
 在 DNS 体系结构中，服务器按照层级划分，每一层负责不同的职责。下面按照从最高层到最低层的顺序，对四类常见的域名服务器进行说明：
 
@@ -47,7 +47,7 @@ source: "https://csgraduates.com/computer_network/application/dns/"
 
 ### 域名解析过程
 
-![DNS 图 3](/images/computer-network/computer-network-application-dns-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-003.svg" alt={"DNS 图 3"} />
 
 域名解析分为 **递归查询** 和 **迭代查询** 两种。
 
@@ -56,7 +56,7 @@ source: "https://csgraduates.com/computer_network/application/dns/"
 
 #### 迭代查询
 
-![DNS 图 4](/images/computer-network/computer-network-application-dns-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-004.svg" alt={"DNS 图 4"} />
 
 在域名解析过程中，**本地域名服务器** 向根域名服务器发送的通常是迭代查询。
 
@@ -93,7 +93,7 @@ sequenceDiagram
 
 #### 递归查询
 
-![DNS 图 5](/images/computer-network/computer-network-application-dns-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-005.svg" alt={"DNS 图 5"} />
 
 递归查询的过程如上图所示，本地域名服务器只需向 **根域名服务器查询一次**（步骤 2），后面的几次查询都是 **递归地** 在其他几个域名服务器之间进行的（步骤 3-7）。在步骤 7 中，本地域名服务器从根域名服务器得到了所需的 IP 地址，最后在步骤 8 中，本地域名服务器把查询结果告诉发起查询的主机。
 
@@ -130,7 +130,7 @@ DNS 递归查询 和 迭代查询的不同点如下表所示：
 
 ### DNS 缓存
 
-![DNS 图 6](/images/computer-network/computer-network-application-dns-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-application-dns-006.svg" alt={"DNS 图 6"} />
 
 无论是浏览器、操作系统，还是本地的递归 DNS 服务器，在接收到域名解析结果之后，都会将其暂时保存在本地 **缓存** 中。这样，如果同一个域名在短时间内被多次请求，就可以直接从 **缓存** 中获取结果，而不需要再次向外部服务器发送查询请求。
 

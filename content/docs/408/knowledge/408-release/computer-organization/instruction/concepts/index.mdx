@@ -74,7 +74,7 @@ ISA 是一种**抽象接口**。
 
 可以从抽象层次理解：
 
-![ISA、操作系统与应用程序的抽象层次关系](/images/computer-organization/computer-organization-instruction-concepts-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-001.svg" alt={"ISA、操作系统与应用程序的抽象层次关系"} />
 
 ISA 为操作系统提供了一个统一的机器接口。操作系统利用 ISA 提供的指令、特权机制、异常/中断机制等管理处理器和硬件，并进一步向应用程序提供进程、虚拟内存、文件系统、I/O 等更高层次的抽象。
 
@@ -121,7 +121,7 @@ ISA 为操作系统提供了一个统一的机器接口。操作系统利用 ISA
 
 ---
 
-![图示](/images/computer-organization/computer-organization-instruction-concepts-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-003.svg" alt={"图示"} />
 
 上图体现了 **CISC** 和 **RISC** 的差别：**RISC** 寄存器数量比 **CISC** 更多，**CISC** 的访存指令比 **RISC** 更加复杂（**CISC** 单条指令完成的工作 **RISC** 需要多条指令才能完成）。
 
@@ -139,7 +139,7 @@ for (i = 0; i < 24; i++)
 
 对于上述的循环代码段，编译器将其编译为如下的 **intel x86** 汇编代码（**CISC**）和 **arm mips** 汇编代码（**RISC**）：
 
-![图示](/images/computer-organization/computer-organization-instruction-concepts-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-004.svg" alt={"图示"} />
 
 下面给出原始的汇编代码片段以供对照：
 
@@ -202,7 +202,7 @@ for (i = 0; i < 24; i++)
 
 ### 不同位数指令
 
-![AH AL AX (16 bits) EAX (32 bits) RAX (64 bits)](/images/computer-organization/computer-organization-instruction-concepts-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-005.svg" alt={"AH AL AX (16 bits) EAX (32 bits) RAX (64 bits)"} />
 
 从 **8086**（16 位 **intel** 处理器）再到后来的 **32 位** 以及 **64 位** 的 CPU，差异主要体现在以下几个方面：
 
@@ -229,7 +229,7 @@ for (i = 0; i < 24; i++)
 
 在 x86 汇编语言中，常见的语法格式有 **Intel 格式**和 **AT&T 格式**。二者使用的是相同的 x86 指令，只是在操作数顺序、寄存器表示和内存寻址写法等方面有所不同。
 
-![图示](/images/computer-organization/computer-organization-instruction-concepts-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-006.svg" alt={"图示"} />
 
 408 考试通常采用较接近 **Intel 格式**的表示方法，但也应能够辨认 AT&T 格式，尤其需要注意两者的 **源操作数和目的操作数顺序相反**。
 

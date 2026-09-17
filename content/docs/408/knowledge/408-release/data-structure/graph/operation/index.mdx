@@ -36,7 +36,7 @@ title: "算法和应用"
 3. 如果无法继续深度遍历（即当前顶点没有未访问的邻居），则回溯到上一个顶点，继续遍历其他未访问的邻居。
 4. 重复步骤 2 和步骤 3，直到所有顶点都被访问。
 
-![A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F](/images/data-structure/data-structure-graph-operation-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-001.svg" alt={"A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F"} />
 
 图中 **DFS** 实现的框架与 [树的遍历](https://csgraduates.com/data_structure/tree/tree/#%e6%a0%91%e7%9a%84%e9%81%8d%e5%8e%86) 类似，不同点在于需要使用 `visit` 数组记录已经访问过的节点，避免重复遍历：
 ```
@@ -114,7 +114,7 @@ void dfs(struct Graph* graph, int start) {
 3. 遍历该顶点的所有未被访问的邻居，将它们放入队列中，并标记为已访问。
 4. 重复步骤 2 和步骤 3，直到队列为空。
 
-![A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F](/images/data-structure/data-structure-graph-operation-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-002.svg" alt={"A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F"} />
 
 **BFS** 的伪代码实现如下所示，基于 **邻接矩阵** 或 **邻接表** 的 **BFS** 都遵循这个框架：
 ```
@@ -223,7 +223,7 @@ void bfs(struct Graph* graph, int start) {
 
 最小生成树（**Minimum Spanning Tree**，**MST**）是在一个连接所有顶点的无向图中，通过选择一部分边而形成的树，使得树的总权重（或成本）最小。
 
-![6 5 9 9 9 3 2 2 8 9 9 8 7 4 6 1 3 9 10 20 5](/images/data-structure/data-structure-graph-operation-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-003.svg" alt={"6 5 9 9 9 3 2 2 8 9 9 8 7 4 6 1 3 9 10 20 5"} />
 
 准确的 **MST** 定义如下：在无向图
 $G=(V,E)$
@@ -285,7 +285,7 @@ prim 是一种 **贪心算法**，这里关键在于理解什么叫做 **所有�
 
 Prim 算法的贪心思想就在这里：每次都从这组横切边里挑出一条 **权重最小的边**，把它对应的未加入顶点纳入生成树。
 
-![PrimDemo_Reversed](/images/data-structure/data-structure-graph-operation-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-004.svg" alt={"PrimDemo_Reversed"} />
 
 这样保证了：
 
@@ -294,11 +294,11 @@ Prim 算法的贪心思想就在这里：每次都从这组横切边里挑出一
 
 参考 prim 算法的流程图如下：
 
-![PrimAlgorithm](/images/data-structure/data-structure-graph-operation-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-005.svg" alt={"PrimAlgorithm"} />
 
 举个实际例子，对于以下的无向图，假设我们从顶点 a 出发使用 prim 算法寻找最小生成树，会逐步选择出 ab、bc、ci、cf、fg、gh、cd 以得到最小生成树：
 
-![a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 ](/images/data-structure/data-structure-graph-operation-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-006.svg" alt={"a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 "} />
 
 #### kruskal 算法
 
@@ -314,11 +314,11 @@ Prim 算法的贪心思想就在这里：每次都从这组横切边里挑出一
 
 参考 kruskal 算法的流程图如下：
 
-![KruskalAlgorithm](/images/data-structure/data-structure-graph-operation-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-007.svg" alt={"KruskalAlgorithm"} />
 
 继续使用上文中 prim 中的无向图作为例子，使用 kruskal 算法，会依次选择 hg、ic、gf、ab、cf、cd、ah 以得到最小生成树：
 
-![a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1](/images/data-structure/data-structure-graph-operation-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-008.svg" alt={"a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1 6 7 4 14 2 a b h i c g f d 4 8 11 8 7 2 1"} />
 
 ### 最短路径
 
@@ -351,7 +351,7 @@ Dijkstra 算法是一种 **贪心算法**。它的 **核心思想** 是：从起
 
 换句话说，算法始终保持一个 “已确定最短路径的集合”，并且在每一步中把离起点最近的“候选节点”加入其中：
 
-![DijkstraDemo](/images/data-structure/data-structure-graph-operation-010.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-010.svg" alt={"DijkstraDemo"} />
 
 补充
 
@@ -396,7 +396,7 @@ prim 算法和 dijkstra 算法的核心步骤十分类似：
 
 Dijkstra 算法流程可以通过以下流程图理解：
 
-![DijkstraAlgorithm](/images/data-structure/data-structure-graph-operation-011.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-011.svg" alt={"DijkstraAlgorithm"} />
 
 Dijkstra 的考察侧重于手工模拟其过程，代码实现一般不会考察，这里给出算法的简单 **伪代码实现**，帮助各位理清其中的处理细节。
 ```
@@ -445,7 +445,7 @@ dist[i][j]=min(dist[i][j],dist[i][k]+dist[k][j])
 $k$
 ，不断优化路径。
 
-![图示](/images/data-structure/data-structure-graph-operation-012.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt={"图示"} />
 
 ✨ 算法具体流程如下：
 
@@ -507,7 +507,7 @@ $O(n^3)$
 
 **AOV**（Activity on Vertex Network）网是一种以顶点表示活动或任务的网络模型。每个 **顶点** 代表一个 **任务或活动**，而 **边** 表示任务之间的 **依赖关系**。在AOV网中，任务或活动通常表示为顶点，而依赖关系（任务的先后顺序）表示为有向边。
 
-![AOV_Network](/images/data-structure/data-structure-graph-operation-013.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-013.svg" alt={"AOV_Network"} />
 
 #### 算法步骤
 
@@ -524,7 +524,7 @@ Kahn算法
 
 下图展示了一个采用 **Kahn** 算法输出 **AOE** 网中的 **拓扑序列** 的实例：
 
-![1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5](/images/data-structure/data-structure-graph-operation-014.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-014.svg" alt={"1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5"} />
 
 DFS + 栈
 
@@ -534,7 +534,7 @@ DFS + 栈
 2. 每个节点 **DFS** 结束后将其压入栈中。
 3. 最后将栈中元素逆序输出，就是 **拓扑排序** 结果。
 
-![topological_sort_dfs](/images/data-structure/data-structure-graph-operation-015.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-015.svg" alt={"topological_sort_dfs"} />
 
 **DFS** 过程中，每个节点在其所有后继节点访问完成后才被加入栈中，因此栈中元素的逆序正好满足 **拓扑排序** 所需的“前驱先于后继”的约束。
 
@@ -584,7 +584,7 @@ $E$
 
 **AOE**（Activity on Edge Network）网是一种以边表示活动或任务的网络模型。每条边代表一个任务或活动，而顶点通常表示事件，表示任务的开始或完成时间。
 
-![AOE_Network](/images/data-structure/data-structure-graph-operation-016.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-016.svg" alt={"AOE_Network"} />
 
 为了理解 **关键路径**，首先需要明确 **AOE** 网中的以下概念：
 
@@ -664,7 +664,7 @@ $\text{时间余量}=v_l(j)-v_e(i)-d_{ij}$
 - dij​
   ：活动持续时间
 
-![AOE网络中的活动时间余量 V1 0/0 Vi ve(i) Vj vl(j) Vn T/T 关键路径（余量=0） A(i→j) dij 时间余量计算公式 时间余量 = vl(j) - ve(i) - dij • ve(i)：事件i的最早发生时间 • vl(j)：事件j的最晚发生时间 • dij：活动A(i→j)的持续时间 • 关键路径上的活动：时间余量 = 0 示例计算 假设：ve(i) = 5天，vl(j) = 12天，dij = 3天 时间余量 = 12 - 5 - 3 ](/images/data-structure/data-structure-graph-operation-017.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-017.svg" alt={"AOE网络中的活动时间余量 V1 0/0 Vi ve(i) Vj vl(j) Vn T/T 关键路径（余量=0） A(i→j) dij 时间余量计算公式 时间余量 = vl(j) - ve(i) - dij • ve(i)：事件i的最早发生时间 • vl(j)：事件j的最晚发生时间 • dij：活动A(i→j)的持续时间 • 关键路径上的活动：时间余量 = 0 示例计算 假设：ve(i) = 5天，vl(j) = 12天，dij = 3天 时间余量 = 12 - 5 - 3 "} />
 
 关键路径和活动
 
@@ -724,7 +724,7 @@ Succ(vk​)
 - 若某个顶点满足 `ve(i) = vl(i)`，则说明该顶点没有时间浮动，必须严格按时发生；
 - 将这些顶点按拓扑顺序连接起来，得到关键路径。
 
-![CriticalPath](/images/data-structure/data-structure-graph-operation-018.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-018.svg" alt={"CriticalPath"} />
 
 ### 用图表达树
 
@@ -738,4 +738,4 @@ Succ(vk​)
 
 比如对于表达式 `(x + y) * ((x + y) / x)`，用二叉树和 **DAG** 的表示如下图：
 
-![expression_comparison](/images/data-structure/data-structure-graph-operation-019.svg)
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-019.svg" alt={"expression_comparison"} />

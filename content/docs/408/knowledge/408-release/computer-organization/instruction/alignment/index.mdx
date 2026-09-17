@@ -19,7 +19,7 @@ title: "数据对齐方式"
 
 **数据对齐** （Data Alignment）是指数据在内存中的存放方式，它要求数据的起始地址必须是某个数（通常是 1、2、4、8）的整数倍，这个数被称为 **对齐因子** （Alignment Factor）。数据对齐的目的是为了提高 **内存访问** 的效率，因为许多计算机系统都是按照数据的对齐边界来设计 **内存访问** 硬件的。
 
-![0x00: 0x04: 0x08: 0x0C: 0x10: 0x00: 0x04: 0x08: 0x0C: 0x10: 对齐的数据布局 char padding int (4字节) short pad double (8字节) 未对齐的数据布局 char int short double CPU 访问 int 1次内存访问 CPU 访问 int 2次内存访问 对齐优势 ✓ 单次访问获取完整数据 ✓ 硬件优化，访问速度快 未对齐问题 ✗ 需要多次内存访问 ✗ 某些架构会触发异常](/images/computer-organization/computer-organization-instruction-alignment-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-001.svg" alt={"0x00: 0x04: 0x08: 0x0C: 0x10: 0x00: 0x04: 0x08: 0x0C: 0x10: 对齐的数据布局 char padding int (4字节) short pad double (8字节) 未对齐的数据布局 char int short double CPU 访问 int 1次内存访问 CPU 访问 int 2次内存访问 对齐优势 ✓ 单次访问获取完整数据 ✓ 硬件优化，访问速度快 未对齐问题 ✗ 需要多次内存访问 ✗ 某些架构会触发异常"} />
 
 **不对齐** 的数据访问可能会导致 **性能下降**，因为处理器可能需要额外的 **内存访问** 来获取不完整的数据。在一些严格要求 **数据对齐** 的架构中，**不对齐** 的数据访问甚至会导致 **硬件异常**。
 
@@ -80,7 +80,7 @@ _Alignof(size_t)     = 8
 
 以下图中的结构体定义为例，假设我们定义一个 **变量**，变量的类型长度为 K 个字节，那么这个 **变量** 在 **内存** 中的地址 **addr** 必须是 K 的整数倍，即 ***addr % K == 0***。
 
-![图示](/images/computer-organization/computer-organization-instruction-alignment-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-002.svg" alt={"图示"} />
 
 上图中 **变量** b 和 a 之间增加了 1 个字节的 **padding**，**变量** d 的末尾也增加了 3 个字节 **padding**，以保证下一个 **数据** 的开始是 4 的整数倍。
 
@@ -104,13 +104,13 @@ _Alignof(size_t)     = 8
 
 大端序
 
-![32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x12 0x34 0x56 0x78 ← 低地址 ← 高地址 大端序特征 • 高位字节 → 低地址 • 低位字节 → 高地址](/images/computer-organization/computer-organization-instruction-alignment-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-003.svg" alt={"32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x12 0x34 0x56 0x78 ← 低地址 ← 高地址 大端序特征 • 高位字节 → 低地址 • 低位字节 → 高地址"} />
 
 也叫做 **大端模式** （Big-Endian）: 数据内部的 **高位字节** 存放在 **低位地址**，**低位字节** 存放在 **高位地址**。也就是说，一个整数的第一个字节（最高有效字节）将存放在起始地址处。
 
 小端序
 
-![32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x78 0x56 0x34 0x12 ← 低地址 ← 高地址 小端序特征 • 低位字节 → 低地址 • 高位字节 → 高地址](/images/computer-organization/computer-organization-instruction-alignment-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-004.svg" alt={"32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x78 0x56 0x34 0x12 ← 低地址 ← 高地址 小端序特征 • 低位字节 → 低地址 • 高位字节 → 高地址"} />
 
 也叫做 **小端模式** （Little-Endian）: 数据内部的 **低位字节** 存放在 **低位地址**，**高位字节** 存放在 **高位地址**。也就是说，一个整数的最后一个字节（最低有效字节）将存放在起始地址处。
 
@@ -118,7 +118,7 @@ _Alignof(size_t)     = 8
 
 举一个例子，假如定义数组 `long a[2] = {0x76543210, 0xFEDCBA98}`，`long` 类型的大小为 8 字节，数组`a` 在内存中的起始地址为 `0x1000`，则数组中两个元素在内存中的字节排列如下图所示：
 
-![0x10 0x32 0x54 ox76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x76 0x54 0x32 0x10 0x98 0xBA 0xDC 0xFE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xFE 0xDC 0xBA 0x98 0x1000 0x1000 0x1008 0x1008 Little Endian Big Endian](/images/computer-organization/computer-organization-instruction-alignment-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-005.svg" alt={"0x10 0x32 0x54 ox76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x76 0x54 0x32 0x10 0x98 0xBA 0xDC 0xFE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xFE 0xDC 0xBA 0x98 0x1000 0x1000 0x1008 0x1008 Little Endian Big Endian"} />
 
 注意
 

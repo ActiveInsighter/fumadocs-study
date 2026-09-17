@@ -26,7 +26,7 @@ BCD 编码在某些应用中是很有用的，特别是在需要与 **十进制�
 
 在介绍整数的不同表示之前，我们首先要定义清楚不同的名词，否则会造成极大的概念混淆。
 
-![十进制表示 （字面值） 计算机中实际采用的 补码 （有符号数） 无符号数 二进制表示 原码 蓝色字体表示的类型之间可以相互转换](/images/computer-organization/computer-organization-representation-integer-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-001.svg" alt={"十进制表示 （字面值） 计算机中实际采用的 补码 （有符号数） 无符号数 二进制表示 原码 蓝色字体表示的类型之间可以相互转换"} />
 
 在日常生活中，我们使用十进制表示数字，并通过符号（如 + 和 -）表示正负。这种用十进制表达的数字也叫做 **字面值**。
 
@@ -100,7 +100,7 @@ $n$
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | $2^{7}=128$ | $2^{6}=64$ | $2^{5}=32$ | $2^{4}=16$ | $2^{3}=8$ | $2^{2}=4$ | $2^{1}=2$ | $2^{0}=1$ |
 
-![2 0 = 1 2 1 = 2 2 2 = 4 2 6 = 64 2 7 = 128](/images/computer-organization/computer-organization-representation-integer-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-002.svg" alt={"2 0 = 1 2 1 = 2 2 2 = 4 2 6 = 64 2 7 = 128"} />
 
 - `10000001` 对应的值为
   $128+1=129$
@@ -138,7 +138,7 @@ $73=64+8+1=2^{6}+2^{3}+2^{0}$
 
 总结两种转换方式如下图：
 
-![十进制转二进制两种方法 方法一：直观分解法 示例：73 转换为二进制 73 = 64 + 8 + 1 73 = 2⁶ + 2³ + 2⁰ 位置: 7 6 5 4 3 2 1 0 2的幂: 2⁷ 2⁶ 2⁵ 2⁴ 2³ 2² 2¹ 2⁰ 数值: 128 64 32 16 8 4 2 1 二进制: 0 1 0 0 1 0 0 1 64 8 1 方法二：除2取余法 计算过程： 除法运算 商 余数 73 ÷ 2 = 36 1 36 ÷ 2 = 18 0 18 ÷ 2 = 9 0 9 ](/images/computer-organization/computer-organization-representation-integer-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-003.svg" alt={"十进制转二进制两种方法 方法一：直观分解法 示例：73 转换为二进制 73 = 64 + 8 + 1 73 = 2⁶ + 2³ + 2⁰ 位置: 7 6 5 4 3 2 1 0 2的幂: 2⁷ 2⁶ 2⁵ 2⁴ 2³ 2² 2¹ 2⁰ 数值: 128 64 32 16 8 4 2 1 二进制: 0 1 0 0 1 0 0 1 64 8 1 方法二：除2取余法 计算过程： 除法运算 商 余数 73 ÷ 2 = 36 1 36 ÷ 2 = 18 0 18 ÷ 2 = 9 0 9 "} />
 
 #### 有符号数
 
@@ -214,7 +214,7 @@ $U_{binary}=u_{n-1}\cdotsu_{1}u_{0}$
 $2^{n}$
 减去这个数：
 
-![0 u 0 0 0 0 1 u 1 u n-2 u n-1](/images/computer-organization/computer-organization-representation-integer-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-004.svg" alt={"0 u 0 0 0 0 1 u 1 u n-2 u n-1"} />
 
 以上二进制减法等同于对
 $U$
@@ -239,7 +239,7 @@ $$
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | $-2^{7}=-128$ | $2^{6}=64$ | $2^{5}=32$ | $2^{4}=16$ | $2^{3}=8$ | $2^{2}=4$ | $2^{1}=2$ | $2^{0}=1$ |
 
-![2 0 = 1 2 1 = 2 2 2 = 4 2 6 = 64 -2 7 = -128](/images/computer-organization/computer-organization-representation-integer-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-005.svg" alt={"2 0 = 1 2 1 = 2 2 2 = 4 2 6 = 64 -2 7 = -128"} />
 
 例子：
 
@@ -282,7 +282,7 @@ $-73=-128+55=-128+32+16+4+2+1=-2^{7}+2^{5}+2^{4}+2^{2}+2^{1}+2^{0}$
 
 结果为 **1011 0111**。
 
-![十进制负数 → 补码二进制转换 十进制: -73 方法一：基于公式直接观察 S = Σ(i=0 to n-2) 2^i × bi - 2^(n-1) × bn-1 -73 = -128 + 55 = -128 + 32 + 16 + 4 + 2 + 1 = -2^7 + 2^5 + 2^4 + 2^2 + 2^1 + 2^0 位置: 7 6 5 4 3 2 1 0 补码: 1 0 1 1 0 1 1 1 方法二：取反加一法 步骤1: |-73| = 73 的纯二进制 73 =](/images/computer-organization/computer-organization-representation-integer-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-006.svg" alt={"十进制负数 → 补码二进制转换 十进制: -73 方法一：基于公式直接观察 S = Σ(i=0 to n-2) 2^i × bi - 2^(n-1) × bn-1 -73 = -128 + 55 = -128 + 32 + 16 + 4 + 2 + 1 = -2^7 + 2^5 + 2^4 + 2^2 + 2^1 + 2^0 位置: 7 6 5 4 3 2 1 0 补码: 1 0 1 1 0 1 1 1 方法二：取反加一法 步骤1: |-73| = 73 的纯二进制 73 ="} />
 
 ##### 优点
 
@@ -338,7 +338,7 @@ $-73=-128+55=-128+32+16+4+2+1=-2^{7}+2^{5}+2^{4}+2^{2}+2^{1}+2^{0}$
 2. 负数的原码：**最高位** 为 1，其余位表示这个数的绝对值的二进制形式。
 3. 零的原码：符号位可以是 0（表示 +0）或 1（表示 -0），但在实际应用中，通常只使用一个零，即符号位为 0。
 
-![原码（Sign-Magnitude）表示法 8位原码结构： 7 6 5 4 3 2 1 0 S 数值位（Magnitude Bits） 符号位 绝对值的二进制表示 符号位规则： 0 = 正数 1 = 负数 示例： 正数：+25 25的二进制：11001 0 0 0 1 1 0 0 1 00011001 = +25 负数：-25 25的二进制：11001（绝对值相同） 1 0 0 1 1 0 0 1 10011001 = -25 零的表示： +0： 0 0000000 -0： ](/images/computer-organization/computer-organization-representation-integer-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-integer-007.svg" alt={"原码（Sign-Magnitude）表示法 8位原码结构： 7 6 5 4 3 2 1 0 S 数值位（Magnitude Bits） 符号位 绝对值的二进制表示 符号位规则： 0 = 正数 1 = 负数 示例： 正数：+25 25的二进制：11001 0 0 0 1 1 0 0 1 00011001 = +25 负数：-25 25的二进制：11001（绝对值相同） 1 0 0 1 1 0 0 1 10011001 = -25 零的表示： +0： 0 0000000 -0： "} />
 
 举例（以 8 位二进制数为例）：
 

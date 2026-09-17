@@ -20,7 +20,7 @@ title: "操作系统结构"
     - 提高了灵活性，因为改变某一层的实现不会影响到其他层。
     - 有助于保护和安全性，因为较低的层（如硬件访问层）被封装起来，上层代码不能直接访问。
 
-![LayeredOS](/images/operating-system/operating-system-concepts-structure-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-structure-001.svg" alt={"LayeredOS"} />
 
 - **模块化结构**：
   - **概念**：模块化操作系统基于模块的概念，每个模块都有一个特定的功能，各个模块之间的交互通过定义良好的接口进行。模块化与面向对象编程中的封装和抽象概念类似。
@@ -29,7 +29,7 @@ title: "操作系统结构"
     - 提高了可扩展性。新的功能或模块可以相对容易地添加到系统中。
     - 增加了系统的可靠性和稳定性，因为每个模块的功能都被限定在明确的边界内。
 
-![操作系统 进程管理 磁盘管理 文件管理 进程控制 进程调度 内存分配 内存回收 磁盘管理 目录管理 操作系统模块](/images/operating-system/operating-system-concepts-structure-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-structure-002.svg" alt={"操作系统 进程管理 磁盘管理 文件管理 进程控制 进程调度 内存分配 内存回收 磁盘管理 目录管理 操作系统模块"} />
 
 ### 内核架构
 
@@ -64,13 +64,13 @@ title: "操作系统结构"
   - 随着功能的增加，内核可能会变得臃肿，导致维护困难。
 - **示例**：传统的 UNIX 系统、Linux 都是基于宏内核的。
 
-![宏内核 vs 微内核架构对比 宏内核 (Monolithic Kernel) 用户空间 (User Space) 应用程序 系统调用接口 内核空间 (Kernel Space) 进程管理 内存管理 文件系统 设备驱动 网络协议 IPC 其他系统服务 硬件层 (Hardware) 微内核 (Microkernel) 用户空间 (User Space) 应用程序 文件系统 设备驱动 网络服务 其他服务 消息传递 系统调用接口 微内核 (Microkernel) 进程管理 内存管理](/images/operating-system/operating-system-concepts-structure-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-structure-003.svg" alt={"宏内核 vs 微内核架构对比 宏内核 (Monolithic Kernel) 用户空间 (User Space) 应用程序 系统调用接口 内核空间 (Kernel Space) 进程管理 内存管理 文件系统 设备驱动 网络协议 IPC 其他系统服务 硬件层 (Hardware) 微内核 (Microkernel) 用户空间 (User Space) 应用程序 文件系统 设备驱动 网络服务 其他服务 消息传递 系统调用接口 微内核 (Microkernel) 进程管理 内存管理"} />
 
 ### 虚拟机
 
 虚拟机（Virtual Machine, VM）是一种通过软件模拟真实计算机功能的 **虚拟化技术**，能够在一台物理主机上创建多个独立的虚拟计算机环境。每个虚拟机都具备与真实硬件相似的运行环境，可以运行独立的操作系统和应用程序，仿佛它们运行在专属的物理设备上。这种技术广泛应用于服务器整合、测试开发、跨平台应用等场景。
 
-![虚拟机架构图 物理硬件 (Physical Hardware) CPU • 内存 (RAM) • 存储设备 • 网络设备 Hypervisor (虚拟机监视器) 资源管理 • 隔离 • 虚拟化 虚拟机 1 Linux OS App1 App2 Web 虚拟硬件 vCPU: 2核 vRAM: 4GB 虚拟机 2 Windows OS SQL IIS Office 虚拟硬件 vCPU: 4核 vRAM: 8GB 虚拟机 3 Ubuntu OS Docker K8s DB 虚拟硬件](/images/operating-system/operating-system-concepts-structure-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-structure-004.svg" alt={"虚拟机架构图 物理硬件 (Physical Hardware) CPU • 内存 (RAM) • 存储设备 • 网络设备 Hypervisor (虚拟机监视器) 资源管理 • 隔离 • 虚拟化 虚拟机 1 Linux OS App1 App2 Web 虚拟硬件 vCPU: 2核 vRAM: 4GB 虚拟机 2 Windows OS SQL IIS Office 虚拟硬件 vCPU: 4核 vRAM: 8GB 虚拟机 3 Ubuntu OS Docker K8s DB 虚拟硬件"} />
 
 #### 虚拟机监视器
 

@@ -17,7 +17,7 @@ title: "I/O 系统"
 
 让我们首先来看一个早期简易 **I/O** 系统的架构（一般考查的也就是这种架构）：
 
-![CPU 设备控制器 （I/O 接口） 外设 （如键盘/打印机） 控制 / 地址 / 数据 控制 / 地址 / 数据线](/images/computer-organization/computer-organization-bus-io-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-001.svg" alt={"CPU 设备控制器 （I/O 接口） 外设 （如键盘/打印机） 控制 / 地址 / 数据 控制 / 地址 / 数据线"} />
 
 在这个架构中，各部分的基本功能如下：
 
@@ -31,7 +31,7 @@ title: "I/O 系统"
 
 通过 **I/O 接口**，系统在 **CPU**、**内存** 和 **外设** 之间建立了一条高效的信息传输通路。这个通路大致如下：
 
-![CPU 发出指令 / 处理数据 内存 存放程序与数据 主机 (Host) I/O 总线 地址线 · 数据线 · 控制线 I/O 接口 设备控制器 控制逻辑 · 寄存器 接口插座 物理连接端口 接口电缆 USB · SATA · HDMI · VGA ... 外设 键盘 鼠标 显示器 磁盘 打印机 主机侧 系统总线 桥接层 外部线缆 外设侧](/images/computer-organization/computer-organization-bus-io-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-002.svg" alt={"CPU 发出指令 / 处理数据 内存 存放程序与数据 主机 (Host) I/O 总线 地址线 · 数据线 · 控制线 I/O 接口 设备控制器 控制逻辑 · 寄存器 接口插座 物理连接端口 接口电缆 USB · SATA · HDMI · VGA ... 外设 键盘 鼠标 显示器 磁盘 打印机 主机侧 系统总线 桥接层 外部线缆 外设侧"} />
 
 补充
 
@@ -43,7 +43,7 @@ title: "I/O 系统"
 
 现代 **I/O** 硬件系统的架构更加复杂，这节不会直接考查，了解即可：
 
-![核心 / 缓存 IMC（内存控制器） PCIe 控制器 DMA 控制器等 PCH / 芯片组 （南桥） 高速互联（如 DMI） SATA 控制器 USB 控制器 硬盘 / SSD 鼠标 / 键盘 / U盘等 CPU (SoC) 主存（DDR4/DDR5） 内存总线 NVMe SSD 显卡 PCIe 总线 PCIe 总线](/images/computer-organization/computer-organization-bus-io-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-003.svg" alt={"核心 / 缓存 IMC（内存控制器） PCIe 控制器 DMA 控制器等 PCH / 芯片组 （南桥） 高速互联（如 DMI） SATA 控制器 USB 控制器 硬盘 / SSD 鼠标 / 键盘 / U盘等 CPU (SoC) 主存（DDR4/DDR5） 内存总线 NVMe SSD 显卡 PCIe 总线 PCIe 总线"} />
 
 在现代系统中，**CPU** 本身集成了部分高速 **I/O** 控制逻辑（如 **内存控制器**、**PCIe 控制器**、**DMI 接口**等），而非核心的 **I/O** 控制被下放至 **芯片组**（PCH），也就是过去所谓的“南桥”。这将 **CPU** 从大量外围管理工作中解放出来，提升性能并降低功耗。
 
@@ -83,7 +83,7 @@ title: "I/O 系统"
 
 #### 结构
 
-![CPU 数据缓冲 寄存器 状态寄存器 控制寄存器 I/O 控制逻辑 地址译码器及 设备选择电路 外设 接口 控制 逻辑 地址线 控制线 数据线 地址信号 控制信号 设备 地址 交互 数据 设备状态 控制命令 外设1 控制 状态 数据 外设 接口 控制 逻辑 外设1 控制 状态 数据 外设 接口 控制 逻辑 外设1 控制 状态 数据 I/O 接口](/images/computer-organization/computer-organization-bus-io-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-004.svg" alt={"CPU 数据缓冲 寄存器 状态寄存器 控制寄存器 I/O 控制逻辑 地址译码器及 设备选择电路 外设 接口 控制 逻辑 地址线 控制线 数据线 地址信号 控制信号 设备 地址 交互 数据 设备状态 控制命令 外设1 控制 状态 数据 外设 接口 控制 逻辑 外设1 控制 状态 数据 外设 接口 控制 逻辑 外设1 控制 状态 数据 I/O 接口"} />
 
 - **数据缓冲**：CPU 寄存器、主存 等主机部件的存取速度比外设快很多，因此为了速度匹配，可将数据提前存到 I/O 接口 中的数据缓冲区，用以中和高速系统组件和低速外部设备之间的速度差异
 - **数据格式转换**：主机和外设的数据格式不同，I/O 接口 提供数据格式的相互转换，如串并转换、数模转换等
@@ -95,7 +95,7 @@ title: "I/O 系统"
 
 **I/O 端口**（Input/Output Port）是指 **I/O接口电路中**，**CPU可直接访问的寄存器**。CPU通过向这些端口发送命令、读取状态或交换数据，来实现对外部设备的间接控制。I/O端口是连接主机与外设的 **软件可编程窗口**，是操作系统和设备驱动程序进行I/O操作的核心对象。
 
-![I/O 端口 I/O 端口 CPU I/O  总线 I/O 接口 I/O 控制器 I/O  设备](/images/computer-organization/computer-organization-bus-io-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-005.svg" alt={"I/O 端口 I/O 端口 CPU I/O  总线 I/O 接口 I/O 控制器 I/O  设备"} />
 
 ##### 基本分类
 
@@ -105,7 +105,7 @@ title: "I/O 系统"
 - **状态端口**：用于存放外设或接口自身的状态信息（如“忙/闲”“就绪/未就绪”），通常为只读。
 - **控制端口**：用于接收CPU发出的控制命令（如“启动”“停止”“复位”），通常为只写。
 
-![CPU 设备 I/O 接口 控制寄存器 状态寄存器 输入寄存器 输出寄存器](/images/computer-organization/computer-organization-bus-io-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-006.svg" alt={"CPU 设备 I/O 接口 控制寄存器 状态寄存器 输入寄存器 输出寄存器"} />
 
 ##### 编址方式
 
@@ -113,7 +113,7 @@ title: "I/O 系统"
 
 编址方式主要分为 **统一编址** 和 **独立编址** 两种。
 
-![内存地址 （共960KB) 端口地址 （共64KB) 0 EFFFFH F0000H FFFFFH 内存地址 （共960KB) 端口地址 （共64KB) 0 FFFFH 0 FFFFFH 统一编址 独立编址](/images/computer-organization/computer-organization-bus-io-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-007.svg" alt={"内存地址 （共960KB) 端口地址 （共64KB) 0 EFFFFH F0000H FFFFFH 内存地址 （共960KB) 端口地址 （共64KB) 0 FFFFH 0 FFFFFH 统一编址 独立编址"} />
 
 统一编址
 
@@ -218,7 +218,7 @@ OUT 0x3F8, AL    ; 将 AL 中的数据写入串口
 
 程序查询方式不断轮询设备状态以判断其是否可以进行数据传输，数据从 设备 → CPU → 主存。
 
-![给 I/O 模块发出 读命令 读 I/O 模块的 状态 检查状态 从 I/O 模块中 读取字 往存储器中 写入字 完成？ CPU → I/O I/O → CPU 错误条件 I/O → CPU CPU → 存储器 下一条指令 未准备好 准备好 是 CPU 向控制器 发出命令 将 I/O 状态信息 读入 CPU 寄存器 设备可能出现错误 将数据寄存器的内容 读入 CPU 寄存器 将 CPU 寄存器中的内容 写到内存中](/images/computer-organization/computer-organization-bus-io-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-008.svg" alt={"给 I/O 模块发出 读命令 读 I/O 模块的 状态 检查状态 从 I/O 模块中 读取字 往存储器中 写入字 完成？ CPU → I/O I/O → CPU 错误条件 I/O → CPU CPU → 存储器 下一条指令 未准备好 准备好 是 CPU 向控制器 发出命令 将 I/O 状态信息 读入 CPU 寄存器 设备可能出现错误 将数据寄存器的内容 读入 CPU 寄存器 将 CPU 寄存器中的内容 写到内存中"} />
 
 程序查询方式包含以下步骤：
 
@@ -233,7 +233,7 @@ OUT 0x3F8, AL    ; 将 AL 中的数据写入串口
 
 相比于轮询方式，CPU 在执行程序中断之前不需要一直检查 I/O 设备的状态，这提升了效率。
 
-![给 I/O 模块发出 读命令 读 I/O 模块的 状态 检查状态 从 I/O 模块中 读取字 往存储器中 写入字 完成？ CPU → I/O I/O → CPU 错误条件 I/O → CPU CPU → 存储器 下一条指令 准备好 是 CPU 向控制器 发出命令 将 I/O 状态信息 读入 CPU 寄存器 设备可能出现错误 将数据寄存器的内容 读入 CPU 寄存器 将 CPU 寄存器中的内容 写到内存中 中断 做其他事情 否](/images/computer-organization/computer-organization-bus-io-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-009.svg" alt={"给 I/O 模块发出 读命令 读 I/O 模块的 状态 检查状态 从 I/O 模块中 读取字 往存储器中 写入字 完成？ CPU → I/O I/O → CPU 错误条件 I/O → CPU CPU → 存储器 下一条指令 准备好 是 CPU 向控制器 发出命令 将 I/O 状态信息 读入 CPU 寄存器 设备可能出现错误 将数据寄存器的内容 读入 CPU 寄存器 将 CPU 寄存器中的内容 写到内存中 中断 做其他事情 否"} />
 
 #### DMA 方式
 
@@ -267,13 +267,13 @@ DMA（Direct Memory Access，直接内存访问）是一种计算机系统的 I/
 
 由于一次中断通常只能完成少量数据的传输，因此面对高速 I/O 设备或大量数据传输时，CPU 需要频繁地暂停现行程序，不断进入中断服务程序完成数据搬运。这不仅增加了中断处理的开销，也使 CPU 花费大量时间充当 **数据搬运者**，影响了系统的整体性能。
 
-![中断驱动I/O方式](/images/computer-organization/computer-organization-bus-io-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-010.svg" alt={"中断驱动I/O方式"} />
 
 DMA 方式正是为了解决程序中断方式的这一缺陷而提出的。它通过增加 **DMA 控制器（DMA Controller）**，使数据能够直接在 **I/O 接口** 和 **主存** 之间传输，CPU 只需在传输开始前完成参数配置，在整个数据传输过程中无需参与具体的数据搬运，仅在传输结束后接收一次完成中断即可。因此，DMA 不仅实现了 **数据传输过程与主程序真正并行工作**，还大幅减少了 CPU 的数据搬运开销和中断次数，从而显著提高了高速、大批量数据传输的效率。
 
 ##### 原理
 
-![CPU 运行主程序（与 DMA 并行） ① 预处理 ④ 后处理 仅参与 首尾两端 DMA 控制器 接管总线 · 自动搬运 MAR · DR · DC · CR ② 初始化参数 地址/长度/方向 ③ 完成中断 通知 CPU 校验/收尾 外设 如：磁盘 / 网卡 内存 主存 (RAM) 数据通路（不经过 CPU 寄存器/执行单元） 核心思想 ① 预处理： CPU 配置 DMA 参数（源地址、目标地址、长度、方向） ② 数据传输： DMA 控制器接管总线，在外设与内存之间 直接搬运](/images/computer-organization/computer-organization-bus-io-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-011.svg" alt={"CPU 运行主程序（与 DMA 并行） ① 预处理 ④ 后处理 仅参与 首尾两端 DMA 控制器 接管总线 · 自动搬运 MAR · DR · DC · CR ② 初始化参数 地址/长度/方向 ③ 完成中断 通知 CPU 校验/收尾 外设 如：磁盘 / 网卡 内存 主存 (RAM) 数据通路（不经过 CPU 寄存器/执行单元） 核心思想 ① 预处理： CPU 配置 DMA 参数（源地址、目标地址、长度、方向） ② 数据传输： DMA 控制器接管总线，在外设与内存之间 直接搬运"} />
 
 DMA 让数据传送直接在 **外设和内存之间** 开辟一条 **数据通路**，使得数据传送期间不再需要占用 CPU 时间处理中断、保护断点和恢复 CPU 现场等繁琐操作。
 
@@ -298,7 +298,7 @@ DMA 让数据传送直接在 **外设和内存之间** 开辟一条 **数据通�
 
 ##### DMA 控制器
 
-![DR MAR DC CR I/O 控 制 逻 辑 与块设备 的接口 CPU DMA 控制器 内存 系统总线 主机-控制器接口 块设备-控制器接口 磁盘](/images/computer-organization/computer-organization-bus-io-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-012.svg" alt={"DR MAR DC CR I/O 控 制 逻 辑 与块设备 的接口 CPU DMA 控制器 内存 系统总线 主机-控制器接口 块设备-控制器接口 磁盘"} />
 
 **DMA** 控制器是实现 DMA 传输的专用硬件，其主要负责接收 **CPU** 的配置、申请系统总线控制权，并在 **I/O 接口** 与 **主存** 之间自动完成数据传输。其主要组成如下：
 
@@ -341,7 +341,7 @@ DMA 方式与中断 I/O 方式都采用“请求—响应”的工作机制，�
 
 如下图所示，为进程 P1 通过 DMA 在磁盘和主存之间进行数据交换的过程：
 
-![地址信息 数据信息 主线控制 缓冲区 1 3 2 4 5 处理器 DMA 控制器 总线 磁盘控制器 主存](/images/computer-organization/computer-organization-bus-io-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-013.svg" alt={"地址信息 数据信息 主线控制 缓冲区 1 3 2 4 5 处理器 DMA 控制器 总线 磁盘控制器 主存"} />
 
 一次完整的 DMA 传输通常可以分为 **预处理、数据传输和后处理** 三个阶段。
 
@@ -411,7 +411,7 @@ DMA 方式与中断 I/O 方式都采用“请求—响应”的工作机制，�
    - 在分时多路复用模式下，DMA 控制器和 CPU 会在 **预定的时钟周期内轮流使用总线**。
    - 这种方式确保了 CPU 和 DMA 控制器都可以在它们的时隙内访问内存，但都无法全时段访问。
 
-![周期挪用方式 总线分时复用 总线独占 DMA 独占总线 总线时钟周期 DMA 使用总线 CPU 使用总线](/images/computer-organization/computer-organization-bus-io-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-014.svg" alt={"周期挪用方式 总线分时复用 总线独占 DMA 独占总线 总线时钟周期 DMA 使用总线 CPU 使用总线"} />
 
 注意
 
@@ -429,7 +429,7 @@ DMA 方式虽然能够实现 **设备与主存之间直接传输数据**，但 *
 
 为了解决这一问题，引入了 **通道（Channel）**。
 
-![CPU 下达 I/O 任务 · 执行主程序 主存 数据缓冲区 · 通道程序 通道（I/O Processor） 独立执行通道程序 · 管理多个设备 又称通道处理机 下达 I/O 命令 （通道程序首地址） 结束中断 （任务完成通知） 数据 直接读写主存 设备控制器 Device Controller 设备控制器 Device Controller 设备控制器 Device Controller 磁盘 磁带 打印机 控制 中断 数据](/images/computer-organization/computer-organization-bus-io-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-015.svg" alt={"CPU 下达 I/O 任务 · 执行主程序 主存 数据缓冲区 · 通道程序 通道（I/O Processor） 独立执行通道程序 · 管理多个设备 又称通道处理机 下达 I/O 命令 （通道程序首地址） 结束中断 （任务完成通知） 数据 直接读写主存 设备控制器 Device Controller 设备控制器 Device Controller 设备控制器 Device Controller 磁盘 磁带 打印机 控制 中断 数据"} />
 
 通道本质上是一种 **专门负责 I/O 的处理器**（又称 **I/O Processor**），能够独立执行一系列 I/O 指令，因此也称为 **通道处理机**。
 
@@ -441,7 +441,7 @@ CPU 与通道之间仅交换控制信息，而数据在设备和主存之间直�
 
 ##### 工作过程
 
-![CPU 通道 设备 主存 时间 ① 启动通道 下达通道程序首地址 CPU 并行执行其他程序（不参与 I/O） 通道独立工作期间，CPU 可执行其他任务 ② 依次执行通道程序中的 I/O 指令 自动控制设备完成数据传输 ③ 数据传输（设备 ↔ 主存，不经过 CPU） 数据缓冲区读/写 控制 数据 ④ 发送结束中断 通知 CPU 任务完成 响应中断 进行收尾处理 阶段 1：初始化 阶段 2：通道执行 阶段 3：数据传输 阶段 4：结束中断](/images/computer-organization/computer-organization-bus-io-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-io-016.svg" alt={"CPU 通道 设备 主存 时间 ① 启动通道 下达通道程序首地址 CPU 并行执行其他程序（不参与 I/O） 通道独立工作期间，CPU 可执行其他任务 ② 依次执行通道程序中的 I/O 指令 自动控制设备完成数据传输 ③ 数据传输（设备 ↔ 主存，不经过 CPU） 数据缓冲区读/写 控制 数据 ④ 发送结束中断 通知 CPU 任务完成 响应中断 进行收尾处理 阶段 1：初始化 阶段 2：通道执行 阶段 3：数据传输 阶段 4：结束中断"} />
 
 通道方式通常包含以下几个步骤：
 

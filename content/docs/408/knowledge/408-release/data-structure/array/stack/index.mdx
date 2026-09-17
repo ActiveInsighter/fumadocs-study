@@ -19,7 +19,7 @@ title: "栈"
 
 **栈** 是一个元素的集合，加入元素的操作叫做 **“压栈”（push）**，而移除元素的操作叫做 **“出栈”（pop）**。它遵循 **后进先出（LIFO, Last In First Out）** 的原则。*这意味着最后被压入栈的元素是第一个被弹出的元素*。
 
-![PUSH POP](/images/data-structure/data-structure-array-stack-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-stack-001.svg" alt={"PUSH POP"} />
 
 ### 基本操作
 
@@ -40,7 +40,7 @@ title: "栈"
 **顺序栈**是使用 **数组** 来实现的 **栈**，利用数组的索引来模拟 **栈** 的操作。  
 与普通的线性表不同，**栈** 的操作被限制在表的一端进行，这一端被称为 **栈顶 (Top)**，另一端被称为 **栈底 (Bottom)**。
 
-![0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈](/images/data-structure/data-structure-array-stack-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-stack-002.svg" alt={"0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈"} />
 
 **顺序栈**的关键在于 **栈顶指针**，**栈顶指针**是一个整数变量，用于指示 **栈顶** 元素在 **数组** 中的位置。其值的变化直接反映了栈中元素的变化。
 
@@ -52,7 +52,7 @@ title: "栈"
 
 下图展示了顺序栈在 **空栈、入栈、出栈、栈满** 四种关键状态下 `top` 指针的位置变化：
 
-![图示](/images/data-structure/data-structure-array-stack-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-stack-003.svg" alt={"图示"} />
 
 - 栈的定义
 - 初始化
@@ -135,7 +135,7 @@ bool isFull(SeqStack* stack) {
 
 栈的 **链式存储结构** 利用 **[单链表](https://csgraduates.com/data_structure/linearlist/linked/#%e5%8d%95%e9%93%be%e8%a1%a8%e5%ae%9a%e4%b9%89)** 来实现栈的功能。
 
-![a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底](/images/data-structure/data-structure-array-stack-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt={"a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底"} />
 
 在 **链式栈** 实现中，一般 **头结点不存放数据**，仅作为链表的固定起点。栈顶元素始终为 `head->next`。这样依然可以保证 入栈 和 出栈 的时间复杂度为
 $O(1)$

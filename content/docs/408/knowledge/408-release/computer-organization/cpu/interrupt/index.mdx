@@ -56,7 +56,7 @@ title: "异常与中断"
 
 中断（interrupt）是指 CPU 在正常执行程序过程中，由 **外部设备** 或 **软件指令** 触发的事件，促使 CPU 暂停当前执行，转而响应处理这些事件的一种机制。中断机制使得 CPU 能够及时响应外部输入、计时器、网络等事件，是现代操作系统和硬件协同工作的核心技术之一。
 
-![InterruptConcept](/images/computer-organization/computer-organization-cpu-interrupt-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-001.svg" alt={"InterruptConcept"} />
 
 #### 分类
 
@@ -77,7 +77,7 @@ title: "异常与中断"
 
 > 外部中断是在 **“当前指令执行完成后”** 才响应；内部异常是在 **“当前指令执行过程中”** 检测到异常而触发，其返回位置由异常类型决定。
 
-![InterruptVsException](/images/computer-organization/computer-organization-cpu-interrupt-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-002.svg" alt={"InterruptVsException"} />
 
 ##### 按照可嵌套性
 
@@ -96,7 +96,7 @@ title: "异常与中断"
 2. **不可屏蔽中断**（Non-Maskable Interrupt, NMI）
    - 无法被屏蔽的紧急中断，常用于处理系统级错误，如电源故障、内存校验错误等。
 
-![interrupt_classification](/images/computer-organization/computer-organization-cpu-interrupt-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-003.svg" alt={"interrupt_classification"} />
 
 #### 基础概念
 
@@ -112,13 +112,13 @@ title: "异常与中断"
   - 处理中断事件，例如读取硬件设备的数据、响应软件错误等。
   - 恢复被中断程序的上下文，使程序能够从中断点继续执行。
 
-![图示](/images/computer-organization/computer-organization-cpu-interrupt-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-004.svg" alt={"图示"} />
 
 CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发生时，CPU 会根据 **中断向量表基址寄存器**（IVTBR）查找中断向量表的起始地址，再使用 **中断号**（中断类型）作为表下标找到相应的中断向量。然后，CPU 会使用中断向量中的地址，跳转到对应的中断处理程序执行。
 
 #### 中断处理流程
 
-![FR ⇔  stacked FR CS ⇔  stacked CS IP ⇔  stacked IP x86 CPU 系统总线 PIC 寄存器 寄存器 寄存器 寄存器 IRQ0 IRQ1 IRQ2 IRQ3 IRQ4 IRQ5 IRQ6 IRQ7 Port 0x20 : 中断命令 寄存器 Port 0x21 : 中断数据 寄存器 0x0000: ISR 0 vector 0x0004: ISR 1 vector 0x0008: NMI vector · · · · · 0x0](/images/computer-organization/computer-organization-cpu-interrupt-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-005.svg" alt={"FR ⇔  stacked FR CS ⇔  stacked CS IP ⇔  stacked IP x86 CPU 系统总线 PIC 寄存器 寄存器 寄存器 寄存器 IRQ0 IRQ1 IRQ2 IRQ3 IRQ4 IRQ5 IRQ6 IRQ7 Port 0x20 : 中断命令 寄存器 Port 0x21 : 中断数据 寄存器 0x0000: ISR 0 vector 0x0004: ISR 1 vector 0x0008: NMI vector · · · · · 0x0"} />
 
 上图给出了一个详细的计算机中断处理过程的图例。不同计算机的中断处理过程不同，考察该知识点的题目也经常没有统一的标准。这里说明一个比较详细全面的过程，可以帮助大家应付绝大多数相关考题：
 
@@ -150,7 +150,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 下图给出了软硬件在中断处理过程中的职责，与上述过程相对应：
 
-![中断触发 中断识别 关中断 保存断点 中断服务寻址 保存现场 处理中断事件 恢复现场 中断返回 （恢复断点、开中断） 硬件完成 软件（中断服务程序）完成 外设](/images/computer-organization/computer-organization-cpu-interrupt-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-006.svg" alt={"中断触发 中断识别 关中断 保存断点 中断服务寻址 保存现场 处理中断事件 恢复现场 中断返回 （恢复断点、开中断） 硬件完成 软件（中断服务程序）完成 外设"} />
 
 注意
 
@@ -162,7 +162,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 所以大家要灵活应变，还是理解中断的核心机制，才能应付出题人的模棱两可。
 
-![中断发生瞬间的 CPU 状态 寄存器 PC / IP 0x0040_1A2C PSW / FLAGS 0b1000_0010 SP 0xFFFF_E000 AX / EAX 0x0000_0005 BX / EBX 0x0000_0003 CX / ECX 0x0000_0007 DX / EDX 0x0000_000A SI / DI … … 断点（硬件保存） 现场（软件保存） 虚线 = 视情况保存 保护断点 执行者 硬件（中断隐指令） 时机 中断响应时自动 内容 PC、P](/images/computer-organization/computer-organization-cpu-interrupt-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-007.svg" alt={"中断发生瞬间的 CPU 状态 寄存器 PC / IP 0x0040_1A2C PSW / FLAGS 0b1000_0010 SP 0xFFFF_E000 AX / EAX 0x0000_0005 BX / EBX 0x0000_0003 CX / ECX 0x0000_0007 DX / EDX 0x0000_000A SI / DI … … 断点（硬件保存） 现场（软件保存） 虚线 = 视情况保存 保护断点 执行者 硬件（中断隐指令） 时机 中断响应时自动 内容 PC、P"} />
 
 注意
 
@@ -195,7 +195,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 - **多个中断同时到达时**，决定 CPU 首先响应哪个中断。
 - **发生中断嵌套时**，决定新的中断是否可以打断当前正在执行的中断服务程序。
 
-![优先级 （高 → 低） 高优先级 中优先级 低优先级 中断源 中断 A NMI · 硬件故障 P = 1 中断 B 时钟定时器 P = 2 中断 C 磁盘 I/O P = 3 中断 D 键盘 / 鼠标 P = 4 中断嵌套示例 时间轴 → t 主程序 D 的中断服务程序 C 的中断服务程序 B 的 ISR 说明： 高优先级中断打断低优先级 ISR ISR 执行完后返回被中断处 优先级规则 ① 同时请求：优先响应高优先级 ② 执行 ISR 时（IF = 0 时）：高优先级可抢占](/images/computer-organization/computer-organization-cpu-interrupt-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-008.svg" alt={"优先级 （高 → 低） 高优先级 中优先级 低优先级 中断源 中断 A NMI · 硬件故障 P = 1 中断 B 时钟定时器 P = 2 中断 C 磁盘 I/O P = 3 中断 D 键盘 / 鼠标 P = 4 中断嵌套示例 时间轴 → t 主程序 D 的中断服务程序 C 的中断服务程序 B 的 ISR 说明： 高优先级中断打断低优先级 ISR ISR 执行完后返回被中断处 优先级规则 ① 同时请求：优先响应高优先级 ② 执行 ISR 时（IF = 0 时）：高优先级可抢占"} />
 
 例如，若中断源 A 的优先级高于 B、C，则：
 
@@ -239,7 +239,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 多重中断（中断嵌套）是指 CPU 在执行中断服务程序期间，允许 **更高优先级** 的中断打断当前中断服务程序，从而提高系统对关键事件的响应速度。
 
-![ISR 主程序 单级中断 ISR3 ISR1 ISR1 ISR2 ISR2 主程序 多级中断](/images/computer-organization/computer-organization-cpu-interrupt-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-009.svg" alt={"ISR 主程序 单级中断 ISR3 ISR1 ISR1 ISR2 ISR2 主程序 多级中断"} />
 
 要实现多重中断，CPU 必须满足两个条件：
 
@@ -281,7 +281,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 所有屏蔽触发器组成一个 **中断屏蔽字（Mask）**，存储在屏蔽字寄存器中，用于控制各个中断请求是否能够被 CPU 响应。
 
-![图示](/images/computer-organization/computer-organization-cpu-interrupt-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-010.svg" alt={"图示"} />
 
 屏蔽字中的每一位对应一个中断源。当 CPU 正在执行某个中断服务程序时，可以根据当前中断的优先级修改屏蔽字，从而决定哪些新的中断请求可以继续响应。
 
@@ -313,7 +313,7 @@ A > B > C > D
 
 根据是否可以被屏蔽，中断又可分为 **可屏蔽中断（Maskable Interrupt）** 和 **不可屏蔽中断（Non-Maskable Interrupt，NMI）**。
 
-![可屏蔽中断 (Maskable) 通过 INTR 引脚 · 可被屏蔽字关闭 键盘 / 鼠标 定时器 串口 / USB （常规外设事件） 屏蔽字 IMR / IF 可打开/关闭 INTR CPU 引脚 IF=1 允许 IF=0 屏蔽 特点 • 优先级较低，用于 非紧急 事件 • CPU 可通过 CLI / STI 关/开中断 • 屏蔽字（IMR）可 动态调整 优先级 • 一般由 中断控制器 8259A 管理 • 举例：串口、USB、时钟中断 → 可延迟响应，允许系统调度 不可屏](/images/computer-organization/computer-organization-cpu-interrupt-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-011.svg" alt={"可屏蔽中断 (Maskable) 通过 INTR 引脚 · 可被屏蔽字关闭 键盘 / 鼠标 定时器 串口 / USB （常规外设事件） 屏蔽字 IMR / IF 可打开/关闭 INTR CPU 引脚 IF=1 允许 IF=0 屏蔽 特点 • 优先级较低，用于 非紧急 事件 • CPU 可通过 CLI / STI 关/开中断 • 屏蔽字（IMR）可 动态调整 优先级 • 一般由 中断控制器 8259A 管理 • 举例：串口、USB、时钟中断 → 可延迟响应，允许系统调度 不可屏"} />
 
 ##### 可屏蔽中断
 
@@ -329,7 +329,7 @@ CPU 可以根据当前正在执行的中断服务程序，动态修改屏蔽字�
 
 在硬件设计中，可屏蔽中断和不可屏蔽中断通过不同的信号线连接到 CPU。以 x86 为例：
 
-![IR0 IR1 IR2 IR3 IR4 IR5 IR6 IR7 8259 主片 INT IR0 IR1 IR2 IR3 IR4 IR5 IR6 IR7 8259 从片 INT 实时时钟 （RTC） CMOS RAM INTR NMI 处理器](/images/computer-organization/computer-organization-cpu-interrupt-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-012.svg" alt={"IR0 IR1 IR2 IR3 IR4 IR5 IR6 IR7 8259 主片 INT IR0 IR1 IR2 IR3 IR4 IR5 IR6 IR7 8259 从片 INT 实时时钟 （RTC） CMOS RAM INTR NMI 处理器"} />
 
 - INTR
   ：接收 **可屏蔽中断**，主要处理普通外设中断，其响应受 IF 标志位和中断屏蔽字共同控制。
@@ -347,7 +347,7 @@ CPU 可以根据当前正在执行的中断服务程序，动态修改屏蔽字�
 
 [不可屏蔽中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/#%e4%b8%8d%e5%8f%af%e5%b1%8f%e8%94%bd%e4%b8%ad%e6%96%ad) 是一种特殊情况，它始终可以抢占当前执行流，因此通常不纳入单重/多重中断机制来讨论。
 
-![InterruptDecisionFlow](/images/computer-organization/computer-organization-cpu-interrupt-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-013.svg" alt={"InterruptDecisionFlow"} />
 
 ### 异常
 
@@ -379,13 +379,13 @@ CPU 可以根据当前正在执行的中断服务程序，动态修改屏蔽字�
 - 异常代表 CPU 执行指令时的意外事件
 - 中断代表来自 CPU 外部、与 CPU 执行指令无关的事件引起的中断
 
-![异常 (Exception) = 内部中断 外部中断 中断 (Interrupt)](/images/computer-organization/computer-organization-cpu-interrupt-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-014.svg" alt={"异常 (Exception) = 内部中断 外部中断 中断 (Interrupt)"} />
 
 在这里注意一下即可，面对题目可以灵活分辨即可。
 
 #### 类型
 
-![CPUExceptions](/images/computer-organization/computer-organization-cpu-interrupt-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-015.svg" alt={"CPUExceptions"} />
 
 在执行指令的过程，可能发生如下五类异常：
 
@@ -458,7 +458,7 @@ char c = *bad_addr;  // 假设该地址引发硬件错误
 3. **调试断点**
    调试程序时，在断点位置插入断点指令（如 x86 的 `int3`）。程序执行到该指令时，会触发自陷，暂停运行，等待调试器接管。
 
-![CPU自陷机制流程 用户态 (User Mode) 内核态 (Kernel Mode) 用户程序执行 正常指令流 自陷触发条件 异常 (除零、越界) 系统调用 (syscall) 调试断点 触发 CPU检测 保存状态: • PC (程序计数器) • 寄存器状态 切换到内核态 操作系统处理 • 异常处理程序 • 系统调用服务 • 调试器介入 不可恢复 终止程序 可恢复 恢复执行 恢复用户态 继续执行 陷阱指令 程序主动发起的指令 如: x86的syscall指令 用于系统调用和](/images/computer-organization/computer-organization-cpu-interrupt-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-016.svg" alt={"CPU自陷机制流程 用户态 (User Mode) 内核态 (Kernel Mode) 用户程序执行 正常指令流 自陷触发条件 异常 (除零、越界) 系统调用 (syscall) 调试断点 触发 CPU检测 保存状态: • PC (程序计数器) • 寄存器状态 切换到内核态 操作系统处理 • 异常处理程序 • 系统调用服务 • 调试器介入 不可恢复 终止程序 可恢复 恢复执行 恢复用户态 继续执行 陷阱指令 程序主动发起的指令 如: x86的syscall指令 用于系统调用和"} />
 
 **自陷处理过程**（简化版）如下：
 

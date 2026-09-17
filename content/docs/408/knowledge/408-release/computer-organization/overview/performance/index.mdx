@@ -36,11 +36,11 @@ title: "计算机性能指标"
 计算机内部有一个 **晶体振荡器**，通常采用石英晶体，利用其压电效应产生规律的 脉冲信号
 。石英晶体在施加电压时会发生机械振动，而机械振动反过来又会产生电压。通过在电路中合理配置电容和电感元件，晶体振荡器能够在特定频率上持续振荡，形成稳定的机器脉冲源。
 
-![C 0 C 1 L 1 R 1](/images/computer-organization/computer-organization-overview-performance-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-001.svg" alt={"C 0 C 1 L 1 R 1"} />
 
 **原始的脉冲信号** 是一个连续的 **模拟信号**，在计算机系统中，这个模拟信号通常不会直接使用。为了适配数字电路的需要，**晶体振荡器** 产生的 **模拟信号** 会经过整形和分频电路处理，转换为方波形式的 **数字脉冲信号**，用于同步计算机中各个硬件组件的操作。**时钟脉冲信号** 的宽度，即连续两个 **脉冲** 之间的时间间隔，称为 **时钟周期**。
 
-![原始连续模拟信号 离散数字信号 整形和分频](/images/computer-organization/computer-organization-overview-performance-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-002.svg" alt={"原始连续模拟信号 离散数字信号 整形和分频"} />
 
 注意
 
@@ -89,7 +89,7 @@ $$
 
 下图展示了 **指令周期**、**机器周期** 和 **时钟周期** 三者的关联：
 
-![时钟 周期 机器周期 （取指令） 机器周期 （译码） 机器周期 （执行） 机器周期 （执行） 指令周期](/images/computer-organization/computer-organization-overview-performance-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-003.svg" alt={"时钟 周期 机器周期 （取指令） 机器周期 （译码） 机器周期 （执行） 机器周期 （执行） 指令周期"} />
 
 三者具有层级关系：**时钟周期** < **机器周期** < **指令周期**。
 
@@ -152,7 +152,7 @@ $\times10^{3}$
 $\mathrm{GFLOPS}=10^{3}\mathrm{MFLOPS}$
 。
 
-![FLOPS_units](/images/computer-organization/computer-organization-overview-performance-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-004.svg" alt={"FLOPS_units"} />
 
 ### 计算机指标
 

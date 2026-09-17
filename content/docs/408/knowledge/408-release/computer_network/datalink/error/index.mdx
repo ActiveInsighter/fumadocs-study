@@ -59,7 +59,7 @@ source: "https://csgraduates.com/computer_network/datalink/error/"
 | **偶校验** | 奇数 | 1 | 若收到后 “1” 的总数不是偶数，则检测到错误。 |
 | **偶校验** | 偶数 | 0 | 若收到后 “1” 的总数不是偶数，则检测到错误。 |
 
-![差错控制 图 1](/images/computer-network/computer-network-datalink-error-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-001.svg" alt={"差错控制 图 1"} />
 
 奇偶校验码的 **工作过程** 如下：
 
@@ -102,13 +102,13 @@ CRC 中最核心的运算就是 **模 2 除法（Modulo-2 Division）**。
 * 若当前最高位为 **0**，则无需计算，直接向右移动一位。
 * 重复上述过程，直到所有数据处理完成，最后剩余的几位就是 **CRC 校验码**。
 
-![差错控制 图 2](/images/computer-network/computer-network-datalink-error-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-002.svg" alt={"差错控制 图 2"} />
 
 由于整个过程中只涉及 **异或** 和 **移位** 运算，因此 CRC 十分适合使用硬件电路实现，计算效率很高。
 
 #### 校验流程
 
-![差错控制 图 3](/images/computer-network/computer-network-datalink-error-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-003.svg" alt={"差错控制 图 3"} />
 
 CRC 校验码的生成与校验过程如下：
 
@@ -142,7 +142,7 @@ $$
    ```
 2. **进行模 2 除法**：使用扩展数据对生成多项式进行 **模 2 除法**（实际计算过程中使用异或操作）。
 
-![差错控制 图 4](/images/computer-network/computer-network-datalink-error-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-004.svg" alt={"差错控制 图 4"} />
 
 最终得到余数：
 
@@ -166,7 +166,7 @@ $$
 
 接收方同样使用生成多项式 `110101` 进行 **模 2 除法**：
 
-![差错控制 图 5](/images/computer-network/computer-network-datalink-error-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-005.svg" alt={"差错控制 图 5"} />
 
 最终余数为：
 
@@ -382,7 +382,7 @@ $n$
   $p_{3}=0$
   。
 
-![差错控制 图 6](/images/computer-network/computer-network-datalink-error-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-006.svg" alt={"差错控制 图 6"} />
 
 * **步骤 4：生成海明码**
 
@@ -435,7 +435,7 @@ $0010011$
     $p_{3}^{′}=p_{3}$
     ，无错误
 
-![差错控制 图 7](/images/computer-network/computer-network-datalink-error-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-007.svg" alt={"差错控制 图 7"} />
 
 可以看到有错误发生，接下来需要 **生成错误模式**：
 
@@ -484,7 +484,7 @@ $p_{2}$
 
 这种“两个等长比特序列在多少个位置上不同”的数量，就称为它们之间的 **海明距离**。
 
-![差错控制 图 8](/images/computer-network/computer-network-datalink-error-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-008.svg" alt={"差错控制 图 8"} />
 
 设两个长度相同的比特序列分别为：
 
@@ -558,7 +558,7 @@ $$
 $C$
 表示编码规则能够产生的所有码字的集合，称为 **编码集**，也称为 **码（code）**。
 
-![差错控制 图 9](/images/computer-network/computer-network-datalink-error-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-error-009.svg" alt={"差错控制 图 9"} />
 
 全部可能的
 $n$

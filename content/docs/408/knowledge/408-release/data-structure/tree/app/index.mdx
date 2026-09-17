@@ -9,7 +9,7 @@ title: "树的应用"
 
 ### 编码和解码
 
-![符号映射 反向映射 比特流 符号序列 原始符号序列 编码 解码](/images/data-structure/data-structure-tree-app-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-001.svg" alt={"符号映射 反向映射 比特流 符号序列 原始符号序列 编码 解码"} />
 
 **编码**（Encoding）是将信息从一种形式（通常是人类可读的符号或数据）转换为另一种形式（通常是机器可处理的格式，如二进制比特流）的过程。其目的是为了便于存储、传输或处理信息。**编码**通常涉及将原始数据（如字符、数字等）映射为特定的代码，这些代码由一组 **编码规则** 定义。
 
@@ -69,13 +69,13 @@ $2^l$
   个符号，足够使用
 - 分配如下：
 
-![A B C D E 编码： 000 001 010 011 100 0 1 0 0 1 0 1 0 0](/images/data-structure/data-structure-tree-app-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-002.svg" alt={"A B C D E 编码： 000 001 010 011 100 0 1 0 0 1 0 1 0 0"} />
 
 根据以上构建过程可知：在定长编码中，所有 **叶子结点**（对应字符的结点）都位于同一层，在
 变长编码
 中，**叶子结点** 可以不位于同一层。
 
-![a:45 b:13 58 c:12 d:16 28 e:9 f:5 14 86 28 100 c:12 b:13 25 f:5 e:9 14 d:6 30 55 a:45 100 0 1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 定长编码 变长编码](/images/data-structure/data-structure-tree-app-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-003.svg" alt={"a:45 b:13 58 c:12 d:16 28 e:9 f:5 14 86 28 100 c:12 b:13 25 f:5 e:9 14 d:6 30 55 a:45 100 0 1 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 定长编码 变长编码"} />
 
 ##### 前缀编码
 
@@ -100,7 +100,7 @@ $2^l$
 
 前缀编码表示 **编码集中没有编码是另一个编码的前缀**，不要这个定义和它的名字弄混了。
 
-![A B C D A B D C 0 0 0 0 1 1 1 0 1 1 0 0 1 1 前缀编码 非前缀编码](/images/data-structure/data-structure-tree-app-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-004.svg" alt={"A B C D A B D C 0 0 0 0 1 1 1 0 1 1 0 0 1 1 前缀编码 非前缀编码"} />
 
 编码集 `{1, 01, 001, 0000}` 对应的二叉树如上面的左图所示。该编码集为**前缀编码**，可以观察到，**前缀编码**的每一个编码都处于 **叶子结点** 的位置，这说明在对比特流进行解码的过程中不会出现歧义（想要获取到编码需要唯一地到达 **叶子结点**）。
 
@@ -262,7 +262,7 @@ L=0.5⋅1+0.2⋅2+0.2⋅3+0.1⋅3=0.5+0.4+0.6+0.3=1.8 位/符号​
 解答题
 [12#41](https://csgraduates.com/study_methods/408quiz/2012/#41)
 
-![SVG figure 5](/images/data-structure/data-structure-tree-app-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-005.svg" alt={"SVG figure 5"} />
 
 在数据压缩中，如果所有数据符号都采用 **固定长度编码**（如 ASCII 编码），那么无论某个符号出现得多频繁，都需要占用相同数量的比特。
 
@@ -287,7 +287,7 @@ L=0.5⋅1+0.2⋅2+0.2⋅3+0.1⋅3=0.5+0.4+0.6+0.3=1.8 位/符号​
 2. 从森林中选择 **权值最小** 的两棵树，将它们合并为一棵新的二叉树，新树的根结点权值为两棵树权值之和。
 3. 将新树重新放回森林中，重复步骤 2，直到森林中只剩下一棵树，这棵树就是 **哈夫曼树**。
 
-![HuffmanTreeConstruction](/images/data-structure/data-structure-tree-app-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-006.svg" alt={"HuffmanTreeConstruction"} />
 
 #### 性质
 
@@ -334,7 +334,7 @@ L=0.5⋅1+0.2⋅2+0.2⋅3+0.1⋅3=0.5+0.4+0.6+0.3=1.8 位/符号​
 
 已知四个数据符号 a、b、c、d 的权值分别为 7、5、2、4，构建哈夫曼树并生成对应的哈夫曼编码。
 
-![a b c d 7 5 2 4 a b 7 5 c d 6 a b 7 c d 11 a b c d 18 0 0 0 1 1 1](/images/data-structure/data-structure-tree-app-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-007.svg" alt={"a b c d 7 5 2 4 a b 7 5 c d 6 a b 7 c d 11 a b c d 18 0 0 0 1 1 1"} />
 
 注意
 
@@ -352,7 +352,7 @@ L=0.5⋅1+0.2⋅2+0.2⋅3+0.1⋅3=0.5+0.4+0.6+0.3=1.8 位/符号​
 
 **合并操作** 的目的是将两个 **集合** 合并为一个集合。为了执行合并，首先使用 **Find** 操作找到两个集合的代表，然后决定哪个代表成为新的根。为了保持 **树的平衡性**，并减少查找时间，常用的策略是 **按秩合并**。其中，**秩** 通常表示 **树的高度**。**较低的树** 会被附加到 **较高的树** 的根上。
 
-![0 6 7 8 1 4 9 2 3 5 index 0 1 2 3 4 5 6 7 8 9 parent 0 1 2 2 1 2 0 0 0 1 0 6 7 8 1 4 9 2 3 5 index 0 1 2 3 4 5 6 7 8 9 parent 0 0 2 2 1 2 0 0 0 1 S 1 , S 2 , S 3 的数组表示 在合并 S 1 , S 2 之后 S 1 S 2 S 3 S 3](/images/data-structure/data-structure-tree-app-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-app-008.svg" alt={"0 6 7 8 1 4 9 2 3 5 index 0 1 2 3 4 5 6 7 8 9 parent 0 1 2 2 1 2 0 0 0 1 0 6 7 8 1 4 9 2 3 5 index 0 1 2 3 4 5 6 7 8 9 parent 0 0 2 2 1 2 0 0 0 1 S 1 , S 2 , S 3 的数组表示 在合并 S 1 , S 2 之后 S 1 S 2 S 3 S 3"} />
 ```
 #define MAXN 1000
 

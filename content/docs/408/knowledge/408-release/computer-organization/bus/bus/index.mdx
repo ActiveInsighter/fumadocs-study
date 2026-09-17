@@ -20,7 +20,7 @@ title: "总线"
 
 **总线** 是一组电子导线或信号线，它们允许不同的硬件设备（如 **CPU**、**内存**、**输入/输出** 设备等）之间进行数据传输和通信。总线是计算机内部和外部设备之间的信息传递通道。
 
-![系统总线 CPU Central Processing Unit 主存储器 Memory (DRAM) 总线控制器 Bus Controller / Chipset GPU 显卡 / Video Card SSD / 存储 外存 / Storage I/O 接口 键盘 / 鼠标 / 打印机 / 网络 数据总线 (Data Bus) 地址总线 (Address Bus) 控制总线 (Control Bus)](/images/computer-organization/computer-organization-bus-bus-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-001.svg" alt={"系统总线 CPU Central Processing Unit 主存储器 Memory (DRAM) 总线控制器 Bus Controller / Chipset GPU 显卡 / Video Card SSD / 存储 外存 / Storage I/O 接口 键盘 / 鼠标 / 打印机 / 网络 数据总线 (Data Bus) 地址总线 (Address Bus) 控制总线 (Control Bus)"} />
 
 ### 总线类型
 
@@ -71,7 +71,7 @@ title: "总线"
 
 #### 连接对象
 
-![三类总线结构示意图](/images/computer-organization/computer-organization-bus-bus-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-002.svg" alt={"三类总线结构示意图"} />
 
 1. **核内总线**：在处理器核内部各元件之间连线的总线，可连接核内寄存器、ALU、指令部件等。
 2. **系统总线**：连接 **CPU**、主存和 **I/O 接口** 等主要部件的总线，通常所说的总线就是指这类在系统主要模块之间互连的总线。下面介绍的也主要是这种 **系统总线**。
@@ -81,7 +81,7 @@ title: "总线"
 
 **总线** 的数据传输方式包含 **串行** 和 **并行** 两种：
 
-![b1 b0 b2 b4 b3 b5 b6 b7 b0 b1 b2 b3 b4 b5 b6 b7 并行总线 串行总线 集中传输多位 逐位传输数据](/images/computer-organization/computer-organization-bus-bus-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-003.svg" alt={"b1 b0 b2 b4 b3 b5 b6 b7 b0 b1 b2 b3 b4 b5 b6 b7 并行总线 串行总线 集中传输多位 逐位传输数据"} />
 
 1. **串行总线**：只含有一条双向数据线或两条单向数据线，数据按位分时传送。适合远距离通信，大多数 **通信总线** 属于 **串行总线**。
 2. **并行总线**：含有多条双向数据线，可实现多位同时传送；但相邻数据线之间会相互干扰，距离变长或频率提高后难以保持各位同步，因此更适合短距离传输。大多数 **系统总线** 属于 **并行总线**。
@@ -111,7 +111,7 @@ title: "总线"
 
 #### 时序控制方式
 
-![同步总线与异步总线时序对比](/images/computer-organization/computer-organization-bus-bus-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-004.svg" alt={"同步总线与异步总线时序对比"} />
 
 1. **同步总线**：采用统一的时钟信号进行定时，挂接在总线上的所有设备都从时钟线上获得定时信号。
    - 总线定时以 **最慢设备** 的访问时间为标准，因此适用于存取时间相近的多个部件之间通信。
@@ -132,7 +132,7 @@ title: "总线"
 
 #### 单总线结构
 
-![外部设备1 外部设备2 外部设备n CPU 主存 I/O 接口 I/O 接口 I/O 接口 单总线结构](/images/computer-organization/computer-organization-bus-bus-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-005.svg" alt={"外部设备1 外部设备2 外部设备n CPU 主存 I/O 接口 I/O 接口 I/O 接口 单总线结构"} />
 
 - **单总线结构** 中，所有处理器、主存储器和 **I/O** 设备 **共用一条总线进行通信** 。
 - 优点是结构简单、实现成本低，适用于设备数量少、通信量低的系统。
@@ -140,7 +140,7 @@ title: "总线"
 
 #### 多总线结构
 
-![磁盘 打印机 I/O 接口 I/O 接口 通道/IO 处理器 CPU 主存 多总线结构 系统总线 存储总线 I/O 总线 键盘 I/O 接口 DMA 总线 高速外设 高速外设](/images/computer-organization/computer-organization-bus-bus-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-006.svg" alt={"磁盘 打印机 I/O 接口 I/O 接口 通道/IO 处理器 CPU 主存 多总线结构 系统总线 存储总线 I/O 总线 键盘 I/O 接口 DMA 总线 高速外设 高速外设"} />
 
 - **多总线结构** 在 **单总线** 的基础上进行拓展，**引入多条功能分化的总线**，例如系统总线、I/O 总线、存储器总线等。
 - 常见做法是将 **处理器与主存之间的数据传输** 放在一条专用总线（如 **CPU-主存总线**），而 **I/O** 设备通过桥接芯片连接至另一条总线（如 **I/O 总线**）。
@@ -156,7 +156,7 @@ title: "总线"
 - 各层通过 [桥接控制器](/docs/408/knowledge/408-release/computer-organization/bus/io/#%e7%8e%b0%e4%bb%a3%e6%9e%b6%e6%9e%84)（如 **PCH**）进行协调；
 - 高速设备尽量绕过中间桥接器，直连 CPU 提高性能。
 
-![分层总线架构图](/images/computer-organization/computer-organization-bus-bus-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-007.svg" alt={"分层总线架构图"} />
 
 - **高速设备的连接方式**
   - **内存总线** ：使用 DDR4/DDR5 等内存通道，由集成在 CPU 内部的内存控制器（IMC）控制，实现低延迟高速访问；
@@ -189,7 +189,7 @@ title: "总线"
 
 主设备获得总线控制权后，会按照一定时序依次发出 **地址**、**控制信号**，并完成 **数据传输**；从设备识别地址后，根据控制信号返回数据（读操作）或接收数据（写操作），一次总线事务随之结束。
 
-![总线事务（Bus Transaction） 主设备 Master 发起事务 · 发出地址/数据 控制读写信号 从设备 Slave 识别地址 · 响应读写 交换数据 · 发确认 地址总线 数据总线 总线事务的五个阶段 1 请求 Request 主设备发出 总线传输请求 2 仲裁 Arbitration 多设备竞争时 按优先级裁决 3 寻址 Addressing 放出目标地址 指定从设备 4 传输 Transfer 读/写数据 交换发生 5 终止 Termination 确认完成](/images/computer-organization/computer-organization-bus-bus-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-008.svg" alt={"总线事务（Bus Transaction） 主设备 Master 发起事务 · 发出地址/数据 控制读写信号 从设备 Slave 识别地址 · 响应读写 交换数据 · 发确认 地址总线 数据总线 总线事务的五个阶段 1 请求 Request 主设备发出 总线传输请求 2 仲裁 Arbitration 多设备竞争时 按优先级裁决 3 寻址 Addressing 放出目标地址 指定从设备 4 传输 Transfer 读/写数据 交换发生 5 终止 Termination 确认完成"} />
 
 通常情况下：
 
@@ -223,7 +223,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 2. **提高有效数据传输率**：减少了地址传送和握手等待时间，使总线更多时间用于实际的数据传输。
 3. **适用于块数据传输**：如高速缓存行填充、内存块拷贝、DMA 数据搬迁等场景，突发传输尤其高效。
 
-![突发（Burst）总线传输事务 ❌ 普通传输方式（非突发） 每次传输都需要重新发送地址，浪费总线带宽 时钟周期: ADDR1 DATA1 ADDR2 DATA2 ADDR3 DATA3 ADDR4 DATA4 T1 T2 T3 T4 T5 T6 T7 T8 事务 ① 事务 ② 事务 ③ 事务 ④ 总耗时：8 个时钟周期 每传输 1 个数据 = 1 个地址周期 + 1 个数据周期，总线利用率仅 50% ✅ 突发传输方式（Burst） 仅发送一次起始地址，后续地址自动递增 时钟周](/images/computer-organization/computer-organization-bus-bus-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-009.svg" alt={"突发（Burst）总线传输事务 ❌ 普通传输方式（非突发） 每次传输都需要重新发送地址，浪费总线带宽 时钟周期: ADDR1 DATA1 ADDR2 DATA2 ADDR3 DATA3 ADDR4 DATA4 T1 T2 T3 T4 T5 T6 T7 T8 事务 ① 事务 ② 事务 ③ 事务 ④ 总耗时：8 个时钟周期 每传输 1 个数据 = 1 个地址周期 + 1 个数据周期，总线利用率仅 50% ✅ 突发传输方式（Burst） 仅发送一次起始地址，后续地址自动递增 时钟周"} />
 
 注意
 
@@ -256,7 +256,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 
 每个总线周期的持续时间是固定的，主设备和从设备都必须在规定的时间内完成各自的操作，因此同步定时实现简单、控制方便。
 
-![T1 T2 T3 T4 总线传输周期 时钟 地址 读命令 数据](/images/computer-organization/computer-organization-bus-bus-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-010.svg" alt={"T1 T2 T3 T4 总线传输周期 时钟 地址 读命令 数据"} />
 
 - $T_{1}$
   上升沿：主设备发送地址；
@@ -279,7 +279,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 - 从设备准备好数据或接收到数据后，返回 **回答（Acknowledge）** 信号；
 - 双方依据请求和回答信号完成一次数据交换，而无需依赖固定的时钟周期。
 
-![总线定时的异步方式：请求/回答握手信号时序图](/images/computer-organization/computer-organization-bus-bus-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-011.svg" alt={"总线定时的异步方式：请求/回答握手信号时序图"} />
 
 由于数据传输速度完全取决于双方的响应速度，因此异步定时能够适应速度差异较大的设备，但控制逻辑相对更加复杂。
 
@@ -289,7 +289,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 - **半互锁**：主设备收到从设备的回答后才撤销请求；从设备发送回答一段固定时间后自动撤销。
 - **全互锁**：在半互锁基础上，从设备只有在确认主设备已经撤销请求后，才撤销回答，实现双方互相确认，可靠性最高。
 
-![不互锁 半互锁 全互锁 主设备 从设备](/images/computer-organization/computer-organization-bus-bus-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-012.svg" alt={"不互锁 半互锁 全互锁 主设备 从设备"} />
 
 ---
 
@@ -320,7 +320,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 [24#20](https://csgraduates.com/study_methods/408quiz/2024/#20)
 [25#20](https://csgraduates.com/study_methods/408quiz/2025/#20)
 
-![总线通信指标图解 ① 时钟频率（Clock Frequency） 时钟信号（100MHz → 周期 T = 10ns） T = 10 ns 每个脉冲上升 / 下降 = 1 个时钟周期 时钟频率 = 1 / T　（单位：Hz） ② 总线传输周期（Bus Transfer Cycle） 一次完整数据传输 = 多个时钟周期（示例：N = 4） 申请 寻址 传输数据 结束 T T T T 总线传输周期 = N × T（N = 4） 包含四个阶段： 🔹 申请 — 设备请求总线使用权 🔹](/images/computer-organization/computer-organization-bus-bus-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-013.svg" alt={"总线通信指标图解 ① 时钟频率（Clock Frequency） 时钟信号（100MHz → 周期 T = 10ns） T = 10 ns 每个脉冲上升 / 下降 = 1 个时钟周期 时钟频率 = 1 / T　（单位：Hz） ② 总线传输周期（Bus Transfer Cycle） 一次完整数据传输 = 多个时钟周期（示例：N = 4） 申请 寻址 传输数据 结束 T T T T 总线传输周期 = N × T（N = 4） 包含四个阶段： 🔹 申请 — 设备请求总线使用权 🔹"} />
 
 时钟频率
 
@@ -346,7 +346,7 @@ $T_{1},T_{2},T_{3},T_{4}$
 
 更加泛化地说，若总线传输周期 = N 个时钟周期，则总线的工作频率 = 时钟频率 / N。
 
-![总线宽度 & 总线带宽 图解 ① 总线宽度（Bus Width） 总线上能同时传输的数据位数 = 数据线的根数 8 位总线（8 根数据线） 1 0 1 1 0 0 1 0 8 根 → 每次传 1 字节 32 位总线（32 根数据线） 32 根 → 每次传 4 字节（位宽越宽，单次传输越多） 位宽决定"并行通道数" 8 位 → 1 字节 / 次 16 位 → 2 字节 / 次 32 位 → 4 字节 / 次 64 位 → 8 字节 / 次 ② 总线带宽（Bus Bandwidt](/images/computer-organization/computer-organization-bus-bus-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-bus-bus-014.svg" alt={"总线宽度 & 总线带宽 图解 ① 总线宽度（Bus Width） 总线上能同时传输的数据位数 = 数据线的根数 8 位总线（8 根数据线） 1 0 1 1 0 0 1 0 8 根 → 每次传 1 字节 32 位总线（32 根数据线） 32 根 → 每次传 4 字节（位宽越宽，单次传输越多） 位宽决定\"并行通道数\" 8 位 → 1 字节 / 次 16 位 → 2 字节 / 次 32 位 → 4 字节 / 次 64 位 → 8 字节 / 次 ② 总线带宽（Bus Bandwidt"} />
 
 总线宽度
 

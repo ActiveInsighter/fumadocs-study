@@ -32,7 +32,7 @@ title: "程序运行环境"
 
 CPU的两种 **运行模式**：**内核模式**（又称为特权模式、系统模式或超级用户模式）和 **用户模式** 是操作系统设计中用于隔离系统关键任务与普通任务的机制，以提高系统的安全性和稳定性。
 
-![用户 系统程序 应用程序 用户程序 依赖库 系统调用 操作系统 计算机硬件 更加抽象 更偏底层 用户模式 内核模式](/images/operating-system/operating-system-concepts-environment-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-001.svg" alt={"用户 系统程序 应用程序 用户程序 依赖库 系统调用 操作系统 计算机硬件 更加抽象 更偏底层 用户模式 内核模式"} />
 
 注意
 
@@ -49,7 +49,7 @@ CPU的两种 **运行模式**：**内核模式**（又称为特权模式、系�
 
 Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边界可参考下图：
 
-![CPU 特权级边界：Ring 0 (内核态) ↔ Ring 3 (用户态) Ring 3 用户态 Ring 2 Ring 1 Ring 0 内核态 最高权限 权限：内 高 → 外 低 Linux/Windows 仅使用 Ring 0 与 Ring 3 用户态 (Ring 3) — 受限 ✓ 执行普通指令 (ALU, MOV, JMP) ✓ 访问自己的用户空间 (代码/数据/堆栈) ✓ 调用库函数 (printf, malloc) ✗ 执行特权指令 (HLT, CLI, LGD](/images/operating-system/operating-system-concepts-environment-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-002.svg" alt={"CPU 特权级边界：Ring 0 (内核态) ↔ Ring 3 (用户态) Ring 3 用户态 Ring 2 Ring 1 Ring 0 内核态 最高权限 权限：内 高 → 外 低 Linux/Windows 仅使用 Ring 0 与 Ring 3 用户态 (Ring 3) — 受限 ✓ 执行普通指令 (ALU, MOV, JMP) ✓ 访问自己的用户空间 (代码/数据/堆栈) ✓ 调用库函数 (printf, malloc) ✗ 执行特权指令 (HLT, CLI, LGD"} />
 
 #### 内核模式
 
@@ -101,7 +101,7 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 **系统调用**（system call）是运行在用户模式的应用程序与操作系统内核之间的 **接口**。当应用程序需要执行一些它在用户模式下不能直接完成的任务（如文件操作、网络通信、创建进程等）时，它可以通过系统调用来请求操作系统内核在内核模式下为其执行这些操作。
 
-![用户程序执行 发起系统调用 执行系统调用 从系统调用返回 用户态 内核态 ① ② ③ ④](/images/operating-system/operating-system-concepts-environment-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-003.svg" alt={"用户程序执行 发起系统调用 执行系统调用 从系统调用返回 用户态 内核态 ① ② ③ ④"} />
 
 系统调用的过程如上图所示，从用户态进入内核态，完成后再返回用户态：
 
@@ -147,13 +147,13 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 #### 静态链接
 
-![printf.o strlen.o rand.o libc.a foo.o bar.o baz.o libstrange.a Static Linker main.o main.o printf.o baz.o main.o printf.o baz.o prog.exe prog.exe 拷贝到另一台机器 Static Linking](/images/operating-system/operating-system-concepts-environment-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-004.svg" alt={"printf.o strlen.o rand.o libc.a foo.o bar.o baz.o libstrange.a Static Linker main.o main.o printf.o baz.o main.o printf.o baz.o prog.exe prog.exe 拷贝到另一台机器 Static Linking"} />
 
 简单来说，对于 **静态链接**，**依赖** 直接作为 **二进制** 被打包进最后的 **可执行程序** 中，所以可以直接 **跨机器运行**（当然操作系统得一样）。
 
 #### 动态链接
 
-![printf.o strlen.o rand.o libc.so foo.o bar.o baz.o libstrange.so Dynamic Linker main.o prog.exe prog.exe 拷贝到另一台机器 Dynamic Linking main.o libc.so libstrange.so main.o libc.so libstrange.so printf.o strlen.o rand.o libc.so libstrange.so ? ? ?](/images/operating-system/operating-system-concepts-environment-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-005.svg" alt={"printf.o strlen.o rand.o libc.so foo.o bar.o baz.o libstrange.so Dynamic Linker main.o prog.exe prog.exe 拷贝到另一台机器 Dynamic Linking main.o libc.so libstrange.so main.o libc.so libstrange.so printf.o strlen.o rand.o libc.so libstrange.so ? ? ?"} />
 
 对于 **动态链接**，程序只保存依赖的库地址，依赖与可执行程序 **分开保存**，当程序执行时再去 **动态地加载依赖库**。对于动态链接，拷贝可执行程序到另一台机器不一定能直接运行，这需要另外一台机器也保存有相应依赖。
 
@@ -191,12 +191,12 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 当一个作业装入内存时，必须给它分配要求的全部内存空间，若没有足够的内存，则无法装入。此外，作业一旦装入内存，整个运行期间就不能在内存中移动，也不能再申请内存空间。
 
-![LOAD 1, 6 Add      1,8 Store  1,10 A B LOAD 1,106 Add   1,108 Store 1,110 A B 0 2 4 6 8 100 102 104 106 108 10 110 地址空间 存储空间](/images/operating-system/operating-system-concepts-environment-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-006.svg" alt={"LOAD 1, 6 Add      1,8 Store  1,10 A B LOAD 1,106 Add   1,108 Store 1,110 A B 0 2 4 6 8 100 102 104 106 108 10 110 地址空间 存储空间"} />
 
 #### 动态运行时装入
 
 也称为 **动态重定位**。装入程序把装入模块装入内存后，并不立即把装入模块的相对地址转换为绝对地址，而是把这种地址转换推迟到程序真正要执行时进行。因此，装入内存后的所有地址都是相对地址。这种地址需要一个重定位寄存器的支持。
 
-![LOAD      500 12345 500 1000 + LOAD      1.500 12345 0 100 500 1000 1500 地址空间 存储空间](/images/operating-system/operating-system-concepts-environment-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-concepts-environment-007.svg" alt={"LOAD      500 12345 500 1000 + LOAD      1.500 12345 0 100 500 1000 1500 地址空间 存储空间"} />
 
 动态重定位的优点在于可以将程序分配到不连续的存储区；在程序运行之前可以只装入部分代码即可运行，然后在程序运行期间，根据需要动态申请分配内存。

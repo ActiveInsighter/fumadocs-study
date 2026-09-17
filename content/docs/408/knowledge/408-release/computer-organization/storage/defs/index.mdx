@@ -36,7 +36,7 @@ title: "存储系统"
 
 存储系统是计算机体系结构的核心组成部分之一，用于存储程序指令和数据，以支持处理器的运算需求。为了平衡速度、容量和成本，现代计算机采用了分层存储体系结构，从最快速但容量有限的 **寄存器** 到容量大但速度较慢的辅助存储设备，形成了存储层次结构。
 
-![Regs L1 cache (SRAM) L2 cache (SRAM) L3 cache (SRAM) Main Memory (DRAM) Local secondary storage (local disks) Remote secondary storage (distributed file systems, web servers) Smaller, faster Larger, slower](/images/computer-organization/computer-organization-storage-defs-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-001.svg" alt={"Regs L1 cache (SRAM) L2 cache (SRAM) L3 cache (SRAM) Main Memory (DRAM) Local secondary storage (local disks) Remote secondary storage (distributed file systems, web servers) Smaller, faster Larger, slower"} />
 
 如上图所示，越靠近金字塔上层的容量越小但速度越快，越靠近金字塔下层的容量越大但速度越慢。计算机的存储系统包含以下层次：
 
@@ -86,7 +86,7 @@ title: "存储系统"
 
 半导体随机存储器的英文为 `Semiconductor Random-Access Memory`（`RAM`）。
 
-![RAM · Random-Access Memory 随机存储器 半导体 · 随机访问 · 易失性 · 运行时存储 内存条 (DIMM) 示意 DRAM DRAM DRAM DRAM DRAM DRAM ⚡ 随机访问 · 恒定时延 易失 · 掉电数据丢失 「随机访问」是什么？ 0x00 0x01 0x02 0x03 0x04 0x05 0x06 直接寻址 对比：磁带/磁盘 顺序访问 ① ② ③ ④ ⑤ ⑥ ⑦ 必须按顺序逐个读取 RAM 的两大分类 SRAM Static R](/images/computer-organization/computer-organization-storage-defs-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-002.svg" alt={"RAM · Random-Access Memory 随机存储器 半导体 · 随机访问 · 易失性 · 运行时存储 内存条 (DIMM) 示意 DRAM DRAM DRAM DRAM DRAM DRAM ⚡ 随机访问 · 恒定时延 易失 · 掉电数据丢失 「随机访问」是什么？ 0x00 0x01 0x02 0x03 0x04 0x05 0x06 直接寻址 对比：磁带/磁盘 顺序访问 ① ② ③ ④ ⑤ ⑥ ⑦ 必须按顺序逐个读取 RAM 的两大分类 SRAM Static R"} />
 
 首先说明这个名称中各部分的含义：
 
@@ -99,7 +99,7 @@ title: "存储系统"
 
 **SRAM**（Static RAM，静态随机存取存储器）使用触发器构成基本存储单元。一个 SRAM 存储单元通常由 **4～6 个晶体管** 组成，用于存储 **1 bit** 数据，如下图所示：
 
-![V DD M 6 M 5 M 2 M 4 M 3 M 1 WL BL BL Q Q](/images/computer-organization/computer-organization-storage-defs-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-003.svg" alt={"V DD M 6 M 5 M 2 M 4 M 3 M 1 WL BL BL Q Q"} />
 
 只要电源持续供应，触发器的状态就可以一直保持，因此 SRAM **不需要刷新**。
 
@@ -109,7 +109,7 @@ SRAM 主要用于 CPU 的 **Cache（L1/L2/L3）**、寄存器文件以及嵌入�
 
 **DRAM**（Dynamic RAM，动态随机存储器）使用 **1 个晶体管（Transistor）** 和 **1 个电容器（Capacitor）**，即 **1T1C** 结构，构成基本存储单元。每个存储单元存储 **1 bit** 数据。
 
-![WL BL T1 STORE C](/images/computer-organization/computer-organization-storage-defs-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-004.svg" alt={"WL BL T1 STORE C"} />
 
 与 SRAM 使用触发器保存状态不同，DRAM 利用电容器中是否存有电荷表示数据。由于电容器会随着时间不断漏电，因此数据不能永久保持，必须定期进行 **刷新（Refresh）**，重新恢复电容器中的电荷。
 
@@ -119,7 +119,7 @@ DRAM 具有 **集成度高、成本低、容量大** 等特点，因此主要用
 
 DRAM 和 SRAM 在宏观上都采用 **二维存储阵列** 组织数据，并通过字线和位线访问存储单元。二者的主要区别在于所使用的 **基本存储单元** 不同。
 
-![A RAS CAS Data R/W](/images/computer-organization/computer-organization-storage-defs-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-005.svg" alt={"A RAS CAS Data R/W"} />
 
 DRAM 中：
 
@@ -137,7 +137,7 @@ DRAM 中：
 
 当访问某个地址时，控制器利用相同的行地址和列地址，在所有位平面中同时选中对应位置的 Cell。每个位平面分别读出（或写入）**1 bit** 数据，最终组合成该地址对应的 **4 bit** 数据。
 
-![1 位平面 0 (LSB) 0 1 1 位平面 3 (MSB) 行地址 (Row) 列地址 (Col) Cell (存储单元) 物理存储的最小单位 仅存储 1 bit Bit Plane (位平面) 独立的二维 Cell 阵列 负责该地址的其中 1 bit Addressable Location (可寻址地址) 同一 (行, 列) 在各位平面中的 Cell 被同时选中并组合成一次访问的数据 1 1 0 1 bit3 bit2 bit1 bit0 1 个地址 → 4 bit ](/images/computer-organization/computer-organization-storage-defs-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-006.svg" alt={"1 位平面 0 (LSB) 0 1 1 位平面 3 (MSB) 行地址 (Row) 列地址 (Col) Cell (存储单元) 物理存储的最小单位 仅存储 1 bit Bit Plane (位平面) 独立的二维 Cell 阵列 负责该地址的其中 1 bit Addressable Location (可寻址地址) 同一 (行, 列) 在各位平面中的 Cell 被同时选中并组合成一次访问的数据 1 1 0 1 bit3 bit2 bit1 bit0 1 个地址 → 4 bit "} />
 
 注意
 
@@ -213,7 +213,7 @@ $$
 
 > 使用同一组地址引脚，先传送行地址，再传送列地址。
 
-![DRAM 行列地址复用 (Address Multiplexing) 同一组地址引脚分两次传送：先送行地址 (RAS)，再送列地址 (CAS) CPU 地址 A0 ~ A11 12 根地址线 ① RAS：行地址 ② CAS：列地址 时序示意 RAS CAS ADDR Row Col DRAM 芯片 行地址锁存器 Row Address Latch 列地址锁存器 Column Address Latch 行 译码器 列译码器 / 灵敏放大器 cell 位线 (Bit Line)](/images/computer-organization/computer-organization-storage-defs-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-007.svg" alt={"DRAM 行列地址复用 (Address Multiplexing) 同一组地址引脚分两次传送：先送行地址 (RAS)，再送列地址 (CAS) CPU 地址 A0 ~ A11 12 根地址线 ① RAS：行地址 ② CAS：列地址 时序示意 RAS CAS ADDR Row Col DRAM 芯片 行地址锁存器 Row Address Latch 列地址锁存器 Column Address Latch 行 译码器 列译码器 / 灵敏放大器 cell 位线 (Bit Line)"} />
 
 地址访问过程如下：
 
@@ -306,7 +306,7 @@ SRAM 一般不采用行列地址复用，主要有以下原因：
 
 为了保证数据正确，**内存控制器（Memory Controller）** 必须在规定时间内，通常是几十毫秒内，保证 **每一行** 至少被刷新一次。
 
-![① 问题：电容漏电，数据会消失 刚写入 + + + 1 (满电荷) 时间流逝 电容漏电 几十 ms 后 + ? (电荷不足) 电荷 vs 时间 0 t Q 阈值 跌破阈值 → 无法判定 0/1 ② 解决：由内存控制器周期性刷新 内存控制器 Memory Controller 发出刷新命令 DRAM 阵列 在规定时间内每行刷新一次 刷新本质：读出一行 → 感应放大 → 写回同一行 1. 读取 激活字线 读出微弱信号 2. 感应放大 Sense Amplifier 恢复为 0/1](/images/computer-organization/computer-organization-storage-defs-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-008.svg" alt={"① 问题：电容漏电，数据会消失 刚写入 + + + 1 (满电荷) 时间流逝 电容漏电 几十 ms 后 + ? (电荷不足) 电荷 vs 时间 0 t Q 阈值 跌破阈值 → 无法判定 0/1 ② 解决：由内存控制器周期性刷新 内存控制器 Memory Controller 发出刷新命令 DRAM 阵列 在规定时间内每行刷新一次 刷新本质：读出一行 → 感应放大 → 写回同一行 1. 读取 激活字线 读出微弱信号 2. 感应放大 Sense Amplifier 恢复为 0/1"} />
 
 所谓 **刷新（Refresh）**，本质上是读取一行存储单元中的数据，并利用感应放大器将这些数据重新写回，从而恢复电容器中的电荷。
 
@@ -324,7 +324,7 @@ DRAM 常见的刷新方式包括：
 
 三种刷新方式在时间轴上的 CPU 等待窗口对比如下图所示：
 
-![DRAM 三种刷新方式 · 时间轴对比 CPU 访问 刷新操作 CPU 等待 (无法访问) ① 集中刷新 所有行集中在死区刷新，CPU 长时间等待 集中刷新 (CPU 死区) ② 分散刷新 每个存取周期 = 访问 + 一次刷新，无死区但周期翻倍 ③ 异步刷新 每 (T_ref / N行) 时间触发一次单行刷新，CPU 等待窗口最小 单行刷新 时间 →](/images/computer-organization/computer-organization-storage-defs-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-009.svg" alt={"DRAM 三种刷新方式 · 时间轴对比 CPU 访问 刷新操作 CPU 等待 (无法访问) ① 集中刷新 所有行集中在死区刷新，CPU 长时间等待 集中刷新 (CPU 死区) ② 分散刷新 每个存取周期 = 访问 + 一次刷新，无死区但周期翻倍 ③ 异步刷新 每 (T_ref / N行) 时间触发一次单行刷新，CPU 等待窗口最小 单行刷新 时间 →"} />
 
 它们的特点如下：
 
@@ -338,7 +338,7 @@ DRAM 常见的刷新方式包括：
 
 #### SRAM 对比 DRAM
 
-![SRAM Static Random-Access Memory 存储单元：6 晶体管触发器 (6T) WL BL BL̅ 数据保持：触发器闩锁，通电即稳 刷新：无需刷新 速度：极快（约 1–5 ns） 集成度：低（每 bit ≥ 6 管） 功耗：静态低，切换高 成本：高 典型用途：CPU Cache、寄存器 DRAM Dynamic Random-Access Memory 存储单元：1 晶体管 + 1 电容 (1T1C) WL BL C 漏电 数据保持：电容存电荷，会漏电](/images/computer-organization/computer-organization-storage-defs-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-010.svg" alt={"SRAM Static Random-Access Memory 存储单元：6 晶体管触发器 (6T) WL BL BL̅ 数据保持：触发器闩锁，通电即稳 刷新：无需刷新 速度：极快（约 1–5 ns） 集成度：低（每 bit ≥ 6 管） 功耗：静态低，切换高 成本：高 典型用途：CPU Cache、寄存器 DRAM Dynamic Random-Access Memory 存储单元：1 晶体管 + 1 电容 (1T1C) WL BL C 漏电 数据保持：电容存电荷，会漏电"} />
 
 | 特性 | DRAM | SRAM |
 | --- | --- | --- |
@@ -357,7 +357,7 @@ DRAM 常见的刷新方式包括：
 
 **ROM**（Read-Only Memory，只读存储器）是一类 **非易失性（Non-Volatile）** 存储器，断电后仍能保存数据，主要用于存放系统启动程序、固件（Firmware）以及其他长期不需要频繁修改的数据。
 
-![ROM · Read-Only Memory 只读存储器 非易失性 · 主要用于读取 · 存放固件与启动程序 ROM BIOS / Firmware 非易失性 以读为主 断电后数据保留 ⚡ 断电 数据仍在 ✎ 写入 受限/不可 ROM vs RAM ROM RAM 易失性 否（持久） 是（掉电丢失） 读写 主要只读 可随机读写 典型用途 固件 / BIOS 运行时数据 容量 较小 较大 ROM 家族 (Evolution) M MROM 掩膜式 出厂固化 P PROM 一次可](/images/computer-organization/computer-organization-storage-defs-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-011.svg" alt={"ROM · Read-Only Memory 只读存储器 非易失性 · 主要用于读取 · 存放固件与启动程序 ROM BIOS / Firmware 非易失性 以读为主 断电后数据保留 ⚡ 断电 数据仍在 ✎ 写入 受限/不可 ROM vs RAM ROM RAM 易失性 否（持久） 是（掉电丢失） 读写 主要只读 可随机读写 典型用途 固件 / BIOS 运行时数据 容量 较小 较大 ROM 家族 (Evolution) M MROM 掩膜式 出厂固化 P PROM 一次可"} />
 
 虽然名称叫做 **只读存储器（Read-Only Memory）**，但这里的"只读"是相对于 **正常工作状态** 而言的。
 
@@ -398,7 +398,7 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 其内容在出厂后便无法修改，因此成本低、可靠性高，适合大批量生产。
 
-![光刻掩膜（永久图案） 制造时写入 固定程序 内容永久固定 出厂后不可修改 写一次，用终生 成本低 · 可靠性高 适合大批量生产 典型应用 早期游戏卡带 / 固定程序](/images/computer-organization/computer-organization-storage-defs-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-012.svg" alt={"光刻掩膜（永久图案） 制造时写入 固定程序 内容永久固定 出厂后不可修改 写一次，用终生 成本低 · 可靠性高 适合大批量生产 典型应用 早期游戏卡带 / 固定程序"} />
 
 ##### PROM
 
@@ -406,7 +406,7 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 一旦完成编程，就无法再次修改，因此又称 **一次性可编程 ROM（OTP，One-Time Programmable）**。
 
-![出厂时（空白） 所有熔丝完好 = 全 1 高压脉冲 烧断熔丝 编程一次后 断开的熔丝 = 数据固定 用户烧录 出厂后再写入内容 仅可写入一次 OTP · One-Time Programmable 写入后不可逆 熔丝烧断无法恢复](/images/computer-organization/computer-organization-storage-defs-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-013.svg" alt={"出厂时（空白） 所有熔丝完好 = 全 1 高压脉冲 烧断熔丝 编程一次后 断开的熔丝 = 数据固定 用户烧录 出厂后再写入内容 仅可写入一次 OTP · One-Time Programmable 写入后不可逆 熔丝烧断无法恢复"} />
 
 ##### EPROM
 
@@ -421,7 +421,7 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 早期 PC 的 BIOS 芯片曾大量采用 EPROM。
 
-![① 紫外线照射擦除 ☀ 石英窗口暴露芯片 ② 整片擦除为空白 全部恢复为 1 专用编程器 ③ 重新写入数据 加电压逐位写入 紫外线擦除 整片恢复为空白状态 可反复编程 需取下芯片，操作繁琐 典型应用 早期 PC BIOS 芯片](/images/computer-organization/computer-organization-storage-defs-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-014.svg" alt={"① 紫外线照射擦除 ☀ 石英窗口暴露芯片 ② 整片擦除为空白 全部恢复为 1 专用编程器 ③ 重新写入数据 加电压逐位写入 紫外线擦除 整片恢复为空白状态 可反复编程 需取下芯片，操作繁琐 典型应用 早期 PC BIOS 芯片"} />
 
 ##### EEPROM
 
@@ -434,13 +434,13 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 - 支持按字节（Byte）擦除和写入；
 - 写入速度较慢，擦写次数有限。
 
-![在电路板上原地更新 配置数据 无需拆卸芯片 电信号 按字节擦写 按字节（Byte）擦除/写入 改写 其余字节保持不变 电信号擦写 不需要紫外线设备 电擦除，无需紫外线 支持按字节擦写 局限 写入较慢，擦写次数有限](/images/computer-organization/computer-organization-storage-defs-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-015.svg" alt={"在电路板上原地更新 配置数据 无需拆卸芯片 电信号 按字节擦写 按字节（Byte）擦除/写入 改写 其余字节保持不变 电信号擦写 不需要紫外线设备 电擦除，无需紫外线 支持按字节擦写 局限 写入较慢，擦写次数有限"} />
 
 ##### Flash
 
 **Flash Memory（闪存）** 是 EEPROM 的一种改进形式，也是现代最广泛使用的非易失性存储器。
 
-![Flash 存储器 · Floating-Gate 浮栅晶体管 非易失性 · 电擦写 · 用于 SSD / U盘 / 手机存储 浮栅晶体管 (Floating Gate MOSFET) CG Control Gate · 控制栅 Floating Gate · 浮栅 e⁻ e⁻ e⁻ e⁻ 隧穿氧化层 Source 源极 (S) Drain 漏极 (D) P-Substrate (硅衬底) 隧穿 e⁻ 有电荷 表示 逻辑 0 无电荷 表示 逻辑 1 三种基本操作 读 Read](/images/computer-organization/computer-organization-storage-defs-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-016.svg" alt={"Flash 存储器 · Floating-Gate 浮栅晶体管 非易失性 · 电擦写 · 用于 SSD / U盘 / 手机存储 浮栅晶体管 (Floating Gate MOSFET) CG Control Gate · 控制栅 Floating Gate · 浮栅 e⁻ e⁻ e⁻ e⁻ 隧穿氧化层 Source 源极 (S) Drain 漏极 (D) P-Substrate (硅衬底) 隧穿 e⁻ 有电荷 表示 逻辑 0 无电荷 表示 逻辑 1 三种基本操作 读 Read"} />
 
 与 EEPROM 相比：
 
@@ -473,7 +473,7 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 数据在生产过程中一次性写入，用户不能修改，只能读取，因此属于典型的只读存储介质。
 
-![激光读取头 光盘介质 凹坑/平面编码数据 只读 生产时一次写入 用户不可修改 非易失性 断电数据不丢失 容量约 700 MB 激光读取数据 属于外存 辅助存储器，非半导体 ROM 访问速度远低于半导体存储器 机械旋转 + 光学读取，延迟较高](/images/computer-organization/computer-organization-storage-defs-017.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-017.svg" alt={"激光读取头 光盘介质 凹坑/平面编码数据 只读 生产时一次写入 用户不可修改 非易失性 断电数据不丢失 容量约 700 MB 激光读取数据 属于外存 辅助存储器，非半导体 ROM 访问速度远低于半导体存储器 机械旋转 + 光学读取，延迟较高"} />
 
 其特点包括：
 

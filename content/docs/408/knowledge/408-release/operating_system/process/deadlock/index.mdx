@@ -37,7 +37,7 @@ title: "死锁"
 
 ---
 
-![P1 P2 P3 P4 A B C D 占有 想要](/images/operating-system/operating-system-process-deadlock-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-001.svg" alt={"P1 P2 P3 P4 A B C D 占有 想要"} />
 
 上图中的进程就处于 **死锁状态**。每个进程都既要又要，持有的不释放，想要的也得不到，也不允许其他进程去抢占自己所占有的，所有的进程和资源之间组成一个循环链条。以上这些特点决定了系统进入了 **死锁状态**。
 
@@ -64,7 +64,7 @@ title: "死锁"
 选择题
 [16#25](https://csgraduates.com/study_methods/408quiz/2016/#25)
 
-![死锁预防 (Deadlock Prevention) 1. 破坏互斥条件 • 资源复制或虚拟化技术 • 减少资源的互斥使用 • 某些硬件资源难以避免互斥 共享 2. 破坏占有并等待 • 一次性申请所有所需资源 • 申请失败则释放已分配资源 一次性 3. 破坏非抢占 • 允许进程抢占其他进程的资源 • 需要时可强制回收资源 抢占 4. 破坏循环等待 • 对资源申请顺序进行限制 • 按固定顺序申请资源 1 2 3 顺序 ! 核心思想 通过破坏死锁产生的四个必要条件中的至少一个，从](/images/operating-system/operating-system-process-deadlock-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-002.svg" alt={"死锁预防 (Deadlock Prevention) 1. 破坏互斥条件 • 资源复制或虚拟化技术 • 减少资源的互斥使用 • 某些硬件资源难以避免互斥 共享 2. 破坏占有并等待 • 一次性申请所有所需资源 • 申请失败则释放已分配资源 一次性 3. 破坏非抢占 • 允许进程抢占其他进程的资源 • 需要时可强制回收资源 抢占 4. 破坏循环等待 • 对资源申请顺序进行限制 • 按固定顺序申请资源 1 2 3 顺序 ! 核心思想 通过破坏死锁产生的四个必要条件中的至少一个，从"} />
 
 **死锁预防**是通过确保系统永远不会满足**死锁**产生的四个必要条件中的某些条件，从而避免**死锁**的发生：
 
@@ -123,7 +123,7 @@ title: "死锁"
 
 系统中所有进程的资源状态可以用下表所示：
 
-![MAX A B C Allocation Need Available A B C A B C A B C P0 P1 P2 P3 P4 7 5 3 3 2 2 9 0 2 2 2 2 4 3 3 0 1 0 2 0 0 3 0 2 2 1 1 0 0 2 7 4 3 1 2 2 6 0 0 0 1 1 4 3 1 3 3 2](/images/operating-system/operating-system-process-deadlock-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-003.svg" alt={"MAX A B C Allocation Need Available A B C A B C A B C P0 P1 P2 P3 P4 7 5 3 3 2 2 9 0 2 2 2 2 4 3 3 0 1 0 2 0 0 3 0 2 2 1 1 0 0 2 7 4 3 1 2 2 6 0 0 0 1 1 4 3 1 3 3 2"} />
 
 ##### 算法步骤
 
@@ -139,7 +139,7 @@ title: "死锁"
 
 银行家 **算法流程** 如下图所示：
 
-![进程提出资源请求 Y N 资源数是否 ≤ 进程可拥有的最大值 分配失败 N 资源数是否 ≤ 系统可分配量 系统预分配 系统执行安全性检查算法 在系统试分配的基础上，统计 系统剩余资源量 Y Y 能否找到一个可执行 进程，执行并回收 其 占用的资源 N Y 能否找到一条 安全序列 分配成功 银行家算法 安全性检查算法](/images/operating-system/operating-system-process-deadlock-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-004.svg" alt={"进程提出资源请求 Y N 资源数是否 ≤ 进程可拥有的最大值 分配失败 N 资源数是否 ≤ 系统可分配量 系统预分配 系统执行安全性检查算法 在系统试分配的基础上，统计 系统剩余资源量 Y Y 能否找到一个可执行 进程，执行并回收 其 占用的资源 N Y 能否找到一条 安全序列 分配成功 银行家算法 安全性检查算法"} />
 
 ##### 安全分配序列
 
@@ -154,7 +154,7 @@ title: "死锁"
 
 对于前图中的各进程状态，我们可以得到如下的一个 **安全分配序列**：
 
-![A B C 安全分配序列 资源 3 3 2 P1 5 3 2 P3 7 4 3 P0 7 5 3 P2 10 5 5 P4 10 5 7](/images/operating-system/operating-system-process-deadlock-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-005.svg" alt={"A B C 安全分配序列 资源 3 3 2 P1 5 3 2 P3 7 4 3 P0 7 5 3 P2 10 5 5 P4 10 5 7"} />
 
 具体计算过程如下：
 
@@ -173,7 +173,7 @@ title: "死锁"
 
 但是如果在某一个时刻，剩余的进程的资源一个都无法回收了，那么系统就进入了 **不安全状态**。
 
-![BankersAlgorithm](/images/operating-system/operating-system-process-deadlock-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-006.svg" alt={"BankersAlgorithm"} />
 
 这里还要需要注意的是，在实际的算法中，我们需要用 **work** 替代 **available** 来帮助我们完成 **安全性检查** 的过程，因为检查只是一种“逻辑推演”，我们并不希望实际修改系统中的资源情况，具体的代码实现可以参考如下链接：
 
@@ -194,4 +194,4 @@ title: "死锁"
 
 在构建完 **资源分配图**，可以通过使用 **DFS** 检查图中是否存在环路以判断是否存在**死锁**。
 
-![死锁的检测与解除 · Deadlock Detection & Recovery ① 死锁检测 (Detection) 资源分配图 · DFS 找环 将进程与资源建模为有向图，环 = 死锁 资源分配图示例 P1 P2 R1 R2 请求 请求 存在环路 进程 资源 边 检测步骤 1 为请求/分配关系建立有向边 2 对资源分配图执行 DFS / 简化 3 若存在环 → 系统已死锁 4 环中进程即为死锁进程 📌 小贴士 • 单实例资源：图中有环 ⇔ 死锁 • 多实例资源：有环只是必](/images/operating-system/operating-system-process-deadlock-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-deadlock-007.svg" alt={"死锁的检测与解除 · Deadlock Detection & Recovery ① 死锁检测 (Detection) 资源分配图 · DFS 找环 将进程与资源建模为有向图，环 = 死锁 资源分配图示例 P1 P2 R1 R2 请求 请求 存在环路 进程 资源 边 检测步骤 1 为请求/分配关系建立有向边 2 对资源分配图执行 DFS / 简化 3 若存在环 → 系统已死锁 4 环中进程即为死锁进程 📌 小贴士 • 单实例资源：图中有环 ⇔ 死锁 • 多实例资源：有环只是必"} />

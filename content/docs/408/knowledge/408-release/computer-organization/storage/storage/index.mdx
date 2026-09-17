@@ -24,7 +24,7 @@ title: "外存"
 
 **机械硬盘**（Hard Disk Drive, HDD）是一种使用磁性存储介质来存储和读取数据的非易失性存储设备，广泛应用于计算机和数据存储系统中。
 
-![Sector Sector Cylinder / Track Cylinder / Track 6 Heads, 3 platters 6 Heads, 3 platters Text is not SVG - cannot display](/images/computer-organization/computer-organization-storage-storage-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-001.svg" alt={"Sector Sector Cylinder / Track Cylinder / Track 6 Heads, 3 platters 6 Heads, 3 platters Text is not SVG - cannot display"} />
 
 #### 存储区域
 
@@ -37,7 +37,7 @@ title: "外存"
 5. **柱面（Cylinder）**：柱面是所有盘面上 **半径相同的磁道** 的集合。由于所有磁头始终同步移动，因此当磁头移动到某一个半径时，所有盘面都会同时到达对应的磁道，这些磁道共同构成一个柱面。
 6. **扇区（Sector）**：扇区是磁盘上的最小物理存储单元。每条磁道都会被划分成多个扇区，每个扇区可以存储一定数量的数据，通常为 **512 字节** 或 **4 KB（Advanced Format）**。操作系统和磁盘控制器通常以扇区作为读写数据的基本单位。
 
-![magnetic layer aluminum plate 1 bit cylinder sector track disk read-and-write heads disk read-and-write head floating on a cushion of air](/images/computer-organization/computer-organization-storage-storage-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-002.svg" alt={"magnetic layer aluminum plate 1 bit cylinder sector track disk read-and-write heads disk read-and-write head floating on a cushion of air"} />
 
 机械硬盘的数据组织层次可以总结为：
 
@@ -74,7 +74,7 @@ CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）*
   若需要对所有扇区进行二进制编码，则至少需要：
   $\text{扇区号位数}=\left\lceil\log_{2}(\text{每条磁道中的扇区数量})\right\rceil$
 
-![CHS 地址 Cylinder · Head · Sector 柱面 C 同半径的磁道集合 扇区 S 磁道的最小存储单元 磁头 H H=3 H=2 H=1 H=0 柱面深度 CHS 地址结构 C (10 bits) H (2 b) S (5 bits) 示例：1000 柱面 × 4 盘面 × 32 扇区/磁道，共 17 bits C — 柱面号 目标磁道在哪一组柱面 ⌈log₂(柱面数)⌉ bits H — 磁头号 目标扇区在哪个盘面 ⌈log₂(盘面数)⌉ bits S —](/images/computer-organization/computer-organization-storage-storage-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-003.svg" alt={"CHS 地址 Cylinder · Head · Sector 柱面 C 同半径的磁道集合 扇区 S 磁道的最小存储单元 磁头 H H=3 H=2 H=1 H=0 柱面深度 CHS 地址结构 C (10 bits) H (2 b) S (5 bits) 示例：1000 柱面 × 4 盘面 × 32 扇区/磁道，共 17 bits C — 柱面号 目标磁道在哪一组柱面 ⌈log₂(柱面数)⌉ bits H — 磁头号 目标扇区在哪个盘面 ⌈log₂(盘面数)⌉ bits S —"} />
 
 提示
 
@@ -121,7 +121,7 @@ CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）*
 - **旋转延迟**：盘片旋转使目标扇区到达磁头下方所需的时间，通常为盘片旋转半圈的平均时间，取决于转速。
 - **传输时间**：读取或写入目标扇区数据的实际时间，与扇区大小和数据传输率相关。
 
-![Rotational latency Sector to access Seek time](/images/computer-organization/computer-organization-storage-storage-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-004.svg" alt={"Rotational latency Sector to access Seek time"} />
 
 **平均存取时间的计算公式为**：
 
@@ -143,7 +143,7 @@ $$
 D_{r}=rN
 $$
 
-![数据传输率 Data Transfer Rate D r = r × N 转速(转/秒) × 磁道容量(字节) r 转/秒 N 字节 磁道容量 一圈 = N 字节数据 每秒传输 D_r 字节 r 转速 磁盘每秒旋转的圈数（转/秒） 典型值：5400 rpm ≈ 90 转/秒 7200 rpm ≈ 120 转/秒 N 磁道容量 单条磁道可存储的字节数 = 每磁道扇区数 × 扇区大小 扇区大小通常为 512 B 或 4 KB D r = r × N 数据传输率（字节/秒）](/images/computer-organization/computer-organization-storage-storage-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-005.svg" alt={"数据传输率 Data Transfer Rate D r = r × N 转速(转/秒) × 磁道容量(字节) r 转/秒 N 字节 磁道容量 一圈 = N 字节数据 每秒传输 D_r 字节 r 转速 磁盘每秒旋转的圈数（转/秒） 典型值：5400 rpm ≈ 90 转/秒 7200 rpm ≈ 120 转/秒 N 磁道容量 单条磁道可存储的字节数 = 每磁道扇区数 × 扇区大小 扇区大小通常为 512 B 或 4 KB D r = r × N 数据传输率（字节/秒）"} />
 
 补充
 
@@ -172,7 +172,7 @@ $$
 RAID 全称为 **独立磁盘冗余阵列**（Redundant Arrar of Independent Disks）  
 由于磁盘存储介质数据的可靠性容易受到环境影响，而发生数据错误的代价非常大，因此需要考虑存储的容灾与恢复。
 
-![RAID 6 D p C1 B1 A1 Disk 0 D q C p B2 A2 Disk 1 D1 C q B p A3 Disk 2 D2 C2 B q A p Disk 3 D3 C3 B3 A q Disk 4 E q E1 E2 E3 E p](/images/computer-organization/computer-organization-storage-storage-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-006.svg" alt={"RAID 6 D p C1 B1 A1 Disk 0 D q C p B2 A2 Disk 1 D1 C q B p A3 Disk 2 D2 C2 B q A p Disk 3 D3 C3 B3 A q Disk 4 E q E1 E2 E3 E p"} />
 
 RAID 将多个独立的物理磁盘组成一个独立的逻辑盘，数据在多个物理盘上分割交叉存储、并行访问，具有更好的存储性能、可靠性和安全性。
 
@@ -204,7 +204,7 @@ RAID 的实现涉及以下核心技术：
 
 以下是从多个维度对 SSD 和 HDD 进行的详细对比：
 
-![HDD 机械硬盘 SSD 固态硬盘 磁性介质 · 机械寻址 闪存介质 · 电子寻址 高速旋转 磁头摆动寻道 盘片 + 磁头 + 机械臂 · 存在旋转与寻道延迟 NAND NAND NAND NAND NAND NAND 主控 Controller 闪存芯片阵列 + 主控 · 纯电子寻址，无机械延迟 顺序读写速度 顺序读写速度 100 ~ 200 MB/s 500 ~ 7000 MB/s 随机访问时间（越短越好） 随机访问时间（越短越好） 5 ~ 10 ms 受寻道 + 旋转延](/images/computer-organization/computer-organization-storage-storage-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-008.svg" alt={"HDD 机械硬盘 SSD 固态硬盘 磁性介质 · 机械寻址 闪存介质 · 电子寻址 高速旋转 磁头摆动寻道 盘片 + 磁头 + 机械臂 · 存在旋转与寻道延迟 NAND NAND NAND NAND NAND NAND 主控 Controller 闪存芯片阵列 + 主控 · 纯电子寻址，无机械延迟 顺序读写速度 顺序读写速度 100 ~ 200 MB/s 500 ~ 7000 MB/s 随机访问时间（越短越好） 随机访问时间（越短越好） 5 ~ 10 ms 受寻道 + 旋转延"} />
 
 | **特性** | **SSD（固态硬盘）** | **HDD（机械硬盘）** |
 | --- | --- | --- |

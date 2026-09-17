@@ -45,7 +45,7 @@ mov ecx, 100       ; 将 100 赋值给 ecx
 mov byte ptr [var], 5  ; 只修改 var 指向的 1 字节
 ```
 
-![立即数 存储器 通用存储器 段寄存器 AX  BX  CX  DX BP  SP  SI  DI CS  DS  ES  SS](/images/computer-organization/computer-organization-instruction-instruction-ops-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-001.svg" alt={"立即数 存储器 通用存储器 段寄存器 AX  BX  CX  DX BP  SP  SI  DI CS  DS  ES  SS"} />
 
 #### 栈操作
 
@@ -88,7 +88,7 @@ add esp, 4      ; esp 向高地址移动
 
 下图给出了一个入栈出栈指令的实例，通过 `PUSH` 和 `POP` 指令实现了 **寄存器** `EAX` 和 `EBX` 内容交换：
 
-![0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0000 FFF8H 0000 FFF7H 0000 FFF6H 0000 FFFFH 0000 FFFEH 0000 FFF5H 0000 FFF4H 0000 FFF3H 0000 FFF2H 0000 FFF1H 0000 FFF40 0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0](/images/computer-organization/computer-organization-instruction-instruction-ops-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-002.svg" alt={"0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0000 FFF8H 0000 FFF7H 0000 FFF6H 0000 FFFFH 0000 FFFEH 0000 FFF5H 0000 FFF4H 0000 FFF3H 0000 FFF2H 0000 FFF1H 0000 FFF40 0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0"} />
 
 ### 算术和逻辑运算指令
 
@@ -119,7 +119,7 @@ add [var], cl   ; var ← var + cl
 
 `EDX:EAX` 寄存器对在乘除法中扮演被乘数 / 乘积 / 被除数 / 商余的角色，整体数据通路如下图所示：
 
-![x86 乘除法：EDX:EAX 隐式寄存器对的数据通路 MUL / IMUL reg EAX × 操作数 → EDX:EAX EAX (被乘数) 操作数 reg/mem 乘法器 (Multiplier) EDX (高 32) EAX (低 32) 64 位乘积自动拆入 EDX:EAX DIV / IDIV reg EDX:EAX ÷ 操作数 → 商 EAX, 余 EDX EDX (高 32) EAX (低 32) 除数 reg/mem (32 位) 除法器 (Divider)](/images/computer-organization/computer-organization-instruction-instruction-ops-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-003.svg" alt={"x86 乘除法：EDX:EAX 隐式寄存器对的数据通路 MUL / IMUL reg EAX × 操作数 → EDX:EAX EAX (被乘数) 操作数 reg/mem 乘法器 (Multiplier) EDX (高 32) EAX (低 32) 64 位乘积自动拆入 EDX:EAX DIV / IDIV reg EDX:EAX ÷ 操作数 → 商 EAX, 余 EDX EDX (高 32) EAX (低 32) 除数 reg/mem (32 位) 除法器 (Divider)"} />
 
 - 语法
 - 实例
@@ -260,7 +260,7 @@ jl  less_than_zero ; 若 [x] 为负数，跳转
 - `CF`（Carry Flag）：是否产生了进位/借位（无符号溢出）
 - `OF`（Overflow Flag）：是否有符号溢出
 
-![CMP_Process](/images/computer-organization/computer-organization-instruction-instruction-ops-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-005.svg" alt={"CMP_Process"} />
 
 这些标志用于后续的 [条件跳转](/docs/408/knowledge/408-release/computer-organization/instruction/instruction_ops/#%e6%9d%a1%e4%bb%b6%e8%b7%b3%e8%bd%ac)，如 `je`、`jg`、`jl` 等。
 
@@ -280,7 +280,7 @@ jl  less_than_zero ; 若 [x] 为负数，跳转
 - **算术移位**（Arithmetic Shift）：用于 **有符号整数**，右移时保持符号位不变。
 - **循环移位**（Rotate Shift）：将移出的位补回另一端，不丢失任何一位。
 
-![1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 1 循环右移 循环左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 逻辑右移 逻辑左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 算术右移 算术左移 高位补充符号位 高位补充 0](/images/computer-organization/computer-organization-instruction-instruction-ops-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-006.svg" alt={"1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 1 循环右移 循环左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 逻辑右移 逻辑左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 算术右移 算术左移 高位补充符号位 高位补充 0"} />
 
 常见的移位指令如下表所示：
 
@@ -351,7 +351,7 @@ ror al, 1          ; 结果：11000000b（原最低位 1 补到了最高位）
 jmp label
 ```
 
-![JMP 跳转指令语义图](/images/computer-organization/computer-organization-instruction-instruction-ops-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-007.svg" alt={"JMP 跳转指令语义图"} />
 
 跳转指令编译后通常使用 [相对寻址](/docs/408/knowledge/408-release/computer-organization/instruction/format/#%e7%9b%b8%e5%af%b9%e5%af%bb%e5%9d%80)，也就是 **跳转偏移量** 是相对于下一条指令的地址（即当前 PC + 指令长度） 来计算的。
 
@@ -392,7 +392,7 @@ je equal_label
 
 条件跳转的过程可以通过下图进行辅助理解：
 
-![ConditionalJump](/images/computer-organization/computer-organization-instruction-instruction-ops-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-008.svg" alt={"ConditionalJump"} />
 
 有符号数跳转
 
@@ -453,7 +453,7 @@ subroutine:
 
 子程序调用的过程可以通过下图进行辅助理解：
 
-![子程序调用过程图](/images/computer-organization/computer-organization-instruction-instruction-ops-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-009.svg" alt={"子程序调用过程图"} />
 
 图的阅读顺序对应四个步骤：
 
@@ -507,7 +507,7 @@ int 0x80     ; 触发中断
 
 `INT n` 触发的从用户态进入内核态、查表分派到处理程序、再通过 `iret` 返回用户态的完整过程如下图所示：
 
-![陷阱指令 INT n 的执行流程 用户态 (Ring 3) 内核态 (Ring 0) ① 用户程序 mov eax, 1 mov ebx, 0 int 0x80 ; 触发陷阱 ② IVT / IDT 查表 用 n 作索引找处理程序地址 0x00 → handler0 0x01 → handler1 0x80 → sys_call_handler ③ 内核处理程序 push 寄存器现场 根据 eax 分派 syscall 执行特权操作 (I/O, exit…) 恢复现场 / i](/images/computer-organization/computer-organization-instruction-instruction-ops-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-010.svg" alt={"陷阱指令 INT n 的执行流程 用户态 (Ring 3) 内核态 (Ring 0) ① 用户程序 mov eax, 1 mov ebx, 0 int 0x80 ; 触发陷阱 ② IVT / IDT 查表 用 n 作索引找处理程序地址 0x00 → handler0 0x01 → handler1 0x80 → sys_call_handler ③ 内核处理程序 push 寄存器现场 根据 eax 分派 syscall 执行特权操作 (I/O, exit…) 恢复现场 / i"} />
 
 补充
 
@@ -545,7 +545,7 @@ IF 位控制的是 [可屏蔽中断](/docs/408/knowledge/408-release/computer-or
 
 `IN` 和 `OUT` 指令用于处理与外部设备的 **输入/输出**（I/O）操作。这些指令让 CPU 可以直接与硬件端口通信，从而读取或发送数据。
 
-![寄存器 寄存器 端口 端口 电流特性的转换 电流特性的转换 端口 电流特性的转换 CPU I/O 接口 in 指令 out 指令 键盘 显示器 外设](/images/computer-organization/computer-organization-instruction-instruction-ops-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-011.svg" alt={"寄存器 寄存器 端口 端口 电流特性的转换 电流特性的转换 端口 电流特性的转换 CPU I/O 接口 in 指令 out 指令 键盘 显示器 外设"} />
 
 - `IN`：从指定的 **I/O 端口**读取数据到 **寄存器**。通过 `IN` 指令，可以从硬件设备读取状态信息或数据。
 - `OUT`： **将寄存器**中的数据写入到指定的 **I/O 端口**。通过 `OUT` 指令，CPU 可以向设备发送控制命令或数据。
@@ -659,7 +659,7 @@ cmpsb  ; 比较字节
 cmpsd  ; 比较 4 字节
 ```
 
-![x86 字符串操作指令语义图](/images/computer-organization/computer-organization-instruction-instruction-ops-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-012.svg" alt={"x86 字符串操作指令语义图"} />
 
 ### 总结
 

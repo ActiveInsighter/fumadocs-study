@@ -65,7 +65,7 @@ MAC 地址工作在数据链路层，用于**同一局域网**内的设备间通
 * **端口号**：设备连接的交换机端口。
 * **附加信息**（可选）：如 **VLAN** 标识或条目有效时间。
 
-![数据链路层设备 图 1](/images/computer-network/computer-network-datalink-dev-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-dev-001.svg" alt={"数据链路层设备 图 1"} />
 
 如上图所示，交换机 A 和 B 分别通过 **转发表** 记录了通往每个 **MAC 地址** 的端口。
 
@@ -81,7 +81,7 @@ MAC 地址工作在数据链路层，用于**同一局域网**内的设备间通
 3. **转发数据帧**
    * 目标设备收到帧后应答，交换机会根据 **源 MAC 地址** 学习到该设备所在端口，并更新转发表。
 
-![数据链路层设备 图 2](/images/computer-network/computer-network-datalink-dev-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-dev-002.svg" alt={"数据链路层设备 图 2"} />
 
 注意
 
@@ -127,7 +127,7 @@ IEEE 802.3 要求：
 
 所以规定：合法Frame ≥ 64 Byte。于是 frame < 64B，基本可以断定是碰撞导致的残缺帧。
 
-![数据链路层设备 图 3](/images/computer-network/computer-network-datalink-dev-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-dev-003.svg" alt={"数据链路层设备 图 3"} />
 
 注意
 
@@ -144,7 +144,7 @@ IEEE 802.3 要求：
 
 网桥（Bridge）的功能和 **交换机** 基本一致，两者都是二层网络设备，用于转发数据帧。网桥中也有 **转发表** 的概念，转发过程和 **交换机** 一致，这里不再赘述。
 
-![数据链路层设备 图 4](/images/computer-network/computer-network-datalink-dev-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-dev-004.svg" alt={"数据链路层设备 图 4"} />
 
 那么 网桥和交换机区别
 

@@ -56,7 +56,7 @@ title: "内存管理概念"
 
 其基本发展脉络可以概括为：
 
-![内存管理方式演进](/images/operating-system/operating-system-memory-concepts-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-001.svg" alt={"内存管理方式演进"} />
 
 整个演进过程主要围绕两个目标展开：
 
@@ -86,7 +86,7 @@ title: "内存管理概念"
 - 段式管理；
 - 段页式管理。
 
-![MemoryManagement](/images/operating-system/operating-system-memory-concepts-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-002.svg" alt={"MemoryManagement"} />
 
 后文将沿着上述发展脉络，具体介绍各种内存管理方式的基本思想、解决的问题以及自身的局限性。
 
@@ -98,7 +98,7 @@ title: "内存管理概念"
 
 #### 单一连续分配
 
-![系统区 操作系统 用户区 单一用户程序 独占整个用户空间 高地址 低地址 优点 实现简单 无外部碎片 无需内存保护 内存中永远只有一道程序 缺点 只能用于单用户、单任务系统 存储器利用率极低 不支持多任务处理 无法并发执行多个程序 系统区 + 单一程序 + 未使用空间 系统区 用户程序 未使用 这是最简单的内存管理方式，适用于早期的单任务操作系统](/images/operating-system/operating-system-memory-concepts-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-003.svg" alt={"系统区 操作系统 用户区 单一用户程序 独占整个用户空间 高地址 低地址 优点 实现简单 无外部碎片 无需内存保护 内存中永远只有一道程序 缺点 只能用于单用户、单任务系统 存储器利用率极低 不支持多任务处理 无法并发执行多个程序 系统区 + 单一程序 + 未使用空间 系统区 用户程序 未使用 这是最简单的内存管理方式，适用于早期的单任务操作系统"} />
 
 在单一连续分配方式下，内存被划分为 **系统区** 和 **用户区**。
 
@@ -125,7 +125,7 @@ title: "内存管理概念"
 
 #### 固定分区分配
 
-![固定分区分配示意图 内存空间 操作系统 分区1 (100KB) 作业A 分区2 (150KB) 空闲 分区3 (200KB) 作业B 分区4 (120KB) 空闲 0K 100K 200K 350K 550K 670K 分区说明表 分区号 起始地址 大小 状态 1 100K 100KB 已分配 2 200K 150KB 空闲 3 350K 200KB 已分配 4 550K 120KB 空闲 后备作业队列 作业C (80KB) 作业D (180KB) 作业E (110KB) 可](/images/operating-system/operating-system-memory-concepts-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-004.svg" alt={"固定分区分配示意图 内存空间 操作系统 分区1 (100KB) 作业A 分区2 (150KB) 空闲 分区3 (200KB) 作业B 分区4 (120KB) 空闲 0K 100K 200K 350K 550K 670K 分区说明表 分区号 起始地址 大小 状态 1 100K 100KB 已分配 2 200K 150KB 空闲 3 350K 200KB 已分配 4 550K 120KB 空闲 后备作业队列 作业C (80KB) 作业D (180KB) 作业E (110KB) 可"} />
 
 固定分区分配是最简单的一种 **多道程序存储管理** 方式。
 
@@ -205,7 +205,7 @@ title: "内存管理概念"
 
 但是，动态分区仍然属于 **连续分配方式**。对于单个进程而言，操作系统仍然需要为其分配一块连续的物理内存。
 
-![Free Memory Free Memory P1 Free Memory P1 P2 Free P1 P2 P3 Free P1 P3 allocate mem for P1 allocate mem for P2 allocate mem for P3 free mem for P2 allocate mem for P4 Free P1 P3 P4](/images/operating-system/operating-system-memory-concepts-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-005.svg" alt={"Free Memory Free Memory P1 Free Memory P1 P2 Free P1 P2 P3 Free P1 P3 allocate mem for P1 allocate mem for P2 allocate mem for P3 free mem for P2 allocate mem for P4 Free P1 P3 P4"} />
 
 通过这种动态、按需分配的方式，内存可以从逻辑上划分为两类区域：
 
@@ -214,7 +214,7 @@ title: "内存管理概念"
 
 如下图所示，其中 **内核内存（kernel memory）** 和 **进程内存（process memory）** 属于已分配区域，其余部分为系统当前的空闲内存。
 
-![Kernel Memory Kernel Memory Process 1 Memory Process 1... Free Memory Free Memory Process 2 Memory Process 2... Free Memory Free Memory Process 3 Memory Process 3... Free Memory Free Memory Text is not SVG - cannot display](/images/operating-system/operating-system-memory-concepts-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-006.svg" alt={"Kernel Memory Kernel Memory Process 1 Memory Process 1... Free Memory Free Memory Process 2 Memory Process 2... Free Memory Free Memory Process 3 Memory Process 3... Free Memory Free Memory Text is not SVG - cannot display"} />
 
 为了管理这些不断变化的空闲区域，操作系统通常维护一张 **空闲分区表** 或 **空闲分区链表**，用于记录每一块空闲内存的：
 
@@ -223,7 +223,7 @@ title: "内存管理概念"
 
 示意如下：
 
-![起始地址 分区大小 下标 0 0x12340000 40KB 1 0x12345000 30KB 2 0x22000000 128KB 空闲分区表](/images/operating-system/operating-system-memory-concepts-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-007.svg" alt={"起始地址 分区大小 下标 0 0x12340000 40KB 1 0x12345000 30KB 2 0x22000000 128KB 空闲分区表"} />
 
 当进程申请内存时，操作系统会遍历空闲分区表，按照预定的 **[适应算法](https://csgraduates.com/operating_system/memory/concepts/#%e9%80%82%e5%ba%94%e7%ae%97%e6%b3%95)**，例如首次适应、最佳适应等，从中选择一块满足需求的空闲区域，并完成内存分配。
 
@@ -237,7 +237,7 @@ title: "内存管理概念"
 
 下图以一个实例说明动态分区分配过程中内存碎片的产生过程：
 
-![内存碎片形成过程 阶段1：初始状态 连续空闲内存 1000KB ✓ 大块连续空间，易分配 阶段2：进程陆续分配 进程A (200KB) 剩余 800KB 进程B (300KB) 剩余 500KB ⚠ 空间逐渐减少 阶段3：进程释放 碎片 (200KB) 进程C (350KB) 碎片 (150KB) 进程D (200KB) 碎片 (100KB) ✗ 产生多个小碎片 碎片问题演示 新进程E 需要 250KB 当前内存状态 200KB 进程运行中 150KB 进程 100KB 无法](/images/operating-system/operating-system-memory-concepts-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-008.svg" alt={"内存碎片形成过程 阶段1：初始状态 连续空闲内存 1000KB ✓ 大块连续空间，易分配 阶段2：进程陆续分配 进程A (200KB) 剩余 800KB 进程B (300KB) 剩余 500KB ⚠ 空间逐渐减少 阶段3：进程释放 碎片 (200KB) 进程C (350KB) 碎片 (150KB) 进程D (200KB) 碎片 (100KB) ✗ 产生多个小碎片 碎片问题演示 新进程E 需要 250KB 当前内存状态 200KB 进程运行中 150KB 进程 100KB 无法"} />
 
 由于各进程所需的内存大小不同，并且进程会不断装入和退出，因此内存中会逐渐形成许多彼此分散的小型空闲区域。
 
@@ -278,7 +278,7 @@ title: "内存管理概念"
 - **最佳适应**（Best Fit）
 - **最坏适应**（Worst Fit）
 
-![动态分区分配算法 First Fit (首次适应) 从头遍历，选择第一个满足的空闲块 已用 15K 已用 30K ✓ 已用 35K 需求: 25K Next Fit (临近适应) 从上次分配位置的下一个继续查找 已用 15K 已用 20K 已用 35K ✓ 需求: 25K Best Fit (最佳适应) 遍历全部，选择最小满足的空闲块 已用 15K 太小 ✗ 已用 28K ✓ 最佳! 已用 35K 浪费多 已用 40K 浪费多 需求: 25K Worst Fit (最坏适应)](/images/operating-system/operating-system-memory-concepts-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-009.svg" alt={"动态分区分配算法 First Fit (首次适应) 从头遍历，选择第一个满足的空闲块 已用 15K 已用 30K ✓ 已用 35K 需求: 25K Next Fit (临近适应) 从上次分配位置的下一个继续查找 已用 15K 已用 20K 已用 35K ✓ 需求: 25K Best Fit (最佳适应) 遍历全部，选择最小满足的空闲块 已用 15K 太小 ✗ 已用 28K ✓ 最佳! 已用 35K 浪费多 已用 40K 浪费多 需求: 25K Worst Fit (最坏适应)"} />
 
 - First Fit
   （首次适应）：从空闲分区表或空闲链表的开头开始查找，找到 **第一个大小足以满足请求的空闲分区**，将其分配给进程。
@@ -333,7 +333,7 @@ $$
 
 四种分配算法会得到不同结果：
 
-![First Fit Best Fit Worst Fit Allocated Block Free Block Possible New Block 8 22 20 14 10 24 Next Fit 根据上次分配的位置 New Allocation of 16](/images/operating-system/operating-system-memory-concepts-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-010.svg" alt={"First Fit Best Fit Worst Fit Allocated Block Free Block Possible New Block 8 22 20 14 10 24 Next Fit 根据上次分配的位置 New Allocation of 16"} />
 
 四种适应算法在该例子中的对比如下：
 
@@ -400,7 +400,7 @@ $$
 
 当程序调用 `free` 时，分配器会将对应内存块标记为空闲，并可能与相邻空闲块合并。
 
-![进程堆内存分配与释放过程 1. 初始状态（空闲堆空间） 空闲块（600 KB） 0x1000 0x1258 2. malloc(200KB) - 首次适应分配 p1 = malloc(200*1024) 已分配 200 KB (p1) 空闲块（400 KB） 0x1000 0x1064 0x1258 3. malloc(150KB) - 继续分配 p2 = malloc(150*1024) 200 KB (p1) 150 KB (p2) 空闲块（250 KB） 0x1000 ](/images/operating-system/operating-system-memory-concepts-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-011.svg" alt={"进程堆内存分配与释放过程 1. 初始状态（空闲堆空间） 空闲块（600 KB） 0x1000 0x1258 2. malloc(200KB) - 首次适应分配 p1 = malloc(200*1024) 已分配 200 KB (p1) 空闲块（400 KB） 0x1000 0x1064 0x1258 3. malloc(150KB) - 继续分配 p2 = malloc(150*1024) 200 KB (p1) 150 KB (p2) 空闲块（250 KB） 0x1000 "} />
 
 堆内存分配器通常维护空闲块列表、大小分类链表或更复杂的数据结构。
 
@@ -433,7 +433,7 @@ $$
 
 当内存被释放时，算法会检查对应的伙伴块是否也处于空闲状态。如果伙伴块空闲，则将两者合并为更大的块，并继续向上尝试合并。
 
-![256 KB 128 KB 128 KB 64 KB 64 KB 32 32](/images/operating-system/operating-system-memory-concepts-012.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-012.svg" alt={"256 KB 128 KB 128 KB 64 KB 64 KB 32 32"} />
 
 **内存分配过程**
 
@@ -455,7 +455,7 @@ $$
 
 下图展示了一个使用伙伴算法的内存分配实例：
 
-![初始：128B 空间空闲 申请 32B 空间 申请 7B 空间 0 0 0 32 64 32 40 48 64 128 128 128 申请 64B 空间 0 32 40 48 64 128](/images/operating-system/operating-system-memory-concepts-013.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-013.svg" alt={"初始：128B 空间空闲 申请 32B 空间 申请 7B 空间 0 0 0 32 64 32 40 48 64 128 128 128 申请 64B 空间 0 32 40 48 64 128"} />
 
 伙伴算法分配的块大小必须为 $2$ 的幂，因此当请求大小不是 $2$ 的幂时，会向上取整到最近的块大小。
 
@@ -542,7 +542,7 @@ $$
 
 > **将进程拆分为固定大小的页，使一个进程可以离散地存放在多个不连续的物理页框中。**
 
-![CPU 虚拟页号 页内偏移 有效位 物理页号 0 200 0 100 1 150 1 100 内核区 页面 0 虚拟地址 0 1 2 3 页表 主存 + PBTR 物理页号 页内偏移 物理地址 页面 1 页面 2 页面 N 页面 N-1](/images/operating-system/operating-system-memory-concepts-014.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-014.svg" alt={"CPU 虚拟页号 页内偏移 有效位 物理页号 0 200 0 100 1 150 1 100 内核区 页面 0 虚拟地址 0 1 2 3 页表 主存 + PBTR 物理页号 页内偏移 物理地址 页面 1 页面 2 页面 N 页面 N-1"} />
 
 页式管理通常进行如下划分：
 
@@ -608,7 +608,7 @@ PTBR
 >
 > 段式管理：关注程序本身的逻辑结构，按照代码、数据、栈等逻辑单位分段
 
-![图示](/images/operating-system/operating-system-memory-concepts-015.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-015.svg" alt={"图示"} />
 
 段式内存管理将程序按照逻辑功能划分为多个长度可变的 **段**（Segment），例如：
 
@@ -666,7 +666,7 @@ $$
 
 当程序使用段号和段内偏移访问内存时，处理器首先根据段号查找段表项，取得段基址和段长。
 
-![图示](/images/operating-system/operating-system-memory-concepts-016.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-016.svg" alt={"图示"} />
 
 虽然一个进程的不同段可以离散地放置在物理内存中，但在纯段式管理中，每一个段内部通常仍然需要占据一块连续的物理内存。
 
@@ -778,7 +778,7 @@ $$
 
 在每个段内部，再通过独立的页表完成虚拟页到物理页框的映射。
 
-![起始地址 长度 * * * * * * 有效位 CPU 段号 虚拟页号 页内偏移 + STBR + 物理页号 页内偏移 虚拟地址 段表 物理页号 页表 0 页表 1 有效位 物理页号 物理地址](/images/operating-system/operating-system-memory-concepts-017.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-017.svg" alt={"起始地址 长度 * * * * * * 有效位 CPU 段号 虚拟页号 页内偏移 + STBR + 物理页号 页内偏移 虚拟地址 段表 物理页号 页表 0 页表 1 有效位 物理页号 物理地址"} />
 
 在段页式管理中，虚拟地址通常被划分为三个部分：
 
@@ -866,7 +866,7 @@ $$
 
 > **程序运行时不必将全部内容一次性装入内存，只需装入当前需要使用的部分；其余内容暂时保存在外存中，并在访问时由操作系统按需调入。**
 
-![虚拟存储器基本概念示意图](/images/operating-system/operating-system-memory-concepts-018.svg)
+<InlineSvg src="/images/operating-system/operating-system-memory-concepts-018.svg" alt={"虚拟存储器基本概念示意图"} />
 
 虚拟存储器利用了程序执行过程中的 **局部性原理**：
 

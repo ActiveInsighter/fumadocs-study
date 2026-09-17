@@ -11,7 +11,7 @@ title: "Cache"
 
 ### cache 原理
 
-![CPU (memory access) Cache Cache Line Cache Line Cache Line Cache Line Cache Line 256KB 64 bytes RAM 16GB](/images/computer-organization/computer-organization-storage-cache-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-001.svg" alt={"CPU (memory access) Cache Cache Line Cache Line Cache Line Cache Line Cache Line 256KB 64 bytes RAM 16GB"} />
 
 **缓存** 是一种临时存储数据的硬件或软件组件，旨在加快后续对该数据的访问速度。当您请求数据时，计算机会先检查 **缓存** 中是否存在该数据。如果存在（称为 **“缓存命中”**，Cache Hit），则可以直接从 **缓存** 中获取数据，而无需访问内存，从而节省时间和资源。如果 **缓存** 中不存在该数据（称为 **“缓存未命中”**，Cache Miss），则需要从内存获取数据，并将其存储在 **缓存** 中，以备将来使用。
 
@@ -44,7 +44,7 @@ for (int i = 0; i < 1000; i++) {
 
 ##### 空间局部性
 
-![好的空间局部性 坏的空间局部性](/images/computer-organization/computer-organization-storage-cache-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-002.svg" alt={"好的空间局部性 坏的空间局部性"} />
 
 如果一个数据项被访问，那么存储在其附近的数据项也很可能在不久的将来被访问。
 
@@ -82,7 +82,7 @@ for (int i = 0; i < 1000; i++) {
 [16#45](https://csgraduates.com/study_methods/408quiz/2016/#45)
 [23#43](https://csgraduates.com/study_methods/408quiz/2023/#43)
 
-![cache block Flags Tag Flags Tag Flags Tag Tag Flags block offset = 12 cache line 0 cache line 1 cache line N-1 cache line N-2 block size = 32 main memory block 0 block 1 block 2 block M-1 block M-2](/images/computer-organization/computer-organization-storage-cache-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-003.svg" alt={"cache block Flags Tag Flags Tag Flags Tag Tag Flags block offset = 12 cache line 0 cache line 1 cache line N-1 cache line N-2 block size = 32 main memory block 0 block 1 block 2 block M-1 block M-2"} />
 
 - **cache 行**（cache line）：**cache 行** 中包含 **各种标记字段**（flag）和 **数据**（cache 块）
 - **缓存块**（cache 块）：**cache** 中的一块存储空间，是与 **主存** 进行数据交换的基本单元
@@ -98,7 +98,7 @@ for (int i = 0; i < 1000; i++) {
 
 **cache block** 的目的是为了方便对于 **主存**（main memory）数据的 **缓存**，**主存块** 的大小与 **缓存块** 大小一致，这样就可以将 **缓存块** 和 **主存块** 对应起来。
 
-![Cache Block 0 Cache Block 1 Cache Block 62 Cache Block 63 Block 0 Block 1 Block 64 Block 65 Block 255 Block 256 Block 62 Block 63 Page 0 Page 1 Page 1022 Page 1023 Page 0 Page 1 Page 1023 Pgae 1024 Page 2047 Page 2048 Page 4094 Page 4095 Ca](/images/computer-organization/computer-organization-storage-cache-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-004.svg" alt={"Cache Block 0 Cache Block 1 Cache Block 62 Cache Block 63 Block 0 Block 1 Block 64 Block 65 Block 255 Block 256 Block 62 Block 63 Page 0 Page 1 Page 1022 Page 1023 Page 0 Page 1 Page 1023 Pgae 1024 Page 2047 Page 2048 Page 4094 Page 4095 Ca"} />
 
 **cache** 中的存储空间可以被分为若干个 **cache 块**，**主存** 也可以被分为若干个 **主存块**，**主存** 和 **cache** 间的数据置换是以 **块** 为基本单位的。  
 这可以和页式内存进行类比，虚拟内存和物理内存都被分为若干个页面，物理内存空间的置换以 **页面** 为基本单位。
@@ -156,7 +156,7 @@ Cache 的容量远小于主存，而主存中的任意一个数据块在程序�
    放得越自由，命中率越高，但查找与比较逻辑越复杂；
    放得越受限，硬件越简单，但冲突失效（conflict miss）越频繁。
 
-![Cache 映射方式：主存块 → Cache 块的对应规则 主存储器 (容量大，速度慢) 块 0 块 1 块 2 块 3 ⋮ 块 M-2 块 M-1 Cache (容量小，速度快) Cache 块 0 Cache 块 1 Cache 块 2 Cache 块 3 ⋮ Cache 块 N-2 Cache 块 N-1 核心问题：主存块该放到 Cache 的哪里？ 1. 可放置性 (Placement) 主存块 X 允许放入 Cache 的哪些位置？ 固定一个？多个？任意位置？ 2.](/images/computer-organization/computer-organization-storage-cache-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-005.svg" alt={"Cache 映射方式：主存块 → Cache 块的对应规则 主存储器 (容量大，速度慢) 块 0 块 1 块 2 块 3 ⋮ 块 M-2 块 M-1 Cache (容量小，速度快) Cache 块 0 Cache 块 1 Cache 块 2 Cache 块 3 ⋮ Cache 块 N-2 Cache 块 N-1 核心问题：主存块该放到 Cache 的哪里？ 1. 可放置性 (Placement) 主存块 X 允许放入 Cache 的哪些位置？ 固定一个？多个？任意位置？ 2."} />
 
 不同的映射方式，本质上就是在 **命中率、访问速度、硬件复杂度** 三者之间做不同取舍。
 
@@ -170,7 +170,7 @@ Cache 的容量远小于主存，而主存中的任意一个数据块在程序�
 
 #### 直接映射
 
-![Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory](/images/computer-organization/computer-organization-storage-cache-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-006.svg" alt={"Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory"} />
 
 在 **直接映射**（directed mapped）缓存 中，每个 **主存块** 只能映射到缓存中的 **一个特定缓存块**。这意味着每个 主存块只有一个缓存块可以存储它。
 
@@ -199,7 +199,7 @@ $$
 
 #### 全相联映射
 
-![Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory](/images/computer-organization/computer-organization-storage-cache-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-007.svg" alt={"Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory"} />
 
 在 **全相联缓存**（full associative）中，**主存** 中的任何块可以映射到缓存中的 **任意缓存块**。
 
@@ -233,7 +233,7 @@ $C$
 
 #### 组相联映射
 
-![Group 0 Cache Tag Data 0 1 2 c -1 Main Memory Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 2 c -1](/images/computer-organization/computer-organization-storage-cache-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-008.svg" alt={"Group 0 Cache Tag Data 0 1 2 c -1 Main Memory Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 2 c -1"} />
 
 **组相联缓存**（set associative 或 group associative）是 直接映射缓存 和 全相联缓存 之间的一种 **折中方案**。它将缓存块分为多个 **组**，每个组包含多个缓存块。主存块可以 **映射到组中的任意一个缓存块**。
 
@@ -277,7 +277,7 @@ $$
 
 下图展示的是一个 **二路组相联 Cache** 的结构示意图。
 
-![Tag Index Block offset Valid Tag Data Index 0 N / 2 ... Valid Tag Data = = 2-to-1 Mux Hit Data Address](/images/computer-organization/computer-organization-storage-cache-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-009.svg" alt={"Tag Index Block offset Valid Tag Data Index 0 N / 2 ... Valid Tag Data = = 2-to-1 Mux Hit Data Address"} />
 
 访问时，物理地址中的 **组号**（index） 用于定位到 **Cache** 中的某一 **组**。该 **组** 包含两个 **Cache 块**，每个块有 **valid 位** 和 **tag 字段**。
 
@@ -326,7 +326,7 @@ $$
 - **全相连映射**：可能被映射到任意一个 **cache 块**
 - **组相连映射**：对于 m 路组相连，被映射到组号为 `k % (M / m)` 的 **cache 组** 中的任意一个 **cache 块**
 
-![Cache Main Memory Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 0 Cache Tag Data 0 1 2 c -1 Main Memory Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 2 c -](/images/computer-organization/computer-organization-storage-cache-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-010.svg" alt={"Cache Main Memory Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Cache Main Memory Tag Block 0 1 2 c -1 Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 0 Cache Tag Data 0 1 2 c -1 Main Memory Block 0 1 2 c -1 2 c 2 m -1 2 c +1 Group 2 c -"} />
 
 | 特点 | 直接映射缓存 | 全相联缓存 | 组相联缓存 |
 | --- | --- | --- | --- |
@@ -405,7 +405,7 @@ $$
 
 总结一下三种映射方式的块匹配字段的计算方法：
 
-![CacheAddressStructure](/images/computer-organization/computer-organization-storage-cache-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-011.svg" alt={"CacheAddressStructure"} />
 
 ##### 标记
 
@@ -422,7 +422,7 @@ $$
 
 具体而言，给定一个物理地址，访问 Cache 时的各个字段的对应方式如下图所示：
 
-![标记 cache 块号 块内偏移 标记 组号 块内偏移 块内偏移 标记 块内偏移 主存块号 Cache 物理地址格式 内存物理地址格式 直接映射 全相联 组相联](/images/computer-organization/computer-organization-storage-cache-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-012.svg" alt={"标记 cache 块号 块内偏移 标记 组号 块内偏移 块内偏移 标记 块内偏移 主存块号 Cache 物理地址格式 内存物理地址格式 直接映射 全相联 组相联"} />
 
 其中 块内偏移、cache 块号（直接映射）、cache 组号（组相联映射）的位数可以直接根据 cache 的参数计算出来，Tag 字段的位数需要通过物理地址的位数减去其他字段的位数来得到。
 
@@ -435,7 +435,7 @@ cache 存储的内容大体上来说可以分为 数据 和 元数据 这两个�
 
 cache 的存储结构可以理解为一张表：
 
-![Cache 存储结构 元数据部分 (控制信息) 数据部分 (缓存内容) Valid Valid Tag (标记) Dirty (脏位) Reference (访问位) Cache Block (Data) (数据块) 1 0x3A2F 0 0011 主存块副本 (Block 0) 1 0x1B8C 1 0101 主存块副本 (Block 1) 0 - - - (无效数据) ⋮ ⋮ ⋮ ⋮ ⋮ 字段说明： Valid (有效位) : 1位，标识该cache行是否存储有效数据 T](/images/computer-organization/computer-organization-storage-cache-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-013.svg" alt={"Cache 存储结构 元数据部分 (控制信息) 数据部分 (缓存内容) Valid Valid Tag (标记) Dirty (脏位) Reference (访问位) Cache Block (Data) (数据块) 1 0x3A2F 0 0011 主存块副本 (Block 0) 1 0x1B8C 1 0101 主存块副本 (Block 1) 0 - - - (无效数据) ⋮ ⋮ ⋮ ⋮ ⋮ 字段说明： Valid (有效位) : 1位，标识该cache行是否存储有效数据 T"} />
 
 其中字段的含义与 [页表](/docs/408/knowledge/408-release/computer-organization/storage/virtual/#%e5%8d%95%e7%ba%a7%e9%a1%b5%e8%a1%a8) 近似，下面列出了：
 
@@ -464,7 +464,7 @@ cache 的存储结构可以理解为一张表：
 
 块替换算法适用于 **全相联映射** 和 **组相联映射**，因为在这两种组织方式中，同一主存块可能被 **多个 cache 块** 中的任意一个所缓存；因此当需要把新块写入时必须决定把哪一个已有的 cache 块淘汰。而在 **直接映射方式** 中，主存块只能对应唯一的 **一个 cache 块**，如果发生冲突，直接用新块覆盖该 cache 块即可，无需额外的替换算法。
 
-![Cache 块替换算法的使用场景 直接映射 (Direct Mapping) 主存块: 块 0 块 1 块 2 块 3 ... Cache: Cache 0 Cache 1 ❌ 不需要替换算法 • 每个主存块只能映射到 唯一的一个Cache块 • 例如: 块0、块2 → Cache 0 块1、块3 → Cache 1 • 发生冲突时,直接覆盖 对应的Cache块即可 • 无需选择淘汰哪一个 (因为只有唯一选择) 全相联映射 (Fully Associative) 主存块: 块](/images/computer-organization/computer-organization-storage-cache-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-014.svg" alt={"Cache 块替换算法的使用场景 直接映射 (Direct Mapping) 主存块: 块 0 块 1 块 2 块 3 ... Cache: Cache 0 Cache 1 ❌ 不需要替换算法 • 每个主存块只能映射到 唯一的一个Cache块 • 例如: 块0、块2 → Cache 0 块1、块3 → Cache 1 • 发生冲突时,直接覆盖 对应的Cache块即可 • 无需选择淘汰哪一个 (因为只有唯一选择) 全相联映射 (Fully Associative) 主存块: 块"} />
 
 #### 替换过程
 
@@ -481,7 +481,7 @@ cache 的存储结构可以理解为一张表：
    - 若候选块中存在 `valid=0` 的块，则选择其中一个空闲块，将主存块加载到该块中，并设置 `valid=1`、更新 tag；
    - 若所有候选块均为 `valid=1`，则根据 **块替换算法**（如 LRU、FIFO、随机等）选择一个块进行淘汰，并写入新主存块。
 
-![cache_access](/images/computer-organization/computer-organization-storage-cache-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-015.svg" alt={"cache_access"} />
 
 #### 替换算法
 
@@ -543,7 +543,7 @@ cache 的写策略代表当我们对某个物理地址上的数据进行写入�
 
 #### 命中时
 
-![Cache OS Memory 先写入 cache 再写入主存 Cache OS Memory 写入 cache cache 块被替换 时写入主存 直写法 回写法](/images/computer-organization/computer-organization-storage-cache-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-016.svg" alt={"Cache OS Memory 先写入 cache 再写入主存 Cache OS Memory 写入 cache cache 块被替换 时写入主存 直写法 回写法"} />
 
 如果某次地址查询**命中 cache**，可以使用如下策略：
 
@@ -565,7 +565,7 @@ cache 的写策略代表当我们对某个物理地址上的数据进行写入�
 
 #### 未命中时
 
-![Cache OS Memory 写入 cache 块 加载主存块 到 cache 中 Cache OS Memory 写入主存块 写分配法 非写分配法 ② ① ① 读操作时加载 ②](/images/computer-organization/computer-organization-storage-cache-017.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-017.svg" alt={"Cache OS Memory 写入 cache 块 加载主存块 到 cache 中 Cache OS Memory 写入主存块 写分配法 非写分配法 ② ① ① 读操作时加载 ②"} />
 
 如果 **没有命中 cache**，也有如下策略：
 
@@ -583,7 +583,7 @@ cache 的写策略代表当我们对某个物理地址上的数据进行写入�
 - **直写法**（write-through）和 **非写分配法**（not-write-allocate）通常会一起使用，适用于那些写操作不频繁或者写操作不太可能访问同一数据的情况。
 - **回写法**（write-back）和 **写分配法**（write-allocate）通常会一起使用，适用于那些写操作频繁的情况。
 
-![Cache 写策略组合 组合一：倾向主存 直写法 (Write Through) 命中时：同步写 Cache + 主存 + 非写分配法 (Not Write Allocate) 未命中时：直接写主存 特点与适用场景 • 都倾向于操作主存 • 保持数据一致性简单 • 写操作延迟较高 ✓ 写操作不频繁的场景 ✓ 数据局部性较差的场景 组合二：倾向 Cache 回写法 (Write Back) 命中时：仅写 Cache（延迟回写） + 写分配法 (Write Allocate) 未](/images/computer-organization/computer-organization-storage-cache-018.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-018.svg" alt={"Cache 写策略组合 组合一：倾向主存 直写法 (Write Through) 命中时：同步写 Cache + 主存 + 非写分配法 (Not Write Allocate) 未命中时：直接写主存 特点与适用场景 • 都倾向于操作主存 • 保持数据一致性简单 • 写操作延迟较高 ✓ 写操作不频繁的场景 ✓ 数据局部性较差的场景 组合二：倾向 Cache 回写法 (Write Back) 命中时：仅写 Cache（延迟回写） + 写分配法 (Write Allocate) 未"} />
 
 提示
 

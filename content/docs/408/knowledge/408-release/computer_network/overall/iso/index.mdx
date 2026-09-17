@@ -31,7 +31,7 @@ OSI 模型是选择题的高频考点，需要理解每一层的功能。此外�
 
 OSI 参考模型的层次结构如下图所示：
 
-![分层结构 图 1](/images/computer-network/computer-network-overall-iso-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-001.svg" alt={"分层结构 图 1"} />
 
 #### 物理层
 
@@ -55,7 +55,7 @@ OSI 参考模型的层次结构如下图所示：
 
 #### 会话层
 
-![分层结构 图 2](/images/computer-network/computer-network-overall-iso-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-002.svg" alt={"分层结构 图 2"} />
 
 **会话层**（Session Layer）允许不同主机上的各个进程之间进行会话。这 **会话** 这种服务主要为用户进程建立连接，并在连接上有序地传输数据，这就是 会话。
 
@@ -81,11 +81,11 @@ OSI 参考模型的层次结构如下图所示：
 
 **TCP/IP 模型** 从低到高依次为【**网络接口层**（对应 **OSI 参考模型** 中的物理层和数据链路层）、**网际层**、**传输层** 和 **应用层**（对应 **OSI 参考模型** 中的会话层、表示层和应用层）】。**TCP/IP** 由于得到广泛应用而成为事实上的国际标准。**TCP/IP 模型** 的层次结构如下图所示：
 
-![分层结构 图 3](/images/computer-network/computer-network-overall-iso-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-003.svg" alt={"分层结构 图 3"} />
 
 **TCP/IP 模型** 与 **OSI 模型** 的不同点在于 **网络接口层** 和 **应用层**，可以理解为 **TCP/IP 模型** 中这两层涵盖了 **OSI 协议** 中多层的功能：
 
-![分层结构 图 4](/images/computer-network/computer-network-overall-iso-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-004.svg" alt={"分层结构 图 4"} />
 
 学习计算机网络时，我们往往采取折中的办法，即综合 **OSI 参考模型** 和 **TCP/IP 模型** 的优点，采用一种如下图所示的只有 **5 层协议** 的体系结构，即我们所熟知的【物理层、数据链路层、网络层、传输层和应用层】。
 
@@ -104,7 +104,7 @@ OSI 参考模型的层次结构如下图所示：
 
 在网络中，**协议数据单元**（**PDU**，Protocol Data Unit）是指在某一层协议中传输的数据单元。每一层在接收来自上一层的数据时，都会在其头部添加控制信息（称为首部 Header），然后将其当作一个新的 PDU 交给下一层处理。这就是所谓的 **封装** 过程。
 
-![分层结构 图 5](/images/computer-network/computer-network-overall-iso-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-005.svg" alt={"分层结构 图 5"} />
 
 | OSI 层级 | PDU 名称 |
 | --- | --- |
@@ -120,4 +120,4 @@ OSI 参考模型的层次结构如下图所示：
 
 对于上表，首要的是掌握英文的名词表述，相比中文，这些表述更加统一和精准，中文翻译良莠不齐，常常有多种表述方式，但是表述的都是一个概念，能见词闻义即可。
 
-![分层结构 图 6](/images/computer-network/computer-network-overall-iso-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-overall-iso-006.svg" alt={"分层结构 图 6"} />

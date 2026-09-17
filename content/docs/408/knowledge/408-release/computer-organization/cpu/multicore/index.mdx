@@ -32,7 +32,7 @@ title: "多处理机"
 | **单一数据流** | 单指令流单数据流（SISD） | 多指令流单数据流（MISD） |
 | **多数据流** | 单指令流多数据流（SIMD） | 多指令流多数据流（MIMD） |
 
-![Data pool PU Instruction Pool SISD Data pool PU Instruction Pool SIMD PU PU Data pool PU Instruction Pool MIMD PU PU PU PU PU PU PU Data pool PU Instruction Pool MISD PU](/images/computer-organization/computer-organization-cpu-multicore-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-001.svg" alt={"Data pool PU Instruction Pool SISD Data pool PU Instruction Pool SIMD PU PU Data pool PU Instruction Pool MIMD PU PU PU PU PU PU PU Data pool PU Instruction Pool MISD PU"} />
 
 #### 指令流和数据流
 
@@ -48,7 +48,7 @@ ADD R1, R2
 
 **数据流** 是指令执行过程中被读取、处理和写回的一组数据。不同处理单元即使执行相同的指令，只要处理的是不同数据，也可以认为存在多条数据流。
 
-![指令流（Instruction Stream） ADD R1,R2 LOAD R3,X SUB R2,R1 MUL R1,R4 按顺序逐条取指 → 规定「做什么操作」 处理单元 (PU) 控制器 译码指令 运算器 (ALU) 对数据执行运算 控制 数据流（Data Stream） 5 3 8 2 … 被读取 / 处理 / 写回的一串数据 → 操作「作用的对象」 结果 指令 规定「做什么操作」， 数据 是该操作「作用的对象」；二者成流地送入处理单元。](/images/computer-organization/computer-organization-cpu-multicore-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-002.svg" alt={"指令流（Instruction Stream） ADD R1,R2 LOAD R3,X SUB R2,R1 MUL R1,R4 按顺序逐条取指 → 规定「做什么操作」 处理单元 (PU) 控制器 译码指令 运算器 (ALU) 对数据执行运算 控制 数据流（Data Stream） 5 3 8 2 … 被读取 / 处理 / 写回的一串数据 → 操作「作用的对象」 结果 指令 规定「做什么操作」， 数据 是该操作「作用的对象」；二者成流地送入处理单元。"} />
 
 #### SISD
 
@@ -58,13 +58,13 @@ ADD R1, R2
 
 以 **2×2** 矩阵加法为例，**SISD** 只有一个 **处理单元**，每次仅读入一对元素并完成一次加法，因此需要按时间顺序串行执行 **4** 次运算才能得到完整结果：
 
-![单指令流 指令: ADD 单数据流 每次读入一对 元素 (a i , b i ) 单个处理单元 PU + 单一结果 每次写出一个 结果 c i 同一个 PU 按时间顺序，串行完成 2×2 矩阵加法的 4 次运算 t 1 a 11 + b 11 = c 11 t 2 a 12 + b 12 = c 12 t 3 a 21 + b 21 = c 21 t 4 a 22 + b 22 = c 22 时间从左到右推进：任一时刻只处理一个数据，共需 4 步](/images/computer-organization/computer-organization-cpu-multicore-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-003.svg" alt={"单指令流 指令: ADD 单数据流 每次读入一对 元素 (a i , b i ) 单个处理单元 PU + 单一结果 每次写出一个 结果 c i 同一个 PU 按时间顺序，串行完成 2×2 矩阵加法的 4 次运算 t 1 a 11 + b 11 = c 11 t 2 a 12 + b 12 = c 12 t 3 a 21 + b 21 = c 21 t 4 a 22 + b 22 = c 22 时间从左到右推进：任一时刻只处理一个数据，共需 4 步"} />
 
 #### SIMD
 
 **SIMD**（Single Instruction Multiple Data，单指令流多数据流）是一种通过 **一条指令同时处理多个数据** 来实现 **数据级并行性** 的计算机体系结构。
 
-![图示](/images/computer-organization/computer-organization-cpu-multicore-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-004.svg" alt={"图示"} />
 
 如上图所示，**SIMD** 架构包含多个 **处理单元**。在同一个时刻，这些 **处理单元** 执行完全相同的指令，但分别处理不同的数据，因此能够并行完成大量重复计算。
 
@@ -81,7 +81,7 @@ SIMT
 简单来说，**SIMD** 就是堆硬件，我多添加几个 **处理单元**，这样就可以同时对多个 **数据** 进行操作，进而实现 **数据并行性**。  
 但是这里也有一个限制，就是不同的 **处理单元** 在同一个时刻必须执行相同的指令。
 
-![Warp divergence and reconvergence](/images/computer-organization/computer-organization-cpu-multicore-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-005.svg" alt={"Warp divergence and reconvergence"} />
 
 **SIMT**（Single Instruction Multiple Thread）是一种并行处理形式，其中单个指令同时在多个 **线程** 上执行，**SIMT** 是 **GPU** 的架构方式。  
 与 **SIMD** 不同，**SIMT** 允许 **warp** 内的 **线程** 在一定程度上偏离相同的执行路径，也就是说不同的 **线程** 在同一时刻不必执行相同的指令。
@@ -97,7 +97,7 @@ SIMT
 **MIMD**（Multiple Instruction Multiple Data）指的是多指令流多数据流，多个 **处理单元** 同时对不同的 **数据** 执行不同的指令。  
 现代计算机中的 **多核处理器** 就是 **MIMD** 架构的典型代表。
 
-![Data 010 101 110 x4 010 101 110 x4 ÷3 +5 Instruction Processing Unit](/images/computer-organization/computer-organization-cpu-multicore-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-006.svg" alt={"Data 010 101 110 x4 010 101 110 x4 ÷3 +5 Instruction Processing Unit"} />
 
 如上图所示，与 **SIMD** 不同，**MIMD** 中的不同 **处理单元** 可以去处理不同的 **指令流**。
 
@@ -105,7 +105,7 @@ SIMT
 
 **多核处理器**（Multi-Core Processor）是指在一个 CPU 芯片或处理器封装中，集成两个或多个 **物理核心** 的处理器。
 
-![CPU Core Registers Cache Memory I/O CPU Core Registers Cache CPU Core Registers Cache Memory I/O 单核处理器 多核处理器](/images/computer-organization/computer-organization-cpu-multicore-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-007.svg" alt={"CPU Core Registers Cache Memory I/O CPU Core Registers Cache CPU Core Registers Cache Memory I/O 单核处理器 多核处理器"} />
 
 传统的单核处理器只有一个物理核心，同一时刻主要依靠指令流水线、超标量执行等机制提高单个核心的执行效率。多核处理器则通过增加物理核心的数量，使多个核心能够同时执行不同的指令流，从而提高处理器的并行处理能力。
 
@@ -124,7 +124,7 @@ SIMT
 
 **物理核心** 是 CPU 芯片上实际存在的、能够独立取指并执行指令的硬件处理单元。
 
-![CPU 芯片（物理封装） 芯片上真实存在的硬件 物理核心 1 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 2 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 3 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 4 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 共享 L3 缓存 · 片上互连 每个 物理核心 都是芯片上独立的硬件单元，拥有自己的运算电路、寄存器与缓存，可独立执行指令。](/images/computer-organization/computer-organization-cpu-multicore-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-008.svg" alt={"CPU 芯片（物理封装） 芯片上真实存在的硬件 物理核心 1 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 2 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 3 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 物理核心 4 运算单元 (ALU) 独立寄存器组 L1 / L2 缓存 共享 L3 缓存 · 片上互连 每个 物理核心 都是芯片上独立的硬件单元，拥有自己的运算电路、寄存器与缓存，可独立执行指令。"} />
 
 每个物理核心通常包含较为完整的处理资源，例如：
 
@@ -145,7 +145,7 @@ SIMT
 
 例如，一个拥有 4 个物理核心、每个物理核心支持 2 路超线程的 CPU，会向操作系统呈现为 8 个逻辑核心。操作系统可以将不同的软件线程分别调度到这些逻辑核心上运行。
 
-![HThread HThread Core HThread HThread Core HThread HThread Core HThread HThread Core Processor Physical Hardware: CPU 0 CPU 1 CPU 2 CPU 3 CPU 4 CPU 5 CPU 6 CPU 7 As Seen by the Operating System:](/images/computer-organization/computer-organization-cpu-multicore-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-009.svg" alt={"HThread HThread Core HThread HThread Core HThread HThread Core HThread HThread Core Processor Physical Hardware: CPU 0 CPU 1 CPU 2 CPU 3 CPU 4 CPU 5 CPU 6 CPU 7 As Seen by the Operating System:"} />
 
 需要注意的是，逻辑核心本身并不负责调度线程。真正执行线程调度的是操作系统的调度器，逻辑核心只是调度器可以选择的硬件运行目标。
 
@@ -172,7 +172,7 @@ SIMT
 
 逻辑核心、软件线程和物理核心之间的关系可以表示为：
 
-![软件线程 逻辑核心 物理核心 软件线程 1 软件线程 2 软件线程 3 软件线程 4 由操作系统调度 逻辑核心 1 复制的线程状态 PC / 寄存器 逻辑核心 2 复制的线程状态 PC / 寄存器 逻辑核心 3 复制的线程状态 PC / 寄存器 逻辑核心 4 复制的线程状态 PC / 寄存器 共享并使用其执行资源 物理核心 1 共享的流水线 / 执行单元 (ALU) Load/Store 单元 / L1·L2 缓存 2 路超线程 → 承载逻辑核心 1、2 物理核心 2 共享的](/images/computer-organization/computer-organization-cpu-multicore-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-010.svg" alt={"软件线程 逻辑核心 物理核心 软件线程 1 软件线程 2 软件线程 3 软件线程 4 由操作系统调度 逻辑核心 1 复制的线程状态 PC / 寄存器 逻辑核心 2 复制的线程状态 PC / 寄存器 逻辑核心 3 复制的线程状态 PC / 寄存器 逻辑核心 4 复制的线程状态 PC / 寄存器 共享并使用其执行资源 物理核心 1 共享的流水线 / 执行单元 (ALU) Load/Store 单元 / L1·L2 缓存 2 路超线程 → 承载逻辑核心 1、2 物理核心 2 共享的"} />
 
 当一个线程因为缓存未命中、分支预测失败等原因暂时无法充分使用执行资源时，另一个线程可以利用这些空闲资源，从而提高物理核心的利用率和整体吞吐量。
 
@@ -182,7 +182,7 @@ SIMT
 
 **共享内存多处理机**（Shared Memory Multiprocessor）是一种并行计算机体系结构，其中多个处理器共享同一个 **物理内存空间**。这种架构允许处理器之间通过读写 **共享内存** 来进行通信和数据交换，从而实现并行计算。
 
-![P1 P2 P3 系统互联 （总线、交叉开关、多级网络） I/O SM1 SMm 共享处理器](/images/computer-organization/computer-organization-cpu-multicore-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-011.svg" alt={"P1 P2 P3 系统互联 （总线、交叉开关、多级网络） I/O SM1 SMm 共享处理器"} />
 
 **共享内存多处理机** 有两大主要架构特点：
 

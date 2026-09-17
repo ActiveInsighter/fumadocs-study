@@ -45,7 +45,7 @@ title: "控制器"
 
 ### 组成
 
-![31 OP 码 地址码 指令 译码器 时序发生器 操作控制器 控制信号 C 1 C 2 C 3 地址寄存器 地址寄存器 MAR PC 30 40 ··· ··· 10 77 7 66 6 100 5 70 地址 数据 107 106 AND 105 JMP 104 STO 103 ADD 102 LAD 101 MOV 地址 数据 R1, R3 101 R2, (R3) R1, 2 R1, 6 R0, R1 地址码 ALU 数据缓冲寄存器 状态字寄存器 R 1 R 2 R 3](/images/computer-organization/computer-organization-cpu-controller-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-001.svg" alt={"31 OP 码 地址码 指令 译码器 时序发生器 操作控制器 控制信号 C 1 C 2 C 3 地址寄存器 地址寄存器 MAR PC 30 40 ··· ··· 10 77 7 66 6 100 5 70 地址 数据 107 106 AND 105 JMP 104 STO 103 ADD 102 LAD 101 MOV 地址 数据 R1, R3 101 R2, (R3) R1, 2 R1, 6 R0, R1 地址码 ALU 数据缓冲寄存器 状态字寄存器 R 1 R 2 R 3"} />
 
 要理解控制器的组成，就要从其功能出发，大体来说，控制器的组成也可以分为 **三个组件**：
 
@@ -55,7 +55,7 @@ title: "控制器"
 
 #### 指令控制器
 
-![CS IP 地址加法器 输入/输出 控制电路 指令寄存器 指令译码器 B8 01 23 BB 00 03 D8 89 D8 01 · · · · · · 内存 地址总线 数据总线 mov ax, 0123H mov bx, 0003H mov ax, bx add ax, bx 指令控制器](/images/computer-organization/computer-organization-cpu-controller-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-002.svg" alt={"CS IP 地址加法器 输入/输出 控制电路 指令寄存器 指令译码器 B8 01 23 BB 00 03 D8 89 D8 01 · · · · · · 内存 地址总线 数据总线 mov ax, 0123H mov bx, 0003H mov ax, bx add ax, bx 指令控制器"} />
 
 **指令控制器** 由 CS:IP 获取当前要执行的指令地址。
 其中 CS 为程序段寄存器，标记了进程代码段（.code）的开始，IP 为指令指针寄存器，标记了当前指令在代码段内的偏移。
@@ -70,7 +70,7 @@ title: "控制器"
 晶体振荡器利用石英晶体的压电效应，当施加电压时，晶体在特定频率下可以产生稳定的振荡。
 晶体振荡器产生精确的频率信号，作为电子设备的时钟源。这个时钟信号就像一个“节拍器”，控制着设备内部各个部件的协调运作。
 
-![T 1 T 2 T 3 T 4 T 2 T 3 T 4 T 1 CPU 周期 （取指令） CPU 周期 （执行指令） 指令周期 时钟 周期](/images/computer-organization/computer-organization-cpu-controller-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-003.svg" alt={"T 1 T 2 T 3 T 4 T 2 T 3 T 4 T 1 CPU 周期 （取指令） CPU 周期 （执行指令） 指令周期 时钟 周期"} />
 
 晶体振荡器产生的频率信号直接决定了电子设备的 **时钟周期**。一个指令周期中包含 取指令 和 执行指令 这两个 CPU 周期，而 CPU 周期又由多个时钟周期组成。
 
@@ -88,7 +88,7 @@ title: "控制器"
 
 #### 控制信号发生器
 
-![指令译码器 数据总线 地址总线 控制总线 输入设备 主存 输出设备 控制信号发生器 CPU 内的控制信号 至系统总线的控制信号 CPU](/images/computer-organization/computer-organization-cpu-controller-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-004.svg" alt={"指令译码器 数据总线 地址总线 控制总线 输入设备 主存 输出设备 控制信号发生器 CPU 内的控制信号 至系统总线的控制信号 CPU"} />
 
 **控制信号发生器** 负责接收 **指令译码器** 的结果，并且在每个 **时钟周期** 内产生 [控制信号](/docs/408/knowledge/408-release/computer-organization/cpu/controller/#%e6%8e%a7%e5%88%b6%e4%bf%a1%e5%8f%b7)。
 
@@ -106,7 +106,7 @@ title: "控制器"
 - **寄存器选择** 控制信号：选择特定的寄存器进行读写操作，比如 `Rin` 和 `Rout` 分别表示读寄存器和写寄存器。
 - **ALU 操作码** 控制信号：选择算术逻辑单元（ALU）执行哪种运算，如加法、减法、与、或等，比如 `ALUop = Add` 表示让 ALU 执行加法操作。
 
-![R4 R3 R2 R1 Internal Bus T1 ALU MAR MDR Control Unit IR External Bus MARout PC MARin MDRout MDRin PCout PCin Memory MemOp ALUop (such as add, sub) IRin MUX Word Length MUXop T2 T1out T1in T2out T2in 0 1](/images/computer-organization/computer-organization-cpu-controller-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-005.svg" alt={"R4 R3 R2 R1 Internal Bus T1 ALU MAR MDR Control Unit IR External Bus MARout PC MARin MDRout MDRin PCout PCin Memory MemOp ALUop (such as add, sub) IRin MUX Word Length MUXop T2 T1out T1in T2out T2in 0 1"} />
 
 ### 寄存器传送语言
 
@@ -130,7 +130,7 @@ RTL 有多种表示方式，试题中会考察的是伪代码表示，这种表�
 
 这节先说明一下 RTL 伪代码表示的 **常见符号** 以及 **基本语法结构**，下一节会以一个实际的例子说明一下 RTL 和控制信号的编写。
 
-![RTL](/images/computer-organization/computer-organization-cpu-controller-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-006.svg" alt={"RTL"} />
 
 #### 常见元件和符号
 
@@ -150,7 +150,7 @@ RTL 中用一些符号来表示 CPU 中的基本元件：
 
 #### 基本语法结构
 
-![图示](/images/computer-organization/computer-organization-cpu-controller-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-007.svg" alt={"图示"} />
 
 赋值符号
 
@@ -210,7 +210,7 @@ M(MAR) ← MDR
 
 #### 取指和译码阶段
 
-![取指与译码阶段数据通路图（修正版）](/images/computer-organization/computer-organization-cpu-controller-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-008.svg" alt={"取指与译码阶段数据通路图（修正版）"} />
 
 在该阶段中：PC 提供了当前需要读取指令的地址，从相应地址读取指令后，增加 PC 的值，使其指向下一条指令的地址，接着通过译码部件完成译码。
 
@@ -228,7 +228,7 @@ M(MAR) ← MDR
 
 #### 执行、访存和写回阶段
 
-![寄存器组 R0 R1 R2 ... MAR MDR 存储器 地址 数据 T1 ALU T2 MUX 时钟周期 C7: MAR←R1 R1out, MARin R1→MAR传输 C8: MDR←M(MAR) MemR, MDRin 存储器读取 C9: T1←R0 R0out, T1in R0→T1暂存 C10: T2←MDR+T1 MDRout, MUXop, Add, T2in ALU执行加法 C11: R0←T2 T2out, R0in 结果写回R0 C7 C8 C9 C1](/images/computer-organization/computer-organization-cpu-controller-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-009.svg" alt={"寄存器组 R0 R1 R2 ... MAR MDR 存储器 地址 数据 T1 ALU T2 MUX 时钟周期 C7: MAR←R1 R1out, MARin R1→MAR传输 C8: MDR←M(MAR) MemR, MDRin 存储器读取 C9: T1←R0 R0out, T1in R0→T1暂存 C10: T2←MDR+T1 MDRout, MUXop, Add, T2in ALU执行加法 C11: R0←T2 T2out, R0in 结果写回R0 C7 C8 C9 C1"} />
 
 通过译码得到的控制信号，可以控制指令的执行和写回，对于 `ADD R0, (R1)` 为例，该阶段包含如下 **控制信号**：
 
@@ -264,7 +264,7 @@ M(MAR) ← MDR
 
 ##### 结构
 
-![指 令 寄 存 器 指令 译码 硬布线控制器 组合逻辑电路 时序控制器 时钟 CLK I 1 I m M 1 M i T 1 T k C 1 C n 启动/停止/复位 B 1 B j 反馈信号 微操作控制信号序列 Cn = ∑ ( I m · M i · T k · B j )](/images/computer-organization/computer-organization-cpu-controller-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-010.svg" alt={"指 令 寄 存 器 指令 译码 硬布线控制器 组合逻辑电路 时序控制器 时钟 CLK I 1 I m M 1 M i T 1 T k C 1 C n 启动/停止/复位 B 1 B j 反馈信号 微操作控制信号序列 Cn = ∑ ( I m · M i · T k · B j )"} />
 
 上图展示了硬布线控制器的基本结构，简单来说，其逻辑结构可以概括为：
 
@@ -305,7 +305,7 @@ M(MAR) ← MDR
 
 ##### 结构
 
-![下地址 控制存储器 微命令 起始和转移地址 形成部件 uPC OP IR 来自主存 标志 CLK](/images/computer-organization/computer-organization-cpu-controller-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-011.svg" alt={"下地址 控制存储器 微命令 起始和转移地址 形成部件 uPC OP IR 来自主存 标志 CLK"} />
 
 上图给出了一个 **微程序控制器** 的基本结构，其中包含以下组件：
 
@@ -323,7 +323,7 @@ M(MAR) ← MDR
    - **微命令**（Microcommand）字段： 这是 **微程序控制器** 的最终输出，直接控制CPU内部各部件的微操作（例如，使能寄存器、控制ALU操作、控制总线传输等）。图中标示为“微命令”并有多个向外的箭头。
    - **下地址字段**（Next Address）： 这个字段指示了下一条微指令的地址生成方式或直接给出下一条微指令的相对/绝对地址。这个“下地址”信息被送回“起始和转移地址形成部件”，用于计算下一条微指令的地址。
 
-![1 0 1 1 ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· 微地址 00H: 01H: 控制存储器 微指令 微指令 微指令 微指令 微指令 微指令 uAR uIR 微命令](/images/computer-organization/computer-organization-cpu-controller-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-012.svg" alt={"1 0 1 1 ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· ···· 微地址 00H: 01H: 控制存储器 微指令 微指令 微指令 微指令 微指令 微指令 uAR uIR 微命令"} />
 
 微程序控制器的 **工作流程**
   如下：
@@ -347,7 +347,7 @@ M(MAR) ← MDR
 
 直接编码方式
 
-![下地址 控制信号 操作控制](/images/computer-organization/computer-organization-cpu-controller-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-013.svg" alt={"下地址 控制信号 操作控制"} />
 
 在 **直接编码方式** 中，微指令的微命令字段中的 **每一位** 都直接对应并控制 CPU 中的 **一个特定微命令** 或硬件操作。当某一位的值为 ‘1’ 时，对应的微命令被激活；当为 ‘0’ 时，则不激活。这种方式的特点是无需译码器，微指令的输出可以直接驱动控制线。
 
@@ -368,7 +368,7 @@ M(MAR) ← MDR
 
 字段直接编码方式
 
-![下地址 译码 译码 译码 操作控制](/images/computer-organization/computer-organization-cpu-controller-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-014.svg" alt={"下地址 译码 译码 译码 操作控制"} />
 
 **字段直接编码方式** 将微指令的微命令字段逻辑地 **划分为若干个独立的组**（或称字段）。**每个字段内部** 包含 **一组互斥的微命令**（即在同一时刻，该字段内只能激活一个微命令）。**不同字段之间** 则包含 **相容** 的微命令（可以同时激活）。每个字段本身被编码为一个值，这个值经过译码器后，才能激活该字段内对应的具体微命令。
 
@@ -398,7 +398,7 @@ M(MAR) ← MDR
 
 混合编码方式
 
-![下地址 操作控制 译码 译码](/images/computer-organization/computer-organization-cpu-controller-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-015.svg" alt={"下地址 操作控制 译码 译码"} />
 
 **混合编码方式** 是直接编码方式和字段直接编码方式的结合，旨在综合两者的优点。它将微指令的 **微命令字段划分为若干部分**：
 
@@ -428,7 +428,7 @@ M(MAR) ← MDR
 
 所以一个指令对应一个微程序，一个微程序中包含多个微指令，每个微指令对应一系列微命令。下图展现了三者的层次关系：
 
-![cpu_control_hierarchy](/images/computer-organization/computer-organization-cpu-controller-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-016.svg" alt={"cpu_control_hierarchy"} />
 
 在上文的 [指令的控制信号](/docs/408/knowledge/408-release/computer-organization/cpu/controller/#%e6%8c%87%e4%bb%a4%e7%9a%84%e6%8e%a7%e5%88%b6%e4%bf%a1%e5%8f%b7) 部分，我们详细阐述了指令 **ADD R0, (R1)** 所对应的微操作序列。为了进一步帮助各位读者理解 **指令**、**微指令**、**微命令** 三者之间的区别与联系，本节将通过以下表格，具体说明该指令（相当于一个微程序）各阶段的微指令和微命令：
 

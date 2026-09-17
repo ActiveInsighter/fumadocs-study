@@ -58,7 +58,7 @@ title: "类型转换"
 
 当 **int** 和 **unsigned** 进行 **类型转化** 时，**位模式** 不变，可以理解成计算机存储单元中的二进制表示没有变化，只是从程序层面阐述该二进制数据的方式变了，如下图所示：
 
-![SignedUnsignedConversion](/images/computer-organization/computer-organization-representation-conversion-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-001.svg" alt={"SignedUnsignedConversion"} />
 
 ### 整形和浮点数
 
@@ -66,7 +66,7 @@ title: "类型转换"
 
 下图汇总了 **整形** 和 **浮点数** 在不同方向上转换时的风险类别：
 
-![图示](/images/computer-organization/computer-organization-representation-conversion-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-002.svg" alt={"图示"} />
 
 #### 整形转浮点数
 
@@ -105,7 +105,7 @@ $(-2^{24},2^{24})$
 - **浮点数和浮点数**
   - `float` 转为 `double` 时，不会有 **精度丢失**，`double` 转为 `float` 时，可能有 **精度丢失**。
 
-![Higher Data Type float long int short char unsigned Lower Data Type 没有 精度丢失 可能有 精度丢失 long long double Higher Data Type Lower Data Type 没有 精度丢失 可能有 精度丢失 整形 浮点数](/images/computer-organization/computer-organization-representation-conversion-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-003.svg" alt={"Higher Data Type float long int short char unsigned Lower Data Type 没有 精度丢失 可能有 精度丢失 long long double Higher Data Type Lower Data Type 没有 精度丢失 可能有 精度丢失 整形 浮点数"} />
 
 以 `short` 和 `int` 的类型转化为例说明：
 
@@ -130,7 +130,7 @@ short s = i;
 - **隐式类型转换**（Implicit Type Conversion）
 - **显式类型转换**（Explicit Type Conversion）（也称为 **强制类型转换**，Type Casting）
 
-![TypeConversion](/images/computer-organization/computer-organization-representation-conversion-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-004.svg" alt={"TypeConversion"} />
 
 #### 隐式类型转换
 

@@ -49,11 +49,11 @@ title: "树"
 - **祖先**（ancestor）：从根结点到某结点的路径上，除该结点自身以外的所有结点，都是该结点的祖先。
 - **子孙**（descendant）：某结点的孩子，以及这些孩子的孩子等，都称为该结点的子孙。
 
-![TreeConcepts](/images/data-structure/data-structure-tree-tree-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-001.svg" alt={"TreeConcepts"} />
 
 #### 度
 
-![A B C D E F L M H I J K G 结点 度 A, D 3 B, G 2 C, E 1 K, F, L, M, H, I, J 0 树的度 = max(结点度) = 3](/images/data-structure/data-structure-tree-tree-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-002.svg" alt={"A B C D E F L M H I J K G 结点 度 A, D 3 B, G 2 C, E 1 K, F, L, M, H, I, J 0 树的度 = max(结点度) = 3"} />
 
 结点拥有的 **孩子数量** 称为该结点的度。
 
@@ -79,7 +79,7 @@ title: "树"
 
 #### 深度
 
-![A B C D E F L M H I J K G 深度 1 结点 深度 A 1 B, C, D 2 E, F, G, H, I, J 3 K, L, M 4 树的深度 = 4 深度 2 深度 3 深度 4](/images/data-structure/data-structure-tree-tree-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-003.svg" alt={"A B C D E F L M H I J K G 深度 1 结点 深度 A 1 B, C, D 2 E, F, G, H, I, J 3 K, L, M 4 树的深度 = 4 深度 2 深度 3 深度 4"} />
 
 - **结点的深度**（Depth）：从根结点到该结点所经过的 **结点总数**。
 - **树的深度**：树中所有结点深度的最大值，也就是从根结点到最远叶子结点所经过的 **结点总数**。
@@ -98,7 +98,7 @@ title: "树"
 
 #### 高度
 
-![A B C D E F L M H I J K G 结点 高度 A 4 B, C 3 D, E, G 2 F, H, I, J, K, L, M 1 树的高度 = 4 1 1 1 1 1 1 1 2 2 2 3 3 4](/images/data-structure/data-structure-tree-tree-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-004.svg" alt={"A B C D E F L M H I J K G 结点 高度 A 4 B, C 3 D, E, G 2 F, H, I, J, K, L, M 1 树的高度 = 4 1 1 1 1 1 1 1 2 2 2 3 3 4"} />
 
 - **结点的高度**（Height）：从该结点到其最远叶子结点所经过的 **结点总数**。
 - **树的高度**：根结点的高度，也就是从根结点到最远叶子结点所经过的 **结点总数**。
@@ -126,7 +126,7 @@ title: "树"
 
 #### 路径
 
-![A B C D E F L M H I J K G 结点 权重 深度 F H I J K L M 5 3 8 7 11 15 2 2 2 2 2 3 3 3 带权路径长度 10 6 16 14 33 45 6 树的带权路径长度 = 10 + 6 + 16 + 14 + 33 + 45 + 6 = 130](/images/data-structure/data-structure-tree-tree-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-005.svg" alt={"A B C D E F L M H I J K G 结点 权重 深度 F H I J K L M 5 3 8 7 11 15 2 2 2 2 2 3 3 3 带权路径长度 10 6 16 14 33 45 6 树的带权路径长度 = 10 + 6 + 16 + 14 + 33 + 45 + 6 = 130"} />
 
 树中任意两个结点之间都存在且仅存在一条路径。
 
@@ -191,7 +191,7 @@ typedef struct {
 } PTree;
 ```
 
-![A B C D E F G H I J A -1 B 0 C 0 D 0 E 1 F 1 G 3 H 6 I 6 J 6 Data Parent 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J Tree Data Structure Representation](/images/data-structure/data-structure-tree-tree-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-006.svg" alt={"A B C D E F G H I J A -1 B 0 C 0 D 0 E 1 F 1 G 3 H 6 I 6 J 6 Data Parent 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J Tree Data Structure Representation"} />
 
 #### 孩子表示法
 
@@ -217,7 +217,7 @@ typedef struct {
 } CTree;
 ```
 
-![A B C D E F G H I J Tree 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 1 4 2 5 3 6 7 8 9 Representation](/images/data-structure/data-structure-tree-tree-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-007.svg" alt={"A B C D E F G H I J Tree 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 1 4 2 5 3 6 7 8 9 Representation"} />
 
 #### 孩子兄弟表示法
 
@@ -230,7 +230,7 @@ typedef struct CSNode {
 } CSNode, *CSTree;
 ```
 
-![A B C D E F G H I J Tree A ^ B ^ E ^ F ^ C D ^ ^ H ^ I ^ J ^ G ^ Representation](/images/data-structure/data-structure-tree-tree-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-008.svg" alt={"A B C D E F G H I J Tree A ^ B ^ E ^ F ^ C D ^ ^ H ^ I ^ J ^ G ^ Representation"} />
 
 ### 森林的基本概念
 
@@ -242,7 +242,7 @@ typedef struct CSNode {
 
 **森林**（Forest）是一组互不相交的树的集合。换句话说，森林由若干棵树组成，每棵树都是一个独立的层次结构，且这些树之间没有连接关系。
 
-![B D E F I J C G H K](/images/data-structure/data-structure-tree-tree-009.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-009.svg" alt={"B D E F I J C G H K"} />
 
 - **森林与树的区别**：
   - 一棵树只有一个 **根结点**，而森林可以有多个 **根结点**（每棵树一个）。
@@ -263,7 +263,7 @@ typedef struct CSNode {
 - 若树的根结点有孩子，那么第一个孩子是 **二叉树** 的左孩子，其他的孩子结点依次作为前一个孩子结点的右孩子。
 - 对每个孩子执行上述步骤。
 
-![A B C D E F G A B C D E F G A B C D E F G 删除 树转化为二叉树](/images/data-structure/data-structure-tree-tree-010.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-010.svg" alt={"A B C D E F G A B C D E F G A B C D E F G 删除 树转化为二叉树"} />
 
 #### 森林转二叉树
 
@@ -281,7 +281,7 @@ typedef struct CSNode {
 - 把森林中的每一棵树转换为 **二叉树**。
 - 第一棵二叉树不动，从第二棵二叉树开始，依次将后一棵二叉树的根作为前一棵二叉树的右孩子。其结果是一个 **二叉树**。
 
-![A B C D E F G H I A B C D E F G H I 森林转化为二叉树 A B C D E F G H I A B C D E F G H I 删除](/images/data-structure/data-structure-tree-tree-011.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-011.svg" alt={"A B C D E F G H I A B C D E F G H I 森林转化为二叉树 A B C D E F G H I A B C D E F G H I 删除"} />
 
 ### 树和森林的遍历
 
@@ -296,7 +296,7 @@ typedef struct CSNode {
    - 递归地 **后根遍历** 根的每一棵子树。
    - 访问树的根结点。
 
-![树的先根遍历与后根遍历对比](/images/data-structure/data-structure-tree-tree-012.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-012.svg" alt={"树的先根遍历与后根遍历对比"} />
 
 注意树是没有 **中根遍历** 的，除非这棵树是二叉树。
 
@@ -355,7 +355,7 @@ void postOrderTraversal(TreeNode* root) {
 2. **后根遍历**（与树的后根遍历相似）：依次 **后根遍历** 森林中的每一棵树。
 3. **中根遍历**（普通的树构成的森林是不存在中序遍历的，这里的中序遍历指代的是 **二叉树森林**）：依次 **中根遍历** 森林中的每一棵二叉树。
 
-![森林的先根、后根、中根遍历对比](/images/data-structure/data-structure-tree-tree-013.svg)
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-013.svg" alt={"森林的先根、后根、中根遍历对比"} />
 
 对于 [上图](https://csgraduates.com/data_structure/tree/tree/#%e6%a3%ae%e6%9e%97%e8%bd%ac%e4%ba%8c%e5%8f%89%e6%a0%91) 所示的森林：其 **先根遍历** 为 `A, B, C, D, E, F, G, H, I`，**后根遍历** 为 `B, C, D, A, F, E, H, I, G`，**中根遍历** 为 `B, C, D, A, F, E, H, I, G`
 

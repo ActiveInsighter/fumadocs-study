@@ -26,7 +26,7 @@ source: "https://csgraduates.com/computer_network/network/route/"
 
 例如，PC-1（IP 地址为 192.168.1.5）通过如下图所示的网络向 PC-2（IP 地址为 10.1.1.5）发送数据包。当路由器 R1 接收到这些数据包时，它必须知道如何到达目标子网 10.1.1.0/24，否则将丢弃这些数据包。
 
-![路由算法 图 12](/images/computer-network/computer-network-network-route-012.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-012.svg" alt={"路由算法 图 12"} />
 
 
 
@@ -47,7 +47,7 @@ source: "https://csgraduates.com/computer_network/network/route/"
 
   （Dynamic）：通过 **路由协议** 自动学习和更新路由信息。
 
-![路由算法 图 1](/images/computer-network/computer-network-network-route-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-001.svg" alt={"路由算法 图 1"} />
 
 两个 **路由表** 建立方式各自适用于不同的场景：
 
@@ -89,7 +89,7 @@ source: "https://csgraduates.com/computer_network/network/route/"
 
 一个 **自治系统**（AS，Autonomous System）是由一个或多个网络组成的集合，这些网络 **在统一的管理和策略控制下运行**，并对外表现为一个单一的路由实体。
 
-![路由算法 图 2](/images/computer-network/computer-network-network-route-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-002.svg" alt={"路由算法 图 2"} />
 
 互联网是由无数个独立组织维护的网络组成的。每个组织内部的网络结构和路由策略不同，AS 的概念让每个组织可以作为一个独立的“区域”，既能自主控制路由，又能通过标准协议与外部沟通，保证整个互联网正常运作。
 
@@ -99,12 +99,12 @@ AS 通常由一个 **ISP**（互联网服务提供商）、大型企业、大学
 
 **路由协议** 根据其使用范围的不同，可以分为两大类：**内部网关协议**（IGP，Interior Gateway Protocol）和**外部网关协议**（EGP，Exterior Gateway Protocol）。
 
-![路由算法 图 3](/images/computer-network/computer-network-network-route-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-003.svg" alt={"路由算法 图 3"} />
 
 * **内部网关协议**：在单个组织或 **自治系统**（AS）内部使用的路由协议，常见的 IGP 协议包括 **RIP** 和 **OSPF**。这些协议的主要作用是在一个组织的网络内部传播和更新路由信息，以实现高效的网络通信。
 * **外部网关协议**：用于在不同组织或不同 **自治系统** 之间交换路由信息。如今，唯一广泛使用的 EGP 协议是 **BGP**。**BGP** 的设计初衷是为了控制跨组织网络之间的路由信息传递，从而实现 **自治系统** 之间的互联和路径控制。
 
-![路由算法 图 4](/images/computer-network/computer-network-network-route-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-004.svg" alt={"路由算法 图 4"} />
 
 #### 对比
 
@@ -167,7 +167,7 @@ AS 通常由一个 **ISP**（互联网服务提供商）、大型企业、大学
 * **接收和更新**：每个路由器接收到相邻路由器的 **距离向量** 后，检查是否有新的或更短的路径。如果有，则更新自己的 **距离向量** 和 **路由表**。
 * **收敛**：经过多次交换和更新后，所有路由器的 **距离向量** 和 **路由表** 最终会收敛到最优路径。
 
-![路由算法 图 5](/images/computer-network/computer-network-network-route-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-005.svg" alt={"路由算法 图 5"} />
 
 #### 最短路径计算方法
 
@@ -207,7 +207,7 @@ $B$
   替换
   $V_{A}$
 
-![路由算法 图 6](/images/computer-network/computer-network-network-route-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-006.svg" alt={"路由算法 图 6"} />
 
 以上过程使用的算法名称叫做 **Bellman-Ford** 算法，是一种寻找单源最短路径的算法，单源最短路径的意思是从一个结点出发到达其他结点的最短路径。这个算法不会直接考察，了解这个算法的名称即可。
 
@@ -236,7 +236,7 @@ A --- B --- C --- X
 * A 说：“我能通过 B 到 X”，B 也说：“我能通过 A 到 X”，
 * 这个过程导致 **跳数慢慢增加**（4、5、6…），直到达到 *****16***（不可达）**，才终止。
 
-![路由算法 图 7](/images/computer-network/computer-network-network-route-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-007.svg" alt={"路由算法 图 7"} />
 
 这也是 **RIP** 的 **核心缺陷**，主要由以下几个 **RIP** 的特性导致：
 
@@ -279,7 +279,7 @@ B 不知道“我从 A 学到的这条路径，实际上也是绕了一圈又回
 
 这里举个例子方便大家理解 LSDB 的概念。假设我们有一个简单的网络拓扑，包含 4 个路由器（R1, R2, R3, R4）和几个网络网段（NetA, NetB, NetC）。
 
-![路由算法 图 8](/images/computer-network/computer-network-network-route-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-008.svg" alt={"路由算法 图 8"} />
 
 在 **链路状态算法** 收敛之后，某个路由器的 LSDB 可能是如下这种形式：
 
@@ -303,7 +303,7 @@ B 不知道“我从 A 学到的这条路径，实际上也是绕了一圈又回
 
 下图通过一个实例对比了 **距离向量** 和 **链路状态** 算法的区别：
 
-![路由算法 图 9](/images/computer-network/computer-network-network-route-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-009.svg" alt={"路由算法 图 9"} />
 
 ### BGP
 
@@ -317,7 +317,7 @@ B 不知道“我从 A 学到的这条路径，实际上也是绕了一圈又回
 
 * 每个 AS 内部可以有多个 **BGP** 路由器，但对外通常由一个或多个 **“BGP 发言人”** 代表整个 AS 与其他 AS 进行路由信息的交换。
 
-![路由算法 图 10](/images/computer-network/computer-network-network-route-010.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-010.svg" alt={"路由算法 图 10"} />
 
 (2) **路径向量信息的交换**
 
@@ -327,7 +327,7 @@ B 不知道“我从 A 学到的这条路径，实际上也是绕了一圈又回
   * 是否将其传播给其他邻居
   * 是否作为本地的最佳路径使用
 
-![路由算法 图 11](/images/computer-network/computer-network-network-route-011.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-route-011.svg" alt={"路由算法 图 11"} />
 
 (3) 路由更新与维护机制
 

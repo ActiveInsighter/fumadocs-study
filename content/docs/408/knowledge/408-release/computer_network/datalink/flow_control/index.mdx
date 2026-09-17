@@ -51,7 +51,7 @@ ARQ 协议的 **核心思想** 是：
 
 ARQ 协议主要包括三种形式：**停等**（Stop‑and‑Wait）、**回退 N 帧**（Go‑Back‑N）以及 **选择性重传**（Selective Repeat）。其中，回退 N 帧和选择性重传统称为 **连续 ARQ 协议**。
 
-![流量控制 图 1](/images/computer-network/computer-network-datalink-flow_control-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-001.svg" alt={"流量控制 图 1"} />
 
 注意
 
@@ -115,7 +115,7 @@ sequenceDiagram
    * 若计时器在收到确认之前到期，发送方认为该帧或其确认已丢失。
    * 发送方随后 **重新发送** 同一数据帧，并重新启动计时器，重复上述过程直至收到有效的确认。
 
-![流量控制 图 2](/images/computer-network/computer-network-datalink-flow_control-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-002.svg" alt={"流量控制 图 2"} />
 
 通过上述四个步骤，停等协议实现了可靠的点对点数据传输，尽管其效率受限于 “每次只能发送一个帧” 的特性。
 
@@ -190,7 +190,7 @@ sequenceDiagram
    * 当 **超时计时器** 触发时，发送方认为窗口中最早的未确认帧已丢失。按照 GBN 的工作原理，发送方会 **从该帧开始**，把窗口内的所有帧全部 **重新发送**。
    * 这样做的原因是：即使后面的帧已经到达接收方，由于接收窗口仅能接受连续的序号，这些帧会在接收方被丢弃，只有最早丢失的帧被重新发送后，后续帧才能被顺利接收。
 
-![流量控制 图 3](/images/computer-network/computer-network-datalink-flow_control-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-003.svg" alt={"流量控制 图 3"} />
 
 ---
 
@@ -252,7 +252,7 @@ sequenceDiagram
    * 由于网络延迟，发送方可能在重传帧后才收到该帧的早期确认。
    * 为避免误判，SR 协议必须具备 **识别并丢弃重复确认**（duplicate ACK）的机制，只对最新、有效的确认作出响应。
 
-![流量控制 图 4](/images/computer-network/computer-network-datalink-flow_control-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-004.svg" alt={"流量控制 图 4"} />
 
 #### 协议对比
 
@@ -273,7 +273,7 @@ sequenceDiagram
 * **发送窗口**：决定发送方能“同时发多少”。
 * **接收窗口**：决定接收方能“同时收多少”以及“是否支持乱序接受”。
 
-![流量控制 图 5](/images/computer-network/computer-network-datalink-flow_control-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-005.svg" alt={"流量控制 图 5"} />
 
 三个 ARQ 协议的具体区别如下：
 
@@ -304,7 +304,7 @@ sequenceDiagram
 
 在说明窗口大小限制之前，必须先区分三种不同的“编号”概念：
 
-![流量控制 图 6](/images/computer-network/computer-network-datalink-flow_control-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-006.svg" alt={"流量控制 图 6"} />
 
 * **绝对编号**：指帧在整个逻辑发送流中的真实顺序编号。
   该编号会随着发送不断递增：
@@ -389,7 +389,7 @@ $$
 
 可以确保在任何时刻，发送窗口与接收窗口不会在序列号空间中发生重叠，从而避免不同绝对编号的帧使用同一序列号时产生歧义。
 
-![流量控制 图 7](/images/computer-network/computer-network-datalink-flow_control-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-007.svg" alt={"流量控制 图 7"} />
 
 ### 信道利用率
 
@@ -453,7 +453,7 @@ $$
 
 #### 停等协议
 
-![流量控制 图 8](/images/computer-network/computer-network-datalink-flow_control-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-008.svg" alt={"流量控制 图 8"} />
 
 对于停等协议，信道利用率为
 
@@ -465,7 +465,7 @@ $$
 
 #### 连续 ARQ 协议
 
-![流量控制 图 9](/images/computer-network/computer-network-datalink-flow_control-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-flow_control-009.svg" alt={"流量控制 图 9"} />
 
 对于使用了滑动窗口的协议（比如回退 N 帧和选择性重传），一次性可以传输
 $N$

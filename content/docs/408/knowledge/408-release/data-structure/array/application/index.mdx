@@ -34,7 +34,7 @@ title: "栈和队列的应用"
 - `×` 的左右子树分别表示 `3 + 4` 和 `5 - 2`
 - 数字 `3`、`4`、`5`、`2`、`7` 都是叶子节点
 
-![ExpressionTree](/images/data-structure/data-structure-array-application-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-001.svg" alt={"ExpressionTree"} />
 
 可以发现，**表达式树描述的是表达式的运算顺序，而不是书写顺序**。越靠近叶子节点的运算越先进行，越靠近根节点的运算越后进行，也就是 **子表达式先计算，再逐层合成为整个表达式**。
 
@@ -48,7 +48,7 @@ title: "栈和队列的应用"
 - 中序表达式：**[中序遍历](https://csgraduates.com/data_structure/tree/btree/#%e4%b8%ad%e5%ba%8f%e9%81%8d%e5%8e%86)** 得到的序列。
 - 后序表达式：**[后序遍历](https://csgraduates.com/data_structure/tree/btree/#%e5%90%8e%e5%ba%8f%e9%81%8d%e5%8e%86)** 得到的序列。
 
-![表达式树与前序、中序、后序表达式](/images/data-structure/data-structure-array-application-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-002.svg" alt={"表达式树与前序、中序、后序表达式"} />
 
 这三种表达式的 **操作符** 和 **操作数** 间的相对位置有所不同：
 
@@ -58,7 +58,7 @@ title: "栈和队列的应用"
 | 中序 | 操作符位于其两个操作数之间，最常见的表示法 | `(A + B) * C` | `(A + B) * C` |
 | 后序 | 操作符位于其操作数之后 | `A B + C *` | `(A + B) * C` |
 
-![ExpressionTypes](/images/data-structure/data-structure-array-application-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-003.svg" alt={"ExpressionTypes"} />
 
 ### 中序表达式求值
 
@@ -73,7 +73,7 @@ title: "栈和队列的应用"
 - 执行该操作符对应的运算，得到结果 `res = A op B`。
 - 将结果 `res` 压入 **操作数栈**。
 
-![基本计算单元](/images/data-structure/data-structure-array-application-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-004.svg" alt={"基本计算单元"} />
 
 计算流程
 
@@ -101,7 +101,7 @@ title: "栈和队列的应用"
 
 中序表达式求值的过程可以参照以下流程图进行理解：
 
-![InfixEvaluation](/images/data-structure/data-structure-array-application-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-005.svg" alt={"InfixEvaluation"} />
 
 ---
 
@@ -146,7 +146,7 @@ title: "栈和队列的应用"
 
 在后序表达式求值中，操作符直接触发基本计算流程：
 
-![后序表达式求值中操作数栈的操作](/images/data-structure/data-structure-array-application-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-006.svg" alt={"后序表达式求值中操作数栈的操作"} />
 
 计算流程
 
@@ -345,7 +345,7 @@ flowchart TD
 
 也就是说，对于下图这种情况，A 被 B 压住了，在出栈序列中，A 一定在 B 的后面。如果某个出栈序列中 A 在 B 的前面，则这种出栈序列是不可能出现的。
 
-![A B • • • • • • A B • • • B 出栈 A • • • A 出栈 出栈序列： • • • B A • • • A 一定在 B 之后出栈](/images/data-structure/data-structure-array-application-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-007.svg" alt={"A B • • • • • • A B • • • B 出栈 A • • • A 出栈 出栈序列： • • • B A • • • A 一定在 B 之后出栈"} />
 
 #### 卡特兰数
 
@@ -384,7 +384,7 @@ $n$
 
 Cn​
 
-![卡特兰数 Catalan number C n = 1 n+1 ( 2n n ) = (2n)! (n+1)! · n! 前几项 n 0 1 2 3 4 5 6 7 8 … C_n 1 1 2 5 14 42 132 429 1430 … 等价问题（以 n = 3 为例，答案均为 C₃ = 5） 1. 括号匹配 n 对括号的合法排列 ( ( ( ) ) ) ( ( ) ( ) ) ( ( ) ) ( ) ( ) ( ( ) ) ( ) ( ) ( ) ( 视为入栈，) 视为出](/images/data-structure/data-structure-array-application-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-array-application-008.svg" alt={"卡特兰数 Catalan number C n = 1 n+1 ( 2n n ) = (2n)! (n+1)! · n! 前几项 n 0 1 2 3 4 5 6 7 8 … C_n 1 1 2 5 14 42 132 429 1430 … 等价问题（以 n = 3 为例，答案均为 C₃ = 5） 1. 括号匹配 n 对括号的合法排列 ( ( ( ) ) ) ( ( ) ( ) ) ( ( ) ) ( ) ( ) ( ( ) ) ( ) ( ) ( ) ( 视为入栈，) 视为出"} />
 
 那么，为什么入栈出栈序列的数量恰好是卡特兰数呢？
 

@@ -19,7 +19,7 @@ title: "文件系统"
 
 文件系统（**File System**）作为操作系统与存储设备之间的桥梁，负责数据的存储、访问、管理和保护。简单来说，文件系统主要包含以下功能：
 
-![文件系统的核心功能 File System 文件系统 ① 数据组织 / dir a.txt b.log ② 空间管理 分配 / 回收 空闲 占用 → 减少碎片 ③ 数据访问 App File open / read write / close ④ 数据保护 rwx user / group / other 校验 / 备份 / 一致性](/images/operating-system/operating-system-files-file-system-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-001.svg" alt={"文件系统的核心功能 File System 文件系统 ① 数据组织 / dir a.txt b.log ② 空间管理 分配 / 回收 空闲 占用 → 减少碎片 ③ 数据访问 App File open / read write / close ④ 数据保护 rwx user / group / other 校验 / 备份 / 一致性"} />
 
 1. **数据存储与组织**
    - 文件系统以 **文件** 和 **目录** 的形式组织数据，将存储设备的物理空间划分为 **逻辑单元**（如文件、文件夹），便于用户和应用程序访问与管理数据。
@@ -42,7 +42,7 @@ title: "文件系统"
 
 ### 全局结构
 
-![MBR 分区 1 分区 2 分区表 启动扇区 超级块 空闲空间管理 inodes 文件和目录数据 文件系统元数据 数据区 磁盘](/images/operating-system/operating-system-files-file-system-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-002.svg" alt={"MBR 分区 1 分区 2 分区表 启动扇区 超级块 空闲空间管理 inodes 文件和目录数据 文件系统元数据 数据区 磁盘"} />
 
 如上图所示，磁盘从逻辑上分为如下部分：
 
@@ -57,7 +57,7 @@ title: "文件系统"
 
 下图是一个 **文件系统** 在 **分区**（Partition）上的存储示例，文件系统的 **元数据** 由 **superblock**、**inode 位图区**（inode bmap）、**数据块位图区**（data bmap）、**inode 存储区**（inode region）这四个部分构成。
 
-![D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D Data Region Data Region Inode Region 0 7 8 15 16 23 24 31 32 39 40 47 48 55 56 63 I I I I I d i S Abbreviation Meaning S Superbl](/images/operating-system/operating-system-files-file-system-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-003.svg" alt={"D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D D Data Region Data Region Inode Region 0 7 8 15 16 23 24 31 32 39 40 47 48 55 56 63 I I I I I d i S Abbreviation Meaning S Superbl"} />
 
 ### 外存空间管理
 
@@ -87,7 +87,7 @@ title: "文件系统"
 
 再该方法中，系统需要维护一张 **空闲块表**，用以记录磁盘上尚未分配的连续空闲块的所在位置和大小。表格的每一行描述一个空闲区段。
 
-![序号 第一个空闲盘块号 空闲盘块数 1 2 4 2 9 3 3 15 5 4 - -](/images/operating-system/operating-system-files-file-system-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-004.svg" alt={"序号 第一个空闲盘块号 空闲盘块数 1 2 4 2 9 3 3 15 5 4 - -"} />
 
 空闲块表应包含以下两个字段：
 
@@ -96,13 +96,13 @@ title: "文件系统"
 
 这样，空闲块表就能够清晰、完整地反映磁盘空间的空闲情况，为后续的块分配和回收提供可靠依据。
 
-![空闲表法：磁盘空闲块分布示意 空闲块 已占用块 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 盘块号 序号1：起始 2，数量 4 序号2：起始 9，数量 3 序号3：起始 15，数量 5 上图与 file_free_list 空闲表一一对应：每个绿色连续段即表中一行记录，红色为已被文件占用、不出现在空闲表中的块。](/images/operating-system/operating-system-files-file-system-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-005.svg" alt={"空闲表法：磁盘空闲块分布示意 空闲块 已占用块 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 盘块号 序号1：起始 2，数量 4 序号2：起始 9，数量 3 序号3：起始 15，数量 5 上图与 file_free_list 空闲表一一对应：每个绿色连续段即表中一行记录，红色为已被文件占用、不出现在空闲表中的块。"} />
 
 #### 空闲链表法
 
 空闲链表法（Free List）使用 **链表** 来组织和管理磁盘上的所有空闲盘块。系统将 **每一个空闲盘块本身作为链表的一个结点**，并在空闲盘块中保存 **下一个空闲盘块的盘块号（next 指针）**，从而把所有空闲盘块串联成一条链表。系统只需维护一个 **链表头指针**，即可访问整个空闲块链表。
 
-![0 1 2 3 4 5 6 7 8 9 10 3 12 13 14 15 16:1 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 free-space linked list head](/images/operating-system/operating-system-files-file-system-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-006.svg" alt={"0 1 2 3 4 5 6 7 8 9 10 3 12 13 14 15 16:1 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 free-space linked list head"} />
 
 这样，所有空闲盘块就构成了一条链表：
 
@@ -136,14 +136,14 @@ title: "文件系统"
 - **0**：对应的数据块为空闲，可以分配给文件使用。
 - **1**：对应的数据块已被占用，不能再次分配。
 
-![row/col 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 0 1 1 0 0 0 1 1 0 1 1 1 0 0 1 1 1 2 0 0 0 0 0 1 1 1 0 0 1 0 1 0 1 1 3 1 1 0 1 0 0 0 0 1 1 1 1 1 1 0 0 4 ...](/images/operating-system/operating-system-files-file-system-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-007.svg" alt={"row/col 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 0 1 1 0 0 0 1 1 0 1 1 1 0 0 1 1 1 2 0 0 0 0 0 1 1 1 0 0 1 0 1 0 1 1 3 1 1 0 1 0 0 0 0 1 1 1 1 1 1 0 0 4 ..."} />
 
 位图法的工作过程如下：
 
 1. **分配空闲块**：当文件需要申请新的磁盘块时，文件系统在位图中查找值为 **0** 的位，找到后将其修改为 **1**，并把对应的数据块分配给该文件。
 2. **回收空闲块**：当文件被删除或释放某些数据块时，文件系统将这些数据块对应的位重新置为 **0**，表示这些数据块重新变为空闲，可供后续分配。
 
-![位图法：空闲磁盘块的分配与回收 0 空闲 1 已占用 本次操作 初始位图状态： 1 1 0 1 0 0 1 0 1 0 块0 块1 块2 块3 块4 块5 块6 块7 块8 块9 ① 分配：扫描位图，找到第一个为 0 的位（块2），将其置 1 分配后：块2 被分配（0 → 1） 1 1 1 1 0 0 1 0 1 0 块0 块1 块2 块3 块4 块5 块6 块7 块8 块9 ② 回收：文件释放块8，将对应位由 1 置 0 回收后：块8 被释放（1 → 0） 1 1 1 1 ](/images/operating-system/operating-system-files-file-system-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-008.svg" alt={"位图法：空闲磁盘块的分配与回收 0 空闲 1 已占用 本次操作 初始位图状态： 1 1 0 1 0 0 1 0 1 0 块0 块1 块2 块3 块4 块5 块6 块7 块8 块9 ① 分配：扫描位图，找到第一个为 0 的位（块2），将其置 1 分配后：块2 被分配（0 → 1） 1 1 1 1 0 0 1 0 1 0 块0 块1 块2 块3 块4 块5 块6 块7 块8 块9 ② 回收：文件释放块8，将对应位由 1 置 0 回收后：块8 被释放（1 → 0） 1 1 1 1 "} />
 
 #### 成组链接法
 
@@ -153,7 +153,7 @@ title: "文件系统"
 
 这样既避免了普通链表法中“每找到一个空闲块都要访问一次磁盘”的低效率，也比单纯位示图更适合某些文件系统的空闲空间管理。
 
-![size: 4 8 (single indirect) 4 5 6 · · · · · size: 10 23 53 16 77 · · · · · 56 null free block free block free block free block free block free block free block free block](/images/operating-system/operating-system-files-file-system-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-009.svg" alt={"size: 4 8 (single indirect) 4 5 6 · · · · · size: 10 23 53 16 77 · · · · · 56 null free block free block free block free block free block free block free block free block"} />
 
 成组链接法可以理解为“**组内用数组保存多个空闲盘块号，组间用链表连接**”。
 
@@ -187,7 +187,7 @@ title: "文件系统"
    回收时，系统把被释放的盘块号重新加入当前空闲块组中。
    如果当前组已经装满，就可以重新开辟一个新的空闲块组，并把它链接到原来的空闲块组链中。
 
-![成组链接法（空闲盘块管理）](/images/operating-system/operating-system-files-file-system-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-010.svg" alt={"成组链接法（空闲盘块管理）"} />
 
 因此，成组链接法的本质可以概括为：
 
@@ -219,7 +219,7 @@ VFS 的核心目标有三点：
 2. **提升可扩展性**：只要新的文件系统实现了 VFS 定义的接口，就可以通过注册驱动或模块的方式无缝加入系统，而无需修改内核其它部分。
 3. **增强可移植性**：同一套系统调用在不同硬件平台或不同底层文件系统上均能工作，从而简化了跨平台软件的开发。
 
-![VFS Interface local file system type 1 local file system type 2 remote file system type 1 disk disk network file-system interface](/images/operating-system/operating-system-files-file-system-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-011.svg" alt={"VFS Interface local file system type 1 local file system type 2 remote file system type 1 disk disk network file-system interface"} />
 
 在 VFS 的架构中，每一种具体的文件系统（例如 ext4、NTFS、NFS、ISO 9660 等）都会实现一套内部的操作函数，并在启动时向 VFS 注册自己的驱动或模块。当应用程序发起文件操作时，流程大致如下：
 
@@ -234,7 +234,7 @@ VFS 的核心目标有三点：
 
 **文件系统挂载** 是指把一个独立的文件系统与操作系统的目录结构（即文件树）关联起来，使得该文件系统中的文件和目录能够被正常访问和管理。简而言之，挂载的过程就是把存储介质（如硬盘分区、U 盘、光盘、网络共享等）上的文件系统“接入”到操作系统的统一命名空间中。
 
-![/ sbin etc opt fs cups /dev/sda1 / app1 app2 /dev/sda2 mkdir /opt/mount_fs mount /dev/sda2 /opt/mount_fs / sbin etc opt fs cups /dev/sda1 mount_fs app1 app2](/images/operating-system/operating-system-files-file-system-012.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-file-system-012.svg" alt={"/ sbin etc opt fs cups /dev/sda1 / app1 app2 /dev/sda2 mkdir /opt/mount_fs mount /dev/sda2 /opt/mount_fs / sbin etc opt fs cups /dev/sda1 mount_fs app1 app2"} />
 
 在大多数现代操作系统，文件系统挂载是一个必不可少的步骤，具体表现为：
 

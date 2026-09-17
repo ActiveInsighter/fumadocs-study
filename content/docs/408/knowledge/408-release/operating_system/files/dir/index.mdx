@@ -35,7 +35,7 @@ title: "目录"
 
 举例目录结构如下（见图）：
 
-![/ dev home bin usr fd0 video0 ls cp · · · · · · · · · · · · · · · · · · · · · · ·](/images/operating-system/operating-system-files-dir-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-dir-001.svg" alt={"/ dev home bin usr fd0 video0 ls cp · · · · · · · · · · · · · · · · · · · · · · ·"} />
 
 示例路径：
 
@@ -74,7 +74,7 @@ title: "目录"
 
 以 `/home/alice/a.txt` 为例，路径解析需要逐级读取目录文件、按名字查 inode 号，再读取下一级 inode，过程如下：
 
-![路径解析过程：从 /home/alice/a.txt 找到文件内容 解析路径： / → home → alice → a.txt 每一步：读取“目录文件” → 在其中查找名字 → 取出 inode 号 → 读 inode ① 根目录 / inode 号 = 2 (约定) 目录文件 “/” . → inode 2 .. → inode 2 home/ → inode 18 etc/ → inode 19 inode #2 type=dir, perm=... block_ptr](/images/operating-system/operating-system-files-dir-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-dir-002.svg" alt={"路径解析过程：从 /home/alice/a.txt 找到文件内容 解析路径： / → home → alice → a.txt 每一步：读取“目录文件” → 在其中查找名字 → 取出 inode 号 → 读 inode ① 根目录 / inode 号 = 2 (约定) 目录文件 “/” . → inode 2 .. → inode 2 home/ → inode 18 etc/ → inode 19 inode #2 type=dir, perm=... block_ptr"} />
 
 #### 操作
 
@@ -142,7 +142,7 @@ $ ls -li A D
 
 执行上述创建硬链接的命令后，系统中的目录会变为如下结构（简化）：
 
-![filename inode # A 1 B 3 C 4 D 1 E i 目录存储结构 inode # ref. cnt 1 2 2 0 3 1 4 1 5 0 inode 表 i 0 n 0](/images/operating-system/operating-system-files-dir-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-dir-003.svg" alt={"filename inode # A 1 B 3 C 4 D 1 E i 目录存储结构 inode # ref. cnt 1 2 2 0 3 1 4 1 5 0 inode 表 i 0 n 0"} />
 
 因此，硬链接实现了 **多个文件名访问同一个文件内容** 的效果：
 
@@ -168,7 +168,7 @@ $ ls -li A L
 
 执行上述创建软链接的命令后，系统中的 **目录结构** 会变为如下形式（简化）：
 
-![filename inode # A 1 L 3 目录存储结构 inode # 数据块指针 # 1 300, 301 3 400 INode 表 n 文件块 "hello" .... /root/A 内容为文件 A 的路径](/images/operating-system/operating-system-files-dir-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-files-dir-004.svg" alt={"filename inode # A 1 L 3 目录存储结构 inode # 数据块指针 # 1 300, 301 3 400 INode 表 n 文件块 \"hello\" .... /root/A 内容为文件 A 的路径"} />
 
 因此，软链接实现了 **路径级别的引用关系**，其行为特性如下：
 

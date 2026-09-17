@@ -35,13 +35,13 @@ title: "磁盘"
 
 **物理格式化** 是指在磁盘的物理表面上创建 **磁道**（track）、**扇区**（sector）、写入控制信息 以及 测试和标记坏扇区等过程。通过这一过程，磁盘被划分为可供读写头访问的物理存储单元，为数据存储和检索提供基础结构。
 
-![磁盘物理格式化过程](/images/operating-system/operating-system-io-device-disks-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-001.svg" alt={"磁盘物理格式化过程"} />
 
 一般来说，现代硬盘在出厂时已完成 **物理格式化**，并优化了 **磁道** 和 **扇区** 的布局。用户通常只需进行 [逻辑格式化](https://csgraduates.com/operating_system/io_device/disks/#%e9%80%bb%e8%be%91%e6%a0%bc%e5%bc%8f%e5%8c%96) 即可使用。
 
 #### 分区
 
-![Partition #1 Partition #2 Partition #3 Volume C: Volume D: Volume E: Disk](/images/operating-system/operating-system-io-device-disks-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-002.svg" alt={"Partition #1 Partition #2 Partition #3 Volume C: Volume D: Volume E: Disk"} />
 
 在使用磁盘存储文件之前，操作系统首先需要对磁盘进行 **分区**，并且将每个分区的起始扇区和大小都记录在磁盘 **主引导记录**
 （MBR，Master Boot Record）的分区表中。这一过程为磁盘划分出若干 **逻辑存储区域**，每个分区可以独立格式化并使用不同的文件系统，为数据的组织和管理提供了基础。
@@ -53,13 +53,13 @@ title: "磁盘"
 
 下图是一个 **MBR** 分区表的结构：
 
-![引导程序 分区入口 1 分区入口 2 分区入口 3 分区入口 4 引导签名 分区标志 起始 CHS 地址 分区类型 结束 CHS 地址 起始 LBA 扇区数量 %3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%](/images/operating-system/operating-system-io-device-disks-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-003.svg" alt={"引导程序 分区入口 1 分区入口 2 分区入口 3 分区入口 4 引导签名 分区标志 起始 CHS 地址 分区类型 结束 CHS 地址 起始 LBA 扇区数量 %3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%"} />
 
 #### 逻辑格式化
 
 完成分区后，需对每个分区进行 **逻辑格式化**（也称高级格式化）。逻辑格式化负责 创建 [文件系统结构](https://csgraduates.com/operating_system/files/file_system/#%e5%85%a8%e5%b1%80%e7%bb%93%e6%9e%84)，使操作系统能够识别、组织和管理磁盘上的数据，主要包括生成文件系统的元数据、分配表和目录结构等。
 
-![逻辑格式化概念图](/images/operating-system/operating-system-io-device-disks-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-004.svg" alt={"逻辑格式化概念图"} />
 
 注意
 
@@ -83,7 +83,7 @@ title: "磁盘"
 
 在计算机启动时，初始化硬件并加载操作系统的过程依赖于一系列 **引导程序**。前文提到，磁盘存储文件前需分区，分区信息记录在 **主引导记录**（MBR）的分区表中。启动流程具体如下：
 
-![系统引导流程 (Boot Process) 加电 → 固件 → 主引导记录 → 分区引导扇区 → 操作系统 1 ROM 固件 BIOS / UEFI · 加电自检 (POST) · 初始化硬件 · 读取 0 号扇区 2 MBR Bootloader 主引导记录 · 解析分区表 · 定位活动分区 · 加载引导扇区 3 分区引导扇区 Boot Sector · OS 专属引导代码 · GRUB / NT Loader · 加载内核组件 4 OS 初始化程序 操作系统启动 · 加载](/images/operating-system/operating-system-io-device-disks-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-005.svg" alt={"系统引导流程 (Boot Process) 加电 → 固件 → 主引导记录 → 分区引导扇区 → 操作系统 1 ROM 固件 BIOS / UEFI · 加电自检 (POST) · 初始化硬件 · 读取 0 号扇区 2 MBR Bootloader 主引导记录 · 解析分区表 · 定位活动分区 · 加载引导扇区 3 分区引导扇区 Boot Sector · OS 专属引导代码 · GRUB / NT Loader · 加载内核组件 4 OS 初始化程序 操作系统启动 · 加载"} />
 
 1. **ROM**：计算机加电后，ROM 中的固件（传统 BIOS 或现代 UEFI）首先运行。它初始化硬件，并寻找可启动设备（通常是磁盘）。ROM 中的小型自举代码指示磁盘控制器读取磁盘的第 0 号扇区（即 **MBR**）到内存。
 2. **MBR 中的 Bootloader**：MBR（主引导记录）位于磁盘的第一个扇区，包含 **引导代码**、分区表和引导签名。MBR 的引导代码（即 **Bootloader**）被 ROM 加载并执行，它的任务是解析分区表，找到标有“活动分区”的引导分区，并加载该分区的第一个扇区。
@@ -98,7 +98,7 @@ title: "磁盘"
 
 对坏块的处理实质上就是使用某种机制使系统不去使用 **坏块**。
 
-![出厂时就存在的缺陷 制造工艺导致 长期使用磨损 读写头 / 磁介质老化 产生 磁盘扇区 可用 坏块（无法读写） 标记并重映射 系统不再使用坏块 备用扇区 用好块替换坏块 处理坏块的本质：通过某种机制使系统不再使用这些无法读写的区域](/images/operating-system/operating-system-io-device-disks-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-006.svg" alt={"出厂时就存在的缺陷 制造工艺导致 长期使用磨损 读写头 / 磁介质老化 产生 磁盘扇区 可用 坏块（无法读写） 标记并重映射 系统不再使用坏块 备用扇区 用好块替换坏块 处理坏块的本质：通过某种机制使系统不再使用这些无法读写的区域"} />
 
 ### 机械硬盘调度算法
 
@@ -129,7 +129,7 @@ title: "磁盘"
 
 在 [磁盘性能指标](https://csgraduates.com/constitution_principle/storage/storage/#%e7%a3%81%e7%9b%98%e6%80%a7%e8%83%bd%e6%8c%87%e6%a0%87) 我们知道 **磁盘数据读取时间** 包含 **寻道时间**、**旋转延迟** 以及 **传输时间**。在一个时刻，磁盘可能有多个数据读写请求，这些数据可能分布在不同的 **磁道** 上，如何分配处理这些读写请求的顺序，也很大程度上影响了磁盘的性能。
 
-![多个读写请求分布在不同磁道上 磁头每次只能处理一个请求 — 服务顺序直接影响寻道开销 18 39 55 90 150 160 184 读写磁头 外圈 (磁道号小) 内圈 (磁道号大) ? ? 等待服务的请求队列 18 39 55 90 150 160 核心问题 多条请求落在 不同磁道 上，磁头一次只能在一条磁道上工作。 以怎样的顺序服务这些请求，将直接影响 寻道距离 与 平均响应时间 。 FCFS SSTF SCAN C-SCAN 不同调度算法 → 不同的访问顺序与开销](/images/operating-system/operating-system-io-device-disks-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-007.svg" alt={"多个读写请求分布在不同磁道上 磁头每次只能处理一个请求 — 服务顺序直接影响寻道开销 18 39 55 90 150 160 184 读写磁头 外圈 (磁道号小) 内圈 (磁道号大) ? ? 等待服务的请求队列 18 39 55 90 150 160 核心问题 多条请求落在 不同磁道 上，磁头一次只能在一条磁道上工作。 以怎样的顺序服务这些请求，将直接影响 寻道距离 与 平均响应时间 。 FCFS SSTF SCAN C-SCAN 不同调度算法 → 不同的访问顺序与开销"} />
 
 注意
 
@@ -147,7 +147,7 @@ FCFS 是一种最简单的磁盘调度算法，按照请求到达的先后顺序
 
 假设在当前时刻，磁道 `55、58、39、18、90、160、150、38、184` 分别先后到达，那么 FCFS 会有如下图所示的访问顺序：
 
-![0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 FCFS FCFS Time Time Text is not SVG - cannot display](/images/operating-system/operating-system-io-device-disks-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-008.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 FCFS FCFS Time Time Text is not SVG - cannot display"} />
 
 然而，由于不考虑磁头当前位置与请求位置的距离，磁头可能频繁长距离移动，导致 *平均寻道时间较长*，尤其在请求分布不均时效率低下。
 
@@ -163,7 +163,7 @@ SSTF 即 Shortest Seek Time First，**最短寻道时间优先算法**。
 
 假设在当前时刻，磁道 `55、58、39、18、90、160、150、38、184` 正在等待服务，那么 SSTF 会有如下图所示的访问顺序：
 
-![0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 SSTF SSTF Text is not SVG - cannot display](/images/operating-system/operating-system-io-device-disks-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-009.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 SSTF SSTF Text is not SVG - cannot display"} />
 
 虽然 SSTF 在减少寻道时间上表现优异，但可能导致“**饥饿**”问题，即远离磁头的请求长时间得不到服务。SSTF 适用于请求分布较均匀的场景，但在请求密集或分布极不均的情况下可能不够公平。
 
@@ -175,7 +175,7 @@ SCAN 即 **电梯调度算法**。
 
 假设在当前时刻，磁道 `55、58、39、18、90、160、150、38、184` 正在等待服务，磁头正在向内移动（向更高编号的磁道移动），那么 SCAN 会有如下图所示的访问顺序：
 
-![0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 SCAN SCAN Text is not SVG - cannot display](/images/operating-system/operating-system-io-device-disks-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-010.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 SCAN SCAN Text is not SVG - cannot display"} />
 
 SCAN 的优点是有效减少了磁头移动距离，同时避免了 SSTF 的 **饥饿**问题，因为所有请求最终都会被处理。它在高负载场景下表现良好，但对于靠近磁盘边界或反向区域的请求可能等待时间稍长。SCAN 广泛应用于需要平衡效率与公平性的场景。
 
@@ -185,7 +185,7 @@ C-SCAN 即 **Cycle Scan**，循环扫描算法。
 
 和 SCAN 相似，但进行了一些改进。在 C-SCAN 中，磁头始终沿一个方向移动（例如向外），处理沿途请求，**到达磁盘边界后立即返回到另一端**（例如最内侧）开始新一轮扫描，而不处理返回路径上的请求。
 
-![0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 C-SCAN C-SCAN Text is not SVG - cannot display](/images/operating-system/operating-system-io-device-disks-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-disks-011.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 C-SCAN C-SCAN Text is not SVG - cannot display"} />
 
 C-SCAN 的优点是提供 **更均匀的等待时间**，尤其对靠近磁盘两端的请求更公平，因为它避免了 SCAN 中反向移动时的偏向性。它的寻道效率略低于 SCAN，但适用于需要更高公平性和稳定性的场景，如实时系统。
 

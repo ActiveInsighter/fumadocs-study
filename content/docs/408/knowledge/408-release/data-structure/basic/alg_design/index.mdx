@@ -61,7 +61,7 @@ title: "算法设计题解题框架"
 
 拿到题目，先判断数据结构类型，再套对应套路：
 
-![输入的数据结构是什么？ 数组 / 顺序表 链表 二叉树 图 有序数组 / 两端关系 双指针 / 二分查找 值域明确 / 出现性判断 桶标记 / 原地哈希 每个位置依赖左右信息 前缀 / 后缀预处理 排序兜底 O(n log n) 找中间 / 倒数 k 快慢双指针 需要逆序访问 原地逆置 两个链表共享后缀 长度对齐 / 换头 BST / 递增序列 中序遍历 找差值、合法性、第 k 小 按层处理 / 顺序存储 层序遍历 BFS 队列驱动 路径 / 统计 / 高度 递归 DFS 连](/images/data-structure/data-structure-basic-alg-design-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-001.svg" alt={"输入的数据结构是什么？ 数组 / 顺序表 链表 二叉树 图 有序数组 / 两端关系 双指针 / 二分查找 值域明确 / 出现性判断 桶标记 / 原地哈希 每个位置依赖左右信息 前缀 / 后缀预处理 排序兜底 O(n log n) 找中间 / 倒数 k 快慢双指针 需要逆序访问 原地逆置 两个链表共享后缀 长度对齐 / 换头 BST / 递增序列 中序遍历 找差值、合法性、第 k 小 按层处理 / 顺序存储 层序遍历 BFS 队列驱动 路径 / 统计 / 高度 递归 DFS 连"} />
 ```
 输入是数组/顺序表？
   ├─ 有序数组 → 优先考虑双指针 / 二分查找
@@ -113,7 +113,7 @@ while (left < right) {
 
 思路：将 a[i] 映射到下标，用符号（正负号）或额外标记位记录"出现"状态。
 
-![图示](/images/data-structure/data-structure-basic-alg-design-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-002.svg" alt={"图示"} />
 
 **经典题：2018年41题——数组中未出现的最小正整数**
 ```
@@ -177,7 +177,7 @@ int majority(int a[], int n) {
 
 适用：多个有序数组/集合，需要找最优组合（最小距离、最小差值等）。
 
-![三指针夹逼 — 三元组最小距离 S1: -1 0 9 S2: -25 -10 10 11 S3: 2 9 17 30 41 步骤 i(S1) j(S2) k(S3) min值 D 移动 1 -1 -25 2 -25 52 j++ 2 -1 -10 2 -10 24 i++ 3 0 -10 2 -10 22 j++ 4 0 10 2 0 16 i++ … 9 10 9 9 2 ✓ 最小 规则：每步移动三者中的 最小值 对应的指针（移大值只会让D增大） 关键直觉 三值中最小者 =](/images/data-structure/data-structure-basic-alg-design-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-003.svg" alt={"三指针夹逼 — 三元组最小距离 S1: -1 0 9 S2: -25 -10 10 11 S3: 2 9 17 30 41 步骤 i(S1) j(S2) k(S3) min值 D 移动 1 -1 -25 2 -25 52 j++ 2 -1 -10 2 -10 24 i++ 3 0 -10 2 -10 22 j++ 4 0 10 2 0 16 i++ … 9 10 9 9 2 ✓ 最小 规则：每步移动三者中的 最小值 对应的指针（移大值只会让D增大） 关键直觉 三值中最小者 ="} />
 
 **经典题：2020年41题——三元组最小距离**
 ```
@@ -199,7 +199,7 @@ while (i < n1 && j < n2 && k < n3) {
 
 ### 链表题套路
 
-![快慢双指针 — 找倒数第 k 个结点 head 1 2 3 4 5 6 ∅ q p ① p 先走 k=3 步 此时 q 在结点 1 q→4 ∅ p→∅ ② p、q 同步移动 直到 p == NULL q 即为倒数第 k 个 答：结点 4（倒数第3） 原地逆置 — 三指针迭代 before: NULL prev 1 cur 2 nxt 3 NULL cur.next = prev after full pass: NULL 3 2 1 NULL ← new head (prev](/images/data-structure/data-structure-basic-alg-design-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-004.svg" alt={"快慢双指针 — 找倒数第 k 个结点 head 1 2 3 4 5 6 ∅ q p ① p 先走 k=3 步 此时 q 在结点 1 q→4 ∅ p→∅ ② p、q 同步移动 直到 p == NULL q 即为倒数第 k 个 答：结点 4（倒数第3） 原地逆置 — 三指针迭代 before: NULL prev 1 cur 2 nxt 3 NULL cur.next = prev after full pass: NULL 3 2 1 NULL ← new head (prev"} />
 
 #### 快慢双指针
 
@@ -258,7 +258,7 @@ return p;  // NULL（无公共结点）或公共结点
 
 ### 二叉树题套路
 
-![图示](/images/data-structure/data-structure-basic-alg-design-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-005.svg" alt={"图示"} />
 
 #### 递归三要素
 
@@ -303,7 +303,7 @@ while (!isEmpty(Q)) {
 
 ### 图题套路
 
-![图示](/images/data-structure/data-structure-basic-alg-design-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-basic-alg-design-006.svg" alt={"图示"} />
 
 #### DFS / BFS 框架
 ```

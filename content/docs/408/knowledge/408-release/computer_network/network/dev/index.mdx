@@ -32,7 +32,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 #### 组成
 
-![网络层设备 图 1](/images/computer-network/computer-network-network-dev-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-001.svg" alt={"网络层设备 图 1"} />
 
 简单来说，路由器主要由以下软硬件组成：
 
@@ -63,7 +63,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 [15#47](/study_methods/408quiz/2015/#47)
 [24#47](/study_methods/408quiz/2024/#47)
 
-![网络层设备 图 2](/images/computer-network/computer-network-network-dev-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-002.svg" alt={"网络层设备 图 2"} />
 
 **路由表** 是路由器内部的数据结构，其中包含了有关网络之间如何进行 **路由** 的信息。**路由表** 是根据 **路由协议**（如 RIP、OSPF、BGP 等）和手动配置动态生成和维护的。
 
@@ -100,7 +100,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 4. **转发** 数据包
    * 根据 **路由表** 查找结果，将数据包发送到指定的 **下一跳** 地址或直接连接的设备。
 
-![网络层设备 图 3](/images/computer-network/computer-network-network-dev-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-003.svg" alt={"网络层设备 图 3"} />
 
 注意
 
@@ -169,7 +169,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 * **解决 IPv4 地址匮乏**：在 IPv4 中，公网地址资源有限。通过 NAT，整个局域网可以共享同一个或少量的公网 IP，极大地节约了地址分配。
 * **提供安全屏障**：外部主机只能看到 NAT 设备的公网地址，内部的真实 IP 地址被隐藏，形成了一个简单的防护层，降低了直接攻击的风险。
 
-![网络层设备 图 4](/images/computer-network/computer-network-network-dev-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-004.svg" alt={"网络层设备 图 4"} />
 
 #### NAT 表
 
@@ -206,7 +206,7 @@ NAT 表的条目通常是 **动态创建** 的。当内部设备发起到外部�
    * 当外部主机向 NAT 路由器的公网 IP+端口发送响应报文时，报文同样会先到达 NAT 路由器。
    * NAT 根据之前记录的映射表，将报文的 **目的 IP 地址和目的端口** 改写回对应的 **私有 IP 地址和私有端口**（即进行目的地址/端口转换，DNAT），随后将报文转发给内网的目标主机。
 
-![网络层设备 图 5](/images/computer-network/computer-network-network-dev-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-005.svg" alt={"网络层设备 图 5"} />
 
 > 简要概括
 >
@@ -240,4 +240,4 @@ NAT 表的条目通常是 **动态创建** 的。当内部设备发起到外部�
      。
    * 例如，在 `192.168.1.0/24` 子网中，路由器接口常被配置为 `192.168.1.1` 或 `192.168.1.254`。
 
-![网络层设备 图 6](/images/computer-network/computer-network-network-dev-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-network-dev-006.svg" alt={"网络层设备 图 6"} />

@@ -38,7 +38,7 @@ title: "格式和寻址方式"
   - 也可以是 **CPU 中的一个寄存器编号**（`<reg>`）
   - 也可以是一个 **立即数**（`<imm>`）
 
-![instruction_format](/images/computer-organization/computer-organization-instruction-format-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-001.svg" alt={"instruction_format"} />
 
 ### 指令类型
 
@@ -91,14 +91,14 @@ title: "格式和寻址方式"
 7. **协处理器指令**（Coprocessor Instructions）：
    - `CLI`、`STI`：用于清除和设置 CPU 的中断标志，通常只能在内核模式下执行。
 
-![InstructionSet](/images/computer-organization/computer-organization-instruction-format-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-002.svg" alt={"InstructionSet"} />
 
 #### 根据地址个数分类
 
 根据指令中的 **地址** 个数，可以将指令划分为以下类型。  
 这些地址可以是 **寄存器**、**内存地址**，也可以是 **立即数**。
 
-![OP OP A 1 OP A 1 A 2 OP A 3 A 1 A 2 零地址 一地址 二地址 三地址](/images/computer-organization/computer-organization-instruction-format-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-003.svg" alt={"OP OP A 1 OP A 1 A 2 OP A 3 A 1 A 2 零地址 一地址 二地址 三地址"} />
 
 | 指令格式 | 指令格式 | 含义 |
 | --- | --- | --- |
@@ -109,7 +109,7 @@ title: "格式和寻址方式"
 
 #### 定长和变长指令
 
-![变长指令集 定长指令集](/images/computer-organization/computer-organization-instruction-format-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-004.svg" alt={"变长指令集 定长指令集"} />
 
 指令长度的设计可以分为两类：
 
@@ -138,7 +138,7 @@ title: "格式和寻址方式"
 
 即：当某条指令所需的 **地址字段** 不足以填满整个固定长度时，剩余部分使用 **填充值**（无效字段）占位。这些填充值不会影响指令执行，仅用于保证每条指令长度一致，简化硬件解码逻辑。
 
-![指令长度设计的两大挑战及解决方案 问题 1：地址字段数量不统一 定长指令 · 不同指令需要的地址字段数不同 三地址指令 操作码 地址1 地址2 地址3 ← 刚好填满 二地址指令 操作码 地址1 地址2 无效字段 ← 需要填充! ✓ 解决方案：无效字段填充 指令长度保持一致(如32位) 地址字段不足时用填充值占位 填充值不影响执行,仅用于对齐 简化硬件解码逻辑 💡 定长指令的优势 • 解码简单：固定位置提取字段 • 流水线高效：指令长度可预测 • 取指快速：按固定步长即可 问题](/images/computer-organization/computer-organization-instruction-format-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-005.svg" alt={"指令长度设计的两大挑战及解决方案 问题 1：地址字段数量不统一 定长指令 · 不同指令需要的地址字段数不同 三地址指令 操作码 地址1 地址2 地址3 ← 刚好填满 二地址指令 操作码 地址1 地址2 无效字段 ← 需要填充! ✓ 解决方案：无效字段填充 指令长度保持一致(如32位) 地址字段不足时用填充值占位 填充值不影响执行,仅用于对齐 简化硬件解码逻辑 💡 定长指令的优势 • 解码简单：固定位置提取字段 • 流水线高效：指令长度可预测 • 取指快速：按固定步长即可 问题"} />
 
 **问题 2：变长指令中如何识别指令边界？**
 
@@ -196,13 +196,13 @@ title: "格式和寻址方式"
 
 那么 **三地址指令** 格式如下：
 
-![op A1 A2 A3 4 位 4 位 4 位 4 位](/images/computer-organization/computer-organization-instruction-format-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-006.svg" alt={"op A1 A2 A3 4 位 4 位 4 位 4 位"} />
 
 **二地址指令** 复用 **三地址指令** 的 A1 字段，**一地址指令** 复用 **三地址指令** 的 A1 和 A2 字段，**零地址指令** 复用 **三地址指令** 的 A1、A2 和 A3 字段。
 
 可以通过树形扩展得到不同指令的 **op 前缀**：
 
-![【三地址】OP = 0000 ~ 1110 (15条） OP = 1111 【二地址】A1 = 0000 ~ 1011 (12条） A1 = 1111 A1= 1100 A1 = 1101 A1 = 1110 【一地址】A2 = 0000 ~ 1111 （16条） 【一地址】A2 = 0000 ~ 1110 （15条） A2 = 1111 【零地址】A2 = 0000 ~ 1111 （16条）](/images/computer-organization/computer-organization-instruction-format-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-007.svg" alt={"【三地址】OP = 0000 ~ 1110 (15条） OP = 1111 【二地址】A1 = 0000 ~ 1011 (12条） A1 = 1111 A1= 1100 A1 = 1101 A1 = 1110 【一地址】A2 = 0000 ~ 1111 （16条） 【一地址】A2 = 0000 ~ 1110 （15条） A2 = 1111 【零地址】A2 = 0000 ~ 1111 （16条）"} />
 
 沿着树的边一直走到叶子结点，可以得到如下格式的指令：
 
@@ -276,7 +276,7 @@ title: "格式和寻址方式"
 
 举个实际例子，下图是指令 `MOV AX, 4576H` 存储结构和执行示意图，指令直接将 **立即数** `4576H` 存储到寄存器 `AX` 中：
 
-![• • • • • OP 76H 45H • • • • • 76H 45H AX MOV AX, 4576H 立即数寻址 指令存储在 text 段在内存中 AX](/images/computer-organization/computer-organization-instruction-format-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-008.svg" alt={"• • • • • OP 76H 45H • • • • • 76H 45H AX MOV AX, 4576H 立即数寻址 指令存储在 text 段在内存中 AX"} />
 
 📌 示例应用
 
@@ -311,7 +311,7 @@ MOV AX,1234H
 
 举个实际例子，指令 `MOV AX, BX` 表示将寄存器 BX 中的值复制到寄存器 AX 中：
 
-![• • • • • OP BX • • • • • 76H 45H BX MOV AX, BX 寄存器寻址 指令存储在 text 段在内存中 AX 76H 45H AX](/images/computer-organization/computer-organization-instruction-format-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-009.svg" alt={"• • • • • OP BX • • • • • 76H 45H BX MOV AX, BX 寄存器寻址 指令存储在 text 段在内存中 AX 76H 45H AX"} />
 
 📌 示例应用
 
@@ -328,7 +328,7 @@ MOV AX,1234H
 
 举个实际例子，下图是指令 `MOV R1, [1000]` 的执行示意图，以 **立即数** 1000 作为访存地址，指令从内存地址 1000 的单元读取数据并加载到寄存器 R1 中：
 
-![图示](/images/computer-organization/computer-organization-instruction-format-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-010.svg" alt={"图示"} />
 
 📌 示例应用
 
@@ -352,7 +352,7 @@ MOV AX,1234H
 
 举个实际例子，下图是指令 `MOV R1, [R2]` 的执行示意图，访存地址间接地存储在寄存器 R2 中，指令首先从 R2 中读取目标地址，然后在相应的地址中读取数据加载进入 R1 中：
 
-![图示](/images/computer-organization/computer-organization-instruction-format-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-011.svg" alt={"图示"} />
 
 **间接寻址** 包含多种类型，其中最常见的是 **寄存器间接寻址**
 ：
@@ -371,7 +371,7 @@ MOV AX,1234H
 
 **基址寻址**（Base Addressing）是一种通过 **基址寄存器与偏移值相加** 来访问结构体字段或局部变量的方式，常见于函数调用过程中的栈帧操作。
 
-![OP R b A 基址寄存器 (R b ) + A = E 操作数 E: 指令 基址 （寻址标志） 逻辑地址 加法器 有效地址 地址 主存](/images/computer-organization/computer-organization-instruction-format-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-012.svg" alt={"OP R b A 基址寄存器 (R b ) + A = E 操作数 E: 指令 基址 （寻址标志） 逻辑地址 加法器 有效地址 地址 主存"} />
 
 8086 可以用于基址寻址的寄存器实际上有两个：
 
@@ -441,7 +441,7 @@ MOV AL,[BX+2]
 
 **变址寻址**（Indexed Addressing）是一种通过 **变址寄存器的值加上偏移量** 来获取操作数地址的寻址方式，通常用于数组或表格中元素的访问。
 
-![OP ...... 基准地址 A 变址值 操作数 E: 指令 主存 ALU 有效地址 EA 变址寄存器 R x](/images/computer-organization/computer-organization-instruction-format-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-013.svg" alt={"OP ...... 基准地址 A 变址值 操作数 E: 指令 主存 ALU 有效地址 EA 变址寄存器 R x"} />
 
 📌 示例应用
 
@@ -484,7 +484,7 @@ $$
 \mathrm{offset}=\text{目标地址}-\text{下一条指令地址}
 $$
 
-![OP ...... A PC 指令 E: 指令 主存 ALU 有效地址 EA .text](/images/computer-organization/computer-organization-instruction-format-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-014.svg" alt={"OP ...... A PC 指令 E: 指令 主存 ALU 有效地址 EA .text"} />
 
 📌 示例应用
 
@@ -549,7 +549,7 @@ CPU 根据 **下一条指令地址 + 偏移量** 计算出真正的跳转目标�
 
 在 **堆栈寻址** 中，利用 **SP**（栈指针）或 **BP**（基址指针）定位栈中元素，通过栈顶向下或向上偏移来读取或写入局部变量、返回地址等。通常与 **PUSH**、**POP**、**CALL**、**RET** 等指令结合使用。
 
-![caller BP BP SP caller BP BP SP PUSH A A caller BP BP SP PUSH B A B caller BP BP SP POP A High Address Low Address](/images/computer-organization/computer-organization-instruction-format-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-format-015.svg" alt={"caller BP BP SP caller BP BP SP PUSH A A caller BP BP SP PUSH B A B caller BP BP SP POP A High Address Low Address"} />
 
 📌 示例应用
 

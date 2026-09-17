@@ -16,7 +16,7 @@ title: "同步和互斥"
 
 **互斥**（Mutual Exclusion）是计算机科学中一种用于防止多个进程或线程同时访问共享资源或 **临界区** 的机制。其主要目标是避免资源竞争和数据不一致的问题。**互斥**保证在任何时刻，最多只有 **一个线程或进程** 可以访问特定的共享资源，从而确保数据的完整性。
 
-![图 1](/images/operating-system/operating-system-process-sync-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-001.svg" alt={"图 1"} />
 
 #### 临界资源
 
@@ -41,7 +41,7 @@ title: "同步和互斥"
 这意味着进程可能在执行完当前的机器指令后就被操作系统中断，由 **运行态** 进入 **就绪态**，然后等待下一次调度继续执行后续指令。  
 这种随时可能被中断的特性决定了若没有 **临界区的互斥**，多线程并发执行时 **结果可能会出现不一致性**。
 
-![图 2](/images/operating-system/operating-system-process-sync-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-002.svg" alt={"图 2"} />
 
 如上图所示，一条高级语言语句常对应着多条汇编语句，而进程执行完汇编语句后可能立刻会被中断。  
 所以高级语言语句的执行并不具备 **原子性**，也许在进程在执行到一半的情况下就被迫终止了。
@@ -76,7 +76,7 @@ title: "同步和互斥"
 **互斥锁**（Mutex，Mutal Exclusion）是操作系统提供的 **同步原语**，用以实现多线程对于 **临界资源** 的 **互斥**。  
 **互斥锁**提供了一种机制，确保在任何时刻只有 **一个线程** 能够持有该锁，从而确保 **共享资源** 的安全访问。
 
-![图 3](/images/operating-system/operating-system-process-sync-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-003.svg" alt={"图 3"} />
 
 **互斥锁**通过以下特点实现 **线程互斥**：
 
@@ -126,7 +126,7 @@ MUTEX 的底层实现原理比较复杂，但是我们可以从逻辑上来理�
 
 其大致过程如下图所示：
 
-![图 4](/images/operating-system/operating-system-process-sync-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-004.svg" alt={"图 4"} />
 
 #### 软件互斥
 
@@ -425,7 +425,7 @@ thread() {
 - `signal()`：这个操作用于唤醒等待在条件变量上的某个 **线程**。如果多个 **线程** 在等待，通常只有一个 **线程** 被唤醒（但这取决于具体实现）。唤醒的 **线程** 将重新获取锁并从其调用 `wait()` 的地方继续执行。
 - `broadcast()` 或 `notify_all()`：这个操作唤醒所有等待在条件变量上的 **线程**。当共享数据的状态变化可能影响多个等待的 **线程** 时，这很有用。
 
-![图 5](/images/operating-system/operating-system-process-sync-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-005.svg" alt={"图 5"} />
 
 #### 信号量
 
@@ -439,7 +439,7 @@ thread() {
 
 **信号量**（Semaphore）是一个 **同步原语**，相比 **锁**，**信号量**可以解决一些更加复杂的同步问题。
 
-![图 6](/images/operating-system/operating-system-process-sync-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-006.svg" alt={"图 6"} />
 
 在逻辑上我们将 **信号量** 理解为一个整数计数值，用于表示可用资源的数量。
 
@@ -448,7 +448,7 @@ thread() {
 - **P**（proberen，荷兰语的“尝试”之意）
 - **V**（verhogen，荷兰语的“增加”之意）。
 
-![图 7](/images/operating-system/operating-system-process-sync-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-007.svg" alt={"图 7"} />
 
 | 操作 | 作用 | 关键步骤 |
 | --- | --- | --- |
@@ -491,11 +491,11 @@ V 操作又称 **signal**，其执行过程如下：
 - **V 操作**
   - 当线程的 V 操作执行成功后，线程被从运行队列中移除，并尝试从阻塞队列中选取线程继续执行 P 操作。
 
-![图 8](/images/operating-system/operating-system-process-sync-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-008.svg" alt={"图 8"} />
 
 当一个 **线程** 尝试执行 **P** 操作并发现 **信号量** 的值为 0 或负数时，该操作会导致该 **线程** **阻塞**。具体地说，**线程**会被移出运行队列并放入一个特定的阻塞队列。这个阻塞队列是与 **信号量** 关联的，其中保存了因该 **信号量** 被 **阻塞** 的所有 **线程**。
 
-![图 9](/images/operating-system/operating-system-process-sync-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-009.svg" alt={"图 9"} />
 
 当其他 **线程** 对该 **信号量** 执行 **V** 操作并增加其值时，一个被 **阻塞** 的 **线程**（或多个，具体取决于实现和 **信号量** 的增量）会从阻塞队列中被选出并被唤醒，随后它可以继续执行。
 
@@ -558,7 +558,7 @@ P2() {
 
 如下图所示：S2 和 S3 必须在 S1 执行完之后才能执行，S4 和 S5 必须在 S2 执行完后才能执行，S6 必须在 S3、S4、S5 执行完之后才能执行。
 
-![图 10](/images/operating-system/operating-system-process-sync-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-010.svg" alt={"图 10"} />
 
 两个线程之间的 **前驱关系** 在 DAG 中 **表示为一条边**，我们可以一个 **信号量** 来表示这条边，将其初始值设置为 0，并使用 [上文中提到的方法](https://www.csgraduates.com/operating_system/process/sync/#%e5%ae%9e%e7%8e%b0%e7%ae%80%e5%8d%95%e5%90%8c%e6%ad%a5) 使用这种单向同步。
 
@@ -607,6 +607,6 @@ S5() {                       S6() {
 - **方法**：定义了如何操作 **共享数据** 的函数或方法。这些方法是唯一可以访问和修改 **共享数据** 的方式。
 - **条件变量**：用于控制 **线程** 的执行顺序，让 **线程** 在某些条件下等待，或通知等待的 **线程** 继续执行。
 
-![图 11](/images/operating-system/operating-system-process-sync-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-sync-011.svg" alt={"图 11"} />
 
 举个实际例子说明什么是管程，比如我们可以用用管程封装 [生产者消费者问题](https://www.csgraduates.com/code/monitor/)。 管程其实就是对 OS 底层接口的封装，为程序员提供一些更加简单易用的接口。

@@ -23,7 +23,7 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 - 总线形结构
 - 星形与总线形结合的复合型结构
 
-![图 1](/images/computer-network/computer-network-datalink-lan-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-001.svg" alt={"图 1"} />
 
 在 **传输介质** 方面，局域网可以采用铜缆、双绞线和光纤等多种介质，其中 **双绞线** 是当前的主流传输介质。
 
@@ -75,7 +75,7 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 ##### 帧格式
 
-![图 2](/images/computer-network/computer-network-datalink-lan-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-002.svg" alt={"图 2"} />
 
 如上图所示，以太网帧格式从逻辑上可以分为物理层控制字段、帧首部、数据负载、差错校验字段这四个部分，每个字段的具体说明如下所示：
 
@@ -126,7 +126,7 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 802.11 帧共有三种类型，即数据帧、控制帧和管理帧。数据帧的格式如图 3.28 所示。
 
-![图 3](/images/computer-network/computer-network-datalink-lan-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-003.svg" alt={"图 3"} />
 
 802.11 数据帧由以下三部分组成：
 
@@ -168,7 +168,7 @@ VLAN 是通过 **交换机** 和 **VLAN 标签（Tag）** 实现的。简单来�
 
 802.3c 标准定义了支持 VLAN 的以太网帧格式的扩展。它在以太网帧中插入一个 **4 字节** 的标识符（插在源地址字段和类型字段之间），称为 **VLAN 标签**，用来指明发送该帧的计算机属于哪个虚拟局域网。插入 VLAN 标签的帧称为 **802.1Q 帧**，如下图所示。
 
-![图 4](/images/computer-network/computer-network-datalink-lan-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-004.svg" alt={"图 4"} />
 
 其中 **VID（VLAN ID）** 为 **12 位**，一个 VLAN 交换机最多支持 **4096 个 VLAN**。
 

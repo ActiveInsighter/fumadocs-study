@@ -15,11 +15,11 @@ title: "功能和结构"
 
 在介绍 CPU 的组成结构之前，首先回顾一下计算机的 [冯诺依曼结构](/docs/408/knowledge/408-release/computer-organization/overview/structure/#%e5%86%af%e8%af%ba%e4%be%9d%e6%9b%bc%e7%bb%93%e6%9e%84)，其中 **运算器**、**控制器**、**存储器**、**输入**、**输出** 为计算机组成的五大部件，其中 CPU 涵盖的功能就包含 **运算器** 和 **控制器** 这两个。
 
-![存储器 运算器 控制器 输入设备 输入设备 数据流 控制流 控制流 CPU](/images/computer-organization/computer-organization-cpu-structure-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-001.svg" alt={"存储器 运算器 控制器 输入设备 输入设备 数据流 控制流 控制流 CPU"} />
 
 CPU 的核心功能包含 **运算和控制** 这两大模块，这对应了计算机五大部件中的 **运算器** 和 **控制器**。具体而言：运算功能（执行功能）是指 CPU 根据指令对数据进行算术或逻辑运算；控制功能则是指 CPU 通过指令协调计算机中各个部件的工作。
 
-![总线控制逻辑 ALU 通用寄存器 控制寄存器 脉冲源 启停控制线 时序信号产生部件 操作控制信号形成部件 指令译码器 指令寄存器 地址总线 数据总线 控制总线 中断机构 执行部件 控制部件](/images/computer-organization/computer-organization-cpu-structure-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-002.svg" alt={"总线控制逻辑 ALU 通用寄存器 控制寄存器 脉冲源 启停控制线 时序信号产生部件 操作控制信号形成部件 指令译码器 指令寄存器 地址总线 数据总线 控制总线 中断机构 执行部件 控制部件"} />
 
 CPU 组成结构简图
 
@@ -28,7 +28,7 @@ CPU 的结构简图如上图所示，CPU 由 **运算部件** 和 **控制部件
 - **数据通路**（Datapath）是指令执行过程中，数据所经过的路径，包括路径中的部件。它是指令的 **执行部件**。
 - **控制器**（Control Unit）对指令进行解码，生成对应的控制信号，控制 **数据通路** 的动作。能够执行指令发出控制信号，是指令的 **控制部件**。
 
-![CPU 数据通路 控制器 组合逻辑元件 时序逻辑元件 内总线 多路选择器、三态门等 各种寄存器](/images/computer-organization/computer-organization-cpu-structure-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-003.svg" alt={"CPU 数据通路 控制器 组合逻辑元件 时序逻辑元件 内总线 多路选择器、三态门等 各种寄存器"} />
 
 ##### 数据通路
 
@@ -63,7 +63,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 数据通路中常用的组合逻辑元件有 **算数逻辑单元**（**ALU**）、**译码器**、**多路选择器**、**三态门** 等，如下图所示：
 
-![三 八 译 码 器 A1 A2 A3 Y1 Y2 Y3 Y8 A B MUX Select in EN 译码器 多路选择器 三态门 虚线为控制信号](/images/computer-organization/computer-organization-cpu-structure-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-004.svg" alt={"三 八 译 码 器 A1 A2 A3 Y1 Y2 Y3 Y8 A B MUX Select in EN 译码器 多路选择器 三态门 虚线为控制信号"} />
 
 - **译码器**：用于操作码或地址码译码，
   $n$
@@ -81,7 +81,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 各类 **寄存器** 和 **存储器**，如 **通用寄存器组**、**程序计数器**、**状态/移位/暂存/锁存寄存器**等，都属于时序逻辑元件。
 
-![时序逻辑元件概览（CPU内部）](/images/computer-organization/computer-organization-cpu-structure-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-005.svg" alt={"时序逻辑元件概览（CPU内部）"} />
 
 ##### 控制器
 
@@ -112,7 +112,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 3. **执行指令**：根据指令译码的结果，控制器在正确的时序下，生成并发出对应的控制信号序列。这些信号控制数据通路打开或关闭特定的数据路径，选择 ALU 的运算功能，决定是否写入寄存器或内存等。
 4. **转向下条指令**：在完成当前指令后，控制器会更新程序计数器，为取下一条指令做好准备，从而开始新一轮的循环。
 
-![控制器基本工作原理](/images/computer-organization/computer-organization-cpu-structure-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-006.svg" alt={"控制器基本工作原理"} />
 
 控制器的功能和组成详见 [该节](/docs/408/knowledge/408-release/computer-organization/cpu/controller/)。
 
@@ -124,7 +124,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 #### 结构
 
-![AX BX CX DX SP BP SI DI Internal Bus ALU Flags CS DS SS ES IP MAR MDR CU IR External Bus T 8086 CPU Architecture Instruction Queue](/images/computer-organization/computer-organization-cpu-structure-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-007.svg" alt={"AX BX CX DX SP BP SI DI Internal Bus ALU Flags CS DS SS ES IP MAR MDR CU IR External Bus T 8086 CPU Architecture Instruction Queue"} />
 
 上文已经提到了 [CPU 的组成结构](/docs/408/knowledge/408-release/computer-organization/cpu/structure/#%e7%bb%84%e6%88%90%e7%bb%93%e6%9e%84) 可以分为 **数据通路** 和 **控制器** 这两部分，**8086** 中的 **数据通路** 由指令队列、[寄存器](/docs/408/knowledge/408-release/computer-organization/cpu/structure/#%e5%af%84%e5%ad%98%e5%99%a8%e7%a7%8d%e7%b1%bb) 和内总线组成。**控制器**中包含指令译码器、时序控制单元、标志控制逻辑和微指令控制逻辑。
 
@@ -160,7 +160,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 [15#43](https://csgraduates.com/study_methods/408quiz/2015/#43)
 [22#43](https://csgraduates.com/study_methods/408quiz/2022/#43)
 
-![AH AL BH BL CH CL DH DL Geneal Purpose Registers AX BX CX DX Segment Registers CS DS ES SS Pointer Registers SP BP IP Index Registers SI DI Flag Register FLAGS](/images/computer-organization/computer-organization-cpu-structure-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-008.svg" alt={"AH AL BH BL CH CL DH DL Geneal Purpose Registers AX BX CX DX Segment Registers CS DS ES SS Pointer Registers SP BP IP Index Registers SI DI Flag Register FLAGS"} />
 
 从功能的角度进行区分，**8086 CPU** 的 **寄存器** 可以为分为 **通用寄存器**、**段寄存器**、**指针寄存器**、**附加寄存器** 和 **标志寄存器** 这五类：
 
@@ -208,7 +208,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 对于运行在 **8086** 上的程序而言，其内存结构相比 [现代进程内存空间](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4) 更加简单，但其中的逻辑结构是类似的：
 
-![Stack Segment Stack Segment Data Segment Data Segment Code Segment Code Segment SS SS DS DS CS CS Extra Segment Extra Segment ES ES IP IP SP SP BP BP High Address High Address Low Address Low Address 0000H 0000H FFFFH FFFFH Text is not SVG ](/images/computer-organization/computer-organization-cpu-structure-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-009.svg" alt={"Stack Segment Stack Segment Data Segment Data Segment Code Segment Code Segment SS SS DS DS CS CS Extra Segment Extra Segment ES ES IP IP SP SP BP BP High Address High Address Low Address Low Address 0000H 0000H FFFFH FFFFH Text is not SVG "} />
 
 从逻辑上来说，程序的执行需要四个段：
 
@@ -231,7 +231,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 函数栈从高地址向低地址增长，嵌套调用的函数所对应的函数栈 在栈段上不断堆叠。如果我们在 `main()` 主函数中嵌套调用 `f(g(h(1)))`，那么该程序对应的栈段对应的逻辑结构如下所示：
 
-![栈指针寄存器 BP 与 SP 示意图](/images/computer-organization/computer-organization-cpu-structure-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-010.svg" alt={"栈指针寄存器 BP 与 SP 示意图"} />
 
 其中 **BP** 指向最后一个调用的函数栈的底部，**SP** 指向最后一个调用的函数栈的顶部，通过 **BP** 和 **SP** 我们保存了最后一个函数栈帧的栈底（开始位置）和栈顶（结束位置）。
 
@@ -261,7 +261,7 @@ $$
 
 从而使 **CS:IP** 指向下一条待执行的指令。当发生 **跳转、调用、中断** 等控制流转移时，CPU 则会直接修改 CS、IP 或两者的值，使程序从新的位置继续执行。
 
-![8086 指令指针寄存器（IP）工作原理](/images/computer-organization/computer-organization-cpu-structure-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-011.svg" alt={"8086 指令指针寄存器（IP）工作原理"} />
 
 ##### 变址寄存器
 
@@ -327,7 +327,7 @@ REP MOVSB             ; 复制 CX 个字节从 DS:SI 到 ES:DI
 
 标志寄存器中的不同位用于标记某个特殊的状态，**8086** 中的 **标志寄存器** 是一个 **16 位** 的寄存器，其中 *9 个标志位* 被使用，其他 *7 个标志位* 没有含义。
 
-![OF DF IF TF SF ZF AF PF CF OF = overflow flag DF = direction flag IF = Interrupt flag TF = trap flag SF = signed flag ZF = zero flag AF = auxiliary carry flag PF = parity flag CF = carry flag 16 位标志寄存器](/images/computer-organization/computer-organization-cpu-structure-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-012.svg" alt={"OF DF IF TF SF ZF AF PF CF OF = overflow flag DF = direction flag IF = Interrupt flag TF = trap flag SF = signed flag ZF = zero flag AF = auxiliary carry flag PF = parity flag CF = carry flag 16 位标志寄存器"} />
 
 这些标志位在逻辑上可以被分为 **条件标志**（conditional flags）和 **控制标志**（control flags）两种：
 
@@ -384,7 +384,7 @@ CPU 会得到：
 
 CPU 并不知道你想表达哪一种含义，它只是把 **CF=0、OF=1** 记录下来，供程序自行解释。这正是 FLAGS 寄存器设计的核心思想。
 
-![ConditionFlags](/images/computer-organization/computer-organization-cpu-structure-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-013.svg" alt={"ConditionFlags"} />
 
 条件标志不需要 序员手动通过指令设置，当算数和逻辑指令（Add 和 AND 等）和 **比较指令**（CMP）被执行时，相关的标志位会被 **自动设置**。
 
@@ -524,7 +524,7 @@ CPU 的 **引脚**（Pin）是处理器与主板之间进行电气连接的接�
 
 为便于理解，本节以 **Intel 8086** 处理器为例进行说明。需要注意的是，本节内容以了解为主，试题通常不会直接考察，但对于理解计算机体系结构十分重要。
 
-![RESET READY TEST QS1 QS0 S0 S1 S2 LOCK RQ RQ RD MN/ BHE A19/S6 A18/S5 A17/S4 A16/S3 AD15 U CC CLK GND INTR NMI AD0 AD1 AD2 AD3 AD4 AD5 AD6 AD7 AD8 AD9 AD10 AD11 AD12 AD13 AD14 GND MX /S7 / GT0 / GT1 MAX MODE MIN MODE (HOLD) (HLDA) ( WR ) (M](/images/computer-organization/computer-organization-cpu-structure-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-014.svg" alt={"RESET READY TEST QS1 QS0 S0 S1 S2 LOCK RQ RQ RD MN/ BHE A19/S6 A18/S5 A17/S4 A16/S3 AD15 U CC CLK GND INTR NMI AD0 AD1 AD2 AD3 AD4 AD5 AD6 AD7 AD8 AD9 AD10 AD11 AD12 AD13 AD14 GND MX /S7 / GT0 / GT1 MAX MODE MIN MODE (HOLD) (HLDA) ( WR ) (M"} />
 
 以 **8086** 为例，**8086** 为 16 位计算机，其 **数据总线** 为 16 位，可寻址地址空间为 1 MB，所以其 **地址总线** 为 20 位。数据总线和地址总线 **复用**，地址总线的高位与状态线复用：
 

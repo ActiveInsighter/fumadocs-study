@@ -11,7 +11,7 @@ title: "模式匹配"
 
 ### 串概念
 
-![模式匹配算法核心概念 主串 (Str): 待搜索的完整字符串 A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 模式串 (Pattern): 要在主串中查找的目标字符串 C A B 匹配结果: A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 匹配位置: 4 核心概念: ■ 主串 (Str) 完整的待搜索字符串 示例: "ABABCABD" ■ 子串 (Substr) 主串中的任意连续片段 示例: "CAB" (位置4-6) ■ 模式串 (Patt](/images/data-structure/data-structure-strings-match-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-strings-match-001.svg" alt={"模式匹配算法核心概念 主串 (Str): 待搜索的完整字符串 A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 模式串 (Pattern): 要在主串中查找的目标字符串 C A B 匹配结果: A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 匹配位置: 4 核心概念: ■ 主串 (Str) 完整的待搜索字符串 示例: \"ABABCABD\" ■ 子串 (Substr) 主串中的任意连续片段 示例: \"CAB\" (位置4-6) ■ 模式串 (Patt"} />
 
 在介绍模式匹配算法之前，需要能够区分关于串的几个概念：
 
@@ -103,7 +103,7 @@ $n$
 
 `abc` 是在其 **前缀** 和 **后缀** 中都包含的部分，在字符串匹配时，我们可以充分利用该信息，匹配失败时，我们可以不用从下一个位置开始，而是从 **模式串内部的某个位置** 开始。
 
-![前后缀概念图解 - 字符串 "abcdabc" a b c d a b c 0 1 2 3 4 5 6 前缀 (Prefix): 从字符串开头开始的子串 a "a" (长度1) a b "ab" (长度2) a b c "abc" (长度3) a b c d "abcd" (长度4) 后缀 (Suffix): 到字符串末尾结束的子串 c "c" (长度1) b c "bc" (长度2) a b c "abc" (长度3) d a b c "dabc" (长度4) 关键发现：相](/images/data-structure/data-structure-strings-match-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-strings-match-002.svg" alt={"前后缀概念图解 - 字符串 \"abcdabc\" a b c d a b c 0 1 2 3 4 5 6 前缀 (Prefix): 从字符串开头开始的子串 a \"a\" (长度1) a b \"ab\" (长度2) a b c \"abc\" (长度3) a b c d \"abcd\" (长度4) 后缀 (Suffix): 到字符串末尾结束的子串 c \"c\" (长度1) b c \"bc\" (长度2) a b c \"abc\" (长度3) d a b c \"dabc\" (长度4) 关键发现：相"} />
 
 **KMP 算法** 就是基于这个思想，其核心是一个称为 “**部分匹配表**” 或 “**前缀函数**” 的辅助数组（通常称为 **next 数组**），该数组用于确定当 **模式串** 在 **主串** 不匹配时应该如何有效地移动 **模式串**。
 
@@ -139,7 +139,7 @@ $n$
 
 以下图为例，说明 **主串** “ababcabcabababd” 和 **模式串** “ababd” 的匹配过程。
 
-![index 0 1 2 3 4 char a b a b d next -1 0 0 1 2 a b a b c a b c a b a b a b d string 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 a b a b d i j a b a b d j a b a b d j a b a b c a b c a b a b a b d string 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 i a b a b d](/images/data-structure/data-structure-strings-match-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-strings-match-003.svg" alt={"index 0 1 2 3 4 char a b a b d next -1 0 0 1 2 a b a b c a b c a b a b a b d string 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 a b a b d i j a b a b d j a b a b d j a b a b c a b c a b a b a b d string 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 i a b a b d"} />
 
 #### 算法实现
 
@@ -222,7 +222,7 @@ if (next[i] == -1) {
 
 需要注意的，`nextval` 的计算过程是迭代向前的，因为我们希望减少无意义的比较，所以要争取找到一个不同的字符。
 
-![图示](/images/data-structure/data-structure-strings-match-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-strings-match-004.svg" alt={"图示"} />
 
 以字符串 ababaa 为例，我们首先可以计算出其 **next 数组**：
 

@@ -53,3 +53,17 @@
   font-size: 1rem;
   line-height: 1.5;
 }
+
+/* Markdown diagrams are rendered as real SVG DOM so their inner nodes remain
+ * available to page-level CSS while preserving the old responsive image size. */
+#docs-body .inline-svg {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#docs-body .inline-svg > svg {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}

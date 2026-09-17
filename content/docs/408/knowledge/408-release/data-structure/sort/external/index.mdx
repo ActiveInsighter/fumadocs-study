@@ -38,7 +38,7 @@ title: "外部排序"
 
 通过上述两步，外部排序能够在 **磁盘与内存之间** 高效地完成大规模数据的排序。
 
-![置换归并排序： 生成初始归并段 多路归并排序](/images/data-structure/data-structure-sort-external-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-001.svg" alt={"置换归并排序： 生成初始归并段 多路归并排序"} />
 
 ### 置换选择排序
 
@@ -46,7 +46,7 @@ title: "外部排序"
 
 置换选择排序的基本思想是：**工作区中的记录并不会一次性全部输出，而是不断从输入文件读取新记录替换已经输出的记录，并判断新记录应该属于当前归并段还是下一归并段。**
 
-![置换选择排序基本思路](/images/data-structure/data-structure-sort-external-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-002.svg" alt={"置换选择排序基本思路"} />
 
 其算法过程如下：
 
@@ -59,7 +59,7 @@ title: "外部排序"
      - 如果工作区中的所有记录都**不大于 MAXV**，说明这些记录已经无法继续加入当前归并段，需要结束当前归并段，并创建一个新的归并段继续输出。
    - 每输出一个记录，就从输入文件中读取一个新的记录补充到工作区，直到所有记录都处理完成。
 
-![ReplacementSelection](/images/data-structure/data-structure-sort-external-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-003.svg" alt={"ReplacementSelection"} />
 
 置换选择排序的核心思想可以概括为：
 
@@ -70,7 +70,7 @@ title: "外部排序"
 
 正是由于这种 **边输出、边读入、边扩展归并段** 的机制，一个归并段不仅包含最初读入工作区的记录，还可能包含后续读入的大量记录。因此，在随机输入的情况下，一个初始归并段的平均长度约为工作区容量的 **2M**，从而减少初始归并段的数量，降低后续多路归并的次数，提高整个外部排序的效率。
 
-![图示](/images/data-structure/data-structure-sort-external-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-004.svg" alt={"图示"} />
 
 ---
 
@@ -119,7 +119,7 @@ title: "外部排序"
 
 实际实现中，通常使用 **小根堆** 维护各个归并段当前的候选元素，从而能够快速找到全局最小值。
 
-![37 51 63 92 ••• 14 15 23 31 ••• 8 17 43 100 ••• 初始归并段0 8 14 37 输出文件 初始归并段1 初始归并段2 工作区 （小根堆） 选择 最小元素 加入输出文件](/images/data-structure/data-structure-sort-external-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-005.svg" alt={"37 51 63 92 ••• 14 15 23 31 ••• 8 17 43 100 ••• 初始归并段0 8 14 37 输出文件 初始归并段1 初始归并段2 工作区 （小根堆） 选择 最小元素 加入输出文件"} />
 
 多路归并的具体流程如下：
 
@@ -138,7 +138,7 @@ title: "外部排序"
 
 多路归并的过程可以通过以下流程图理解：
 
-![MultiWayMerge](/images/data-structure/data-structure-sort-external-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-006.svg" alt={"MultiWayMerge"} />
 
 ---
 
@@ -188,7 +188,7 @@ $k$
 
 **胜者树** 可以理解为 **胜者晋级的淘汰赛模型**：类比体育比赛的淘汰制，每一轮两个选手进行比较，胜者晋级上一轮，最终全局胜者抵达根节点。
 
-![8 9 8 9 15 8 17 10 9 20 15 8 9 90 17 15 16 20 38 20 30 25 28 15 50 11 16 95 99 18 20](/images/data-structure/data-structure-sort-external-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-007.svg" alt={"8 9 8 9 15 8 17 10 9 20 15 8 9 90 17 15 16 20 38 20 30 25 28 15 50 11 16 95 99 18 20"} />
 
 在 **胜者树** 中，每个 **内部结点** 记录的是该轮比较的 **胜者**（较小的元素），而 **叶子节点** 表示每个输入归并段的当前值。因此，整棵树的 **根节点** 就表示 **全局最小值**。
 
@@ -204,7 +204,7 @@ $k$
 
 **败者树** 可以理解为 **败者记录的升降赛模型**：类比体育比赛中每场比赛将败者淘汰出局但保留记录，胜者则继续晋级下一轮，最终全局胜者脱颖而出，但 **不会被记录在树中，而是单独保留**，以便快速访问。
 
-![9 15 17 10 20 9 90 10 9 20 15 8 9 90 17 15 16 20 38 20 30 25 28 15 50 11 16 95 99 18 20 8 9 15 9 8 17 8 8 胜者需要进行下一轮比较](/images/data-structure/data-structure-sort-external-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-external-008.svg" alt={"9 15 17 10 20 9 90 10 9 20 15 8 9 90 17 15 16 20 38 20 30 25 28 15 50 11 16 95 99 18 20 8 9 15 9 8 17 8 8 胜者需要进行下一轮比较"} />
 
 在 **败者树** 中，每个 **内部结点** 记录的是该轮比较的 **败者**（较大的元素），而 **叶子节点** 同样表示每个输入归并段的当前值。最终的全局胜者（最小值） **不保存在树中，而是单独保存在一个外部变量中**。
 

@@ -29,7 +29,7 @@ ALOHA 协议说实话没考察过，但是出现过在考纲中，所以还是�
 
 ### 共享介质
 
-![介质访问控制 图 1](/images/computer-network/computer-network-datalink-mac-001.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-001.svg" alt={"介质访问控制 图 1"} />
 
 在介绍 MAC 概念之前，必须要说明一下 **共享介质** 的概念。
 
@@ -121,7 +121,7 @@ mindmap
 
 频分多路复用（FDM）将可用带宽划分为若干个不重叠的 **频段**，每个 **信号** 占用一个频段。各个信号可以同时传输，但彼此之间不会干扰，因为它们占用不同的频率。
 
-![介质访问控制 图 2](/images/computer-network/computer-network-datalink-mac-002.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-002.svg" alt={"介质访问控制 图 2"} />
 
 FDM 在传统的模拟电话系统和广播中广泛使用。
 
@@ -129,7 +129,7 @@ FDM 在传统的模拟电话系统和广播中广泛使用。
 
 时分多路复用（TDM）将 **时间** 划分成若干个 **时隙**，每个 **信号** 在不同的时隙中传输。所有信号在时间上轮流使用同一传输介质。
 
-![介质访问控制 图 3](/images/computer-network/computer-network-datalink-mac-003.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-003.svg" alt={"介质访问控制 图 3"} />
 
 TDM 常用于数字通信系统，如数字电话网络。
 
@@ -137,7 +137,7 @@ TDM 常用于数字通信系统，如数字电话网络。
 
 波分多路复用（WDM）是 FDM 的一种应用，主要用于 **光纤通信**。它将光纤的可用带宽划分为多个 **波长**（颜色），每个 **信号** 占用一个波长。
 
-![介质访问控制 图 4](/images/computer-network/computer-network-datalink-mac-004.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-004.svg" alt={"介质访问控制 图 4"} />
 
 WDM 技术可以大幅增加光纤的通信容量，广泛应用于长距离和高速光纤网络。
 
@@ -167,7 +167,7 @@ CMDA
 * 如果发送比特 1，则发送自己的 m 位码片序列。
 * 如果发送比特 0，则发送该码片序列的二进制反码。
 
-![介质访问控制 图 5](/images/computer-network/computer-network-datalink-mac-005.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-005.svg" alt={"介质访问控制 图 5"} />
 
 简单理解就是，A 站向 C 站发出的信号用一个向量来表示，B 站向 C 站发出的信号用另一个向量来表示，两个向量要求相互 **正交**。向量中的分量，就是所谓的码片。
 
@@ -199,7 +199,7 @@ $$
 
 CDMA 的过程可以通过下图辅助理解：
 
-![介质访问控制 图 6](/images/computer-network/computer-network-datalink-mac-006.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-006.svg" alt={"介质访问控制 图 6"} />
 
 上图以一个实例展示了 CDMA 的工作过程：
 
@@ -294,7 +294,7 @@ ALOHA 如何检测冲突
 
 纯 ALOHA（Pure ALOHA）是一种简单的 **随机接入协议**，允许用户在 **任意时刻** 发送数据包，而无需对时间进行任何同步或分时。
 
-![介质访问控制 图 7](/images/computer-network/computer-network-datalink-mac-007.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-007.svg" alt={"介质访问控制 图 7"} />
 
 工作原理：
 
@@ -306,7 +306,7 @@ ALOHA 如何检测冲突
 
 时隙 ALOHA（Slotted ALOHA）在纯 ALOHA 的基础上引入了 **时间同步**，将时间划分为一系列等长的 **时隙**。用户只能在 **时隙的开始** 发送数据包。
 
-![介质访问控制 图 8](/images/computer-network/computer-network-datalink-mac-008.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-008.svg" alt={"介质访问控制 图 8"} />
 
 工作原理：
 
@@ -329,7 +329,7 @@ CSMA（Carrier Sense Multiple Access）的中文叫做 **载波监听多路访�
 
 因此，CSMA 可以理解为：**多个设备共享同一通信介质，并在发送前先监听信道是否空闲，以尽可能减少冲突的发生。**
 
-![介质访问控制 图 9](/images/computer-network/computer-network-datalink-mac-009.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-009.svg" alt={"介质访问控制 图 9"} />
 
 然而，仅仅进行 **载波监听** 并不能完全避免冲突，其根本原因在于 **传播时延**（Propagation Delay）的存在。
 
@@ -397,11 +397,11 @@ CSMA/CD 比 CSMA 多出一个 **CD**（Collision Detection 即 **碰撞检测**�
 
 CSMA/CD 就高级一些，在发送数据期间，我们刚刚提到的 **监测器件**（Carrier，就是 CSMA 中 C 的简称）会 **一直监听有没有冲突发生**，
 
-![介质访问控制 图 10](/images/computer-network/computer-network-datalink-mac-010.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-010.svg" alt={"介质访问控制 图 10"} />
 
 以下图为例，假设 A 向 D 发送一段数据，C 向 A 发送一段数据，我们可以观察到：**冲突发生** 的时间点 和 **设备检测到** 冲突的时间点是不同的。
 
-![介质访问控制 图 11](/images/computer-network/computer-network-datalink-mac-011.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-011.svg" alt={"介质访问控制 图 11"} />
 
 当 A 和 C 检测到冲突发生时，它们会立即停止发送，并且发送信号通知其他设备该次碰撞。
 
@@ -415,7 +415,7 @@ CSMA/CD 的工作流程如下：
    * **发送成功**：在争用期内一直未检测到冲突，该帧肯定能发送成功。
    * **发送失败**：在争用期内检测到冲突，此时立即停止发送，并且广播 **碰撞通知信号**。接着适配器执行 **指数退避算法**，等待一段随机时间后返回到步骤 2。若重传 16 次仍不能成功，则停止重传并向上报错。
 
-![介质访问控制 图 12](/images/computer-network/computer-network-datalink-mac-012.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-012.svg" alt={"介质访问控制 图 12"} />
 
 #### 指数退避算法
 
@@ -550,7 +550,7 @@ $$
 
 因此，**帧的传输时延必须不小于传播时延的两倍**，才能确保冲突能够在帧发送完毕前被发现并采取相应的碰撞处理。
 
-![介质访问控制 图 13](/images/computer-network/computer-network-datalink-mac-013.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-013.svg" alt={"介质访问控制 图 13"} />
 
 ### CSMA/CA 协议
 
@@ -584,7 +584,7 @@ CSMA/CD 适用于 **以太网**（使用有线连接的局域网），但在 **�
 
 为此，802.11 标准定义了广泛用于无线局域网的 CSMA/CA 协议，它对 CSMA/CD 协议进行修改，将 **冲突检测** 改为 **冲突避免**（Collision Avoidance，CA）。“**冲突避免**” 并不是指协议可以完全避免冲突，而是指协议的设计要尽量降低冲突发生的概率。
 
-![介质访问控制 图 14](/images/computer-network/computer-network-datalink-mac-014.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-014.svg" alt={"介质访问控制 图 14"} />
 
 CSMA/CA 的核心不是“边发送边检测冲突”，而是 **发送前尽量避免冲突，发送后用 ACK 判断是否成功**。408 已考过的角度主要有：802.11 数据帧地址、RTS/CTS 预约信道、IFS 长短、NAV 持续时间计算。
 
@@ -598,7 +598,7 @@ CSMA/CA 的核心不是“边发送边检测冲突”，而是 **发送前尽量
 * **发送方**（Sender）与 **接收方**（Receiver）：分别表示当前无线链路中发送数据帧和接收数据帧的站点，它们可能是 STA，也可能是 AP。
 * **隐藏节点**（Hidden Terminal，也称**隐蔽站**）：两个站点彼此无法收到对方的无线信号，但都能与同一个 AP 通信，因此会误以为信道空闲，可能同时向 AP 发送数据，从而发生碰撞。
 
-![介质访问控制 图 15](/images/computer-network/computer-network-datalink-mac-015.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-015.svg" alt={"介质访问控制 图 15"} />
 
 CSMA/CA 正是针对无线信道无法进行碰撞检测以及隐藏节点等问题而设计，通过**载波监听、随机退避、ACK 确认以及 RTS/CTS 信道预约** 等机制，尽可能降低碰撞发生的概率。
 
@@ -711,7 +711,7 @@ A 和 C 都能听见 B，但彼此听不见。于是：
 
 使用 RTS/CTS 时，发送流程如下：
 
-![介质访问控制 图 16](/images/computer-network/computer-network-datalink-mac-016.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-016.svg" alt={"介质访问控制 图 16"} />
 
 具体过程如下：
 
@@ -749,7 +749,7 @@ RTS 和 CTS 都是较短的控制帧。
 
 **NAV 与虚拟载波监听**
 
-![介质访问控制 图 17](/images/computer-network/computer-network-datalink-mac-017.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-017.svg" alt={"介质访问控制 图 17"} />
 
 802.11 中的载波监听分为两种：
 
@@ -867,7 +867,7 @@ $$
 $$
 
 
-![介质访问控制 图 18](/images/computer-network/computer-network-datalink-mac-018.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-018.svg" alt={"介质访问控制 图 18"} />
 
 因此，题目如果问"哪一种 IFS 最长"，要先判断帧的类型：
 
@@ -880,7 +880,7 @@ $$
 
 下图展示了 802.11 数据帧头的完整字段布局。
 
-![介质访问控制 图 19](/images/computer-network/computer-network-datalink-mac-019.svg)
+<InlineSvg src="/images/computer-network/computer-network-datalink-mac-019.svg" alt={"介质访问控制 图 19"} />
 
 其中：
 

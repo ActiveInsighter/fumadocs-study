@@ -70,7 +70,7 @@ title: "进程和线程"
   - 当程序被加载并开始执行时，操作系统会为其创建进程及相应的管理信息。
   - 进程是动态的，具有创建、运行、阻塞、终止等生命周期状态。
 
-![Disk program CPU Memory process stack code static data heap Loading: 读取磁盘中的程序并将其加载到进程的地址空间中 code static data](/images/operating-system/operating-system-process-process-thread-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-001.svg" alt={"Disk program CPU Memory process stack code static data heap Loading: 读取磁盘中的程序并将其加载到进程的地址空间中 code static data"} />
 
 ##### 进程控制块
 
@@ -87,7 +87,7 @@ PCB 主要包含以下几类信息：
 | **处理机状态信息** | 程序计数器（PC）、通用寄存器、程序状态字（PSW） |
 | **资源信息** | 地址空间信息、打开的文件、内存管理信息等 |
 
-![进程控制块 PCB PCB（进程控制块） 进程标识信息 PID（进程标识符）· UID（用户标识符） 进程控制信息 进程状态 · 进程优先级 处理机状态信息 PC · 通用寄存器 · PSW（程序状态字） 资源信息 打开的文件 · 内存指针 · 其他资源 常驻内存，随进程生命周期存在 ① 进程创建与终止 • 创建时，OS 为进程新建 PCB • PCB 常驻内存，可随时存取 • 进程结束时，PCB 被删除 PCB 是进程存在的唯一标志 ② 进程调度 • OS 读取 PCB 中](/images/operating-system/operating-system-process-process-thread-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-002.svg" alt={"进程控制块 PCB PCB（进程控制块） 进程标识信息 PID（进程标识符）· UID（用户标识符） 进程控制信息 进程状态 · 进程优先级 处理机状态信息 PC · 通用寄存器 · PSW（程序状态字） 资源信息 打开的文件 · 内存指针 · 其他资源 常驻内存，随进程生命周期存在 ① 进程创建与终止 • 创建时，OS 为进程新建 PCB • PCB 常驻内存，可随时存取 • 进程结束时，PCB 被删除 PCB 是进程存在的唯一标志 ② 进程调度 • OS 读取 PCB 中"} />
 
 各类信息的作用如下：
 
@@ -138,11 +138,11 @@ pid_t fork(void);
 - 在 **子进程** 中，返回值为 `0`。
 - 如果创建失败，则在父进程中返回 `-1`，不会创建子进程。
 
-![图示](/images/operating-system/operating-system-process-process-thread-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-003.svg" alt={"图示"} />
 
 `fork` 调用成功后，父进程和子进程都会从 `fork` 返回处继续执行，但二者获得的返回值不同，并且可能按照不同的顺序被调度运行。
 
-![图示](/images/operating-system/operating-system-process-process-thread-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-004.svg" alt={"图示"} />
 
 除了 `fork` 外，还需要理解 **exec 系列调用**。两者功能不同：
 
@@ -185,7 +185,7 @@ pid_t fork(void);
 
 每个进程启动时，至少包含一个线程，通常称为 **主线程**。主线程可以继续创建其他线程，从而形成多线程进程。
 
-![Code Data Files Stack Registers Processes Code Data Files Stack Multi-Threaded Process Register Stack Register Stack Register T1 T2 T3 T1 T2 T3](/images/operating-system/operating-system-process-process-thread-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-005.svg" alt={"Code Data Files Stack Registers Processes Code Data Files Stack Multi-Threaded Process Register Stack Register Stack Register T1 T2 T3 T1 T2 T3"} />
 
 同一进程中的线程共享进程级资源，主要包括：
 
@@ -209,7 +209,7 @@ pid_t fork(void);
 
 在一个进程中没有额外创建线程时，该进程为 **单线程进程**；如果一个进程中包含多个线程，则称为 **多线程进程**。
 
-![Stack Heap Program + Data Stack Heap Program + Data Stack Stack 单线程的进程 包含多个线程的进程 进程的 内存空间](/images/operating-system/operating-system-process-process-thread-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-006.svg" alt={"Stack Heap Program + Data Stack Heap Program + Data Stack Stack 单线程的进程 包含多个线程的进程 进程的 内存空间"} />
 
 ##### 单线程进程
 
@@ -238,7 +238,7 @@ pid_t fork(void);
 
 完整的进程虚拟地址空间布局，以及线程视角下共享区域和私有区域的关系，可参考下图：
 
-![进程虚拟地址空间布局（32 位 Linux 典型视图） 内核空间 (Kernel) 所有进程共享，用户态不可访问 栈 (Stack) 函数调用帧、局部变量 向下增长 ↓ ，ESP/SP 指向栈顶 未分配空间 内存映射区 (mmap) 动态库 .so / 文件映射 匿名映射、共享内存 未分配空间 堆 (Heap) malloc / new 动态分配 向上增长 ↑ ，brk 移动边界 未初始化数据 (BSS) 未赋初值的全局/静态变量 已初始化数据 (Data) 带初值的全局/静](/images/operating-system/operating-system-process-process-thread-007.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-007.svg" alt={"进程虚拟地址空间布局（32 位 Linux 典型视图） 内核空间 (Kernel) 所有进程共享，用户态不可访问 栈 (Stack) 函数调用帧、局部变量 向下增长 ↓ ，ESP/SP 指向栈顶 未分配空间 内存映射区 (mmap) 动态库 .so / 文件映射 匿名映射、共享内存 未分配空间 堆 (Heap) malloc / new 动态分配 向上增长 ↑ ，brk 移动边界 未初始化数据 (BSS) 未赋初值的全局/静态变量 已初始化数据 (Data) 带初值的全局/静"} />
 
 引入线程后，一个进程可能同时包含多个执行流，每个线程都拥有各自独立的程序计数器、寄存器和栈，因此这些与执行和调度相关的信息不能再统一保存在 PCB 中，而需要为每个线程分别维护一份管理信息，通常称为 **TCB（Thread Control Block，线程控制块）**。
 
@@ -249,7 +249,7 @@ pid_t fork(void);
 
 二者的关系如下图所示：
 
-![PCB与TCB的关系](/images/operating-system/operating-system-process-process-thread-008.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-008.svg" alt={"PCB与TCB的关系"} />
 
 可以看出，一个 **PCB** 对应一个 **进程**，而一个 **进程** 可以包含多个 **线程**，因此一个 **PCB** 通常会关联多个 **TCB**。
 
@@ -305,7 +305,7 @@ pid_t fork(void);
 
 #### 状态转化
 
-![新建 就绪 运行 终止 阻塞 创建 调度 时间到 事件等待 事件发生 退出](/images/operating-system/operating-system-process-process-thread-009.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-009.svg" alt={"新建 就绪 运行 终止 阻塞 创建 调度 时间到 事件等待 事件发生 退出"} />
 
 **1. 就绪态 → 运行态**
 
@@ -363,11 +363,11 @@ pid_t fork(void);
   5. **内存映射区域**（Memory Mapped Region）：这是一些操作系统或运行时库的扩展，用于存储动态链接库（DLL）和共享库的信息以及其他系统数据结构。
 - **内核空间**（Kernel Space）：**内核空间** 包含了操作系统的核心代码和数据结构，如页表、调度程序和系统调用接口等。**内核空间** 具有更高的特权级别，可以执行特权指令并且访问系统的各种资源，**内核空间** 对于用户程序是不可见的。
 
-![Process-specific data structures (e.g. page tables, tasks and kernel stack) Physical Memory Kernel code and data User stack Memory-mapped region for shared libraries Run-time heap Uninitialized data (.bss) Initialized data (.data) Code (.te](/images/operating-system/operating-system-process-process-thread-010.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-010.svg" alt={"Process-specific data structures (e.g. page tables, tasks and kernel stack) Physical Memory Kernel code and data User stack Memory-mapped region for shared libraries Run-time heap Uninitialized data (.bss) Initialized data (.data) Code (.te"} />
 
 #### 函数调用时内存结构
 
-![上一个栈帧 上一个 栈帧 的 EBP 局部变量 callee 的参数列表 n ~ 1 caller 返回地址 caller 栈帧 的 EBP 局部变量 下一个函数的参数列表 n ~ 1 返回地址 下一个栈帧 调用函数（caller）的栈帧 被调用函数（callee）的栈帧 高地址，栈底 低地址，栈顶 caller 的 EBP callee 的 EBP](/images/operating-system/operating-system-process-process-thread-011.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-011.svg" alt={"上一个栈帧 上一个 栈帧 的 EBP 局部变量 callee 的参数列表 n ~ 1 caller 返回地址 caller 栈帧 的 EBP 局部变量 下一个函数的参数列表 n ~ 1 返回地址 下一个栈帧 调用函数（caller）的栈帧 被调用函数（callee）的栈帧 高地址，栈底 低地址，栈顶 caller 的 EBP callee 的 EBP"} />
 
 **EBP** (base pointer) 指向函数栈（栈帧）的底部（高地址），函数执行过程中在栈帧中分配局部变量，栈帧由高地址向低地址增长，**ESP**（stack pointer）一直指向栈顶。
 
@@ -381,7 +381,7 @@ pid_t fork(void);
 
 在函数的调用过程中，调用函数叫做 **caller**，被调用函数叫做 **callee**。当我们从 **caller** 中调用 **callee** 时，**callee** 的 **EBP** 指向的物理地址的上下存储单元分别包含 **caller** 的返回地址以及 **caller** 所在栈帧的 **EBP**，当我们在 **callee** 中执行 `ret` 指令时，计算机可以跳转到 **caller** 中 `call` 指令的下一条并开始执行，同时 **caller** 的栈帧也会被恢复。
 
-![main main f1 main f1 f2 main f1 main 高地址 低地址 main(f1(f2())) 时间 函数的栈帧在内存中的结构变化](/images/operating-system/operating-system-process-process-thread-012.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-012.svg" alt={"main main f1 main f1 f2 main f1 main 高地址 低地址 main(f1(f2())) 时间 函数的栈帧在内存中的结构变化"} />
 
 补充
 
@@ -406,11 +406,11 @@ pid_t fork(void);
 
 **进程间通信**（Inter-Process Communication，IPC）是指在同一计算机系统中，两个或多个 **进程** 之间交换数据或信号的机制。常见的 **进程间通信** 方式主要包含 **共享内存**、**管道**、**消息队列**、**信号**、**套接字** 和 [**信号量**](https://csgraduates.com/operating_system/process/sync/#%e4%bf%a1%e5%8f%b7%e9%87%8f)。
 
-![Process  A Shared Memory Process B Kernel M M M Kernel 1 2 1 2 Process  A Pipe Process B Kernel 消息传递 管道 共享内存 Process A Process B](/images/operating-system/operating-system-process-process-thread-013.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-013.svg" alt={"Process  A Shared Memory Process B Kernel M M M Kernel 1 2 1 2 Process  A Pipe Process B Kernel 消息传递 管道 共享内存 Process A Process B"} />
 
 下图汇总了常见 IPC 方式的数据流向、效率与同步需求差异：
 
-![图示](/images/operating-system/operating-system-process-process-thread-014.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-014.svg" alt={"图示"} />
 
 #### 管道
 
@@ -422,7 +422,7 @@ pid_t fork(void);
 
 可以把管道理解成一个由内核维护的缓冲区：
 
-![管道（Pipe）机制示意图](/images/operating-system/operating-system-process-process-thread-015.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-015.svg" alt={"管道（Pipe）机制示意图"} />
 
 - **读端**：用于从管道中读取数据
   - 读进程执行 `read()` 时，操作系统从管道缓冲区中取出数据，并将数据复制到读进程的用户空间。
@@ -455,7 +455,7 @@ pid_t fork(void);
 
 例如：
 
-![栈 共享区 堆 未初始化数据 初始化数据 代码段 内核区 用户空间 页表 进程 A 虚拟地址空间 栈 共享区 堆 未初始化数据 初始化数据 代码段 内核区 用户空间 进程 B 虚拟地址空间 页表 物理地址空间 共享内存区域 进程 A 进程 B](/images/operating-system/operating-system-process-process-thread-016.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-016.svg" alt={"栈 共享区 堆 未初始化数据 初始化数据 代码段 内核区 用户空间 页表 进程 A 虚拟地址空间 栈 共享区 堆 未初始化数据 初始化数据 代码段 内核区 用户空间 进程 B 虚拟地址空间 页表 物理地址空间 共享内存区域 进程 A 进程 B"} />
 
 注意，**不同进程的虚拟页号（VPN）可以不同，但可以映射到同一个物理页号（PPN）**：
 
@@ -522,7 +522,7 @@ $$
   - **内核级线程** 是由操作系统内核直接支持的线程。
   - 线程的创建、调度和管理都由 **操作系统内核** 完成。
 
-![用户级线程 (ULT) 用户空间 内核空间 用户 / 内核边界 进程 线程库 创建 / 调度 / 切换 (用户态完成) 线程 T1 线程 T2 线程 T3 • 线程实体位于用户空间 • 切换不陷入内核，开销小、速度快 • 一个线程阻塞会导致整个进程阻塞 • 无法被内核调度到多核并行执行 • 可跨 OS 移植（依赖线程库） PCB（进程） 内核只看到 1 个执行实体 对线程完全无感知 内核调度以进程为单位 同一时刻只有 1 个线程能运行 内核级线程 (KLT) 用户空间 内核空](/images/operating-system/operating-system-process-process-thread-017.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-017.svg" alt={"用户级线程 (ULT) 用户空间 内核空间 用户 / 内核边界 进程 线程库 创建 / 调度 / 切换 (用户态完成) 线程 T1 线程 T2 线程 T3 • 线程实体位于用户空间 • 切换不陷入内核，开销小、速度快 • 一个线程阻塞会导致整个进程阻塞 • 无法被内核调度到多核并行执行 • 可跨 OS 移植（依赖线程库） PCB（进程） 内核只看到 1 个执行实体 对线程完全无感知 内核调度以进程为单位 同一时刻只有 1 个线程能运行 内核级线程 (KLT) 用户空间 内核空"} />
 
 #### 线程模型
 
@@ -534,7 +534,7 @@ $$
 - **纯系统态**：线程由操作系统内核直接支持和管理，内核负责线程的创建、调度和管理。
 - **混合方案**：应用程序可以在用户空间管理多个用户级线程，这些线程映射到较少数目的内核级线程。
 
-![Thread Library P User Space Kernel Space P User Space Kernel Space P User Space Kernel Space P Thread Library a) Pure user-level b) Pure kernel-level c) combined user-level thread kernel-level thread P Process](/images/operating-system/operating-system-process-process-thread-018.svg)
+<InlineSvg src="/images/operating-system/operating-system-process-process-thread-018.svg" alt={"Thread Library P User Space Kernel Space P User Space Kernel Space P User Space Kernel Space P Thread Library a) Pure user-level b) Pure kernel-level c) combined user-level thread kernel-level thread P Process"} />
 
 #### 混合方案中的映射关系
 

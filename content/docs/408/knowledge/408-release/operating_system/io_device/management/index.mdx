@@ -25,7 +25,7 @@ title: "设备管理"
 
 **缓冲区** 是一块预留在内存中的区域，用于临时存放数据，从而使得输入/输出操作与其他处理操作可以相对独立地进行。**缓冲区** 的使用可以减少 *I/O 操作的等待时间*，提高系统的整体效率。
 
-![缓冲区：解耦快慢两端，平滑数据流 生产者 CPU / 进程 速度快 · 突发 缓冲区 (内存中) D1 D2 D3 空 空 先进先出 · 临时存储 写入端 → 读取端 消费者 I/O 设备 速度慢 · 平稳 写入 读取 CPU 无需等待慢设备 削峰填谷，匹配速度差 减少 I/O 中断频率 一块预留在内存中的临时存放区，让 I/O 与计算并行推进](/images/operating-system/operating-system-io-device-management-001.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-001.svg" alt={"缓冲区：解耦快慢两端，平滑数据流 生产者 CPU / 进程 速度快 · 突发 缓冲区 (内存中) D1 D2 D3 空 空 先进先出 · 临时存储 写入端 → 读取端 消费者 I/O 设备 速度慢 · 平稳 写入 读取 CPU 无需等待慢设备 削峰填谷，匹配速度差 减少 I/O 中断频率 一块预留在内存中的临时存放区，让 I/O 与计算并行推进"} />
 
 #### 磁盘高速缓存
 
@@ -47,7 +47,7 @@ title: "设备管理"
 
 缺点：当 **缓冲区** 被填满并且数据被应用程序处理时，*I/O 操作必须等待*，直到 **缓冲区** 再次可用。这可能导致 *I/O 操作的延迟*。
 
-![单缓冲 vs 双缓冲：并行才能省时 单缓冲 · 一块缓冲区，读与处理必须串行 I/O 设备 Buffer CPU 处理 时间轴 → I/O 读入1 等待 读入2 等待 读入3 CPU 等待 处理1 等待 处理2 等待 总耗时较长：读与处理相互等待 双缓冲 · 两块缓冲区交替使用，读与处理可并行 I/O 设备 Buf A Buf B CPU 处理 I/O 读→A 读→B 读→A 读→B 读→A CPU 空 处理 A 处理 B 处理 A 处理 B 读与处理并行 → 吞吐提升 → ](/images/operating-system/operating-system-io-device-management-002.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-002.svg" alt={"单缓冲 vs 双缓冲：并行才能省时 单缓冲 · 一块缓冲区，读与处理必须串行 I/O 设备 Buffer CPU 处理 时间轴 → I/O 读入1 等待 读入2 等待 读入3 CPU 等待 处理1 等待 处理2 等待 总耗时较长：读与处理相互等待 双缓冲 · 两块缓冲区交替使用，读与处理可并行 I/O 设备 Buf A Buf B CPU 处理 I/O 读→A 读→B 读→A 读→B 读→A CPU 空 处理 A 处理 B 处理 A 处理 B 读与处理并行 → 吞吐提升 → "} />
 
 ##### 双缓冲
 
@@ -74,7 +74,7 @@ title: "设备管理"
 - 当数据需要被消费或读取时，数据从“读”指针的当前位置读出，并将“读”指针向前移动。
 - 如果“写”指针到达 **缓冲区** 的尾部并继续前进，它会回绕到 **缓冲区** 的开始位置。同样，“读"指针也会如此。
 
-![循环缓冲 读写指针环形推进，尾部回绕到头部 D D D D 写指针 读指针 回绕 已写入 空闲槽 · 容量固定，可持续覆盖旧数据 缓冲池 一组共享缓冲区，按需借用与归还 共享缓冲池 B1 空 B3 空 B5 空 输入队列 · 输出队列 · 空闲队列 进程 P1 进程 P2 进程 P3 借用 归还 已分配 空闲 · 多进程共享 · 提高利用率](/images/operating-system/operating-system-io-device-management-003.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-003.svg" alt={"循环缓冲 读写指针环形推进，尾部回绕到头部 D D D D 写指针 读指针 回绕 已写入 空闲槽 · 容量固定，可持续覆盖旧数据 缓冲池 一组共享缓冲区，按需借用与归还 共享缓冲池 B1 空 B3 空 B5 空 输入队列 · 输出队列 · 空闲队列 进程 P1 进程 P2 进程 P3 借用 归还 已分配 空闲 · 多进程共享 · 提高利用率"} />
 
 ##### 缓冲池
 
@@ -108,7 +108,7 @@ title: "设备管理"
 
 在操作系统中，为了有效管理和访问外围设备，经常使用一种数据结构叫做 **设备控制表**（Device Control Table，简称 DCT）。这是一个特殊的数据结构，用于存储有关连接到系统的每个设备的信息。
 
-![设备类型type DCT 1 DCT 2 DCT n 设备标识符deviceid 设备状态 指向控制器表的指针 重复执行次数或时间 设备队列的队首指针 设备控制表DCT](/images/operating-system/operating-system-io-device-management-004.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-004.svg" alt={"设备类型type DCT 1 DCT 2 DCT n 设备标识符deviceid 设备状态 指向控制器表的指针 重复执行次数或时间 设备队列的队首指针 设备控制表DCT"} />
 
 #### 设备分配方式
 
@@ -132,7 +132,7 @@ title: "设备管理"
 操作系统通过 **逻辑设备表**（LUT，Logical Unit Table）将 **逻辑设备名** 映射到 **物理设备名**。  
 当应用程序或用户尝试访问一个设备时，操作系统首先查找 **逻辑设备表** 以确定 **逻辑设备名** 与哪个 **物理设备** 相关联。然后，操作系统使用表中的信息来管理对实际 **物理设备** 的访问。
 
-![逻辑设备 → 物理设备映射 应用只认友好名，内核通过 LUT 查到真实硬件 应用层 内核 · 逻辑设备表 (LUT) 硬件层 App A open("/dev/sda") App B open("/dev/lp0") App C open("/dev/tty1") 逻辑名 驱动 / 类型 物理地址 /dev/sda block · SATA PCI 0:1f:2 /dev/lp0 char · printer USB bus2 /dev/tty1 char · console](/images/operating-system/operating-system-io-device-management-005.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-005.svg" alt={"逻辑设备 → 物理设备映射 应用只认友好名，内核通过 LUT 查到真实硬件 应用层 内核 · 逻辑设备表 (LUT) 硬件层 App A open(\"/dev/sda\") App B open(\"/dev/lp0\") App C open(\"/dev/tty1\") 逻辑名 驱动 / 类型 物理地址 /dev/sda block · SATA PCI 0:1f:2 /dev/lp0 char · printer USB bus2 /dev/tty1 char · console"} />
 
 例如，在 Unix/Linux 系统中，`/dev` 目录下的文件就是 **逻辑设备名**，比如：
 
@@ -164,7 +164,7 @@ autofs_notrigger     rdisk0
 
 **SPOOLing**（Simultaneous Peripheral Operations On-Line，**联机并发外设操作**），中文常称为“假脱机”技术，是一种用于高效管理慢速 *I/O 设备*（如打印机、磁带机）的计算机系统技术。它的主要作用是 **缓冲数据、解耦处理流程**，提高系统资源的使用效率。
 
-![SPOOLing 技术 — 概念与典型应用 Simultaneous Peripheral Operations On-Line · 用磁盘做中间缓冲，把独占设备"改造"成共享设备 一、核心概念 多个用户 / 进程 P1 P2 P3 提交 I/O 请求后 立即返回，继续 执行自己的任务 感觉像独享设备 写入 SPOOLing 子系统（假脱机） 运行在主机 / CPU，用软件模拟"外围控制机" 输入井（磁盘） 模拟脱机时的输入带 job#1 data... job#2 data](/images/operating-system/operating-system-io-device-management-006.svg)
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-006.svg" alt={"SPOOLing 技术 — 概念与典型应用 Simultaneous Peripheral Operations On-Line · 用磁盘做中间缓冲，把独占设备\"改造\"成共享设备 一、核心概念 多个用户 / 进程 P1 P2 P3 提交 I/O 请求后 立即返回，继续 执行自己的任务 感觉像独享设备 写入 SPOOLing 子系统（假脱机） 运行在主机 / CPU，用软件模拟\"外围控制机\" 输入井（磁盘） 模拟脱机时的输入带 job#1 data... job#2 data"} />
 
 SPOOLing 的 **核心思想** 是：**将数据暂时存放在磁盘等中间存储区域**，再由专门的后台程序将其送往目标外设（如打印机）。这样做的好处是，让 **CPU** 和外设之间的工作可以 **并行进行**，互不等待。
 

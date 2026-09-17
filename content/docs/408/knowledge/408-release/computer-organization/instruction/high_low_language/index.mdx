@@ -16,7 +16,7 @@ title: "高级语言和机器码"
 
 考查得很少，大致了解 **编译的具体流程** 和 **每个阶段的具体任务** 就行。
 
-![预处理器 编译器 汇编器 链接器 源代码 扩展代码 汇编代码 目标文件 可执行程序](/images/computer-organization/computer-organization-instruction-high-low-language-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-001.svg" alt={"预处理器 编译器 汇编器 链接器 源代码 扩展代码 汇编代码 目标文件 可执行程序"} />
 
 一个传统的 C 程序从源代码到可执行二进制程序的过程中，需要经历 **预处理**（Preprocess）、 **编译**（Compile）、 **汇编**（Assemble）、 **链接**（Link）四个步骤，这四个步骤分别由 **预处理器**（Preprocessor）、 **编译器**（Compiler）、 **汇编器**（Assembler）、 **链接器**（Linker）完成。
 
@@ -45,7 +45,7 @@ title: "高级语言和机器码"
 
 #### 链接
 
-![源文件 源文件 源文件 源文件 目标文件 目标文件 目标文件 目标文件 链接器 运行库 可执行程序](/images/computer-organization/computer-organization-instruction-high-low-language-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-002.svg" alt={"源文件 源文件 源文件 源文件 目标文件 目标文件 目标文件 目标文件 链接器 运行库 可执行程序"} />
 
 如上图所示，**链接器**（linker）的作用是将由编译器生成的一个或多个 **目标代码文件**（object file，通常是汇编器生成的机器代码）合并为一个单一的 **可执行文件**。在这个过程中，链接器主要完成如下任务：
 
@@ -58,7 +58,7 @@ title: "高级语言和机器码"
 - **静态链接**：静态链接是在编译时将所有依赖的库代码拷贝到最终的 **可执行文件** 中，生成一个 **完全独立的二进制文件**。
 - **动态链接**：动态链接不会在编译时将库代码合并，而是在运行时加载外部共享库（.so / .dll）。**可执行文件** 只包含对库的引用，而不包含库的代码。
 
-![链接方式对比 静态链接 编译时： 源代码 main.c 静态库 lib.a 可执行文件 app.exe 主程序代码 库代码副本 运行时： 独立运行 完全独立的 二进制文件 动态链接 编译时： 源代码 main.c 动态库引用 lib.so/.dll 可执行文件 app.exe 主程序代码 库引用 动态库文件 lib.so / lib.dll 运行时： 可执行文件 运行中 动态库 运行时加载 动态加载 特点： ✓ 文件较大，包含所有代码 ✓ 运行时无需外部依赖 ✓ 启动速度快 ](/images/computer-organization/computer-organization-instruction-high-low-language-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-003.svg" alt={"链接方式对比 静态链接 编译时： 源代码 main.c 静态库 lib.a 可执行文件 app.exe 主程序代码 库代码副本 运行时： 独立运行 完全独立的 二进制文件 动态链接 编译时： 源代码 main.c 动态库引用 lib.so/.dll 可执行文件 app.exe 主程序代码 库引用 动态库文件 lib.so / lib.dll 运行时： 可执行文件 运行中 动态库 运行时加载 动态加载 特点： ✓ 文件较大，包含所有代码 ✓ 运行时无需外部依赖 ✓ 启动速度快 "} />
 
 ### 汇编代码
 
@@ -120,7 +120,7 @@ endif_label:
 
 上述的汇编代码可以通过以下图示辅助理解：
 
-![selection_structure](/images/computer-organization/computer-organization-instruction-high-low-language-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-004.svg" alt={"selection_structure"} />
 
 #### 循环结构语句
 
@@ -154,7 +154,7 @@ end:
 
 上述的汇编代码可以通过以下图示辅助理解：
 
-![while_loop](/images/computer-organization/computer-organization-instruction-high-low-language-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-005.svg" alt={"while_loop"} />
 
 ##### do-while 语句
 
@@ -181,7 +181,7 @@ end:
 
 上述的汇编代码可以通过以下图示辅助理解：
 
-![do_while_loop](/images/computer-organization/computer-organization-instruction-high-low-language-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-006.svg" alt={"do_while_loop"} />
 
 ##### for 语句
 
@@ -212,7 +212,7 @@ loop_end:
 
 上述的汇编代码可以通过以下图示辅助理解：
 
-![for_loop](/images/computer-organization/computer-organization-instruction-high-low-language-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-007.svg" alt={"for_loop"} />
 
 #### 函数定义和调用
 
@@ -241,7 +241,7 @@ void func() {
 
 此时：`func` 是 **caller**，`add` 是 **callee**
 
-![x86 cdecl 调用约定栈帧示意图](/images/computer-organization/computer-organization-instruction-high-low-language-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-008.svg" alt={"x86 cdecl 调用约定栈帧示意图"} />
 
 函数调用通常可以分为四个阶段：
 

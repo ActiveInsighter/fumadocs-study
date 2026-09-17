@@ -56,7 +56,7 @@ title: "虚拟存储器"
 
 当访问物理内存时，必须使用 **物理地址**，物理地址就是 **物理内存** 中每个存储单元的唯一编号
 
-![物理内存与虚拟内存架构 虚拟内存空间 进程 1 虚拟地址空间 0x0000 - 代码段 0x1000 - 数据段 0x2000 - 堆 进程 2 虚拟地址空间 0x0000 - 代码段 0x1000 - 数据段 0x2000 - 栈 虚拟地址 (Virtual Address) 连续且独立的地址空间 MMU 地址转换 (页表映射) 物理内存 (RAM) 0x00000 - 进程1代码 0x10000 - 进程2数据 0x20000 - 进程1堆 0x30000 - 进程2代码](/images/computer-organization/computer-organization-storage-virtual-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-001.svg" alt={"物理内存与虚拟内存架构 虚拟内存空间 进程 1 虚拟地址空间 0x0000 - 代码段 0x1000 - 数据段 0x2000 - 堆 进程 2 虚拟地址空间 0x0000 - 代码段 0x1000 - 数据段 0x2000 - 栈 虚拟地址 (Virtual Address) 连续且独立的地址空间 MMU 地址转换 (页表映射) 物理内存 (RAM) 0x00000 - 进程1代码 0x10000 - 进程2数据 0x20000 - 进程1堆 0x30000 - 进程2代码"} />
 
 ### 虚拟内存
 
@@ -66,13 +66,13 @@ title: "虚拟存储器"
 
 当进程访问 **虚拟内存** 时，**操作系统** 会将 虚拟地址 **转化为物理地址**， 进而根据物理地址去访问 **物理内存**。
 
-![虚拟内存工作原理 进程 使用虚拟地址 0x0000 - 0xFFFF 认为拥有连续独立 的内存空间 虚拟内存 页面 0 页面 1 页面 2 页面 3 页面 4 ... 连续的虚拟地址空间 操作系统 地址转换 (MMU) 物理内存 帧 5 → 页面1 空闲 帧 2 → 页面0 帧 8 → 页面3 空闲 帧 11 → 页面2 分散的物理地址 访问虚拟地址 转换后的 物理地址 关键概念： • 虚拟地址：连续、独立 • 物理地址：可能分散](/images/computer-organization/computer-organization-storage-virtual-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-002.svg" alt={"虚拟内存工作原理 进程 使用虚拟地址 0x0000 - 0xFFFF 认为拥有连续独立 的内存空间 虚拟内存 页面 0 页面 1 页面 2 页面 3 页面 4 ... 连续的虚拟地址空间 操作系统 地址转换 (MMU) 物理内存 帧 5 → 页面1 空闲 帧 2 → 页面0 帧 8 → 页面3 空闲 帧 11 → 页面2 分散的物理地址 访问虚拟地址 转换后的 物理地址 关键概念： • 虚拟地址：连续、独立 • 物理地址：可能分散"} />
 
 ### 页式虚拟存储器
 
 为了更灵活地管理内存，操作系统采用 **页式虚拟存储器** 的方式，将 **虚拟地址空间** 和 **物理地址空间** 都划分为大小固定的 **页（Page）**。程序运行时，并不需要将整个虚拟地址空间都加载到 **物理内存** 中，而是按需将部分 **页面** 载入内存，其余的页面保存在硬盘上。
 
-![页式虚拟存储器 CPU 虚拟地址 地址转换 机构(MMU) 页表查询 TLB缓存 页表 (Page Table) 0 3 在内存 1 X 在磁盘 2 1 在内存 3 X 在磁盘 虚拟地址空间 页面 0 页面 1 (缺页) 页面 2 物理内存 页框 0 (页面0) 页框 1 (页面2) 页框 2 (空闲) 页框 3 (页面0) 页框 4 (空闲) 磁盘存储 页面 1 (交换区) 页面 3 (交换区) 程序映像文件 其他页面... 虚拟地址 页面存在 缺页中断 页面调入 工作流程](/images/computer-organization/computer-organization-storage-virtual-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-003.svg" alt={"页式虚拟存储器 CPU 虚拟地址 地址转换 机构(MMU) 页表查询 TLB缓存 页表 (Page Table) 0 3 在内存 1 X 在磁盘 2 1 在内存 3 X 在磁盘 虚拟地址空间 页面 0 页面 1 (缺页) 页面 2 物理内存 页框 0 (页面0) 页框 1 (页面2) 页框 2 (空闲) 页框 3 (页面0) 页框 4 (空闲) 磁盘存储 页面 1 (交换区) 页面 3 (交换区) 程序映像文件 其他页面... 虚拟地址 页面存在 缺页中断 页面调入 工作流程"} />
 
 当 CPU 发出一条内存访问指令时，**地址转换机构** 会找到对应的物理页框。如果发现该页面尚未加载到内存，就会触发 **缺页中断**。缺页中断交由操作系统内核处理，内核会判断该页面是否在磁盘的交换区或程序映像文件中，如果存在，就将其调入内存。如果内存已满，还需要根据 **页面置换算法**（如最近最少使用 LRU 或时钟算法）选择一个合适的页面换出到磁盘，再将新页面调入。整个过程对应用程序是透明的，它只会感知到一次访问延迟，而不会意识到内存与磁盘之间的交换。
 
@@ -86,7 +86,7 @@ title: "虚拟存储器"
 
 在使用 **虚拟地址** 去访问 **虚拟内存** 时，我们可以根据 **虚拟页面号** 找到该地址所在的 **虚拟页面**，在找到 **虚拟页面** 后，我们可以根据 **页内偏移** 找到该地址在 **虚拟页面** 内的偏移大小。
 
-![VPN offset 虚拟页面号 页内偏移 虚拟地址 Virtual Address, VA VP 0 VP 1 VP 2 VP m offset PPN offset 物理页面号 页内偏移 物理地址 Physical Address, PA PP 0 PP 1 PP 2 PP n offset](/images/computer-organization/computer-organization-storage-virtual-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-004.svg" alt={"VPN offset 虚拟页面号 页内偏移 虚拟地址 Virtual Address, VA VP 0 VP 1 VP 2 VP m offset PPN offset 物理页面号 页内偏移 物理地址 Physical Address, PA PP 0 PP 1 PP 2 PP n offset"} />
 
 同理，
 物理地址
@@ -104,7 +104,7 @@ title: "虚拟存储器"
 
 ### 地址翻译机构
 
-![CPU MMU Virutal address (VA) 4100 CPU Chip Physical address (PA) Address Translation 0 1 2 3 4 5 6 7 8 M - 1](/images/computer-organization/computer-organization-storage-virtual-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-005.svg" alt={"CPU MMU Virutal address (VA) 4100 CPU Chip Physical address (PA) Address Translation 0 1 2 3 4 5 6 7 8 M - 1"} />
 
 CPU 中的 **内存管理单元**（Memory Management Unit，MMU）是计算机体系结构的重要组成部分，它负责 **虚拟内存** 到 **物理内存** 的地址映射和内存访问的控制。MMU 的主要功能包括：
 
@@ -167,7 +167,7 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
 
 **页表** 的功能是将 **虚拟页号** 转换为 **物理页号**，进而实现地址翻译。
 
-![虚拟页面号 页内偏移 物理页面号 页内偏移 页表](/images/computer-organization/computer-organization-storage-virtual-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-006.svg" alt={"虚拟页面号 页内偏移 物理页面号 页内偏移 页表"} />
 
 对于 **单级页表** 而言，只需访问一次 **页表** 即可实现 **页面号** 的翻译过程。
 
@@ -175,7 +175,7 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
 
 一个典型的 **单级页表** 结构如下图所示：
 
-![VPN PPN Valid Dirty Access Proctect Cached 0x000 0x1A4 1 1 1 RO Cached 0x001 0x3EF 1 0 0 RW Non-cached 0x002 0x0D8 1 0 0 RW Cached 0x003 0x000 0 1 1 RO Non-cached 虚拟页号 物理页号 有效位 修改位 访问位 保护位 缓存位 PTE 0 PTE 1 PTE 2 PTE 3](/images/computer-organization/computer-organization-storage-virtual-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-007.svg" alt={"VPN PPN Valid Dirty Access Proctect Cached 0x000 0x1A4 1 1 1 RO Cached 0x001 0x3EF 1 0 0 RW Non-cached 0x002 0x0D8 1 0 0 RW Cached 0x003 0x000 0 1 1 RO Non-cached 虚拟页号 物理页号 有效位 修改位 访问位 保护位 缓存位 PTE 0 PTE 1 PTE 2 PTE 3"} />
 
 页表项
 
@@ -194,7 +194,7 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
 - **页表存储在物理内存中**：页表（无论是单级还是多级）最终都是一些数据结构，它们必须存储在物理内存（RAM） 中，CPU的内存管理单元（MMU） 才能直接读取它们进行地址转换。
 - **内核的虚拟地址空间中**：操作系统内核也有自己的虚拟地址空间。它会将物理内存中的这些页表，映射到自己的内核虚拟地址空间的一个特定区域。这样，操作系统内核代码（例如处理缺页异常、执行换入换出的代码）就可以通过虚拟地址方便地访问和修改任何进程的页表。
 
-![页表项（PTE）结构 Page Table Entry 物理页框号 (PPN) Physical Page Number V 有效位 D 修改位 A 访问位 Prot 保护位 Cache 缓存位 通常 20-52 位 1 位 1 位 1 位 2-3 位 1-2 位 物理页框号 指向实际物理内存中的 页框地址 有效位 1 = 页面有效 0 = 页面无效/未分配 修改位 1 = 页面已被修改 需要写回磁盘 访问位 1 = 页面已被访问 用于页面置换算法 保护位 R = 可读 W ](/images/computer-organization/computer-organization-storage-virtual-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-008.svg" alt={"页表项（PTE）结构 Page Table Entry 物理页框号 (PPN) Physical Page Number V 有效位 D 修改位 A 访问位 Prot 保护位 Cache 缓存位 通常 20-52 位 1 位 1 位 1 位 2-3 位 1-2 位 物理页框号 指向实际物理内存中的 页框地址 有效位 1 = 页面有效 0 = 页面无效/未分配 修改位 1 = 页面已被修改 需要写回磁盘 访问位 1 = 页面已被访问 用于页面置换算法 保护位 R = 可读 W "} />
 
 注意
 
@@ -216,7 +216,7 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
   - **物理页框号**（PPN, Physical Page Number）：当前地址所在的页框在 **物理内存** 对应的所有页框中的下标
   - **页内偏移**（PPO, Physical Page Offset）：地址在页面内的偏移
 
-![虚拟地址与物理地址格式 虚拟地址 (Virtual Address) VPN (Virtual Page Number) 虚拟页框号 VPO 页内偏移 VPN 位数 offset 位数 虚拟页面个数 = 2^VPN 页面大小 = 2^offset 物理地址 (Physical Address) PPN (Physical Page Number) 物理页框号 PPO 页内偏移 PPN 位数 offset 位数 物理页面个数 = 2^PPN 页面大小 = 2^offset ⭐ ](/images/computer-organization/computer-organization-storage-virtual-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-009.svg" alt={"虚拟地址与物理地址格式 虚拟地址 (Virtual Address) VPN (Virtual Page Number) 虚拟页框号 VPO 页内偏移 VPN 位数 offset 位数 虚拟页面个数 = 2^VPN 页面大小 = 2^offset 物理地址 (Physical Address) PPN (Physical Page Number) 物理页框号 PPO 页内偏移 PPN 位数 offset 位数 物理页面个数 = 2^PPN 页面大小 = 2^offset ⭐ "} />
 
 其中 **虚拟地址和物理地址的偏移量是相同的**（VPO = PPO = offset），页面大小 =
 $2^{\mathrm{offset}}$
@@ -234,7 +234,7 @@ $2^{\mathrm{PPN}}$
 - 若为 **0**，会发生 [缺页中断](/docs/408/knowledge/408-release/computer-organization/storage/virtual/#%e7%bc%ba%e9%a1%b5%e4%b8%ad%e6%96%ad)
 - 若为 **1**，读取其中的 **PPN**，完成地址翻译
 
-![虚拟页号 (VPN) 页内偏移 (VPO) 物理页号 (PPN) 页内偏移 (PPO) Valid PPN VPN 充当 单级页表的 下标 如果 valid = 0， 触发缺页中断 页表](/images/computer-organization/computer-organization-storage-virtual-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-010.svg" alt={"虚拟页号 (VPN) 页内偏移 (VPO) 物理页号 (PPN) 页内偏移 (PPO) Valid PPN VPN 充当 单级页表的 下标 如果 valid = 0， 触发缺页中断 页表"} />
 
 单级页表地址翻译实例
 
@@ -265,7 +265,7 @@ $2^{\mathrm{PPN}}$
 
 **多级页表结构**
 
-![VPN 1 VPN 1 VPN 2 VPN 2 · · · · · · VPN k VPN k VPO VPO PPN PPN Level 1 page table Level 1... Level 2 page table Level 2... Level k page table Level k... PPO PPO PPN PPN Virtual Address Virtual Address Physical Address Physical Address Text](/images/computer-organization/computer-organization-storage-virtual-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-011.svg" alt={"VPN 1 VPN 1 VPN 2 VPN 2 · · · · · · VPN k VPN k VPO VPO PPN PPN Level 1 page table Level 1... Level 2 page table Level 2... Level k page table Level k... PPO PPO PPN PPN Virtual Address Virtual Address Physical Address Physical Address Text"} />
 
 在 **多级页表** 中，**虚拟页号**（VPN）被分割为多个字段，假设被分割为 **k** 个字段的话，第 **k** 个字段对应的页表中的查询内容为 **PPN**，前 **k‑1** 个字段对应的页表中的查询内容为下一级页表的位置。
 
@@ -287,7 +287,7 @@ $m^{k}$
 
 **多级页表是如何节省内存的？**
 
-![PTE 0 PTE 0 PTE 1 PTE 1 PTE 2 (null) PTE 2 (null) PTE 3 (null) PTE 3 (null) PTE 4 (null) PTE 4 (null) PTE 5 (null) PTE 5 (null) PTE 6 (null) PTE 6 (null) PTE 7 (null) PTE 7 (null) PTE 8 PTE 8 (1 K-9) null PTEs (1 K-9)... PTE 0 PTE 0 · · · ·](/images/computer-organization/computer-organization-storage-virtual-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-012.svg" alt={"PTE 0 PTE 0 PTE 1 PTE 1 PTE 2 (null) PTE 2 (null) PTE 3 (null) PTE 3 (null) PTE 4 (null) PTE 4 (null) PTE 5 (null) PTE 5 (null) PTE 6 (null) PTE 6 (null) PTE 7 (null) PTE 7 (null) PTE 8 PTE 8 (1 K-9) null PTEs (1 K-9)... PTE 0 PTE 0 · · · ·"} />
 
 只有一级页表需要始终在主存中，对于其他层次的页表，可以 **按需分配**；如果使用到的，就在内存中创建对应的页表结构，如果未使用到，就不需要为其分配内存。这代表了巨大的潜在节省，因为典型程序的 **4GB 虚拟地址空间** 中的大部分都是未分配的。
 
@@ -299,7 +299,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 其实操作系统是这样管理不同进程的页表的：
 
-![MMU地址翻译与进程切换机制 (页表基址寄存器 PTBR 的作用) 进程 A PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x1000 虚拟地址空间 0x00400000 - Code 0x00600000 - Data 进程 B PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x2000 虚拟地址空间 0x00400000 - Code 0x00600000 -](/images/computer-organization/computer-organization-storage-virtual-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-013.svg" alt={"MMU地址翻译与进程切换机制 (页表基址寄存器 PTBR 的作用) 进程 A PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x1000 虚拟地址空间 0x00400000 - Code 0x00600000 - Data 进程 B PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x2000 虚拟地址空间 0x00400000 - Code 0x00600000 -"} />
 
 - 每个进程都有一个关键的内核数据结构，通常叫做 [PCB 进程控制块](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e6%8e%a7%e5%88%b6%e5%9d%97)。
 - PCB 中保存了一个关键信息：**页表基址寄存器** 应该加载的物理地址。这个物理地址指向该进程 **顶级页表** 在物理内存中的起始位置。
@@ -319,7 +319,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 > **PTBR 决定了“当前 CPU 看到的是哪一个进程的虚拟地址空间”**
 
-![PTBR、MMU 与多进程页表关系 CPU Core PTBR (Page Table Base Register) 0x3000 (进程 A 页表) MMU (地址翻译) 物理内存 (Physical Memory) 进程 A 页表 (物理地址: 0x3000) VPN 0x00 → PPN 0x1000 VPN 0x01 → PPN 0x1001 VPN 0x02 → PPN 0x1002 进程 B 页表 (物理地址: 0x5000) VPN 0x00 → PPN 0x2](/images/computer-organization/computer-organization-storage-virtual-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-014.svg" alt={"PTBR、MMU 与多进程页表关系 CPU Core PTBR (Page Table Base Register) 0x3000 (进程 A 页表) MMU (地址翻译) 物理内存 (Physical Memory) 进程 A 页表 (物理地址: 0x3000) VPN 0x00 → PPN 0x1000 VPN 0x01 → PPN 0x1001 VPN 0x02 → PPN 0x1002 进程 B 页表 (物理地址: 0x5000) VPN 0x00 → PPN 0x2"} />
 
 与进程切换的关系：
 
@@ -356,7 +356,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **TLB**（Translation Lookaside Buffer）是 CPU **内存管理单元**（MMU）中的一种 **高速缓存**，用于加速 **虚拟地址**（VA）到 **物理地址**（PA）的地址转换过程。TLB 存储了最近用过的 **虚拟地址** 到 **物理地址** 的映射，以减少每次内存访问时的地址翻译延迟。
 
-![MMU TLB Page Table TLB 查询 VPN 返回 查询页表 更新TLB TLB 未命中时：](/images/computer-organization/computer-organization-storage-virtual-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-015.svg" alt={"MMU TLB Page Table TLB 查询 VPN 返回 查询页表 更新TLB TLB 未命中时："} />
 
 由于 **页表** 存储在内存中，所以每一次通过 **页表** 的地址翻译过程都至少需要一次访存，开销仍然比较大。为降低开销，**TLB** 应运而生。与 **Cache** 类似，你可以从概念上将 **TLB** 理解成一个硬件结构，因离 **CPU** 更近，其访问速度更快。
 
@@ -364,7 +364,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **TLB** 是一个硬件结构，但从逻辑上可以将其理解为一张表。
 
-![valid Tag dirty reference PPN 1 3682H 1 0b00 123H 0 A8B2H 0 0b10 007H 1 0032H 0 0b11 218H 有效位 标记 脏位 访问位 物理页号](/images/computer-organization/computer-organization-storage-virtual-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-016.svg" alt={"valid Tag dirty reference PPN 1 3682H 1 0b00 123H 0 A8B2H 0 0b10 007H 1 0032H 0 0b11 218H 有效位 标记 脏位 访问位 物理页号"} />
 
 与 [cache 存储结构](/docs/408/knowledge/408-release/computer-organization/storage/cache/#cache-%e5%ad%98%e5%82%a8%e7%bb%93%e6%9e%84) 类似，**TLB** 由许多 **表项**（TLB Entry）构成，每一个 **表项** 包含多个字段，其中 **tag** 和 **PPN** 是必须的，其他字段是可选的。
 
@@ -384,7 +384,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 两者的对比如下所示：
 
-![内存块号 Tag cache 块号 Tag cache 组号 Tag 块内偏移 虚拟页号（VPN） 页内偏移 虚拟地址 物理地址 Tag TLB 行号 Tag TLB 组号 Tag 直接映射 组相联映射 全相联映射](/images/computer-organization/computer-organization-storage-virtual-017.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-017.svg" alt={"内存块号 Tag cache 块号 Tag cache 组号 Tag 块内偏移 虚拟页号（VPN） 页内偏移 虚拟地址 物理地址 Tag TLB 行号 Tag TLB 组号 Tag 直接映射 组相联映射 全相联映射"} />
 
 在 **直接映射** 中，通过 **TLB** 行号去对应行的 **表项** 进行查询。
 
@@ -405,7 +405,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
   - **组相联映射**：匹配字段为组号（TLB group index），位数为
     $log_{2}(\text{TLB组数})$
 
-![Page Table TLB Tag (TLBT) 匹配字段 VPN TLBT PPN TLB PPN PPO VPO = PPO MMU 匹配字段决定了 去哪些行寻找， 该字段与映射方式相关 若命中，则加载对应行的PPN 以完成地址翻译 VPN VPO Main Memory 未命中则通过页表 完成地址翻译](/images/computer-organization/computer-organization-storage-virtual-018.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-018.svg" alt={"Page Table TLB Tag (TLBT) 匹配字段 VPN TLBT PPN TLB PPN PPO VPO = PPO MMU 匹配字段决定了 去哪些行寻找， 该字段与映射方式相关 若命中，则加载对应行的PPN 以完成地址翻译 VPN VPO Main Memory 未命中则通过页表 完成地址翻译"} />
 
 使用 **TLB** 进行地址翻译的过程如下：
 
@@ -475,7 +475,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 1. **物理内存** 中存在 **空闲页面**（未被任何进程使用的页面）。
 2. **进程** 中不存在任何 **空闲页面**，即所有页面都被进程使用了。
 
-![Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1021 Frame 1022 Frame 1023 Process 0 Process 2 Process 1 Process 3 选择一个 Victim Frame 进行替换 Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1 Frame 2 Frame 3 Process 0 Process 2 Process 1 Proc](/images/computer-organization/computer-organization-storage-virtual-019.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-019.svg" alt={"Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1021 Frame 1022 Frame 1023 Process 0 Process 2 Process 1 Process 3 选择一个 Victim Frame 进行替换 Frame 0 Frame 1 Frame 2 Frame 3 Frame 1020 Frame 1 Frame 2 Frame 3 Process 0 Process 2 Process 1 Proc"} />
 
 如果存在 **空闲页面**，当一个进程出现 **缺页中断** 时，直接使用 **空闲页面** 即可。
 
@@ -485,7 +485,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 交换分区
 
-![inuse inuse inuse inuse 分配页面 内存 inuse inuse inuse inuse inuse inuse 磁盘 交换分区](/images/computer-organization/computer-organization-storage-virtual-020.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-020.svg" alt={"inuse inuse inuse inuse 分配页面 内存 inuse inuse inuse inuse inuse inuse 磁盘 交换分区"} />
 
 **交换分区** 是硬盘上专门划出的一个区域，用来作为系统内存的“扩展”。当 **物理内存** 使用接近或达到上限时，操作系统会把暂时不用的内存页（比如不活跃的后台程序）移到 **交换分区**，从而释放出 **物理内存**。
 
@@ -509,7 +509,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 对于进程而言，它自己可见的就是 **虚拟地址**（VA），当进程访问 **虚拟地址** 时，实际上是对某个 **物理地址** 进行访问。
 
-![Processor MMU TLB Cache Memory 1 2 3 4 5 VA VPN PPN PA Data](/images/computer-organization/computer-organization-storage-virtual-021.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-021.svg" alt={"Processor MMU TLB Cache Memory 1 2 3 4 5 VA VPN PPN PA Data"} />
 
 **访存** 主要包含两大过程：
 
@@ -534,7 +534,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 上述过程可以由如下的流程图表示：
 
-![开始 虚拟地址越界 中止进程 YES YES VPN 命中 TLB NO 更新页表 更新 TLB 获取 PPN 结束 VPN 命中页表 NO NO 在内存中选择页面 内存是否存在 空闲页面？ 页面替换算法选择 页面B YES 将 B 写入磁盘 B的脏位是否为1？ 将页面A写入B 所在的内存空间 选择空闲页面 将页面A写入 空闲页面 缺页中断处理过程 地址翻译过程 YES](/images/computer-organization/computer-organization-storage-virtual-022.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-022.svg" alt={"开始 虚拟地址越界 中止进程 YES YES VPN 命中 TLB NO 更新页表 更新 TLB 获取 PPN 结束 VPN 命中页表 NO NO 在内存中选择页面 内存是否存在 空闲页面？ 页面替换算法选择 页面B YES 将 B 写入磁盘 B的脏位是否为1？ 将页面A写入B 所在的内存空间 选择空闲页面 将页面A写入 空闲页面 缺页中断处理过程 地址翻译过程 YES"} />
 
 ##### 缺页中断
 
@@ -589,7 +589,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 可以通过以下流程图理解缺页中断的过程：
 
-![PageFaultHandling](/images/computer-organization/computer-organization-storage-virtual-023.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-023.svg" alt={"PageFaultHandling"} />
 
 #### 物理地址访存过程
 
@@ -597,7 +597,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 使用 **物理地址** 访问内存时首先判断是否命中 **cache**；若未命中，则访问 **内存**，随后更新 **cache**。在使用 **主存块** 更新 **cache 块** 的过程中，还要根据 **cache** 与 **主存** 的映射方式决定替换哪个 **cache 块**，详细过程如下图所示。
 
-![开始 是否存在 valid=1 且 tag 相同的行 判断映射方式， 解析 PA 地址格式 使用 PA 去 访问主存 命中 未命中 找到 PA 对应的主存块 PA 对应的 cache 行 是否有空闲？ 更新相应的 cache 行 使用替换策略 找一个 cache 块 进行替换 访存过程 cache更新过程 结束 有空闲 无空闲 找到可能存储数据 的 cache 行 结束 更新元数据 被替换的 cache 行 dirty 位是否为 1 将 cache 块 更新到对应的主存块 Y](/images/computer-organization/computer-organization-storage-virtual-024.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-024.svg" alt={"开始 是否存在 valid=1 且 tag 相同的行 判断映射方式， 解析 PA 地址格式 使用 PA 去 访问主存 命中 未命中 找到 PA 对应的主存块 PA 对应的 cache 行 是否有空闲？ 更新相应的 cache 行 使用替换策略 找一个 cache 块 进行替换 访存过程 cache更新过程 结束 有空闲 无空闲 找到可能存储数据 的 cache 行 结束 更新元数据 被替换的 cache 行 dirty 位是否为 1 将 cache 块 更新到对应的主存块 Y"} />
 
 ---
 
@@ -607,4 +607,4 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **虚拟地址 → TLB → （页表）? → （缺页中断）? → 物理地址 → Cache → （内存）? → （更新 Cache）?**
 
-![VA TLB Page Table Page Fault PA Cache Memory R/W Cache Update 查询 TLB 未命中 查询页表 命中 页面错误 命中 未命中 访问主存 更新 cache 块 更新 TLB 后返回](/images/computer-organization/computer-organization-storage-virtual-025.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-025.svg" alt={"VA TLB Page Table Page Fault PA Cache Memory R/W Cache Update 查询 TLB 未命中 查询页表 命中 页面错误 命中 未命中 访问主存 更新 cache 块 更新 TLB 后返回"} />

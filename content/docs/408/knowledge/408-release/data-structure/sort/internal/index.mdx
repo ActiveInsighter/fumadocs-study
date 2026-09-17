@@ -60,7 +60,7 @@ title: "内部排序"
 
 如果排序后的数组是这样：`[... B A ...]`，那么排序算法就是不稳定的，反之排序算法就是 **稳定的**。
 
-![图示](/images/data-structure/data-structure-sort-internal-001.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-001.svg" alt={"图示"} />
 
 补充
 
@@ -94,13 +94,13 @@ $O(1)$
 | 桶排序 | $O(n \log n)$ | 元素在桶中“复制”而不是交换，适合不比较的排序场景 |
 | 基数排序 | $O(n^2)$ | 每轮根据某位进行 **稳定排序**，通常使用计数排序复制元素 |
 
-![O(n) O(n log n) O(n^1.5) O(n²) 元素移动次数量级（从少到多） 选择排序 O(n) 每轮仅交换一次，移动最少 桶排序 O(n) 复制入桶，不做原地交换 归并排序 O(n log n) 辅助数组复制 堆排序 O(n log n) 堆化时原地交换 快速排序 均 O(n log n) 最坏 O(n²) 基数排序 O(n·d) 按位多轮计数排序复制 希尔排序 O(n^1.3 ~ 2) 难以精确界定 插入排序 O(n²) 冒泡排序：最坏 O(n²)，每次交换](/images/data-structure/data-structure-sort-internal-002.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-002.svg" alt={"O(n) O(n log n) O(n^1.5) O(n²) 元素移动次数量级（从少到多） 选择排序 O(n) 每轮仅交换一次，移动最少 桶排序 O(n) 复制入桶，不做原地交换 归并排序 O(n log n) 辅助数组复制 堆排序 O(n log n) 堆化时原地交换 快速排序 均 O(n log n) 最坏 O(n²) 基数排序 O(n·d) 按位多轮计数排序复制 希尔排序 O(n^1.3 ~ 2) 难以精确界定 插入排序 O(n²) 冒泡排序：最坏 O(n²)，每次交换"} />
 
 可以观察到，**选择排序** 和 **桶排序** 的 **元素移动次数** 是最少的，不涉及到大量的元素位置交换。
 
 #### 复杂度
 
-![排序算法时间复杂度层次图 O(n + k) - 线性时间 桶排序（理想情况） 基数排序：O(d·(n+k)) O(n log n) - 对数线性时间 归并排序（稳定） 堆排序 快速排序（平均情况） 稳定 O(n²) - 二次时间 冒泡排序（稳定） 选择排序 插入排序（稳定） 希尔排序（最坏情况） 快速排序（最坏情况） 稳定 稳定 ↓ 空间复杂度对比 O(1) 常数空间：冒泡、选择、插入、希尔排序、堆排序 O(log n) 对数空间：快速排序（递归栈） O(n) 线性空间：归并](/images/data-structure/data-structure-sort-internal-003.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-003.svg" alt={"排序算法时间复杂度层次图 O(n + k) - 线性时间 桶排序（理想情况） 基数排序：O(d·(n+k)) O(n log n) - 对数线性时间 归并排序（稳定） 堆排序 快速排序（平均情况） 稳定 O(n²) - 二次时间 冒泡排序（稳定） 选择排序 插入排序（稳定） 希尔排序（最坏情况） 快速排序（最坏情况） 稳定 稳定 ↓ 空间复杂度对比 O(1) 常数空间：冒泡、选择、插入、希尔排序、堆排序 O(log n) 对数空间：快速排序（递归栈） O(n) 线性空间：归并"} />
 
 | 排序方式 | 时间复杂度 | 空间复杂度 | 是否稳定 |
 | --- | --- | --- | --- |
@@ -144,7 +144,7 @@ $O(n + k)$
 在排序算法中，**一趟（pass）** 通常指 **完成一次从头到尾（或部分范围）对数组进行处理的过程**，这一过程中可能会比较、移动、插入或交换若干元素。  
 换句话说，一趟就是排序算法中最小的完整“循环工作单元”，通常对应于外层循环的一次执行。
 
-![图示](/images/data-structure/data-structure-sort-internal-004.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-004.svg" alt={"图示"} />
 
 不同的排序算法在每趟排序后，数组中的元素会呈现不同特征，总结为下表：
 
@@ -294,7 +294,7 @@ MaxHeapify(arr, i, n)
 
 比如，对于数组 `5, 1, 4, 2, 8`的前两次冒泡过程如下：
 
-![5 1 4 2 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 2 4 5 8 1 2 4 5 8 1 2 4 5 8 第一次冒泡 ：将最大的数放到最后一个位置 第二次冒泡 ：将第二大的数放到倒数第二个位置](/images/data-structure/data-structure-sort-internal-005.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-005.svg" alt={"5 1 4 2 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 2 4 5 8 1 2 4 5 8 1 2 4 5 8 第一次冒泡 ：将最大的数放到最后一个位置 第二次冒泡 ：将第二大的数放到倒数第二个位置"} />
 
 ### 插入排序
 
@@ -314,13 +314,13 @@ MaxHeapify(arr, i, n)
 
 对于数组 `4, 3, 2, 10, 12, 1, 5, 6` 执行插入排序的过程：
 
-![4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6](/images/data-structure/data-structure-sort-internal-006.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-006.svg" alt={"4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6"} />
 
 插入排序可以分为 直接插入排序
 和 折半插入排序
 ，其不同点在于 **寻找插入位置时** 使用的是 **从后向前顺序查找** 还是 **折半查找**。
 
-![直接插入排序与折半插入排序对比图](/images/data-structure/data-structure-sort-internal-007.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-007.svg" alt={"直接插入排序与折半插入排序对比图"} />
 
 插入排序适合 **大部分元素有序** 的场景，因为这种情况下进行插入比较的次数较少，排序算法执行更加高效。
 
@@ -349,7 +349,7 @@ MaxHeapify(arr, i, n)
 | (11, 12, 22, 25) | (64) | 64 |
 | (11, 12, 22, 25, 64) | () |  |
 
-![11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64](/images/data-structure/data-structure-sort-internal-008.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-008.svg" alt={"11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64"} />
 
 注意
 
@@ -380,7 +380,7 @@ MaxHeapify(arr, i, n)
 
 - `1, 4, 7` 和 `2, 3, 8` ⟶ 二路归并后得到 `1, 2, 3, 4, 7, 8`
 
-![二路归并过程示意图](/images/data-structure/data-structure-sort-internal-009.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-009.svg" alt={"二路归并过程示意图"} />
 
 上图展示了二路归并的一次典型比较过程：
 
@@ -397,7 +397,7 @@ MaxHeapify(arr, i, n)
 2. **递归（Conquer）**：递归地对子序列执行相同的操作。
 3. **归并（Merge）**：采用二路归并的方法，将两个相邻的有序子序列合并成一个更大的有序序列，直到整个序列有序。
 
-![38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82](/images/data-structure/data-structure-sort-internal-010.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-010.svg" alt={"38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82"} />
 
 注意
 
@@ -474,7 +474,7 @@ void quickSort(int a[], int low, int high) {
 
 下图以数组 `[5, 3, 8, 1, 9, 4, 7, 2]` 为例，展示 `partition` 中 `l`、`r` 和 `pivot` 的移动及交换过程。
 
-![图示](/images/data-structure/data-structure-sort-internal-011.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-011.svg" alt={"图示"} />
 
 经过一次分区后，可以得到如下结论：
 
@@ -493,7 +493,7 @@ void quickSort(int a[], int low, int high) {
 
 随着递归不断进行，每个子数组都会继续被划分为更小的子数组。当子数组中 **元素个数小于等于 1**（即 `low >= high`）时，该子数组已经天然有序，此时递归结束，不再继续划分。
 
-![4 3 1 2 5 9 7 10 6 1 2 4 3 6 7 10 9 1 3 4 4 7 9 10 7 10 pivot pivot pivot pivot pivot pivot pivot pivot pivot](/images/data-structure/data-structure-sort-internal-012.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-012.svg" alt={"4 3 1 2 5 9 7 10 6 1 2 4 3 6 7 10 9 1 3 4 4 7 9 10 7 10 pivot pivot pivot pivot pivot pivot pivot pivot pivot"} />
 
 #### 单向递归算法
 
@@ -507,7 +507,7 @@ void quickSort(int a[], int low, int high) {
 
 这种算法称为 **Quick Select（快速选择）**，其思想与快速排序完全相同，只是每次分区后 **只递归一个子区间**，因此也称为 **单向递归算法**。
 
-![图示](/images/data-structure/data-structure-sort-internal-013.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-013.svg" alt={"图示"} />
 ```
 // 分区算法与快速排序相同，这里不再赘述
 int partition(int a[], int low, int high) { ... }
@@ -582,13 +582,13 @@ int quickSelect(int a[], int low, int high, int k) {
    - 小根堆
      （Min Heap）：堆中的任意结点，其值都 **≤** 其子结点的值。这意味着 **根结点是最小值**。
 
-![10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆](/images/data-structure/data-structure-sort-internal-014.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-014.svg" alt={"10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆"} />
 
 基于这些性质，堆常常被用于实现 **优先队列**。对于大根堆，我们总是可以在 **O(1)** 的时间内得到最大的元素（即根结点），而对于小根堆，我们总是可以在 **O(1)** 的时间内得到最小的元素。
 
 ##### 实现
 
-![100 19 36 17 3 25 1 2 7 二叉树结构 堆的数组顺序表示 100 19 36 17 3 25 1 2 7 0 1 2 3 4 5 6 7 8](/images/data-structure/data-structure-sort-internal-015.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-015.svg" alt={"100 19 36 17 3 25 1 2 7 二叉树结构 堆的数组顺序表示 100 19 36 17 3 25 1 2 7 0 1 2 3 4 5 6 7 8"} />
 
 堆通常使用数组来实现，而不需要使用真正的树或链表结构。利用数组实现堆时，每个元素都有一个固定的位置，而该位置与元素在树中的位置有关。
 
@@ -618,7 +618,7 @@ int quickSelect(int a[], int low, int high, int k) {
 
 以大根堆 `50,13,40,30,20,22,24,15,11` 为例，若我们从结点 `13` 执行堆化，会发生如下图所示的过程：
 
-![图示](/images/data-structure/data-structure-sort-internal-016.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-016.svg" alt={"图示"} />
 
 注意堆化的过程是递归的，当我们交换父结点和子结点后，需要从子结点进一步执行堆化操作。
 
@@ -631,7 +631,7 @@ int quickSelect(int a[], int low, int high, int k) {
 
 以数组 `1,3,5,4,6,13,10,9,8,15,17` 为例，假设我们使用方法 2 将其初始化为大根堆，会发生如下图所示的过程：
 
-![1 3 5 4 6 13 10 9 8 15 17 swap 从结点 6 执行 heapify 1 3 5 4 17 13 10 9 8 15 6 从结点 4 执行 heapify swap 1 3 5 9 17 13 10 4 8 15 6 从结点 5 执行 heapify swap 1 3 13 9 17 5 10 4 8 15 6 swap swap 1 17 13 9 15 5 10 4 8 3 6 从结点 3 执行 heapify 从根结点执行 heapify sw](/images/data-structure/data-structure-sort-internal-017.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-017.svg" alt={"1 3 5 4 6 13 10 9 8 15 17 swap 从结点 6 执行 heapify 1 3 5 4 17 13 10 9 8 15 6 从结点 4 执行 heapify swap 1 3 5 9 17 13 10 4 8 15 6 从结点 5 执行 heapify swap 1 3 13 9 17 5 10 4 8 15 6 swap swap 1 17 13 9 15 5 10 4 8 3 6 从结点 3 执行 heapify 从根结点执行 heapify sw"} />
 
 删除
 
@@ -640,7 +640,7 @@ int quickSelect(int a[], int low, int high, int k) {
 - 将堆顶元素和堆中最后一个元素互换，然后删除最后一个结点
 - 对新的堆顶执行 **堆化**，调整堆使其重新满足最大堆性质
 
-![图示](/images/data-structure/data-structure-sort-internal-018.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-018.svg" alt={"图示"} />
 
 插入
 
@@ -650,7 +650,7 @@ int quickSelect(int a[], int low, int high, int k) {
 - 从新元素开始，向上与父结点比较，若 **大于父结点** 则交换（上浮）。
 - 重复上浮直到满足堆性质或到达堆顶。
 
-![图示](/images/data-structure/data-structure-sort-internal-019.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-019.svg" alt={"图示"} />
 
 - 堆化
 - 构造初始堆
@@ -717,7 +717,7 @@ void heapDelete(int heap[], int *size) {
 
 堆排序（Heap Sort）其主要思想是将待排序的序列构造成一个 **大顶堆** 或 **小顶堆**，然后交换堆顶和最后一个元素的位置，使最大或最小的元素放到序列的末尾。这样，就得到一个部分有序的序列。接下来，再对剩下的部分重新调整为大顶堆或小顶堆，并重复上述过程，直到整个序列有序。
 
-![堆排序流程图](/images/data-structure/data-structure-sort-internal-020.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-020.svg" alt={"堆排序流程图"} />
 
 堆排序的主要步骤：
 
@@ -733,7 +733,7 @@ void heapDelete(int heap[], int *size) {
 3. 将结点 `i` 与 **最大的子结点** 交换。
 4. 交换后可能会破坏下一层的堆结构，所以需要对换到的子结点重复步骤 1‑3 的调整，直到整个子树满足堆的性质。
 
-![24 23 18 19 14 24 23 18 19 14 24 23 18 19 14 23 19 18 14 24 23 19 18 14 24 19 14 18 23 24 19 14 18 23 24 18 14 19 23 24 18 14 19 23 24 14 18 19 23 24 14 18 19 23 24 14 18 19 23 24 Original Array After Heap Sort 14 18 19 23 24](/images/data-structure/data-structure-sort-internal-021.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-021.svg" alt={"24 23 18 19 14 24 23 18 19 14 24 23 18 19 14 23 19 18 14 24 23 19 18 14 24 19 14 18 23 24 19 14 18 23 24 18 14 19 23 24 18 14 19 23 24 14 18 19 23 24 14 18 19 23 24 14 18 19 23 24 Original Array After Heap Sort 14 18 19 23 24"} />
 
 堆排序的代码实现如下所示：
 ```
@@ -764,7 +764,7 @@ void heapSort(int heap[], int size) {
 
 希尔排序（Shell Sort）是一种 **基于插入排序** 的改进算法，通过分组和逐步减小步长来提高效率。
 
-![希尔排序流程图](/images/data-structure/data-structure-sort-internal-022.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-022.svg" alt={"希尔排序流程图"} />
 
 希尔排序的过程如下所示：
 
@@ -787,7 +787,7 @@ void heapSort(int heap[], int size) {
 
 以数组 `32, 95, 16, 82, 24, 66, 35, 19, 75, 54, 40, 43, 93, 68` 为例进行 **希尔排序**，数组长度为 14，初始步长为 7，然后选择步长 3、1，依次按照步长对所有子数组排序。
 
-![32 95 16 82 24 66 35 19 75 54 40 43 93 68 19 75 16 40 24 66 35 32 95 54 82 43 93 68 0 1 2 3 4 5 6 7 8 9 10 11 12 13 original gap = 7 19 24 16 35 32 43 40 68 66 54 75 95 93 82 gap = 3 gap = 1 16 19 24 32 35 40 43 54 66 68 75 82 93 95 同色的元素表示](/images/data-structure/data-structure-sort-internal-023.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-023.svg" alt={"32 95 16 82 24 66 35 19 75 54 40 43 93 68 19 75 16 40 24 66 35 32 95 54 82 43 93 68 0 1 2 3 4 5 6 7 8 9 10 11 12 13 original gap = 7 19 24 16 35 32 43 40 68 66 54 75 95 93 82 gap = 3 gap = 1 16 19 24 32 35 40 43 54 66 68 75 82 93 95 同色的元素表示"} />
 
 ### 桶排序
 
@@ -803,7 +803,7 @@ void heapSort(int heap[], int size) {
 
 例如，对 `12, 9, 24, 4, 19, 21, 14, 6, 2, 16` 进行桶排序的过程如下：
 
-![12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24](/images/data-structure/data-structure-sort-internal-024.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-024.svg" alt={"12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24"} />
 
 补充
 
@@ -841,11 +841,11 @@ void heapSort(int heap[], int size) {
 2. 然后按照次低位进行 **桶排序**，但保持上一轮的相对顺序（**稳定排序**）。
 3. 依次进行，直到最高位排序完成。
 
-![0 1 2 3 4 5 6 7 8 9 278 109 063 930 599 184 505 269 008 083 0 1 2 3 4 5 6 7 8 9 930 083 063 184 505 278 008 109 599 269 0 1 2 3 4 5 6 7 8 9 505 008 109 930 063 269 278 083 184 599 278, 109, 063, 930, 589, 184, 505, 269, 008, 083 第一次排序，按照个位将](/images/data-structure/data-structure-sort-internal-025.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-025.svg" alt={"0 1 2 3 4 5 6 7 8 9 278 109 063 930 599 184 505 269 008 083 0 1 2 3 4 5 6 7 8 9 930 083 063 184 505 278 008 109 599 269 0 1 2 3 4 5 6 7 8 9 505 008 109 930 063 269 278 083 184 599 278, 109, 063, 930, 589, 184, 505, 269, 008, 083 第一次排序，按照个位将"} />
 
 以上排序的效果如下：
 
-![2 7 8 1 0 9 0 6 3 9 3 0 5 9 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 9 3 0 0 6 3 0 8 3 1 8 4 5 0 5 2 7 8 0 0 8 1 0 9 5 9 9 2 6 9 5 0 5 0 0 8 1 0 9 9 3 0 0 6 3 2 6 9 2 7 8 0 8 3 1 8 4 5 9 9 0 0 8 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 9 9 0 6 3 9 3 0](/images/data-structure/data-structure-sort-internal-026.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-026.svg" alt={"2 7 8 1 0 9 0 6 3 9 3 0 5 9 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 9 3 0 0 6 3 0 8 3 1 8 4 5 0 5 2 7 8 0 0 8 1 0 9 5 9 9 2 6 9 5 0 5 0 0 8 1 0 9 9 3 0 0 6 3 2 6 9 2 7 8 0 8 3 1 8 4 5 9 9 0 0 8 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 9 9 0 6 3 9 3 0"} />
 
 首先对最低位排序，然后对次低位排序，最后对最高位排序。通过三轮排序，可以保证结果序列是有序的。
 
@@ -853,13 +853,13 @@ void heapSort(int heap[], int size) {
 
 MSD（高位优先）基数排序的核心思想是从最高位开始，对数据进行递归分类，直到所有数字或字符串都排好序。
 
-![2 7 8 1 0 9 0 6 3 9 3 0 5 8 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 0 6 3 0 0 8 0 8 3 1 0 9 1 8 4 2 7 8 2 6 9 5 8 9 5 0 5 9 3 0 0 0 8 0 6 3 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 8 9](/images/data-structure/data-structure-sort-internal-027.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-027.svg" alt={"2 7 8 1 0 9 0 6 3 9 3 0 5 8 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 0 6 3 0 0 8 0 8 3 1 0 9 1 8 4 2 7 8 2 6 9 5 8 9 5 0 5 9 3 0 0 0 8 0 6 3 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 8 9"} />
 
 如上图所示，MSD 首先根据最高位对数据进行分组，然后再根据次高位对数据进行分组，以此类推，递归直到每组中只有一个元素。
 
 MSD 基数排序适用于 **字符串或变长数据**，因为它先处理最高位，可以提前分组。适合 **字典序排序**，如 IP 地址、文件名、长整型数值等。
 
-![B A D B A N C O F G E \0 N E R \0 F E \0 C O M P A R I S O N \0 C O M P U T E R \0 M I D N I G H T \0 W A N D E R \0 M A R D R O B E \0 W O R K E R \0 使用 MSD 对字符串进行排序，绿色表示递归的范围](/images/data-structure/data-structure-sort-internal-028.svg)
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-028.svg" alt={"B A D B A N C O F G E \\0 N E R \\0 F E \\0 C O M P A R I S O N \\0 C O M P U T E R \\0 M I D N I G H T \\0 W A N D E R \\0 M A R D R O B E \\0 W O R K E R \\0 使用 MSD 对字符串进行排序，绿色表示递归的范围"} />
 
 #### 对比
 

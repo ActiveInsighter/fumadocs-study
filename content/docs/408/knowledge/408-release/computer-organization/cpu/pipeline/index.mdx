@@ -94,7 +94,7 @@ title: "指令流水线"
 
 在 [单周期处理器](/docs/408/knowledge/408-release/computer-organization/cpu/pipeline/#%e5%8d%95%e5%91%a8%e6%9c%9f%e5%a4%84%e7%90%86%e5%99%a8) 中，不对指令的执行过程进行拆分，指令的执行的粒度则是指令本身，如下图所示：
 
-![I 1 I 2 I 3 Time I 3](/images/computer-organization/computer-organization-cpu-pipeline-001.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-001.svg" alt={"I 1 I 2 I 3 Time I 3"} />
 
 这样会导致 CPU 的执行效率很低，因为下一条指令必须等待上一条指令完全执行结束后，才能执行下一条指令。
 
@@ -134,7 +134,7 @@ title: "指令流水线"
 
 #### 物理结构
 
-![指令存储器 Add IR PC NPC 寄存器 符 号 扩 展 A B Imm ALU MUX MUX 4 ALU 输出 Zero? Cond 数 据 存 储 器 MDR MUX MUX 16 32 分支选择 取指 IF 指令译码/读寄存器 ID 执行/计算地址 EX 访问存储器 MEM 写回 WB](/images/computer-organization/computer-organization-cpu-pipeline-002.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-002.svg" alt={"指令存储器 Add IR PC NPC 寄存器 符 号 扩 展 A B Imm ALU MUX MUX 4 ALU 输出 Zero? Cond 数 据 存 储 器 MDR MUX MUX 16 32 分支选择 取指 IF 指令译码/读寄存器 ID 执行/计算地址 EX 访问存储器 MEM 写回 WB"} />
 
 上图为流水线的 **物理结构**，指令执行的 [五个阶段](/docs/408/knowledge/408-release/computer-organization/cpu/pipeline/#%e6%8c%87%e4%bb%a4%e6%89%a7%e8%a1%8c%e9%98%b6%e6%ae%b5) 由 CPU 中不同的部件处理，下一阶段的执行部件的执行结果依赖上一个阶段的输入，不同阶段的部件可以并行工作。这样 CPU 中不同部件的利用率就得到了提高，CPU 执行指令的吞吐也会因此提高。
 
@@ -142,7 +142,7 @@ title: "指令流水线"
 
 当然，上图中包含太多具体的器件，流水线的 **逻辑结构** 如下图所示：
 
-![程 序 计 数 器 IF/ID 流 水 段 寄 存 器 ID/EX 流 水 段 寄 存 器 EX/MEM 流 水 段 寄 存 器 取指 IF 译码 ID 执行 EX MEM/WB 流 水 段 寄 存 器 访存 MEM 写回 WB CLK](/images/computer-organization/computer-organization-cpu-pipeline-003.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-003.svg" alt={"程 序 计 数 器 IF/ID 流 水 段 寄 存 器 ID/EX 流 水 段 寄 存 器 EX/MEM 流 水 段 寄 存 器 取指 IF 译码 ID 执行 EX MEM/WB 流 水 段 寄 存 器 访存 MEM 写回 WB CLK"} />
 
 每个流水段后面都要增加一个 **流水段寄存器**，用于锁存本段处理完的所有数据，以保证本段的执行结果能在下个时钟周期给下一流水段使。
 
@@ -152,17 +152,17 @@ title: "指令流水线"
 
 在多周期流水线中，指令执行的 **并行粒度** 从整条指令 降低到 **指令执行的各个阶段**。这种细粒度的并行使得不同指令的执行阶段可以重叠（overlap），从而显著缩短所有指令的总体执行时间。
 
-![I 1 I 2 I 3 Clock I 3 I 1 I 2 I 3 I 4 Clock 不使用流水线 多周期流水线 0 1 2 3 4 0 1 2 3 4 5 7 8 6 9 10 (单周期处理器) (多周期处理器)](/images/computer-organization/computer-organization-cpu-pipeline-004.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-004.svg" alt={"I 1 I 2 I 3 Clock I 3 I 1 I 2 I 3 I 4 Clock 不使用流水线 多周期流水线 0 1 2 3 4 0 1 2 3 4 5 7 8 6 9 10 (单周期处理器) (多周期处理器)"} />
 
 为了清晰地描述流水线的执行过程，通常需要通过图形化的方式来展示指令的执行情况。常见的表示方法有以下两种：
 
 - **常规画法**：以横坐标表示时钟周期，纵坐标表示不同的指令。这种方式直观地展示每条指令在各个时钟周期中的执行阶段，便于理解指令间的并行关系和流水线的整体流程。
 
-![Instruction Clock Cycle 1 2 3 4 5 6 7 8 I 1 I 2 I 3 I 4 IF ID EX M WB IF ID EX M WB IF ID EX M WB IF ID EX M WB](/images/computer-organization/computer-organization-cpu-pipeline-005.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-005.svg" alt={"Instruction Clock Cycle 1 2 3 4 5 6 7 8 I 1 I 2 I 3 I 4 IF ID EX M WB IF ID EX M WB IF ID EX M WB IF ID EX M WB"} />
 
 - **时空图**：一种更抽象的表示方法，结合时间和指令的执行阶段，通常以时间为横轴，执行阶段或资源占用为纵轴，展现指令在流水线中的动态流动和阶段重叠情况。
 
-![IF ID EX MEM WB I 1 I 2 I 3 I 4 I 5 I 6 I 1 I 2 I 3 I 4 I 5 I 6 I 7 I 8 I 9 I 10 I 1 I 1 I 1 I 1 I 2 I 2 I 2 I 2 I 3 I 3 I 3 I 3 I 4 I 4 I 4 I 4 I 5 I 5 I 5 I 5 I 6 I 6 I 6 I 6 I 7 I 7 I 7 I 8 I 8 I 9](/images/computer-organization/computer-organization-cpu-pipeline-006.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-006.svg" alt={"IF ID EX MEM WB I 1 I 2 I 3 I 4 I 5 I 6 I 1 I 2 I 3 I 4 I 5 I 6 I 7 I 8 I 9 I 10 I 1 I 1 I 1 I 1 I 2 I 2 I 2 I 2 I 3 I 3 I 3 I 3 I 4 I 4 I 4 I 4 I 5 I 5 I 5 I 5 I 6 I 6 I 6 I 6 I 7 I 7 I 7 I 8 I 8 I 9"} />
 
 ### 流水线的冒险和处理
 
@@ -213,7 +213,7 @@ title: "指令流水线"
 
 结构冒险是由于 CPU 的 **硬件资源有限** 而引起的。当两条或多条指令需要使用同一硬件资源时，就会发生结构冒险。
 
-![IM DM ALU Reg Reg IM DM ALU Reg Reg IM DM ALU Reg Reg IM DM ALU Reg Reg Time (clock cycles) Instr 0 Instr 1 Instruction Order Instr 2 Instr 3 能否同时对寄存器 进行读和写？ 是否能同时对寄存器 进行读和写？ 0 1 2 3 4 5 6 7](/images/computer-organization/computer-organization-cpu-pipeline-007.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-007.svg" alt={"IM DM ALU Reg Reg IM DM ALU Reg Reg IM DM ALU Reg Reg IM DM ALU Reg Reg Time (clock cycles) Instr 0 Instr 1 Instruction Order Instr 2 Instr 3 能否同时对寄存器 进行读和写？ 是否能同时对寄存器 进行读和写？ 0 1 2 3 4 5 6 7"} />
 
 上图中画出了不同指令在每个时钟周期所需要使用到的硬件结构，其中指令 0 和指令 1 在第 4 个时钟周期分别需要读和写寄存器，但是 CPU 的架构却并不一定支持这种场景。同样，指令 0 和指令 3 在第 3 个时钟周期分别需要写和读存储器，存储器架构也不一定支持这种场景。若硬件不支持上述场景的话，指令间就发生了结构冒险。
 
@@ -222,7 +222,7 @@ title: "指令流水线"
 - **资源重复**：既然结构冒险是资源受限所导致的，我们就增加硬件资源的数量，这样不同的指令在同一个时钟周期就可以去访问不同的硬件资源了。
 - **流水线停顿**：如果指令 A 和指令 B 发生了结构冒险，那么我们就推迟指令 B 的执行，直到两者不发生结构冒险，如下图所示。
 
-![IM DM ALU R2 R1 IM DM ALU R2 R3 IM DM ALU R1 Reg IM DM ALU Reg Reg Time (clock cycles) Instr 0 Instr 1 Instruction Order Instr 2 Instr 3 0 1 2 3 4 5 6 7 8 9 10 气泡 气泡 气泡 气泡 气泡 气泡 气泡 气泡 通过流水线停顿的方式解决冲突](/images/computer-organization/computer-organization-cpu-pipeline-008.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-008.svg" alt={"IM DM ALU R2 R1 IM DM ALU R2 R3 IM DM ALU R1 Reg IM DM ALU Reg Reg Time (clock cycles) Instr 0 Instr 1 Instruction Order Instr 2 Instr 3 0 1 2 3 4 5 6 7 8 9 10 气泡 气泡 气泡 气泡 气泡 气泡 气泡 气泡 通过流水线停顿的方式解决冲突"} />
 
 #### 数据冒险
 
@@ -234,7 +234,7 @@ title: "指令流水线"
 - **读后写（WAR, Write After Read）**：下一条指令的目的操作数恰好是上一条指令的源操作数，正常的逻辑是上一条指令读完下一条指令才能写，如果下一条指令在上一条指令读完前就写了，就发生了 **WAR** 数据冒险。
 - **写后写（WAW, Write After Write）**：两个指令写入同一个数据项，正常的逻辑是下一条指令比上一条指令更晚写，如果出现了相反的情况，就发生了 WAW 数据冒险。
 
-![ADD R1 , R2, R3 MOV R4, R1 %3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%26lt%3Bfont%20style%3D%26quot%3Bfont-size%3A%2016px%3B%26quot%3B%26](/images/computer-organization/computer-organization-cpu-pipeline-009.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-009.svg" alt={"ADD R1 , R2, R3 MOV R4, R1 %3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%26lt%3Bfont%20style%3D%26quot%3Bfont-size%3A%2016px%3B%26quot%3B%26"} />
 
 提示
 
@@ -257,7 +257,7 @@ title: "指令流水线"
 
 假设 I1 和 I2 存在数据冲突，通过流水线停顿，我们可以将 I2 的译码阶段（ID）放到 I1 的写回（WB）之后，这样即可解决数据冲突：
 
-![图示](/images/computer-organization/computer-organization-cpu-pipeline-010.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-010.svg" alt={"图示"} />
 
 注意
 
@@ -301,7 +301,7 @@ I1 和 I2 存在 RAW 冲突，若使用流水线停顿，需要插入气泡，�
 
 指令 I1 在 EX 段结束时已得到 R1 的新值，被存放到 EX/MEM 流水段寄存器中，因此可以直接从该流水段寄存器中取出数据返送到 ALU 的输入端，这样，在指令 I2 执行时 ALU 中用的就是 R1 的新值，并且无需等待 I1 完成 WB 阶段。
 
-![指令 I 1 I 2 IF 1 ID EX MEM WB IF ID EX MEM WB 2 3 4 5 6 时钟周期](/images/computer-organization/computer-organization-cpu-pipeline-011.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-011.svg" alt={"指令 I 1 I 2 IF 1 ID EX MEM WB IF ID EX MEM WB 2 3 4 5 6 时钟周期"} />
 
 ✅ **可以建立的旁路路径有以下几种：**
 
@@ -324,14 +324,14 @@ I1 和 I2 存在 RAW 冲突，若使用流水线停顿，需要插入气泡，�
 - 紧接着的指令 I2：立即使用这个寄存器值（如 `add r3, r1, r4`）；
 - 然而，在 I2 进入执行阶段（EX）时，I1 还未完成内存访问（M 阶段），也就 **还没有得到实际数据**，导致 I2 使用了 **尚未就绪的数据**。
 
-![指令 I 1 I 2 IF 1 ID EX MEM WB IF ID EX MEM WB 2 3 4 5 6 时钟周期 I1: load r1, 0(r2) I2: add r3, r1, r4 ❌ I1 此时还未得到实际数据](/images/computer-organization/computer-organization-cpu-pipeline-012.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-012.svg" alt={"指令 I 1 I 2 IF 1 ID EX MEM WB IF ID EX MEM WB 2 3 4 5 6 时钟周期 I1: load r1, 0(r2) I2: add r3, r1, r4 ❌ I1 此时还未得到实际数据"} />
 
 面对以上问题，解决方案也很简单，即 **插入气泡（Bubble）或阻塞（Stall）一个周期**：
 
 - 等待 load 指令完成 M 阶段；
 - 然后在下一个周期使用转发线路，从 M→WB 寄存器转发值。
 
-![指令 I 1 I 2 IF 1 ID EX MEM WB IF ID stall EX MEM 2 3 4 5 6 时钟周期 I1: load r1, 0(r2) I2: add r3, r1, r4 7 WB ✅](/images/computer-organization/computer-organization-cpu-pipeline-013.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-013.svg" alt={"指令 I 1 I 2 IF 1 ID EX MEM WB IF ID stall EX MEM 2 3 4 5 6 时钟周期 I1: load r1, 0(r2) I2: add r3, r1, r4 7 WB ✅"} />
 
 ##### 冒险处理实例
 
@@ -354,7 +354,7 @@ I4   STORE  R1, [x]
 
 解决冲突后，四条指令对应的流水线执行如下图所示：
 
-![Instruction Clock Cycle 1 2 3 4 5 6 7 8 I 1 I 2 I 3 I 4 IF ID EX M WB IF ID EX M WB IF 9 10 11 12 13 ID EX M WB IF ID EX M WB 14](/images/computer-organization/computer-organization-cpu-pipeline-014.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-014.svg" alt={"Instruction Clock Cycle 1 2 3 4 5 6 7 8 I 1 I 2 I 3 I 4 IF ID EX M WB IF ID EX M WB IF 9 10 11 12 13 ID EX M WB IF ID EX M WB 14"} />
 
 ---
 
@@ -375,7 +375,7 @@ I4   STORE  R1, [x]
 
 在 BEQ 指令的 EX 阶段完成之前，流水线已经开始取下一条指令（地址 108 的 SUB 指令）。问题在于，如果 BEQ 指令的条件成立，应该跳转到地址 200，而不是继续执行地址 108 的指令。这就产生了 **控制冒险**。
 
-![IF ID EX MEM IF ID EX ADD R1, R2, R3 BEQ R1, #0, 200 控制冒险 IF ID IF ADD R1, R2, R3 BEQ R1, #0, 200 错误，应该跳转到 200 IF ID EX WB IF ID EX ADD R1, R2, R3 BEQ R1, #0, 200 / / / Bubble Bubble WB MEM OR R10, R11, R12 IF 流水线停顿](/images/computer-organization/computer-organization-cpu-pipeline-015.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-015.svg" alt={"IF ID EX MEM IF ID EX ADD R1, R2, R3 BEQ R1, #0, 200 控制冒险 IF ID IF ADD R1, R2, R3 BEQ R1, #0, 200 错误，应该跳转到 200 IF ID EX WB IF ID EX ADD R1, R2, R3 BEQ R1, #0, 200 / / / Bubble Bubble WB MEM OR R10, R11, R12 IF 流水线停顿"} />
 
 控制冲突的 **处理方法** 主要包含以下几种：
 
@@ -467,7 +467,7 @@ $k$**。
 
 - **超标量流水线**
 
-![0 1 2 3 4 5 6 7 8 9 10 11 12 IF ID EX MEM WB](/images/computer-organization/computer-organization-cpu-pipeline-016.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-016.svg" alt={"0 1 2 3 4 5 6 7 8 9 10 11 12 IF ID EX MEM WB"} />
 
 超标量流水线是一种能够在单个时钟周期内并行执行多条指令的处理器设计技术，通过 **多个并行的执行单元**（如 ALU、FPU 等），处理器可以同时处理多条指令，从而提高指令吞吐量。
 
@@ -475,7 +475,7 @@ $k$**。
 
 - **超流水线技术**
 
-![0 1 2 3 4 5 6 7 8 9 10 11 12 IF ID EX MEM WB](/images/computer-organization/computer-organization-cpu-pipeline-017.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-017.svg" alt={"0 1 2 3 4 5 6 7 8 9 10 11 12 IF ID EX MEM WB"} />
 
 超流水线技术将指令 **执行过程细分为更多、更小的阶段**，从而缩短每个阶段的时间，允许更高的时钟频率。
 
@@ -493,7 +493,7 @@ $k$**。
 
 处理器在 **一个时钟周期内同时执行这些互不相关的操作**。
 
-![取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX 取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX 取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX](/images/computer-organization/computer-organization-cpu-pipeline-018.svg)
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-pipeline-018.svg" alt={"取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX 取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX 取指令包 IF 译码指令包 ID 执行指令1 EX 访存 MEM 写回 WB 执行指令2 EX 执行指令3 EX"} />
 
 超长指令字的 **核心思想** 是：
 
