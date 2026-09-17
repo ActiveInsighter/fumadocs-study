@@ -534,21 +534,21 @@ V 操作又称 **signal**，其执行过程如下：
 - 执行 `P(sem)` 相当于 `lock(&mutex)`。
 - 执行 `V(sem)` 相当于 `unlock(&mutex)`。
 
-{/* */}
+```c
+semaphore S = 1;
 
-    semaphore S = 1;
+P1() {
+    P(S);
+    // critical section
+    V(S);
+}
 
-    P1() {
-        P(S);
-        // critical section
-        V(S);
-    }
-
-    P2() {
-        P(S);
-        // critical section
-        V(S);
-    }
+P2() {
+    P(S);
+    // critical section
+    V(S);
+}
+```
 
 #### 实现简单同步
 
