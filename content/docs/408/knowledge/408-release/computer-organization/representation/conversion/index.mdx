@@ -1,0 +1,159 @@
+---
+title: "类型转换"
+---
+
+⭐
+中优先级
+
+常在选择题考查，其实就 **四点**：有符号和无符号整数之间的转换，整形和浮点数的转换，不同长度类型的转换，隐式和显式的转换。
+
+真题
+9
+
+视频讲解
+4
+
+[有符号和无符号整数转换](https://www.bilibili.com/cheese/play/ep2794842)
+[不同长度的类型转换](https://www.bilibili.com/cheese/play/ep2794843)
+[整形和浮点数的转换](https://www.bilibili.com/cheese/play/ep2794844)
+[类型转换语法](https://www.bilibili.com/cheese/play/ep2794845)
+
+选择题
+[09#12](https://csgraduates.com/study_methods/408quiz/2009/#12)
+[10#14](https://csgraduates.com/study_methods/408quiz/2010/#14)
+[12#13](https://csgraduates.com/study_methods/408quiz/2012/#13)
+[16#13](https://csgraduates.com/study_methods/408quiz/2016/#13)
+[18#13](https://csgraduates.com/study_methods/408quiz/2018/#13)
+[19#13](https://csgraduates.com/study_methods/408quiz/2019/#13)
+[24#12](https://csgraduates.com/study_methods/408quiz/2024/#12)
+[25#12](https://csgraduates.com/study_methods/408quiz/2025/#12)
+
+解答题
+[11#43](https://csgraduates.com/study_methods/408quiz/2011/#43)
+
+### 有符号整数和无符号整数
+
+当 **有符号整数** 和 **无符号整数** 之间相互转换时，**二进制数据** 不变，只是改变了变量（或数字）的类型。
+
+首先需要了解 **有符号整数**（int）和 **无符号整数**（unsigned）这两个类型：
+
+- `int`：使用 **补码** 来存储数据。
+- `unsigned`：所有位，包括最高位，都用于表示数值，表示非负数。
+
+注意
+
+在现在的 64 位计算机中，一般 **int** 表示 32 位 **有符号整数**，**unsigned** 表示 32 位 **无符号整数**。  
+由于 **int** 和 **unsigned** 在不同体系计算机中行为不同，所以 C 语言库中也自带 **int32\_t**、**uint32\_t** 这种类型来表示特定位数的 **有符号** 和 **无符号** 整数，并在各计算中行为一致。
+
+这里为了方便说明，以 8 位 **有符号整数** 和 **无符号整数** 为例：
+
+- 8 位 **有符号整数**
+  - 表示的范围为 `-128 ~ 127`
+  - 最大数为`127`，对应的二进制为`0111 1111`
+  - 最小数为`-128`，对应的二进制为`1000 0000`
+- 8 位 **无符号整数**
+  - 表示的范围为 `0 ~ 255`
+  - 最大数为`255`，对应的二进制为`1111 1111`
+  - 最小数为`0`，对应的二进制为`0000 0000`
+
+当 **int** 和 **unsigned** 进行 **类型转化** 时，**位模式** 不变，可以理解成计算机存储单元中的二进制表示没有变化，只是从程序层面阐述该二进制数据的方式变了，如下图所示：
+
+![SignedUnsignedConversion](/images/computer-organization/computer-organization-representation-conversion-001.svg)
+
+### 整形和浮点数
+
+在计算机中，**整形**（short, int, long）和 **浮点数**（float, double）之间可以相互转换，但是在转换的过程中可能出现 **精度丢失** 或 **数据溢出**。
+
+下图汇总了 **整形** 和 **浮点数** 在不同方向上转换时的风险类别：
+
+![图示](/images/computer-organization/computer-organization-representation-conversion-002.svg)
+
+#### 整形转浮点数
+
+如果一个整数被转换为浮点数，其结果是否会产生 **精度丢失** 取决于整数的大小是否超过浮点数可以精确表示的整数范围。  
+但当整数足够大时，转换可能导致 **精度损失**。
+
+比如对于 **float** 类型，其尾数为 23 位，它可以精确表示的整数范围为
+$(-2^{24},2^{24})$
+，如果一个 **int** 类型的数字在这个范围内，则将其转换为 **float** 时 ***不会丢失精度***。
+
+但是如果 **int** 类型数字超出这个范围且低 8 位不全为 0 的话，则将其转换为 **float** 会有 **精度丢失**。
+
+#### 浮点数转整数
+
+当 **浮点数** 被转换为 **整数** 时，小数部分会丢失，因为 **整数** 不能表示小数。
+
+此外，如果 **浮点数** 超出了 **整形** 的表示范围，转换可能会 **溢出** 或产生未定义行为（取决于语言）。
+
+### 不同长度的类型转换
+
+| 类型 | 最小位数 | 常见位数（32 位系统） | 常见位数（64 位系统） |
+| --- | --- | --- | --- |
+| `char` | 8 位 | 8 位 | 8 位 |
+| `short` | 16 位 | 16 位 | 16 位 |
+| `int` | 16 位 | 32 位 | 32 位 |
+| `long` | 32 位 | 32 位 | 64 位 |
+| `long long` | 64 位 | 64 位 | 64 位 |
+| `float` | - | 32 位 | 32 位 |
+| `double` | - | 64 位 | 64 位 |
+
+**总结**一下不同长度的 **整数** 和 **浮点数** 的 **类型转换** 规则：
+
+- **整数和整数**
+  - 较小的 **整数类型** 被转换为较大的 **整数类型** 时，高位会被自动填充为 0 或 1，不会有数据丢失。
+  - 较大的 **整数类型** 被转换为较小的 **整数类型** 时，高位会被自动截断，可能有数据丢失。
+- **浮点数和浮点数**
+  - `float` 转为 `double` 时，不会有 **精度丢失**，`double` 转为 `float` 时，可能有 **精度丢失**。
+
+![Higher Data Type float long int short char unsigned Lower Data Type 没有 精度丢失 可能有 精度丢失 long long double Higher Data Type Lower Data Type 没有 精度丢失 可能有 精度丢失 整形 浮点数](/images/computer-organization/computer-organization-representation-conversion-003.svg)
+
+以 `short` 和 `int` 的类型转化为例说明：
+
+```
+/* 将 short 转为 int */
+short s = 0x1234;
+int i = s;
+// 高 16 位被填充为 0
+// i = 0x00001234
+
+/* 将 int 转为 short */
+int i = 0x12345678;
+short s = i;
+// 高 16 位被截断
+// s = 0x5678
+```
+
+### 类型转换语法
+
+在编程中，**类型转换** 指的是将一种数据类型转换为另一种数据类型。主要分为两种：
+
+- **隐式类型转换**（Implicit Type Conversion）
+- **显式类型转换**（Explicit Type Conversion）（也称为 **强制类型转换**，Type Casting）
+
+![TypeConversion](/images/computer-organization/computer-organization-representation-conversion-004.svg)
+
+#### 隐式类型转换
+
+在 C 语言中，当算术运算、赋值或比较表达式涉及不同的数据类型时，如果没有显式指定转换方式，编译器会按照 C 语言规定的类型转换规则自动完成 **类型转换**。
+
+```
+/* 隐式类型转换 */
+int i = 5;
+float f = 2.5f;
+float result = i + f;  // i 被隐式转换为 5.0f，然后进行计算
+```
+
+例如，在一个表达式中混合使用 `int` 和 `float` 时，编译器会自动将 `int` 转换为 `float`，使两个操作数具有兼容的数据类型后再进行计算。实际采用哪种转换方式由 C 语言的类型转换规则决定，而不是简单地按照数据类型的精度高低进行转换。
+
+#### 显式类型转换
+
+也可以使用 **类型转换运算符** 显式地将一个数据类型转换为另一个数据类型。
+
+```
+/* 显式类型转换 */
+int i = 5;
+float f = 3.2f;
+int result = (int)f + i;  // f 被显式转换为 3，然后与 i 相加
+```
+
+**显式类型转换** 会按照程序员指定的目标类型进行转换。在转换过程中，可能发生 **精度损失**、**数据截断**，甚至 **数值溢出**，因此应谨慎使用。

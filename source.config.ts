@@ -1,4 +1,5 @@
 import { remarkMdxMermaid, remarkStructure } from 'fumadocs-core/mdx-plugins';
+import { remarkMdxMindmap } from './lib/mdx/remark-mindmap';
 import { pageSchema } from 'fumadocs-core/source/schema';
 import { defineCollections, defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
@@ -53,6 +54,7 @@ export default defineConfig({
         : plugins),
       remarkMath,
       remarkMdxMermaid,
+      remarkMdxMindmap,
     ],
     // Do not make production builds depend on third-party image hosts.
     remarkImageOptions: { external: false },

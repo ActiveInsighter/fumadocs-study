@@ -1,0 +1,117 @@
+---
+title: "ICMP"
+description: "💡 低优先级 在选择题中考查，频率不高，关注下差错报文的类型以及 icmp 的应用。 真题 2 选择题 10 36 12 33 ICMP （Internet Control Message Protocol）是一个 网络层协议 用于在 IP"
+source: "https://csgraduates.com/computer_network/network/icmp/"
+---
+
+💡
+低优先级
+
+在选择题中考查，频率不高，关注下差错报文的类型以及 icmp 的应用。
+
+真题
+2
+
+选择题
+[10#36](/study_methods/408quiz/2010/#36)
+[12#33](/study_methods/408quiz/2012/#33)
+
+**ICMP**（Internet Control Message Protocol）是一个 **网络层协议** 用于在 IP 主机和路由器之间发送 **控制消息**。**ICMP** 是 Internet 协议套件的 **重要组成部分**，它主要用于 **诊断** 和 **报告错误** 和某些特定条件。
+
+### 首部
+
+![ICMP 图 1](/images/computer-network/computer-network-network-icmp-001.svg)
+
+1. **类型** `(Type)` ：*8* 位
+   * 用于指定 ICMP 消息 的类型。
+   * 例如， `Echo Request` 的类型为 `8` ， `Echo Reply` 的类型为 `0` 。
+2. **代码** `(Code)` ：*8* 位
+   * 为更进一步 **细分** 某个特定类型的 ICMP 消息而设置。
+   * 例如，对于 **“目的地不可达”**（ `Destination Unreachable` ）类型的消息，代码可以用来指定具体的不可达原因，如网络不可达、主机不可达等。
+3. **检验和** `(Checksum)` ：*16* 位
+   * 用于验证 ICMP 消息在传输过程中没有被损坏。这个检验和涵盖了整个 ICMP 消息。
+4. **其它字段**
+   * 这些字段的内容取决于 **ICMP 消息** 的 **类型** 和 **代码**。
+   * 例如，对于 `Echo Request` 和 `Echo Reply` 消息，接下来的字段包括一个标识符（ `Identifier` ）和一个序列号（ `Sequence Number` ）。
+
+### 消息类型
+
+**ICMP** 的消息类型可以分为 **差错报文** 和 **查询报文** 这两大类型：
+
+* **差错报文**：用于 **报告** 网络通信过程中出现的各种 **错误** 。
+* **查询报文**：用于 **诊断** 或网络信息查询，主要用于网络测试和管理 。
+
+![ICMP 图 2](/images/computer-network/computer-network-network-icmp-002.svg)
+
+当然了，这里不需要背，了解消息类型的含义即可，比方说给你一个消息类型 **源点抑制**，你能知道它是干嘛的就行。
+
+#### 差错报文
+
+**ICMP** 的 **差错报文** 分为五大类型：
+
+1. **终点不可达**（`Destination Unreachable`）
+   * 当数据不能被传送到目的地时，发送此消息。
+   * 下面是一些常见的“不可达”子类型：
+     * `Network Unreachable:` 无法到达目标网络。
+     * `Host Unreachable:` 无法到达目标主机。
+     * `Protocol Unreachable:` 目标网络不支持所请求的协议。
+     * `Port Unreachable:` 目标主机上的特定端口不可用。
+     * `Fragmentation Needed and Don't Fragment was Set:` 数据包太大，需要分片，但数据包的“不分片”标志已设置。
+     * `Source Route Failed:` 源路由指定的路径失败。
+     * `Network Unknown:` 目标网络未知。
+     * `Host Unknown:` 目标主机未知。
+2. **源点抑制**（`Source Quench`）
+   * 网络中出现拥塞，请发送主机放慢发送数据包的速度。
+3. **路由重定向**（`Redirect`）
+   * 告诉发送主机存在更好的路由。
+4. **超时**（`Time Exceeded`）
+   * 当数据包在网络中传输的时间太长或超过了其 `TTL` （生存时间）时发送。有两种主要的子类型：
+     * `TTL Exceeded in Transit:` 数据包在传输过程中 `TTL` 达到零。
+     * `Fragment Reassembly Time Exceeded:` 分片重新组装超时。
+5. **参数错误**（`Parameter Problem`）
+   * 当 `IP` 头包含错误或不可识别的信息时，发送此消息。
+
+#### 查询报文
+
+**查询报文** 包含以下类型：
+
+1. `Echo Request` 和 `Echo Reply (ping)`
+   * `Echo Request:` 通常被称为 **ping** 请求。用于测试目的地是否可达。
+   * `Echo Reply:` 通常被称为 **ping** 回应。是对 `Echo Request` 的回应。
+2. `Timestamp Request and Timestamp Reply`
+   * 用于报告当前的时间。
+3. `Address Mask Request and Address Mask Reply`
+   * 用于请求和响应子网地址掩码。
+
+### 应用
+
+这里需要了解基于 **ICMP 协议** 的两个 linux 程序，一个是 **ping**，大家应该都比较熟悉。另一个是 **traceroute**，用于寻找从起点到终点经过了哪些 IP 地址。
+
+#### ping
+
+**Ping** 是一个简单的工具，用于测试两台主机之间的 **网络连接性**，测量往返时延（**RTT**，Round-Trip Time），并检测是否有 **数据包丢失**。
+
+![ICMP 图 3](/images/computer-network/computer-network-network-icmp-003.png)
+
+**ping** 利用了 **ICMP** 中的 **Echo Request/Reply** 消息类型：
+
+1. 发送 **ICMP Echo Request**：**Ping** 工具向 **目标主机** 发送一个 **ICMP Echo Request** 消息。
+2. 接收 **ICMP Echo Reply**：如果 **目标主机** 可达且未被防火墙阻止，它会回复一个 **ICMP Echo Reply** 消息。
+3. 计算时延：**Ping** 记录发送和接收消息的时间差，计算 **RTT**。
+4. 统计 **丢包率**：通过发送多个 Echo Request，统计有多少消息未收到回复，计算 **丢包率**。
+
+#### traceroute
+
+Traceroute 用于跟踪数据包从源到目标的 **路径**，显示沿途经过的路由器（**跳点**）及其 **延迟**。
+
+![ICMP 图 4](/images/computer-network/computer-network-network-icmp-004.png)
+
+Traceroute 利用 ICMP 的 **Time Exceeded** 消息和 IP 数据包的 **TTL**（Time To Live） 字段：
+
+1. **逐步增加 TTL**：
+   * Traceroute 发送一系列 UDP 数据包（或 **ICMP Echo Request**，取决于实现），从 TTL=1 开始，每次递增 1。每台路由器在转发数据包时将 **TTL** 减 1。当 **TTL** 减为 0 时，路由器丢弃数据包并返回一个 **ICMP Time Exceeded** 消息（类型 *11*，代码 *0*）。
+2. **记录跳点**：
+   * Traceroute 记录发送 **Time Exceeded** 消息的路由器 IP 地址和响应时间。
+   * 重复此过程，直到数据包到达 **目标主机**（目标返回 **ICMP Echo Reply** 或 UDP 端口不可达消息）。
+3. **显示路径**：
+   * Traceroute 将每跳的路由器 IP 和 **延迟** 显示出来，构成从源到目标的完整 **路径**。

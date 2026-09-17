@@ -1,0 +1,445 @@
+---
+title: "定义"
+---
+
+🔥
+高优先级
+
+树和图都是每年必考，其定义是后续应用的基础，需牢固掌握 **图的概念** 以及 邻接矩阵和邻接表这两种 **存储方式**。
+
+### 图的概念
+
+真题
+7
+[图的概念](https://www.bilibili.com/cheese/play/ep2802622)
+
+选择题
+[09#7](https://csgraduates.com/study_methods/408quiz/2009/#7)
+[10#7](https://csgraduates.com/study_methods/408quiz/2010/#7)
+[11#8](https://csgraduates.com/study_methods/408quiz/2011/#8)
+[17#7](https://csgraduates.com/study_methods/408quiz/2017/#7)
+[22#6](https://csgraduates.com/study_methods/408quiz/2022/#6)
+[25#6](https://csgraduates.com/study_methods/408quiz/2025/#6)
+[26#7](https://csgraduates.com/study_methods/408quiz/2026/#7)
+
+**图** 是由 **顶点** 和 **边** 组成的非线性数据结构。**顶点** 有时也被称为节点，而 **边** 是连接图中任意两个节点的线或弧。更正式地说，**图** 是由一组 **顶点**
+$V$
+和一组 **边**
+$E$
+组成的。图用
+$G=(V,E)$
+表示。
+
+补充
+
+树和图的区别？
+
+**树** 是受限制的 **图** 类型，只是有更多的规则。每棵 **树** 都是一个 **图**，但不是所有的 **图** 都是 **树**。链表、**树** 和堆都是 **图** 的特殊情况。
+
+![Tree Graph](/images/data-structure/data-structure-graph-defs-001.svg)
+
+在 **图论** 中，根据边的方向性、连接方式、顶点间的关系等，可以进一步划分出多种类型的图，并引入如 **连通性**、**完全性**、**度数** 等一系列关键概念。这些分类和术语有助于我们更好地理解 图的结构特点和应用场景，下面我们将逐一进行介绍。
+
+#### 方向
+
+![5 1 4 3 5 1 4 3 无向图 有向图](/images/data-structure/data-structure-graph-defs-002.svg)
+
+- **有向图**（directed graph）：边是有方向的，从一个定点指向另一个定点
+- **无向图**（undirected graph）：边是没有方向的
+
+#### 连通性
+
+![5 1 4 3 5 1 4 3 连通图 5 1 4 3 非连通图 完全图](/images/data-structure/data-structure-graph-defs-003.svg)
+
+- **连通图**（Connected Graph）：图中的每一对不同顶点都可以通过一条或多条边相互连接，也就是说，从图中的任意一个顶点出发，都可以到达图中的任意其他顶点。
+- **非连通图**（Disconnected Graph）：图中存在两个或多个互不相连的子图，也就是说，其中至少存在一个顶点集合，无法通过边连接到图中的其他顶点集合。
+- **完全图**（Complete Graph）：完全图是一种特殊的图，其中每一对不同的顶点都直接相连，也就是说，完全图中的任意两个顶点之间都存在一条边。如果一个完全图有
+  $n$
+  个顶点，那么它将有
+  C(n,2)=n(n−1)/2
+  条边，其中
+  $C(n,2)$
+  表示从 n 个顶点中选择 2 个顶点的组合数。
+
+![A D C 无向图 G E B I J F G H A D C E B I J F G H 图 G 的三个连通分量](/images/data-structure/data-structure-graph-defs-004.svg)
+
+- **连通分量**（Connected Components）：也称为连通子图，是一个无向图中的一个重要概念。一个连通分量是指在无向图中，如果从其中一个顶点出发，可以通过边的路径到达该连通分量内的任何其他顶点，而无法通过图中的边到达其他连通分量内的顶点。
+
+#### 度
+
+- **顶点的度**（Degree）：顶点的度是指与该顶点相邻的边的数量，也就是与该顶点直接相连的其他顶点的个数。对于有向图和无向图都适用。
+  - 在无向 **图** 中，**顶点** 的度就是与该 **顶点** 相邻的 **边** 的数量。
+  - 在有向 **图** 中，**顶点** 的度分为 **入度** 和 **出度**，分别表示指向该 **顶点** 的 **边** 的数量和从该 **顶点** 出发的 **边** 的数量的总和。
+- **入度**（In-Degree）：入度是指在有向图中指向某个顶点的边的数量，也就是与该顶点关联的边中以该顶点为终点的边的数量。
+- **出度**（Out-Degree）：出度是指在有向图中从某个顶点出发的边的数量，也就是与该顶点关联的边中以该顶点为起点的边的数量。
+
+#### 路径
+
+![0 1 3 2 0 1 3 2 0 1 3 2 简单路径 非简单路径 回路](/images/data-structure/data-structure-graph-defs-005.svg)
+
+在图中，从一个顶点出发，沿着图中的边依次经过若干顶点，最终到达另一个顶点，这样得到的 **顶点序列** 称为一条 **路径（Path）**。
+
+例如，若图中存在边
+(v0​,v1​)
+、
+(v1​,v2​)
+和
+(v2​,v3​)
+，则：
+
+v0​→v1​→v2​→v3​
+
+就是一条从
+v0​
+到
+v3​
+的路径。
+
+根据路径中顶点是否重复，可以进一步分为：
+
+- **简单路径**：路径中的顶点不重复。
+- **非简单路径**：路径中存在重复出现的顶点。
+- **回路（环）**：起点和终点相同的路径。
+
+### 图的存储
+
+在我们使用数据结构存储 **图** 时，主要关注两点：1. 如何存储 **顶点**？2. 如何存储 **边**？  
+采用的数据结构需要能够准备表示这些信息。
+
+#### 邻接矩阵
+
+真题
+6
+
+视频讲解
+2
+
+[邻接矩阵定义](https://www.bilibili.com/cheese/play/ep2802646)
+[邻接矩阵数据结构实现](https://www.bilibili.com/cheese/play/ep2802657)
+
+选择题
+[13#7](https://csgraduates.com/study_methods/408quiz/2013/#7)
+
+解答题
+[11#41](https://csgraduates.com/study_methods/408quiz/2011/#41)
+[15#42](https://csgraduates.com/study_methods/408quiz/2015/#42)
+[21#41](https://csgraduates.com/study_methods/408quiz/2021/#41)
+[23#41](https://csgraduates.com/study_methods/408quiz/2023/#41)
+[24#41](https://csgraduates.com/study_methods/408quiz/2024/#41)
+
+##### 定义
+
+图的 **邻接矩阵**（Adjacency Matrix）是一种常用的图表示方法，特别适用于 **稠密图**，它以矩阵的形式表示图的连接关系。
+
+在邻接矩阵中，行和列分别代表 **图的顶点**，矩阵的元素表示顶点之间是否相邻或者 **边的权重**。
+
+![v2 v4 v3 v1 有向图 G(V, E) 0 0 0 1 1 0 1 1 0 0 0 0 0 0 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向图 G(V, E) 0 1 0 1 1 0 1 1 0 1 0 1 1 1 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向带权图 G(V, E) 0 0.4 0 0.4 0.4 0 0.3 0.1 0 0.3 0 0.5 0.4 0.1 0.5 0 v1](/images/data-structure/data-structure-graph-defs-006.svg)
+
+1. 对于 **无向图**：
+   - 如果顶点
+     $i$
+     和顶点
+     $j$
+     之间存在边，则邻接矩阵中
+     (i,j)
+     和
+     (j,i)
+     位置的元素都被标记为
+     1
+     （或者表示 边 的权重）。
+   - 如果顶点
+     $i$
+     和顶点
+     $j$
+     之间不存在边，则邻接矩阵中
+     (i,j)
+     和
+     (j,i)
+     位置的元素都被标记为
+     0
+     。
+2. 对于 **有向图**：
+   - 如果有一条从顶点
+     $i$
+     到顶点
+     $j$
+     的有向边，则邻接矩阵中
+     (i,j)
+     位置的元素被标记为
+     1
+     （或者表示 边 的权重）。
+   - 如果没有从顶点
+     $i$
+     到顶点
+     $j$
+     的有向边，则邻接矩阵中
+     (i,j)
+     位置的元素被标记为
+     0
+     。
+
+##### 实现
+
+在邻接矩阵的实现中，我们使用一个 **二维数组** 来表示图的连接关系，邻接矩阵`matrix` 的行数和列数与图中的顶点数量相同。  
+其中 `matrix[i][j]` 表示顶点`i` 到顶点`j` 是否有边（或边的权值）。
+
+- 邻接矩阵定义
+- 添加边
+```
+##define MAX_VERTICES 100
+
+int adjMatrix[MAX_VERTICES][MAX_VERTICES]; // 邻接矩阵
+
+// 初始化邻接矩阵
+void initializeMatrix(int vertices) {
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
+            adjMatrix[i][j] = 0; // 初始化所有元素为 0
+        }
+    }
+}
+```
+```
+// 在邻接矩阵中添加一条边
+void addEdge(int start, int end) {
+    adjMatrix[start][end] = 1; // 添加边，将对应位置的元素设为 1
+    adjMatrix[end][start] = 1; // 无向图需要将对称位置的元素也设为 1
+}
+```
+
+##### 入度出度
+
+![统计出度 统计入度](/images/data-structure/data-structure-graph-defs-007.svg)
+
+如果需要计算 **邻接矩阵** 中某个 **顶点** 的 **出度** 的话，假设 **顶点** 编号为 i，我们统计 **邻接矩阵** 中的 **第 i 行** 有多少元素不为 0 即可（该顶点指向哪些顶点）。
+
+如果需要计算 **邻接矩阵** 中某个 **顶点** 的 **入度** 的话，假设 **顶点** 编号为 i，我们统计 **邻接矩阵** 中的 **第 i 列** 有多少元素不为 0 即可（哪些顶点指向该顶点）。
+
+#### 邻接表
+
+真题
+3
+
+视频讲解
+2
+
+[邻接表](https://www.bilibili.com/cheese/play/ep2802658)
+[邻接表数据结构实现](https://www.bilibili.com/cheese/play/ep2802659)
+
+选择题
+[16#7](https://csgraduates.com/study_methods/408quiz/2016/#7)
+[26#6](https://csgraduates.com/study_methods/408quiz/2026/#6)
+
+解答题
+[18#42](https://csgraduates.com/study_methods/408quiz/2018/#42)
+
+##### 定义
+
+图的 **邻接表**（Adjacency List）是一种常见的图表示方法，特别适用于 **稀疏图**，它使用链表或数组的形式来表示图的连接关系。每个顶点都对应一个链表，链表中存储与该顶点相邻的其他顶点。
+
+邻接表的主要思想是为 **每个顶点创建一个链表**，链表中的每个节点表示与该顶点相邻的另一个顶点。对于无向图，通常需要为每一条边创建两个链表节点，分别表示两个相邻的顶点。
+
+![v2 v4 v3 v1 有向图 G(V, E) v2 v4 v3 v1 无向图 G(V, E) v1 v4 v2 v1 v3 v4 v3 v4 v3 v1 v2 v4 v2 v1 v3 v4 v3 v2 v4 v4 v1 v2 v3](/images/data-structure/data-structure-graph-defs-008.svg)
+
+##### 实现
+
+邻接表可以理解为：**为图中的每个顶点维护一个邻接链表**，链表中记录所有与该顶点相邻的顶点。
+
+教材中通常将邻接表分为两部分：
+
+- **顶点表**：使用一个数组保存所有顶点。每个数组元素记录顶点本身的信息，以及对应邻接链表的头指针；
+- **边表**：每个顶点对应一个单链表，链表中的每个结点记录一个邻接顶点。
+
+例如：
+```
+0 ──> 2 ──> 1
+1 ──> 2 ──> 0
+2 ──> 1 ──> 0
+3 ──> NULL
+```
+
+其中，数组中每个元素并不直接存储整个邻接链表，而是保存一个指向链表首结点的指针：
+```
+    vertices
+┌───────────────┐
+│ 0 | firstarc ─┼──> 2 ──> 1
+├───────────────┤
+│ 1 | firstarc ─┼──> 2 ──> 0
+├───────────────┤
+│ 2 | firstarc ─┼──> 1 ──> 0
+├───────────────┤
+│ 3 | firstarc ─┼──> NULL
+└───────────────┘
+```
+
+可以使用如下数据结构表示：
+
+- 数据结构
+- 初始化图
+- 创建边表结点
+- 添加有向边
+- 添加无向边
+```
+#define MAX_VERTEX_NUM 20
+
+// 顶点的数据类型
+typedef int VertexType;
+
+// 边表结点
+typedef struct ArcNode {
+    int adjvex;                 // 邻接顶点在顶点表中的下标
+    struct ArcNode* nextarc;    // 指向下一个边表结点
+} ArcNode;
+
+// 顶点表结点
+typedef struct VNode {
+    VertexType data;            // 顶点的数据
+    ArcNode* firstarc;          // 指向第一个边表结点
+} VNode;
+
+// 邻接表：由 VNode 构成的数组
+typedef VNode AdjList[MAX_VERTEX_NUM];
+
+// 图
+typedef struct {
+    AdjList vertices;           // 顶点表
+    int vexnum;                 // 顶点数
+    int arcnum;                 // 边数
+} ALGraph;
+```
+```
+void initGraph(ALGraph* graph, int vexnum) {
+    graph->vexnum = vexnum;
+    graph->arcnum = 0;
+    for (int i = 0; i < vexnum; ++i) {
+        graph->vertices[i].data = i;
+        graph->vertices[i].firstarc = NULL;
+    }
+}
+```
+```
+ArcNode* newArcNode(int adjvex) {
+    ArcNode* node = (ArcNode*)malloc(sizeof(ArcNode));
+    node->adjvex = adjvex;
+    node->nextarc = NULL;
+    return node;
+}
+```
+```
+void addArc(ALGraph* graph, int src, int dest) {
+    // 创建边表结点，表示 src -> dest
+    ArcNode* node = newArcNode(dest);
+
+    // 使用头插法加入 src 对应的邻接链表
+    node->nextarc = graph->vertices[src].firstarc;
+    graph->vertices[src].firstarc = node;
+
+    graph->arcnum++;
+}
+```
+```
+void addEdge(ALGraph* graph, int v1, int v2) {
+    // v1 -> v2
+    ArcNode* n1 = newArcNode(v2);
+    n1->nextarc = graph->vertices[v1].firstarc;
+    graph->vertices[v1].firstarc = n1;
+
+    // v2 -> v1
+    ArcNode* n2 = newArcNode(v1);
+    n2->nextarc = graph->vertices[v2].firstarc;
+    graph->vertices[v2].firstarc = n2;
+
+    // 一条无向边只计数一次
+    graph->arcnum++;
+}
+```
+
+邻接表的整体结构可以概括为：
+```
+ALGraph
+   │
+   └── vertices：顶点表（数组）
+          │
+          ├── VNode[0] ──> ArcNode ──> ArcNode ──> ...
+          ├── VNode[1] ──> ArcNode ──> ArcNode ──> ...
+          ├── VNode[2] ──> ArcNode ──> ...
+          └── ...
+```
+
+其中：
+
+- `VNode` 表示**顶点表中的一个顶点**，包含顶点数据 `data` 和邻接链表头指针 `firstarc`；
+- `ArcNode` 表示**边表中的一个结点**，包含邻接顶点下标 `adjvex` 和指向下一个结点的指针 `nextarc`；
+- `AdjList` 是由所有 `VNode` 组成的数组，即整个图的**邻接表**；
+- `ALGraph` 在邻接表的基础上进一步记录图的顶点数 `vexnum` 和边数 `arcnum`。
+
+#### 邻接多重表
+
+真题
+1
+
+选择题
+[24#4](https://csgraduates.com/study_methods/408quiz/2024/#4)
+
+**邻接多重表**（Adjacency Multi-list）是一种用于表示 **无向图** 的数据结构，主要用于避免在 **邻接表** 存储方式中重复存储 **无向边**，提高存储效率，同时便于图的操作（如 **边** 的删除）。
+
+![data firstedge mark ivex ilink jvex jlink 指向第一条依附于该顶点的边 存储顶点相关信息 标志域 指向下一条依附于 顶点 jvex 的边 指向下一条依附于 顶点 ivex 的边 VertexNode EdgeNode](/images/data-structure/data-structure-graph-defs-009.svg)
+
+邻接多重表中顶点种类 **分为两种**：
+
+- **顶点结点**（Vertex Node）：
+  - 每个顶点有一个头结点，存储该顶点的信息，以及指向其所有关联边的指针。
+- **边结点**（Edge Node）：
+  - 每条边有一个结点，存储该边的两个顶点及其相关信息。
+  - 该结点包含两个指针，分别指向该边所连接的两个顶点的邻接边链表的下一条边，使得图的存储更加紧凑。
+
+![1 2 4 3 V 1 V 2 V 3 V 4 1 2 3 4 2 1 3 1 4 1 ^ 2 ^ 3 4 ^ 3 ^ a b c d e a b c d e](/images/data-structure/data-structure-graph-defs-010.svg)
+
+还是举个实际例子说明，在上述的邻接多重表中，总共需要存储 5 条边，每条边只需要存储一次，所以总共有 5 个边结点，每个边结点中存储的数据如下表所示：
+
+| 边 | `ivex` | `jvex` | `ilink` 指向 | `jlink` 指向 |
+| --- | --- | --- | --- | --- |
+| 12 | 1 | 2 | 13 | 23 |
+| 13 | 1 | 3 | 14 | 32 |
+| 14 | 1 | 4 | NULL | 43 |
+| 23 | 2 | 3 | NULL | 34 |
+| 34 | 3 | 4 | NULL | NULL |
+
+注意
+
+`ilink` 和 `jlink` 的含义是什么？
+
+`ilink` 和 `jlink` 指向的是“该 **边** 对应 **顶点** 的下一条 **边**”，用于遍历一个 **顶点** 的所有相邻 **边**。  
+这样，每条 **无向边** 只存储一次，同时仍然能通过 `ilink` 和 `jlink` 遍历所有邻接的 **边**。
+
+总结一下，相比于邻接表，邻接多重表最大的不同在于如下两点：
+
+- **节省存储空间**：对于无向图，每条边只存储一次。
+- **方便进行边的操作**：例如，删除一条边时，只需要修改相关顶点的链表中的指针，而不需要像邻接表那样在两个顶点的邻接表中都进行操作。
+
+#### 十字链表
+
+**十字链表**（Orthogonal List）是一种用于表示 **有向图** 的链式存储结构，它兼顾了 **出边** 和 **入边** 的高效查找。相比 **邻接表** 只方便查找 **出边**，**十字链表** 允许同时高效遍历某个顶点的所有出边和所有入边。
+
+![data firstin tailvex headvex hlink dlink (info) 指向该顶点的第一条出边 顶点数据 弧头（终点）在顶点表中的位置 VertexNode EdgeNode firstout 指向该顶点的第一条入边 弧尾（起点）在顶点表中的位置 指向同一终点的下一条边 指向同一起点的下一条边](/images/data-structure/data-structure-graph-defs-011.svg)
+
+在 **十字链表**（Orthogonal List）中，顶点结点和边结点分别承担不同的作用：
+
+- **顶点结点**：
+
+  - 每个顶点对应一个结点，存储该顶点的信息；
+  - 同时包含两个指针：
+    - `firstout`：指向从该顶点出发的第一条出边；
+    - `firstin`：指向以该顶点为终点的第一条入边；
+  - 分别作为该顶点 **出边链表** 和 **入边链表** 的入口。
+- **边结点**：
+
+  - 每条有向边对应一个边结点，存储该边的起点和终点在顶点表中的位置；
+  - 包含两个链域，使该边能够同时挂接到两条链表中：
+    - `hlink`：链接到 **同一终点** 的下一条边，即属于终点的入边链表；
+    - `dlink`（部分教材也记作 `tlink`）：链接到 **同一起点** 的下一条边，即属于起点的出边链表；
+  - 边结点还可扩展存储额外信息（如边权）。
+
+下图给出了一个 **十字链表** 的实例，其中忽略了 **边结点** 的 `info` 字段。我们可以沿着 **顶点结点** 的 `firstin` 和 `firstout` 字段，高效遍历某个顶点的所有 **入边** 和 **出边**。
+
+![v0 v1 v2 v3 ^ 0 1 2 3 0 1 v0 v2 v3 v1 0 2 ^ 2 0 3 0 ^ 3 1 ^ 3 2 ^ ^ 2 3 ^ ^ 顶点 入弧 出弧](/images/data-structure/data-structure-graph-defs-012.svg)

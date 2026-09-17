@@ -1,0 +1,10 @@
+{
+  "title": "线性数据结构",
+  "pages": [
+    "index",
+    "application",
+    "matrix",
+    "queue",
+    "stack"
+  ]
+}

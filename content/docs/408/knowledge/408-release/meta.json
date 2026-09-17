@@ -1,0 +1,12 @@
+{
+  "title": "408 完整知识点讲义",
+  "description": "来自 408-fumadocs-release 的独立完整知识点版本。",
+  "pages": [
+    "index",
+    "computer-organization",
+    "data-structure",
+    "operating_system",
+    "computer_network"
+  ],
+  "defaultOpen": true
+}

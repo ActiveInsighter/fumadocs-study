@@ -1,0 +1,229 @@
+---
+title: "外存"
+---
+
+### 机械硬盘
+
+真题
+1
+
+视频讲解
+3
+
+[机械硬盘结构](https://www.bilibili.com/cheese/play/ep2793199)
+[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
+[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
+
+解答题
+[19#44](https://csgraduates.com/study_methods/408quiz/2019/#44)
+
+⭐
+中优先级
+
+偶尔会在大题中考察，在选择题中一般都会有一题，优先掌握 CHS 地址和 性能指标 的计算。
+
+**机械硬盘**（Hard Disk Drive, HDD）是一种使用磁性存储介质来存储和读取数据的非易失性存储设备，广泛应用于计算机和数据存储系统中。
+
+![Sector Sector Cylinder / Track Cylinder / Track 6 Heads, 3 platters 6 Heads, 3 platters Text is not SVG - cannot display](/images/computer-organization/computer-organization-storage-storage-001.svg)
+
+#### 存储区域
+
+为了理解机械硬盘是如何存储数据的，需要先了解硬盘的物理结构以及几个基本概念：
+
+1. **盘片（Platter）**：盘片是机械硬盘中用于存储数据的圆形磁性介质，通常由铝合金或玻璃制成，表面覆盖有磁性材料。一个机械硬盘通常包含多个盘片，这些盘片固定在同一根主轴（Spindle）上，以相同的速度高速旋转（如 5400 RPM、7200 RPM 或更高）。
+2. **盘面（Surface）**：每个盘片都有 **上下两个盘面**，每个盘面都可以独立存储数据，因此每个盘面都会配备一个对应的 **磁头（Head）**。例如，一个拥有 3 个盘片的硬盘共有 **6 个盘面**，因此通常也会配备 **6 个磁头**。
+3. **磁头（Head）**：磁头安装在读写臂（Actuator Arm）的末端，用于读取和写入盘面上的数据。所有磁头固定在同一个执行机构上，因此它们会同步移动到相同的半径位置，但只能选择其中一个磁头进行读写。
+4. **磁道（Track）**：磁道是盘面上的一个同心圆环。每个盘面都由许多同心圆组成，每个同心圆就是一条磁道，数据便存储在这些磁道上。
+5. **柱面（Cylinder）**：柱面是所有盘面上 **半径相同的磁道** 的集合。由于所有磁头始终同步移动，因此当磁头移动到某一个半径时，所有盘面都会同时到达对应的磁道，这些磁道共同构成一个柱面。
+6. **扇区（Sector）**：扇区是磁盘上的最小物理存储单元。每条磁道都会被划分成多个扇区，每个扇区可以存储一定数量的数据，通常为 **512 字节** 或 **4 KB（Advanced Format）**。操作系统和磁盘控制器通常以扇区作为读写数据的基本单位。
+
+![magnetic layer aluminum plate 1 bit cylinder sector track disk read-and-write heads disk read-and-write head floating on a cushion of air](/images/computer-organization/computer-organization-storage-storage-002.svg)
+
+机械硬盘的数据组织层次可以总结为：
+
+```
+硬盘
+└──盘片（Platter）
+    └──盘面（Surface）
+        └──磁道（Track）
+            └──扇区（Sector）  ← 最小物理读写单位（512B 或 4KB）
+```
+
+#### CHS 地址
+
+真题
+3
+[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
+
+选择题
+[13#25](https://csgraduates.com/study_methods/408quiz/2013/#25)
+
+解答题
+[19#44](https://csgraduates.com/study_methods/408quiz/2019/#44)
+[22#44](https://csgraduates.com/study_methods/408quiz/2022/#44)
+
+当磁盘驱动器访问磁盘中的数据时，需要根据 **CHS 地址（Cylinder-Head-Sector Address，柱面 - 磁头 - 扇区地址）** 定位到目标扇区。  
+CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）** 和 **扇区号（Sector Number）** 三个字段组成，它们共同唯一标识磁盘上的一个物理扇区：
+
+- **柱面号（Cylinder Number）**：目标扇区所在的柱面  
+  若需要对所有柱面进行二进制编码，则至少需要：
+
+  $$
+\text{柱面号位数}=\lceillog_{2}\text{（柱面数量）}\rceil
+$$
+- **磁头号（Head Number）**：目标扇区所在的盘面（对应具体磁头）  
+  若需要对所有盘面进行二进制编码，则至少需要：
+
+  $$
+\text{磁头号位数}=\lceillog_{2}\text{（盘面数量）}\rceil
+$$
+- **扇区号（Sector Number）**：目标扇区在目标磁道上的编号  
+  若需要对所有扇区进行二进制编码，则至少需要：
+
+  $$
+\text{扇区号位数}=\lceillog_{2}\text{（每条磁道中的扇区数量）}\rceil
+$$
+
+![CHS 地址 Cylinder · Head · Sector 柱面 C 同半径的磁道集合 扇区 S 磁道的最小存储单元 磁头 H H=3 H=2 H=1 H=0 柱面深度 CHS 地址结构 C (10 bits) H (2 b) S (5 bits) 示例：1000 柱面 × 4 盘面 × 32 扇区/磁道，共 17 bits C — 柱面号 目标磁道在哪一组柱面 ⌈log₂(柱面数)⌉ bits H — 磁头号 目标扇区在哪个盘面 ⌈log₂(盘面数)⌉ bits S —](/images/computer-organization/computer-organization-storage-storage-003.svg)
+
+提示
+
+一个磁盘通常由多个盘片组成，每个盘片有两个盘面，每个盘面对应一个磁头。每个盘面划分为多个同心圆磁道，每条磁道又划分为若干个扇区。
+
+访问数据时，磁头首先移动到目标柱面，然后选择对应盘面的磁头，待目标扇区旋转到磁头下方后，即可开始读取或写入数据。
+
+##### 示例
+
+假设一个磁盘有 **1000** 个柱面、**4** 个盘面、**32** 个扇区/磁道：
+
+- **柱面号位数**：
+  $\lceillog_{2}(1000)\rceil\approx\lceil9.97\rceil=10$
+  位
+- **磁头号位数**：
+  $\lceillog_{2}(4)\rceil=2$
+  位
+- **扇区号位数**：
+  $\lceillog_{2}(32)\rceil=5$
+  位
+- **CHS 地址总位数**：
+  $10+2+5=17$
+  位
+
+因此，一个 CHS 地址需要 **17 位** 才能唯一表示该磁盘上的任意一个扇区。
+
+例如，**C = 500、H = 2、S = 15** 表示第 500 个柱面、第 2 个盘面上的第 15 个扇区。磁盘驱动器根据该 CHS 地址即可精确定位到对应的物理扇区。
+
+#### 磁盘性能指标
+
+真题
+2
+[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
+
+选择题
+[13#21](https://csgraduates.com/study_methods/408quiz/2013/#21)
+[15#20](https://csgraduates.com/study_methods/408quiz/2015/#20)
+
+##### 平均存取时间
+
+**平均存取时间**是磁盘完成一次读写操作的平均耗时，由 **寻道时间**（Seek Time）、**旋转延迟**（Rotational Latency）和 **传输时间**（Read/Write Time）这三部分构成：
+
+- **寻道时间**：磁头从当前位置移动到目标磁道所需的时间，通常与磁头移动距离和致动器性能有关。
+- **旋转延迟**：盘片旋转使目标扇区到达磁头下方所需的时间，通常为盘片旋转半圈的平均时间，取决于转速。
+- **传输时间**：读取或写入目标扇区数据的实际时间，与扇区大小和数据传输率相关。
+
+![Rotational latency Sector to access Seek time](/images/computer-organization/computer-organization-storage-storage-004.svg)
+
+**平均存取时间的计算公式为**：
+
+$$
+\text{平均存取时间}=\text{寻道时间}+\text{旋转延迟时间}+\text{传输时间}
+$$
+
+##### 数据传输率
+
+**数据传输率** 表示磁盘每秒向主机传输数据的字节数，反映硬盘的读写速度。假设磁盘转速为
+$r$
+传/秒，每条磁道容量为
+$N$
+字节，则数据传输率
+$D_{r}$
+为：
+
+$$
+D_{r}=rN
+$$
+
+![数据传输率 Data Transfer Rate D r = r × N 转速(转/秒) × 磁道容量(字节) r 转/秒 N 字节 磁道容量 一圈 = N 字节数据 每秒传输 D_r 字节 r 转速 磁盘每秒旋转的圈数（转/秒） 典型值：5400 rpm ≈ 90 转/秒 7200 rpm ≈ 120 转/秒 N 磁道容量 单条磁道可存储的字节数 = 每磁道扇区数 × 扇区大小 扇区大小通常为 512 B 或 4 KB D r = r × N 数据传输率（字节/秒）](/images/computer-organization/computer-organization-storage-storage-005.svg)
+
+补充
+
+是否每条磁道的扇区数量都一致？
+
+早期 [CHS](/docs/408/knowledge/408-release/computer-organization/storage/storage/#chs-%e5%9c%b0%e5%9d%80) 时代，为了简化控制器设计，每个磁道通常划分为相同数量的扇区。
+
+后来出现了 Zone Bit Recording（ZBR） 技术，由于外圈磁道周长比内圈更长：
+
+外圈磁道可以容纳更多扇区；
+内圈磁道容纳较少扇区。
+
+### RAID
+
+真题
+1
+
+选择题
+[13#20](https://csgraduates.com/study_methods/408quiz/2013/#20)
+
+💡
+低优先级
+
+从 2009 到现在就考过 1 题，而且各种 RAID 的细节太多，建议直接跳过。
+
+RAID 全称为 **独立磁盘冗余阵列**（Redundant Arrar of Independent Disks）  
+由于磁盘存储介质数据的可靠性容易受到环境影响，而发生数据错误的代价非常大，因此需要考虑存储的容灾与恢复。
+
+![RAID 6 D p C1 B1 A1 Disk 0 D q C p B2 A2 Disk 1 D1 C q B p A3 Disk 2 D2 C2 B q A p Disk 3 D3 C3 B3 A q Disk 4 E q E1 E2 E3 E p](/images/computer-organization/computer-organization-storage-storage-006.svg)
+
+RAID 将多个独立的物理磁盘组成一个独立的逻辑盘，数据在多个物理盘上分割交叉存储、并行访问，具有更好的存储性能、可靠性和安全性。
+
+RAID 的实现涉及以下核心技术：
+
+- **磁盘镜像**：将相同数据写入多块磁盘，提高可靠性。典型如 **RAID1**。
+- **条带化**：将数据分段交叉存储在多个磁盘上，提升性能。典型如 **RAID0**，但不具备容错能力。
+- **奇偶校验**：通过冗余校验位在部分磁盘损坏时重建数据，兼顾可靠性与存储效率。用于 **RAID3/5/6**。
+- **Cache 机制**：提高读写性能，但本身不增加可靠性，除非使用掉电保护的写缓存。
+
+常见 RAID 等级如 **RAID1（镜像）**、**RAID5（条带化 + 奇偶校验）**、\*\*RAID6（双重奇偶校验）\*\*等在性能与容错能力之间做出不同权衡。
+
+### 固态硬盘
+
+![](/images/computer-organization/computer-organization-storage-storage-007.jpg)
+
+固态硬盘（**Solid State Drive, SSD**）是一种使用闪存（**NAND Flash**）作为存储介质的非易失性存储设备，与传统机械硬盘（**HDD**）相比，SSD 在性能、耐用性和能效等方面具有显著优势。SSD 具备以下特点：
+
+- **无机械部件**：SSD 没有旋转盘片、磁头或机械臂等移动部件，它使用闪存存储芯片来存储数据。这意味着它不会受到机械故障的威胁，具有更高的耐用性。
+- **更快的读写速度**：SSD 的读写速度远远超过传统的机械硬盘，因为数据可以立即访问，无需等待盘片旋转和磁头寻道。这使得计算机启动更快，应用程序响应更迅速。
+- **低访问时间**：由于 **没有机械延迟**，SSD 的访问时间极低，通常在微秒级别。这有助于加快文件读取和数据检索。
+- **长寿命**：虽然每个存储单元有写入次数的限制，但现代 SSD 使用错误检查和纠正（ECC）技术，以延长其寿命，并且通常拥有较长的保修期。
+- **无碎片化**：SSD 的数据存储方式基于闪存单元，读取速度不受数据物理位置的影响，因此不会像 HDD 那样因数据碎片化而降低性能。
+- **局限性**：
+  - **容量限制**：SSD 的高容量型号（例如 **4TB 以上**）价格昂贵，而 HDD 在大容量存储上更具优势。
+  - **写入寿命有限**：尽管现代技术已大幅延长寿命，但重度写入场景下仍需关注寿命问题。
+
+#### 机械和固态硬盘对比
+
+以下是从多个维度对 SSD 和 HDD 进行的详细对比：
+
+![HDD 机械硬盘 SSD 固态硬盘 磁性介质 · 机械寻址 闪存介质 · 电子寻址 高速旋转 磁头摆动寻道 盘片 + 磁头 + 机械臂 · 存在旋转与寻道延迟 NAND NAND NAND NAND NAND NAND 主控 Controller 闪存芯片阵列 + 主控 · 纯电子寻址，无机械延迟 顺序读写速度 顺序读写速度 100 ~ 200 MB/s 500 ~ 7000 MB/s 随机访问时间（越短越好） 随机访问时间（越短越好） 5 ~ 10 ms 受寻道 + 旋转延](/images/computer-organization/computer-organization-storage-storage-008.svg)
+
+| **特性** | **SSD（固态硬盘）** | **HDD（机械硬盘）** |
+| --- | --- | --- |
+| 存储介质 | 闪存（NAND Flash） | 旋转盘片 + 磁头 |
+| 机械部件 | 无，纯电子存储 | 有，盘片、磁头、机械臂等 |
+| 读写速度 | 极快（500 MB/s 至 7000 MB/s，视接口而定） | 较慢（100-200 MB/s） |
+| 随机访问时间 | 极低（0.1 毫秒以下） | 较高（5-10 毫秒） |
+| 耐用性 | 抗震抗摔，无机械故障风险 | 易受震动、摔落影响，机械故障风险较高 |
+| 噪音 | 无噪音 | 有盘片旋转和磁头移动的噪音 |
+| 重量与体积 | 轻薄，适合移动设备 | 较重，体积较大 |
+| 碎片化问题 | 无需碎片整理 | 需定期碎片整理以维持性能 |
+| 适用场景 | 系统盘、高性能计算、移动设备 | 大容量存储、备份、成本敏感场景 |

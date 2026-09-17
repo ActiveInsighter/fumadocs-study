@@ -27,6 +27,9 @@ describe('study module metadata structure', () => {
   const englishPhraseMeta = readJson(join(docsRoot, 'english', 'phrases', 'meta.json'));
   const coursesMeta = readJson(join(docsRoot, '408', 'meta.json'));
   const coursesKnowledgeMeta = readJson(join(docsRoot, '408', 'knowledge', 'meta.json'));
+  const coursesReleaseMeta = readJson(
+    join(docsRoot, '408', 'knowledge', '408-release', 'meta.json'),
+  );
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
 
@@ -70,10 +73,19 @@ describe('study module metadata structure', () => {
     expect(coursesMeta.pages).toEqual(['index', 'knowledge', 'problem-solving', 'exam']);
     expect(coursesKnowledgeMeta.pages).toEqual([
       'index',
+      'mind-map-demo',
+      '408-release',
       'data-structures',
       'computer-organization',
       'operating-systems',
       'computer-networks',
+    ]);
+    expect(coursesReleaseMeta.pages).toEqual([
+      'index',
+      'computer-organization',
+      'data-structure',
+      'operating_system',
+      'computer_network',
     ]);
     expect(coursesProblemSolvingMeta.pages).toEqual([
       'index',

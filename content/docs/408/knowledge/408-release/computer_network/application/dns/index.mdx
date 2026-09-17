@@ -1,0 +1,137 @@
+---
+title: "DNS"
+description: "💡 低优先级 在选择题中偶尔有考查，需要掌握 DNS 的域名服务器的不同层级，以及域名解析过程的两种方式（迭代和递归）。 真题 3 选择题 10 40 16 40 20 40 DNS 使用 层次域名空间 来组织域名，将域名划分为多个级别，每"
+source: "https://csgraduates.com/computer_network/application/dns/"
+---
+
+💡
+低优先级
+
+在选择题中偶尔有考查，需要掌握 DNS 的域名服务器的不同层级，以及域名解析过程的两种方式（迭代和递归）。
+
+真题
+3
+
+选择题
+[10#40](/study_methods/408quiz/2010/#40)
+[16#40](/study_methods/408quiz/2016/#40)
+[20#40](/study_methods/408quiz/2020/#40)
+
+### 层次域名空间
+
+**DNS** 使用 **层次域名空间** 来组织域名，将域名划分为多个级别，每个级别之间以点（.）分隔。域名从左到右逐级递增，最右边是 **顶级域名**（TLD），然后是 **二级域名**， **三级域名**，以此类推。
+
+例如， `www.example.com` 中， `.com` 是顶级域名， `example.com` 是二级域名， `www.example.com` 是子域名。
+
+![DNS 图 1](/images/computer-network/computer-network-application-dns-001.svg)
+
+**DNS** **层次域名空间** 的设计使得域名分布在不同的管理区域中，每个管理区域负责管理其自己的域名空间。这种分层结构有助于提高可扩展性和效率。
+
+### 域名服务器
+
+![DNS 图 2](/images/computer-network/computer-network-application-dns-002.svg)
+
+在 DNS 体系结构中，服务器按照层级划分，每一层负责不同的职责。下面按照从最高层到最低层的顺序，对四类常见的域名服务器进行说明：
+
+1. **根域名服务器** (*Root Name Servers*):
+   * 这些服务器位于 DNS 解析的最顶端。它们不直接回答关于哪个域名映射到哪个 IP 地址的查询，而是告诉查询者下一步应该询问哪个顶级域名（TLD）服务器。
+   * 根服务器的数量是有限的，并且它们的位置在全球都是已知的。
+2. **顶级域名服务器** (*Top-Level Domain Name Servers, TLD*):
+   * 这些服务器负责特定的顶级域名（如 `.com`, `.org`, `.net` 等）。它们为下一级的域名（如 `example.com`）提供有关权威名称服务器的信息。
+3. **权威域名服务器** (*Authoritative Name Servers*):
+   * 这些服务器为特定的域名（如 `example.com`）提供详细的 DNS 记录信息（例如 A 记录、MX 记录等）。只有权威服务器才能为其负责的域名提供这些信息。
+   * 大多数组织拥有权威 DNS服务器来为他们的域名提供解析服务。
+4. **本地域名服务器** (*Local Name Server*)
+   * 是在本地网络环境中运行的DNS服务器，它为该网络中的设备提供域名解析服务。
+   * 每个 **ISP** 或一所大学都可以有一个本地域名服务器。
+
+### 域名解析过程
+
+![DNS 图 3](/images/computer-network/computer-network-application-dns-003.svg)
+
+域名解析分为 **递归查询** 和 **迭代查询** 两种。
+
+* 递归查询：请求方（本地 DNS 服务器）把解析任务 完全交给 对方。
+* 迭代查询：请求方会得到一个“指引”，然后自己去问下一层。
+
+#### 迭代查询
+
+![DNS 图 4](/images/computer-network/computer-network-application-dns-004.svg)
+
+在域名解析过程中，**本地域名服务器** 向根域名服务器发送的通常是迭代查询。
+
+当 **根域名服务器** 收到查询请求后，不会代替本地域名服务器继续查询，而是返回结果中的两种情况之一：
+
+* 若能解析出所需的 IP 地址，则直接返回；
+* 若不能解析，则告知本地域名服务器应当联系的下一级顶级域名服务器。
+
+随后，本地域名服务器根据指引，向对应的 **顶级域名服务器** 继续查询。顶级域名服务器的处理方式类似：
+
+* 若能解析出所需的 IP 地址，则返回结果；
+* 否则告知本地域名服务器应当访问的下一步权限域名服务器。
+
+权限域名服务器的处理流程类似，这里不赘述了。最终，当本地域名服务器获得目标域名对应的 IP 地址后，会将结果返回给最初发起请求的主机。
+
+```
+sequenceDiagram
+  participant Host as 主机
+  participant Local as 本地域名服务器
+  participant Root as 根域名服务器
+  participant TLD as 顶级域名服务器 (TLD)
+  participant Auth as 权限域名服务器 (Authoritative)
+
+  Host->>Local: 1) 查询 www.example.com
+  Local->>Root: 2) 迭代查询（请求根服务器）
+  Root-->>Local: 3) Referral: 指向对应的 TLD 服务器（例如 .com）
+  Local->>TLD: 4) 迭代查询（请求 TLD 服务器）
+  TLD-->>Local: 5) Referral: 指向该域的 权限域名服务器
+  Local->>Auth: 6) 迭代查询（请求权限域名服务器）
+  Auth-->>Local: 7) 返回最终 IP 地址（例如 93.184.216.34）
+  Local-->>Host: 8) 本地 DNS 将 IP 返回给主机
+  Note right of Local: 本地域名服务器可能会把结果缓存一段时间
+```
+
+#### 递归查询
+
+![DNS 图 5](/images/computer-network/computer-network-application-dns-005.svg)
+
+递归查询的过程如上图所示，本地域名服务器只需向 **根域名服务器查询一次**（步骤 2），后面的几次查询都是 **递归地** 在其他几个域名服务器之间进行的（步骤 3-7）。在步骤 7 中，本地域名服务器从根域名服务器得到了所需的 IP 地址，最后在步骤 8 中，本地域名服务器把查询结果告诉发起查询的主机。
+
+因为该方法给根域名服务器造成的负载过大，所以实际中几乎不使用。
+
+```
+sequenceDiagram
+  participant Host as 主机
+  participant Local as 本地域名服务器
+  participant Root as 根域名服务器
+  participant TLD as 顶级域名服务器 (TLD)
+  participant Auth as 权限域名服务器 (Authoritative)
+
+  Host->>Local: 1) 查询 www.example.com
+  Local->>Root: 2) 向根域名服务器发起递归查询
+  Root->>TLD: 3) 根服务器代为查询 TLD 服务器
+  TLD->>Auth: 4) TLD 服务器递归查询权限域名服务器
+  Auth-->>TLD: 5) 返回最终 IP 地址
+  TLD-->>Root: 6) TLD 把结果返回给根服务器
+  Root-->>Local: 7) 根服务器把最终 IP 地址交给本地 DNS
+  Local-->>Host: 8) 本地 DNS 返回结果给主机
+```
+
+---
+
+DNS 递归查询 和 迭代查询的不同点如下表所示：
+
+| **特点** | **递归查询** | **迭代查询** |
+| --- | --- | --- |
+| **查询责任** | DNS 服务器负责查询所有结果 | 客户端逐级查询 |
+| **查询复杂度** | 客户端简单，只需发起一次请求 | 客户端复杂，需要多次查询 |
+| **使用场景** | 用户设备、本地 DNS 服务器 | DNS 服务器之间的交互 |
+| **性能** | 服务器负担较大 | 服务器负担较小 |
+
+### DNS 缓存
+
+![DNS 图 6](/images/computer-network/computer-network-application-dns-006.svg)
+
+无论是浏览器、操作系统，还是本地的递归 DNS 服务器，在接收到域名解析结果之后，都会将其暂时保存在本地 **缓存** 中。这样，如果同一个域名在短时间内被多次请求，就可以直接从 **缓存** 中获取结果，而不需要再次向外部服务器发送查询请求。
+
+**DNS** 记录中包含一个名为 **TTL**（Time to Live）的字段，用于指定这条记录可以在缓存中 **保存多久**。比如 **TTL** 为 ***3600*** 表示记录在缓存中可保留 **3600** 秒（即一小时）。在这段时间内，只要有查询，就可以直接使用缓存的结果。当 **TTL** 到期后，缓存记录会被丢弃，下一次查询将重新走完整的解析流程。

@@ -3,6 +3,8 @@
   "description": "408 四门专业课的系统章节讲义。",
   "pages": [
     "index",
+    "mind-map-demo",
+    "408-release",
     "data-structures",
     "computer-organization",
     "operating-systems",

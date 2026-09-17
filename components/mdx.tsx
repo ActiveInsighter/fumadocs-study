@@ -1,4 +1,5 @@
 import { Mermaid } from '@/components/mdx/mermaid';
+import { MindMap } from '@/components/mdx/mind-map';
 import { WordCardModeToggle, WordCards } from '@/components/vocabulary/word-cards';
 import * as AccordionComponents from 'fumadocs-ui/components/accordion';
 import * as FilesComponents from 'fumadocs-ui/components/files';
@@ -13,8 +14,9 @@ import type { MDXComponents } from 'mdx/types';
  *
  * Cards and Callout are included by Fumadocs' default mapping. The additional
  * official component groups below are registered globally so documentation can
- * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards and the
- * shared vocabulary display toggle without repeating imports in every MDX file.
+ * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, MindMap, WordCards
+ * and the shared vocabulary display toggle without repeating imports in every
+ * MDX file.
  * Feature-specific components are imported by the MDX page that owns them.
  */
 export function getMDXComponents(components?: MDXComponents) {
@@ -25,6 +27,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ...StepsComponents,
     ...TabsComponents,
     Mermaid,
+    MindMap,
     TypeTable,
     WordCardModeToggle,
     WordCards,

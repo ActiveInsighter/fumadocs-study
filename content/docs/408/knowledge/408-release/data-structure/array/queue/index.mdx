@@ -1,0 +1,203 @@
+---
+title: "队列"
+---
+
+⭐
+中优先级
+
+直接考察不是很多，偶尔在选择题考察相关概念，另外要留意 **循环队列** 往年在解答题中考察过。
+
+真题
+6
+
+选择题
+[10#2](https://csgraduates.com/study_methods/408quiz/2010/#2)
+[11#3](https://csgraduates.com/study_methods/408quiz/2011/#3)
+[14#3](https://csgraduates.com/study_methods/408quiz/2014/#3)
+[16#3](https://csgraduates.com/study_methods/408quiz/2016/#3)
+[21#2](https://csgraduates.com/study_methods/408quiz/2021/#2)
+
+解答题
+[19#42](https://csgraduates.com/study_methods/408quiz/2019/#42)
+
+### 定义
+
+队列是一种遵循 **先入先出** (FIFO, First In First Out) 原则的线性数据结构。元素在 **队尾** 添加，在 **队首** 删除。
+
+![Back Front Enqueue Dequeue](/images/data-structure/data-structure-array-queue-001.svg)
+
+### 基本操作
+
+- `enqueue(element)`: 将元素添加到 **队列** 的尾部。
+- `dequeue()`: 从 **队列** 的头部移除并返回元素。如果 **队列** 为空，此操作可能会返回特定的值或引发错误。
+- `front()` 或 `peek()`: 返回 **队首** 的元素但不移除它。
+- `isEmpty()`: 判断 **队列** 是否为空。
+- `size()`: 返回 **队列** 中元素的数量。
+
+### 实现
+
+#### 顺序队列
+
+顺序队列通常是指使用固定大小的数组来存储 **队列** 中的元素。在顺序队列中，通常有两个指标：一个是 **队头**（front），另一个是 **队尾**（rear）。当插入（入队）或删除（出队）元素时，这两个指标会移动。
+
+![front rear front a b c d e rear front e rear 空队 5个元素入队 出队4次 再出队一次 会出现 “假溢出”](/images/data-structure/data-structure-array-queue-002.svg)
+
+顺序队列有一个明显的问题：随着时间的推移，**队列** 中的元素可能向数组的末尾移动，即使 **队列** 并不满，也可能无法再插入新的元素，因为 **队尾** 已经达到了数组的末尾。这种现象称为 **假溢出**。
+
+#### 循环队列
+
+为了解决上述问题，可以使用 **循环队列**（也称为环形队列）。**循环队列** 是顺序队列的一个变种，它把数组视为一个循环的结构。当 **队尾** 指标达到数组的最后一个位置并且还需要进一步移动时，它会回到数组的起始位置。
+
+![0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满](/images/data-structure/data-structure-array-queue-003.svg)
+
+需要注意的是，在 **循环队列** 中需要牺牲一个存储单元以区分 **队空** 和 **队满** 的情况。
+
+- 当 `front == rear` 时，*队列为空*
+- 当 `(rear + 1) % size == front` 时，*队列为满*
+
+- 定义
+- 入队
+- 出队
+- 首尾元素
+- 判断队列空或满
+```
+#define MAX_SIZE 100
+
+typedef struct {
+    int data[MAX_SIZE];
+    int front, rear;
+} CircularQueue;
+
+// 初始化队列
+void initQueue(CircularQueue* q) {
+    q->front = q->rear = 0;
+}
+```
+```
+// 入队操作
+bool enqueue(CircularQueue* q, int value) {
+    if (isFull(q)) return false;
+    q->data[q->rear] = value;
+    q->rear = (q->rear + 1) % MAX_SIZE;
+    return true;
+}
+```
+```
+// 出队操作
+bool dequeue(CircularQueue* q, int* value) {
+    if (isEmpty(q)) return false;
+    *value = q->data[q->front];
+    q->front = (q->front + 1) % MAX_SIZE;
+    return true;
+}
+```
+```
+// 获取队首元素
+bool front(CircularQueue* q, int* value) {
+    if (isEmpty(q)) return false;
+    *value = q->data[q->front];
+    return true;
+}
+
+// 获取队尾元素
+bool rear(CircularQueue* q, int* value) {
+    if (isEmpty(q)) return false;
+    *value = q->data[(q->rear - 1 + MAX_SIZE) % MAX_SIZE];
+    return true;
+}
+```
+```
+// 判断队列是否为空
+bool isEmpty(CircularQueue* q) {
+    return q->front == q->rear;
+}
+
+// 判断队列是否满
+bool isFull(CircularQueue* q) {
+    return (q->rear + 1) % MAX_SIZE == q->front;
+}
+```
+
+#### 链式队列
+
+**链式队列** 是使用 **链表结构** 来实现的 **队列**。它充分利用了链表的动态性质，允许队列在运行时 **动态增长或缩小**，不存在顺序存储中需要预先分配空间的问题。
+
+![a 1 a 2 a n NULL head rear front 队头 队尾 队列方向](/images/data-structure/data-structure-array-queue-004.svg)
+
+链式队列通常包含三个指针：
+
+1. **头结点（head）**
+   - **始终存在**，不存放有效数据，只是一个哨兵结点。
+   - 主要作用：简化出队操作（避免删除第一个结点时单独处理）。
+2. **队头指针（front）**
+   - **固定指向头结点**。
+   - 注意：`front` 不直接指向第一个有效结点，而是 **指向头结点**。
+   - 因此，真正的队头元素在 `front->next`。
+3. **队尾指针（rear）**
+   - 始终指向最后一个有效结点。
+   - 如果队列为空，`rear == front == head`。
+
+链式队列一般使用 **单链表** 来实现，入队和出队操作可以基于队头和队尾指针实现：
+
+- **入队（enqueue）**：在队尾插入新元素。由于维护了 **尾指针**，因此只需 `O(1)` 时间。
+- **出队（dequeue）**：在队头删除元素。由于维护了 **头指针**，因此只需 `O(1)` 时间。
+
+这比用数组实现的队列在需要移动元素时效率更高。
+
+- 定义
+- 入队
+- 出队
+- 判空
+```
+// 结点定义
+typedef struct QNode {
+    int data;               // 数据域
+    struct QNode *next;     // 指针域
+} QNode;
+
+// 链式队列结构
+typedef struct {
+    QNode *front;   // 队头指针 (指向头结点)
+    QNode *rear;    // 队尾指针 (指向队尾结点)
+} LinkQueue;
+
+// 初始化队列（带头结点）
+void InitQueue(LinkQueue *Q) {
+    QNode *head = (QNode *)malloc(sizeof(QNode));  // 申请头结点
+    head->next = NULL;
+    Q->front = Q->rear = head;  // front、rear 都指向头结点
+}
+```
+```
+// 入队操作
+void EnQueue(LinkQueue *Q, int x) {
+    QNode *node = (QNode *)malloc(sizeof(QNode));
+    node->data = x;
+    node->next = NULL;
+
+    Q->rear->next = node;   // 新结点挂在队尾
+    Q->rear = node;         // 更新队尾指针
+}
+```
+```
+// 出队操作
+int DeQueue(LinkQueue *Q, int *x) {
+    if (IsEmpty()) return 0;  // 队空
+
+    QNode *p = Q->front->next;  // 队头第一个有效结点
+    *x = p->data;
+    Q->front->next = p->next;   // 删除结点
+
+    if (Q->rear == p) {         // 如果队尾被删空了
+        Q->rear = Q->front;     // rear 重新指向头结点
+    }
+    free(p);
+    return 1;
+}
+```
+```
+// 判断队列是否为空
+int IsEmpty(LinkQueue Q) {
+    return Q.front == Q.rear;
+}
+```

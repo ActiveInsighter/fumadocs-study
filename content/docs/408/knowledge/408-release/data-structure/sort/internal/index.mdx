@@ -1,0 +1,872 @@
+---
+title: "内部排序"
+---
+
+🔥
+高优先级
+
+每年选择题都必考一到两题，需要能够辨别 **不同排序算法的特征** 以及掌握 **每种排序算法执行的具体流程**。
+
+### 排序概念
+
+真题
+25
+
+视频讲解
+7
+
+[排序算法复杂度](https://www.bilibili.com/cheese/play/ep2796892)
+[排序算法稳定性](https://www.bilibili.com/cheese/play/ep2796894)
+[排序算法元素移动次数](https://www.bilibili.com/cheese/play/ep2796787)
+[排序算法排序趟特征](https://www.bilibili.com/cheese/play/ep2796905)
+[冒泡排序](https://www.bilibili.com/cheese/play/ep2796788)
+[选择排序](https://www.bilibili.com/cheese/play/ep2796924)
+[桶排序](https://www.bilibili.com/cheese/play/ep2796923)
+
+选择题
+[09#10](https://csgraduates.com/study_methods/408quiz/2009/#10)
+[10#10](https://csgraduates.com/study_methods/408quiz/2010/#10)
+[10#11](https://csgraduates.com/study_methods/408quiz/2010/#11)
+[11#10](https://csgraduates.com/study_methods/408quiz/2011/#10)
+[12#10](https://csgraduates.com/study_methods/408quiz/2012/#10)
+[12#11](https://csgraduates.com/study_methods/408quiz/2012/#11)
+[13#11](https://csgraduates.com/study_methods/408quiz/2013/#11)
+[14#10](https://csgraduates.com/study_methods/408quiz/2014/#10)
+[14#11](https://csgraduates.com/study_methods/408quiz/2014/#11)
+[15#11](https://csgraduates.com/study_methods/408quiz/2015/#11)
+[15#9](https://csgraduates.com/study_methods/408quiz/2015/#9)
+[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
+[17#11](https://csgraduates.com/study_methods/408quiz/2017/#11)
+[18#10](https://csgraduates.com/study_methods/408quiz/2018/#10)
+[19#10](https://csgraduates.com/study_methods/408quiz/2019/#10)
+[19#7](https://csgraduates.com/study_methods/408quiz/2019/#7)
+[20#11](https://csgraduates.com/study_methods/408quiz/2020/#11)
+[21#10](https://csgraduates.com/study_methods/408quiz/2021/#10)
+[22#11](https://csgraduates.com/study_methods/408quiz/2022/#11)
+[23#10](https://csgraduates.com/study_methods/408quiz/2023/#10)
+[23#11](https://csgraduates.com/study_methods/408quiz/2023/#11)
+[25#10](https://csgraduates.com/study_methods/408quiz/2025/#10)
+[25#11](https://csgraduates.com/study_methods/408quiz/2025/#11)
+[26#10](https://csgraduates.com/study_methods/408quiz/2026/#10)
+
+解答题
+[21#42](https://csgraduates.com/study_methods/408quiz/2021/#42)
+
+#### 稳定性
+
+排序算法的 **稳定性** 是指：在排序过程中，**如果两个元素的键值相等**，排序后它们的 **相对顺序保持不变**，那么这个排序算法就是 **稳定的排序算法**。
+
+比如排序前的数组是这样：`[... A ... B ...]`，并且 `A` 和 `B` 的值相同。
+
+如果排序后的数组是这样：`[... B A ...]`，那么排序算法就是不稳定的，反之排序算法就是 **稳定的**。
+
+![图示](/images/data-structure/data-structure-sort-internal-001.svg)
+
+补充
+
+可以通过以下方式对排序算法的 **稳定性** 进行记忆：
+
+速度比较快的算法（时间复杂度
+$O(n^2)$
+）一般都不稳定，除了 **归并排序**，因为它需要占额外的空间。
+
+速度比较慢的算法（时间复杂度
+$O(1)$
+）一般都稳定，除了 **选择排序**。
+
+除此之外，**桶排序** 和 **基数排序** 都是 **稳定的**。
+
+#### 元素移动次数
+
+排序算法中的 **元素移动次数**，指的是在排序过程中对 **数组元素进行位置变换的次数**。
+
+下表列出了各排序算法的 **元素移动次数**：
+
+| 排序算法 | 元素移动次数 | 说明 |
+| --- | --- | --- |
+| 冒泡排序 | 最坏 $O(n^2)$ | 每次交换都移动两个元素，次数较多 |
+| 选择排序 | 最多 $O(1)$ | 每轮找到最小值，只交换一次，移动次数较少，但比较次数多 |
+| 插入排序 | 平均 $O(n^2)$ | 可能需要把一个元素插入前面，移动一串元素 |
+| 归并排序 | $O(1)$ | 借助辅助数组，搬来搬去，数据复制较频繁 |
+| 快速排序 | 平均 $O(n^2)$ ，最坏 $O(1)$ | 每次划分区间时要交换元素 |
+| 堆排序 | $O(n \log n)$ | 每次堆化需要交换元素，整体移动较快速排序少 |
+| 希尔排序 | $O(n)$ | 分段插入，元素跳跃移动，次数难以精确界定 |
+| 桶排序 | $O(n \log n)$ | 元素在桶中“复制”而不是交换，适合不比较的排序场景 |
+| 基数排序 | $O(n^2)$ | 每轮根据某位进行 **稳定排序**，通常使用计数排序复制元素 |
+
+![O(n) O(n log n) O(n^1.5) O(n²) 元素移动次数量级（从少到多） 选择排序 O(n) 每轮仅交换一次，移动最少 桶排序 O(n) 复制入桶，不做原地交换 归并排序 O(n log n) 辅助数组复制 堆排序 O(n log n) 堆化时原地交换 快速排序 均 O(n log n) 最坏 O(n²) 基数排序 O(n·d) 按位多轮计数排序复制 希尔排序 O(n^1.3 ~ 2) 难以精确界定 插入排序 O(n²) 冒泡排序：最坏 O(n²)，每次交换](/images/data-structure/data-structure-sort-internal-002.svg)
+
+可以观察到，**选择排序** 和 **桶排序** 的 **元素移动次数** 是最少的，不涉及到大量的元素位置交换。
+
+#### 复杂度
+
+![排序算法时间复杂度层次图 O(n + k) - 线性时间 桶排序（理想情况） 基数排序：O(d·(n+k)) O(n log n) - 对数线性时间 归并排序（稳定） 堆排序 快速排序（平均情况） 稳定 O(n²) - 二次时间 冒泡排序（稳定） 选择排序 插入排序（稳定） 希尔排序（最坏情况） 快速排序（最坏情况） 稳定 稳定 ↓ 空间复杂度对比 O(1) 常数空间：冒泡、选择、插入、希尔排序、堆排序 O(log n) 对数空间：快速排序（递归栈） O(n) 线性空间：归并](/images/data-structure/data-structure-sort-internal-003.svg)
+
+| 排序方式 | 时间复杂度 | 空间复杂度 | 是否稳定 |
+| --- | --- | --- | --- |
+| 冒泡排序 | $O(n^2)$ | $O(1)$ | 稳定 |
+| 选择排序 | $O(n^2)$ | $O(1)$ | 不稳定 |
+| 插入排序 | $O(n^2)$ | $O(1)$ | 稳定 |
+| 希尔排序 | 取决于增量序列，最坏 $O(n^2)$ | $O(1)$ | 不稳定 |
+| 归并排序 | $O(n \log n)$ | $O(n)$ | 稳定 |
+| 快速排序 | 平均 $O(n \log n)$，最坏 $O(n^2)$ | $O(\log n)$ | 不稳定 |
+| 堆排序 | $O(n \log n)$ | $O(1)$ | 不稳定 |
+| 桶排序 | $O(n + k)$（k 为桶数） | $O(n + k)$ | 稳定（视内部排序方式而定） |
+| 基数排序 | $O(d \cdot (n + k))$（d 为位数，k 为基数） | $O(n + k)$ | 稳定 |
+
+补充
+
+**快排的空间复杂度为什么是
+$O(\log n)$**
+
+快速排序是原地排序算法，唯一的空间开销来自递归调用栈，理想情况下：
+
+- 每次把数组分成近似相等的两半；
+- 整个递归树的深度是
+  $O(n \log n)$
+  ；
+- 所以最多同时存在
+  $O(1)$
+  层的递归调用；
+- 每一层调用中局部变量空间是常数（
+  $O(n + k)$
+  ）；
+
+因此，空间复杂度是：
+$O(n + k)$
+（递归深度） ×
+$O(d \cdot (n + k))$
+（每层开销） =
+$O(n + k)$
+
+#### 趟特征
+
+在排序算法中，**一趟（pass）** 通常指 **完成一次从头到尾（或部分范围）对数组进行处理的过程**，这一过程中可能会比较、移动、插入或交换若干元素。  
+换句话说，一趟就是排序算法中最小的完整“循环工作单元”，通常对应于外层循环的一次执行。
+
+![图示](/images/data-structure/data-structure-sort-internal-004.svg)
+
+不同的排序算法在每趟排序后，数组中的元素会呈现不同特征，总结为下表：
+
+| 排序算法 | 一趟操作含义 | 一趟后的数组特征 |
+| --- | --- | --- |
+| **冒泡排序** | 从头到尾依次比较相邻元素并交换 | 最大元素被“冒”到最后 |
+| **选择排序** | 遍历剩余元素，找到最小值并放到当前位置 | 最小元素被放到当前起始位 |
+| **插入排序** | 将下一个元素插入到前面已排序序列中 | 前 $i$ 个元素是有序的 |
+| **希尔排序** | 以某个 gap 为间隔，进行插入排序 | 每个间隔为 gap 的子序列局部有序 |
+| **归并排序** | 合并相邻的两个有序子数组 | 小规模区间逐步合并成更大的有序区间 |
+| **快速排序** | 选一个基准，划分左右小于/大于它的区间 | 基准元素被放到最终位置，两侧被初步分区 基准元素左边的值都比它小，右边的值都比它大 |
+| **堆排序** | 构建/调整堆，取出堆顶并放到末尾 | 当前堆顶（最大/最小）被移动到最终位置，堆被重构 |
+| **桶排序** | 元素被分配到不同桶中 | 元素被归入对应桶，但桶内顺序未必有序 |
+| **基数排序** | 按某一数位进行 **稳定排序**（如个位） | 按当前数位局部有序，低位排序逐步推进整体有序 |
+
+#### 伪代码
+
+- 冒泡排序
+- 插入排序
+- 选择排序
+- 基数排序
+- 归并排序
+- 希尔排序
+- 快速排序
+- 堆排序
+```
+BubbleSort(arr)
+    n ← arr.length
+    for i from 0 to n - 1
+        for j from 0 to n - i - 2
+            if arr[j] > arr[j + 1]
+                swap arr[j], arr[j + 1]
+```
+```
+InsertionSort(arr)
+    n ← arr.length
+    for i from 1 to n - 1
+        key ← arr[i]
+        j ← i - 1
+        while j ≥ 0 and arr[j] > key
+            arr[j + 1] ← arr[j]
+            j ← j - 1
+        arr[j + 1] ← key
+```
+```
+SelectionSort(arr)
+    n ← arr.length
+    for i from 0 to n - 1
+        minIndex ← i
+        for j from i + 1 to n - 1
+            if arr[j] < arr[minIndex]
+                minIndex ← j
+        swap arr[i], arr[minIndex]
+```
+```
+RadixSort(arr)
+    找到数组中最大值，确定最大位数 d
+    for i from 1 to d
+        对数组按第 i 位进行**稳定排序**
+```
+```
+MergeSort(arr)
+    if arr.length ≤ 1
+        return arr
+    mid ← arr.length / 2
+    left ← MergeSort(arr[0 to mid - 1])
+    right ← MergeSort(arr[mid to end])
+    return Merge(left, right)
+
+Merge(left, right)
+    result ← []
+    while left ≠ ∅ and right ≠ ∅
+        if left[0] ≤ right[0]
+            append left[0] to result
+            remove left[0] from left
+        else
+            append right[0] to result
+            remove right[0] from right
+    append remaining elements of left and right to result
+    return result
+```
+```
+ShellSort(arr)
+    n ← arr.length
+    gap ← n / 2
+    while gap > 0
+        for i from gap to n - 1
+            temp ← arr[i]
+            j ← i
+            while j ≥ gap and arr[j - gap] > temp
+                arr[j] ← arr[j - gap]
+                j ← j - gap
+            arr[j] ← temp
+        gap ← gap / 2
+```
+```
+QuickSort(arr, low, high)
+    if low < high
+        pivotIndex ← Partition(arr, low, high)
+        QuickSort(arr, low, pivotIndex - 1)
+        QuickSort(arr, pivotIndex + 1, high)
+
+Partition(arr, low, high)
+    pivot ← arr[high]
+    i ← low - 1
+    for j from low to high - 1
+        if arr[j] ≤ pivot
+            i ← i + 1
+            swap arr[i], arr[j]
+    swap arr[i + 1], arr[high]
+    return i + 1
+```
+```
+HeapSort(arr)
+    BuildMaxHeap(arr)
+    for i from arr.length - 1 down to 1
+        swap arr[0], arr[i]
+        MaxHeapify(arr, 0, i)
+
+BuildMaxHeap(arr)
+    n ← arr.length
+    for i from n / 2 - 1 down to 0
+        MaxHeapify(arr, i, n)
+
+MaxHeapify(arr, i, n)
+    largest ← i
+    left ← 2 * i + 1
+    right ← 2 * i + 2
+    if left < n and arr[left] > arr[largest]
+        largest ← left
+    if right < n and arr[right] > arr[largest]
+        largest ← right
+    if largest ≠ i
+        swap arr[i], arr[largest]
+        MaxHeapify(arr, largest, n)
+```
+
+### 冒泡排序
+
+**冒泡排序**（Bubble Sort，有时候也被叫做 **起泡排序**）是一种 **简单的排序算法**，通过反复遍历数组，比较相邻元素并交换位置，将较大的（或较小的）元素逐步“冒泡”到数组的一端。过程如下：
+
+1. 从数组开头开始，比较相邻的两个元素，如果顺序不对（例如前者大于后者，假设升序排序），则交换它们。
+2. 遍历一遍后，**最大（或最小）的元素会被“冒泡”到数组末尾（或开头）**。
+3. 对剩余的未排序部分重复上述步骤，每次遍历的范围减少一个元素，直到数组完全排序。
+
+在升序排序中，较大的元素像气泡一样逐渐“浮”到数组的末端（或较小的元素“沉”到开头），每次遍历都将一个元素推到正确的位置，形似气泡在水中上升的过程，因此得名 **“冒泡排序”**。
+
+比如，对于数组 `5, 1, 4, 2, 8`的前两次冒泡过程如下：
+
+![5 1 4 2 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 2 4 5 8 1 2 4 5 8 1 2 4 5 8 第一次冒泡 ：将最大的数放到最后一个位置 第二次冒泡 ：将第二大的数放到倒数第二个位置](/images/data-structure/data-structure-sort-internal-005.svg)
+
+### 插入排序
+
+真题
+4
+[插入排序](https://www.bilibili.com/cheese/play/ep2796907)
+
+选择题
+[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
+[20#11](https://csgraduates.com/study_methods/408quiz/2020/#11)
+[26#9](https://csgraduates.com/study_methods/408quiz/2026/#9)
+
+解答题
+[22#42](https://csgraduates.com/study_methods/408quiz/2022/#42)
+
+插入排序（Insertion Sort）将数组分为 **未排序部分** 和 **已排序部分**，每次选取未排序部分的第一个元素作为插入元素，在已排序序列中 **从后向前** 扫描，找到相应位置并插入。
+
+对于数组 `4, 3, 2, 10, 12, 1, 5, 6` 执行插入排序的过程：
+
+![4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6](/images/data-structure/data-structure-sort-internal-006.svg)
+
+插入排序可以分为 直接插入排序
+和 折半插入排序
+，其不同点在于 **寻找插入位置时** 使用的是 **从后向前顺序查找** 还是 **折半查找**。
+
+![直接插入排序与折半插入排序对比图](/images/data-structure/data-structure-sort-internal-007.svg)
+
+插入排序适合 **大部分元素有序** 的场景，因为这种情况下进行插入比较的次数较少，排序算法执行更加高效。
+
+例如，对于序列 `1, 2, 3, 5, 4, 6, 7, 8`，只有元素 `4` 的位置不正确，插入排序仅需将 `4` 向前移动一个位置即可完成排序。而对于 `8, 7, 6, 5, 4, 3, 2, 1` 这样的逆序序列，每个元素都需要移动到已排序部分的开头，需要进行大量比较和移动，因此效率最低。
+
+因此，插入排序的时间复杂度与序列的 **初始有序程度** 密切相关：
+
+- **最好情况**：序列已经有序，每个元素只需比较一次即可，时间复杂度为 **$i$**；
+- **最坏情况**：序列完全逆序，每个元素都需要移动到最前面，时间复杂度为 **O(n2)**；
+- **平均情况**：时间复杂度为 **O(n2)**。
+
+### 选择排序
+
+选择排序（Selection Sort）将待排序序列划分为 **已排序部分** 和 **未排序部分**。每一趟排序都 **从未排序部分中选出关键字最小（或最大）的元素**，并与未排序部分的第一个元素交换，使其进入已排序部分。
+
+经过第 `i` 趟排序后，前 `i+1` 个元素均已处于最终位置，因此未排序部分不断缩小，已排序部分不断扩大，直到整个序列有序。
+
+以排序数组 `11, 25, 12, 22, 64` 为例：
+
+| 已排序部分 | 未排序部分 | 本趟选出的最小值 |
+| --- | --- | --- |
+| () | (11, 25, 12, 22, 64) | 11 |
+| (11) | (25, 12, 22, 64) | 12 |
+| (11, 12) | (25, 22, 64) | 22 |
+| (11, 12, 22) | (25, 64) | 25 |
+| (11, 12, 22, 25) | (64) | 64 |
+| (11, 12, 22, 25, 64) | () |  |
+
+![11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64](/images/data-structure/data-structure-sort-internal-008.svg)
+
+注意
+
+选择排序和插入排序都将序列划分为 **已排序部分** 和 **未排序部分**，但两者维护的性质不同：
+
+- **选择排序**：每一趟都会将当前最小（或最大）元素放到其 **最终位置**，因此已排序部分中的元素都已经归位，后续不会再发生变化。
+- **插入排序**：每一趟只是将一个元素插入到已排序部分中的正确位置，虽然已排序部分内部始终有序，但其中元素的位置后续仍可能发生移动，因此并未全部归位。
+
+### 归并排序
+
+真题
+6
+[归并排序](https://www.bilibili.com/cheese/play/ep2796800)
+
+选择题
+[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
+[22#10](https://csgraduates.com/study_methods/408quiz/2022/#10)
+[24#10](https://csgraduates.com/study_methods/408quiz/2024/#10)
+[26#11](https://csgraduates.com/study_methods/408quiz/2026/#11)
+
+解答题
+[11#42](https://csgraduates.com/study_methods/408quiz/2011/#42)
+[12#41](https://csgraduates.com/study_methods/408quiz/2012/#41)
+
+归并排序（Merge Sort）是一种典型的 **分而治之（Divide and Conquer）** 排序算法。它将待排序序列不断划分为规模更小的子序列，分别排序后，再将多个有序子序列逐步合并，最终得到一个完全有序的序列。
+
+归并排序的核心操作称为 **二路归并（Two-way Merge）**，即 **将两个已经有序的序列合并成一个更大的有序序列**。归并时，同时从两个有序序列的首元素开始比较，每次取出较小（或较大）的元素放入结果序列，直到两个序列全部合并完成。例如：
+
+- `1, 4, 7` 和 `2, 3, 8` ⟶ 二路归并后得到 `1, 2, 3, 4, 7, 8`
+
+![二路归并过程示意图](/images/data-structure/data-structure-sort-internal-009.svg)
+
+上图展示了二路归并的一次典型比较过程：
+
+- 指针 `i`、`j` 分别指向序列 A 和序列 B 的当前待比较元素（此时是 1 和 2）；
+- 两者进入"比较"环节，取较小的一个（1）放入结果序列；
+- 指针 `i` 后移一位，继续与 `j` 指向的元素比较，如此重复；
+- 图中结果序列的前两格（1、2）已经填入，后面的虚线格子表示尚未归并的位置。
+
+归并排序实际上就是不断重复 **“分解 → 二路归并”** 的过程：先将长度为 1 的有序子序列两两归并，再归并长度为 2 的有序子序列，接着归并长度为 4 的有序子序列……直到整个序列合并完成。
+
+归并排序的流程可以总结为如下步骤：
+
+1. **分解（Divide）**：将待排序序列不断二分，直到每个子序列只包含一个元素（单个元素天然有序）。
+2. **递归（Conquer）**：递归地对子序列执行相同的操作。
+3. **归并（Merge）**：采用二路归并的方法，将两个相邻的有序子序列合并成一个更大的有序序列，直到整个序列有序。
+
+![38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82](/images/data-structure/data-structure-sort-internal-010.svg)
+
+注意
+
+归并排序 过程中需要额外申请一个长度为 `n` 的 **辅助数组** 来暂存归并结果，同时递归调用还需要 `O(log n)` 的栈空间，因此归并排序的额外空间复杂度为 **O(n + log n)**，通常简记为 **O(n)**。
+
+由于归并时相等关键字能够保持原有的先后次序，因此归并排序是一种 **稳定** 的排序算法。
+
+### 快速排序
+
+真题
+3
+
+视频讲解
+2
+
+[快速排序流程](https://www.bilibili.com/cheese/play/ep2796891)
+[单向递归版本](https://www.bilibili.com/cheese/play/ep2796792)
+
+选择题
+[14#11](https://csgraduates.com/study_methods/408quiz/2014/#11)
+[24#8](https://csgraduates.com/study_methods/408quiz/2024/#8)
+
+解答题
+[16#43](https://csgraduates.com/study_methods/408quiz/2016/#43)
+
+快速排序（Quick Sort）的核心思想与 **归并排序** 类似，同样采用 **分治法**（Divide and Conquer），但两者的实现方式有所不同。
+
+归并排序是 **先递归划分，再合并**；而快速排序则是 **先分区，再递归**。每次都会选择一个 **基准元素**（Pivot），将数组划分为左右两个部分，然后分别对左右子数组继续排序。
+
+快速排序的基本步骤如下：
+
+1. **选择基准元素**（Pivot）：从当前区间中选择一个元素作为基准。
+2. **分区**（Partition）：重新排列数组，使所有小于基准的元素位于左侧，所有大于基准的元素位于右侧。分区结束后，**基准元素已经处于最终排序位置**。
+3. **递归排序子数组**：分别对基准左侧和右侧的子数组继续执行快速排序，直到区间长度为 1 或 0。
+
+#### 流程
+
+快速排序通常由两个函数组成：
+
+- `partition`：完成一次分区操作，并返回基准元素最终所在的位置；
+- `quickSort`：递归调用 `partition`，分别排序左右两个子数组。
+
+下面采用 **双指针法** 实现 `partition`，代码较为简洁，也是考研中最常见的实现方式。
+```
+// [low, high] 为分区的范围，返回值为分区后 pivot 在数组中的下标
+int partition(int a[], int low, int high) {
+    int pivot = a[low];     // 选择区间第一个元素作为基准
+    int l = low, r = high;
+
+    while (l < r) {
+        while (l < r && a[r] >= pivot) r--; // 从右向左寻找小于 pivot 的元素
+        while (l < r && a[l] <= pivot) l++; // 从左向右寻找大于 pivot 的元素
+        if (l < r) swap(a[l], a[r]);        // 交换两个元素
+    }
+
+    swap(a[low], a[r]); // 将 pivot 放到最终位置
+    return r;
+}
+
+void quickSort(int a[], int low, int high) {
+    // 递归结束条件
+    if (low < high) {
+        int pivotIdx = partition(a, low, high);
+
+        quickSort(a, low, pivotIdx - 1);
+        quickSort(a, pivotIdx + 1, high);
+    }
+}
+```
+
+快速排序的代码实现需要熟练掌握（能够手写代码），作为算法设计题的兜底方案。
+
+##### 分区
+
+下图以数组 `[5, 3, 8, 1, 9, 4, 7, 2]` 为例，展示 `partition` 中 `l`、`r` 和 `pivot` 的移动及交换过程。
+
+![图示](/images/data-structure/data-structure-sort-internal-011.svg)
+
+经过一次分区后，可以得到如下结论：
+
+- 基准元素左侧的元素都 **不大于** 基准；
+- 基准元素右侧的元素都 **不小于** 基准；
+- **基准元素已经位于最终排序位置**，之后不会再移动。
+
+##### 双向递归
+
+一次分区完成后，基准元素已经位于最终排序位置，数组被划分为两个互不重叠的子数组：
+
+- **左子数组**：所有元素都 **不大于** 基准元素；
+- **右子数组**：所有元素都 **不小于** 基准元素。
+
+此时，左右两个子数组内部仍然可能是无序的，因此需要分别对它们继续执行快速排序，即对两个子数组分别递归调用 `quickSort`。
+
+随着递归不断进行，每个子数组都会继续被划分为更小的子数组。当子数组中 **元素个数小于等于 1**（即 `low >= high`）时，该子数组已经天然有序，此时递归结束，不再继续划分。
+
+![4 3 1 2 5 9 7 10 6 1 2 4 3 6 7 10 9 1 3 4 4 7 9 10 7 10 pivot pivot pivot pivot pivot pivot pivot pivot pivot](/images/data-structure/data-structure-sort-internal-012.svg)
+
+#### 单向递归算法
+
+快速排序每完成一次分区，都会确定 **一个基准元素** 的最终位置，因此如果我们并不需要整个数组有序，而只是希望找到某一个特定位置的元素，就没有必要继续递归两个方向。
+
+例如，在寻找数组中 **第 k 小（或第 k 大）元素** 时：
+
+- 如果基准元素正好位于目标位置，则直接返回；
+- 如果目标位置位于左半部分，只需递归左侧；
+- 如果目标位置位于右半部分，只需递归右侧。
+
+这种算法称为 **Quick Select（快速选择）**，其思想与快速排序完全相同，只是每次分区后 **只递归一个子区间**，因此也称为 **单向递归算法**。
+
+![图示](/images/data-structure/data-structure-sort-internal-013.svg)
+```
+// 分区算法与快速排序相同，这里不再赘述
+int partition(int a[], int low, int high) { ... }
+
+// 查找有序数组中下标为 k（从 0 开始）的元素
+int quickSelect(int a[], int low, int high, int k) {
+    if (low < high) {
+        int pivotIdx = partition(a, low, high);
+
+        // 找到目标元素
+        if (pivotIdx == k) {
+            return a[pivotIdx];
+        }
+
+        // 目标位于右半部分
+        if (pivotIdx < k) {
+            return quickSelect(a, pivotIdx + 1, high, k);
+        }
+
+        // 目标位于左半部分
+        return quickSelect(a, low, pivotIdx - 1, k);
+    }
+
+    return a[low];
+}
+```
+
+> **注意**
+>
+> 上述代码中的 `k` 表示 **有序数组中的下标（从 0 开始）**。若题目要求寻找 **第 k 大元素**，通常需要先转换为对应的数组下标，再调用 `quickSelect`。
+
+### 堆排序
+
+堆排序的核心在于利用 **堆的性质** 进行排序，在了解堆排序过程之前，需要了解堆的基本概念。
+
+#### 堆
+
+真题
+8
+
+视频讲解
+6
+
+[堆特征](https://www.bilibili.com/cheese/play/ep2796798)
+[堆化](https://www.bilibili.com/cheese/play/ep2796795)
+[堆插入](https://www.bilibili.com/cheese/play/ep2796797)
+[堆删除](https://www.bilibili.com/cheese/play/ep2796794)
+[初始化堆](https://www.bilibili.com/cheese/play/ep2796791)
+[堆排序流程](https://www.bilibili.com/cheese/play/ep2796796)
+
+选择题
+[09#9](https://csgraduates.com/study_methods/408quiz/2009/#9)
+[11#11](https://csgraduates.com/study_methods/408quiz/2011/#11)
+[15#10](https://csgraduates.com/study_methods/408quiz/2015/#10)
+[18#11](https://csgraduates.com/study_methods/408quiz/2018/#11)
+[20#9](https://csgraduates.com/study_methods/408quiz/2020/#9)
+[21#11](https://csgraduates.com/study_methods/408quiz/2021/#11)
+[24#9](https://csgraduates.com/study_methods/408quiz/2024/#9)
+
+解答题
+[22#42](https://csgraduates.com/study_methods/408quiz/2022/#42)
+
+在二叉树一节中我们提到，[二叉树的存储方式](https://csgraduates.com/data_structure/tree/btree/#%e4%ba%8c%e5%8f%89%e6%a0%91%e5%ad%98%e5%82%a8%e7%bb%93%e6%9e%84) 包含 **链接存储** 和 **顺序存储** 两种。  
+堆就是采用 **顺序存储** 的方式，在这种方式中，我们使用一个数组来模拟一颗二叉树，二叉树中的结点操作被转化为数组元素操作。
+
+满足以下性质的树 被称为 **堆**（Heap）：
+
+1. **结构性质**：堆总是一颗 **完全二叉树**，即除了最后一层之外的其他每一层都被元素填满，且最后一层的元素都尽可能地靠左排列。
+2. **有序性质**：树中的每个结点 相对于 子结点 都保证有序关系，要么父结点的值都 **大于等于** 子结点的值，要么都 **小于等于** 子结点的值，按照这种有序关系堆可以分为两种类型：
+   - 大根堆
+     （Max Heap）：堆中的任意结点，其值都 **≥** 其子结点的值。这意味着 **根结点是最大值**。
+   - 小根堆
+     （Min Heap）：堆中的任意结点，其值都 **≤** 其子结点的值。这意味着 **根结点是最小值**。
+
+![10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆](/images/data-structure/data-structure-sort-internal-014.svg)
+
+基于这些性质，堆常常被用于实现 **优先队列**。对于大根堆，我们总是可以在 **O(1)** 的时间内得到最大的元素（即根结点），而对于小根堆，我们总是可以在 **O(1)** 的时间内得到最小的元素。
+
+##### 实现
+
+![100 19 36 17 3 25 1 2 7 二叉树结构 堆的数组顺序表示 100 19 36 17 3 25 1 2 7 0 1 2 3 4 5 6 7 8](/images/data-structure/data-structure-sort-internal-015.svg)
+
+堆通常使用数组来实现，而不需要使用真正的树或链表结构。利用数组实现堆时，每个元素都有一个固定的位置，而该位置与元素在树中的位置有关。
+
+假设数组的起始索引为 1，若某元素的索引为 `i`，则它的：
+
+- 左孩子的索引为 `2i`
+- 右孩子的索引为 `2i + 1`
+- 父结点的索引为 `i/2` （整数除法）
+
+如果数组的起始索引为 0，若某元素的索引为 `i`，则它的：
+
+- 左孩子的索引为 `2i + 1`
+- 右孩子的索引为 `2i + 2`
+- 父结点的索引为 `(i-1)/2`（整数除法）
+
+##### 操作
+
+对于堆，重点掌握 **堆化（heapify）**、**构建初始堆**、**删除** 和 **插入** 操作。
+
+堆化
+
+堆化是从某个结点开始，调整以该结点为根的子树，使其满足堆性质（以最大堆为例说明其过程）：
+
+- 比较 **当前结点** 与 **左右子结点** 的值。
+- 如果某个子结点 **比当前结点大**，交换当前结点与较大的子结点。
+- 交换后，继续对 **被交换的子结点** 递归地执行堆化，直到子树满足堆性质。
+
+以大根堆 `50,13,40,30,20,22,24,15,11` 为例，若我们从结点 `13` 执行堆化，会发生如下图所示的过程：
+
+![图示](/images/data-structure/data-structure-sort-internal-016.svg)
+
+注意堆化的过程是递归的，当我们交换父结点和子结点后，需要从子结点进一步执行堆化操作。
+
+构造初始堆
+
+构造初始堆有两种方式：
+
+- 方法 1：向一个初始为空的堆中不断 **插入** 新的元素。
+- 方法 2：将无序数组转化为最大堆，核心是从 **最后一个非叶子结点** 开始，从后向前逐一对每个子树执行 **堆化** 操作。
+
+以数组 `1,3,5,4,6,13,10,9,8,15,17` 为例，假设我们使用方法 2 将其初始化为大根堆，会发生如下图所示的过程：
+
+![1 3 5 4 6 13 10 9 8 15 17 swap 从结点 6 执行 heapify 1 3 5 4 17 13 10 9 8 15 6 从结点 4 执行 heapify swap 1 3 5 9 17 13 10 4 8 15 6 从结点 5 执行 heapify swap 1 3 13 9 17 5 10 4 8 15 6 swap swap 1 17 13 9 15 5 10 4 8 3 6 从结点 3 执行 heapify 从根结点执行 heapify sw](/images/data-structure/data-structure-sort-internal-017.svg)
+
+删除
+
+堆中的删除一般都发生在 **堆顶**，其过程如下：
+
+- 将堆顶元素和堆中最后一个元素互换，然后删除最后一个结点
+- 对新的堆顶执行 **堆化**，调整堆使其重新满足最大堆性质
+
+![图示](/images/data-structure/data-structure-sort-internal-018.svg)
+
+插入
+
+在堆中插入新元素后，需维护堆性质。
+
+- 将新元素添加到堆底（数组末尾）。
+- 从新元素开始，向上与父结点比较，若 **大于父结点** 则交换（上浮）。
+- 重复上浮直到满足堆性质或到达堆顶。
+
+![图示](/images/data-structure/data-structure-sort-internal-019.svg)
+
+- 堆化
+- 构造初始堆
+- 堆插入元素
+- 堆删除元素
+```
+// 调整 i 结点为根的子树，使其满足堆的性质
+void heapify(int heap[], int size, int i) {
+    int largest = i;       // 假设当前结点是最大的
+    int left = 2 * i + 1;  // 左结点下标
+    int right = 2 * i + 2; // 右结点下标
+    if (left < size && heap[left] > heap[largest]) {
+        largest = left;
+    }
+    if (right < size && heap[right] > heap[largest]) {
+        largest = right;
+    }
+    // 如果最大值不是根结点
+    if (largest != i) {
+        swap(heap[i], heap[largest]);
+        heapify(heap, size, largest);  // 递归堆化受影响的子树
+    }
+}
+```
+```
+// 建立最大堆
+void buildHeap(int heap[], int size) {
+    // 从最后一个非叶结点开始，向前堆化每个结点
+    for (int i = (size / 2) - 1; i >= 0; i--) {
+        heapify(heap, size, i);
+    }
+}
+```
+```
+// 向大小为 size 的堆中插入元素 value
+void heapInsert(int heap[], int *size, int value) {
+    heap[*size] = value;
+    int current = *size;
+    int parent = (current - 1) / 2;
+    
+    // 如果新插入的元素比父结点的元素大，需要将其向上移动
+    while (current > 0 && heap[current] > heap[parent]) {
+        swap(heap[current], heap[parent]); // 交换当前结点和父结点
+        current = parent;
+        parent = (current - 1) / 2; // 重新计算当前结点和其父结点的位置
+    }
+  
+    (*size)++;  // 增加堆的大小
+}
+```
+```
+// 删除堆根结点
+void heapDelete(int heap[], int *size) {
+    if (*size <= 0) {
+        return;
+    }
+    heap[0] = heap[*size - 1]; // 将堆顶元素替换为最后一个元素
+    (*size)--;   // 将堆大小减 1
+    heapify(heap, *size, 0);   // 调整堆
+}
+```
+
+#### 过程
+
+堆排序（Heap Sort）其主要思想是将待排序的序列构造成一个 **大顶堆** 或 **小顶堆**，然后交换堆顶和最后一个元素的位置，使最大或最小的元素放到序列的末尾。这样，就得到一个部分有序的序列。接下来，再对剩下的部分重新调整为大顶堆或小顶堆，并重复上述过程，直到整个序列有序。
+
+![堆排序流程图](/images/data-structure/data-structure-sort-internal-020.svg)
+
+堆排序的主要步骤：
+
+1. **构造初始堆**：将给定无序序列构造成一个大顶堆（对于升序排序）或小顶堆（对于降序排序）。
+2. **交换数据**：将堆顶元素与末尾元素交换，这样最大元素就位于序列的末尾。然后，将未排序的序列的长度减 1，因为最后一个元素已经排序好了。
+3. **重建堆**：对于剩下的未排序的序列，重新调整为大顶堆。
+4. **重复步骤 2 和 3**，直到整个序列有序。
+
+调整堆过程：
+
+1. 选择一个结点 `i`，它的左子结点为 `2i`，右子结点为 `2i+1`。
+2. 如果结点 `i` 的值小于其子结点的值，则找到 **最大的子结点**。
+3. 将结点 `i` 与 **最大的子结点** 交换。
+4. 交换后可能会破坏下一层的堆结构，所以需要对换到的子结点重复步骤 1‑3 的调整，直到整个子树满足堆的性质。
+
+![24 23 18 19 14 24 23 18 19 14 24 23 18 19 14 23 19 18 14 24 23 19 18 14 24 19 14 18 23 24 19 14 18 23 24 18 14 19 23 24 18 14 19 23 24 14 18 19 23 24 14 18 19 23 24 14 18 19 23 24 Original Array After Heap Sort 14 18 19 23 24](/images/data-structure/data-structure-sort-internal-021.svg)
+
+堆排序的代码实现如下所示：
+```
+void heapSort(int heap[], int size) {
+    // 构建最大堆 buildHeap
+    for (int i = (size / 2) - 1; i >= 0; i--) {
+        heapify(heap, size, i);
+    }
+    
+    // 一个个从堆中取出元素
+    for (int i = size - 1; i >= 0; i--) {
+        swap(heap[0], heap[i]); // 将当前最大元素（堆顶）移到数组末尾
+        heapify(heap, i, 0);    // 调整堆以维护最大堆性质
+    }
+}
+```
+
+### 希尔排序
+
+真题
+3
+[希尔排序](https://www.bilibili.com/cheese/play/ep2796799)
+
+选择题
+[14#10](https://csgraduates.com/study_methods/408quiz/2014/#10)
+[15#11](https://csgraduates.com/study_methods/408quiz/2015/#11)
+[18#10](https://csgraduates.com/study_methods/408quiz/2018/#10)
+
+希尔排序（Shell Sort）是一种 **基于插入排序** 的改进算法，通过分组和逐步减小步长来提高效率。
+
+![希尔排序流程图](/images/data-structure/data-structure-sort-internal-022.svg)
+
+希尔排序的过程如下所示：
+
+1. **确定初始步长（增量）**：
+   - 选择一个初始步长（gap），通常可以 **取数组长度的一半**（例如 `gap = n/2`）。
+2. **分组插入排序**：
+   - 将数组按步长 `gap` 分成若干组，每组内的元素相距 `gap` 个位置。
+   - 对每组进行插入排序。例如，若 `gap=4`，比较和排序索引为 `0,4,8...` 的元素，`1,5,9...` 的元素，依此类推。
+3. **减小步长**：
+   - 将步长缩小（通常除以 2 或按增量序列递减），例如 `gap = gap/2`。
+   - 重复步骤 2，对新的分组进行插入排序。
+4. **重复直到步长为 1**：
+   - 当步长减小到 1 时，相当于对整个数组进行一次标准插入排序。此时数组已接近有序，插入排序的效率较高。
+5. **排序完成**：
+   - 步长为 1 的插入排序完成后，数组完全有序。
+
+注意
+
+虽然希尔最初提出时建议初始 gap（增量序列）为 n/2 并逐步折半，但在实践中 gap 的选取是灵活的，并不强制要求必须为数组长度的一半。
+
+以数组 `32, 95, 16, 82, 24, 66, 35, 19, 75, 54, 40, 43, 93, 68` 为例进行 **希尔排序**，数组长度为 14，初始步长为 7，然后选择步长 3、1，依次按照步长对所有子数组排序。
+
+![32 95 16 82 24 66 35 19 75 54 40 43 93 68 19 75 16 40 24 66 35 32 95 54 82 43 93 68 0 1 2 3 4 5 6 7 8 9 10 11 12 13 original gap = 7 19 24 16 35 32 43 40 68 66 54 75 95 93 82 gap = 3 gap = 1 16 19 24 32 35 40 43 54 66 68 75 82 93 95 同色的元素表示](/images/data-structure/data-structure-sort-internal-023.svg)
+
+### 桶排序
+
+**桶排序（Bucket Sort）** 的核心思想是根据关键字的取值范围，将数据分配到若干个 **桶** 中，再分别对各个桶内的数据进行排序，最后按桶的顺序依次合并，从而得到有序序列。
+
+桶排序适用于 **关键字取值范围已知，并且数据分布较均匀的场景** 的情况。当数据分布较均匀时，每个桶中的元素较少，因此整体排序效率较高。
+
+桶排序的步骤如下：
+
+1. 根据数据范围划分若干个桶，并按照映射规则将元素放入对应的桶中；
+2. 对每个非空桶内部进行排序；
+3. 按桶的顺序依次取出各桶中的元素，得到最终有序序列。
+
+例如，对 `12, 9, 24, 4, 19, 21, 14, 6, 2, 16` 进行桶排序的过程如下：
+
+![12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24](/images/data-structure/data-structure-sort-internal-024.svg)
+
+补充
+
+**桶排序和归并排序的区别**
+
+两者最终都是"分而治之"，但分的方法完全不同。
+
+更准确地说：
+
+- **归并排序**：按**元素个数**划分（对半拆分），完全不关心元素的值。
+- **桶排序**：按**元素取值范围**划分（映射到不同桶），充分利用元素值的信息。
+
+所以这是两种类型的排序，其实我们将排序算法分成两大类:
+
+- **比较排序**：只知道"谁比谁大"，例如直接插入排序、冒泡排序、快速排序、堆排序、归并排序。它们不利用元素值的具体含义，因此都有比较排序的理论下界 (\Omega(n\log n))。
+- **分布排序（非比较排序）**：利用元素值本身的特性，例如计数排序、桶排序、基数排序。只要数据满足一定条件，就能突破比较排序的下界，达到线性时间。
+
+### 基数排序
+
+真题
+2
+[基数排序](https://www.bilibili.com/cheese/play/ep2796793)
+
+选择题
+[15#9](https://csgraduates.com/study_methods/408quiz/2015/#9)
+[21#10](https://csgraduates.com/study_methods/408quiz/2021/#10)
+
+基数排序（Radix Sort）的核心思想是将整数分解为单独的数字，然后进行多轮排序，最终使数据有序。
+
+基数排序分为 **低位优先**（LSD，Least Significant Digit first）和 **高位优先**（MSD，Most Significant Digit first）两种方案。这里重点掌握 **LSD** 的方案，**MSD** 的方式了解即可。
+
+#### 低位优先
+
+1. 先按照最低位进行 **桶排序**（或计数排序）。
+2. 然后按照次低位进行 **桶排序**，但保持上一轮的相对顺序（**稳定排序**）。
+3. 依次进行，直到最高位排序完成。
+
+![0 1 2 3 4 5 6 7 8 9 278 109 063 930 599 184 505 269 008 083 0 1 2 3 4 5 6 7 8 9 930 083 063 184 505 278 008 109 599 269 0 1 2 3 4 5 6 7 8 9 505 008 109 930 063 269 278 083 184 599 278, 109, 063, 930, 589, 184, 505, 269, 008, 083 第一次排序，按照个位将](/images/data-structure/data-structure-sort-internal-025.svg)
+
+以上排序的效果如下：
+
+![2 7 8 1 0 9 0 6 3 9 3 0 5 9 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 9 3 0 0 6 3 0 8 3 1 8 4 5 0 5 2 7 8 0 0 8 1 0 9 5 9 9 2 6 9 5 0 5 0 0 8 1 0 9 9 3 0 0 6 3 2 6 9 2 7 8 0 8 3 1 8 4 5 9 9 0 0 8 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 9 9 0 6 3 9 3 0](/images/data-structure/data-structure-sort-internal-026.svg)
+
+首先对最低位排序，然后对次低位排序，最后对最高位排序。通过三轮排序，可以保证结果序列是有序的。
+
+#### 高位优先
+
+MSD（高位优先）基数排序的核心思想是从最高位开始，对数据进行递归分类，直到所有数字或字符串都排好序。
+
+![2 7 8 1 0 9 0 6 3 9 3 0 5 8 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 0 6 3 0 0 8 0 8 3 1 0 9 1 8 4 2 7 8 2 6 9 5 8 9 5 0 5 9 3 0 0 0 8 0 6 3 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 8 9](/images/data-structure/data-structure-sort-internal-027.svg)
+
+如上图所示，MSD 首先根据最高位对数据进行分组，然后再根据次高位对数据进行分组，以此类推，递归直到每组中只有一个元素。
+
+MSD 基数排序适用于 **字符串或变长数据**，因为它先处理最高位，可以提前分组。适合 **字典序排序**，如 IP 地址、文件名、长整型数值等。
+
+![B A D B A N C O F G E \0 N E R \0 F E \0 C O M P A R I S O N \0 C O M P U T E R \0 M I D N I G H T \0 W A N D E R \0 M A R D R O B E \0 W O R K E R \0 使用 MSD 对字符串进行排序，绿色表示递归的范围](/images/data-structure/data-structure-sort-internal-028.svg)
+
+#### 对比
+
+| 方式 | 低位优先（LSD） | 高位优先（MSD） |
+| --- | --- | --- |
+| 排序顺序 | 从低位到高位 | 从高位到低位 |
+| 是否递归 | 否 | 是 |
+| 适用数据 | 等长数据（整数、固定长度字符串） | 变长数据（字符串、IP 地址） |
+| 适用场景 | 大量数值排序 | 变长字符串、字典序排序 |
+| 实现难度 | 较简单 | 需要递归，较复杂 |

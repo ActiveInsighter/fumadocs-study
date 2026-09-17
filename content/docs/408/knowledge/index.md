@@ -10,4 +10,6 @@ description: "数据结构、计算机组成原理、操作系统与计算机网
 - [操作系统](./operating-systems/)：5 章
 - [计算机网络](./computer-networks/)：6 章
 
+完整的新版 408 知识点讲义另见[独立版本](./408-release/)。
+
 专项做题方法统一放在[解题方法](../problem-solving/)，整套试卷统一放在[真题与试卷](../exam/)。

@@ -1,0 +1,135 @@
+---
+title: "数据对齐方式"
+---
+
+⭐
+中优先级
+
+**数据对齐** 和 **大小端** 在选择题考查得挺频繁的，但是这两点也比较简单，真正掌握要点了基本不会忘。
+
+### 数据对齐
+
+真题
+3
+
+选择题
+[12#15](https://csgraduates.com/study_methods/408quiz/2012/#15)
+[20#14](https://csgraduates.com/study_methods/408quiz/2020/#14)
+[25#15](https://csgraduates.com/study_methods/408quiz/2025/#15)
+
+**数据对齐** （Data Alignment）是指数据在内存中的存放方式，它要求数据的起始地址必须是某个数（通常是 1、2、4、8）的整数倍，这个数被称为 **对齐因子** （Alignment Factor）。数据对齐的目的是为了提高 **内存访问** 的效率，因为许多计算机系统都是按照数据的对齐边界来设计 **内存访问** 硬件的。
+
+![0x00: 0x04: 0x08: 0x0C: 0x10: 0x00: 0x04: 0x08: 0x0C: 0x10: 对齐的数据布局 char padding int (4字节) short pad double (8字节) 未对齐的数据布局 char int short double CPU 访问 int 1次内存访问 CPU 访问 int 2次内存访问 对齐优势 ✓ 单次访问获取完整数据 ✓ 硬件优化，访问速度快 未对齐问题 ✗ 需要多次内存访问 ✗ 某些架构会触发异常](/images/computer-organization/computer-organization-instruction-alignment-001.svg)
+
+**不对齐** 的数据访问可能会导致 **性能下降**，因为处理器可能需要额外的 **内存访问** 来获取不完整的数据。在一些严格要求 **数据对齐** 的架构中，**不对齐** 的数据访问甚至会导致 **硬件异常**。
+
+不同数据类型具有不同的 对齐因子，这是由处理器架构以及编译器的实现共同决定的。一般来说，对齐因子与数据类型的 **字节大小** 密切相关，基本规律是：
+
+数据类型的对齐因子通常等于其自身大小（或该架构所支持的最大对齐限制）。
+
+---
+
+在 C11 中，我们可以通过 `_Alignof` 来查看不同数据类型的 **对齐因子**：
+
+查看数据类型的对齐因子
+
+```
+#include <stdint.h>
+#include <stdio.h>
+
+#define EVAL_PRINT(expr) printf("%-20s = %u\n", #expr, (uint8_t)(expr));
+
+int main(void) {
+    EVAL_PRINT(_Alignof(char));
+    EVAL_PRINT(_Alignof(uint8_t));
+    EVAL_PRINT(_Alignof(uint16_t));
+    EVAL_PRINT(_Alignof(uint32_t));
+    EVAL_PRINT(_Alignof(int));
+    EVAL_PRINT(_Alignof(uint64_t));
+    EVAL_PRINT(_Alignof(void*));
+    EVAL_PRINT(_Alignof(size_t));
+    return 0;
+}
+```
+
+以上程序在我的 64 位系统中运行的结果如下所示，以此我们可以判断每个类型的 aglinment 大小。
+
+```
+$ gcc alignof.c && ./a.out
+_Alignof(char)       = 1
+_Alignof(uint8_t)    = 1
+_Alignof(uint16_t)   = 2
+_Alignof(uint32_t)   = 4
+_Alignof(int)        = 4
+_Alignof(uint64_t)   = 8
+_Alignof(void*)      = 8
+_Alignof(size_t)     = 8
+```
+
+在考试中涉及到数据类型的对齐因子时，一般遵循以下规则：
+
+| 数据类型 | 大小（字节） | 对齐因子（字节） | 说明 |
+| --- | --- | --- | --- |
+| `char` | 1 | 1 | 任意地址均可访问，无需额外对齐 |
+| `short` | 2 | 2 | 地址必须是 2 的倍数 |
+| `int` | 4 | 4 | 地址必须是 4 的倍数 |
+| `float` | 4 | 4 | 地址必须是 4 的倍数 |
+| `double` | 8 | 8 | 地址必须是 8 的倍数 |
+| `long long` | 8 | 8 | 地址必须是 8 的倍数 |
+| 指针（在 64 位系统中） | 8 | 8 | 指针大小与系统位宽有关 |
+
+以下图中的结构体定义为例，假设我们定义一个 **变量**，变量的类型长度为 K 个字节，那么这个 **变量** 在 **内存** 中的地址 **addr** 必须是 K 的整数倍，即 ***addr % K == 0***。
+
+![图示](/images/computer-organization/computer-organization-instruction-alignment-002.svg)
+
+上图中 **变量** b 和 a 之间增加了 1 个字节的 **padding**，**变量** d 的末尾也增加了 3 个字节 **padding**，以保证下一个 **数据** 的开始是 4 的整数倍。
+
+### 大小端
+
+真题
+7
+
+选择题
+[16#14](https://csgraduates.com/study_methods/408quiz/2016/#14)
+[18#15](https://csgraduates.com/study_methods/408quiz/2018/#15)
+[19#15](https://csgraduates.com/study_methods/408quiz/2019/#15)
+[20#14](https://csgraduates.com/study_methods/408quiz/2020/#14)
+[25#15](https://csgraduates.com/study_methods/408quiz/2025/#15)
+
+解答题
+[23#44](https://csgraduates.com/study_methods/408quiz/2023/#44)
+[24#44](https://csgraduates.com/study_methods/408quiz/2024/#44)
+
+**大小端** （Endianness）是指多字节 **数据在内存中的字节序**，也就是 **字节** 的排列顺序。主要有两种存放方式：
+
+大端序
+
+![32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x12 0x34 0x56 0x78 ← 低地址 ← 高地址 大端序特征 • 高位字节 → 低地址 • 低位字节 → 高地址](/images/computer-organization/computer-organization-instruction-alignment-003.svg)
+
+也叫做 **大端模式** （Big-Endian）: 数据内部的 **高位字节** 存放在 **低位地址**，**低位字节** 存放在 **高位地址**。也就是说，一个整数的第一个字节（最高有效字节）将存放在起始地址处。
+
+小端序
+
+![32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x78 0x56 0x34 0x12 ← 低地址 ← 高地址 小端序特征 • 低位字节 → 低地址 • 高位字节 → 高地址](/images/computer-organization/computer-organization-instruction-alignment-004.svg)
+
+也叫做 **小端模式** （Little-Endian）: 数据内部的 **低位字节** 存放在 **低位地址**，**高位字节** 存放在 **高位地址**。也就是说，一个整数的最后一个字节（最低有效字节）将存放在起始地址处。
+
+---
+
+举一个例子，假如定义数组 `long a[2] = {0x76543210, 0xFEDCBA98}`，`long` 类型的大小为 8 字节，数组`a` 在内存中的起始地址为 `0x1000`，则数组中两个元素在内存中的字节排列如下图所示：
+
+![0x10 0x32 0x54 ox76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x76 0x54 0x32 0x10 0x98 0xBA 0xDC 0xFE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xFE 0xDC 0xBA 0x98 0x1000 0x1000 0x1008 0x1008 Little Endian Big Endian](/images/computer-organization/computer-organization-instruction-alignment-005.svg)
+
+注意
+
+理解大小端的核心是要分清 **字节内部的 bit 顺序** 和 **多字节数据的字节顺序**（大小端的核心问题）
+
+- **大小端**（Endianness） 本身并 **不涉及字节内部的位顺序**，它只规定 **字节之间在内存中的排列方式**。
+- 在绝大多数现代 CPU 架构中，一个字节（8 bit）的内部位顺序都是 **bit7 在高位**，**bit0 在低位**，并且在寄存器和内存访问时，bit 顺序是一致的。
+
+**大小端** 的选择通常是由计算机的 **CPU 架构** 决定的，不同的架构有不同的 **字节序** 要求。例如，Intel x86 和 x86-64 架构是 **小端**，而网络协议通常是 **大端**，因为 **大端** 的格式在 **字节流** 中的表示更加直观。
+
+最后一句话总结一下 **大小端**：
+
+- 小端序 是低位字节在低地址
+- 大端序 是高位字节在低地址
