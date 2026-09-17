@@ -5,13 +5,20 @@ import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
 
+const CHART_THEMES = {
+  light: "",
+  dark: ".dark",
+} as const
+
+type ChartTheme = keyof typeof CHART_THEMES
+
 export type ChartConfig = {
   [key: string]: {
     label?: React.ReactNode
     icon?: React.ComponentType
   } & (
     | { color?: string; theme?: never }
-    | { color?: never; theme: Record<string, string> }
+    | { color?: never; theme: Record<ChartTheme, string> }
   )
 }
 
@@ -52,11 +59,11 @@ function ChartContainer({
   const uniqueId = React.useId()
   const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
   const chartVariables = Object.fromEntries(
-    Object.entries(config).flatMap(([key, item]) => {
-      const color = item.color ?? item.theme?.light
-      return color ? [[`--color-${key}`, color]] : []
-    }),
+    Object.entries(config).flatMap(([key, item]) =>
+      item.color ? [[`--color-${key}`, item.color]] : [],
+    ),
   ) as React.CSSProperties
+  const themeStyles = buildChartThemeStyles(chartId, config)
 
   React.useEffect(() => {
     const node = containerRef.current
@@ -102,6 +109,7 @@ function ChartContainer({
 
   return (
     <ChartContext.Provider value={{ config }}>
+      {themeStyles ? <style dangerouslySetInnerHTML={{ __html: themeStyles }} /> : null}
       <div
         ref={containerRef}
         data-chart={chartId}
@@ -252,6 +260,28 @@ function ChartLegendContent({
       ))}
     </div>
   )
+}
+
+function buildChartThemeStyles(chartId: string, config: ChartConfig): string {
+  const themedItems = Object.entries(config).filter(([, item]) => item.theme)
+  if (themedItems.length === 0) return ""
+
+  return (Object.entries(CHART_THEMES) as [ChartTheme, string][])
+    .map(([theme, prefix]) => {
+      const variables = themedItems
+        .map(([key, item]) => {
+          const color = item.theme?.[theme]
+          return color ? `  --color-${key}: ${color};` : null
+        })
+        .filter(Boolean)
+        .join("\n")
+
+      return variables
+        ? `${prefix ? `${prefix} ` : ""}[data-chart="${chartId}"] {\n${variables}\n}`
+        : ""
+    })
+    .filter(Boolean)
+    .join("\n")
 }
 
 function getDataKey(dataKey: unknown): string | undefined {

@@ -1,0 +1,20 @@
+.chart {
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: auto !important;
+}
+
+.chart :global(.recharts-cartesian-axis-tick-value) {
+  fill: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.chart :global(.recharts-cartesian-axis-line),
+.chart :global(.recharts-cartesian-axis-tick-line) {
+  stroke: var(--border);
+}
+
+.chart :global(.recharts-cartesian-grid line) {
+  stroke: var(--border);
+  stroke-opacity: 0.72;
+}
