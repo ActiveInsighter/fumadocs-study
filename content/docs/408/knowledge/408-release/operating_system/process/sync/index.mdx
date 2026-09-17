@@ -450,34 +450,10 @@ thread() {
 
 ![图 7](/images/operating-system/operating-system-process-sync-007.svg)
 
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>操作</th>
-<th>作用</th>
-<th>关键步骤</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>P（wait）</strong></td>
-<td>申请资源</td>
-<td>- 信号量&gt;0 → 减1，继续<br />
-- 信号量=0 → 阻塞</td>
-</tr>
-<tr class="even">
-<td><strong>V（signal）</strong></td>
-<td>释放资源</td>
-<td>- 信号量+1<br />
-- 若原值为0 → 唤醒一个阻塞线程</td>
-</tr>
-</tbody>
-</table>
+| 操作 | 作用 | 关键步骤 |
+| --- | --- | --- |
+| **P（wait）** | 申请资源 | 信号量 > 0 → 减 1，继续<br />信号量 = 0 → 阻塞 |
+| **V（signal）** | 释放资源 | 信号量 + 1<br />若原值为 0 → 唤醒一个阻塞线程 |
 
 ##### P 操作
 
