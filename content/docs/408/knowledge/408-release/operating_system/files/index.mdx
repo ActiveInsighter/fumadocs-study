@@ -1,40 +1,16 @@
 ---
 title: "文件管理"
+description: "文件、目录、文件系统与外存空间管理。"
 ---
 
-# 文件管理
+文件管理负责把外存中的块组织成用户可理解的文件与目录，同时维护文件元数据、访问权限和空闲空间。
 
-主要在选择题中考察，在大题中也会涉及到对概念的考察。文件的物理结构以及外存空闲空间管理方法要熟练掌握。
+<InlineSvg src="/images/operating-system/operating-system-files-001.svg" alt={"文件、目录与文件系统知识框架"} />
 
-本章视频讲解
-5
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [文件](/docs/408/knowledge/408-release/operating_system/files/file/) | 文件属性、逻辑结构、连续/链接/索引分配、inode |
+| [目录](/docs/408/knowledge/408-release/operating_system/files/dir/) | 目录结构、路径、目录项、硬链接与符号链接 |
+| [文件系统](/docs/408/knowledge/408-release/operating_system/files/file_system/) | 文件系统布局、空闲空间管理、VFS 与挂载 |
 
-本章共 **5** 节视频讲解，覆盖 **3** 个知识点。
-
-[文件](https://csgraduates.com/operating_system/files/file/)
-
-文件物理结构
-[文件的物理分配](https://www.bilibili.com/cheese/play/ep2798788)
-[文件的混合索引](https://www.bilibili.com/cheese/play/ep2798789)
-
-[目录](https://csgraduates.com/operating_system/files/dir/)
-
-文件链接
-[硬链接](https://www.bilibili.com/cheese/play/ep2798790)
-[软链接](https://www.bilibili.com/cheese/play/ep2798791)
-
-[文件系统](https://csgraduates.com/operating_system/files/file_system/)
-
-外存空间管理
-[外存空间管理](https://www.bilibili.com/cheese/play/ep2798777)
-
-<InlineSvg src="/images/operating-system/operating-system-files-001.svg" alt={"基本概念 元数据和索引结点 文件的操作 文件的保护 文件的逻辑结构 文件的物理结构 文件 基本概念 树形目录 目录的操作 硬链接和软链接 目录 全局结构 外存空闲空间管理方法 虚拟文件系统 文件系统挂载 文件系统 文件管理"} />
-
----
-
-##### [文件](https://csgraduates.com/operating_system/files/file/)
-
-##### [目录](https://csgraduates.com/operating_system/files/dir/)
-
-##### [文件系统](https://csgraduates.com/operating_system/files/file_system/)
+> **复习提示：** 做索引文件题时，先确定一个索引块能存多少个块号，再逐级计算直接、一级间接、二级间接等索引可覆盖的最大文件范围。

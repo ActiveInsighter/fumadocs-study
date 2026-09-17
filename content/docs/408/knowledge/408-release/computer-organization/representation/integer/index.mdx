@@ -2,9 +2,7 @@
 title: "整数的表示"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 本章是每年必考的重点，**补码**、**有符号数** 和 **无符号数** 每年都会在选择题考查，也会在大题直接或间接考查，并且本章是组成原理的基础，必须 **完全掌握**。
 
 ### BCD 码
@@ -32,22 +30,14 @@ BCD 编码在某些应用中是很有用的，特别是在需要与 **十进制�
 
 而计算机以二进制形式存储数据，**补码、原码、无符号数** 等只是 **对二进制位的一种解释方式**，它们决定了同一组二进制位所代表的实际数值。
 
-在实际的计算机中，没有采用 [原码](/docs/408/knowledge/408-release/computer-organization/representation/integer/#%e5%8e%9f%e7%a0%81) 存储数据的，具体原因后面会谈到到。对于计算机中存储的数字来说，它的二进制只可能是 **有符号数**（signed） 或者 **无符号数**（unsigned） 这两种情况。
+通用处理器的整数算术通常采用补码表示；原码主要用于理解符号与数值的分离表示。对于计算机中存储的数字来说，它的二进制只可能是 **有符号数**（signed） 或者 **无符号数**（unsigned） 这两种情况。
 
 #### 无符号数
 
-真题
-1
-
-视频讲解
-3
-
-[整数的表示](https://www.bilibili.com/cheese/play/ep2794656)
-[有符号数](https://www.bilibili.com/cheese/play/ep2794762)
-[无符号数](https://www.bilibili.com/cheese/play/ep2794773)
-
-选择题
-[12#13](https://csgraduates.com/study_methods/408quiz/2012/#13)
+> **真题考察**
+> - 选择题：2012 年第 13 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **无符号数**（unsigned number） 是计算机中一种整数类型，只能表示 **非负数**（包括 0 和正整数），不包含负数。
 
@@ -88,8 +78,7 @@ $n$
 - **表示范围**：
   $[0,2^{n}-1]$
 
-注意
-
+**注意**
 需要注意的是，**无符号数** 就是没有符号的二进制表示，它不像 **有符号数** 的表示，有一个 [补码](/docs/408/knowledge/408-release/computer-organization/representation/integer/#%e8%a1%a5%e7%a0%81%e8%a1%a8%e7%a4%ba) 这个专有名词。但是我们一般可以叫它 **纯二进制** 或 **无符号数二进制表示**。
 
 ##### 二进制 → 十进制
@@ -142,7 +131,7 @@ $73=64+8+1=2^{6}+2^{3}+2^{0}$
 
 #### 有符号数
 
-在程序中使用 `short`、`int`、`long` 定义的整形变量就是 **有符号数**（signed），有符号数使用 **补码（Two’s complement）** 进行表示。
+在程序中使用 `short`、`int`、`long` 定义的整型变量就是 **有符号数**（signed），有符号数使用 **补码（Two’s complement）** 进行表示。
 
 ##### 补码表示
 
@@ -294,38 +283,13 @@ $-73=-128+55=-128+32+16+4+2+1=-2^{7}+2^{5}+2^{4}+2^{2}+2^{1}+2^{0}$
 
 #### 原码
 
-真题
-16
+> **真题考察**
+> - 选择题：2009 年第 12 题、2010 年第 13 题、2013 年第 14 题、2014 年第 13 题、2018 年第 13 题、2019 年第 13 题、2020 年第 13 题、2021 年第 13 题、2022 年第 13 题、2023 年第 13 题、2024 年第 12 题、2024 年第 14 题、2025 年第 14 题、2026 年第 13 题
+> - 解答题：2011 年第 43 题、2017 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-视频讲解
-2
-
-[整数的表示](https://www.bilibili.com/cheese/play/ep2794656)
-[有符号数](https://www.bilibili.com/cheese/play/ep2794762)
-
-选择题
-[09#12](https://csgraduates.com/study_methods/408quiz/2009/#12)
-[10#13](https://csgraduates.com/study_methods/408quiz/2010/#13)
-[13#14](https://csgraduates.com/study_methods/408quiz/2013/#14)
-[14#13](https://csgraduates.com/study_methods/408quiz/2014/#13)
-[18#13](https://csgraduates.com/study_methods/408quiz/2018/#13)
-[19#13](https://csgraduates.com/study_methods/408quiz/2019/#13)
-[20#13](https://csgraduates.com/study_methods/408quiz/2020/#13)
-[21#13](https://csgraduates.com/study_methods/408quiz/2021/#13)
-[22#13](https://csgraduates.com/study_methods/408quiz/2022/#13)
-[23#13](https://csgraduates.com/study_methods/408quiz/2023/#13)
-[24#12](https://csgraduates.com/study_methods/408quiz/2024/#12)
-[24#14](https://csgraduates.com/study_methods/408quiz/2024/#14)
-[25#14](https://csgraduates.com/study_methods/408quiz/2025/#14)
-[26#13](https://csgraduates.com/study_methods/408quiz/2026/#13)
-
-解答题
-[11#43](https://csgraduates.com/study_methods/408quiz/2011/#43)
-[17#43](https://csgraduates.com/study_methods/408quiz/2017/#43)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 不会考查，因为现代计算机没有直接
 
 **原码（Sign-Magnitude）** 是一种简单的方式来表示二进制中的 **有符号整数**。在这种表示法中，数字的 **最高位**（最左边的位）用于表示符号，其余的位表示数字的大小。通常，符号位为 0 表示正数，而 1 表示负数。

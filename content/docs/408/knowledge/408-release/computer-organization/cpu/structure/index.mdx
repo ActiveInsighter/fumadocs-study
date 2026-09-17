@@ -2,10 +2,8 @@
 title: "功能和结构"
 ---
 
-🔥
-高优先级
-
-本节很重要，其实应该不需要我再强调了。本节要和指令系统放在一起理解，主要两点：1. 理解 CPU 的 **架构方式**。2. 理解 CPU 中 **各种寄存器的功能细节**。
+> **复习优先级：高。**
+本节应与指令系统结合理解，重点有两点：1. 理解 CPU 的 **架构方式**。2. 理解 CPU 中 **各种寄存器的功能细节**。
 
 ### CPU
 
@@ -13,7 +11,7 @@ title: "功能和结构"
 
 #### 组成结构
 
-在介绍 CPU 的组成结构之前，首先回顾一下计算机的 [冯诺依曼结构](/docs/408/knowledge/408-release/computer-organization/overview/structure/#%e5%86%af%e8%af%ba%e4%be%9d%e6%9b%bc%e7%bb%93%e6%9e%84)，其中 **运算器**、**控制器**、**存储器**、**输入**、**输出** 为计算机组成的五大部件，其中 CPU 涵盖的功能就包含 **运算器** 和 **控制器** 这两个。
+在介绍 CPU 的组成结构之前，首先回顾一下计算机的 [冯·诺依曼结构](/docs/408/knowledge/408-release/computer-organization/overview/structure/#%e5%86%af%e8%af%ba%e4%be%9d%e6%9b%bc%e7%bb%93%e6%9e%84)，其中 **运算器**、**控制器**、**存储器**、**输入**、**输出** 为计算机组成的五大部件，其中 CPU 涵盖的功能就包含 **运算器** 和 **控制器** 这两个。
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-001.svg" alt={"存储器 运算器 控制器 输入设备 输入设备 数据流 控制流 控制流 CPU"} />
 
@@ -32,26 +30,11 @@ CPU 的结构简图如上图所示，CPU 由 **运算部件** 和 **控制部件
 
 ##### 数据通路
 
-真题
-8
-
-视频讲解
-2
-
-[CPU 逻辑结构](https://www.bilibili.com/cheese/play/ep2793410)
-[数据通路](https://www.bilibili.com/cheese/play/ep2793765)
-
-选择题
-[17#19](https://csgraduates.com/study_methods/408quiz/2017/#19)
-[21#18](https://csgraduates.com/study_methods/408quiz/2021/#18)
-[23#18](https://csgraduates.com/study_methods/408quiz/2023/#18)
-[25#19](https://csgraduates.com/study_methods/408quiz/2025/#19)
-[26#20](https://csgraduates.com/study_methods/408quiz/2026/#20)
-
-解答题
-[13#44](https://csgraduates.com/study_methods/408quiz/2013/#44)
-[15#43](https://csgraduates.com/study_methods/408quiz/2015/#43)
-[26#44](https://csgraduates.com/study_methods/408quiz/2026/#44)
+> **真题考察**
+> - 选择题：2017 年第 19 题、2021 年第 18 题、2023 年第 18 题、2025 年第 19 题、2026 年第 20 题
+> - 解答题：2013 年第 44 题、2015 年第 43 题、2026 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流动的路径，**ALU**、**寄存器组**、**多路选择器** 都属于数据通路的一部分。数据通路 **描述了** 信息从哪里开始，中间经过哪些部件，最后被传送到哪里。数据通路由 [控制部件](/docs/408/knowledge/408-release/computer-organization/cpu/controller/) 控制，控制部件根据每条指令功能的不同，生成对数据通路的控制信号。
 
@@ -85,21 +68,13 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 ##### 控制器
 
-真题
-3
-[知识点](/docs/408/knowledge/408-release/computer-organization/cpu/controller/ "跳转到「控制器」知识点介绍")
-视频讲解
-2
+> **真题考察：** 原资料统计本节涉及约 3 道历年真题；外部题库链接已移除。
 
-[控制器的功能和组成](https://www.bilibili.com/cheese/play/ep2793857)
-[控制信号种类](https://www.bilibili.com/cheese/play/ep2793858)
+[知识点](/docs/408/knowledge/408-release/computer-organization/cpu/controller/ "跳转到「控制器」知识点介绍")
 
 选择题
-[25#19](https://csgraduates.com/study_methods/408quiz/2025/#19)
 
 解答题
-[22#43](https://csgraduates.com/study_methods/408quiz/2022/#43)
-[26#44](https://csgraduates.com/study_methods/408quiz/2026/#44)
 
 **控制器**是计算机的指挥中心，它负责协调和控制计算机的所有操作。其核心功能是根据当前正在执行的**指令**，生成一系列**控制信号**，精确地指挥**数据通路**中的各个部件（如 ALU、寄存器、多路选择器）协同工作，从而完成指令所规定的任务。
 
@@ -132,33 +107,11 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 #### 寄存器类型
 
-真题
-12
-
-视频讲解
-5
-
-[寄存器分类](https://www.bilibili.com/cheese/play/ep2793766)
-[段寄存器](https://www.bilibili.com/cheese/play/ep2793767)
-[栈指针寄存器](https://www.bilibili.com/cheese/play/ep2793780)
-[指令指针寄存器](https://www.bilibili.com/cheese/play/ep2793782)
-[变址寄存器](https://www.bilibili.com/cheese/play/ep2793838)
-
-选择题
-[10#18](https://csgraduates.com/study_methods/408quiz/2010/#18)
-[12#24](https://csgraduates.com/study_methods/408quiz/2012/#24)
-[14#17](https://csgraduates.com/study_methods/408quiz/2014/#17)
-[15#23](https://csgraduates.com/study_methods/408quiz/2015/#23)
-[16#18](https://csgraduates.com/study_methods/408quiz/2016/#18)
-[17#18](https://csgraduates.com/study_methods/408quiz/2017/#18)
-[19#17](https://csgraduates.com/study_methods/408quiz/2019/#17)
-[20#12](https://csgraduates.com/study_methods/408quiz/2020/#12)
-[21#17](https://csgraduates.com/study_methods/408quiz/2021/#17)
-[24#25](https://csgraduates.com/study_methods/408quiz/2024/#25)
-
-解答题
-[15#43](https://csgraduates.com/study_methods/408quiz/2015/#43)
-[22#43](https://csgraduates.com/study_methods/408quiz/2022/#43)
+> **真题考察**
+> - 选择题：2010 年第 18 题、2012 年第 24 题、2014 年第 17 题、2015 年第 23 题、2016 年第 18 题、2017 年第 18 题、2019 年第 17 题、2020 年第 12 题、2021 年第 17 题、2024 年第 25 题
+> - 解答题：2015 年第 43 题、2022 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-008.svg" alt={"AH AL BH BL CH CL DH DL Geneal Purpose Registers AX BX CX DX Segment Registers CS DS ES SS Pointer Registers SP BP IP Index Registers SI DI Flag Register FLAGS"} />
 
@@ -187,8 +140,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
    - `IR (Instruction Register)` 寄存器：暂存读取的指令。
    - `T` 暂存器：暂存 **ALU** 一端的输入。
 
-注意
-
+**注意**
 哪些寄存器是汇编程序员可见的？
 
 有在 **8086** 仿真器上编写过汇编程序的人会知道，可见的寄存器就是你编写汇编程序时可以直接通过指令进行控制的寄存器。
@@ -206,7 +158,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 - **DS** 指向数据段（.data）的起始位置
 - **ES** 指向附加段（Extra Segment）的起始位置
 
-对于运行在 **8086** 上的程序而言，其内存结构相比 [现代进程内存空间](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4) 更加简单，但其中的逻辑结构是类似的：
+对于运行在 **8086** 上的程序而言，其内存结构相比 现代进程内存空间 更加简单，但其中的逻辑结构是类似的：
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-structure-009.svg" alt={"Stack Segment Stack Segment Data Segment Data Segment Code Segment Code Segment SS SS DS DS CS CS Extra Segment Extra Segment ES ES IP IP SP SP BP BP High Address High Address Low Address Low Address 0000H 0000H FFFFH FFFFH Text is not SVG "} />
 
@@ -225,7 +177,7 @@ CPU 的 **数据通路** 是指 CPU 在执行指令的过程中内部数据流�
 
 栈指针寄存器
 
-**栈指针寄存器** 包含 **BP**、**SP** 这两个，在进一步了解这两个寄存器之前，请复习一下 [函数调用时的内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)。
+**栈指针寄存器** 包含 **BP**、**SP** 这两个，在进一步了解这两个寄存器之前，请复习一下 函数调用时的内存结构。
 
 函数在执行过程中需要保存的数据与栈类似，具有先进后出的特点。
 
@@ -301,27 +253,11 @@ REP MOVSB             ; 复制 CX 个字节从 DS:SI 到 ES:DI
 
 ##### 标志寄存器
 
-真题
-6
-
-视频讲解
-5
-
-[标志寄存器和条件标志](https://www.bilibili.com/cheese/play/ep2793795)
-[OF 的语义和设置](https://www.bilibili.com/cheese/play/ep2793797)
-[CF 的语义和设置](https://www.bilibili.com/cheese/play/ep2793835)
-[SF 和 ZF 的设置](https://www.bilibili.com/cheese/play/ep2793836)
-[控制标志](https://www.bilibili.com/cheese/play/ep2793837)
-
-选择题
-[11#17](https://csgraduates.com/study_methods/408quiz/2011/#17)
-[18#19](https://csgraduates.com/study_methods/408quiz/2018/#19)
-[23#16](https://csgraduates.com/study_methods/408quiz/2023/#16)
-
-解答题
-[13#44](https://csgraduates.com/study_methods/408quiz/2013/#44)
-[17#44](https://csgraduates.com/study_methods/408quiz/2017/#44)
-[19#45](https://csgraduates.com/study_methods/408quiz/2019/#45)
+> **真题考察**
+> - 选择题：2011 年第 17 题、2018 年第 19 题、2023 年第 16 题
+> - 解答题：2013 年第 44 题、2017 年第 44 题、2019 年第 45 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **标志寄存器**（**Flags**）用于存储处理器在 **执行指令过程中产生的各种状态和条件**，这些状态可以进一步被 [控制器](/docs/408/knowledge/408-release/computer-organization/cpu/controller/) 所用，控制后续指令执行的行为。
 
@@ -394,8 +330,7 @@ CPU 并不知道你想表达哪一种含义，它只是把 **CF=0、OF=1** 记�
 
 以下我们需要说明几个需要注意的点，这些知识点很容易被混淆：
 
-注意
-
+**注意**
 **CF 和 OF 的区别？**
 
 | 标志位 | 含义 | 用于 | 设置条件 |
@@ -409,8 +344,7 @@ CPU 并不知道你想表达哪一种含义，它只是把 **CF=0、OF=1** 记�
 
 不过我们通过对一些位进行组合来 [实现](/docs/408/knowledge/408-release/computer-organization/representation/circuit/#%e5%8a%a0%e6%b3%95%e5%99%a8) 上述的逻辑结果。
 
-注意
-
+**注意**
 **OF 标志位是如何被设置的？**
 
 在处理两个 n 位的**有符号整数**加法时，**OF**（Overflow Flag）用于指示结果是否超出了有符号数的可表示范围。对于补码表示的系统，可以使用以下逻辑来判断溢出：
@@ -461,8 +395,7 @@ $A+(-B)$
 
 - 将减法转化为加法后，使用上述符号位比较法判断 **OF**。
 
-注意
-
+**注意**
 **CF 标志位是如何被设置的？**
 
 对于 n 位加法器，CPU 会保留运算结果的低 n 位，而最高位产生的进位会被丢弃。

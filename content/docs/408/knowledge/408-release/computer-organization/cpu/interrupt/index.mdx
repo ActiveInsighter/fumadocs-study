@@ -2,9 +2,7 @@
 title: "异常与中断"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 本节属于 **408 选择题高频考点**，重点掌握：
 
 - **中断与异常的区别**
@@ -17,42 +15,11 @@ title: "异常与中断"
 
 ### 中断
 
-真题
-22
-
-视频讲解
-4
-
-[中断IO方式](https://www.bilibili.com/cheese/play/ep2794850)
-[中断基本概念](https://www.bilibili.com/cheese/play/ep2794430)
-[中断处理流程](https://www.bilibili.com/cheese/play/ep2794441)
-[中断处理流程注意点](https://www.bilibili.com/cheese/play/ep2794518)
-
-选择题
-[10#21](https://csgraduates.com/study_methods/408quiz/2010/#21)
-[10#32](https://csgraduates.com/study_methods/408quiz/2010/#32)
-[12#22](https://csgraduates.com/study_methods/408quiz/2012/#22)
-[13#22](https://csgraduates.com/study_methods/408quiz/2013/#22)
-[14#22](https://csgraduates.com/study_methods/408quiz/2014/#22)
-[15#21](https://csgraduates.com/study_methods/408quiz/2015/#21)
-[15#23](https://csgraduates.com/study_methods/408quiz/2015/#23)
-[18#22](https://csgraduates.com/study_methods/408quiz/2018/#22)
-[18#29](https://csgraduates.com/study_methods/408quiz/2018/#29)
-[19#21](https://csgraduates.com/study_methods/408quiz/2019/#21)
-[20#20](https://csgraduates.com/study_methods/408quiz/2020/#20)
-[20#25](https://csgraduates.com/study_methods/408quiz/2020/#25)
-[22#21](https://csgraduates.com/study_methods/408quiz/2022/#21)
-[22#24](https://csgraduates.com/study_methods/408quiz/2022/#24)
-[23#24](https://csgraduates.com/study_methods/408quiz/2023/#24)
-[24#21](https://csgraduates.com/study_methods/408quiz/2024/#21)
-[24#31](https://csgraduates.com/study_methods/408quiz/2024/#31)
-[26#22](https://csgraduates.com/study_methods/408quiz/2026/#22)
-
-解答题
-[09#43](https://csgraduates.com/study_methods/408quiz/2009/#43)
-[16#44](https://csgraduates.com/study_methods/408quiz/2016/#44)
-[17#45](https://csgraduates.com/study_methods/408quiz/2017/#45)
-[23#46](https://csgraduates.com/study_methods/408quiz/2023/#46)
+> **真题考察**
+> - 选择题：2010 年第 21 题、2010 年第 32 题、2012 年第 22 题、2013 年第 22 题、2014 年第 22 题、2015 年第 21 题、2015 年第 23 题、2018 年第 22 题、2018 年第 29 题、2019 年第 21 题、2020 年第 20 题、2020 年第 25 题、2022 年第 21 题、2022 年第 24 题、2023 年第 24 题、2024 年第 21 题、2024 年第 31 题、2026 年第 22 题
+> - 解答题：2009 年第 43 题、2016 年第 44 题、2017 年第 45 题、2023 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 中断（interrupt）是指 CPU 在正常执行程序过程中，由 **外部设备** 或 **软件指令** 触发的事件，促使 CPU 暂停当前执行，转而响应处理这些事件的一种机制。中断机制使得 CPU 能够及时响应外部输入、计时器、网络等事件，是现代操作系统和硬件协同工作的核心技术之一。
 
@@ -120,7 +87,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-005.svg" alt={"FR ⇔  stacked FR CS ⇔  stacked CS IP ⇔  stacked IP x86 CPU 系统总线 PIC 寄存器 寄存器 寄存器 寄存器 IRQ0 IRQ1 IRQ2 IRQ3 IRQ4 IRQ5 IRQ6 IRQ7 Port 0x20 : 中断命令 寄存器 Port 0x21 : 中断数据 寄存器 0x0000: ISR 0 vector 0x0004: ISR 1 vector 0x0008: NMI vector · · · · · 0x0"} />
 
-上图给出了一个详细的计算机中断处理过程的图例。不同计算机的中断处理过程不同，考察该知识点的题目也经常没有统一的标准。这里说明一个比较详细全面的过程，可以帮助大家应付绝大多数相关考题：
+上图给出了一个较完整的中断处理流程。不同体系结构对“哪些步骤由硬件完成、哪些由软件完成”的划分并不完全相同，因此做题时应以题目给出的体系结构约定为准。典型流程如下：
 
 1. **中断触发**：
    - 外设向计算机发送一个 IRQ（中断处理请求）。
@@ -143,7 +110,7 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
      - 恢复现场：恢复之前保存的现场来恢复中断之前执行的任务。
      - 中断返回（开中断、恢复断点）：执行一条专门的中断返回指令（比如 IRET 指令），该指令将程序计数器（PC）和程序状态字（PSW）等恢复到中断前的值，然后继续执行中断之前的程序。
 
-对于中断处理过程，大家需要注意两点：
+分析中断处理过程时应特别注意两点：
 
 - 断点 和 现场 的区别。
 - 哪些步骤是硬件完成的，哪些步骤是软件完成的。
@@ -152,20 +119,18 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-006.svg" alt={"中断触发 中断识别 关中断 保存断点 中断服务寻址 保存现场 处理中断事件 恢复现场 中断返回 （恢复断点、开中断） 硬件完成 软件（中断服务程序）完成 外设"} />
 
-注意
-
+**注意**
 **保护断点和保护现场的区别**
 
 首先是 断点 和 现场 两个词的语义差别，一般来讲，**断点** 就是进程在中断之前执行的位置和状态，这包含程序计数器（PC）、程序状态字（PSW / FLAGS），可能还有堆栈指针（SP）等信息。
 
 而 **现场** 大多数情况下与 上下文（context）具有相同的含义，不过现场是更加口语化的词。一般来讲，现场这一概念是包含断点的（即断点是 现场或上下文 的子集）。但是在很多考察中断的题目中，倾向于把 现场 和 断点 这个词区分开来，也就是说 现场 仅代表通用寄存器的内容。
 
-所以大家要灵活应变，还是理解中断的核心机制，才能应付出题人的模棱两可。
+因此应把重点放在中断机制的核心语义上：保存断点、识别中断源、保护现场、执行服务程序并恢复现场；具体由硬件还是软件完成要依据题设。
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-interrupt-007.svg" alt={"中断发生瞬间的 CPU 状态 寄存器 PC / IP 0x0040_1A2C PSW / FLAGS 0b1000_0010 SP 0xFFFF_E000 AX / EAX 0x0000_0005 BX / EBX 0x0000_0003 CX / ECX 0x0000_0007 DX / EDX 0x0000_000A SI / DI … … 断点（硬件保存） 现场（软件保存） 虚线 = 视情况保存 保护断点 执行者 硬件（中断隐指令） 时机 中断响应时自动 内容 PC、P"} />
 
-注意
-
+**注意**
 **中断中硬件和软件的功能**
 
 - 保存断点：由 **中断隐指令** 自动保存（**硬件** 完成），保存 CPU 在中断时即将执行的指令地址，即通过寄存器 `CS:IP` 指向的内存地址，完成中断后可通过保存的 `CS:IP` 内容恢复下一条指令的执行。
@@ -174,19 +139,10 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 #### 中断优先级
 
-真题
-3
-
-视频讲解
-2
-
-[中断优先级](https://www.bilibili.com/cheese/play/ep2794549)
-[中断嵌套](https://www.bilibili.com/cheese/play/ep2794572)
-
-选择题
-[11#21](https://csgraduates.com/study_methods/408quiz/2011/#21)
-[17#22](https://csgraduates.com/study_methods/408quiz/2017/#22)
-[21#22](https://csgraduates.com/study_methods/408quiz/2021/#22)
+> **真题考察**
+> - 选择题：2011 年第 21 题、2017 年第 22 题、2021 年第 22 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 为了及时响应重要事件，系统会为每个中断源分配一个 **中断优先级（Interrupt Priority）**。当多个中断请求同时到达，或在执行一个中断服务程序期间又出现新的中断请求时，CPU 会根据中断优先级决定响应顺序。
 
@@ -223,19 +179,10 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 ##### 多重中断
 
-真题
-3
-
-视频讲解
-2
-
-[中断优先级](https://www.bilibili.com/cheese/play/ep2794549)
-[中断嵌套](https://www.bilibili.com/cheese/play/ep2794572)
-
-选择题
-[11#21](https://csgraduates.com/study_methods/408quiz/2011/#21)
-[17#22](https://csgraduates.com/study_methods/408quiz/2017/#22)
-[21#22](https://csgraduates.com/study_methods/408quiz/2021/#22)
+> **真题考察**
+> - 选择题：2011 年第 21 题、2017 年第 22 题、2021 年第 22 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 多重中断（中断嵌套）是指 CPU 在执行中断服务程序期间，允许 **更高优先级** 的中断打断当前中断服务程序，从而提高系统对关键事件的响应速度。
 
@@ -250,27 +197,17 @@ CPU 可以通过 `INT <中断号>` 指令来执行特定的中断。当中断发
 
 提示
 
-如果将 中断嵌套 和 [优先级调度](https://csgraduates.com/operating_system/process/scheduling/#%e4%bc%98%e5%85%88%e7%ba%a7%e8%b0%83%e5%ba%a6) 类比的话：
+如果将 中断嵌套 和 优先级调度 类比的话：
 
-- 单级中断类似 [非抢占式优先级调度](https://csgraduates.com/operating_system/process/scheduling/#%e9%9d%9e%e6%8a%a2%e5%8d%a0%e5%bc%8f%e4%bc%98%e5%85%88%e7%ba%a7%e8%b0%83%e5%ba%a6)：ISR 的执行不能被其他中断打断，每次执行中断时选择优先级最高的中断执行
-- 多重中断类似 [抢占式优先级调度](https://csgraduates.com/operating_system/process/scheduling/#%e6%8a%a2%e5%8d%a0%e5%bc%8f%e4%bc%98%e5%85%88%e7%ba%a7%e8%b0%83%e5%ba%a6)：ISR 的执行可以被更高优先级的中断打断（同级或低级不能打断）
+- 单级中断类似 非抢占式优先级调度：ISR 的执行不能被其他中断打断，每次执行中断时选择优先级最高的中断执行
+- 多重中断类似 抢占式优先级调度：ISR 的执行可以被更高优先级的中断打断（同级或低级不能打断）
 
 #### 中断屏蔽
 
-真题
-3
-
-视频讲解
-3
-
-[中断屏蔽和嵌套的语义差别](https://www.bilibili.com/cheese/play/ep2794571)
-[中断屏蔽字](https://www.bilibili.com/cheese/play/ep2794582)
-[NMI和整体屏蔽流程讲解](https://www.bilibili.com/cheese/play/ep2794594)
-
-选择题
-[11#19](https://csgraduates.com/study_methods/408quiz/2011/#19)
-[11#21](https://csgraduates.com/study_methods/408quiz/2011/#21)
-[20#21](https://csgraduates.com/study_methods/408quiz/2020/#21)
+> **真题考察**
+> - 选择题：2011 年第 19 题、2011 年第 21 题、2020 年第 21 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **中断屏蔽（Interrupt Masking）** 用于控制 **当前允许响应哪些中断请求**，从而实现中断优先级管理。
 
@@ -305,8 +242,7 @@ A > B > C > D
 
 因此，中断屏蔽的作用并不是改变中断优先级，而是 **保证只有优先级更高的中断才能发生中断嵌套**。
 
-注意
-
+**注意**
 注意：**中断屏蔽字主要用于多重中断。**
 
 对于单重中断来说，CPU 在进入中断服务程序后直接关闭中断（IF = 0），所有可屏蔽中断都会被禁止，因此无需使用中断屏蔽字。
@@ -351,27 +287,14 @@ CPU 可以根据当前正在执行的中断服务程序，动态修改屏蔽字�
 
 ### 异常
 
-真题
-11
-[中断和异常](https://www.bilibili.com/cheese/play/ep2794595)
-
-选择题
-[09#22](https://csgraduates.com/study_methods/408quiz/2009/#22)
-[12#22](https://csgraduates.com/study_methods/408quiz/2012/#22)
-[15#22](https://csgraduates.com/study_methods/408quiz/2015/#22)
-[16#22](https://csgraduates.com/study_methods/408quiz/2016/#22)
-[20#20](https://csgraduates.com/study_methods/408quiz/2020/#20)
-[20#21](https://csgraduates.com/study_methods/408quiz/2020/#21)
-[21#21](https://csgraduates.com/study_methods/408quiz/2021/#21)
-[23#21](https://csgraduates.com/study_methods/408quiz/2023/#21)
-[24#23](https://csgraduates.com/study_methods/408quiz/2024/#23)
-[25#22](https://csgraduates.com/study_methods/408quiz/2025/#22)
-[26#22](https://csgraduates.com/study_methods/408quiz/2026/#22)
+> **真题考察**
+> - 选择题：2009 年第 22 题、2012 年第 22 题、2015 年第 22 题、2016 年第 22 题、2020 年第 20 题、2020 年第 21 题、2021 年第 21 题、2023 年第 21 题、2024 年第 23 题、2025 年第 22 题、2026 年第 22 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 在 CPU 中，**异常** 是指在程序执行过程中出现的非正常或意外情况，CPU 需要暂停当前执行，转而调用操作系统提供的异常处理程序。异常机制确保系统能够安全、有效地处理错误或特殊事件，并对程序执行做出相应调整。
 
-注意
-
+**注意**
 中断和异常的区别：
 
 **异常** 发生在 CPU 内部，在一般的分类方法中可以被看为中断类型的一种（**内中断**），但是在有的书上将中断和异常这两个概念区分了开来：

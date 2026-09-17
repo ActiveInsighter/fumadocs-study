@@ -2,30 +2,16 @@
 title: "格式和寻址方式"
 ---
 
-🔥
-高优先级
-
-组成原理说实话就 **两大块**：cache 和 虚拟存储器，这两个要放在一起。指令系统 和 CPU，这两个也要放一起。两大块内部的知识点都是相互耦合的，需要综合理解。
+> **复习优先级：高。**
+指令系统应与 CPU 数据通路结合学习：指令格式决定译码方式，寻址方式决定操作数从哪里取得，而控制器和数据通路负责把这些语义落实为具体微操作。Cache 与虚拟存储器则构成另一条重要的访存主线。
 
 ### 指令格式
 
-真题
-5
-
-视频讲解
-2
-
-[指令的格式](https://www.bilibili.com/cheese/play/ep2794202)
-[指令长度类型](https://www.bilibili.com/cheese/play/ep2794206)
-
-选择题
-[20#16](https://csgraduates.com/study_methods/408quiz/2020/#16)
-
-解答题
-[13#44](https://csgraduates.com/study_methods/408quiz/2013/#44)
-[15#44](https://csgraduates.com/study_methods/408quiz/2015/#44)
-[21#43](https://csgraduates.com/study_methods/408quiz/2021/#43)
-[26#43](https://csgraduates.com/study_methods/408quiz/2026/#43)
+> **真题考察**
+> - 选择题：2020 年第 16 题
+> - 解答题：2013 年第 44 题、2015 年第 44 题、2021 年第 43 题、2026 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 指令的功能就是 **对某些数据** 进行 **某种操作**。
 
@@ -42,26 +28,11 @@ title: "格式和寻址方式"
 
 ### 指令类型
 
-真题
-4
-
-视频讲解
-6
-
-[指令功能类型](https://www.bilibili.com/cheese/play/ep2794205)
-[数据传送指令](https://www.bilibili.com/cheese/play/ep2794330)
-[计算逻辑指令](https://www.bilibili.com/cheese/play/ep2794331)
-[无条件跳转](https://www.bilibili.com/cheese/play/ep2794332)
-[条件跳转](https://www.bilibili.com/cheese/play/ep2794336)
-[函数调用](https://www.bilibili.com/cheese/play/ep2794337)
-
-选择题
-[22#19](https://csgraduates.com/study_methods/408quiz/2022/#19)
-[26#17](https://csgraduates.com/study_methods/408quiz/2026/#17)
-
-解答题
-[10#43](https://csgraduates.com/study_methods/408quiz/2010/#43)
-[20#43](https://csgraduates.com/study_methods/408quiz/2020/#43)
+> **真题考察**
+> - 选择题：2022 年第 19 题、2026 年第 17 题
+> - 解答题：2010 年第 43 题、2020 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 #### 根据操作码分类
 
@@ -122,8 +93,7 @@ title: "格式和寻址方式"
   → 优点：编码更紧凑，能支持更复杂操作  
   → 缺点：解码过程复杂，需要准确识别指令边界
 
-注意
-
+**注意**
 这两种设计思路分别带来了两个常见问题，在试题中也经常以变形方式考查：
 
 1. 在 **定长指令集** 中，所有指令长度固定，而不同指令所需的 **地址字段** 个数不一样，如何统一表示？
@@ -151,18 +121,10 @@ title: "格式和寻址方式"
 
 ##### 操作码扩展编码
 
-真题
-2
-
-视频讲解
-2
-
-[操作码扩展编码](https://www.bilibili.com/cheese/play/ep2794208)
-[操作码扩展编码实例](https://www.bilibili.com/cheese/play/ep2794247)
-
-选择题
-[17#16](https://csgraduates.com/study_methods/408quiz/2017/#16)
-[22#19](https://csgraduates.com/study_methods/408quiz/2022/#19)
+> **真题考察**
+> - 选择题：2017 年第 16 题、2022 年第 19 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 上面的指令前缀是为了让 CPU 判断整条指令的长度；而在 **定长指令系统** 中，还有一种与之思想类似、但用途不同的设计——**操作码扩展编码**。
 
@@ -171,7 +133,7 @@ title: "格式和寻址方式"
 因此，指令系统通常采用：
 
 > **可变长度操作码 + 定长指令字** 的方式，
-> 并要求这些 **操作码** 遵循 [**前缀编码**](https://csgraduates.com/data_structure/tree/app/#%e5%89%8d%e7%bc%80%e7%bc%96%e7%a0%81) 设计原则。
+> 并要求这些 **操作码** 遵循 **前缀编码** 设计原则。
 
 ---
 
@@ -213,11 +175,10 @@ title: "格式和寻址方式"
 | **一地址指令**（63 条） | 1111 1100 0000 ~ 1111 1111 1110 |  |  | A3 |
 | **零地址指令**（16 条） | 1111 1111 1111 0000 ~ 1111 1111 1111 1111 |  |  |  |
 
-注意
-
+**注意**
 操作码扩展编码虽然属于**计算机组成原理**，但它所采用的设计思想，在**计算机网络** 中同样十分常见。
 
-例如，[变长子网划分](https://csgraduates.com/computer_network/network/ip/#%e5%8f%98%e9%95%bf%e5%ad%90%e7%bd%91%e5%88%92%e5%88%86) 也是按照**前缀不断扩展**的方式划分地址空间：每向下一层扩展 1 位，地址空间便减半；最终，每个子网都对应二叉树上的一个叶子节点。
+例如，变长子网划分 也是按照**前缀不断扩展**的方式划分地址空间：每向下一层扩展 1 位，地址空间便减半；最终，每个子网都对应二叉树上的一个叶子节点。
 
 从二叉树的角度来看，两者都是不断将一个大的编码空间**递归划分**为更小的子空间：
 
@@ -235,36 +196,11 @@ title: "格式和寻址方式"
 
 ### 寻址方式
 
-真题
-14
-
-视频讲解
-6
-
-[立即数和寄存器寻址](https://www.bilibili.com/cheese/play/ep2794249)
-[直接和间接寻址](https://www.bilibili.com/cheese/play/ep2794282)
-[相对寻址](https://www.bilibili.com/cheese/play/ep2794311)
-[变址寻址](https://www.bilibili.com/cheese/play/ep2794269)
-[基址寻址](https://www.bilibili.com/cheese/play/ep2794270)
-[堆栈寻址](https://www.bilibili.com/cheese/play/ep2794281)
-
-选择题
-[09#16](https://csgraduates.com/study_methods/408quiz/2009/#16)
-[11#16](https://csgraduates.com/study_methods/408quiz/2011/#16)
-[13#17](https://csgraduates.com/study_methods/408quiz/2013/#17)
-[14#17](https://csgraduates.com/study_methods/408quiz/2014/#17)
-[16#17](https://csgraduates.com/study_methods/408quiz/2016/#17)
-[17#15](https://csgraduates.com/study_methods/408quiz/2017/#15)
-[18#18](https://csgraduates.com/study_methods/408quiz/2018/#18)
-[19#17](https://csgraduates.com/study_methods/408quiz/2019/#17)
-[20#16](https://csgraduates.com/study_methods/408quiz/2020/#16)
-[23#17](https://csgraduates.com/study_methods/408quiz/2023/#17)
-
-解答题
-[10#43](https://csgraduates.com/study_methods/408quiz/2010/#43)
-[14#44](https://csgraduates.com/study_methods/408quiz/2014/#44)
-[19#45](https://csgraduates.com/study_methods/408quiz/2019/#45)
-[23#44](https://csgraduates.com/study_methods/408quiz/2023/#44)
+> **真题考察**
+> - 选择题：2009 年第 16 题、2011 年第 16 题、2013 年第 17 题、2014 年第 17 题、2016 年第 17 题、2017 年第 15 题、2018 年第 18 题、2019 年第 17 题、2020 年第 16 题、2023 年第 17 题
+> - 解答题：2010 年第 43 题、2014 年第 44 题、2019 年第 45 题、2023 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 计算机中的 **寻址方式**（Addressing Modes）是指在 **指令中如何指定操作数的位置或地址**，**寻址方式**可以被归为以下种类：
 
@@ -285,8 +221,7 @@ title: "格式和寻址方式"
 | 加载常量 | `MOV AX, 5` —— 将常数 5 加入 AX |
 | 比较固定值 | `CMP AL, 0` —— 判断 AL 是否为零 |
 
-注意
-
+**注意**
 **寻址方式是针对指令还是操作数的？**
 
 > **寻址方式针对的是每一个操作数，而不是整条指令。**
@@ -338,8 +273,7 @@ MOV AX,1234H
 | 读取硬件端口 | `IN AL, [0x60]` —— 从端口地址读取键盘输入 |
 | 设置显存颜色值 | `MOV [0xB8000], AL` —— 设置文本模式字符颜色 |
 
-注意
-
+**注意**
 上图中使用的例子是基于 8086 的，8086 的计算机直接使用物理地址，没有虚拟内存。
 
 但是在现代计算机操作系统中，由于使用了虚拟存储器，所以编译后的程序中的地址都是虚拟地址，所以在访问实际物理内存之前需要经过一次 [地址翻译](/docs/408/knowledge/408-release/computer-organization/storage/virtual/#%e7%89%a9%e7%90%86%e5%9c%b0%e5%9d%80%e8%ae%bf%e5%ad%98%e8%bf%87%e7%a8%8b)。
@@ -387,7 +321,7 @@ MOV AX,1234H
 
 函数栈帧访问
 
-程序中最常见的是函数调用，参考 [函数调用时内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)，BP 用于指定 8086 中的函数栈底地址。
+程序中最常见的是函数调用，参考 函数调用时内存结构，BP 用于指定 8086 中的函数栈底地址。
 
 例如
 
@@ -451,8 +385,7 @@ MOV AL,[BX+2]
 | 结构体数组成员访问 | `MOV AX, [DI + SI*4]` —— 每个结构体占 4 字节 |
 | 动态偏移数据结构遍历 | `MOV AL, [BX + CX]` —— 使用索引偏移访问 |
 
-注意
-
+**注意**
 **基址寻址和变址寻址的区别**
 
 | 基址寻址 | 变址寻址 |
@@ -545,7 +478,7 @@ CPU 根据 **下一条指令地址 + 偏移量** 计算出真正的跳转目标�
 
 #### 堆栈寻址
 
-**堆栈寻址**（Stack Addressing）是一种通过 **栈指针或基址指针** 来访问 [栈中数据](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84) 的方式，广泛应用于函数调用过程中的参数传递和返回值保存。
+**堆栈寻址**（Stack Addressing）是一种通过 **栈指针或基址指针** 来访问 栈中数据 的方式，广泛应用于函数调用过程中的参数传递和返回值保存。
 
 在 **堆栈寻址** 中，利用 **SP**（栈指针）或 **BP**（基址指针）定位栈中元素，通过栈顶向下或向上偏移来读取或写入局部变量、返回地址等。通常与 **PUSH**、**POP**、**CALL**、**RET** 等指令结合使用。
 

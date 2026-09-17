@@ -1,33 +1,16 @@
 ---
 title: "I/O 管理"
+description: "I/O 软件层次、设备管理与磁盘调度。"
 ---
 
-# I/O 管理
+I/O 管理负责屏蔽设备差异，让进程通过统一接口使用外设，并通过中断、DMA、缓冲和调度等机制降低 CPU 与慢速设备之间的速度差异。
 
-内容与[总线和输入输出系统](https://csgraduates.com/constitution_principle/bus/)关联很大，放在一起对比复习。应熟练掌握磁盘的调度算法。
+<InlineSvg src="/images/operating-system/operating-system-io-device-001.svg" alt={"I/O 管理与外存管理知识框架"} />
 
-本章视频讲解
-4
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [I/O 设备](/docs/408/knowledge/408-release/operating_system/io_device/devices/) | 设备分类、I/O 控制方式、I/O 软件层次 |
+| [设备管理](/docs/408/knowledge/408-release/operating_system/io_device/management/) | 缓冲、设备分配、SPOOLing、设备独立性 |
+| [磁盘](/docs/408/knowledge/408-release/operating_system/io_device/disks/) | 磁盘结构、格式化、启动、FCFS/SSTF/SCAN/C-SCAN |
 
-本章共 **4** 节视频讲解，覆盖 **2** 个知识点。
-
-[磁盘](https://csgraduates.com/operating_system/io_device/disks/)
-
-磁盘概念
-[机械硬盘结构](https://www.bilibili.com/cheese/play/ep2793199)
-
-磁盘调度算法
-[磁盘调度算法](https://www.bilibili.com/cheese/play/ep2793219)
-[FCFS和SSTF](https://www.bilibili.com/cheese/play/ep2793220)
-[SCAN和CSCAN](https://www.bilibili.com/cheese/play/ep2793221)
-
-<InlineSvg src="/images/operating-system/operating-system-io-device-001.svg" alt={"设备的基本概念 I/O控制方式 I/O软件层次结构 I/O应用程序接口 I/O管理基础 缓冲区管理 设备分配和回收 SPOOLing 设备驱动程序接口 设备独立软件 磁盘 固态硬盘 外存管理 输入/输出管理"} />
-
----
-
-##### [I/O 设备](https://csgraduates.com/operating_system/io_device/devices/)
-
-##### [设备管理](https://csgraduates.com/operating_system/io_device/management/)
-
-##### [磁盘](https://csgraduates.com/operating_system/io_device/disks/)
+> **复习提示：** I/O 控制方式应与计算机组成原理中的中断和 DMA 一起理解；操作系统更关注设备管理策略，组成原理更关注硬件传送过程。

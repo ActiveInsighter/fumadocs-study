@@ -4,16 +4,12 @@ title: "高级语言和机器码"
 
 ### 编译过程
 
-真题
-1
-[编译过程](https://www.bilibili.com/cheese/play/ep2794338)
+> **真题考察**
+> - 选择题：2022 年第 20 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-选择题
-[22#20](https://csgraduates.com/study_methods/408quiz/2022/#20)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 考查得很少，大致了解 **编译的具体流程** 和 **每个阶段的具体任务** 就行。
 
 <InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-001.svg" alt={"预处理器 编译器 汇编器 链接器 源代码 扩展代码 汇编代码 目标文件 可执行程序"} />
@@ -32,8 +28,7 @@ title: "高级语言和机器码"
 
 **编译**（Compile）阶段将 **预处理后源代码**（extended code）翻译成 **汇编代码**（assembly code）。编译阶段包含 词法分析、语法分析、语义分析、中间代码优化 和 汇编代码生成 等子过程。
 
-注意
-
+**注意**
 注意 **编译**（compilation）这个词一般的含义是将高级语言代码转化为二进制程序，但是如果在整个编译流程中谈到这个词，则需要将其与 **汇编**（assemble）进行区分：
 
 - **编译**是将高级语言代码转化为 **汇编代码**
@@ -55,33 +50,19 @@ title: "高级语言和机器码"
 
 **链接**分为 **静态链接** 和 **动态链接** 两种方式。
 
-- **静态链接**：静态链接是在编译时将所有依赖的库代码拷贝到最终的 **可执行文件** 中，生成一个 **完全独立的二进制文件**。
+- **静态链接**：链接器把程序实际需要的静态库目标代码合并到最终可执行文件中，使这些库代码不再依赖运行时动态装载；但程序仍然依赖操作系统 ABI、内核服务等运行环境。
 - **动态链接**：动态链接不会在编译时将库代码合并，而是在运行时加载外部共享库（.so / .dll）。**可执行文件** 只包含对库的引用，而不包含库的代码。
 
 <InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-003.svg" alt={"链接方式对比 静态链接 编译时： 源代码 main.c 静态库 lib.a 可执行文件 app.exe 主程序代码 库代码副本 运行时： 独立运行 完全独立的 二进制文件 动态链接 编译时： 源代码 main.c 动态库引用 lib.so/.dll 可执行文件 app.exe 主程序代码 库引用 动态库文件 lib.so / lib.dll 运行时： 可执行文件 运行中 动态库 运行时加载 动态加载 特点： ✓ 文件较大，包含所有代码 ✓ 运行时无需外部依赖 ✓ 启动速度快 "} />
 
 ### 汇编代码
 
-真题
-4
+> **真题考察**
+> - 解答题：2010 年第 44 题、2014 年第 44 题、2019 年第 45 题、2024 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-视频讲解
-4
-
-[选择结构语句](https://www.bilibili.com/cheese/play/ep2794349)
-[循环语句](https://www.bilibili.com/cheese/play/ep2794350)
-[函数定义和调用](https://www.bilibili.com/cheese/play/ep2794352)
-[函数定义和调用例子说明](https://www.bilibili.com/cheese/play/ep2794409)
-
-解答题
-[10#44](https://csgraduates.com/study_methods/408quiz/2010/#44)
-[14#44](https://csgraduates.com/study_methods/408quiz/2014/#44)
-[19#45](https://csgraduates.com/study_methods/408quiz/2019/#45)
-[24#44](https://csgraduates.com/study_methods/408quiz/2024/#44)
-
-⭐
-中优先级
-
+> **复习优先级：中。**
 偶尔会在大题中进行综合考查，给你一段 C 语言编译成的汇编代码段，然后结合一些指令和存储系统的知识一起考查，所以还是要能理解 **常见 C 语言语句和对应汇编代码的关系**。
 
 高级语言程序对应的 **汇编代码** 常常与 [存储系统](/docs/408/knowledge/408-release/computer-organization/storage/) 在大题中进行综合考察，这里需要重点掌握 **选择**、**循环**、**函数调用** 语句对应的汇编代码。
@@ -218,11 +199,10 @@ loop_end:
 
 在 C 语言中，每一次函数调用，最终都会被编译器翻译成一系列汇编指令。为了完成 **参数传递**、**局部变量管理**、**返回值传递** 以及 **函数返回** 等工作，CPU 需要借助 **栈（Stack）**、**寄存器（Register）** 以及 **调用指令（call/ret）** 共同完成整个调用过程。
 
-注意
-
+**注意**
 对于 **408** 考试而言，重点掌握**函数调用时栈帧（Stack Frame）的组织方式**即可。
 
-本节采用 **32 位 x86（cdecl 调用约定）** 作为示例进行讲解，这也是 408 中最常见的模型。
+本节采用 **32 位 x86（cdecl 调用约定）** 作为示例。题目若指定其他 ISA 或调用约定，应以题设给出的寄存器、栈帧和参数传递规则为准。
 
 实际程序生成的汇编并没有统一标准，不同 **ISA**（如 x86、ARM、RISC-V）、不同**编译器**以及不同**优化等级**都会影响最终的汇编实现，因此本节示例仅用于理解函数调用的基本原理。
 
@@ -260,7 +240,7 @@ void func() {
    - 恢复调用者的栈帧和寄存器。
    - 返回到调用点继续执行。
 
-这一节可以结合 [函数调用时内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84) 共同理解，下面通过几个简单的例子说明下 **函数定义** 和 **调用** 的汇编代码。
+这一节可以结合 函数调用时内存结构 共同理解，下面通过几个简单的例子说明下 **函数定义** 和 **调用** 的汇编代码。
 
 ##### 函数定义
 
@@ -367,10 +347,9 @@ _func:
                低地址
 ```
 
-补充
-
+**补充说明**
 以下三个知识点可以放在一起学习：
 
-- [函数调用时内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)
+- 函数调用时内存结构
 - [子程序调用](/docs/408/knowledge/408-release/computer-organization/instruction/instruction_ops/#%e5%ad%90%e7%a8%8b%e5%ba%8f%e8%b0%83%e7%94%a8)
 - [函数定义和调用对应的汇编代码](/docs/408/knowledge/408-release/computer-organization/instruction/high_low_language/#%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89%e5%92%8c%e8%b0%83%e7%94%a8)

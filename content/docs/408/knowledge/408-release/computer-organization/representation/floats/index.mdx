@@ -2,16 +2,14 @@
 title: "浮点数表示"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 IEEE 浮点数表示的方法非常重要，每年选择题都必考，需要能够熟练计算 IEEE 浮点数的二进制和十进制之间的关联。
 
 ### 实数的二进制表示
 
-实数在计算机中的存储遵循 [IEEE 浮点数标准](/docs/408/knowledge/408-release/computer-organization/representation/floats/#ieee-floating-point)，但在这里为了方便理解 IEEE 标准，这里首先阐明一般 **实数** 在计算机中是如何存储的。
+在学习 IEEE 754 之前，先回顾二进制小数的**数学表示方法**。这里的二进制小数并不等同于实际硬件的存储格式，而是为了理解尾数与指数如何共同表示实数。
 
-在这里 **实数** 分为两个部分存储：**整数部分** 和 **小数部分**，两个部分在逻辑上用 `·` 隔开。
+一个二进制小数可以写成“整数部分 + 小数部分”的形式，并用二进制小数点 `.` 分隔。
 
 比如对于以下 **浮点数** 的二进制表示：
 
@@ -35,7 +33,7 @@ $$
 $b_{i}=0$
 或
 $b_{i}=1$
-，表示第 *i* 为是 0 还是 1。
+，表示第 $i$ 位是 0 还是 1。
 
 举例说明如何使用上述表示法计算 **实数**：
 
@@ -63,34 +61,11 @@ $b_{i}=1$
 
 ### IEEE 浮点数表示
 
-真题
-13
-
-视频讲解
-5
-
-[实数的二进制表示](https://www.bilibili.com/cheese/play/ep2794784)
-[IEEE 浮点数表示设计思路](https://www.bilibili.com/cheese/play/ep2794785)
-[IEEE 浮点数表示结构](https://www.bilibili.com/cheese/play/ep2794797)
-[阶码表示的说明](https://www.bilibili.com/cheese/play/ep2794786)
-[IEEE 浮点数异常值](https://www.bilibili.com/cheese/play/ep2794841)
-
-选择题
-[11#13](https://csgraduates.com/study_methods/408quiz/2011/#13)
-[12#14](https://csgraduates.com/study_methods/408quiz/2012/#14)
-[13#13](https://csgraduates.com/study_methods/408quiz/2013/#13)
-[14#14](https://csgraduates.com/study_methods/408quiz/2014/#14)
-[18#14](https://csgraduates.com/study_methods/408quiz/2018/#14)
-[20#13](https://csgraduates.com/study_methods/408quiz/2020/#13)
-[21#14](https://csgraduates.com/study_methods/408quiz/2021/#14)
-[22#14](https://csgraduates.com/study_methods/408quiz/2022/#14)
-[23#14](https://csgraduates.com/study_methods/408quiz/2023/#14)
-[24#14](https://csgraduates.com/study_methods/408quiz/2024/#14)
-[25#13](https://csgraduates.com/study_methods/408quiz/2025/#13)
-[26#14](https://csgraduates.com/study_methods/408quiz/2026/#14)
-
-解答题
-[17#43](https://csgraduates.com/study_methods/408quiz/2017/#43)
+> **真题考察**
+> - 选择题：2011 年第 13 题、2012 年第 14 题、2013 年第 13 题、2014 年第 14 题、2018 年第 14 题、2020 年第 13 题、2021 年第 14 题、2022 年第 14 题、2023 年第 14 题、2024 年第 14 题、2025 年第 13 题、2026 年第 14 题
+> - 解答题：2017 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 上述 **浮点数** 存储方式的缺点在于如果要表示比较大的数，就需要比较多的二进制位数，比如对于
 $5\times2^{100}$
@@ -109,7 +84,7 @@ $s,M,E$
 - $E$
   为 **指数部分**
 
-**IEEE 754 标准** 是定义浮点数表示和算术的国际标准，它定义了多种不同精度的浮点数格式，但最常见的是 **单精度** *single precesion*（32 位）和 **双精度** *double precesion*（64 位），浮点数分为 `s`（**符号位**）、`exp`（**阶码**）、`frac`（**尾数**）三个部分存储：
+**IEEE 754 标准** 是定义浮点数表示和算术的国际标准，它定义了多种不同精度的浮点数格式，但最常见的是 **单精度** *single precision*（32 位）和 **双精度** *double precision*（64 位），浮点数分为 `s`（**符号位**）、`exp`（**阶码**）、`frac`（**尾数**）三个部分存储：
 
 <InlineSvg src="/images/computer-organization/computer-organization-representation-floats-001.svg" alt={"s exp frac s exp frac (51:32) 31 30 23 22 0 frac (31:0) 63 62 52 51 32 Single Precision Double Precision 31 0 尾数 23 位 阶码 8 位 尾数 52 位 阶码 11 位"} />
 
@@ -217,7 +192,7 @@ $$
 
 <InlineSvg src="/images/computer-organization/computer-organization-representation-floats-003.svg" alt={"s 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 s 1 1 1 1 1 1 1 1 ≠ 0 s 0 0 0 0 0 0 0 0 frac s ≠ 0 and ≠ 255 frac Normalized Denormalized Infinity NaN"} />
 
-- **非正常值**（Denormalized）的 **阶码**全为 0
+- **非规格化数**（subnormal，旧称 denormalized）的阶码字段全为 0，此时指数取 $E=1-Bias$，有效数不含隐藏的前导 $1$，即 $M=frac$。
 - **无穷大**（Infinity）的 **阶码**全为 1，**尾数**位为 0
 - **非数字**（NaN，Not a Number）的 **阶码**全为 1，**尾数**位不为 0
 
@@ -339,22 +314,17 @@ $$
 
 因此，**尾数位数越多**，相邻两个可表示浮点数之间的距离越小，也就意味着 **精度越高**，用来近似表示无法精确表示的实数时，误差也越小。
 
-注意
-
+**注意**
 **舍入（Rounding）** 是将一个实数转换为指定浮点精度的过程。由于许多数学运算的结果无法用有限位的 **浮点数** 精确表示，因此需要将其舍入到距离最近的可表示浮点数。**IEEE 754** 默认采用\*\*舍入到最近值（Round to Nearest, Ties to Even）\*\*作为默认舍入方式。
 
 #### 浮点数加减
 
-真题
-2
+> **真题考察**
+> - 选择题：2009 年第 13 题、2015 年第 14 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-选择题
-[09#13](https://csgraduates.com/study_methods/408quiz/2009/#13)
-[15#14](https://csgraduates.com/study_methods/408quiz/2015/#14)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 浮点数加减操作考察得不是很多，但如果掌握了浮点数表示的基本原理，理解其运算过程并不困难。需要特别注意：**对阶、尾数运算、规格化、舍入** 这几个步骤可能对 **阶码和精度** 产生不同影响。
 
 **浮点数** 加减计算通常包含以下几个步骤：

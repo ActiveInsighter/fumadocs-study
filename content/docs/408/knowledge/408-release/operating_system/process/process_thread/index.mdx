@@ -4,51 +4,25 @@ title: "进程和线程"
 
 # 进程和线程
 
-🔥
-高优先级
+> **复习优先级：高。**
+> **考查重点：** 进程与线程的区别、进程状态转换、PCB、上下文切换以及进程地址空间是本节核心。
 
-**进程的相关概念** 是历年操作系统选择题必考，关键在于几点：进程和线程、进程状态转换、进程内存空间的架构。
-
-真题
-5
-
-视频讲解
-3
-
-[进程和线程概念](https://www.bilibili.com/cheese/play/ep2798231)
-[进程和线程控制块](https://www.bilibili.com/cheese/play/ep2798232)
-[进程和程序](https://www.bilibili.com/cheese/play/ep2798233)
-
-选择题
-[11#25](https://csgraduates.com/study_methods/408quiz/2011/#25)
-[11#32](https://csgraduates.com/study_methods/408quiz/2011/#32)
-[12#31](https://csgraduates.com/study_methods/408quiz/2012/#31)
-[18#25](https://csgraduates.com/study_methods/408quiz/2018/#25)
-[24#28](https://csgraduates.com/study_methods/408quiz/2024/#28)
+> **真题考察**
+> - 选择题：2011 年第 25 题、2011 年第 32 题、2012 年第 31 题、2018 年第 25 题、2024 年第 28 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 在多道程序环境下，允许多个程序并发执行，为此操作系统引入了 **进程** (Process) 的概念，以便更好地描述和控制程序的并发执行，实现操作系统的并发性。
 
 #### 进程
 
-真题
-5
+> **真题考察**
+> - 选择题：2010 年第 24 题、2020 年第 29 题、2021 年第 24 题、2024 年第 24 题
+> - 解答题：2024 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-视频讲解
-2
-
-[进程和线程概念](https://www.bilibili.com/cheese/play/ep2798231)
-[进程和程序](https://www.bilibili.com/cheese/play/ep2798233)
-
-选择题
-[10#24](https://csgraduates.com/study_methods/408quiz/2010/#24)
-[20#29](https://csgraduates.com/study_methods/408quiz/2020/#29)
-[21#24](https://csgraduates.com/study_methods/408quiz/2021/#24)
-[24#24](https://csgraduates.com/study_methods/408quiz/2024/#24)
-
-解答题
-[24#46](https://csgraduates.com/study_methods/408quiz/2024/#46)
-
-**进程是系统资源分配的基本单位**。操作系统以进程为单位建立相对独立的资源环境，例如 [虚拟地址空间](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4)、打开的文件、访问权限以及其他内核资源。
+**进程是系统资源分配的基本单位**。操作系统以进程为单位建立相对独立的资源环境，例如 [虚拟地址空间](/docs/408/knowledge/408-release/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4)、打开的文件、访问权限以及其他内核资源。
 
 不同进程通常拥有独立的虚拟地址空间，因此一个进程不能直接访问另一个进程中的数据。同一进程中的多个线程则共享进程所拥有的虚拟地址空间和大部分系统资源。
 
@@ -153,8 +127,7 @@ pid_t fork(void);
 
 此外，父进程可以通过 `wait` 或 `waitpid` 系统调用等待子进程终止，并读取子进程的退出状态，从而完成对子进程的回收。
 
-注意
-
+**注意**
 僵尸进程
 （Zombie Process）是指一个已经终止，但其父进程尚未通过 `wait` 或 `waitpid` 读取其退出状态的子进程。
 
@@ -181,7 +154,7 @@ pid_t fork(void);
 
 进程主要负责拥有虚拟地址空间、打开的文件等系统资源，线程则表示进程内部的一条执行流。操作系统调度时，实际选择的是某个可运行线程，并将其调度到某个 CPU 逻辑核心上执行。
 
-多核处理器可以将不同线程调度到不同的 [逻辑核心](https://csgraduates.com/constitution_principle/cpu/multicore/#%e9%80%bb%e8%be%91%e6%a0%b8%e5%bf%83) 上，因此多个线程可以在同一时刻并行运行。
+多核处理器可以将不同线程调度到不同的 [逻辑核心](/docs/408/knowledge/408-release/computer-organization/cpu/multicore/#%e9%80%bb%e8%be%91%e6%a0%b8%e5%bf%83) 上，因此多个线程可以在同一时刻并行运行。
 
 每个进程启动时，至少包含一个线程，通常称为 **主线程**。主线程可以继续创建其他线程，从而形成多线程进程。
 
@@ -276,20 +249,10 @@ pid_t fork(void);
 
 ### 进程的状态
 
-真题
-9
-[进程状态转换](https://www.bilibili.com/cheese/play/ep2798234)
-
-选择题
-[12#30](https://csgraduates.com/study_methods/408quiz/2012/#30)
-[14#26](https://csgraduates.com/study_methods/408quiz/2014/#26)
-[15#25](https://csgraduates.com/study_methods/408quiz/2015/#25)
-[18#27](https://csgraduates.com/study_methods/408quiz/2018/#27)
-[19#24](https://csgraduates.com/study_methods/408quiz/2019/#24)
-[21#24](https://csgraduates.com/study_methods/408quiz/2021/#24)
-[21#27](https://csgraduates.com/study_methods/408quiz/2021/#27)
-[22#28](https://csgraduates.com/study_methods/408quiz/2022/#28)
-[23#27](https://csgraduates.com/study_methods/408quiz/2023/#27)
+> **真题考察**
+> - 选择题：2012 年第 30 题、2014 年第 26 题、2015 年第 25 题、2018 年第 27 题、2019 年第 24 题、2021 年第 24 题、2021 年第 27 题、2022 年第 28 题、2023 年第 27 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **进程状态** 是指在操作系统中，一个 **进程** 在执行过程中的不同阶段。它反映了 **进程** 当前正在做什么，以及是否可以被 **CPU** 执行。
 
@@ -347,18 +310,17 @@ pid_t fork(void);
 
 ### 进程内存空间
 
-真题
-1
-
-解答题
-[25#46](https://csgraduates.com/study_methods/408quiz/2025/#46)
+> **真题考察**
+> - 解答题：2025 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 - **用户空间**（User Space）：包含 **进程** 执行的用户程序代码和数据。在 **用户空间** 中，**进程** 可以执行各种任务，如运行应用程序、访问文件系统等。**用户空间** 对于应用程序是可见的，但对于操作系统中的核心功能是不可见的。
   1. **代码区**（Text Segment）：也称为“可执行代码区”，存储了 **进程** 的可执行代码，包括程序的指令和只读数据。这个区域通常是只读的，因为程序的指令在运行时不应被修改。
   2. **数据区**（Data Segment），数据区分为两个子区域：
      - **初始化数据区**（Initialized Data Segment）：存储全局和静态变量以及初始化的数据。这些变量在程序运行前就已经分配了内存并初始化。
      - **未初始化数据区**（Uninitialized Data Segment），也称为 **BSS**（Block Started by Symbol）段，存储全局和静态变量，但这些变量没有显式的初始化值。操作系统会在程序启动时自动将这个区域初始化为零。
-  3. **堆区**（Heap）：**堆区** 是 [动态分配内存](https://csgraduates.com/operating_system/memory/concepts/#%e5%a0%86%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d) 的地方，用于存储程序运行时需要的变量和数据结构。在 **堆** 中分配的内存需要手动释放，以避免内存泄漏。
+  3. **堆区**（Heap）：**堆区** 是 [动态分配内存](/docs/408/knowledge/408-release/operating_system/memory/concepts/#%e5%a0%86%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d) 的地方，用于存储程序运行时需要的变量和数据结构。在 **堆** 中分配的内存需要手动释放，以避免内存泄漏。
   4. **栈区**（Stack）：**栈区** 用于存储函数调用和局部变量。每个函数调用都会在栈上创建一个栈帧，栈帧包含了函数的参数、局部变量以及函数返回地址。**栈** 是一种后进先出（LIFO）的数据结构，它的大小通常有限，由操作系统或编程语言定义。
   5. **内存映射区域**（Memory Mapped Region）：这是一些操作系统或运行时库的扩展，用于存储动态链接库（DLL）和共享库的信息以及其他系统数据结构。
 - **内核空间**（Kernel Space）：**内核空间** 包含了操作系统的核心代码和数据结构，如页表、调度程序和系统调用接口等。**内核空间** 具有更高的特权级别，可以执行特权指令并且访问系统的各种资源，**内核空间** 对于用户程序是不可见的。
@@ -383,28 +345,24 @@ pid_t fork(void);
 
 <InlineSvg src="/images/operating-system/operating-system-process-process-thread-012.svg" alt={"main main f1 main f1 f2 main f1 main 高地址 低地址 main(f1(f2())) 时间 函数的栈帧在内存中的结构变化"} />
 
-补充
-
+**补充说明**
 以下三个知识点可以放在一起学习：
 
-- [函数调用时内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)
-- [子程序调用](https://csgraduates.com/constitution_principle/instruction/instruction_ops/#%e5%ad%90%e7%a8%8b%e5%ba%8f%e8%b0%83%e7%94%a8)
-- [函数定义和调用对应的汇编代码](https://csgraduates.com/constitution_principle/instruction/high_low_language/#%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89%e5%92%8c%e8%b0%83%e7%94%a8)
+- [函数调用时内存结构](/docs/408/knowledge/408-release/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)
+- [子程序调用](/docs/408/knowledge/408-release/computer-organization/instruction/instruction_ops/#%e5%ad%90%e7%a8%8b%e5%ba%8f%e8%b0%83%e7%94%a8)
+- [函数定义和调用对应的汇编代码](/docs/408/knowledge/408-release/computer-organization/instruction/high_low_language/#%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89%e5%92%8c%e8%b0%83%e7%94%a8)
 
 ### 进程间通信
 
-真题
-1
+> **真题考察**
+> - 选择题：2014 年第 31 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-选择题
-[14#31](https://csgraduates.com/study_methods/408quiz/2014/#31)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 偶尔在选择题考察，了解基本 IPC 方式，选择题看到能辨识即可。
 
-**进程间通信**（Inter-Process Communication，IPC）是指在同一计算机系统中，两个或多个 **进程** 之间交换数据或信号的机制。常见的 **进程间通信** 方式主要包含 **共享内存**、**管道**、**消息队列**、**信号**、**套接字** 和 [**信号量**](https://csgraduates.com/operating_system/process/sync/#%e4%bf%a1%e5%8f%b7%e9%87%8f)。
+**进程间通信**（Inter-Process Communication，IPC）是指在同一计算机系统中，两个或多个 **进程** 之间交换数据或信号的机制。常见的 **进程间通信** 方式主要包含 **共享内存**、**管道**、**消息队列**、**信号**、**套接字** 和 [**信号量**](/docs/408/knowledge/408-release/operating_system/process/sync/#%e4%bf%a1%e5%8f%b7%e9%87%8f)。
 
 <InlineSvg src="/images/operating-system/operating-system-process-process-thread-013.svg" alt={"Process  A Shared Memory Process B Kernel M M M Kernel 1 2 1 2 Process  A Pipe Process B Kernel 消息传递 管道 共享内存 Process A Process B"} />
 
@@ -429,7 +387,7 @@ pid_t fork(void);
 - **写端**：用于向管道中写入数据
   - 写进程执行 `write()` 时，数据并不是直接进入读进程的地址空间，而是先被复制到 **内核维护的管道缓冲区** 中。
 
-可以直接类比 [**生产者消费者问题**](https://csgraduates.com/operating_system/process/problem/#%e7%94%9f%e4%ba%a7%e8%80%85%e6%b6%88%e8%b4%b9%e8%80%85%e9%97%ae%e9%a2%98)：
+可以直接类比 [**生产者消费者问题**](/docs/408/knowledge/408-release/operating_system/process/problem/#%e7%94%9f%e4%ba%a7%e8%80%85%e6%b6%88%e8%b4%b9%e8%80%85%e9%97%ae%e9%a2%98)：
 
 - 管道 **未满**：写进程可以继续写；管道 **已满** 时，写进程会被阻塞，等待读进程取走数据。
 - 管道 **非空**：读进程可以继续读；管道 **为空** 时，读进程会被阻塞，等待写进程写入数据。
@@ -500,17 +458,12 @@ $$
 
 ### 用户级线程和内核级线程
 
-真题
-2
-[用户级和内核级线程](https://www.bilibili.com/cheese/play/ep2798235)
+> **真题考察**
+> - 选择题：2019 年第 23 题、2026 年第 25 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-选择题
-[19#23](https://csgraduates.com/study_methods/408quiz/2019/#23)
-[26#25](https://csgraduates.com/study_methods/408quiz/2026/#25)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 偶尔在选择题考察，了解几种线程模型和映射关系，选择题看到能辨识即可。
 
 - 用户级线程

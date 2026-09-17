@@ -2,8 +2,8 @@
   "title": "绪论",
   "pages": [
     "index",
-    "alg_design",
+    "ds",
     "algorithm",
-    "ds"
+    "alg_design"
   ]
 }

@@ -1,12 +1,11 @@
 ---
 title: "局域网和广域网"
-description: "⭐ 中优先级 本节主要关注以太网的传输介质和帧格式，往年在解答题出现了传输介质的名称，如果不知道对应的带宽就难搞了。VLAN 和广域网的概念考查频率低一些，但也比较简单，熟悉下能在选择题应对即可。"
-source: "https://csgraduates.com/computer_network/datalink/lan/"
+description: "以太网、无线局域网、VLAN、HDLC 与 PPP。"
 ---
 
-⭐ 中优先级
+> **复习优先级：中。**
 
-本节主要关注以太网的传输介质和帧格式，往年在解答题出现了传输介质的名称，如果不知道对应的带宽就难搞了。VLAN 和 广域网的概念考查频率低一些，但也比较简单，熟悉下能在选择题应对就可。
+重点掌握以太网帧格式、常见传输介质、无线局域网地址字段和 VLAN；PPP 等广域网协议以基本机制为主。
 
 ### 局域网
 
@@ -41,7 +40,7 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 真题 1
 
-选择题 [12#35](https://www.csgraduates.com/study_methods/408quiz/2012/#35)
+选择题 12#35
 
 在实际的局域网应用中，由于 **以太网** 占据垄断地位，所以基本上成为了局域网的代名词，需要对局域网的概念有深入了解。
 
@@ -49,9 +48,9 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 真题 5
 
-选择题 [13#34](https://www.csgraduates.com/study_methods/408quiz/2013/#34) [19#34](https://www.csgraduates.com/study_methods/408quiz/2019/#34) [23#36](https://www.csgraduates.com/study_methods/408quiz/2023/#36) [25#35](https://www.csgraduates.com/study_methods/408quiz/2025/#35)
+选择题 13#34 19#34 23#36 25#35
 
-解答题 [22#47](https://www.csgraduates.com/study_methods/408quiz/2022/#47)
+解答题 22#47
 
 以太网常用的传输介质有 4 种：粗缆、细缆、双绞线和光纤，这里需要熟练掌握它们的英文名，常在选择题中出现：
 
@@ -70,8 +69,8 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 最后是后缀的英文字母，代表的传输介质的类型：
 
-- 注意字母 `T` 是 `twisted pair` 的首字母，含义是 [**双绞线**](https://www.csgraduates.com/computer_network/physical/dev/#%e7%94%b5%e7%bc%86)。
-- `FL` 是 `Fiber optic` 的缩写，含义是 [**光纤**](https://www.csgraduates.com/computer_network/physical/dev/#%e7%94%b5%e7%bc%86)。
+- 注意字母 `T` 是 `twisted pair` 的首字母，含义是 **双绞线**。
+- `FL` 是 `Fiber optic` 的缩写，含义是 **光纤**。
 
 ##### 帧格式
 
@@ -112,9 +111,9 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 以太网帧的最小和最大大小（不包括前导码和帧开始定界符）有明确的规定，目的是确保帧的有效性并避免冲突。
 
-其中最小大小为 ***64B***，最大大小为 ***1518B***。  
-最小帧大小的要求是为了确保冲突检测机制（如 CSMA/CD）能够正常工作。  
-最大帧大小也称为 **标准帧** 或 **最大传输单元（MTU）**，它限制了每个帧可以承载的数据量，以确保设备处理负载不会过大。
+其中最小大小为 ***64B***，最大大小为 ***1518B***。
+最小帧大小的要求是为了确保冲突检测机制（如 CSMA/CD）能够正常工作。
+以太网的 **MTU** 通常指网络层数据（以太网帧的 payload）可承载的最大长度，经典以太网常见 MTU 为 1500 B。它**不等同于整个以太网帧的最大长度**：不含前导码/SFD 时，普通 Ethernet II 帧通常为 64～1518 B；带 802.1Q VLAN 标签时通常再增加 4 B。
 
 以太网帧数据部分的最小大小为 **46B**，最大大小为 **1500B**。
 
@@ -153,7 +152,7 @@ source: "https://csgraduates.com/computer_network/datalink/lan/"
 
 真题 2
 
-选择题 [24#35](https://www.csgraduates.com/study_methods/408quiz/2024/#35) [26#36](https://www.csgraduates.com/study_methods/408quiz/2026/#36)
+选择题 24#35 26#36
 
 VLAN（Virtual Local Area Network）虚拟局域网，是通过 **逻辑划分** 的方式，把一个物理局域网拆分成多个独立的子网。
 
@@ -161,7 +160,7 @@ VLAN（Virtual Local Area Network）虚拟局域网，是通过 **逻辑划分**
 
 ⚙️ **那么 VLAN 是如何实现的呢？**
 
-VLAN 是通过 **交换机** 和 **VLAN 标签（Tag）** 实现的。简单来说：
+VLAN 是通过 **交换机** 和 **VLAN 标签（Tag）** 实现的。概括来说：
 
 - 普通交换机：看网线在哪个口（port）来转发数据。
 - 支持 VLAN 的交换机：会在数据包中加上 **VLAN 标签**，按“部门”来转发。
@@ -191,13 +190,13 @@ VLAN 是通过 **交换机** 和 **VLAN 标签（Tag）** 实现的。简单来�
 
 真题 1
 
-选择题 [13#37](https://www.csgraduates.com/study_methods/408quiz/2013/#37)
+选择题 13#37
 
 HDLC（High-Level Data Link Control，高级数据链路控制）是一种 **面向比特**（bit-oriented） 的 **数据链路层协议**，用于在点对点或点对多点通信中提供可靠的数据传输。
 
 HDLC 几个特点可以被简单总结为：面向比特、面向连接、提供可靠传输。
 
-需要注意的是 HDLC 使用 [**零比特填充法**](https://www.csgraduates.com/computer_network/datalink/framing/#%e9%9b%b6%e6%af%94%e7%89%b9%e5%a1%ab%e5%85%85%e6%b3%95) 来组帧。
+需要注意的是 HDLC 使用 **零比特填充法** 来组帧。
 
 #### PPP 协议
 

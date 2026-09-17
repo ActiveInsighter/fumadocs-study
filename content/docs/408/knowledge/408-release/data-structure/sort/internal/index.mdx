@@ -1,143 +1,62 @@
 ---
 title: "内部排序"
+description: "常见内部排序算法的过程、复杂度、稳定性和适用特点。"
 ---
 
-🔥
-高优先级
-
-每年选择题都必考一到两题，需要能够辨别 **不同排序算法的特征** 以及掌握 **每种排序算法执行的具体流程**。
+> **复习优先级：高。**
+重点比较各排序算法的**执行过程、时间复杂度、辅助空间和稳定性**，并能根据中间序列判断算法类型。
 
 ### 排序概念
 
-真题
-25
-
-视频讲解
-7
-
-[排序算法复杂度](https://www.bilibili.com/cheese/play/ep2796892)
-[排序算法稳定性](https://www.bilibili.com/cheese/play/ep2796894)
-[排序算法元素移动次数](https://www.bilibili.com/cheese/play/ep2796787)
-[排序算法排序趟特征](https://www.bilibili.com/cheese/play/ep2796905)
-[冒泡排序](https://www.bilibili.com/cheese/play/ep2796788)
-[选择排序](https://www.bilibili.com/cheese/play/ep2796924)
-[桶排序](https://www.bilibili.com/cheese/play/ep2796923)
-
-选择题
-[09#10](https://csgraduates.com/study_methods/408quiz/2009/#10)
-[10#10](https://csgraduates.com/study_methods/408quiz/2010/#10)
-[10#11](https://csgraduates.com/study_methods/408quiz/2010/#11)
-[11#10](https://csgraduates.com/study_methods/408quiz/2011/#10)
-[12#10](https://csgraduates.com/study_methods/408quiz/2012/#10)
-[12#11](https://csgraduates.com/study_methods/408quiz/2012/#11)
-[13#11](https://csgraduates.com/study_methods/408quiz/2013/#11)
-[14#10](https://csgraduates.com/study_methods/408quiz/2014/#10)
-[14#11](https://csgraduates.com/study_methods/408quiz/2014/#11)
-[15#11](https://csgraduates.com/study_methods/408quiz/2015/#11)
-[15#9](https://csgraduates.com/study_methods/408quiz/2015/#9)
-[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
-[17#11](https://csgraduates.com/study_methods/408quiz/2017/#11)
-[18#10](https://csgraduates.com/study_methods/408quiz/2018/#10)
-[19#10](https://csgraduates.com/study_methods/408quiz/2019/#10)
-[19#7](https://csgraduates.com/study_methods/408quiz/2019/#7)
-[20#11](https://csgraduates.com/study_methods/408quiz/2020/#11)
-[21#10](https://csgraduates.com/study_methods/408quiz/2021/#10)
-[22#11](https://csgraduates.com/study_methods/408quiz/2022/#11)
-[23#10](https://csgraduates.com/study_methods/408quiz/2023/#10)
-[23#11](https://csgraduates.com/study_methods/408quiz/2023/#11)
-[25#10](https://csgraduates.com/study_methods/408quiz/2025/#10)
-[25#11](https://csgraduates.com/study_methods/408quiz/2025/#11)
-[26#10](https://csgraduates.com/study_methods/408quiz/2026/#10)
-
-解答题
-[21#42](https://csgraduates.com/study_methods/408quiz/2021/#42)
+> **真题考察**
+> - 选择题：2009 年第 10 题、2010 年第 10 题、2010 年第 11 题、2011 年第 10 题、2012 年第 10 题、2012 年第 11 题、2013 年第 11 题、2014 年第 10 题、2014 年第 11 题、2015 年第 11 题、2015 年第 9 题、2017 年第 10 题、2017 年第 11 题、2018 年第 10 题、2019 年第 10 题、2019 年第 7 题、2020 年第 11 题、2021 年第 10 题、2022 年第 11 题、2023 年第 10 题、2023 年第 11 题、2025 年第 10 题、2025 年第 11 题、2026 年第 10 题
+> - 解答题：2021 年第 42 题
 
 #### 稳定性
 
-排序算法的 **稳定性** 是指：在排序过程中，**如果两个元素的键值相等**，排序后它们的 **相对顺序保持不变**，那么这个排序算法就是 **稳定的排序算法**。
+若待排序序列中两个关键字相等的记录，在排序前后相对次序保持不变，则称排序算法**稳定**。
 
-比如排序前的数组是这样：`[... A ... B ...]`，并且 `A` 和 `B` 的值相同。
-
-如果排序后的数组是这样：`[... B A ...]`，那么排序算法就是不稳定的，反之排序算法就是 **稳定的**。
-
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-001.svg" alt={"图示"} />
-
-补充
-
-可以通过以下方式对排序算法的 **稳定性** 进行记忆：
-
-速度比较快的算法（时间复杂度
-$O(n^2)$
-）一般都不稳定，除了 **归并排序**，因为它需要占额外的空间。
-
-速度比较慢的算法（时间复杂度
-$O(1)$
-）一般都稳定，除了 **选择排序**。
-
-除此之外，**桶排序** 和 **基数排序** 都是 **稳定的**。
+| 算法 | 稳定性 |
+| --- | --- |
+| 冒泡排序 | 稳定 |
+| 直接插入排序 | 稳定 |
+| 归并排序 | 稳定 |
+| 基数排序 | 稳定（每一位的分配/收集必须稳定） |
+| 简单选择排序 | 不稳定 |
+| 快速排序 | 不稳定 |
+| 希尔排序 | 不稳定 |
+| 堆排序 | 不稳定 |
 
 #### 元素移动次数
 
-排序算法中的 **元素移动次数**，指的是在排序过程中对 **数组元素进行位置变换的次数**。
+“移动次数”必须先看题目如何计数：一次 `swap` 可能被算作 1 次交换，也可能拆成 3 次赋值。以下只比较数量级：
 
-下表列出了各排序算法的 **元素移动次数**：
-
-| 排序算法 | 元素移动次数 | 说明 |
-| --- | --- | --- |
-| 冒泡排序 | 最坏 $O(n^2)$ | 每次交换都移动两个元素，次数较多 |
-| 选择排序 | 最多 $O(1)$ | 每轮找到最小值，只交换一次，移动次数较少，但比较次数多 |
-| 插入排序 | 平均 $O(n^2)$ | 可能需要把一个元素插入前面，移动一串元素 |
-| 归并排序 | $O(1)$ | 借助辅助数组，搬来搬去，数据复制较频繁 |
-| 快速排序 | 平均 $O(n^2)$ ，最坏 $O(1)$ | 每次划分区间时要交换元素 |
-| 堆排序 | $O(n \log n)$ | 每次堆化需要交换元素，整体移动较快速排序少 |
-| 希尔排序 | $O(n)$ | 分段插入，元素跳跃移动，次数难以精确界定 |
-| 桶排序 | $O(n \log n)$ | 元素在桶中“复制”而不是交换，适合不比较的排序场景 |
-| 基数排序 | $O(n^2)$ | 每轮根据某位进行 **稳定排序**，通常使用计数排序复制元素 |
-
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-002.svg" alt={"O(n) O(n log n) O(n^1.5) O(n²) 元素移动次数量级（从少到多） 选择排序 O(n) 每轮仅交换一次，移动最少 桶排序 O(n) 复制入桶，不做原地交换 归并排序 O(n log n) 辅助数组复制 堆排序 O(n log n) 堆化时原地交换 快速排序 均 O(n log n) 最坏 O(n²) 基数排序 O(n·d) 按位多轮计数排序复制 希尔排序 O(n^1.3 ~ 2) 难以精确界定 插入排序 O(n²) 冒泡排序：最坏 O(n²)，每次交换"} />
-
-可以观察到，**选择排序** 和 **桶排序** 的 **元素移动次数** 是最少的，不涉及到大量的元素位置交换。
+| 算法 | 典型移动/写入数量级 |
+| --- | --- |
+| 冒泡排序 | 最坏 $O(n^2)$；若本趟无交换可提前结束 |
+| 选择排序 | 比较始终 $\Theta(n^2)$，交换至多 $O(n)$ 次 |
+| 插入排序 | 最好 $O(n)$，最坏 $O(n^2)$ |
+| 归并排序 | 各层合并都要复制/写入元素，总体 $\Theta(n\log n)$ |
+| 快速排序 | 平均 $O(n\log n)$，最坏 $O(n^2)$；取决于划分 |
+| 堆排序 | $O(n\log n)$ |
+| 希尔排序 | 与增量序列有关，不存在一个对所有增量序列都成立的简单紧确式 |
+| 桶/基数排序 | 取决于桶操作和位数；常按每趟线性扫描分析 |
 
 #### 复杂度
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-003.svg" alt={"排序算法时间复杂度层次图 O(n + k) - 线性时间 桶排序（理想情况） 基数排序：O(d·(n+k)) O(n log n) - 对数线性时间 归并排序（稳定） 堆排序 快速排序（平均情况） 稳定 O(n²) - 二次时间 冒泡排序（稳定） 选择排序 插入排序（稳定） 希尔排序（最坏情况） 快速排序（最坏情况） 稳定 稳定 ↓ 空间复杂度对比 O(1) 常数空间：冒泡、选择、插入、希尔排序、堆排序 O(log n) 对数空间：快速排序（递归栈） O(n) 线性空间：归并"} />
+| 排序算法 | 最好时间 | 平均时间 | 最坏时间 | 辅助空间 | 稳定性 |
+| --- | --- | --- | --- | --- | --- |
+| 冒泡排序（带提前结束） | $O(n)$ | $O(n^2)$ | $O(n^2)$ | $O(1)$ | 稳定 |
+| 直接插入排序 | $O(n)$ | $O(n^2)$ | $O(n^2)$ | $O(1)$ | 稳定 |
+| 简单选择排序 | $\Theta(n^2)$ | $\Theta(n^2)$ | $\Theta(n^2)$ | $O(1)$ | 不稳定 |
+| 归并排序 | $\Theta(n\log n)$ | $\Theta(n\log n)$ | $\Theta(n\log n)$ | $O(n)$ | 稳定 |
+| 快速排序 | $O(n\log n)$ | $O(n\log n)$ | $O(n^2)$ | 平均 $O(\log n)$，最坏 $O(n)$ | 不稳定 |
+| 堆排序 | $\Theta(n\log n)$ | $\Theta(n\log n)$ | $\Theta(n\log n)$ | $O(1)$ | 不稳定 |
+| 希尔排序 | 与增量序列有关 | 与增量序列有关 | 与增量序列有关 | $O(1)$ | 不稳定 |
+| 桶排序 | 良好分布时可接近 $O(n+k)$ | 依实现/分布 | 可能退化 | $O(n+k)$ | 依桶内算法 |
+| 基数排序 | $O(d(n+k))$ | $O(d(n+k))$ | $O(d(n+k))$ | $O(n+k)$ | 稳定 |
 
-| 排序方式 | 时间复杂度 | 空间复杂度 | 是否稳定 |
-| --- | --- | --- | --- |
-| 冒泡排序 | $O(n^2)$ | $O(1)$ | 稳定 |
-| 选择排序 | $O(n^2)$ | $O(1)$ | 不稳定 |
-| 插入排序 | $O(n^2)$ | $O(1)$ | 稳定 |
-| 希尔排序 | 取决于增量序列，最坏 $O(n^2)$ | $O(1)$ | 不稳定 |
-| 归并排序 | $O(n \log n)$ | $O(n)$ | 稳定 |
-| 快速排序 | 平均 $O(n \log n)$，最坏 $O(n^2)$ | $O(\log n)$ | 不稳定 |
-| 堆排序 | $O(n \log n)$ | $O(1)$ | 不稳定 |
-| 桶排序 | $O(n + k)$（k 为桶数） | $O(n + k)$ | 稳定（视内部排序方式而定） |
-| 基数排序 | $O(d \cdot (n + k))$（d 为位数，k 为基数） | $O(n + k)$ | 稳定 |
-
-补充
-
-**快排的空间复杂度为什么是
-$O(\log n)$**
-
-快速排序是原地排序算法，唯一的空间开销来自递归调用栈，理想情况下：
-
-- 每次把数组分成近似相等的两半；
-- 整个递归树的深度是
-  $O(n \log n)$
-  ；
-- 所以最多同时存在
-  $O(1)$
-  层的递归调用；
-- 每一层调用中局部变量空间是常数（
-  $O(n + k)$
-  ）；
-
-因此，空间复杂度是：
-$O(n + k)$
-（递归深度） ×
-$O(d \cdot (n + k))$
-（每层开销） =
-$O(n + k)$
+其中 $k$ 表示桶/基数的取值范围，$d$ 表示处理的数位数。比较排序在比较决策树模型下最坏情况存在 $\Omega(n\log n)$ 下界；桶排序、计数思想、基数排序不只依赖元素间比较，因此不受该下界直接限制。
 
 #### 趟特征
 
@@ -298,17 +217,9 @@ MaxHeapify(arr, i, n)
 
 ### 插入排序
 
-真题
-4
-[插入排序](https://www.bilibili.com/cheese/play/ep2796907)
-
-选择题
-[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
-[20#11](https://csgraduates.com/study_methods/408quiz/2020/#11)
-[26#9](https://csgraduates.com/study_methods/408quiz/2026/#9)
-
-解答题
-[22#42](https://csgraduates.com/study_methods/408quiz/2022/#42)
+> **真题考察**
+> - 选择题：2017 年第 10 题、2020 年第 11 题、2026 年第 9 题
+> - 解答题：2022 年第 42 题
 
 插入排序（Insertion Sort）将数组分为 **未排序部分** 和 **已排序部分**，每次选取未排序部分的第一个元素作为插入元素，在已排序序列中 **从后向前** 扫描，找到相应位置并插入。
 
@@ -329,8 +240,8 @@ MaxHeapify(arr, i, n)
 因此，插入排序的时间复杂度与序列的 **初始有序程度** 密切相关：
 
 - **最好情况**：序列已经有序，每个元素只需比较一次即可，时间复杂度为 **$i$**；
-- **最坏情况**：序列完全逆序，每个元素都需要移动到最前面，时间复杂度为 **O(n2)**；
-- **平均情况**：时间复杂度为 **O(n2)**。
+- **最坏情况**：序列完全逆序，每个元素都需要移动到最前面，时间复杂度为 **$O(n^2)$**；
+- **平均情况**：时间复杂度为 **$O(n^2)$**。
 
 ### 选择排序
 
@@ -351,7 +262,7 @@ MaxHeapify(arr, i, n)
 
 <InlineSvg src="/images/data-structure/data-structure-sort-internal-008.svg" alt={"11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64"} />
 
-注意
+> **注意：**
 
 选择排序和插入排序都将序列划分为 **已排序部分** 和 **未排序部分**，但两者维护的性质不同：
 
@@ -360,19 +271,9 @@ MaxHeapify(arr, i, n)
 
 ### 归并排序
 
-真题
-6
-[归并排序](https://www.bilibili.com/cheese/play/ep2796800)
-
-选择题
-[17#10](https://csgraduates.com/study_methods/408quiz/2017/#10)
-[22#10](https://csgraduates.com/study_methods/408quiz/2022/#10)
-[24#10](https://csgraduates.com/study_methods/408quiz/2024/#10)
-[26#11](https://csgraduates.com/study_methods/408quiz/2026/#11)
-
-解答题
-[11#42](https://csgraduates.com/study_methods/408quiz/2011/#42)
-[12#41](https://csgraduates.com/study_methods/408quiz/2012/#41)
+> **真题考察**
+> - 选择题：2017 年第 10 题、2022 年第 10 题、2024 年第 10 题、2026 年第 11 题
+> - 解答题：2011 年第 42 题、2012 年第 41 题
 
 归并排序（Merge Sort）是一种典型的 **分而治之（Divide and Conquer）** 排序算法。它将待排序序列不断划分为规模更小的子序列，分别排序后，再将多个有序子序列逐步合并，最终得到一个完全有序的序列。
 
@@ -399,29 +300,17 @@ MaxHeapify(arr, i, n)
 
 <InlineSvg src="/images/data-structure/data-structure-sort-internal-010.svg" alt={"38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82"} />
 
-注意
+> **注意：**
 
-归并排序 过程中需要额外申请一个长度为 `n` 的 **辅助数组** 来暂存归并结果，同时递归调用还需要 `O(log n)` 的栈空间，因此归并排序的额外空间复杂度为 **O(n + log n)**，通常简记为 **O(n)**。
+归并排序 过程中需要额外申请一个长度为 `n` 的 **辅助数组** 来暂存归并结果，同时递归调用还需要 $O(\log n)$ 的栈空间，因此归并排序的额外空间复杂度为 $O(n+\log n)$，通常简记为 $O(n)$。
 
 由于归并时相等关键字能够保持原有的先后次序，因此归并排序是一种 **稳定** 的排序算法。
 
 ### 快速排序
 
-真题
-3
-
-视频讲解
-2
-
-[快速排序流程](https://www.bilibili.com/cheese/play/ep2796891)
-[单向递归版本](https://www.bilibili.com/cheese/play/ep2796792)
-
-选择题
-[14#11](https://csgraduates.com/study_methods/408quiz/2014/#11)
-[24#8](https://csgraduates.com/study_methods/408quiz/2024/#8)
-
-解答题
-[16#43](https://csgraduates.com/study_methods/408quiz/2016/#43)
+> **真题考察**
+> - 选择题：2014 年第 11 题、2024 年第 8 题
+> - 解答题：2016 年第 43 题
 
 快速排序（Quick Sort）的核心思想与 **归并排序** 类似，同样采用 **分治法**（Divide and Conquer），但两者的实现方式有所不同。
 
@@ -545,32 +434,11 @@ int quickSelect(int a[], int low, int high, int k) {
 
 #### 堆
 
-真题
-8
+> **真题考察**
+> - 选择题：2009 年第 9 题、2011 年第 11 题、2015 年第 10 题、2018 年第 11 题、2020 年第 9 题、2021 年第 11 题、2024 年第 9 题
+> - 解答题：2022 年第 42 题
 
-视频讲解
-6
-
-[堆特征](https://www.bilibili.com/cheese/play/ep2796798)
-[堆化](https://www.bilibili.com/cheese/play/ep2796795)
-[堆插入](https://www.bilibili.com/cheese/play/ep2796797)
-[堆删除](https://www.bilibili.com/cheese/play/ep2796794)
-[初始化堆](https://www.bilibili.com/cheese/play/ep2796791)
-[堆排序流程](https://www.bilibili.com/cheese/play/ep2796796)
-
-选择题
-[09#9](https://csgraduates.com/study_methods/408quiz/2009/#9)
-[11#11](https://csgraduates.com/study_methods/408quiz/2011/#11)
-[15#10](https://csgraduates.com/study_methods/408quiz/2015/#10)
-[18#11](https://csgraduates.com/study_methods/408quiz/2018/#11)
-[20#9](https://csgraduates.com/study_methods/408quiz/2020/#9)
-[21#11](https://csgraduates.com/study_methods/408quiz/2021/#11)
-[24#9](https://csgraduates.com/study_methods/408quiz/2024/#9)
-
-解答题
-[22#42](https://csgraduates.com/study_methods/408quiz/2022/#42)
-
-在二叉树一节中我们提到，[二叉树的存储方式](https://csgraduates.com/data_structure/tree/btree/#%e4%ba%8c%e5%8f%89%e6%a0%91%e5%ad%98%e5%82%a8%e7%bb%93%e6%9e%84) 包含 **链接存储** 和 **顺序存储** 两种。  
+在二叉树一节中我们提到，二叉树的存储方式 包含 **链接存储** 和 **顺序存储** 两种。  
 堆就是采用 **顺序存储** 的方式，在这种方式中，我们使用一个数组来模拟一颗二叉树，二叉树中的结点操作被转化为数组元素操作。
 
 满足以下性质的树 被称为 **堆**（Heap）：
@@ -584,7 +452,7 @@ int quickSelect(int a[], int low, int high, int k) {
 
 <InlineSvg src="/images/data-structure/data-structure-sort-internal-014.svg" alt={"10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆"} />
 
-基于这些性质，堆常常被用于实现 **优先队列**。对于大根堆，我们总是可以在 **O(1)** 的时间内得到最大的元素（即根结点），而对于小根堆，我们总是可以在 **O(1)** 的时间内得到最小的元素。
+基于这些性质，堆常常被用于实现 **优先队列**。对于大根堆，我们总是可以在 $O(1)$ 的时间内得到最大的元素（即根结点），而对于小根堆，我们总是可以在 $O(1)$ 的时间内得到最小的元素。
 
 ##### 实现
 
@@ -753,14 +621,8 @@ void heapSort(int heap[], int size) {
 
 ### 希尔排序
 
-真题
-3
-[希尔排序](https://www.bilibili.com/cheese/play/ep2796799)
-
-选择题
-[14#10](https://csgraduates.com/study_methods/408quiz/2014/#10)
-[15#11](https://csgraduates.com/study_methods/408quiz/2015/#11)
-[18#10](https://csgraduates.com/study_methods/408quiz/2018/#10)
+> **真题考察**
+> - 选择题：2014 年第 10 题、2015 年第 11 题、2018 年第 10 题
 
 希尔排序（Shell Sort）是一种 **基于插入排序** 的改进算法，通过分组和逐步减小步长来提高效率。
 
@@ -781,7 +643,7 @@ void heapSort(int heap[], int size) {
 5. **排序完成**：
    - 步长为 1 的插入排序完成后，数组完全有序。
 
-注意
+> **注意：**
 
 虽然希尔最初提出时建议初始 gap（增量序列）为 n/2 并逐步折半，但在实践中 gap 的选取是灵活的，并不强制要求必须为数组长度的一半。
 
@@ -805,7 +667,7 @@ void heapSort(int heap[], int size) {
 
 <InlineSvg src="/images/data-structure/data-structure-sort-internal-024.svg" alt={"12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24"} />
 
-补充
+> **补充：**
 
 **桶排序和归并排序的区别**
 
@@ -816,20 +678,15 @@ void heapSort(int heap[], int size) {
 - **归并排序**：按**元素个数**划分（对半拆分），完全不关心元素的值。
 - **桶排序**：按**元素取值范围**划分（映射到不同桶），充分利用元素值的信息。
 
-所以这是两种类型的排序，其实我们将排序算法分成两大类:
+从是否主要依赖关键字之间的比较来看，可将常见排序方法概括为两类：
 
-- **比较排序**：只知道"谁比谁大"，例如直接插入排序、冒泡排序、快速排序、堆排序、归并排序。它们不利用元素值的具体含义，因此都有比较排序的理论下界 (\Omega(n\log n))。
+- **比较排序**：只知道"谁比谁大"，例如直接插入排序、冒泡排序、快速排序、堆排序、归并排序。它们不利用元素值的具体含义，因此都有比较排序的理论下界 $\Omega(n\log n)$。
 - **分布排序（非比较排序）**：利用元素值本身的特性，例如计数排序、桶排序、基数排序。只要数据满足一定条件，就能突破比较排序的下界，达到线性时间。
 
 ### 基数排序
 
-真题
-2
-[基数排序](https://www.bilibili.com/cheese/play/ep2796793)
-
-选择题
-[15#9](https://csgraduates.com/study_methods/408quiz/2015/#9)
-[21#10](https://csgraduates.com/study_methods/408quiz/2021/#10)
+> **真题考察**
+> - 选择题：2015 年第 9 题、2021 年第 10 题
 
 基数排序（Radix Sort）的核心思想是将整数分解为单独的数字，然后进行多轮排序，最终使数据有序。
 

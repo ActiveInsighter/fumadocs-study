@@ -1,115 +1,16 @@
 ---
 title: "中央处理器"
+description: "CPU 数据通路、控制器、中断、流水线与多处理器。"
 ---
 
-本章是重中之重，几乎每年都会在大题和选择题中考察。需要熟练掌握 CPU 的结构、寄存器类型以及指令执行的流程，关于 CPU 的考察也常常和指令系统混合在一起，需要能够从一个高维的角度，思考 CPU、指令、控制器以及外部设备的关系。
+CPU 是“指令系统”真正落到硬件上的位置。本章应从一条指令的生命周期出发，理解寄存器、ALU、数据通路和控制信号如何协同工作。
 
-本章视频讲解
-46
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [功能和结构](/docs/408/knowledge/408-release/computer-organization/cpu/structure/) | CPU 组成、数据通路、寄存器功能 |
+| [控制器](/docs/408/knowledge/408-release/computer-organization/cpu/controller/) | 控制信号、RTL、硬布线与微程序控制 |
+| [异常与中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/) | 中断处理、异常分类、优先级与屏蔽 |
+| [指令流水线](/docs/408/knowledge/408-release/computer-organization/cpu/pipeline/) | 五级流水、性能、结构/数据/控制冒险 |
+| [多处理机](/docs/408/knowledge/408-release/computer-organization/cpu/multicore/) | Flynn 分类、多核与共享存储结构 |
 
-本章共 **46** 节视频讲解，覆盖 **16** 个知识点。
-
-[功能和结构](/docs/408/knowledge/408-release/computer-organization/cpu/structure/)
-
-数据通路
-[CPU 逻辑结构](https://www.bilibili.com/cheese/play/ep2793410)
-[数据通路](https://www.bilibili.com/cheese/play/ep2793765)
-
-寄存器类型
-[寄存器分类](https://www.bilibili.com/cheese/play/ep2793766)
-[段寄存器](https://www.bilibili.com/cheese/play/ep2793767)
-[栈指针寄存器](https://www.bilibili.com/cheese/play/ep2793780)
-[指令指针寄存器](https://www.bilibili.com/cheese/play/ep2793782)
-[变址寄存器](https://www.bilibili.com/cheese/play/ep2793838)
-
-标志寄存器
-[标志寄存器和条件标志](https://www.bilibili.com/cheese/play/ep2793795)
-[OF 的语义和设置](https://www.bilibili.com/cheese/play/ep2793797)
-[CF 的语义和设置](https://www.bilibili.com/cheese/play/ep2793835)
-[SF 和 ZF 的设置](https://www.bilibili.com/cheese/play/ep2793836)
-[控制标志](https://www.bilibili.com/cheese/play/ep2793837)
-
-[控制器](/docs/408/knowledge/408-release/computer-organization/cpu/controller/)
-
-控制器
-[控制器的功能和组成](https://www.bilibili.com/cheese/play/ep2793857)
-[控制信号种类](https://www.bilibili.com/cheese/play/ep2793858)
-
-寄存器传送语言
-[寄存器传送语言基本语法](https://www.bilibili.com/cheese/play/ep2793859)
-[取值和译码阶段的控制流程](https://www.bilibili.com/cheese/play/ep2793881)
-[取值和译码阶段的控制信号](https://www.bilibili.com/cheese/play/ep2793892)
-[执行和写回阶段的控制信号](https://www.bilibili.com/cheese/play/ep2793893)
-
-控制器种类
-[微程序控制器结构](https://www.bilibili.com/cheese/play/ep2793909)
-[硬布线控制器](https://www.bilibili.com/cheese/play/ep2793921)
-
-微程序控制器
-[微程序-微指令-微命令](https://www.bilibili.com/cheese/play/ep2793908)
-[微程序控制器结构](https://www.bilibili.com/cheese/play/ep2793909)
-[微指令编码方式](https://www.bilibili.com/cheese/play/ep2793910)
-
-[异常与中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/)
-
-中断IO
-[中断IO方式](https://www.bilibili.com/cheese/play/ep2794850)
-[中断基本概念](https://www.bilibili.com/cheese/play/ep2794430)
-[中断处理流程](https://www.bilibili.com/cheese/play/ep2794441)
-[中断处理流程注意点](https://www.bilibili.com/cheese/play/ep2794518)
-
-多级中断
-[中断优先级](https://www.bilibili.com/cheese/play/ep2794549)
-[中断嵌套](https://www.bilibili.com/cheese/play/ep2794572)
-
-中断屏蔽
-[中断屏蔽和嵌套的语义差别](https://www.bilibili.com/cheese/play/ep2794571)
-[中断屏蔽字](https://www.bilibili.com/cheese/play/ep2794582)
-[NMI和整体屏蔽流程讲解](https://www.bilibili.com/cheese/play/ep2794594)
-
-异常和中断
-[中断和异常](https://www.bilibili.com/cheese/play/ep2794595)
-
-[指令流水线](/docs/408/knowledge/408-release/computer-organization/cpu/pipeline/)
-
-单周期处理器
-[单周期处理器和流水线](https://www.bilibili.com/cheese/play/ep2793947)
-
-流水线概念
-[单周期处理器和流水线](https://www.bilibili.com/cheese/play/ep2793947)
-[指令执行的五个阶段](https://www.bilibili.com/cheese/play/ep2794268)
-[流水线的画法](https://www.bilibili.com/cheese/play/ep2793958)
-[流水线性能指标](https://www.bilibili.com/cheese/play/ep2793978)
-
-流水线冒险
-[流水线冒险的概念](https://www.bilibili.com/cheese/play/ep2793959)
-[流水线的一致性约束](https://www.bilibili.com/cheese/play/ep2793968)
-[数据冒险概念](https://www.bilibili.com/cheese/play/ep2793969)
-[流水线停顿](https://www.bilibili.com/cheese/play/ep2793971)
-[旁路转发](https://www.bilibili.com/cheese/play/ep2793972)
-[控制冒险](https://www.bilibili.com/cheese/play/ep2793976)
-[结构冒险](https://www.bilibili.com/cheese/play/ep2793977)
-
-超流水线
-[高级流水线](https://www.bilibili.com/cheese/play/ep2793979)
-
-[多处理机](/docs/408/knowledge/408-release/computer-organization/cpu/multicore/)
-
-多处理机
-[弗林分类法](https://www.bilibili.com/cheese/play/ep2805010)
-[多核处理器](https://www.bilibili.com/cheese/play/ep2805012)
-
-<InlineSvg src="/images/computer-organization/computer-organization-cpu-001.svg" alt={"CPU的功能和基本结构 指令执行过程 数据通路的功能和基本结构 控制器的功能和工作原理 基本概念 分类 检测和响应 异常和中断机制 基本概念 基本实现 结构冒险、数据冒险和控制冒险 超标量和动态流水线的基本概念 指令流水线 SISD、SIMD、MIMD、向量处理器的基本概念 硬件多线程的概念 多核处理器的基本概念 共享内存多处理器的概念 多处理器基本概念 基本概念 组成及性能指标 事务和定时 总线 功能和基本结构 端口及其编址 I/O接口 程序查询方式 程序中断方式 DMA方"} />
-
----
-
-##### [功能和结构](/docs/408/knowledge/408-release/computer-organization/cpu/structure/)
-
-##### [控制器](/docs/408/knowledge/408-release/computer-organization/cpu/controller/)
-
-##### [异常与中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/)
-
-##### [指令流水线](/docs/408/knowledge/408-release/computer-organization/cpu/pipeline/)
-
-##### [多处理机](/docs/408/knowledge/408-release/computer-organization/cpu/multicore/)
+> **复习提示：** CPU 大题通常不会孤立出现，经常与指令系统、Cache、异常/中断结合。画数据通路时要明确“数据走哪条线”和“谁产生控制信号”。

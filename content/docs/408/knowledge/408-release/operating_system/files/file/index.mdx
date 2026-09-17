@@ -4,10 +4,8 @@ title: "文件"
 
 # 文件
 
-🔥
-高优先级
-
-这一节是操作系统文件管理中最重要的一节，每个知识点的知识都要深入掌握，尤其是文件的物理结构，在大题中也经常考察。
+> **复习优先级：高。**
+> **考查重点：** 文件的逻辑结构与物理结构、连续/链接/索引分配以及 inode 等内容应重点掌握，索引分配适合与容量计算结合考查。
 
 ### 文件元信息
 
@@ -29,13 +27,10 @@ inode 中包含如下信息：
 
 ### 进程文件管理
 
-真题
-3
-
-选择题
-[20#23](https://csgraduates.com/study_methods/408quiz/2020/#23)
-[24#29](https://csgraduates.com/study_methods/408quiz/2024/#29)
-[25#29](https://csgraduates.com/study_methods/408quiz/2025/#29)
+> **真题考察**
+> - 选择题：2020 年第 23 题、2024 年第 29 题、2025 年第 29 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 在进程中可能会打开若干文件，操作系统需要以某种方式对进程打开的文件信息进行记录。这就需要用到三个数据结构：**文件描述符表**、**文件表**、**inode 表**。
 
@@ -45,21 +40,11 @@ inode 中包含如下信息：
 
 #### inode 表
 
-真题
-9
-
-选择题
-[09#30](https://csgraduates.com/study_methods/408quiz/2009/#30)
-[13#23](https://csgraduates.com/study_methods/408quiz/2013/#23)
-[13#26](https://csgraduates.com/study_methods/408quiz/2013/#26)
-[14#29](https://csgraduates.com/study_methods/408quiz/2014/#29)
-[17#30](https://csgraduates.com/study_methods/408quiz/2017/#30)
-[17#31](https://csgraduates.com/study_methods/408quiz/2017/#31)
-[20#31](https://csgraduates.com/study_methods/408quiz/2020/#31)
-[23#31](https://csgraduates.com/study_methods/408quiz/2023/#31)
-
-解答题
-[26#46](https://csgraduates.com/study_methods/408quiz/2026/#46)
+> **真题考察**
+> - 选择题：2009 年第 30 题、2013 年第 23 题、2013 年第 26 题、2014 年第 29 题、2017 年第 30 题、2017 年第 31 题、2020 年第 31 题、2023 年第 31 题
+> - 解答题：2026 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **inode 表**（inode table）是一个固定的、专门的区域，用来存储文件系统中所有文件和目录的 **inode** 结构。每个 **inode** 占用一个表项，表中的每个 **inode** 编号（inode number）对应一个唯一的文件或目录。
 
@@ -93,7 +78,7 @@ inode 中包含如下信息：
 1. 创建一项“**系统打开文件表**”记录（如果该文件尚未打开，或者是独立打开的）
 2. 创建/更新该进程的“**文件描述符表**”项，让它指向这条系统表项
 
-举个例子：
+例如：
 
 ```
 int fd = open("file.txt", O_RDWR);  // 进程 A 打开
@@ -161,7 +146,7 @@ write(fd, "Hello", 5);              // offset 从 0 到 5
 1. 检查文件是否存在、权限是否允许访问
 2. 在内核中创建一个 **文件描述符**，用于追踪该文件的使用状态
 
-因此，`open` 实际上是一次向内核“申请访问权限”的操作，它返回 **文件描述符**（file descriptor），**文件描述符**会被存储到进程的 [文件描述符表](https://csgraduates.com/operating_system/files/file/#%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%e8%a1%a8) 中，并将 [系统文件打开表](https://csgraduates.com/operating_system/files/file/#%e7%b3%bb%e7%bb%9f%e6%89%93%e5%bc%80%e6%96%87%e4%bb%b6%e8%a1%a8) 中的引用计数 +1。此外，如果文件是第一次被打开时，该文件的 [inode](https://csgraduates.com/operating_system/files/file/#%e6%96%87%e4%bb%b6%e5%85%83%e4%bf%a1%e6%81%af) 也会从外存中被加载到内存中。
+因此，`open` 实际上是一次向内核“申请访问权限”的操作，它返回 **文件描述符**（file descriptor），**文件描述符**会被存储到进程的 [文件描述符表](/docs/408/knowledge/408-release/operating_system/files/file/#%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%e8%a1%a8) 中，并将 [系统文件打开表](/docs/408/knowledge/408-release/operating_system/files/file/#%e7%b3%bb%e7%bb%9f%e6%89%93%e5%bc%80%e6%96%87%e4%bb%b6%e8%a1%a8) 中的引用计数 +1。此外，如果文件是第一次被打开时，该文件的 [inode](/docs/408/knowledge/408-release/operating_system/files/file/#%e6%96%87%e4%bb%b6%e5%85%83%e4%bf%a1%e6%81%af) 也会从外存中被加载到内存中。
 
 相对应的，`close` 的作用是通知内核：该文件不再使用，可以释放相关资源。若程序未正确调用 `close`，**文件描述符**将无法释放，可能导致资源泄露，最终耗尽进程可用的 **文件句柄**。`close` 可以理解为 `open` 的反向操作：从 **文件描述符表** 中删除 **文件描述符**；将 **系统文件打开表** 中的引用计数 -1；如果引用计数为 0 时，内存中的 **inode** 会被释放。
 
@@ -178,7 +163,7 @@ write(fd, "Hello", 5);              // offset 从 0 到 5
 
 **1. 延迟写**
 
-在 **Unix** 系统中，`write` 系统调用并不会立即将数据写入磁盘，而是将其暂存在内核的 **页缓存**（page cache）中。只有在特定时机——如缓存空间不足、文件被关闭，或系统周期性同步——才会将缓存中的数据统一刷新到磁盘（思路与 **cache** 中的 [回写法](https://csgraduates.com/constitution_principle/storage/cache/#%e5%9b%9e%e5%86%99%e6%b3%95) 一致，需要使用到脏位）。
+在 **Unix** 系统中，`write` 系统调用并不会立即将数据写入磁盘，而是将其暂存在内核的 **页缓存**（page cache）中。只有在特定时机——如缓存空间不足、文件被关闭，或系统周期性同步——才会将缓存中的数据统一刷新到磁盘（思路与 **Cache** 中的 [回写法](/docs/408/knowledge/408-release/computer-organization/storage/cache/#%e5%9b%9e%e5%86%99%e6%b3%95) 一致，需要使用到脏位）。
 
 这种设计 **显著减少了磁盘 I/O 操作**，提高了写入效率，尤其是在对同一数据区域频繁写入的场景下，还能合并多次写操作，从而进一步降低成本。
 
@@ -212,29 +197,11 @@ write(fd, "Hello", 5);              // offset 从 0 到 5
 
 ### 文件的物理结构
 
-真题
-11
-
-视频讲解
-2
-
-[文件的物理分配](https://www.bilibili.com/cheese/play/ep2798788)
-[文件的混合索引](https://www.bilibili.com/cheese/play/ep2798789)
-
-选择题
-[09#28](https://csgraduates.com/study_methods/408quiz/2009/#28)
-[10#30](https://csgraduates.com/study_methods/408quiz/2010/#30)
-[13#24](https://csgraduates.com/study_methods/408quiz/2013/#24)
-[15#29](https://csgraduates.com/study_methods/408quiz/2015/#29)
-[20#24](https://csgraduates.com/study_methods/408quiz/2020/#24)
-
-解答题
-[11#46](https://csgraduates.com/study_methods/408quiz/2011/#46)
-[12#46](https://csgraduates.com/study_methods/408quiz/2012/#46)
-[14#46](https://csgraduates.com/study_methods/408quiz/2014/#46)
-[18#46](https://csgraduates.com/study_methods/408quiz/2018/#46)
-[22#45](https://csgraduates.com/study_methods/408quiz/2022/#45)
-[26#46](https://csgraduates.com/study_methods/408quiz/2026/#46)
+> **真题考察**
+> - 选择题：2009 年第 28 题、2010 年第 30 题、2013 年第 24 题、2015 年第 29 题、2020 年第 24 题
+> - 解答题：2011 年第 46 题、2012 年第 46 题、2014 年第 46 题、2018 年第 46 题、2022 年第 45 题、2026 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 文件的 **物理结构**（或称 **存储结构**）是指文件在物理存储介质（如磁盘、SSD）上的实际存放方式。它关注的是操作系统如何管理文件的块（block）或簇（cluster）等单位，并将逻辑上的文件映射到磁盘上的物理地址空间。
 
@@ -298,7 +265,7 @@ write(fd, "Hello", 5);              // offset 从 0 到 5
 
 上图给出的索引是 **一级索引**，索引块的层级只有一层，索引块中直接存储数据块的盘块号。
 
-在实践中还有 **多级索引**，其思路与 [多级页表](https://csgraduates.com/constitution_principle/storage/virtual/#%e5%a4%9a%e7%ba%a7%e9%a1%b5%e8%a1%a8) 一致。一级索引块中存储的是二级索引块的盘块号，最后一级索引块中才存储有数据块的盘块号。
+在实践中还有 **多级索引**，其思路与 [多级页表](/docs/408/knowledge/408-release/computer-organization/storage/virtual/#%e5%a4%9a%e7%ba%a7%e9%a1%b5%e8%a1%a8) 一致。一级索引块中存储的是二级索引块的盘块号，最后一级索引块中才存储有数据块的盘块号。
 
 <InlineSvg src="/images/operating-system/operating-system-files-file-014.svg" alt={"一级索引块 二级索引块 三级索引块 数据块"} />
 

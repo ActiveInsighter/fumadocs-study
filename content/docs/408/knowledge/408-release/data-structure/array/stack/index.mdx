@@ -1,19 +1,13 @@
 ---
 title: "栈"
+description: "栈的基本操作、顺序实现和链式实现。"
 ---
 
-⭐
-中优先级
-
+> **复习优先级：中。**
 关于栈直接考查其定义和概念比较少，**更多的是考查应用**，但是这一节还是 **作为基础**，需要熟悉下。
 
-真题
-3
-
-选择题
-[15#1](https://csgraduates.com/study_methods/408quiz/2015/#1)
-[17#2](https://csgraduates.com/study_methods/408quiz/2017/#2)
-[25#2](https://csgraduates.com/study_methods/408quiz/2025/#2)
+> **真题考察**
+> - 选择题：2015 年第 1 题、2017 年第 2 题、2025 年第 2 题
 
 ### 定义
 
@@ -48,7 +42,7 @@ title: "栈"
 
 当元素 **入栈** 时，将栈顶指针 **向后** 移动一个位置、然后放置新元素即可。当元素 **出栈** 时，需要将栈顶指针 **向前** 移动一个位置。
 
-当然，入栈需要保证栈不满，出栈需要保证栈不空。
+入栈前需要检查容量是否已满，出栈前需要检查栈是否为空。
 
 下图展示了顺序栈在 **空栈、入栈、出栈、栈满** 四种关键状态下 `top` 指针的位置变化：
 
@@ -133,7 +127,7 @@ bool isFull(SeqStack* stack) {
 
 #### 链式栈
 
-栈的 **链式存储结构** 利用 **[单链表](https://csgraduates.com/data_structure/linearlist/linked/#%e5%8d%95%e9%93%be%e8%a1%a8%e5%ae%9a%e4%b9%89)** 来实现栈的功能。
+栈的 **链式存储结构** 利用 **单链表** 来实现栈的功能。
 
 <InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt={"a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底"} />
 

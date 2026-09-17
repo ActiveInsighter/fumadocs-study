@@ -2,20 +2,15 @@
 title: "数据对齐方式"
 ---
 
-⭐
-中优先级
-
+> **复习优先级：中。**
 **数据对齐** 和 **大小端** 在选择题考查得挺频繁的，但是这两点也比较简单，真正掌握要点了基本不会忘。
 
 ### 数据对齐
 
-真题
-3
-
-选择题
-[12#15](https://csgraduates.com/study_methods/408quiz/2012/#15)
-[20#14](https://csgraduates.com/study_methods/408quiz/2020/#14)
-[25#15](https://csgraduates.com/study_methods/408quiz/2025/#15)
+> **真题考察**
+> - 选择题：2012 年第 15 题、2020 年第 14 题、2025 年第 15 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **数据对齐** （Data Alignment）是指数据在内存中的存放方式，它要求数据的起始地址必须是某个数（通常是 1、2、4、8）的整数倍，这个数被称为 **对齐因子** （Alignment Factor）。数据对齐的目的是为了提高 **内存访问** 的效率，因为许多计算机系统都是按照数据的对齐边界来设计 **内存访问** 硬件的。
 
@@ -86,19 +81,11 @@ _Alignof(size_t)     = 8
 
 ### 大小端
 
-真题
-7
-
-选择题
-[16#14](https://csgraduates.com/study_methods/408quiz/2016/#14)
-[18#15](https://csgraduates.com/study_methods/408quiz/2018/#15)
-[19#15](https://csgraduates.com/study_methods/408quiz/2019/#15)
-[20#14](https://csgraduates.com/study_methods/408quiz/2020/#14)
-[25#15](https://csgraduates.com/study_methods/408quiz/2025/#15)
-
-解答题
-[23#44](https://csgraduates.com/study_methods/408quiz/2023/#44)
-[24#44](https://csgraduates.com/study_methods/408quiz/2024/#44)
+> **真题考察**
+> - 选择题：2016 年第 14 题、2018 年第 15 题、2019 年第 15 题、2020 年第 14 题、2025 年第 15 题
+> - 解答题：2023 年第 44 题、2024 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **大小端** （Endianness）是指多字节 **数据在内存中的字节序**，也就是 **字节** 的排列顺序。主要有两种存放方式：
 
@@ -120,8 +107,7 @@ _Alignof(size_t)     = 8
 
 <InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-005.svg" alt={"0x10 0x32 0x54 ox76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x76 0x54 0x32 0x10 0x98 0xBA 0xDC 0xFE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xFE 0xDC 0xBA 0x98 0x1000 0x1000 0x1008 0x1008 Little Endian Big Endian"} />
 
-注意
-
+**注意**
 理解大小端的核心是要分清 **字节内部的 bit 顺序** 和 **多字节数据的字节顺序**（大小端的核心问题）
 
 - **大小端**（Endianness） 本身并 **不涉及字节内部的位顺序**，它只规定 **字节之间在内存中的排列方式**。

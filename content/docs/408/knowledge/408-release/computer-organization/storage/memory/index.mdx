@@ -2,10 +2,8 @@
 title: "多模块存储器"
 ---
 
-⭐
-中优先级
-
-本节的内容会在选择题和解答题中偶尔考察，并且考查方式经常涉及到地址和容量计算，要对多模态存储器的计算流程非常熟悉。
+> **复习优先级：中。**
+本节的内容会在选择题和解答题中偶尔考察，并且考查方式经常涉及到地址和容量计算，要对多模块存储器的计算流程非常熟悉。
 
 多模块存储器（Multi-module Memory）是指利用多个结构相同的存储模块（或存储芯片）共同构成一个主存系统。
 
@@ -99,8 +97,7 @@ CPU 每发出一个地址，只能读出 **一个字（32 位）**。
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-004.svg" alt={"M 0 M 1 M 2 M 3 DR 地址总线 单字长 数据总线 AR"} />
 
-注意
-
+**注意**
 **高位交叉编址** 尽管名称中带有"交叉"，但实际上地址在各存储体之间是按连续区间分布的，因此不少教材也称其为 **高位连续编址**。
 
 国内《计算机组成原理》教材（如唐朔飞、白中英、王道等）通常都是这样分类：
@@ -216,31 +213,11 @@ $t$
 
 ### 主存容量的扩展
 
-真题
-11
-
-视频讲解
-4
-
-[存储器扩展](https://www.bilibili.com/cheese/play/ep2793148)
-[位扩展](https://www.bilibili.com/cheese/play/ep2793142)
-[字扩展](https://www.bilibili.com/cheese/play/ep2793147)
-[字位扩展](https://www.bilibili.com/cheese/play/ep2793146)
-
-选择题
-[09#15](https://csgraduates.com/study_methods/408quiz/2009/#15)
-[10#15](https://csgraduates.com/study_methods/408quiz/2010/#15)
-[14#15](https://csgraduates.com/study_methods/408quiz/2014/#15)
-[15#18](https://csgraduates.com/study_methods/408quiz/2015/#18)
-[16#16](https://csgraduates.com/study_methods/408quiz/2016/#16)
-[17#13](https://csgraduates.com/study_methods/408quiz/2017/#13)
-[18#17](https://csgraduates.com/study_methods/408quiz/2018/#17)
-[21#15](https://csgraduates.com/study_methods/408quiz/2021/#15)
-[22#17](https://csgraduates.com/study_methods/408quiz/2022/#17)
-[26#15](https://csgraduates.com/study_methods/408quiz/2026/#15)
-
-解答题
-[12#43](https://csgraduates.com/study_methods/408quiz/2012/#43)
+> **真题考察**
+> - 选择题：2009 年第 15 题、2010 年第 15 题、2014 年第 15 题、2015 年第 18 题、2016 年第 16 题、2017 年第 13 题、2018 年第 17 题、2021 年第 15 题、2022 年第 17 题、2026 年第 15 题
+> - 解答题：2012 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 在设计计算机存储系统时，单个存储芯片的容量和字长往往无法直接满足系统需求。例如，CPU 可能要求主存具有更大的存储容量，或者一次能够读写更宽的数据，而单个存储芯片只能提供有限的 **存储字数** 和 **字长**。因此，需要将多个存储芯片按照一定方式组合起来，构成满足要求的主存，这一过程称为 **主存容量的扩展**。
 
@@ -316,8 +293,7 @@ $2M$
 ，扩展后的存储容量变为
 $2M\times2N$
 
-补充
-
+**补充说明**
 **主存扩展和多体交叉存储器有什么关系**
 
 **多体交叉存储器** 和 **主存扩展** 都需要使用多个存储模块（或存储芯片），因此都会涉及 **高位编址** 和 **低位编址** 的地址分配方式。但两者的设计目标完全不同：
@@ -449,8 +425,7 @@ $$
   ：表示字内字节偏移，不参与芯片内部寻址；
 - 4 片芯片并行工作，共同扩展数据位宽。
 
-注意
-
+**注意**
 需要注意的是，位扩展只是多个芯片共同组成同一个存储字，并不是一次返回多个连续的存储字，因此与单体多字存储器不同。CPU 一次访问仍然只读出一个 Word，只不过这个 Word 的位数变宽了。
 
 #### 字扩展

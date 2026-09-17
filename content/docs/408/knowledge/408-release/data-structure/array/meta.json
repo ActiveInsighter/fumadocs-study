@@ -2,9 +2,9 @@
   "title": "线性数据结构",
   "pages": [
     "index",
-    "application",
-    "matrix",
+    "stack",
     "queue",
-    "stack"
+    "matrix",
+    "application"
   ]
 }

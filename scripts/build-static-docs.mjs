@@ -120,10 +120,14 @@ function runProcess(command, args, { cwd, env, label }) {
   const startedAt = Date.now();
 
   return new Promise((resolve, reject) => {
+    // Windows command shims such as next.cmd need a shell, but the Node
+    // executable itself must be spawned directly so paths like
+    // `C:\\Program Files\\nodejs\\node.exe` are not split at the space.
+    const useShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
     const child = spawn(command, args, {
       cwd,
       env,
-      shell: process.platform === 'win32',
+      shell: useShell,
       stdio: 'inherit',
     });
 

@@ -2,19 +2,13 @@
 title: "指令操作码"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 本节要和 CPU 中的 **控制器** 放在一起理解，也是后续 CPU 的基础。当然，其中协处理器和字符串操作指令不大重要，可以不作为重点，其他的操作码都要 **深入理解**。
 
-真题
-4
-
-解答题
-[14#44](https://csgraduates.com/study_methods/408quiz/2014/#44)
-[17#44](https://csgraduates.com/study_methods/408quiz/2017/#44)
-[21#43](https://csgraduates.com/study_methods/408quiz/2021/#43)
-[26#43](https://csgraduates.com/study_methods/408quiz/2026/#43)
+> **真题考察**
+> - 解答题：2014 年第 44 题、2017 年第 44 题、2021 年第 43 题、2026 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 不同计算机架构的指令操作码不相同，但是其中涉及到的功能却大同小异。本节以 x86 平台的指令为例，说明一下指令操作码的主要分类和功能。
 
@@ -49,7 +43,7 @@ mov byte ptr [var], 5  ; 只修改 var 指向的 1 字节
 
 #### 栈操作
 
-[堆栈](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84) 指的是程序的运行栈，从高地址向低地址增长。`PUSH` 指令将 **数据**压入栈顶，`POP` 指令从栈顶取出 **数据**，并存入 **寄存器**或者 **内存单元**。
+堆栈 指的是程序的运行栈，从高地址向低地址增长。`PUSH` 指令将 **数据**压入栈顶，`POP` 指令从栈顶取出 **数据**，并存入 **寄存器**或者 **内存单元**。
 
 - 语法
 - 实例
@@ -184,7 +178,7 @@ idiv ecx       ; → EAX = -6, EDX = -2
 - `AND`：保留指定位，其它位清零；
 - `OR`：将指定位设置为 1；
 - `XOR`：将指定位翻转（0 ↔ 1）；
-- `NOT`：将所有位取反（补码的按位非）；
+- `NOT`：对操作数逐位取反；它是位运算，不等同于“求补码”。
 
 ![](/images/computer-organization/computer-organization-instruction-instruction-ops-004.webp)
 
@@ -216,8 +210,10 @@ not eax            ; eax ← ~eax
 
 自增（`INC`）与自减（`DEC`）分别等价于对操作数 **加 1** 或 **减 1**，常用于循环计数或栈指针调整等场景。
 
-- `INC` 等同于 `ADD 1`。
-- `DEC` 等同于 `SUB 1`。
+- `INC` 在数值效果上相当于加 $1$。
+- `DEC` 在数值效果上相当于减 $1$。
+
+不同 ISA 对标志位的影响可能不同。例如在 x86 中，`INC/DEC` 不修改 CF，因此不能把它们与 `ADD/SUB 1` 在所有语义上完全等同。
 
 - 语法
 - 实例
@@ -266,13 +262,10 @@ jl  less_than_zero ; 若 [x] 为负数，跳转
 
 #### 移位
 
-真题
-2
-[计算逻辑指令](https://www.bilibili.com/cheese/play/ep2794331)
-
-选择题
-[18#16](https://csgraduates.com/study_methods/408quiz/2018/#16)
-[26#13](https://csgraduates.com/study_methods/408quiz/2026/#13)
+> **真题考察**
+> - 选择题：2018 年第 16 题、2026 年第 13 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **移位**是一种常见的位运算操作，常用于实现快速的乘法、除法、符号扩展等功能。根据处理方式不同，移位可分为 **逻辑移位**、**算术移位**和**循环移位**三类：
 
@@ -362,8 +355,7 @@ jmp label
 偏移量 = 标签地址 - (jmp 下一条指令地址)
 ```
 
-注意
-
+**注意**
 在 **408** 中，一般教材讲到的：
 
 ```
@@ -418,8 +410,7 @@ je equal_label
 | `JB` | jump below（无符号小于） | `CF=1` |
 | `JBE` | jump below or equal（无符号小于等于） | `CF=1 或 ZF=1` |
 
-注意
-
+**注意**
 为什么针对有符号数和无符号数要有两套指令？
 
 因为 CPU 不区分有符号数和无符号数，它根本不知道 `cmp` 指令比较的数字是 int 还是 unsigned。
@@ -462,24 +453,19 @@ subroutine:
 3. **弹出返回地址**：子程序执行完毕，`ret` 从栈顶弹出 `0x1008`，SP 上移恢复。
 4. **RET 返回**：PC 被设为弹出的 `0x1008`，控制流跳回主程序，从 `call` 的下一条指令继续执行，宛如什么都没发生过。
 
-补充
-
+**补充说明**
 以下三个知识点可以放在一起学习：
 
-- [函数调用时内存结构](https://csgraduates.com/operating_system/process/process_thread/#%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%e6%97%b6%e5%86%85%e5%ad%98%e7%bb%93%e6%9e%84)
+- 函数调用时内存结构
 - [子程序调用](/docs/408/knowledge/408-release/computer-organization/instruction/instruction_ops/#%e5%ad%90%e7%a8%8b%e5%ba%8f%e8%b0%83%e7%94%a8)
 - [函数定义和调用对应的汇编代码](/docs/408/knowledge/408-release/computer-organization/instruction/high_low_language/#%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89%e5%92%8c%e8%b0%83%e7%94%a8)
 
 ### 陷阱指令
 
-真题
-4
-
-选择题
-[14#25](https://csgraduates.com/study_methods/408quiz/2014/#25)
-[20#18](https://csgraduates.com/study_methods/408quiz/2020/#18)
-[26#17](https://csgraduates.com/study_methods/408quiz/2026/#17)
-[26#21](https://csgraduates.com/study_methods/408quiz/2026/#21)
+> **真题考察**
+> - 选择题：2014 年第 25 题、2020 年第 18 题、2026 年第 17 题、2026 年第 21 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **陷阱指令**（Trap Instruction）是一类特殊的 **同步异常触发指令**，用于从 **用户态切换到内核态**，以请求操作系统执行特权操作。它们本质上是一种 **软件中断机制**，通常用于：
 
@@ -509,8 +495,7 @@ int 0x80     ; 触发中断
 
 <InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-010.svg" alt={"陷阱指令 INT n 的执行流程 用户态 (Ring 3) 内核态 (Ring 0) ① 用户程序 mov eax, 1 mov ebx, 0 int 0x80 ; 触发陷阱 ② IVT / IDT 查表 用 n 作索引找处理程序地址 0x00 → handler0 0x01 → handler1 0x80 → sys_call_handler ③ 内核处理程序 push 寄存器现场 根据 eax 分派 syscall 执行特权操作 (I/O, exit…) 恢复现场 / i"} />
 
-补充
-
+**补充说明**
 **Trap 指令和 TF 标志位的区别**
 
 **陷阱指令**（如 `INT`） ≠ **TF 标志位**。
@@ -537,8 +522,7 @@ cli   ; 关闭中断
 sti   ; 开启中断
 ```
 
-补充
-
+**补充说明**
 IF 位控制的是 [可屏蔽中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/#%e5%8f%af%e5%b1%8f%e8%94%bd%e4%b8%ad%e6%96%ad)（IRQ），但不会影响 [不可屏蔽中断](/docs/408/knowledge/408-release/computer-organization/cpu/interrupt/#%e4%b8%8d%e5%8f%af%e5%b1%8f%e8%94%bd%e4%b8%ad%e6%96%ad)（NMI）。
 
 ### 输入输出

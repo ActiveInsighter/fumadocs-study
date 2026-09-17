@@ -4,38 +4,22 @@ title: "程序运行环境"
 
 # 程序运行环境
 
-⭐
-中优先级
-
-这一节选择题还是经常考察的，重点在于理解 **用户态和内核态** 以及 **系统调用** 这两个概念，程序的链接和装入相对考察频率比较低。
+> **复习优先级：中。**
+> **考查重点：** 用户态/内核态、中断与异常、系统调用是核心；链接、装入与动态链接通常用于概念辨析。
 
 ### CPU 运行模式
 
-真题
-12
-
-选择题
-[11#24](https://csgraduates.com/study_methods/408quiz/2011/#24)
-[12#23](https://csgraduates.com/study_methods/408quiz/2012/#23)
-[13#28](https://csgraduates.com/study_methods/408quiz/2013/#28)
-[14#25](https://csgraduates.com/study_methods/408quiz/2014/#25)
-[15#24](https://csgraduates.com/study_methods/408quiz/2015/#24)
-[19#25](https://csgraduates.com/study_methods/408quiz/2019/#25)
-[21#23](https://csgraduates.com/study_methods/408quiz/2021/#23)
-[22#27](https://csgraduates.com/study_methods/408quiz/2022/#27)
-[23#26](https://csgraduates.com/study_methods/408quiz/2023/#26)
-[26#21](https://csgraduates.com/study_methods/408quiz/2026/#21)
-[26#23](https://csgraduates.com/study_methods/408quiz/2026/#23)
-
-解答题
-[23#46](https://csgraduates.com/study_methods/408quiz/2023/#46)
+> **真题考察**
+> - 选择题：2011 年第 24 题、2012 年第 23 题、2013 年第 28 题、2014 年第 25 题、2015 年第 24 题、2019 年第 25 题、2021 年第 23 题、2022 年第 27 题、2023 年第 26 题、2026 年第 21 题、2026 年第 23 题
+> - 解答题：2023 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 CPU的两种 **运行模式**：**内核模式**（又称为特权模式、系统模式或超级用户模式）和 **用户模式** 是操作系统设计中用于隔离系统关键任务与普通任务的机制，以提高系统的安全性和稳定性。
 
 <InlineSvg src="/images/operating-system/operating-system-concepts-environment-001.svg" alt={"用户 系统程序 应用程序 用户程序 依赖库 系统调用 操作系统 计算机硬件 更加抽象 更偏底层 用户模式 内核模式"} />
 
-注意
-
+**注意**
 **用户态/内核态到底是操作系统还是 cpu 的模式？**
 
 大多数现代 **CPU**（如 x86、ARM）都有多级 **权限**（ring 0~ring 3），通常：
@@ -87,17 +71,10 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 ### 系统调用
 
-真题
-7
-
-选择题
-[12#28](https://csgraduates.com/study_methods/408quiz/2012/#28)
-[13#28](https://csgraduates.com/study_methods/408quiz/2013/#28)
-[17#24](https://csgraduates.com/study_methods/408quiz/2017/#24)
-[19#25](https://csgraduates.com/study_methods/408quiz/2019/#25)
-[21#32](https://csgraduates.com/study_methods/408quiz/2021/#32)
-[22#31](https://csgraduates.com/study_methods/408quiz/2022/#31)
-[24#29](https://csgraduates.com/study_methods/408quiz/2024/#29)
+> **真题考察**
+> - 选择题：2012 年第 28 题、2013 年第 28 题、2017 年第 24 题、2019 年第 25 题、2021 年第 32 题、2022 年第 31 题、2024 年第 29 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **系统调用**（system call）是运行在用户模式的应用程序与操作系统内核之间的 **接口**。当应用程序需要执行一些它在用户模式下不能直接完成的任务（如文件操作、网络通信、创建进程等）时，它可以通过系统调用来请求操作系统内核在内核模式下为其执行这些操作。
 
@@ -128,11 +105,10 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 ### 程序的链接
 
-真题
-1
-
-选择题
-[11#30](https://csgraduates.com/study_methods/408quiz/2011/#30)
+> **真题考察**
+> - 选择题：2011 年第 30 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 程序的链接是将编译后的代码模块（通常是目标文件）和其他所需的库组合在一起，生成一个可以执行的程序或库的过程。链接过程由 **链接器**（linker）完成。
 
@@ -149,7 +125,7 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 <InlineSvg src="/images/operating-system/operating-system-concepts-environment-004.svg" alt={"printf.o strlen.o rand.o libc.a foo.o bar.o baz.o libstrange.a Static Linker main.o main.o printf.o baz.o main.o printf.o baz.o prog.exe prog.exe 拷贝到另一台机器 Static Linking"} />
 
-简单来说，对于 **静态链接**，**依赖** 直接作为 **二进制** 被打包进最后的 **可执行程序** 中，所以可以直接 **跨机器运行**（当然操作系统得一样）。
+对于 **静态链接**，所需库代码在链接阶段被并入最终可执行文件，因此运行时对相应共享库的依赖更少；但能否跨机器运行仍取决于指令集、ABI、操作系统格式及其他运行环境条件。
 
 #### 动态链接
 
@@ -170,12 +146,10 @@ Ring 0 与 Ring 3 在 **可执行指令集** 和 **可访问资源** 上的边�
 
 ### 程序的装入
 
-真题
-2
-
-选择题
-[11#30](https://csgraduates.com/study_methods/408quiz/2011/#30)
-[26#23](https://csgraduates.com/study_methods/408quiz/2026/#23)
+> **真题考察**
+> - 选择题：2011 年第 30 题、2026 年第 23 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 程序的装入是指将程序或进程的代码和数据从磁盘加载到主存（RAM）中的过程，使其准备好被 CPU 执行。装入过程在程序执行周期中是必不可少的一部分，通常由操作系统中的 **装入器**（loader）完成。
 

@@ -1,59 +1,15 @@
 ---
 title: "图"
+description: "图的定义与存储，以及遍历、最短路、最小生成树、拓扑排序和关键路径。"
 ---
 
-本章在选择题中考察，也有可能作为一道概念题在大题中出现，需要熟练掌握图的存储结构（代码实现），并且要求在概念上理解图的应用，要求能够手工模拟。
+图用于描述多对多关系。408 中需要同时掌握**邻接矩阵/邻接表等表示方式**和建立在这些表示之上的经典算法。
 
-本章视频讲解
-20
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+<InlineSvg src="/images/data-structure/data-structure-graph-001.svg" alt={"图结构与经典算法概览"} />
 
-本章共 **20** 节视频讲解，覆盖 **7** 个知识点。
+| 内容 | 重点 |
+| --- | --- |
+| [图的定义和存储](/docs/408/knowledge/408-release/data-structure/graph/defs/) | 顶点/边、连通性、度、邻接矩阵、邻接表、十字链表等 |
+| [图的基本算法](/docs/408/knowledge/408-release/data-structure/graph/operation/) | DFS/BFS、MST、最短路、拓扑排序、关键路径 |
 
-[定义](https://csgraduates.com/data_structure/graph/defs/)
-
-图的概念
-[图的概念](https://www.bilibili.com/cheese/play/ep2802622)
-
-邻接矩阵
-[邻接矩阵定义](https://www.bilibili.com/cheese/play/ep2802646)
-[邻接矩阵数据结构实现](https://www.bilibili.com/cheese/play/ep2802657)
-
-邻接表
-[邻接表](https://www.bilibili.com/cheese/play/ep2802658)
-[邻接表数据结构实现](https://www.bilibili.com/cheese/play/ep2802659)
-
-[算法和应用](https://csgraduates.com/data_structure/graph/operation/)
-
-图的遍历
-[图的 bfs](https://www.bilibili.com/cheese/play/ep2795112)
-[图的 dfs](https://www.bilibili.com/cheese/play/ep2795123)
-
-最小生成树
-[最小生成树概念](https://www.bilibili.com/cheese/play/ep2795124)
-[kruskal 算法](https://www.bilibili.com/cheese/play/ep2795125)
-[prim 算法核心思路](https://www.bilibili.com/cheese/play/ep2795126)
-[prim 算法流程](https://www.bilibili.com/cheese/play/ep2795127)
-
-最短路径
-[dijkstra 核心思路](https://www.bilibili.com/cheese/play/ep2795147)
-[dijkstra 例子](https://www.bilibili.com/cheese/play/ep2795153)
-[dijkstra 算法背后原理](https://www.bilibili.com/cheese/play/ep2795154)
-
-关键路径
-[AOE网的概念](https://www.bilibili.com/cheese/play/ep2795159)
-[关键路径的概念](https://www.bilibili.com/cheese/play/ep2795160)
-[事件的发生时间的概念](https://www.bilibili.com/cheese/play/ep2795171)
-[关键路径的标准解法](https://www.bilibili.com/cheese/play/ep2795172)
-[关键路径的求解例子](https://www.bilibili.com/cheese/play/ep2795173)
-[考试中的快速关键路径求解方案](https://www.bilibili.com/cheese/play/ep2795174)
-
-学习思维导图：
-
-<InlineSvg src="/images/data-structure/data-structure-graph-001.svg" alt={"图的基本概念 邻接矩阵 邻接表 邻接多重表、十字链表 图的存储结构及基本操作 深度优先搜索 广度优先搜索 图的遍历 最小生成树 最短路径 拓扑排序 关键路径 图的基本应用 图"} />
-
----
-
-##### [定义](https://csgraduates.com/data_structure/graph/defs/)
-
-##### [算法和应用](https://csgraduates.com/data_structure/graph/operation/)
+> **复习提示：** 每个图算法都要先明确适用条件，例如 Dijkstra 要求边权非负，MST 针对连通无向带权图，拓扑排序针对 DAG。

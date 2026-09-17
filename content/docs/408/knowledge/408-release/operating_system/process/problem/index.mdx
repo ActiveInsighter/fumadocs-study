@@ -4,38 +4,15 @@ title: "经典同步问题"
 
 # 经典同步问题
 
-🔥
-高优先级
-
-**同步问题设计** 是操作系统解答题必考题，本节的几个经典问题虽然不会直接考察，但是其中的设计思想还是需要深入掌握。
+> **复习优先级：高。**
+> **考查重点：** 经典同步问题的价值在于训练“识别同步/互斥关系 → 设置信号量 → 安排 P/V 操作顺序”的建模方法，综合题常会使用同类思想。
 
 ### 同步问题设计
 
-真题
-10
-
-视频讲解
-7
-
-[同步问题设计解题框架](https://www.bilibili.com/cheese/play/ep2798127)
-[生产者消费者问题描述](https://www.bilibili.com/cheese/play/ep2798128)
-[生产者消费者伪代码实现](https://www.bilibili.com/cheese/play/ep2798129)
-[读者写者问题描述](https://www.bilibili.com/cheese/play/ep2798141)
-[读者写者问题伪代码实现](https://www.bilibili.com/cheese/play/ep2798142)
-[哲学家就餐问题描述](https://www.bilibili.com/cheese/play/ep2798143)
-[哲学家就餐问题伪代码实现](https://www.bilibili.com/cheese/play/ep2798144)
-
-解答题
-[09#45](https://csgraduates.com/study_methods/408quiz/2009/#45)
-[11#45](https://csgraduates.com/study_methods/408quiz/2011/#45)
-[13#45](https://csgraduates.com/study_methods/408quiz/2013/#45)
-[14#47](https://csgraduates.com/study_methods/408quiz/2014/#47)
-[15#45](https://csgraduates.com/study_methods/408quiz/2015/#45)
-[19#43](https://csgraduates.com/study_methods/408quiz/2019/#43)
-[20#45](https://csgraduates.com/study_methods/408quiz/2020/#45)
-[21#45](https://csgraduates.com/study_methods/408quiz/2021/#45)
-[22#46](https://csgraduates.com/study_methods/408quiz/2022/#46)
-[25#45](https://csgraduates.com/study_methods/408quiz/2025/#45)
+> **真题考察**
+> - 解答题：2009 年第 45 题、2011 年第 45 题、2013 年第 45 题、2014 年第 47 题、2015 年第 45 题、2019 年第 43 题、2020 年第 45 题、2021 年第 45 题、2022 年第 46 题、2025 年第 45 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 同步问题设计题通常要求根据题目描述，用 **信号量 + P/V 操作** 写出若干进程的同步关系。它不是背某一道固定代码，而是把题目中的 **互斥关系** 和 **前驱关系** 翻译成信号量。
 
@@ -154,8 +131,7 @@ V(empty);
 | 资源信号量 | 资源数量 | 表示还有多少个资源可用 | `empty`、`full`、`seat` |
 | 计数保护信号量 | `1` | 保护计数变量修改 | `count_mutex`、`read_mutex` |
 
-补充
-
+**补充说明**
 同步问题设计题的核心不是代码语法，而是把自然语言翻译成信号量：互斥关系用初值为 1 的信号量，前驱关系用初值为 0 的信号量，有限资源用初值为资源数量的计数信号量。
 
 ### 生产者消费者问题
@@ -390,7 +366,6 @@ semaphore mutex    = 1;     // 保护 read_count
 semaphore write_mutex = 1;  // 保护 write_count
 semaphore readTry  = 1;     // 控制新的读者能否进入
 
-
 reader() {
     while (1) {
         P(readTry);                    // 确保没有写者正在等待
@@ -415,7 +390,6 @@ reader() {
         V(mutex);                      // 释放互斥访问权
     }
 }
-
 
 writer() {
     while (1) {
@@ -544,7 +518,7 @@ P5 → 等待 P1
 
 这就产生了**死锁**。
 
-一种直观的解决方法就是破坏 [死锁产生的必要条件](https://csgraduates.com/operating_system/process/deadlock/#%e6%ad%bb%e9%94%81%e4%ba%a7%e7%94%9f%e7%9a%84%e5%bf%85%e8%a6%81%e6%9d%a1%e4%bb%b6) 中的 循环等待条件：
+一种直观的解决方法就是破坏 [死锁产生的必要条件](/docs/408/knowledge/408-release/operating_system/process/deadlock/#%e6%ad%bb%e9%94%81%e4%ba%a7%e7%94%9f%e7%9a%84%e5%bf%85%e8%a6%81%e6%9d%a1%e4%bb%b6) 中的 循环等待条件：
 
 > **让最后一位哲学家与其他人采用相反的拿叉子顺序。**
 

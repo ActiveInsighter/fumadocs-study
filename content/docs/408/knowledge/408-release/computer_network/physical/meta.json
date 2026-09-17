@@ -3,8 +3,8 @@
   "pages": [
     "index",
     "concept",
-    "dev",
     "encoding",
-    "switching"
+    "switching",
+    "dev"
   ]
 }

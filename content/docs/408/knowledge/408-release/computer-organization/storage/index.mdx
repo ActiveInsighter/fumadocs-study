@@ -1,101 +1,16 @@
 ---
 title: "存储系统"
+description: "主存、Cache、外存与虚拟存储器。"
 ---
 
-本章是重中之重，在选择题和大题中每年都会考察，需要理解通透。其中 cache 和虚拟存储器常常和操作系统中的相关知识放在一起考察，需要能够将两门课相关内容联系起来。
+存储系统围绕“**容量、速度、成本**”三者的权衡展开。寄存器、Cache、主存和外存构成层次结构，局部性原理使较小的高速存储器能够显著降低平均访问时间。
 
-本章视频讲解
-42
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [存储系统](/docs/408/knowledge/408-release/computer-organization/storage/defs/) | RAM/ROM、SRAM/DRAM、存储层次 |
+| [多模块存储器](/docs/408/knowledge/408-release/computer-organization/storage/memory/) | 交叉编址、带宽、位扩展与字扩展 |
+| [外存](/docs/408/knowledge/408-release/computer-organization/storage/storage/) | 磁盘结构、CHS、访问时间、RAID、SSD |
+| [Cache](/docs/408/knowledge/408-release/computer-organization/storage/cache/) | 映射、地址结构、替换算法、写策略 |
+| [虚拟存储器](/docs/408/knowledge/408-release/computer-organization/storage/virtual/) | 页表、TLB、地址翻译、缺页与完整访存流程 |
 
-本章共 **42** 节视频讲解，覆盖 **11** 个知识点。
-
-[存储系统](/docs/408/knowledge/408-release/computer-organization/storage/defs/)
-
-存储器概念
-[存储系统结构层次](https://www.bilibili.com/cheese/play/ep2793243)
-[RAM概念和SRAM](https://www.bilibili.com/cheese/play/ep2793244)
-[DRAM阵列存储结构](https://www.bilibili.com/cheese/play/ep2793352)
-[DRAM刷新](https://www.bilibili.com/cheese/play/ep2793359)
-[ROM对比RAM](https://www.bilibili.com/cheese/play/ep2793360)
-[ROM类型](https://www.bilibili.com/cheese/play/ep2793362)
-[单体多字存储器](https://www.bilibili.com/cheese/play/ep2793144)
-[多体交叉存储器](https://www.bilibili.com/cheese/play/ep2793145)
-[低位交叉编址](https://www.bilibili.com/cheese/play/ep2793143)
-[高位交叉编址](https://www.bilibili.com/cheese/play/ep2793149)
-
-[多模块存储器](/docs/408/knowledge/408-release/computer-organization/storage/memory/)
-
-主存容量的扩展
-[存储器扩展](https://www.bilibili.com/cheese/play/ep2793148)
-[位扩展](https://www.bilibili.com/cheese/play/ep2793142)
-[字扩展](https://www.bilibili.com/cheese/play/ep2793147)
-[字位扩展](https://www.bilibili.com/cheese/play/ep2793146)
-
-[外存](/docs/408/knowledge/408-release/computer-organization/storage/storage/)
-
-机械硬盘
-[机械硬盘结构](https://www.bilibili.com/cheese/play/ep2793199)
-[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
-[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
-
-CHS地址
-[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
-
-磁盘性能指标
-[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
-
-[Cache](/docs/408/knowledge/408-release/computer-organization/storage/cache/)
-
-cache概念
-[cache 的局部性原理](https://www.bilibili.com/cheese/play/ep2792397)
-[cache 的基本概念](https://www.bilibili.com/cheese/play/ep2792396)
-[cache 存储结构](https://www.bilibili.com/cheese/play/ep2792392)
-[cache 块替换概念](https://www.bilibili.com/cheese/play/ep2792391)
-[cache 替换算法和访问位](https://www.bilibili.com/cheese/play/ep2792394)
-
-cache映射方式
-[cache 映射方式概念](https://www.bilibili.com/cheese/play/ep2792393)
-[直接映射方式](https://www.bilibili.com/cheese/play/ep2792406)
-[全相联映射](https://www.bilibili.com/cheese/play/ep2792415)
-[组相联映射](https://www.bilibili.com/cheese/play/ep2792416)
-[不同映射方式的 cache 访问逻辑](https://www.bilibili.com/cheese/play/ep2792470)
-[cache 地址结构是什么](https://www.bilibili.com/cheese/play/ep2792388)
-[cache 地址结构详解](https://www.bilibili.com/cheese/play/ep2792389)
-[cache 地址结构逻辑划分](https://www.bilibili.com/cheese/play/ep2792390)
-[cache 物理地址访问和替换流程](https://www.bilibili.com/cheese/play/ep2792395)
-
-cache写策略
-[命中 cache 时的写策略](https://www.bilibili.com/cheese/play/ep2792528)
-[没有命中 cache 时的写策略](https://www.bilibili.com/cheese/play/ep2792537)
-[写策略的组合](https://www.bilibili.com/cheese/play/ep2792471)
-
-[虚拟存储器](/docs/408/knowledge/408-release/computer-organization/storage/virtual/)
-
-页表
-[单级页表](https://www.bilibili.com/cheese/play/ep2792526)
-[单级页表的缺陷](https://www.bilibili.com/cheese/play/ep2792527)
-[多级页表的思路](https://www.bilibili.com/cheese/play/ep2792533)
-
-TLB
-[TLB 概念](https://www.bilibili.com/cheese/play/ep2792449)
-[TLB 和 Cache 对比](https://www.bilibili.com/cheese/play/ep2792447)
-[TLB 地址翻译过程](https://www.bilibili.com/cheese/play/ep2792448)
-
-访存过程
-[访存流程](https://www.bilibili.com/cheese/play/ep2793098)
-[物理地址访问完整流程](https://www.bilibili.com/cheese/play/ep2792538)
-
-<InlineSvg src="/images/computer-organization/computer-organization-storage-001.svg" alt={"存储器分类 层次化存储器的基本结构 SRAM存储器 DRAM存储器 Flash存储器 半导体随机存取存储器 DRAM芯片和内存条 多模块存储器 主存和CPU之间的连接 主存储器 磁盘存储器 固态硬盘 外部存储器 cache的基本原理 cache和主存之间的映射方式 cache中主存块的替换算法 cache写策略 高速缓冲存储器 基本概念 页式虚拟存储器 段式虚拟存储器 段页式虚拟存储器 虚拟存储器 存储器层次结构"} />
-
----
-
-##### [存储系统](/docs/408/knowledge/408-release/computer-organization/storage/defs/)
-
-##### [多模块存储器](/docs/408/knowledge/408-release/computer-organization/storage/memory/)
-
-##### [外存](/docs/408/knowledge/408-release/computer-organization/storage/storage/)
-
-##### [Cache](/docs/408/knowledge/408-release/computer-organization/storage/cache/)
-
-##### [虚拟存储器](/docs/408/knowledge/408-release/computer-organization/storage/virtual/)
+> **复习提示：** Cache 与虚拟存储器是本章核心。做综合题时先判断题目给的是虚拟地址还是物理地址，再依次分析 TLB、页表和 Cache。

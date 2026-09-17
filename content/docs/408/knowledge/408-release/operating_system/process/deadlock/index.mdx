@@ -4,27 +4,20 @@ title: "死锁"
 
 # 死锁
 
-⭐
-中优先级
+> **复习优先级：中。**
+> **考查重点：** 死锁的四个必要条件、预防、避免以及银行家算法是核心内容；检测与解除也应掌握基本思想。
 
-选择题高频考点，本节的几个知识点都经常考察，除了死锁的检测和删除之外。
-
-真题
-1
-
-选择题
-[09#25](https://csgraduates.com/study_methods/408quiz/2009/#25)
+> **真题考察**
+> - 选择题：2009 年第 25 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ### 死锁产生的必要条件
 
-真题
-3
-[死锁产生的必要条件](https://www.bilibili.com/cheese/play/ep2798186)
-
-选择题
-[14#24](https://csgraduates.com/study_methods/408quiz/2014/#24)
-[19#30](https://csgraduates.com/study_methods/408quiz/2019/#30)
-[21#31](https://csgraduates.com/study_methods/408quiz/2021/#31)
+> **真题考察**
+> - 选择题：2014 年第 24 题、2019 年第 30 题、2021 年第 31 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 只有以下四个条件同时满足，**死锁** 才会发生：
 
@@ -43,11 +36,10 @@ title: "死锁"
 
 ### 死锁处理策略
 
-真题
-1
-
-选择题
-[15#26](https://csgraduates.com/study_methods/408quiz/2015/#26)
+> **真题考察**
+> - 选择题：2015 年第 26 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **处理死锁** 主要包含三种策略：
 
@@ -57,12 +49,10 @@ title: "死锁"
 
 ### 死锁预防
 
-真题
-1
-[死锁预防](https://www.bilibili.com/cheese/play/ep2798187)
-
-选择题
-[16#25](https://csgraduates.com/study_methods/408quiz/2016/#25)
+> **真题考察**
+> - 选择题：2016 年第 25 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 <InlineSvg src="/images/operating-system/operating-system-process-deadlock-002.svg" alt={"死锁预防 (Deadlock Prevention) 1. 破坏互斥条件 • 资源复制或虚拟化技术 • 减少资源的互斥使用 • 某些硬件资源难以避免互斥 共享 2. 破坏占有并等待 • 一次性申请所有所需资源 • 申请失败则释放已分配资源 一次性 3. 破坏非抢占 • 允许进程抢占其他进程的资源 • 需要时可强制回收资源 抢占 4. 破坏循环等待 • 对资源申请顺序进行限制 • 按固定顺序申请资源 1 2 3 顺序 ! 核心思想 通过破坏死锁产生的四个必要条件中的至少一个，从"} />
 
@@ -84,24 +74,10 @@ title: "死锁"
 
 #### 银行家算法
 
-真题
-6
-
-视频讲解
-4
-
-[银行家算法问题建模](https://www.bilibili.com/cheese/play/ep2798188)
-[安全分配序列](https://www.bilibili.com/cheese/play/ep2798206)
-[安全性检查算法](https://www.bilibili.com/cheese/play/ep2798207)
-[银行家算法流程](https://www.bilibili.com/cheese/play/ep2798208)
-
-选择题
-[11#27](https://csgraduates.com/study_methods/408quiz/2011/#27)
-[12#27](https://csgraduates.com/study_methods/408quiz/2012/#27)
-[13#32](https://csgraduates.com/study_methods/408quiz/2013/#32)
-[18#26](https://csgraduates.com/study_methods/408quiz/2018/#26)
-[20#27](https://csgraduates.com/study_methods/408quiz/2020/#27)
-[22#26](https://csgraduates.com/study_methods/408quiz/2022/#26)
+> **真题考察**
+> - 选择题：2011 年第 27 题、2012 年第 27 题、2013 年第 32 题、2018 年第 26 题、2020 年第 27 题、2022 年第 26 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 这里首先说一下次算法的命名，为什么叫“银行家”。一般而言，银行家都具备以下特点：
 
@@ -131,7 +107,7 @@ title: "死锁"
 2. 当一个进程请求资源时，检查请求的资源数量是否 **小于等于** `Need`，如果大于则请求失败。
 3. 检查请求的资源数量是否 **小于等于** `Available`，如果大于则请求失败。
 4. 如果请求合法（满足上述两个条件），则 **模拟分配** 资源给该进程（预分配），即将资源从系统的 `Available` 减去，加到进程的 `Allocation` 中，并从进程的 `Need` 中减去相应数量的资源。
-5. 然后，进行 [安全性检查](https://csgraduates.com/operating_system/process/deadlock/#%e5%ae%89%e5%85%a8%e6%80%a7%e6%a3%80%e6%9f%a5)，判断是否存在一种 **安全分配序列**，使得所有进程都能顺利执行完成。
+5. 然后，进行 [安全性检查](/docs/408/knowledge/408-release/operating_system/process/deadlock/#%e5%ae%89%e5%85%a8%e6%80%a7%e6%a3%80%e6%9f%a5)，判断是否存在一种 **安全分配序列**，使得所有进程都能顺利执行完成。
 6. 如果存在 **安全分配序列**，则执行资源分配，否则拒绝请求，因为分配资源可能导致**死锁**，并且回收预先模拟分配的资源。
 7. 当进程完成任务时，释放已分配的资源，将它们从 `Allocation` 减去，加到 `Available` 中。
 
@@ -148,8 +124,7 @@ title: "死锁"
 如果系统存在一个 **安全分配序列**，则系统处于 **安全状态**
 。
 
-注意
-
+**注意**
 **不安全状态不意味着死锁**，但它意味着有死锁的风险。不安全状态只是死锁的一个先兆，但不是死锁本身。
 
 对于前图中的各进程状态，我们可以得到如下的一个 **安全分配序列**：
@@ -176,8 +151,6 @@ title: "死锁"
 <InlineSvg src="/images/operating-system/operating-system-process-deadlock-006.svg" alt={"BankersAlgorithm"} />
 
 这里还要需要注意的是，在实际的算法中，我们需要用 **work** 替代 **available** 来帮助我们完成 **安全性检查** 的过程，因为检查只是一种“逻辑推演”，我们并不希望实际修改系统中的资源情况，具体的代码实现可以参考如下链接：
-
-[银行家算法代码实现](https://csgraduates.com/code/banker/)
 
 ### 死锁的检测和删除
 

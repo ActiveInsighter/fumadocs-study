@@ -1,27 +1,13 @@
 ---
 title: "字符串"
+description: "串的基本概念、存储方式以及朴素模式匹配和 KMP。"
 ---
 
-本章可能在选择题中出现，掌握 KMP 算法的思想，能够手工模拟 KMP 过程即可。
+串是元素为字符的线性结构。408 的重点主要集中在**模式匹配，尤其是 KMP 中 `next`/前缀函数的计算与失配跳转**。
 
-本章视频讲解
-6
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [串的定义和存储](/docs/408/knowledge/408-release/data-structure/strings/def/) | 串的逻辑结构与典型存储表示 |
+| [模式匹配](/docs/408/knowledge/408-release/data-structure/strings/match/) | 朴素匹配、KMP、`next` 与 `nextval` |
 
-本章共 **6** 节视频讲解，覆盖 **1** 个知识点。
-
-[模式匹配](https://csgraduates.com/data_structure/strings/match/)
-
-KMP算法
-[字符串匹配概念](https://www.bilibili.com/cheese/play/ep2795053)
-[简单模式匹配](https://www.bilibili.com/cheese/play/ep2795054)
-[KMP 算法思路](https://www.bilibili.com/cheese/play/ep2795065)
-[next 数组计算流程](https://www.bilibili.com/cheese/play/ep2795068)
-[next 数组位置调整过程](https://www.bilibili.com/cheese/play/ep2795069)
-[修正后的 next 数组](https://www.bilibili.com/cheese/play/ep2795081)
-
----
-
-##### [定义和实现](https://csgraduates.com/data_structure/strings/def/)
-
-##### [模式匹配](https://csgraduates.com/data_structure/strings/match/)
+> **易混淆点：** 教材中的经典 `next` 数组与现代代码常用的 LPS/前缀函数定义并不相同。做题时必须先确认采用哪套下标和定义，不能混用。

@@ -1,24 +1,14 @@
 ---
 title: "队列"
+description: "队列、循环队列和链式队列的结构与操作。"
 ---
 
-⭐
-中优先级
-
+> **复习优先级：中。**
 直接考察不是很多，偶尔在选择题考察相关概念，另外要留意 **循环队列** 往年在解答题中考察过。
 
-真题
-6
-
-选择题
-[10#2](https://csgraduates.com/study_methods/408quiz/2010/#2)
-[11#3](https://csgraduates.com/study_methods/408quiz/2011/#3)
-[14#3](https://csgraduates.com/study_methods/408quiz/2014/#3)
-[16#3](https://csgraduates.com/study_methods/408quiz/2016/#3)
-[21#2](https://csgraduates.com/study_methods/408quiz/2021/#2)
-
-解答题
-[19#42](https://csgraduates.com/study_methods/408quiz/2019/#42)
+> **真题考察**
+> - 选择题：2010 年第 2 题、2011 年第 3 题、2014 年第 3 题、2016 年第 3 题、2021 年第 2 题
+> - 解答题：2019 年第 42 题
 
 ### 定义
 
@@ -50,7 +40,7 @@ title: "队列"
 
 <InlineSvg src="/images/data-structure/data-structure-array-queue-003.svg" alt={"0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满"} />
 
-需要注意的是，在 **循环队列** 中需要牺牲一个存储单元以区分 **队空** 和 **队满** 的情况。
+本节实现采用“**牺牲一个存储单元**”的约定来区分队空和队满；也可以额外维护元素个数 `size` 或标志位，从而使用全部数组单元。
 
 - 当 `front == rear` 时，*队列为空*
 - 当 `(rear + 1) % size == front` 时，*队列为满*
@@ -139,10 +129,10 @@ bool isFull(CircularQueue* q) {
 
 链式队列一般使用 **单链表** 来实现，入队和出队操作可以基于队头和队尾指针实现：
 
-- **入队（enqueue）**：在队尾插入新元素。由于维护了 **尾指针**，因此只需 `O(1)` 时间。
-- **出队（dequeue）**：在队头删除元素。由于维护了 **头指针**，因此只需 `O(1)` 时间。
+- **入队（enqueue）**：在队尾插入新元素。由于维护了 **尾指针**，因此只需 $O(1)$ 时间。
+- **出队（dequeue）**：在队头删除元素。由于维护了 **头指针**，因此只需 $O(1)$ 时间。
 
-这比用数组实现的队列在需要移动元素时效率更高。
+循环数组队列和维护首尾指针的链式队列都能在 $O(1)$ 时间完成入队/出队。链式队列不受固定容量限制，但每个结点需要额外指针且局部性通常较差。
 
 - 定义
 - 入队
@@ -182,7 +172,7 @@ void EnQueue(LinkQueue *Q, int x) {
 ```
 // 出队操作
 int DeQueue(LinkQueue *Q, int *x) {
-    if (IsEmpty()) return 0;  // 队空
+    if (IsEmpty(*Q)) return 0;  // 队空
 
     QNode *p = Q->front->next;  // 队头第一个有效结点
     *x = p->data;

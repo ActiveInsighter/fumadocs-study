@@ -1,55 +1,14 @@
 ---
 title: "计算机网络体系结构"
-description: "可能在选择题中考察，需要掌握 TCP/IP 模型和 ISO/OSI 模型的不同，并且能够从一个宏观的角度看待网络不同层次之间的联系。 本章视频讲解 3 课程介绍 本章共 3 节视频讲解，覆盖 4 个知识点。 分层结构 OSI模型 计算机网络"
-source: "https://csgraduates.com/computer_network/overall/"
+description: "网络分层、OSI/TCP-IP 模型、协议数据单元与设备工作层次。"
 ---
 
-可能在选择题中考察，需要掌握 TCP/IP 模型和 ISO/OSI 模型的不同，并且能够从一个宏观的角度看待网络不同层次之间的联系。
+本章用于建立网络的整体框架。核心不是背七层名称，而是理解：**每一层向上一层提供服务，并通过同层协议规则与对端逻辑通信；真实数据则沿协议栈逐层封装和解封装。**
 
-本章视频讲解
-3
-[课程介绍](/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [分层结构](/docs/408/knowledge/408-release/computer_network/overall/iso/) | OSI 与 TCP/IP 模型、各层功能、PDU |
+| [各层协议总结](/docs/408/knowledge/408-release/computer_network/overall/protocol/) | 常见协议及所属层次 |
+| [网络设备总结](/docs/408/knowledge/408-release/computer_network/overall/dev/) | 冲突域、广播域、设备工作层次 |
 
-本章共 **3** 节视频讲解，覆盖 **4** 个知识点。
-
-[分层结构](/docs/408/knowledge/408-release/computer_network/overall/iso/)
-
-OSI模型
-[计算机网络体系结构](https://www.bilibili.com/cheese/play/ep2804884)
-
-TCP-IP模型
-[计算机网络体系结构](https://www.bilibili.com/cheese/play/ep2804884)
-
-协议数据单元
-[协议数据单元](https://www.bilibili.com/cheese/play/ep2804885)
-
-[网络设备总结](/docs/408/knowledge/408-release/computer_network/overall/dev/)
-
-网络设备
-[网络设备总结](https://www.bilibili.com/cheese/play/ep2798750)
-
-学习思维导图：
-
-```
-# 计算机网络概述
-
-## 基本概念
-
-- 定义、组成和功能
-- 分类
-- 主要性能指标
-
-## 体系结构
-
-- 分层结构
-- 网络协议、接口、服务等概念
-- ISO/OSI参考模型和TCP/IP模型
-```
-
----
-
-##### [分层结构](/docs/408/knowledge/408-release/computer_network/overall/iso/)
-
-##### [网络设备总结](/docs/408/knowledge/408-release/computer_network/overall/dev/)
-
-##### [各层协议总结](/docs/408/knowledge/408-release/computer_network/overall/protocol/)
+> **复习提示：** 判断设备或协议属于哪一层时，应看它主要依据哪一层的首部字段进行处理。例如交换机主要依据 MAC 地址转发，路由器主要依据 IP 地址转发。

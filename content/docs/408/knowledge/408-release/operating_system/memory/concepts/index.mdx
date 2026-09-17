@@ -4,10 +4,8 @@ title: "内存管理概念"
 
 # 内存管理概念
 
-⭐
-中优先级
-
-页式虚拟存储的地址翻译、TLB、缺页处理和页面置换等细节，统一放在 [组成原理章节](https://csgraduates.com/constitution_principle/storage/virtual/) 中结合硬件结构进行讲解。
+> **复习优先级：中。**
+页式虚拟存储的地址翻译、TLB、缺页处理和页面置换等细节，统一放在 [组成原理章节](/docs/408/knowledge/408-release/computer-organization/storage/virtual/) 中结合硬件结构进行讲解。
 
 对于本节，重点掌握：
 
@@ -17,18 +15,10 @@ title: "内存管理概念"
 
 ### 内存管理
 
-真题
-1
-
-视频讲解
-3
-
-[操作系统内存管理介绍](https://www.bilibili.com/cheese/play/ep2792534)
-[单一连续分配和固定分区分配](https://www.bilibili.com/cheese/play/ep2792505)
-[离散分配管理和虚拟存储器](https://www.bilibili.com/cheese/play/ep2792540)
-
-选择题
-[09#26](https://csgraduates.com/study_methods/408quiz/2009/#26)
+> **真题考察**
+> - 选择题：2009 年第 26 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **内存管理（Memory Management）** 是操作系统对 **主存（内存）** 进行统一管理的过程，其核心任务是：
 
@@ -169,21 +159,10 @@ title: "内存管理概念"
 
 #### 动态分区分配
 
-真题
-4
-
-视频讲解
-3
-
-[动态分区分配流程](https://www.bilibili.com/cheese/play/ep2792503)
-[适应算法](https://www.bilibili.com/cheese/play/ep2793099)
-[动态分区分配应用场景](https://www.bilibili.com/cheese/play/ep2792486)
-
-选择题
-[10#28](https://csgraduates.com/study_methods/408quiz/2010/#28)
-[17#25](https://csgraduates.com/study_methods/408quiz/2017/#25)
-[19#32](https://csgraduates.com/study_methods/408quiz/2019/#32)
-[24#27](https://csgraduates.com/study_methods/408quiz/2024/#27)
+> **真题考察**
+> - 选择题：2010 年第 28 题、2017 年第 25 题、2019 年第 32 题、2024 年第 27 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 在 **固定分区分配** 中，用户内存被预先划分为若干大小固定的分区。
 
@@ -199,8 +178,7 @@ title: "内存管理概念"
 
 当进程结束或主动释放内存时，该区域重新成为空闲内存，可供后续进程再次使用。
 
-注意
-
+**注意**
 动态分区中的“动态”，指的是 **分区的数量、位置和大小会随着进程的装入与退出动态变化**。
 
 但是，动态分区仍然属于 **连续分配方式**。对于单个进程而言，操作系统仍然需要为其分配一块连续的物理内存。
@@ -225,7 +203,7 @@ title: "内存管理概念"
 
 <InlineSvg src="/images/operating-system/operating-system-memory-concepts-007.svg" alt={"起始地址 分区大小 下标 0 0x12340000 40KB 1 0x12345000 30KB 2 0x22000000 128KB 空闲分区表"} />
 
-当进程申请内存时，操作系统会遍历空闲分区表，按照预定的 **[适应算法](https://csgraduates.com/operating_system/memory/concepts/#%e9%80%82%e5%ba%94%e7%ae%97%e6%b3%95)**，例如首次适应、最佳适应等，从中选择一块满足需求的空闲区域，并完成内存分配。
+当进程申请内存时，操作系统会遍历空闲分区表，按照预定的 **[适应算法](/docs/408/knowledge/408-release/operating_system/memory/concepts/#%e9%80%82%e5%ba%94%e7%ae%97%e6%b3%95)**，例如首次适应、最佳适应等，从中选择一块满足需求的空闲区域，并完成内存分配。
 
 > 不同适应算法选择空闲分区的方式不同，会影响查找效率、剩余空闲块的分布以及外部碎片的产生情况。
 
@@ -289,8 +267,7 @@ title: "内存管理概念"
 - Worst Fit
   （最坏适应）：遍历全部空闲分区，在所有能够满足请求的分区中，选择 **大小最大的空闲分区**。对于本次请求而言，该分区的利用率最低，但分配后剩余的空闲块通常仍然较大。
 
-注意
-
+**注意**
 **临近适应中的 next 究竟如何理解**
 
 “next”不是指“下一次仍从上一次分配的区块自身开始”，而是指：
@@ -394,7 +371,7 @@ $$
    - 用户态运行库在进程堆或内存映射区域中维护大小不同的内存块；
    - 根据程序请求动态分割和回收这些内存块。
 
-参考 [进程内存空间](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4)。
+参考 [进程内存空间](/docs/408/knowledge/408-release/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4)。
 
 当程序调用 `malloc` 时，它通常是在向用户态内存分配器申请一块连续可用的 **虚拟地址空间**。
 
@@ -532,7 +509,7 @@ $$
 
 #### 页式管理
 
-页式管理的地址翻译、页表结构、TLB、缺页异常、页面置换和请求分页等细节，详见 [组成原理中的对应章节](https://csgraduates.com/constitution_principle/storage/virtual/#%e8%af%b7%e6%b1%82%e9%a1%b5%e5%bc%8f%e7%ae%a1%e7%90%86)。
+页式管理的地址翻译、页表结构、TLB、缺页异常、页面置换和请求分页等细节，详见 [组成原理中的对应章节](/docs/408/knowledge/408-release/computer-organization/storage/virtual/#%e8%af%b7%e6%b1%82%e9%a1%b5%e5%bc%8f%e7%ae%a1%e7%90%86)。
 
 本节重点介绍页式管理为什么出现，以及它与段式管理、段页式管理之间的区别。
 
@@ -575,14 +552,12 @@ $$
 - 地址翻译会带来额外开销；
 - 进程最后一个页面通常无法被完全利用，因此仍可能存在少量内部碎片。
 
-注意
-
+**注意**
 页式管理消除的是 **外部碎片**，并不是完全没有内存碎片。
 
 由于进程大小通常不是页面大小的整数倍，最后一个页面可能存在未使用空间，因此页式管理可能产生 **页内的内部碎片**。
 
-注意
-
+**注意**
 STBR（Segment Table Base Register）指 **段表基址寄存器**，其中保存段表在内存中的起始地址。
 
 PTBR
@@ -592,13 +567,10 @@ PTBR
 
 #### 段式管理
 
-真题
-3
-
-选择题
-[09#27](https://csgraduates.com/study_methods/408quiz/2009/#27)
-[16#28](https://csgraduates.com/study_methods/408quiz/2016/#28)
-[19#28](https://csgraduates.com/study_methods/408quiz/2019/#28)
+> **真题考察**
+> - 选择题：2009 年第 27 题、2016 年第 28 题、2019 年第 28 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 段式管理并不是页式管理的简单升级，而是从另一个角度解决内存管理问题。
 
@@ -674,31 +646,11 @@ $$
 
 ##### 地址翻译
 
-真题
-13
-
-视频讲解
-2
-
-[地址翻译机构](https://www.bilibili.com/cheese/play/ep2792530)
-[地址翻译完整流程](https://www.bilibili.com/cheese/play/ep2792529)
-
-选择题
-[13#16](https://csgraduates.com/study_methods/408quiz/2013/#16)
-[14#28](https://csgraduates.com/study_methods/408quiz/2014/#28)
-[16#28](https://csgraduates.com/study_methods/408quiz/2016/#28)
-[19#31](https://csgraduates.com/study_methods/408quiz/2019/#31)
-[26#24](https://csgraduates.com/study_methods/408quiz/2026/#24)
-
-解答题
-[09#46](https://csgraduates.com/study_methods/408quiz/2009/#46)
-[10#46](https://csgraduates.com/study_methods/408quiz/2010/#46)
-[11#44](https://csgraduates.com/study_methods/408quiz/2011/#44)
-[17#45](https://csgraduates.com/study_methods/408quiz/2017/#45)
-[18#45](https://csgraduates.com/study_methods/408quiz/2018/#45)
-[19#46](https://csgraduates.com/study_methods/408quiz/2019/#46)
-[20#46](https://csgraduates.com/study_methods/408quiz/2020/#46)
-[21#44](https://csgraduates.com/study_methods/408quiz/2021/#44)
+> **真题考察**
+> - 选择题：2013 年第 16 题、2014 年第 28 题、2016 年第 28 题、2019 年第 31 题、2026 年第 24 题
+> - 解答题：2009 年第 46 题、2010 年第 46 题、2011 年第 44 题、2017 年第 45 题、2018 年第 45 题、2019 年第 46 题、2020 年第 46 题、2021 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 假设逻辑地址由段号 $S$ 和段内偏移 $W$ 组成：
 
@@ -823,42 +775,11 @@ $$
 
 ### 虚拟存储器
 
-真题
-23
-
-视频讲解
-3
-
-[虚拟页式存储器的基本概念](https://www.bilibili.com/cheese/play/ep2793096)
-[单级页表](https://www.bilibili.com/cheese/play/ep2792526)
-[多级页表的思路](https://www.bilibili.com/cheese/play/ep2792533)
-
-选择题
-[12#25](https://csgraduates.com/study_methods/408quiz/2012/#25)
-[23#28](https://csgraduates.com/study_methods/408quiz/2023/#28)
-[23#30](https://csgraduates.com/study_methods/408quiz/2023/#30)
-[24#16](https://csgraduates.com/study_methods/408quiz/2024/#16)
-[24#18](https://csgraduates.com/study_methods/408quiz/2024/#18)
-[24#25](https://csgraduates.com/study_methods/408quiz/2024/#25)
-[25#23](https://csgraduates.com/study_methods/408quiz/2025/#23)
-[25#27](https://csgraduates.com/study_methods/408quiz/2025/#27)
-[26#24](https://csgraduates.com/study_methods/408quiz/2026/#24)
-[26#28](https://csgraduates.com/study_methods/408quiz/2026/#28)
-
-解答题
-[09#46](https://csgraduates.com/study_methods/408quiz/2009/#46)
-[11#44](https://csgraduates.com/study_methods/408quiz/2011/#44)
-[13#46](https://csgraduates.com/study_methods/408quiz/2013/#46)
-[14#45](https://csgraduates.com/study_methods/408quiz/2014/#45)
-[15#46](https://csgraduates.com/study_methods/408quiz/2015/#46)
-[16#45](https://csgraduates.com/study_methods/408quiz/2016/#45)
-[18#44](https://csgraduates.com/study_methods/408quiz/2018/#44)
-[19#46](https://csgraduates.com/study_methods/408quiz/2019/#46)
-[20#46](https://csgraduates.com/study_methods/408quiz/2020/#46)
-[23#43](https://csgraduates.com/study_methods/408quiz/2023/#43)
-[24#44](https://csgraduates.com/study_methods/408quiz/2024/#44)
-[24#45](https://csgraduates.com/study_methods/408quiz/2024/#45)
-[25#43](https://csgraduates.com/study_methods/408quiz/2025/#43)
+> **真题考察**
+> - 选择题：2012 年第 25 题、2023 年第 28 题、2023 年第 30 题、2024 年第 16 题、2024 年第 18 题、2024 年第 25 题、2025 年第 23 题、2025 年第 27 题、2026 年第 24 题、2026 年第 28 题
+> - 解答题：2009 年第 46 题、2011 年第 44 题、2013 年第 46 题、2014 年第 45 题、2015 年第 46 题、2016 年第 45 题、2018 年第 44 题、2019 年第 46 题、2020 年第 46 题、2023 年第 43 题、2024 年第 44 题、2024 年第 45 题、2025 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 虚拟存储器（Virtual Memory）并不是一种与分页、分段并列的地址空间划分方式，而是在这些基本内存管理方式之上进一步发展出来的 **存储管理机制**。
 
@@ -876,7 +797,7 @@ $$
 
 因此，一个程序的地址空间可以大于实际分配给它的物理内存，甚至可以大于整个物理内存的容量。
 
-页式虚拟存储涉及的页表结构、TLB、缺页异常、请求调页和页面置换算法等硬件与操作系统协同细节，统一放在 [组成原理章节](https://csgraduates.com/constitution_principle/storage/virtual/) 中展开。
+页式虚拟存储涉及的页表结构、TLB、缺页异常、请求调页和页面置换算法等硬件与操作系统协同细节，统一放在 [组成原理章节](/docs/408/knowledge/408-release/computer-organization/storage/virtual/) 中展开。
 
 ---
 

@@ -4,22 +4,12 @@ title: "外存"
 
 ### 机械硬盘
 
-真题
-1
+> **真题考察**
+> - 解答题：2019 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-视频讲解
-3
-
-[机械硬盘结构](https://www.bilibili.com/cheese/play/ep2793199)
-[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
-[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
-
-解答题
-[19#44](https://csgraduates.com/study_methods/408quiz/2019/#44)
-
-⭐
-中优先级
-
+> **复习优先级：中。**
 偶尔会在大题中考察，在选择题中一般都会有一题，优先掌握 CHS 地址和 性能指标 的计算。
 
 **机械硬盘**（Hard Disk Drive, HDD）是一种使用磁性存储介质来存储和读取数据的非易失性存储设备，广泛应用于计算机和数据存储系统中。
@@ -51,16 +41,11 @@ title: "外存"
 
 #### CHS 地址
 
-真题
-3
-[CHS地址](https://www.bilibili.com/cheese/play/ep2793200)
-
-选择题
-[13#25](https://csgraduates.com/study_methods/408quiz/2013/#25)
-
-解答题
-[19#44](https://csgraduates.com/study_methods/408quiz/2019/#44)
-[22#44](https://csgraduates.com/study_methods/408quiz/2022/#44)
+> **真题考察**
+> - 选择题：2013 年第 25 题
+> - 解答题：2019 年第 44 题、2022 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 当磁盘驱动器访问磁盘中的数据时，需要根据 **CHS 地址（Cylinder-Head-Sector Address，柱面 - 磁头 - 扇区地址）** 定位到目标扇区。  
 CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）** 和 **扇区号（Sector Number）** 三个字段组成，它们共同唯一标识磁盘上的一个物理扇区：
@@ -105,13 +90,10 @@ CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）*
 
 #### 磁盘性能指标
 
-真题
-2
-[磁盘性能指标](https://www.bilibili.com/cheese/play/ep2793201)
-
-选择题
-[13#21](https://csgraduates.com/study_methods/408quiz/2013/#21)
-[15#20](https://csgraduates.com/study_methods/408quiz/2015/#20)
+> **真题考察**
+> - 选择题：2013 年第 21 题、2015 年第 20 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ##### 平均存取时间
 
@@ -145,8 +127,7 @@ $$
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-storage-005.svg" alt={"数据传输率 Data Transfer Rate D r = r × N 转速(转/秒) × 磁道容量(字节) r 转/秒 N 字节 磁道容量 一圈 = N 字节数据 每秒传输 D_r 字节 r 转速 磁盘每秒旋转的圈数（转/秒） 典型值：5400 rpm ≈ 90 转/秒 7200 rpm ≈ 120 转/秒 N 磁道容量 单条磁道可存储的字节数 = 每磁道扇区数 × 扇区大小 扇区大小通常为 512 B 或 4 KB D r = r × N 数据传输率（字节/秒）"} />
 
-补充
-
+**补充说明**
 是否每条磁道的扇区数量都一致？
 
 早期 [CHS](/docs/408/knowledge/408-release/computer-organization/storage/storage/#chs-%e5%9c%b0%e5%9d%80) 时代，为了简化控制器设计，每个磁道通常划分为相同数量的扇区。
@@ -158,15 +139,12 @@ $$
 
 ### RAID
 
-真题
-1
+> **真题考察**
+> - 选择题：2013 年第 20 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
-选择题
-[13#20](https://csgraduates.com/study_methods/408quiz/2013/#20)
-
-💡
-低优先级
-
+> **复习优先级：低。**
 从 2009 到现在就考过 1 题，而且各种 RAID 的细节太多，建议直接跳过。
 
 RAID 全称为 **独立磁盘冗余阵列**（Redundant Arrar of Independent Disks）  

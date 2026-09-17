@@ -2,34 +2,14 @@
 title: "类型转换"
 ---
 
-⭐
-中优先级
+> **复习优先级：中。**
+本节常以选择题形式考查，重点包括四类转换：有符号与无符号整数、整数与浮点数、不同位宽整数，以及语言层面的隐式与显式转换。
 
-常在选择题考查，其实就 **四点**：有符号和无符号整数之间的转换，整形和浮点数的转换，不同长度类型的转换，隐式和显式的转换。
-
-真题
-9
-
-视频讲解
-4
-
-[有符号和无符号整数转换](https://www.bilibili.com/cheese/play/ep2794842)
-[不同长度的类型转换](https://www.bilibili.com/cheese/play/ep2794843)
-[整形和浮点数的转换](https://www.bilibili.com/cheese/play/ep2794844)
-[类型转换语法](https://www.bilibili.com/cheese/play/ep2794845)
-
-选择题
-[09#12](https://csgraduates.com/study_methods/408quiz/2009/#12)
-[10#14](https://csgraduates.com/study_methods/408quiz/2010/#14)
-[12#13](https://csgraduates.com/study_methods/408quiz/2012/#13)
-[16#13](https://csgraduates.com/study_methods/408quiz/2016/#13)
-[18#13](https://csgraduates.com/study_methods/408quiz/2018/#13)
-[19#13](https://csgraduates.com/study_methods/408quiz/2019/#13)
-[24#12](https://csgraduates.com/study_methods/408quiz/2024/#12)
-[25#12](https://csgraduates.com/study_methods/408quiz/2025/#12)
-
-解答题
-[11#43](https://csgraduates.com/study_methods/408quiz/2011/#43)
+> **真题考察**
+> - 选择题：2009 年第 12 题、2010 年第 14 题、2012 年第 13 题、2016 年第 13 题、2018 年第 13 题、2019 年第 13 题、2024 年第 12 题、2025 年第 12 题
+> - 解答题：2011 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ### 有符号整数和无符号整数
 
@@ -40,8 +20,7 @@ title: "类型转换"
 - `int`：使用 **补码** 来存储数据。
 - `unsigned`：所有位，包括最高位，都用于表示数值，表示非负数。
 
-注意
-
+**注意**
 在现在的 64 位计算机中，一般 **int** 表示 32 位 **有符号整数**，**unsigned** 表示 32 位 **无符号整数**。  
 由于 **int** 和 **unsigned** 在不同体系计算机中行为不同，所以 C 语言库中也自带 **int32\_t**、**uint32\_t** 这种类型来表示特定位数的 **有符号** 和 **无符号** 整数，并在各计算中行为一致。
 
@@ -60,15 +39,15 @@ title: "类型转换"
 
 <InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-001.svg" alt={"SignedUnsignedConversion"} />
 
-### 整形和浮点数
+### 整型和浮点数
 
-在计算机中，**整形**（short, int, long）和 **浮点数**（float, double）之间可以相互转换，但是在转换的过程中可能出现 **精度丢失** 或 **数据溢出**。
+在计算机中，**整型**（short, int, long）和 **浮点数**（float, double）之间可以相互转换，但是在转换的过程中可能出现 **精度丢失** 或 **数据溢出**。
 
-下图汇总了 **整形** 和 **浮点数** 在不同方向上转换时的风险类别：
+下图汇总了 **整型** 和 **浮点数** 在不同方向上转换时的风险类别：
 
 <InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-002.svg" alt={"图示"} />
 
-#### 整形转浮点数
+#### 整型转浮点数
 
 如果一个整数被转换为浮点数，其结果是否会产生 **精度丢失** 取决于整数的大小是否超过浮点数可以精确表示的整数范围。  
 但当整数足够大时，转换可能导致 **精度损失**。
@@ -83,7 +62,7 @@ $(-2^{24},2^{24})$
 
 当 **浮点数** 被转换为 **整数** 时，小数部分会丢失，因为 **整数** 不能表示小数。
 
-此外，如果 **浮点数** 超出了 **整形** 的表示范围，转换可能会 **溢出** 或产生未定义行为（取决于语言）。
+此外，如果 **浮点数** 超出了 **整型** 的表示范围，转换可能会 **溢出** 或产生未定义行为（取决于语言）。
 
 ### 不同长度的类型转换
 
@@ -105,7 +84,7 @@ $(-2^{24},2^{24})$
 - **浮点数和浮点数**
   - `float` 转为 `double` 时，不会有 **精度丢失**，`double` 转为 `float` 时，可能有 **精度丢失**。
 
-<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-003.svg" alt={"Higher Data Type float long int short char unsigned Lower Data Type 没有 精度丢失 可能有 精度丢失 long long double Higher Data Type Lower Data Type 没有 精度丢失 可能有 精度丢失 整形 浮点数"} />
+<InlineSvg src="/images/computer-organization/computer-organization-representation-conversion-003.svg" alt={"Higher Data Type float long int short char unsigned Lower Data Type 没有 精度丢失 可能有 精度丢失 long long double Higher Data Type Lower Data Type 没有 精度丢失 可能有 精度丢失 整型 浮点数"} />
 
 以 `short` 和 `int` 的类型转化为例说明：
 

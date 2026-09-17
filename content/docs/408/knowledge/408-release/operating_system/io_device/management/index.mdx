@@ -4,24 +4,15 @@ title: "设备管理"
 
 # 设备管理
 
-💡
-低优先级
-
-低频考点，大致了解下这节的三个概念：缓冲区、设备分配和回收、SPOOLing 就行，在选择题偶尔会考察。
+> **复习优先级：低。**
+本节重点理解缓冲、设备分配与回收、设备独立性和 SPOOLing 的作用及相互区别。
 
 ### 缓冲区
 
-真题
-7
-
-选择题
-[09#1](https://csgraduates.com/study_methods/408quiz/2009/#1)
-[11#31](https://csgraduates.com/study_methods/408quiz/2011/#31)
-[13#27](https://csgraduates.com/study_methods/408quiz/2013/#27)
-[15#28](https://csgraduates.com/study_methods/408quiz/2015/#28)
-[18#31](https://csgraduates.com/study_methods/408quiz/2018/#31)
-[22#30](https://csgraduates.com/study_methods/408quiz/2022/#30)
-[26#32](https://csgraduates.com/study_methods/408quiz/2026/#32)
+> **真题考察**
+> - 选择题：2009 年第 1 题、2011 年第 31 题、2013 年第 27 题、2015 年第 28 题、2018 年第 31 题、2022 年第 30 题、2026 年第 32 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **缓冲区** 是一块预留在内存中的区域，用于临时存放数据，从而使得输入/输出操作与其他处理操作可以相对独立地进行。**缓冲区** 的使用可以减少 *I/O 操作的等待时间*，提高系统的整体效率。
 
@@ -88,13 +79,10 @@ title: "设备管理"
 
 ### 设备分配和回收
 
-真题
-3
-
-选择题
-[09#32](https://csgraduates.com/study_methods/408quiz/2009/#32)
-[20#30](https://csgraduates.com/study_methods/408quiz/2020/#30)
-[23#32](https://csgraduates.com/study_methods/408quiz/2023/#32)
+> **真题考察**
+> - 选择题：2009 年第 32 题、2020 年第 30 题、2023 年第 32 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **设备分配** 是指根据用户的 *I/O 请求* 分配所需的设备。分配的原则是充分发挥设备的使用效率，尽可能地让设备忙碌，但又避免造成死锁。
 
@@ -156,11 +144,10 @@ autofs_notrigger     rdisk0
 
 ### SPOOLing 技术
 
-真题
-1
-
-选择题
-[16#31](https://csgraduates.com/study_methods/408quiz/2016/#31)
+> **真题考察**
+> - 选择题：2016 年第 31 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **SPOOLing**（Simultaneous Peripheral Operations On-Line，**联机并发外设操作**），中文常称为“假脱机”技术，是一种用于高效管理慢速 *I/O 设备*（如打印机、磁带机）的计算机系统技术。它的主要作用是 **缓冲数据、解耦处理流程**，提高系统资源的使用效率。
 

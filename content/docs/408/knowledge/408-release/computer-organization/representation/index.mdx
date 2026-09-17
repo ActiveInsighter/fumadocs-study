@@ -1,51 +1,15 @@
 ---
 title: "数据表示和计算"
+description: "整数、浮点数、运算电路与类型转换。"
 ---
 
-本章在选择题中考察，需要熟练掌握补码表示以及浮点数的 IEEE 标准。
+数据表示是组成原理后续章节的基础。学习时要把“**位模式**”与“**位模式的解释方式**”分开：同一串二进制位，在无符号数、补码整数和浮点数规则下可能表示完全不同的值。
 
-本章视频讲解
-12
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [整数的表示](/docs/408/knowledge/408-release/computer-organization/representation/integer/) | 无符号数、原码、反码、补码、溢出判断 |
+| [浮点数表示](/docs/408/knowledge/408-release/computer-organization/representation/floats/) | IEEE 754、规格化数、非规格化数、特殊值、舍入 |
+| [运算电路](/docs/408/knowledge/408-release/computer-organization/representation/circuit/) | 加法器、补码减法、乘除法基本电路 |
+| [类型转换](/docs/408/knowledge/408-release/computer-organization/representation/conversion/) | 有符号/无符号、宽度扩展、整数/浮点转换 |
 
-本章共 **12** 节视频讲解，覆盖 **4** 个知识点。
-
-[整数的表示](/docs/408/knowledge/408-release/computer-organization/representation/integer/)
-
-无符号数
-[整数的表示](https://www.bilibili.com/cheese/play/ep2794656)
-[有符号数](https://www.bilibili.com/cheese/play/ep2794762)
-[无符号数](https://www.bilibili.com/cheese/play/ep2794773)
-
-补码
-[整数的表示](https://www.bilibili.com/cheese/play/ep2794656)
-[有符号数](https://www.bilibili.com/cheese/play/ep2794762)
-
-[浮点数表示](/docs/408/knowledge/408-release/computer-organization/representation/floats/)
-
-IEEE浮点数表示
-[实数的二进制表示](https://www.bilibili.com/cheese/play/ep2794784)
-[IEEE 浮点数表示设计思路](https://www.bilibili.com/cheese/play/ep2794785)
-[IEEE 浮点数表示结构](https://www.bilibili.com/cheese/play/ep2794797)
-[阶码表示的说明](https://www.bilibili.com/cheese/play/ep2794786)
-[IEEE 浮点数异常值](https://www.bilibili.com/cheese/play/ep2794841)
-
-[类型转换](/docs/408/knowledge/408-release/computer-organization/representation/conversion/)
-
-类型转换
-[有符号和无符号整数转换](https://www.bilibili.com/cheese/play/ep2794842)
-[不同长度的类型转换](https://www.bilibili.com/cheese/play/ep2794843)
-[整形和浮点数的转换](https://www.bilibili.com/cheese/play/ep2794844)
-[类型转换语法](https://www.bilibili.com/cheese/play/ep2794845)
-
-<InlineSvg src="/images/computer-organization/computer-organization-representation-001.svg" alt={"进位计数制及其数据之间的相互转换 定点数的编码表示 数制和编码 基本运算部件 加/减运算 乘/除运算 运算方法和运算电路 无符号整数 带符号整数 整数的表示和运算 IEEE 754标准 浮点数的加/减运算 浮点数的表示和运算 数据的表示和运算"} />
-
----
-
-##### [整数的表示](/docs/408/knowledge/408-release/computer-organization/representation/integer/)
-
-##### [浮点数表示](/docs/408/knowledge/408-release/computer-organization/representation/floats/)
-
-##### [运算电路](/docs/408/knowledge/408-release/computer-organization/representation/circuit/)
-
-##### [类型转换](/docs/408/knowledge/408-release/computer-organization/representation/conversion/)
+> **复习提示：** 补码和 IEEE 754 几乎可以贯穿整个组成原理，后续学习指令、ALU、Cache 与异常时都会再次用到。

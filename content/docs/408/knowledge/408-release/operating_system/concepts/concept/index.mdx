@@ -4,23 +4,13 @@ title: "操作系统概念"
 
 # 操作系统概念
 
-💡
-低优先级
+> **复习优先级：低。**
+本节以基础概念辨析为主，应准确区分并发、共享、虚拟和异步等核心特征。
 
-需要了解操作系统的概念，还是经常考一些 **基础概念辨析** 的选择题的，当然这种题也比较简单。
-
-真题
-8
-
-选择题
-[09#23](https://csgraduates.com/study_methods/408quiz/2009/#23)
-[10#23](https://csgraduates.com/study_methods/408quiz/2010/#23)
-[16#23](https://csgraduates.com/study_methods/408quiz/2016/#23)
-[17#28](https://csgraduates.com/study_methods/408quiz/2017/#28)
-[18#23](https://csgraduates.com/study_methods/408quiz/2018/#23)
-[22#23](https://csgraduates.com/study_methods/408quiz/2022/#23)
-[23#23](https://csgraduates.com/study_methods/408quiz/2023/#23)
-[25#24](https://csgraduates.com/study_methods/408quiz/2025/#24)
+> **真题考察**
+> - 选择题：2009 年第 23 题、2010 年第 23 题、2016 年第 23 题、2017 年第 28 题、2018 年第 23 题、2022 年第 23 题、2023 年第 23 题、2025 年第 24 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ### 概念
 
@@ -28,14 +18,14 @@ title: "操作系统概念"
 
 #### 操作系统特征
 
-1. **并发**（Concurrence）：**操作系统** 具备同时处理和调度多个程序的能力。
+1. **并发**（Concurrency）：**操作系统** 具备同时处理和调度多个程序的能力。
 2. **共享**（Sharing）：系统中的资源可供内存中多个并发的进程共同使用。
 3. **虚拟**（Virtual）：将物理的实物虚拟为逻辑上的对应物。
-4. **异步**（Asynchronism）：任务可以不按固定的顺序执行，因此同一操作的结果可能因执行的时序而异。
+4. **异步**（Asynchronism）：在多道程序环境中，各进程以不可预知的速度向前推进；进程何时获得 CPU、何时完成 I/O 往往具有不确定性。
 
 #### 目标和功能
 
-- 作为用户语句计算机硬件系统之间的接口。
+- 作为用户与计算机硬件系统之间的接口。
 - 作为计算机系统资源的管理者。
 - 实现了对计算机资源的抽象。
 
@@ -77,14 +67,11 @@ title: "操作系统概念"
 
 #### 引导流程
 
-真题
-2
-
-选择题
-[13#29](https://csgraduates.com/study_methods/408quiz/2013/#29)
-
-解答题
-[21#46](https://csgraduates.com/study_methods/408quiz/2021/#46)
+> **真题考察**
+> - 选择题：2013 年第 29 题
+> - 解答题：2021 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 <InlineSvg src="/images/operating-system/operating-system-concepts-concept-002.svg" alt={"OSBootProcess"} />
 
@@ -92,8 +79,9 @@ title: "操作系统概念"
 
 1. **电源开机**（Power-On）：
    - 当你按下计算机的电源键时，电源开始向主板和各个硬件供电。此时，系统首先进行加电自检。这个过程是由存储在主板 **ROM** 芯片中的基本输入/输出系统（**BIOS**）或统一可扩展固件接口（**UEFI**）固件执行的。
-2. **BIOS/UEFI 阶段**：
-   - **BIOS/UEFI** 会读取启动设备的首扇区（**MBR** 或 **GPT**），其中包含 **引导加载器**（Bootloader）的代码。
+2. **固件阶段（BIOS/UEFI）**：
+   - 传统 **BIOS** 通常按启动顺序寻找可启动设备，并执行磁盘 **MBR** 中的引导代码。
+   - **UEFI** 的启动机制不同：固件可直接读取磁盘上的 EFI System Partition（ESP），加载其中的 `.efi` 启动程序。**GPT** 是分区表格式，并不是“包含引导加载器代码的首扇区”。
 3. **引导加载器**（Bootloader）：
    - **引导加载器** 是一小段程序，它的主要任务是加载 **操作系统** 内核。
    - 常见的 **bootloader** 有

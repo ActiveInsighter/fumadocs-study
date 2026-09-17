@@ -1,10 +1,9 @@
 ---
 title: "栈和队列的应用"
+description: "表达式树、中缀/后缀表达式以及合法出栈序列。"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 本节的几个知识点经常在选择题考察：中序表达式求值、中序转后序、后序表达式求值、入栈出栈序列。
 
 ### 二叉表达式树
@@ -44,9 +43,9 @@ title: "栈和队列的应用"
 
 前序表达式（Prefix，波兰表示法）、中序表达式（Infix）和后序表达式（Postfix，逆波兰表示法）是根据二叉表达式树的不同遍历方式得到的表达式结果。具体来说：
 
-- 前序表达式：**[前序遍历](https://csgraduates.com/data_structure/tree/btree/#%e5%89%8d%e5%ba%8f%e9%81%8d%e5%8e%86)** 得到的序列。
-- 中序表达式：**[中序遍历](https://csgraduates.com/data_structure/tree/btree/#%e4%b8%ad%e5%ba%8f%e9%81%8d%e5%8e%86)** 得到的序列。
-- 后序表达式：**[后序遍历](https://csgraduates.com/data_structure/tree/btree/#%e5%90%8e%e5%ba%8f%e9%81%8d%e5%8e%86)** 得到的序列。
+- 前序表达式：**前序遍历** 得到的序列。
+- 中序表达式：**中序遍历** 得到的序列。
+- 后序表达式：**后序遍历** 得到的序列。
 
 <InlineSvg src="/images/data-structure/data-structure-array-application-002.svg" alt={"表达式树与前序、中序、后序表达式"} />
 
@@ -84,17 +83,17 @@ title: "栈和队列的应用"
    - 如果是 **操作数**（数字），则直接压入 **操作数栈**。
    - 如果是 **左括号**，则直接压入 **操作符栈**。
    - 如果是 **右括号**，则：
-     - 执行 [基本计算单元](https://csgraduates.com/data_structure/array/application/#infix%e5%9f%ba%e6%9c%ac%e8%ae%a1%e7%ae%97%e5%8d%95%e5%85%83)
+     - 执行 基本计算单元
      - 重复以上步骤，直到从 **操作符栈** 中弹出一个左括号。
    - 如果是 **操作符**（常见的就是 `+`、`-`、`*`、`/`）：
      - 如果 **操作符栈** 为空，或栈顶是左括号，或当前操作符 **优先级** 高于栈顶操作符的 **优先级**，则直接压入 **操作符栈**。
        - 优先级：`*` 和 `/` 高于 `+` 和 `-`，`*` 和 `/` 相同，`+` 和 `-` 相同
      - 否则：
-       - [基本计算单元](https://csgraduates.com/data_structure/array/application/#infix%e5%9f%ba%e6%9c%ac%e8%ae%a1%e7%ae%97%e5%8d%95%e5%85%83)
+       - 基本计算单元
        - 重复以上步骤，直到满足上述的压栈条件。
 3. **处理完所有字符后**：
    - 如果 **操作符栈** 不为空，则：
-     - 执行 [基本计算单元](https://csgraduates.com/data_structure/array/application/#infix%e5%9f%ba%e6%9c%ac%e8%ae%a1%e7%ae%97%e5%8d%95%e5%85%83)
+     - 执行 基本计算单元
    - 重复以上步骤，直到 **操作符栈** 为空。
 4. **得到结果**：
    - 此时，**操作数栈** 中仅存一个数字，这就是整个中序表达式的值。
@@ -122,16 +121,12 @@ title: "栈和队列的应用"
 
 ### 后序表达式求值
 
-真题
-1
-[后序表达式计算](https://www.bilibili.com/cheese/play/ep2795088)
-
-选择题
-[18#1](https://csgraduates.com/study_methods/408quiz/2018/#1)
+> **真题考察**
+> - 选择题：2018 年第 1 题
 
 后序表达式求值主要依赖一个 **操作数栈**。其核心思路是逐个读取后序表达式的元素，并根据元素的类型（**操作数**或**操作符**）进行处理。
 
-1. **初始化一个 **操作数栈****：
+1. **初始化一个**操作数栈******：
    - 用于存储后序表达式中的数字。
 2. **逐个读取后序表达式的元素**：
    - 如果是**操作数**，则直接压入 **操作数栈**。
@@ -151,7 +146,7 @@ title: "栈和队列的应用"
 计算流程
 
 后序表达式求值的过程可以参照以下流程图进行理解：
-```
+```mermaid
 flowchart TD
     A[开始: 初始化操作数栈] --> B[读取后序表达式的下一个元素]
     
@@ -167,14 +162,7 @@ flowchart TD
     D -->|操作符| F[从栈中弹出两个操作数<br/>注意: 先弹出的是第二操作数<br/>后弹出的是第一操作数]
     F --> G[执行运算并将结果压入栈中]
     G --> B
-    
-    style A fill:#e1f5fe
-    style I fill:#c8e6c9
-    style D fill:#fff3e0
-    style E fill:#f3e5f5
-    style F fill:#ffebee
-    style G fill:#ffebee
-    style H fill:#e8f5e8
+
 ```
 
 以表达式 `3 5 2 * 8 - +` 说明计算过程：
@@ -191,21 +179,8 @@ flowchart TD
 
 ### 中序转后序
 
-真题
-3
-
-视频讲解
-4
-
-[表达式种类](https://www.bilibili.com/cheese/play/ep2795084)
-[中序表达式计算](https://www.bilibili.com/cheese/play/ep2795085)
-[中序表达式计算例子](https://www.bilibili.com/cheese/play/ep2795086)
-[中序转后序](https://www.bilibili.com/cheese/play/ep2795087)
-
-选择题
-[12#2](https://csgraduates.com/study_methods/408quiz/2012/#2)
-[14#2](https://csgraduates.com/study_methods/408quiz/2014/#2)
-[24#2](https://csgraduates.com/study_methods/408quiz/2024/#2)
+> **真题考察**
+> - 选择题：2012 年第 2 题、2014 年第 2 题、2024 年第 2 题
 
 将中缀表达式转换为后缀表达式的算法思想如下：
 
@@ -220,7 +195,7 @@ flowchart TD
     - 否则从栈顶开始，依次弹出 **优先级** 高于或等于当前运算符的运算符，直到遇到 **优先级** 更低的运算符或左括号为止。弹出的操作符会被加入后缀表达式。
 
 中序转后序的过程可以参照以下流程图进行理解：
-```
+```mermaid
 flowchart TD
     A[开始：初始化操作符栈] --> B[从左向右扫描中缀表达式]
     B --> C{读取下一个字符}
@@ -250,19 +225,9 @@ flowchart TD
     H -->|否| C
     H -->|是| O[弹出栈中所有剩余运算符]
     O --> P[结束：得到后缀表达式]
-    
-    style A fill:#e1f5fe,font-size:24px
-    style P fill:#c8e6c9,font-size:24px
-    style D fill:#fff3e0,font-size:24px
-    style E fill:#fce4ec,font-size:24px
-    style F fill:#fce4ec,font-size:24px
-    style G fill:#f3e5f5,font-size:24px
-    
-    classDef default font-size:18px
-    classDef largeText font-size:24px
+
     class A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P largeText
-    
-    linkStyle default font-size:22px
+
 ```
 
 ---
@@ -293,28 +258,9 @@ flowchart TD
 
 ### 入栈出栈序列
 
-真题
-10
-
-视频讲解
-2
-
-[入栈出栈序列](https://www.bilibili.com/cheese/play/ep2795089)
-[出栈序列递推](https://www.bilibili.com/cheese/play/ep2795093)
-
-选择题
-[09#2](https://csgraduates.com/study_methods/408quiz/2009/#2)
-[10#1](https://csgraduates.com/study_methods/408quiz/2010/#1)
-[11#2](https://csgraduates.com/study_methods/408quiz/2011/#2)
-[13#2](https://csgraduates.com/study_methods/408quiz/2013/#2)
-[15#2](https://csgraduates.com/study_methods/408quiz/2015/#2)
-[17#2](https://csgraduates.com/study_methods/408quiz/2017/#2)
-[18#2](https://csgraduates.com/study_methods/408quiz/2018/#2)
-[20#2](https://csgraduates.com/study_methods/408quiz/2020/#2)
-[22#2](https://csgraduates.com/study_methods/408quiz/2022/#2)
-
-解答题
-[26#42](https://csgraduates.com/study_methods/408quiz/2026/#42)
+> **真题考察**
+> - 选择题：2009 年第 2 题、2010 年第 1 题、2011 年第 2 题、2013 年第 2 题、2015 年第 2 题、2017 年第 2 题、2018 年第 2 题、2020 年第 2 题、2022 年第 2 题
+> - 解答题：2026 年第 42 题
 
 入栈出栈序列问题是栈中最经典的一类题目。
 
@@ -349,138 +295,31 @@ flowchart TD
 
 #### 卡特兰数
 
-真题
-2
+> **真题考察**
+> - 选择题：2015 年第 2 题
+> - 解答题：2026 年第 42 题
 
-视频讲解
-3
+若 $n$ 个互异元素按固定顺序依次入栈，每个元素恰好入栈一次、出栈一次，则所有合法出栈序列的数量为第 $n$ 个卡特兰数：
 
-[卡特兰数](https://www.bilibili.com/cheese/play/ep2795091)
-[二叉树形态递推公式](https://www.bilibili.com/cheese/play/ep2795092)
-[出栈序列递推](https://www.bilibili.com/cheese/play/ep2795093)
+$$
+C_n=\frac{1}{n+1}\binom{2n}{n}=\frac{(2n)!}{n!(n+1)!}.
+$$
 
-选择题
-[15#2](https://csgraduates.com/study_methods/408quiz/2015/#2)
+<InlineSvg src="/images/data-structure/data-structure-array-application-008.svg" alt={"卡特兰数及其典型计数问题"} />
 
-解答题
-[26#42](https://csgraduates.com/study_methods/408quiz/2026/#42)
+可以把入栈记为 $+1$、出栈记为 $-1$。完整过程一共包含 $n$ 次入栈和 $n$ 次出栈，并且任意前缀中都必须满足“已入栈次数不少于已出栈次数”，否则会出现空栈出栈。这正对应卡特兰数计数的经典约束。
 
-考虑这样一个问题：有
-$n$
-个不同的元素（例如
-1,2,⋯,n
-），按照固定顺序依次 **入栈**，在任意时刻都可以选择 **出栈**。每个元素都必须 **恰好入栈一次、出栈一次**。那么，所有可能的合法出栈序列共有多少种？
+卡特兰数还满足递推关系：
 
-这个问题的答案可以用 **卡特兰数（Catalan Number）** 表示。
+$$
+C_0=1,\qquad
+C_n=\sum_{i=0}^{n-1}C_iC_{n-1-i}\quad(n\ge 1).
+$$
 
-卡特兰数的 公式
-为：
+典型等价计数问题包括：
 
-$C_n=\frac{1}{n+1}\binom{2n}{n}$
+- 固定入栈顺序下的合法出栈序列数；
+- $n$ 对括号的合法匹配方案数；
+- 含 $n$ 个结点的不同二叉树**形状**数。
 
-因此，
-$n$
-个元素能够形成的合法出栈序列数量就是：
-
-Cn​
-
-<InlineSvg src="/images/data-structure/data-structure-array-application-008.svg" alt={"卡特兰数 Catalan number C n = 1 n+1 ( 2n n ) = (2n)! (n+1)! · n! 前几项 n 0 1 2 3 4 5 6 7 8 … C_n 1 1 2 5 14 42 132 429 1430 … 等价问题（以 n = 3 为例，答案均为 C₃ = 5） 1. 括号匹配 n 对括号的合法排列 ( ( ( ) ) ) ( ( ) ( ) ) ( ( ) ) ( ) ( ) ( ( ) ) ( ) ( ) ( ) ( 视为入栈，) 视为出"} />
-
-那么，为什么入栈出栈序列的数量恰好是卡特兰数呢？
-
-可以把整个入栈、出栈过程看成一个长度为
-2n
-的操作序列：
-
-- **入栈**：记作 `+1`
-- **出栈**：记作 `-1`
-
-由于共有
-$n$
-次入栈和
-$n$
-次出栈，因此整个序列中必然有
-$n$
-个 `+1` 和
-$n$
-个 `-1`。
-
-与此同时，为了保证栈操作合法，还必须满足一个重要约束：
-
-> 在任意时刻，**出栈次数不能超过入栈次数**，否则就会出现空栈出栈。
-
-因此，一个合法的出栈序列实际上就对应着一个满足上述约束的 `+1/-1` 序列。
-
-而**卡特兰数的经典定义**正是用于计数满足这一约束的序列数量，因此合法出栈序列的总数就是卡特兰数。
-
----
-
-除了闭式公式之外，卡特兰数还有一个非常重要的 递归关系
-：
-
-$C_0=1$
-
-$C_n=\sum_{i=0}^{n-1}C_iC_{n-1-i}\quad(n\ge1)$
-
-它表示：一个规模为
-$n$
-的问题，可以划分为两个规模更小、且彼此独立的子问题，其方案数相乘，再对所有划分方式求和。
-
-这个递推关系解释了为什么许多看似不同的问题最终都会得到同一个答案——它们都具有**相同的递归结构**。
-
----
-
-卡特兰数不仅出现在入栈出栈序列中，还会出现在许多本质相同的计数问题中。
-
-**不同形态二叉树计数**
-
-给定 `n` 个互不相同的节点，若节点的值已经固定，只考虑二叉树的**结构形态**（不考虑节点在平面上的绘制方式），则能够构造出的不同二叉树数量为
-Cn​
-。
-
-原因在于：任选一个节点作为根节点后，它左边的节点只能构成左子树，右边的节点只能构成右子树。若左子树有
-$i$
-个节点，则右子树必然有
-n−1−i
-个节点，因此不同二叉树的数量满足：
-
-$C_n=\sum_{i=0}^{n-1}C_iC_{n-1-i}$
-
-这与卡特兰数的递推关系完全一致。
-
-例如，当 `n=3` 时，共有 `5` 种不同形态的二叉树，因此：
-
-$C_3=5$
-
----
-
-**合法括号序列计数**
-
-给定 `n` 对括号，要求生成所有**合法的括号序列**。所谓合法，是指从左到右扫描整个序列时，任意前缀中左括号的数量都不少于右括号，并且最终左右括号数量相等。
-
-例如，当 `n=2` 时，共有两种合法序列：
-```
-()()
-(())
-```
-
-因此：
-
-$C_2=2$
-
-之所以也是卡特兰数，是因为每个合法括号序列都可以唯一写成：
-```
-( 合法序列A ) 合法序列B
-```
-
-设括号 `()` 内部包含
-$i$
-对括号，则后面剩余
-n−1−i
-对括号，因此方案数同样满足：
-
-$C_n=\sum_{i=0}^{n-1}C_iC_{n-1-i}$
-
-这与卡特兰数的递推关系完全一致。
-
-可以发现，虽然**入栈出栈序列**、**不同形态二叉树**、**合法括号序列**看起来属于完全不同的问题，但它们都具有相同的递归结构，因此满足同一个递推关系，最终都可以用 **卡特兰数（Catalan Number）** 来计数。
+> **注意：** 若 $n$ 个结点带有互不相同的标签，并允许任意标签分配到树结点上，则还要考虑标签排列，不能直接只用 $C_n$。

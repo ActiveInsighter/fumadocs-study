@@ -3,7 +3,7 @@
   "pages": [
     "index",
     "def",
-    "linked",
-    "sequential"
+    "sequential",
+    "linked"
   ]
 }

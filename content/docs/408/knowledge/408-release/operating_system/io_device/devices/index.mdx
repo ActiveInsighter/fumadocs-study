@@ -4,22 +4,20 @@ title: "I/O 设备"
 
 # I/O 设备
 
-💡
-低优先级
-
-低频考点，对于本节重点掌握 I/O 软件层次的概念，I/O 控制方式的部分建议和计算机组成原理中的 [I/O 系统](https://csgraduates.com/constitution_principle/bus/io/) 共同学习。
+> **复习优先级：低。**
+本节重点掌握 I/O 软件层次与 I/O 控制方式，并与计算机组成原理中的 [I/O 系统](/docs/408/knowledge/408-release/computer-organization/bus/io/) 共同学习。
 
 ### I/O 接口类型
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-devices-001.svg" alt={"I/O 设备类型分类 块设备 (Block) 固定大小数据块 支持随机访问 高数据传输速率 机械硬盘 HDD 固态硬盘 SSD USB 闪存盘 数据块 字符设备 (Character) 连续字符流 顺序访问 实时传输 键盘 鼠标 串口终端 A → B → C → D → E 字符流 网络设备 (Network) 数据包传输 高速实时传输 DMA 和中断机制 网络适配器 调制解调器 路由器 数据包"} />
 
-根据设备类型的不同，我们将 [I/O 接口](https://csgraduates.com/constitution_principle/bus/io/#io-%e6%8e%a5%e5%8f%a3) 分为三种类型：
+根据设备类型的不同，我们将 [I/O 接口](/docs/408/knowledge/408-release/computer-organization/bus/io/#io-%e6%8e%a5%e5%8f%a3) 分为三种类型：
 
 1. **块设备**：
 
 块设备（Block Device）是计算机中一类以 **固定大小的数据块** 为单位进行数据读写的 I/O 设备，通常用于存储和检索大量数据。它们 **支持随机访问**，意味着可以直接定位到任意数据块，而无需按顺序读取。
 
-典型例子包括[机械硬盘](https://csgraduates.com/constitution_principle/storage/storage/#%e6%9c%ba%e6%a2%b0%e7%a1%ac%e7%9b%98)（HDD）、[固态硬盘](https://csgraduates.com/constitution_principle/storage/storage/#%e5%9b%ba%e6%80%81%e7%a1%ac%e7%9b%98)（SSD）和 USB 闪存盘。**块设备** 的 *数据传输速率较高*，但涉及复杂的控制器和协议（如 SATA 或 NVMe)，因此在操作系统中通常由专门的驱动程序管理。
+典型例子包括[机械硬盘](/docs/408/knowledge/408-release/computer-organization/storage/storage/#%e6%9c%ba%e6%a2%b0%e7%a1%ac%e7%9b%98)（HDD）、[固态硬盘](/docs/408/knowledge/408-release/computer-organization/storage/storage/#%e5%9b%ba%e6%80%81%e7%a1%ac%e7%9b%98)（SSD）和 USB 闪存盘。**块设备** 的 *数据传输速率较高*，但涉及复杂的控制器和协议（如 SATA 或 NVMe），因此在操作系统中通常由专门的驱动程序管理。
 
 2. **字符设备**：
 
@@ -29,7 +27,7 @@ title: "I/O 设备"
 
 3. **网络设备**：
 
-网络设备是专门用于计算机网络通信的 I/O 设备，负责在计算机与网络之间传输 **数据包**。它们包括[网络适配器](https://csgraduates.com/computer_network/physical/dev/#%e7%bd%91%e7%bb%9c%e9%80%82%e9%85%8d%e5%99%a8) 和调制解调器等设备。网络设备 **以数据包为单位** 工作，通常通过协议栈（如 TCP/IP) 处理数据，支持点对点或广播通信。
+网络设备是专门用于计算机网络通信的 I/O 设备，负责在计算机与网络之间传输 **数据包**。它们包括[网络适配器](/docs/408/knowledge/408-release/computer_network/physical/dev/#%e7%bd%91%e7%bb%9c%e9%80%82%e9%85%8d%e5%99%a8) 和调制解调器等设备。网络设备 **以数据包为单位** 工作，通常通过协议栈（如 TCP/IP） 处理数据，支持点对点或广播通信。
 
 与块设备和字符设备不同，网络设备更注重 **数据的高速传输** 和 **实时性**，常涉及中断机制和 **DMA**（直接内存访问）来提高效率。操作系统通过网络驱动程序管理这些设备，以实现网络连接和数据交换。
 
@@ -37,11 +35,11 @@ title: "I/O 设备"
 
 在计算机系统中，I/O（输入/输出）控制方式决定了 CPU 与外设之间如何协作完成数据传输。主要有三种方式，每种方式在性能、复杂度与使用场景上各有不同：
 
-- [程序查询方式](https://csgraduates.com/constitution_principle/bus/io/#%e7%a8%8b%e5%ba%8f%e6%9f%a5%e8%af%a2%e6%96%b9%e5%bc%8f)：
+- [程序查询方式](/docs/408/knowledge/408-release/computer-organization/bus/io/#%e7%a8%8b%e5%ba%8f%e6%9f%a5%e8%af%a2%e6%96%b9%e5%bc%8f)：
   又称“轮询方式”，CPU 主动不断地检查外设状态是否准备好。在设备较少、交互不频繁的场景下实现简单，但会占用大量 CPU 时间，效率较低。
-- [程序中断方式](https://csgraduates.com/constitution_principle/bus/io/#%e7%a8%8b%e5%ba%8f%e4%b8%ad%e6%96%ad%e6%96%b9%e5%bc%8f)：
+- [程序中断方式](/docs/408/knowledge/408-release/computer-organization/bus/io/#%e7%a8%8b%e5%ba%8f%e4%b8%ad%e6%96%ad%e6%96%b9%e5%bc%8f)：
   外设准备就绪后向 CPU 发出中断信号，CPU 暂停当前任务处理 I/O 操作，相比轮询更高效。适用于响应及时性要求较高的系统，能够显著降低 CPU 的无效等待。
-- [DMA 方式](https://csgraduates.com/constitution_principle/bus/io/#dma-%e6%96%b9%e5%bc%8f)：
+- [DMA 方式](/docs/408/knowledge/408-release/computer-organization/bus/io/#dma-%e6%96%b9%e5%bc%8f)：
   即“直接内存访问”，在数据量大、频繁传输的场景中尤为高效。CPU 只负责启动 DMA 控制器，数据传输过程由 DMA 独立完成，显著提高系统整体效率。
 
 三种 I/O 控制方式在 **数据流路径** 和 **CPU 参与度** 上有显著差异，可参考下图对比理解：
@@ -50,20 +48,11 @@ title: "I/O 设备"
 
 ### I/O 软件层次
 
-真题
-8
-
-选择题
-[11#26](https://csgraduates.com/study_methods/408quiz/2011/#26)
-[12#26](https://csgraduates.com/study_methods/408quiz/2012/#26)
-[13#25](https://csgraduates.com/study_methods/408quiz/2013/#25)
-[22#32](https://csgraduates.com/study_methods/408quiz/2022/#32)
-[26#31](https://csgraduates.com/study_methods/408quiz/2026/#31)
-[26#32](https://csgraduates.com/study_methods/408quiz/2026/#32)
-
-解答题
-[19#44](https://csgraduates.com/study_methods/408quiz/2019/#44)
-[23#46](https://csgraduates.com/study_methods/408quiz/2023/#46)
+> **真题考察**
+> - 选择题：2011 年第 26 题、2012 年第 26 题、2013 年第 25 题、2022 年第 32 题、2026 年第 31 题、2026 年第 32 题
+> - 解答题：2019 年第 44 题、2023 年第 46 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 I/O 软件层次是计算机系统中用于管理和协调输入输出操作的软件架构，从用户应用程序到硬件设备，分为多个层次，每一层负责特定的功能，确保高效、可靠的 I/O 操作。
 
@@ -95,7 +84,7 @@ I/O 软件层次是计算机系统中用于管理和协调输入输出操作的�
 
 #### 中断处理程序
 
-[中断处理程序](https://csgraduates.com/constitution_principle/bus/io/#%e7%a8%8b%e5%ba%8f%e4%b8%ad%e6%96%ad%e6%96%b9%e5%bc%8f) 是 I/O 软件层次中 **专门处理硬件中断** 的部分，当设备完成操作或发生事件（如数据到达、错误发生）时，**硬件会触发中断信号**，中断处理程序迅速响应以处理这些事件。它运行在极低的层次，通常以极高的优先级执行，负责保存中断现场、处理设备状态、通知上层软件或触发后续操作。
+[中断处理程序](/docs/408/knowledge/408-release/computer-organization/bus/io/#%e7%a8%8b%e5%ba%8f%e4%b8%ad%e6%96%ad%e6%96%b9%e5%bc%8f) 是 I/O 软件层次中 **专门处理硬件中断** 的部分，当设备完成操作或发生事件（如数据到达、错误发生）时，**硬件会触发中断信号**，中断处理程序迅速响应以处理这些事件。它运行在极低的层次，通常以极高的优先级执行，负责保存中断现场、处理设备状态、通知上层软件或触发后续操作。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-devices-007.svg" alt={"中断处理程序大致流程 硬件触发 → 保存现场 → 快速处理 → 恢复现场 → 回到原任务 设备 / 硬件 CPU / 中断处理程序（内核态，高优先级、代码精简） 用户/上层软件 ① 设备事件发生 数据到达 / 完成 / 出错 中断信号 ② 响应中断 暂停当前任务 切换到内核态 ③ 保存现场 PC、寄存器、状态字 压栈保存 ④ 识别中断源 / 分发 查中断向量表 跳转到对应处理例程 ⑤ 执行中断服务 读写设备寄存器 搬运数据、置状态 ⑥ 唤醒/通知上层 唤醒等待进程 通知驱动/"} />
 

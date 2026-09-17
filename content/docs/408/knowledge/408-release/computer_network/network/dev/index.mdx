@@ -1,32 +1,18 @@
 ---
 title: "网络层设备"
-description: "🔥 高优先级 掌握路由器的组成和功能，以及掌握路由表的画法，会在选择题和解答题中考察。 真题 9 路由器考点 选择题 12 37 15 38 解答题 09 47 13 47 14 42 14 43 18 42 19 47 20 47 路由器"
-source: "https://csgraduates.com/computer_network/network/dev/"
+description: "路由器、路由表、最长前缀匹配与 NAT。"
 ---
 
-🔥
-高优先级
-
-掌握路由器的组成和功能，以及掌握路由表的画法，会在选择题和解答题中考察。
+> **复习优先级：高。**
+重点掌握路由器的数据平面/控制平面、路由表与转发表，以及最长前缀匹配和 NAT 转换。
 
 ### 路由器
 
-真题
-9
-[路由器考点](https://www.bilibili.com/cheese/play/ep2798753)
-
-选择题
-[12#37](/study_methods/408quiz/2012/#37)
-[15#38](/study_methods/408quiz/2015/#38)
-
-解答题
-[09#47](/study_methods/408quiz/2009/#47)
-[13#47](/study_methods/408quiz/2013/#47)
-[14#42](/study_methods/408quiz/2014/#42)
-[14#43](/study_methods/408quiz/2014/#43)
-[18#42](/study_methods/408quiz/2018/#42)
-[19#47](/study_methods/408quiz/2019/#47)
-[20#47](/study_methods/408quiz/2020/#47)
+> **真题考察**
+> - 选择题：2012 年第 37 题、2015 年第 38 题
+> - 解答题：2009 年第 47 题、2013 年第 47 题、2014 年第 42 题、2014 年第 43 题、2018 年第 42 题、2019 年第 47 题、2020 年第 47 题
+>
+> 真题题号用于标记考查范围；原题库与视频链接已移除。
 
 **路由器**（Router）是一种实现网络互连的设备，在 OSI 网络模型中的第三层，提供 **路由** 与 **转发** 的两种重要机制；可以决定数据包从来源端到目的端所经过的路由路径，这个过程称为 **路由**；将路由器输入端的数据包移至适当路由器输出端，称为 **转发**。
 
@@ -34,7 +20,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 <InlineSvg src="/images/computer-network/computer-network-network-dev-001.svg" alt={"网络层设备 图 1"} />
 
-简单来说，路由器主要由以下软硬件组成：
+概括来说，路由器主要由以下软硬件组成：
 
 * 硬件：
   * **CPU**：运行操作系统，处理 **路由协议**。
@@ -45,23 +31,11 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 #### 路由表
 
-真题
-4
-
-
-视频讲解
-2
-
-[路由表](https://www.bilibili.com/cheese/play/ep2798767)
-[路由匹配考点](https://www.bilibili.com/cheese/play/ep2798768)
-
-选择题
-[22#36](/study_methods/408quiz/2022/#36)
-[26#37](/study_methods/408quiz/2026/#37)
-
-解答题
-[15#47](/study_methods/408quiz/2015/#47)
-[24#47](/study_methods/408quiz/2024/#47)
+> **真题考察**
+> - 选择题：2022 年第 36 题、2026 年第 37 题
+> - 解答题：2015 年第 47 题、2024 年第 47 题
+>
+> 真题题号用于标记考查范围；原题库与视频链接已移除。
 
 <InlineSvg src="/images/computer-network/computer-network-network-dev-002.svg" alt={"网络层设备 图 2"} />
 
@@ -75,8 +49,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 * **接口**（Interface）：指明了路由器上哪个物理或逻辑 **接口** 将被用来 **转发** 数据包。
 * **跳数/度量值**（Metric）：跳数或度量值是 **路由选择** 的一个度量标准，用来表示到达 **目标地址** 的成本。如果存在多条 **路由** 到同一个目的地，路由器通常会选择跃点数最低的 **路由**。
 
-补充
-
+**补充说明**
 在考试中，不要求画一个完整的操作系统路由表，而是根据题目保留必要字段。
 
 一般来说：目标网络、子网掩码、下一跳、接口 都是需要保留的，因为大多数题目都会提供。
@@ -102,8 +75,7 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 <InlineSvg src="/images/computer-network/computer-network-network-dev-003.svg" alt={"网络层设备 图 3"} />
 
-注意
-
+**注意**
 **路由表在分组转发的时候，需要修改 IP 数据包中的哪些字段？**
 
 1. **TTL**：TTL 减 1。
@@ -113,15 +85,11 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 ##### 最长前缀匹配
 
-真题
-2
-[路由匹配考点](https://www.bilibili.com/cheese/play/ep2798768)
-
-选择题
-[15#38](/study_methods/408quiz/2015/#38)
-
-解答题
-[14#43](/study_methods/408quiz/2014/#43)
+> **真题考察**
+> - 选择题：2015 年第 38 题
+> - 解答题：2014 年第 43 题
+>
+> 真题题号用于标记考查范围；原题库与视频链接已移除。
 
 当路由器收到一个数据包时，它会提取数据包的 **目的 IP 地址**，并与 **路由表** 中的条目进行比较。最长前缀匹配的核心是选择与目的 IP 地址 **前缀匹配最长** 的路由表项，因为更长的前缀表示更具体的路由，优先级更高。
 
@@ -152,22 +120,16 @@ source: "https://csgraduates.com/computer_network/network/dev/"
 
 ### NAT
 
-真题
-4
-[NAT](https://www.bilibili.com/cheese/play/ep2798769)
-
-选择题
-[23#38](/study_methods/408quiz/2023/#38)
-[25#37](/study_methods/408quiz/2025/#37)
-
-解答题
-[19#47](/study_methods/408quiz/2019/#47)
-[20#47](/study_methods/408quiz/2020/#47)
+> **真题考察**
+> - 选择题：2023 年第 38 题、2025 年第 37 题
+> - 解答题：2019 年第 47 题、2020 年第 47 题
+>
+> 真题题号用于标记考查范围；原题库与视频链接已移除。
 
 **NAT**（Network Address Translation，网络地址转换）的核心作用是把一个 IP 地址空间映射到另一个 IP 地址空间，常见的情形是把局域网内部的 **私有 IP 地址** 转换为 **公网 IP 地址**（或将公网地址转换回私有地址），从而实现内部设备与外部网络（如 Internet）的互联。NAT 主要有以下功能：
 
 * **解决 IPv4 地址匮乏**：在 IPv4 中，公网地址资源有限。通过 NAT，整个局域网可以共享同一个或少量的公网 IP，极大地节约了地址分配。
-* **提供安全屏障**：外部主机只能看到 NAT 设备的公网地址，内部的真实 IP 地址被隐藏，形成了一个简单的防护层，降低了直接攻击的风险。
+* **隐藏内部地址结构**：NAT 会使外部主机通常无法直接看到内部私有地址，但这只是地址转换带来的副作用，**不能把 NAT 本身当作防火墙或完整安全机制**。
 
 <InlineSvg src="/images/computer-network/computer-network-network-dev-004.svg" alt={"网络层设备 图 4"} />
 
@@ -200,7 +162,7 @@ NAT 表的条目通常是 **动态创建** 的。当内部设备发起到外部�
 
    * 当内网主机向外部（Internet）发起通信时，数据包首先经过 NAT 路由器。
    * 在此过程中，NAT 会把数据包的 **源 IP 地址和源端口** 替换为 **路由器的公网 IP 地址和分配的公网端口**（即进行源地址/端口转换，SNAT）。
-   * 这样，外部主机只能看到公网 IP+端口，而看不到内部私有地址，确保内网结构对外部保持透明。
+   * 这样，外部主机通常只看到 NAT 设备的公网地址与转换后的端口，内部私有地址不会直接出现在公网数据包中。
 2. **从公网返回到内网**
 
    * 当外部主机向 NAT 路由器的公网 IP+端口发送响应报文时，报文同样会先到达 NAT 路由器。

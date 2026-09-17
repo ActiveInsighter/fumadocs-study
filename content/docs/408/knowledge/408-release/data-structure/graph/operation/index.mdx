@@ -1,29 +1,15 @@
 ---
 title: "算法和应用"
+description: "图的遍历、最小生成树、最短路径、拓扑排序和关键路径。"
 ---
 
-🔥
-高优先级
-
-图的应用就 **四大天王**：最小生成树、最短路径、拓扑排序 和 关键路径。需掌握这四种应用当中的 **每个细节**。当然还有 DFS 和 BFS 这两种 **遍历方式** 也不能忽略。
+> **复习优先级：高。**
+本节集中整理 DFS/BFS、最小生成树、最短路径、拓扑排序与关键路径，并比较它们的适用条件和复杂度。
 
 ### 图的遍历
 
-真题
-5
-
-视频讲解
-2
-
-[图的 bfs](https://www.bilibili.com/cheese/play/ep2795112)
-[图的 dfs](https://www.bilibili.com/cheese/play/ep2795123)
-
-选择题
-[12#5](https://csgraduates.com/study_methods/408quiz/2012/#5)
-[13#8](https://csgraduates.com/study_methods/408quiz/2013/#8)
-[15#5](https://csgraduates.com/study_methods/408quiz/2015/#5)
-[16#6](https://csgraduates.com/study_methods/408quiz/2016/#6)
-[20#6](https://csgraduates.com/study_methods/408quiz/2020/#6)
+> **真题考察**
+> - 选择题：2012 年第 5 题、2013 年第 8 题、2015 年第 5 题、2016 年第 6 题、2020 年第 6 题
 
 #### DFS
 
@@ -38,7 +24,7 @@ title: "算法和应用"
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-001.svg" alt={"A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F A B C D E F"} />
 
-图中 **DFS** 实现的框架与 [树的遍历](https://csgraduates.com/data_structure/tree/tree/#%e6%a0%91%e7%9a%84%e9%81%8d%e5%8e%86) 类似，不同点在于需要使用 `visit` 数组记录已经访问过的节点，避免重复遍历：
+图中 **DFS** 实现的框架与 树的遍历 类似，不同点在于需要使用 `visit` 数组记录已经访问过的节点，避免重复遍历：
 ```
 function DFS(G, v, visited):
     visited[v] ← true
@@ -64,7 +50,7 @@ void dfs(int start) {
     printf("%d ", start);
 
     // 依次访问 start 的邻接顶点
-    for (int i = 0; i < MAX_VERTICES; i++) {
+    for (int i = 0; i < vertices; i++) {
         // 递归的两个条件：
         // 1. 顶点 (start, i) 之间存在边
         // 2. 顶点 i 未被访问过
@@ -200,54 +186,21 @@ void bfs(struct Graph* graph, int start) {
 
 ### 最小生成树
 
-真题
-6
-
-视频讲解
-4
-
-[最小生成树概念](https://www.bilibili.com/cheese/play/ep2795124)
-[kruskal 算法](https://www.bilibili.com/cheese/play/ep2795125)
-[prim 算法核心思路](https://www.bilibili.com/cheese/play/ep2795126)
-[prim 算法流程](https://www.bilibili.com/cheese/play/ep2795127)
-
-选择题
-[12#8](https://csgraduates.com/study_methods/408quiz/2012/#8)
-[15#6](https://csgraduates.com/study_methods/408quiz/2015/#6)
-[20#7](https://csgraduates.com/study_methods/408quiz/2020/#7)
-[23#6](https://csgraduates.com/study_methods/408quiz/2023/#6)
-
-解答题
-[17#42](https://csgraduates.com/study_methods/408quiz/2017/#42)
-[18#42](https://csgraduates.com/study_methods/408quiz/2018/#42)
+> **真题考察**
+> - 选择题：2012 年第 8 题、2015 年第 6 题、2020 年第 7 题、2023 年第 6 题
+> - 解答题：2017 年第 42 题、2018 年第 42 题
 
 最小生成树（**Minimum Spanning Tree**，**MST**）是在一个连接所有顶点的无向图中，通过选择一部分边而形成的树，使得树的总权重（或成本）最小。
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-003.svg" alt={"6 5 9 9 9 3 2 2 8 9 9 8 7 4 6 1 3 9 10 20 5"} />
 
-准确的 **MST** 定义如下：在无向图
-$G=(V,E)$
-中，
-(u,v)
-代表连接顶点
-$u$
-和顶点
-$v$
-的边，而
-$w(u,v)$
-代表此边的权重，若存在
-$T$
-为
-$E$
-的子集且
-(V,T)
-为树，使得
-$w(T)=\sum_{(u,v)\in T}w(u,v)$
-最小，则此
-$T$
-为
-$G$
-的 **最小生成树**。
+更正式地说，设连通无向带权图为 $G=(V,E)$，若 $T\subseteq E$ 使子图 $(V,T)$ 连通且无环，则 $(V,T)$ 是 $G$ 的一棵生成树。其总权重为
+
+$$
+w(T)=\sum_{(u,v)\in T}w(u,v).
+$$
+
+在所有生成树中使 $w(T)$ 最小者称为**最小生成树**。若边权存在相同值，最小生成树可能不唯一，但最小总权重相同。
 
 **MST** 满足以下特点：
 
@@ -255,11 +208,11 @@ $G$
 - 通过选择一些边而形成一个树结构，没有环路。
 - 边的总权重最小。
 
-#### prim 算法
+#### Prim 算法
 
 Prim 算法通过 **逐步扩展顶点集合** 来构建最小生成树：从一个初始顶点出发，每次都选择一条 **连接生成树与外部顶点的最小权重边**，并将该顶点并入生成树，直到所有顶点都被包含。
 
-**prim 算法步骤** 如下：
+**Prim 算法步骤** 如下：
 
 1. 选定一个起始顶点作为生成树的根。
 2. 初始化生成树，只含有该顶点。
@@ -267,9 +220,9 @@ Prim 算法通过 **逐步扩展顶点集合** 来构建最小生成树：从一
 4. 重复步骤 3，直到所有顶点均被纳入生成树。
 5. 得到的生成树即为原图的 **最小生成树**。
 
-补充
+> **补充：**
 
-prim 是一种 **贪心算法**，这里关键在于理解什么叫做 **所有连接生成树与未加入顶点的边**：
+Prim 是一种**贪心算法**，这里关键在于理解什么叫做 **所有连接生成树与未加入顶点的边**：
 
 当我们已经有一个部分生成树（初始时只有一个顶点），它把图中的顶点分成两类：
 
@@ -322,24 +275,9 @@ Prim 算法的贪心思想就在这里：每次都从这组横切边里挑出一
 
 ### 最短路径
 
-真题
-5
-
-视频讲解
-3
-
-[dijkstra 核心思路](https://www.bilibili.com/cheese/play/ep2795147)
-[dijkstra 例子](https://www.bilibili.com/cheese/play/ep2795153)
-[dijkstra 算法背后原理](https://www.bilibili.com/cheese/play/ep2795154)
-
-选择题
-[12#7](https://csgraduates.com/study_methods/408quiz/2012/#7)
-[16#8](https://csgraduates.com/study_methods/408quiz/2016/#8)
-[21#8](https://csgraduates.com/study_methods/408quiz/2021/#8)
-
-解答题
-[09#41](https://csgraduates.com/study_methods/408quiz/2009/#41)
-[14#42](https://csgraduates.com/study_methods/408quiz/2014/#42)
+> **真题考察**
+> - 选择题：2012 年第 7 题、2016 年第 8 题、2021 年第 8 题
+> - 解答题：2009 年第 41 题、2014 年第 42 题
 
 #### dijkstra 算法
 
@@ -353,25 +291,16 @@ Dijkstra 算法是一种 **贪心算法**。它的 **核心思想** 是：从起
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-010.svg" alt={"DijkstraDemo"} />
 
-补充
+> **Prim 与 Dijkstra 的联系：** 两者都采用“已确定集合逐步扩展”的贪心框架，但判定标准不同。Prim 选择的是连接生成树与未选顶点的最小权边；Dijkstra 选择的是当前从源点出发的最短暂定距离。
 
-prim 算法和 dijkstra 算法的核心步骤十分类似：
-
-- 两个算法都用一个集合（已确定的顶点集合）逐步扩展。
-- 每次都要在“已选顶点集合”与“未选顶点集合”之间，挑选一个“最优”的候选顶点加入集合。
-
-但是 prim 比较的是比较的是 **边的权重**（只看与生成树相连的边），dijkstra 比较的是 **从源点出发的路径长度**（边的累计权重）。
-
-🛠️ dijkstra 算法需要定义以下 数据结构
-：
+Dijkstra 的顺序数组实现通常维护以下数据结构：
 
 - `dist[]`：数组，`dist[v]` 表示起点到节点 `v` 的 **当前已知最短路径长度**。
   - 初始化时：`dist[source] = 0`，其余节点均为 `∞`。
 - `visited[]`：布尔数组，表示某个节点的最短路径是否已经被最终确定。
   - 初始时：所有节点均为 `false`。
 
-✨ dijkstra 算法流程
-  如下：
+算法流程如下：
 
 1. **初始化**
    - 设起点为 `source`。
@@ -398,7 +327,7 @@ Dijkstra 算法流程可以通过以下流程图理解：
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-011.svg" alt={"DijkstraAlgorithm"} />
 
-Dijkstra 的考察侧重于手工模拟其过程，代码实现一般不会考察，这里给出算法的简单 **伪代码实现**，帮助各位理清其中的处理细节。
+Dijkstra 的考察侧重于手工模拟其过程，代码实现一般不会考察，这里给出算法的简单 **伪代码实现**，用于说明其中的处理细节。
 ```
 function Dijkstra_Simple(Graph, source):
     对于图中每个顶点 v:
@@ -419,89 +348,47 @@ function Dijkstra_Simple(Graph, source):
 ```
 
 假设图中有
-$V$
-个顶点、
-$E$
+$V$个顶点、$E$
 条边，则：
 
-- 若采用 **顺序数组** 实现，每次都需要在线性时间内寻找距离最小的顶点，时间复杂度为 **O(V2)**。
-- 若采用 **优先队列（二叉堆）** 实现，则每次取出距离最小的顶点和更新距离的代价均为 **O(logV)**，因此算法的时间复杂度为 **O((V+E)logV)**。
+- 若采用 **顺序数组** 实现，每次都需要在线性时间内寻找距离最小的顶点，时间复杂度为 $O(V^2)$。
+- 若采用 **优先队列（二叉堆）** 实现，则每次取出距离最小的顶点和更新距离的代价均为 $O(\log V)$，因此使用邻接表与二叉堆时常写作 $O((V+E)\log V)$。
 
-考研中一般只要求掌握 **顺序数组实现** 的 Dijkstra 算法，而实际工程中通常采用 **优先队列（二叉堆）** 实现，以获得更高的运行效率。
+复习时既要会手工执行顺序数组版本，也应理解使用邻接表与优先队列后复杂度为何能够降低。
 
-#### floyd 算法
+#### Floyd-Warshall 算法
 
-**Floyd Warshall** 是一种基于 **动态规划** 的方法，用于求解任意两个顶点之间的最短路径，它适用于带权有向图。
+Floyd-Warshall 是基于动态规划的**全源最短路径**算法，可用于有向图或无向图。它允许出现负权边，但若图中存在可达的负权环，则相关顶点对之间不存在有限最短路径。
 
-该算法的核心思想是尝试使用每一个顶点作为中转点，逐步更新所有顶点对之间的最短路径。对任意两点
-i→j
-，判断是否可以通过一个中间点
-$k$
-得到更短路径：
+设 `dist[i][j]` 为当前允许某些中间顶点时从 $i$ 到 $j$ 的最短距离。引入中间顶点 $k$ 时执行状态转移：
 
-dist[i][j]=min(dist[i][j],dist[i][k]+dist[k][j])
+$$
+dist[i][j]=\min\bigl(dist[i][j],\ dist[i][k]+dist[k][j]\bigr).
+$$
 
-这个过程会遍历所有可能的中转点
-$k$
-，不断优化路径。
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt={"Floyd-Warshall 逐步引入中间顶点"} />
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt={"图示"} />
+```c
+for (int k = 0; k < n; ++k)
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            if (dist[i][k] != INF && dist[k][j] != INF)
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+```
 
-✨ 算法具体流程如下：
-
-1. **初始化距离矩阵** `dist`：
-
-   - `dist[i][j] = 0`（若 `i=j`）
-   - `dist[i][j] = 边权`（若 `i→j` 有边）
-   - `dist[i][j] = ∞`（其余情况）
-2. **三重循环更新最短路径**
-
-   ```
-   for k in 所有顶点:
-       for i in 所有顶点:
-           for j in 所有顶点:
-               if dist[i][k] + dist[k][j] < dist[i][j]:
-                   dist[i][j] ← dist[i][k] + dist[k][j]
-   ```
-3. **输出 dist 矩阵** ：表示所有顶点对之间的最短路径长度。
-
-若顶点数为
-$n$
-，则 **Floyd Warshall** 算法的时间复杂度为
-$O(n^3)$
-，该算法适合在算法题中兜底使用，因为实现比较简单，建议大家熟练掌握代码实现。
+时间复杂度为 $O(n^3)$，若直接保存距离矩阵，空间复杂度为 $O(n^2)$。
 
 ### 拓扑排序
 
-真题
-7
-[知识点](https://csgraduates.com/data_structure/basic/alg_design/#%e6%8b%93%e6%89%91%e6%8e%92%e5%ba%8f "跳转到「拓扑排序」知识点介绍")
-视频讲解
-4
-
-[AOV网的概念](https://www.bilibili.com/cheese/play/ep2795156)
-[拓扑排序的概念](https://www.bilibili.com/cheese/play/ep2795155)
-[拓扑排序khan算法](https://www.bilibili.com/cheese/play/ep2795158)
-[拓扑序列 DFS+栈 解法](https://www.bilibili.com/cheese/play/ep2795157)
-
-选择题
-[10#8](https://csgraduates.com/study_methods/408quiz/2010/#8)
-[12#6](https://csgraduates.com/study_methods/408quiz/2012/#6)
-[14#7](https://csgraduates.com/study_methods/408quiz/2014/#7)
-[16#7](https://csgraduates.com/study_methods/408quiz/2016/#7)
-[18#7](https://csgraduates.com/study_methods/408quiz/2018/#7)
-[21#7](https://csgraduates.com/study_methods/408quiz/2021/#7)
-
-解答题
-[24#41](https://csgraduates.com/study_methods/408quiz/2024/#41)
+> **真题考察**
+> - 选择题：2010 年第 8 题、2012 年第 6 题、2014 年第 7 题、2016 年第 7 题、2018 年第 7 题、2021 年第 7 题
+> - 解答题：2024 年第 41 题
 
 **拓扑排序** 这样一种对图中顶点的排序方式：
 
 > 将图中的所有顶点排序，使得对于每一条有向边 `u` → `v`，顶点 `u` 都排在 `v` 之前。
 
-**拓扑排序** 主要应用于 **DAG**（有向无环图）或 **AOV** 网，这种图没有环路，因此可以对其进行拓扑排序。
-
-首先需要区分 **AOV** 和 **AOE** 这两个概念，注意 **拓扑排序** 适用于 **AOV**，**关键路径** 适用于 **AOE**。
+拓扑排序的适用对象是 **DAG（有向无环图）**。AOV 网是最典型的应用；AOE 网本身同样是 DAG，计算关键路径时也需要先获得拓扑序。
 
 #### AOV 网
 
@@ -522,7 +409,7 @@ Kahn算法
 3. 重复步骤 1 和步骤 2，直到所有的顶点都被加入到拓扑排序的结果序列中，或者发现图中存在环路。
 4. 如果所有的顶点都被成功加入结果序列，那么这个序列就是拓扑排序的结果。
 
-下图展示了一个采用 **Kahn** 算法输出 **AOE** 网中的 **拓扑序列** 的实例：
+下图展示了一个采用 **Kahn** 算法输出 DAG 拓扑序列的实例：
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-014.svg" alt={"1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5"} />
 
@@ -532,21 +419,15 @@ DFS + 栈
 
 1. 对图进行深度优先遍历。
 2. 每个节点 **DFS** 结束后将其压入栈中。
-3. 最后将栈中元素逆序输出，就是 **拓扑排序** 结果。
+3. 顶点完成 DFS 后入栈，最后按**出栈顺序**输出即可得到拓扑序；若还要判断是否有环，需要额外维护递归栈/颜色状态。
 
 <InlineSvg src="/images/data-structure/data-structure-graph-operation-015.svg" alt={"topological_sort_dfs"} />
 
-**DFS** 过程中，每个节点在其所有后继节点访问完成后才被加入栈中，因此栈中元素的逆序正好满足 **拓扑排序** 所需的“前驱先于后继”的约束。
+**DFS** 中，结点在所有后继处理完成后入栈，因此后完成的前驱会位于栈顶方向，按出栈顺序即可满足“前驱先于后继”。
 
 ---
 
-**拓扑排序** 的时间复杂度通常为
-$O(V+E)$
-，其中
-$V$
-是顶点的数量，
-$E$
-是边的数量。这个算法非常适合于解决任务调度和依赖关系问题，因为它可以确定任务的执行顺序或依赖关系的合理性。
+使用邻接表并维护入度时，Kahn 算法与 DFS 拓扑排序的时间复杂度均为 $O(V+E)$，其中 $V$ 为顶点数，$E$ 为边数。
 
 关于拓扑排序，还需要关注以下几点：
 
@@ -555,184 +436,53 @@ $E$
 
 ### 关键路径
 
-真题
-6
+关键路径用于分析 **AOE（Activity On Edge）网**的工程工期。AOE 网是带权 DAG：顶点表示事件，边表示活动，边权表示活动持续时间。若原图存在多个源点或汇点，可以添加持续时间为 0 的超级源点/汇点统一处理。
 
-视频讲解
-6
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-016.svg" alt={"AOE 网：事件与活动示意"} />
 
-[AOE网的概念](https://www.bilibili.com/cheese/play/ep2795159)
-[关键路径的概念](https://www.bilibili.com/cheese/play/ep2795160)
-[事件的发生时间的概念](https://www.bilibili.com/cheese/play/ep2795171)
-[关键路径的标准解法](https://www.bilibili.com/cheese/play/ep2795172)
-[关键路径的求解例子](https://www.bilibili.com/cheese/play/ep2795173)
-[考试中的快速关键路径求解方案](https://www.bilibili.com/cheese/play/ep2795174)
+对事件 $v_i$ 定义：
 
-选择题
-[13#9](https://csgraduates.com/study_methods/408quiz/2013/#9)
-[19#5](https://csgraduates.com/study_methods/408quiz/2019/#5)
-[20#8](https://csgraduates.com/study_methods/408quiz/2020/#8)
-[22#7](https://csgraduates.com/study_methods/408quiz/2022/#7)
+- $ve(i)$：事件的最早发生时间；
+- $vl(i)$：在不延误总工期的前提下，事件的最迟发生时间。
 
-解答题
-[11#41](https://csgraduates.com/study_methods/408quiz/2011/#41)
-[25#42](https://csgraduates.com/study_methods/408quiz/2025/#42)
+按拓扑序正向计算：
 
-**关键路径** 是指 **AOE** 网（Activity On Edge Network）中，从源点到汇点所经过的 **最长路径**。这条路径决定了整个项目完成所需的最短时间，因此被称为 **关键** 路径。
+$$
+ve(j)=\max_{(i,j)\in E}\left\{ve(i)+w(i,j)\right\}.
+$$
 
-#### AOE 网
+按逆拓扑序反向计算：
 
-**AOE**（Activity on Edge Network）网是一种以边表示活动或任务的网络模型。每条边代表一个任务或活动，而顶点通常表示事件，表示任务的开始或完成时间。
+$$
+vl(i)=\min_{(i,j)\in E}\left\{vl(j)-w(i,j)\right\}.
+$$
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-016.svg" alt={"AOE_Network"} />
+对活动 $a_k=\langle i,j\rangle$，若持续时间为 $d=w(i,j)$，则其最早开始时间和最迟开始时间分别为
 
-为了理解 **关键路径**，首先需要明确 **AOE** 网中的以下概念：
+$$
+e(k)=ve(i),\qquad l(k)=vl(j)-d.
+$$
 
-- **源点**：在 **AOE** 网中仅有一个入度为
-  0
-  的顶点，称为开始顶点，表示整个工程的开始。
-- **汇点**：在 **AOE** 网中仅有一个出度为
-  0
-  的顶点，称为结束结点，表示整个工程的结束。
-- **关键路径的长度**：完成整个工程的最短时间，也是 **AOE** 网中从源点到汇点的 **最长路径**。
-- **关键活动**：**关键路径** 上的活动。
-- **活动的时间余量**：某个活动可以被延迟的最大时间，而不会影响整个项目的最短完成时间（总工期）。
-- `ve(k)`：事件
-  $vk$
-  的最早可以发生时间。
-- `vl(k)`：事件
-  $vk$
-  的最晚可以发生时间。
+活动余量为
 
-有几个概念比较重要，还需要进行进一步的阐述：
+$$
+l(k)-e(k).
+$$
 
-事件和活动
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-017.svg" alt={"AOE 网中活动的最早开始、最迟开始与时间余量"} />
 
-在 **AOE** 网中，**边代表活动（Activity）**，**顶点代表事件（Event）**。
+当且仅当 $e(k)=l(k)$ 时，该活动为**关键活动**。从源点到汇点由关键活动组成的路径称为**关键路径**，其长度等于工程的最短完工时间。
 
-- **活动（边）**：表示一个具体的工作、任务或操作，具有确定的持续时间。一个活动必须在其起点事件“发生”之后才能开始。
-- **事件（顶点）**：表示一个时间点，通常是某些活动的“开始”或“结束”条件已经满足，代表某种逻辑上的时刻状态。
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-018.svg" alt={"关键活动与关键路径示意"} />
 
-通俗来讲：**活动是“做某事”，事件是“可以开始做某事的时间点”**
+> **易错点：** 只判断活动两端事件是否都满足 $ve=vl$ 并不够，关键活动应直接根据 $e(k)=l(k)$ 判定。
 
-事件的发生时间
-
-在 **AOE** 网中，一个事件的“发生”是指其**所有前驱活动都已完成**，这标志着“条件成熟”，从该事件出发的活动才可能被启动。
-
-**两个关键时间**：
-
-| 时间名称 | 含义 | 数学符号 |
-| --- | --- | --- |
-| **最早发生时间** | 某事件最早可以发生的时间 | `ve(i)` |
-| **最晚发生时间** | 某事件最晚必须发生的时间（不影响工期） | `vl(i)` |
-
-**事件发生的判断逻辑**：
-
-一个事件是否可以发生，不看它的出边活动，而是看**它的所有前驱活动（入边）是否完成**：
-
-- 若某事件 `i` 的所有进入活动（任务）都已完成 → 则事件 `i` 发生；
-- 一旦事件 `i` 发生，其所有出边活动 **可以开始**，但 **不必须同时开始**；
-- 出边活动的实际开始时间取决于它们自身的调度灵活性（浮动时间）。
-
-活动时间余量
-
-“活动的时间余量” 在 **AOE** 网中指的是：
-
-**一个活动可以被延迟的最大时间**，而不会影响整个项目的最短完成时间（总工期）。
-
-首先，为什么要有时间余量呢？因为在 **AOE** 网络中，不是所有活动都在 **关键路径** 上。
-
-- **关键路径上的活动**：必须准时进行，**没有时间余量**（余量 = 0）
-- **非关键路径上的活动**：允许适当延迟，但必须不阻碍项目的最晚结束时间
-
-时间余量可以通过以下数学公式计算：
-
-对于一个活动
-$A(i→j)$
-，持续时间为
-dij​
-，其时间余量：
-
-$\text{时间余量}=v_l(j)-v_e(i)-d_{ij}$
-
-其中：
-
-- ve(i)
-  ：起点事件 i 的最早发生时间
-- vl(j)
-  ：终点事件 j 的最晚发生时间
-- dij​
-  ：活动持续时间
-
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-017.svg" alt={"AOE网络中的活动时间余量 V1 0/0 Vi ve(i) Vj vl(j) Vn T/T 关键路径（余量=0） A(i→j) dij 时间余量计算公式 时间余量 = vl(j) - ve(i) - dij • ve(i)：事件i的最早发生时间 • vl(j)：事件j的最晚发生时间 • dij：活动A(i→j)的持续时间 • 关键路径上的活动：时间余量 = 0 示例计算 假设：ve(i) = 5天，vl(j) = 12天，dij = 3天 时间余量 = 12 - 5 - 3 "} />
-
-关键路径和活动
-
-**关键路径** 上的所有活动都是 **关键活动**，它是决定整个工程的关键因素，因此可通过加快关键活动来缩短整个工程的工期。
-
-**关键路径和关键活动具有以下典型特征**：
-
-1. **关键活动的时间余量为 0**：即对某活动
-   $A(i→j)$
-   有
-
-   vl(j)−ve(i)−dij​=0
-
-   说明该活动不能被延迟任何时间，否则将影响总工期。
-2. **关键活动连接的事件满足**：
-
-   ve(i)=vl(i)且ve(j)=vl(j)
-
-   即活动的起点和终点事件的最早发生时间等于最晚发生时间。它们必须在确定的时间点发生，不能提前也不能推迟。
-3. **关键路径是工程中的最长路径**：它决定了整个项目从开始到结束所需的最短时间，也即项目总工期。
-4. **关键路径可能有多条**：若多个路径的总时长都等于项目的最短完成时间，这些路径上的活动都必须受到严格监控。
-
-#### 算法步骤
-
-求解 **关键路径** 的 **核心思路** 在于找到所有 **最早发生时间** 和 **最晚发生时间** 相同的结点，连接这些结点即可得到关键路径。
-
-所以在求关键路径的算法中，我们需要依次计算每个顶点的最早发生时间（`ve`）和最晚发生时间（`vl`），然后判断哪些顶点的 `ve` 和 `vl` 相等。
-
-为了得到关键路径，需要分三步计算：
-
-**1. 计算最早发生时间 `ve`**
-
-- 从 **源点** 出发，设 `ve(start) = 0`；
-- 按照 **拓扑排序** 的顺序依次计算其他顶点的最早发生时间：
-
-$$ve(k)=\max_{v_j\in\operatorname{Pred}(v_k)}\{ve(j)+\operatorname{weight}(v_j,v_k)\}$$
-
-其中
-Pred(vk​)
-表示 $v_k$ 的所有前驱结点。
-**含义**：顶点 $v_k$ 的最早开始时间，取决于它所有前驱活动完成的最晚时间。
-
-**2. 计算最迟发生时间 `vl`**
-
-- 从 **汇点** 出发，设 `vl(end) = ve(end)`；
-- 按照 **逆拓扑排序** 的顺序依次计算其余顶点的最迟发生时间：
-
-$$vl(k)=\min_{v_j\in\operatorname{Succ}(v_k)}\{vl(j)-\operatorname{weight}(v_k,v_j)\}$$
-
-其中
-Succ(vk​)
-表示 $v_k$ 的所有后继结点。
-**含义**：顶点 $v_k$ 的最迟开始时间，取决于它所有后继活动最早开始的最早约束。
-
-**3. 确定关键路径**
-
-- 若某个顶点满足 `ve(i) = vl(i)`，则说明该顶点没有时间浮动，必须严格按时发生；
-- 将这些顶点按拓扑顺序连接起来，得到关键路径。
-
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-018.svg" alt={"CriticalPath"} />
+> **真题考察：** AOE 综合题通常按“拓扑序 → $ve$ → $vl$ → 活动 $e/l$ → 关键活动/关键路径”的顺序计算。
 
 ### 用图表达树
 
-真题
-1
-
-选择题
-[19#6](https://csgraduates.com/study_methods/408quiz/2019/#6)
+> **真题考察**
+> - 选择题：2019 年第 6 题
 
 当表达式中存在共享的子表达式时，二叉树可能不是存储这些表达式的最有效方式，因为它会重复存储共享的子表达式。在这种情况下，可以使用 **有向无环图**（**DAG**）来表示表达式，这样可以避免重复，并且更有效地表示表达式。
 

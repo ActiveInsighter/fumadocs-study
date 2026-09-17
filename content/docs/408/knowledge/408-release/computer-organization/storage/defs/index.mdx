@@ -2,35 +2,13 @@
 title: "存储系统"
 ---
 
-⭐
-中优先级
-
+> **复习优先级：中。**
 存储器的概念经常在选择题中考察，需要了解常见存储器的类型和特点，在选择题中看见相关名词能够辨识选出正确答案。
 
-真题
-6
-
-视频讲解
-10
-
-[存储系统结构层次](https://www.bilibili.com/cheese/play/ep2793243)
-[RAM概念和SRAM](https://www.bilibili.com/cheese/play/ep2793244)
-[DRAM阵列存储结构](https://www.bilibili.com/cheese/play/ep2793352)
-[DRAM刷新](https://www.bilibili.com/cheese/play/ep2793359)
-[ROM对比RAM](https://www.bilibili.com/cheese/play/ep2793360)
-[ROM类型](https://www.bilibili.com/cheese/play/ep2793362)
-[单体多字存储器](https://www.bilibili.com/cheese/play/ep2793144)
-[多体交叉存储器](https://www.bilibili.com/cheese/play/ep2793145)
-[低位交叉编址](https://www.bilibili.com/cheese/play/ep2793143)
-[高位交叉编址](https://www.bilibili.com/cheese/play/ep2793149)
-
-选择题
-[10#16](https://csgraduates.com/study_methods/408quiz/2010/#16)
-[10#22](https://csgraduates.com/study_methods/408quiz/2010/#22)
-[11#14](https://csgraduates.com/study_methods/408quiz/2011/#14)
-[11#15](https://csgraduates.com/study_methods/408quiz/2011/#15)
-[15#17](https://csgraduates.com/study_methods/408quiz/2015/#17)
-[26#15](https://csgraduates.com/study_methods/408quiz/2026/#15)
+> **真题考察**
+> - 选择题：2010 年第 16 题、2010 年第 22 题、2011 年第 14 题、2011 年第 15 题、2015 年第 17 题、2026 年第 15 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ### 存储系统的层次结构
 
@@ -139,8 +117,7 @@ DRAM 中：
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-006.svg" alt={"1 位平面 0 (LSB) 0 1 1 位平面 3 (MSB) 行地址 (Row) 列地址 (Col) Cell (存储单元) 物理存储的最小单位 仅存储 1 bit Bit Plane (位平面) 独立的二维 Cell 阵列 负责该地址的其中 1 bit Addressable Location (可寻址地址) 同一 (行, 列) 在各位平面中的 Cell 被同时选中并组合成一次访问的数据 1 1 0 1 bit3 bit2 bit1 bit0 1 个地址 → 4 bit "} />
 
-注意
-
+**注意**
 需要区分两个概念：
 
 - **Cell（存储单元）**：物理存储的最小单位，只能存储 **1 bit**。
@@ -171,8 +148,7 @@ $$
 
 位。
 
-注意
-
+**注意**
 这里的 **行地址（Row Address）** 和 **列地址（Column Address）** 是 **DRAM 芯片内部** 用于定位数据的位置，并不是 CPU 发出的主存地址。
 
 CPU 访问的是整个主存空间中的 **物理地址**，而 **内存控制器** 会将该地址转换为 DRAM 内部使用的行地址和列地址，再完成数据访问。因此，教材中讨论 DRAM 时通常只关注 **DRAM 内部的地址组织方式**，而不涉及 CPU 地址到 DRAM 地址的映射过程。
@@ -365,7 +341,7 @@ DRAM 常见的刷新方式包括：
 - 但一般不能像 RAM 一样随时写入数据。
 - 某些现代 ROM（如 EPROM、EEPROM、Flash）虽然支持重新编程，但写入通常需要专门的硬件、电压或擦除操作，写入速度也远低于 RAM。
 
-因此，现代教材中的 **ROM** 更准确地理解为 **非易失性存储器**，而不是绝对不能写入的存储器。
+因此，现代教材中的 **ROM** 不应机械理解为“绝对不能写入”。EPROM、EEPROM、Flash 等都属于可重新编程的非易失性存储技术，但“ROM”也不能与所有 **NVM（非易失性存储器）** 完全等同。
 
 ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入硬件中的底层程序，负责设备初始化和基本控制。例如：
 
@@ -459,9 +435,8 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 可以，加一个 Note，这也是很多教材容易让初学者困惑的地方。
 
-注意
-
-在现代计算机体系结构中，**ROM（Read-Only Memory）已经不再表示"绝对不能写"的存储器**，而是泛指**非易失性（Non-Volatile Memory，NVM）**，即断电后仍能保存数据的存储器。
+**注意**
+在现代计算机中，**ROM（Read-Only Memory）** 通常指以非易失保存固件或固定内容为主要用途的一类存储器。部分 ROM 技术允许擦除和重写，因此“只读”更多描述其典型使用方式，而不是所有器件都物理上不可写。ROM 属于非易失性存储器的一部分，但并不等同于全部 NVM。
 
 从历史上看，最早的 ROM 在制造完成后内容便固定，用户无法修改，因此称为 **Read-Only Memory**。后来出现了 **PROM、EPROM、EEPROM**，以及今天广泛使用的 **Flash Memory**，它们都能够重新写入数据，只是写入速度较慢、需要特殊的擦除操作（按字节或按块擦除），因此仍然沿用了 **ROM** 这一名称。
 
@@ -484,8 +459,7 @@ ROM 最典型的用途是存储 **固件（Firmware）**。固件是直接嵌入
 
 需要注意，**CD-ROM 属于外存（辅助存储器）**，而前面介绍的 MROM、PROM、EPROM、EEPROM、Flash 都属于 **半导体 ROM**。
 
-注意
-
+**注意**
 1. **ROM 属于非易失性存储器，RAM 属于易失性存储器。**
 2. **ROM 和 RAM 都支持随机存取，不要把 ROM 理解成顺序访问。**
 3. **Flash Memory 属于 ROM，是现代应用最广泛的非易失性存储器。**

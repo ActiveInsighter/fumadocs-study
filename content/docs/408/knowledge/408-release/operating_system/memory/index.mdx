@@ -1,64 +1,15 @@
 ---
 title: "内存管理"
+description: "内存分配、地址转换、分页与虚拟内存。"
 ---
 
-# 内存管理
+内存管理解决三个核心问题：**程序的地址放在哪里、逻辑地址如何转换为物理地址、物理内存不足时如何运行更大的程序**。
 
-内容与[存储系统](https://csgraduates.com/constitution_principle/storage/)关联很大，放在一起对比复习。
+<InlineSvg src="/images/operating-system/operating-system-memory-001.svg" alt={"内存管理与虚拟内存知识框架"} />
 
-本章视频讲解
-22
-[课程介绍](https://csgraduates.com/study_methods/course/ "课程介绍")
+| 内容 | 重点 |
+| --- | --- |
+| [内存管理概念](/docs/408/knowledge/408-release/operating_system/memory/concepts/) | 连续分配、分页/分段、页表、地址转换、内存保护与共享 |
+| [虚拟内存管理](/docs/408/knowledge/408-release/operating_system/memory/management/) | 请求分页、驻留集、抖动、页框分配、页面置换算法 |
 
-本章共 **22** 节视频讲解，覆盖 **8** 个知识点。
-
-[内存管理概念](https://csgraduates.com/operating_system/memory/concepts/)
-
-内存管理方式
-[操作系统内存管理介绍](https://www.bilibili.com/cheese/play/ep2792534)
-[单一连续分配和固定分区分配](https://www.bilibili.com/cheese/play/ep2792505)
-[离散分配管理和虚拟存储器](https://www.bilibili.com/cheese/play/ep2792540)
-
-动态分区分配
-[动态分区分配流程](https://www.bilibili.com/cheese/play/ep2792503)
-[适应算法](https://www.bilibili.com/cheese/play/ep2793099)
-[动态分区分配应用场景](https://www.bilibili.com/cheese/play/ep2792486)
-
-地址翻译
-[地址翻译机构](https://www.bilibili.com/cheese/play/ep2792530)
-[地址翻译完整流程](https://www.bilibili.com/cheese/play/ep2792529)
-
-虚拟页式管理
-[虚拟页式存储器的基本概念](https://www.bilibili.com/cheese/play/ep2793096)
-[单级页表](https://www.bilibili.com/cheese/play/ep2792526)
-[多级页表的思路](https://www.bilibili.com/cheese/play/ep2792533)
-
-[虚拟内存管理](https://csgraduates.com/operating_system/memory/management/)
-
-页面置换算法
-[置换算法介绍](https://www.bilibili.com/cheese/play/ep2792542)
-[OPT](https://www.bilibili.com/cheese/play/ep2792446)
-[FIFO 和 Belady](https://www.bilibili.com/cheese/play/ep2792440)
-
-Belady异常
-[FIFO 和 Belady](https://www.bilibili.com/cheese/play/ep2792440)
-
-LRU
-[LRU 思想](https://www.bilibili.com/cheese/play/ep2792444)
-[LRU 例子](https://www.bilibili.com/cheese/play/ep2792443)
-[LRU 实现](https://www.bilibili.com/cheese/play/ep2792445)
-
-clock算法
-[Clock 思路](https://www.bilibili.com/cheese/play/ep2792418)
-[Clock 流程](https://www.bilibili.com/cheese/play/ep2792419)
-[Clock 例子](https://www.bilibili.com/cheese/play/ep2792417)
-[改进型 Clock 思路](https://www.bilibili.com/cheese/play/ep2792535)
-[改进型 Clock 流程](https://www.bilibili.com/cheese/play/ep2792536)
-
-<InlineSvg src="/images/operating-system/operating-system-memory-001.svg" alt={"基本概念：虚拟和逻辑地址，地址转换，内存共享，内存保护，内存分配和回收 连续分配管理方式 页式管理 段式管理 段页式管理 基础 基本概念 请求页式管理 页框分配 页置换算法 内存映射文件 虚拟存储器性能的影响因素和改进方法 虚拟内存 内存管理"} />
-
----
-
-##### [内存管理概念](https://csgraduates.com/operating_system/memory/concepts/)
-
-##### [虚拟内存管理](https://csgraduates.com/operating_system/memory/management/)
+> **复习提示：** 地址转换题先划分地址字段，再明确页表/TLB 中保存的是“页号到页框号”的映射；缺页后由操作系统介入，普通页表命中时不需要操作系统逐次参与。

@@ -1,23 +1,16 @@
 ---
 title: "FTP"
-description: "💡 低优先级 考查概率比较小，了解 FTP 的基本原理，以及 数据连接 和 控制连接 的功能即可。 真题 3 选择题 09 40 17 40 解答题 23 47 IMAGE\\ TOKEN\\ 0001 FTP 的传输流程如下： 1. 建立连接"
-source: "https://csgraduates.com/computer_network/application/ftp/"
+description: "FTP 工作原理以及控制连接和数据连接。"
 ---
 
-💡
-低优先级
+> **复习优先级：低。**
+重点理解 FTP 为什么需要控制连接与数据连接两条独立的 TCP 连接，以及主动/被动数据连接的建立方向。
 
-考查概率比较小，了解 FTP 的基本原理，以及 数据连接 和 控制连接 的功能即可。
-
-真题
-3
-
-选择题
-[09#40](/study_methods/408quiz/2009/#40)
-[17#40](/study_methods/408quiz/2017/#40)
-
-解答题
-[23#47](/study_methods/408quiz/2023/#47)
+> **真题考察**
+> - 选择题：2009 年第 40 题、2017 年第 40 题
+> - 解答题：2023 年第 47 题
+>
+> 真题题号用于标记考查范围；原题库与视频链接已移除。
 
 ### 工作原理
 
@@ -72,7 +65,7 @@ FTP 的传输流程如下：
 
 下图展示了 FTP 数据连接两种建立方式的区别：
 
-```
+```mermaid
 sequenceDiagram
     participant Client as 客户端
     participant Server as 服务器

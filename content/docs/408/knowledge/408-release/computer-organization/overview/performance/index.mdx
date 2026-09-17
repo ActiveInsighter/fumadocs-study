@@ -2,53 +2,36 @@
 title: "计算机性能指标"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 在选择题中会直接考查，也会在解答题间接考查，每个计算机性能指标都要深入掌握。
 
-真题
-13
-
-选择题
-[11#19](https://csgraduates.com/study_methods/408quiz/2011/#19)
-[14#12](https://csgraduates.com/study_methods/408quiz/2014/#12)
-[19#16](https://csgraduates.com/study_methods/408quiz/2019/#16)
-[20#12](https://csgraduates.com/study_methods/408quiz/2020/#12)
-[21#12](https://csgraduates.com/study_methods/408quiz/2021/#12)
-[22#12](https://csgraduates.com/study_methods/408quiz/2022/#12)
-[23#12](https://csgraduates.com/study_methods/408quiz/2023/#12)
-[25#18](https://csgraduates.com/study_methods/408quiz/2025/#18)
-
-解答题
-[09#43](https://csgraduates.com/study_methods/408quiz/2009/#43)
-[12#43](https://csgraduates.com/study_methods/408quiz/2012/#43)
-[13#43](https://csgraduates.com/study_methods/408quiz/2013/#43)
-[16#44](https://csgraduates.com/study_methods/408quiz/2016/#44)
-[18#43](https://csgraduates.com/study_methods/408quiz/2018/#43)
+> **真题考察**
+> - 选择题：2011 年第 19 题、2014 年第 12 题、2019 年第 16 题、2020 年第 12 题、2021 年第 12 题、2022 年第 12 题、2023 年第 12 题、2025 年第 18 题
+> - 解答题：2009 年第 43 题、2012 年第 43 题、2013 年第 43 题、2016 年第 44 题、2018 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 ### CPU 指标
 
 #### 时钟周期
 
-**时钟周期**（Clock Cycle）是计算机中 **CPU** 执行指令的基本时间单位，由系统时钟产生的一个“高低电平”变化（通常称为 **脉冲**）所定义。
+**时钟周期**（Clock Cycle）是同步数字电路相邻两个有效时钟边沿之间的时间间隔，通常记为 $T_{clk}$。CPU 内部大量时序逻辑都以时钟边沿为基准推进状态。
 
 计算机内部有一个 **晶体振荡器**，通常采用石英晶体，利用其压电效应产生规律的 脉冲信号
 。石英晶体在施加电压时会发生机械振动，而机械振动反过来又会产生电压。通过在电路中合理配置电容和电感元件，晶体振荡器能够在特定频率上持续振荡，形成稳定的机器脉冲源。
 
 <InlineSvg src="/images/computer-organization/computer-organization-overview-performance-001.svg" alt={"C 0 C 1 L 1 R 1"} />
 
-**原始的脉冲信号** 是一个连续的 **模拟信号**，在计算机系统中，这个模拟信号通常不会直接使用。为了适配数字电路的需要，**晶体振荡器** 产生的 **模拟信号** 会经过整形和分频电路处理，转换为方波形式的 **数字脉冲信号**，用于同步计算机中各个硬件组件的操作。**时钟脉冲信号** 的宽度，即连续两个 **脉冲** 之间的时间间隔，称为 **时钟周期**。
+**原始的脉冲信号** 是一个连续的 **模拟信号**，在计算机系统中，这个模拟信号通常不会直接使用。为了适配数字电路的需要，**晶体振荡器** 产生的 **模拟信号** 会经过整型和分频电路处理，转换为方波形式的 **数字脉冲信号**，用于同步计算机中各个硬件组件的操作。经过整形与分频后得到稳定的数字时钟。相邻两个同类型有效边沿（例如两个上升沿）之间的时间就是一个 **时钟周期**。
 
-<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-002.svg" alt={"原始连续模拟信号 离散数字信号 整形和分频"} />
+<InlineSvg src="/images/computer-organization/computer-organization-overview-performance-002.svg" alt={"原始连续模拟信号 离散数字信号 整型和分频"} />
 
-注意
-
+**注意**
 **计算机中所有的设备都使用相同的时钟周期么？**
 
 **不一定**。某些组件（如 **CPU** 和 **内存** 等）需要同步工作，但不同的设备可能使用不同的时钟周期。
 
-因此计算机内部的设备之间的同步方式可以分为 **同步** 和 **异步** 两种。**同步设备** 使用相同的时钟信号，而 **异步设备** 则使用不同的时钟信号或不使用时钟信号。
+不同部件可能处于不同的时钟域。处于同一时钟域的逻辑由统一时钟协调；跨时钟域通信则需要额外的同步、握手或缓冲机制。
 
 #### 主频
 
@@ -75,27 +58,26 @@ $$
 
 #### 指令执行指标
 
-真题
-3
-
-选择题
-[11#12](https://csgraduates.com/study_methods/408quiz/2011/#12)
-[13#12](https://csgraduates.com/study_methods/408quiz/2013/#12)
-[26#20](https://csgraduates.com/study_methods/408quiz/2026/#20)
+> **真题考察**
+> - 选择题：2011 年第 12 题、2013 年第 12 题、2026 年第 20 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **CPI**
 
-**CPI**（Cycle Per Instruction）：也称 **指令周期**，即一条指令所需要的平均 **时钟周期**。
+**CPI**（Cycles Per Instruction）表示平均每条指令需要多少个 **时钟周期**，是一个平均性能指标。CPI 与“指令周期（Instruction Cycle）”不是同一个概念：前者是统计量，后者描述一条指令从取指到执行完成的过程。
 
 下图展示了 **指令周期**、**机器周期** 和 **时钟周期** 三者的关联：
 
 <InlineSvg src="/images/computer-organization/computer-organization-overview-performance-003.svg" alt={"时钟 周期 机器周期 （取指令） 机器周期 （译码） 机器周期 （执行） 机器周期 （执行） 指令周期"} />
 
-三者具有层级关系：**时钟周期** < **机器周期** < **指令周期**。
+在传统教材模型中，可以把三者理解为不同抽象层次：
 
-- **时钟周期** 是硬件层面的最小时间单位。
-- **机器周期** 是由多个 **时钟周期** 组成，用于完成一个基本操作（如取指令、存储数据）。
-- **指令周期** 是由多个 **机器周期** 组成，用于完成一条指令的执行。
+- **时钟周期**：同步电路的基本节拍。
+- **机器周期**：完成一次相对完整的基本操作所需的时间，可能包含若干时钟周期。
+- **指令周期**：一条指令从取指到执行结束的全过程，可能包含若干机器周期。
+
+现代流水线处理器中，多条指令的不同阶段会重叠执行，因此不能简单用固定的“机器周期层层相加”来描述真实性能；性能分析通常使用指令数、CPI 与时钟频率。
 
 **IPC**
 
@@ -115,7 +97,7 @@ $$
 
 **MIPS**
 
-**MIPS**（Million Instructions Per Second）：也称 **每秒百万指令数**，即每秒能够执行 **多少个** 百万的指令。
+**MIPS**（Million Instructions Per Second）表示每秒执行多少百万条指令。它只能在指令集与程序特征相近时进行粗略比较，因为不同 ISA 的“一条指令”完成的工作量可能不同。
 
 $$
 1\mathrm{MIPS}=10^{6}\mathrm{IPS}

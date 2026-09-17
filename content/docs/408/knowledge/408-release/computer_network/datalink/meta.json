@@ -2,11 +2,11 @@
   "title": "数据链路层",
   "pages": [
     "index",
-    "dev",
+    "framing",
     "error",
     "flow_control",
-    "framing",
+    "mac",
     "lan",
-    "mac"
+    "dev"
   ]
 }

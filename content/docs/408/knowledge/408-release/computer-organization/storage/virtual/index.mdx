@@ -2,47 +2,14 @@
 title: "虚拟存储器"
 ---
 
-🔥
-高优先级
-
+> **复习优先级：高。**
 虚拟存储器 和 cache 一样重要，而且考察的方式往往是复合考察，将两者的知识融合在一起放到大题中考察，需要能够从存储系统全局看待这两者的关联。
 
-真题
-23
-[知识点](https://csgraduates.com/operating_system/memory/concepts/#%e8%99%9a%e6%8b%9f%e5%ad%98%e5%82%a8%e5%99%a8 "跳转到「虚拟页式管理」知识点介绍")
-视频讲解
-3
-
-[虚拟页式存储器的基本概念](https://www.bilibili.com/cheese/play/ep2793096)
-[单级页表](https://www.bilibili.com/cheese/play/ep2792526)
-[多级页表的思路](https://www.bilibili.com/cheese/play/ep2792533)
-
-选择题
-[12#25](https://csgraduates.com/study_methods/408quiz/2012/#25)
-[23#28](https://csgraduates.com/study_methods/408quiz/2023/#28)
-[23#30](https://csgraduates.com/study_methods/408quiz/2023/#30)
-[24#16](https://csgraduates.com/study_methods/408quiz/2024/#16)
-[24#18](https://csgraduates.com/study_methods/408quiz/2024/#18)
-[24#25](https://csgraduates.com/study_methods/408quiz/2024/#25)
-[25#23](https://csgraduates.com/study_methods/408quiz/2025/#23)
-[25#27](https://csgraduates.com/study_methods/408quiz/2025/#27)
-[26#24](https://csgraduates.com/study_methods/408quiz/2026/#24)
-[26#28](https://csgraduates.com/study_methods/408quiz/2026/#28)
-
-解答题
-[09#46](https://csgraduates.com/study_methods/408quiz/2009/#46)
-[11#44](https://csgraduates.com/study_methods/408quiz/2011/#44)
-[13#46](https://csgraduates.com/study_methods/408quiz/2013/#46)
-[14#45](https://csgraduates.com/study_methods/408quiz/2014/#45)
-[15#46](https://csgraduates.com/study_methods/408quiz/2015/#46)
-[16#45](https://csgraduates.com/study_methods/408quiz/2016/#45)
-[18#44](https://csgraduates.com/study_methods/408quiz/2018/#44)
-[19#46](https://csgraduates.com/study_methods/408quiz/2019/#46)
-[20#46](https://csgraduates.com/study_methods/408quiz/2020/#46)
-[23#43](https://csgraduates.com/study_methods/408quiz/2023/#43)
-[24#44](https://csgraduates.com/study_methods/408quiz/2024/#44)
-[24#45](https://csgraduates.com/study_methods/408quiz/2024/#45)
-[25#43](https://csgraduates.com/study_methods/408quiz/2025/#43)
+> **真题考察**
+> - 选择题：2012 年第 25 题、2023 年第 28 题、2023 年第 30 题、2024 年第 16 题、2024 年第 18 题、2024 年第 25 题、2025 年第 23 题、2025 年第 27 题、2026 年第 24 题、2026 年第 28 题
+> - 解答题：2009 年第 46 题、2011 年第 44 题、2013 年第 46 题、2014 年第 45 题、2015 年第 46 题、2016 年第 45 题、2018 年第 44 题、2019 年第 46 题、2020 年第 46 题、2023 年第 43 题、2024 年第 44 题、2024 年第 45 题、2025 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **虚拟存储器** 是一种 **计算机内存管理技术**，它在 **物理内存** 和 **磁盘存储** 之间创建了一个抽象的、扩展的内存空间，以提供更大的可用内存容量。
 
@@ -94,8 +61,7 @@ title: "虚拟存储器"
 
 在使用 **物理地址** 去访问 **物理内存** 时，我们可以根据 **物理页面号** 找到该地址所在的 **物理页面**，在找到 **物理页面** 后，我们可以根据 **页内偏移** 找到该地址在 **物理页面** 内的偏移大小。
 
-注意
-
+**注意**
 需要注意和区分一下以下几个名词，它们具有相同的含义：
 
 **虚拟页面**（Virutal Page）= **逻辑页面**（Logical Page）
@@ -133,34 +99,14 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
 
 ### 页表
 
-真题
-12
-
-视频讲解
-3
-
-[单级页表](https://www.bilibili.com/cheese/play/ep2792526)
-[单级页表的缺陷](https://www.bilibili.com/cheese/play/ep2792527)
-[多级页表的思路](https://www.bilibili.com/cheese/play/ep2792533)
-
-选择题
-[10#29](https://csgraduates.com/study_methods/408quiz/2010/#29)
-[14#28](https://csgraduates.com/study_methods/408quiz/2014/#28)
-[14#32](https://csgraduates.com/study_methods/408quiz/2014/#32)
-[19#31](https://csgraduates.com/study_methods/408quiz/2019/#31)
-[21#29](https://csgraduates.com/study_methods/408quiz/2021/#29)
-[22#15](https://csgraduates.com/study_methods/408quiz/2022/#15)
-[26#19](https://csgraduates.com/study_methods/408quiz/2026/#19)
-[26#28](https://csgraduates.com/study_methods/408quiz/2026/#28)
-
-解答题
-[13#46](https://csgraduates.com/study_methods/408quiz/2013/#46)
-[15#46](https://csgraduates.com/study_methods/408quiz/2015/#46)
-[17#45](https://csgraduates.com/study_methods/408quiz/2017/#45)
-[24#45](https://csgraduates.com/study_methods/408quiz/2024/#45)
+> **真题考察**
+> - 选择题：2010 年第 29 题、2014 年第 28 题、2014 年第 32 题、2019 年第 31 题、2021 年第 29 题、2022 年第 15 题、2026 年第 19 题、2026 年第 28 题
+> - 解答题：2013 年第 46 题、2015 年第 46 题、2017 年第 45 题、2024 年第 45 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **页表**（page table）是操作系统维护的一张表，用于将 **虚拟地址** 转化为 **物理地址**，每个运行的进程都有自己 **页表**。  
-进程的 **页表** 存储在其内存空间中的 **内核空间** 中，详见[进程内存空间](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4)。  
+进程的 **页表** 存储在其内存空间中的 **内核空间** 中，详见进程内存空间。  
 在进程执行时，MMU 使用当前活动进程的 **页表** 来执行地址转换。
 
 #### 单级页表
@@ -196,8 +142,7 @@ CPU 中的 **MMU（Memory Management Unit）** 在执行指令时，会自动根
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-008.svg" alt={"页表项（PTE）结构 Page Table Entry 物理页框号 (PPN) Physical Page Number V 有效位 D 修改位 A 访问位 Prot 保护位 Cache 缓存位 通常 20-52 位 1 位 1 位 1 位 2-3 位 1-2 位 物理页框号 指向实际物理内存中的 页框地址 有效位 1 = 页面有效 0 = 页面无效/未分配 修改位 1 = 页面已被修改 需要写回磁盘 访问位 1 = 页面已被访问 用于页面置换算法 保护位 R = 可读 W "} />
 
-注意
-
+**注意**
 需要注意的是， **页表项** 的具体结构可以因不同的计算机体系结构和操作系统而异，在做题目时根据题目的具体指示进行判断。
 
 这里主要关注 **虚拟页框号**、**物理页框号**以及 **有效位** 即可，这是大多数 **单级页表** 中都会包含的内容。
@@ -301,9 +246,9 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-013.svg" alt={"MMU地址翻译与进程切换机制 (页表基址寄存器 PTBR 的作用) 进程 A PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x1000 虚拟地址空间 0x00400000 - Code 0x00600000 - Data 进程 B PCB (task_struct) • CPU寄存器状态 • 进程ID • 优先级 • PTBR = 0x2000 虚拟地址空间 0x00400000 - Code 0x00600000 -"} />
 
-- 每个进程都有一个关键的内核数据结构，通常叫做 [PCB 进程控制块](https://csgraduates.com/operating_system/process/process_thread/#%e8%bf%9b%e7%a8%8b%e6%8e%a7%e5%88%b6%e5%9d%97)。
+- 每个进程都有一个关键的内核数据结构，通常叫做 PCB 进程控制块。
 - PCB 中保存了一个关键信息：**页表基址寄存器** 应该加载的物理地址。这个物理地址指向该进程 **顶级页表** 在物理内存中的起始位置。
-- 当操作系统进行进程 [上下文切换](https://csgraduates.com/operating_system/process/scheduling/#%e4%b8%8a%e4%b8%8b%e6%96%87%e5%88%87%e6%8d%a2) 时，它会：
+- 当操作系统进行进程 上下文切换 时，它会：
   1. 保存当前进程的CPU状态到其PCB。
   2. 将下一个进程的PCB中保存的**页表基址物理地址**加载到CR3寄存器中。
   3. 恢复下一个进程的CPU状态。
@@ -329,36 +274,17 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 ### TLB
 
-真题
-11
-
-视频讲解
-3
-
-[TLB 概念](https://www.bilibili.com/cheese/play/ep2792449)
-[TLB 和 Cache 对比](https://www.bilibili.com/cheese/play/ep2792447)
-[TLB 地址翻译过程](https://www.bilibili.com/cheese/play/ep2792448)
-
-选择题
-[14#28](https://csgraduates.com/study_methods/408quiz/2014/#28)
-[15#16](https://csgraduates.com/study_methods/408quiz/2015/#16)
-[20#15](https://csgraduates.com/study_methods/408quiz/2020/#15)
-[24#17](https://csgraduates.com/study_methods/408quiz/2024/#17)
-[26#19](https://csgraduates.com/study_methods/408quiz/2026/#19)
-[26#29](https://csgraduates.com/study_methods/408quiz/2026/#29)
-
-解答题
-[09#46](https://csgraduates.com/study_methods/408quiz/2009/#46)
-[11#44](https://csgraduates.com/study_methods/408quiz/2011/#44)
-[16#45](https://csgraduates.com/study_methods/408quiz/2016/#45)
-[18#44](https://csgraduates.com/study_methods/408quiz/2018/#44)
-[21#44](https://csgraduates.com/study_methods/408quiz/2021/#44)
+> **真题考察**
+> - 选择题：2014 年第 28 题、2015 年第 16 题、2020 年第 15 题、2024 年第 17 题、2026 年第 19 题、2026 年第 29 题
+> - 解答题：2009 年第 46 题、2011 年第 44 题、2016 年第 45 题、2018 年第 44 题、2021 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **TLB**（Translation Lookaside Buffer）是 CPU **内存管理单元**（MMU）中的一种 **高速缓存**，用于加速 **虚拟地址**（VA）到 **物理地址**（PA）的地址转换过程。TLB 存储了最近用过的 **虚拟地址** 到 **物理地址** 的映射，以减少每次内存访问时的地址翻译延迟。
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-015.svg" alt={"MMU TLB Page Table TLB 查询 VPN 返回 查询页表 更新TLB TLB 未命中时："} />
 
-由于 **页表** 存储在内存中，所以每一次通过 **页表** 的地址翻译过程都至少需要一次访存，开销仍然比较大。为降低开销，**TLB** 应运而生。与 **Cache** 类似，你可以从概念上将 **TLB** 理解成一个硬件结构，因离 **CPU** 更近，其访问速度更快。
+由于 **页表** 存储在内存中，所以每一次通过 **页表** 的地址翻译过程都至少需要一次访存，开销仍然比较大。为降低开销，**TLB** 应运而生。与 Cache 类似，**TLB** 是位于处理器地址转换路径上的高速相联存储结构，用于缓存近期使用的页表项，从而避免每次地址转换都访问主存中的页表。
 
 #### 存储结构
 
@@ -370,7 +296,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 #### TLB 和 cache 对比
 
-**TLB** 和 **页表** 的关系类似于 **cache** 与 **主存** 的关系，**TLB** 和 **cache** 都是硬件结构，只是作用场景不同。**TLB** 与 **Cache** 的区别如下表所示：
+**TLB** 和 **页表** 的关系类似于 **Cache** 与 **主存** 的关系，**TLB** 和 **Cache** 都是硬件结构，只是作用场景不同。**TLB** 与 **Cache** 的区别如下表所示：
 
 |  | **TLB** | **Cache** |
 | --- | --- | --- |
@@ -380,11 +306,11 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **TLB** 中也包含三种映射方式：**直接映射**、**全相联映射**、**组相联映射**。
 
-在访问 **TLB** 时，**虚拟地址** 中的 **虚拟页号**（VPN）被按照映射方式进行不同的切分。在访问 **cache** 时，**物理地址** 中的 **主存块号** 被按照映射方式进行不同的切分。
+在访问 **TLB** 时，**虚拟地址** 中的 **虚拟页号**（VPN）被按照映射方式进行不同的切分。在访问 **Cache** 时，**物理地址** 中的 **主存块号** 被按照映射方式进行不同的切分。
 
 两者的对比如下所示：
 
-<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-017.svg" alt={"内存块号 Tag cache 块号 Tag cache 组号 Tag 块内偏移 虚拟页号（VPN） 页内偏移 虚拟地址 物理地址 Tag TLB 行号 Tag TLB 组号 Tag 直接映射 组相联映射 全相联映射"} />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-017.svg" alt={"内存块号 Tag Cache 块号 Tag cache 组号 Tag 块内偏移 虚拟页号（VPN） 页内偏移 虚拟地址 物理地址 Tag TLB 行号 Tag TLB 组号 Tag 直接映射 组相联映射 全相联映射"} />
 
 在 **直接映射** 中，通过 **TLB** 行号去对应行的 **表项** 进行查询。
 
@@ -427,8 +353,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
   - 从磁盘调入该页
 - 是一种 **懒加载**（lazy loading）
 
-注意
-
+**注意**
 我们平时说“页式虚拟存储”，默认指的基本都是 “请求页式管理”。与请求方式相对应的，叫做预调页机制，也就是说：
 
 > 在进程运行前，提前装入一部分或全部页面。
@@ -460,8 +385,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 都可能。
 
-注意
-
+**注意**
 **如何判断访问的页面是否在物理内存中呢？**
 
 通过查询 **TLB** 和 **页表**（见 **单级页表**）以判断某个 **虚拟地址** 对应的页面是否在内存中。
@@ -479,7 +403,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 如果存在 **空闲页面**，当一个进程出现 **缺页中断** 时，直接使用 **空闲页面** 即可。
 
-如果 **物理内存** 已满，操作系统需要选择一个页面来替换。通常，操作系统会选择一个 **不再需要的页面** 进行替换，这个决策基于 [使用的页面置换算法](https://csgraduates.com/operating_system/memory/management/#%e9%a1%b5%e7%bd%ae%e6%8d%a2%e7%ae%97%e6%b3%95)。
+如果 **物理内存** 已满，操作系统需要选择一个页面来替换。通常，操作系统会选择一个 **不再需要的页面** 进行替换，这个决策基于 使用的页面置换算法。
 
 如果操作系统中配置了 **交换分区**（swap area），被置换的页面会被写入 **交换分区**；当该页面再次被需要时，页面会从 **交换分区** 中加载回 **物理内存**。
 
@@ -491,21 +415,11 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 ### 访存过程
 
-真题
-3
-
-视频讲解
-2
-
-[访存流程](https://www.bilibili.com/cheese/play/ep2793098)
-[物理地址访问完整流程](https://www.bilibili.com/cheese/play/ep2792538)
-
-选择题
-[10#17](https://csgraduates.com/study_methods/408quiz/2010/#17)
-[20#28](https://csgraduates.com/study_methods/408quiz/2020/#28)
-
-解答题
-[20#44](https://csgraduates.com/study_methods/408quiz/2020/#44)
+> **真题考察**
+> - 选择题：2010 年第 17 题、2020 年第 28 题
+> - 解答题：2020 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 对于进程而言，它自己可见的就是 **虚拟地址**（VA），当进程访问 **虚拟地址** 时，实际上是对某个 **物理地址** 进行访问。
 
@@ -514,7 +428,7 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 **访存** 主要包含两大过程：
 
 1. **地址翻译**：VPN → PPN，即由 **虚拟地址**（VA）得到 **物理地址**（PA）的过程。
-2. 根据 **物理地址**（PA）去 **cache** 或 **主存** 中读取数据。
+2. 根据 **物理地址**（PA）去 **Cache** 或 **主存** 中读取数据。
 
 需要熟练掌握这两大过程中的各种细节，考试中常将这些知识点组合考察。
 
@@ -538,21 +452,11 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 ##### 缺页中断
 
-真题
-9
-
-选择题
-[11#28](https://csgraduates.com/study_methods/408quiz/2011/#28)
-[12#28](https://csgraduates.com/study_methods/408quiz/2012/#28)
-[13#30](https://csgraduates.com/study_methods/408quiz/2013/#30)
-[19#14](https://csgraduates.com/study_methods/408quiz/2019/#14)
-[22#29](https://csgraduates.com/study_methods/408quiz/2022/#29)
-
-解答题
-[14#45](https://csgraduates.com/study_methods/408quiz/2014/#45)
-[23#44](https://csgraduates.com/study_methods/408quiz/2023/#44)
-[24#45](https://csgraduates.com/study_methods/408quiz/2024/#45)
-[25#43](https://csgraduates.com/study_methods/408quiz/2025/#43)
+> **真题考察**
+> - 选择题：2011 年第 28 题、2012 年第 28 题、2013 年第 30 题、2019 年第 14 题、2022 年第 29 题
+> - 解答题：2014 年第 45 题、2023 年第 44 题、2024 年第 45 题、2025 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 当 CPU 访问一个虚拟地址时，MMU 会根据 **VPN** 查找对应的 **页表项**（PTE）。
 
@@ -595,9 +499,9 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **访存** 过程常与 **地址翻译** 过程一起考察。进程访问一个 **虚拟地址** 时，首先完成 **地址翻译** 得到 **物理地址**，随后使用该 **物理地址** 访问内存。
 
-使用 **物理地址** 访问内存时首先判断是否命中 **cache**；若未命中，则访问 **内存**，随后更新 **cache**。在使用 **主存块** 更新 **cache 块** 的过程中，还要根据 **cache** 与 **主存** 的映射方式决定替换哪个 **cache 块**，详细过程如下图所示。
+使用 **物理地址** 访问内存时首先判断是否命中 **Cache**；若未命中，则访问 **内存**，随后更新 **Cache**。在使用 **主存块** 更新 **Cache 块** 的过程中，还要根据 **Cache** 与 **主存** 的映射方式决定替换哪个 **Cache 块**，详细过程如下图所示。
 
-<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-024.svg" alt={"开始 是否存在 valid=1 且 tag 相同的行 判断映射方式， 解析 PA 地址格式 使用 PA 去 访问主存 命中 未命中 找到 PA 对应的主存块 PA 对应的 cache 行 是否有空闲？ 更新相应的 cache 行 使用替换策略 找一个 cache 块 进行替换 访存过程 cache更新过程 结束 有空闲 无空闲 找到可能存储数据 的 cache 行 结束 更新元数据 被替换的 cache 行 dirty 位是否为 1 将 cache 块 更新到对应的主存块 Y"} />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-024.svg" alt={"开始 是否存在 valid=1 且 tag 相同的行 判断映射方式， 解析 PA 地址格式 使用 PA 去 访问主存 命中 未命中 找到 PA 对应的主存块 PA 对应的 cache 行 是否有空闲？ 更新相应的 cache 行 使用替换策略 找一个 Cache 块 进行替换 访存过程 cache更新过程 结束 有空闲 无空闲 找到可能存储数据 的 cache 行 结束 更新元数据 被替换的 cache 行 dirty 位是否为 1 将 Cache 块 更新到对应的主存块 Y"} />
 
 ---
 
@@ -607,4 +511,4 @@ MMU 进行地址翻译的时候需要使用到页表，但是每个进程的页�
 
 **虚拟地址 → TLB → （页表）? → （缺页中断）? → 物理地址 → Cache → （内存）? → （更新 Cache）?**
 
-<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-025.svg" alt={"VA TLB Page Table Page Fault PA Cache Memory R/W Cache Update 查询 TLB 未命中 查询页表 命中 页面错误 命中 未命中 访问主存 更新 cache 块 更新 TLB 后返回"} />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-025.svg" alt={"VA TLB Page Table Page Fault PA Cache Memory R/W Cache Update 查询 TLB 未命中 查询页表 命中 页面错误 命中 未命中 访问主存 更新 Cache 块 更新 TLB 后返回"} />

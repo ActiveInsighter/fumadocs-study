@@ -2,8 +2,8 @@
   "title": "树与二叉树",
   "pages": [
     "index",
-    "app",
+    "tree",
     "btree",
-    "tree"
+    "app"
   ]
 }

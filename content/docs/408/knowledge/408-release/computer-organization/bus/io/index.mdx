@@ -2,12 +2,10 @@
 title: "I/O 系统"
 ---
 
-🔥
-高优先级
+> **复习优先级：高。**
+选择题高频考点，主要两点：1. **IO 接口和端口**。2. **几种 I/O 方式的细节和区别**。
 
-选择题高频考点，主要两点：1. **IO 接口和端口**。2. **几种 IO 方式的细节和区别**。
-
-此外，在解答题中偶尔也会结合总线指标考查一些计算过程，所以需要深入了解几种 IO 方式的细节。
+此外，在解答题中偶尔也会结合总线指标考查一些计算过程，所以需要深入了解几种 I/O 方式的细节。
 
 ### 输入/输出系统
 
@@ -33,9 +31,8 @@ title: "I/O 系统"
 
 <InlineSvg src="/images/computer-organization/computer-organization-bus-io-002.svg" alt={"CPU 发出指令 / 处理数据 内存 存放程序与数据 主机 (Host) I/O 总线 地址线 · 数据线 · 控制线 I/O 接口 设备控制器 控制逻辑 · 寄存器 接口插座 物理连接端口 接口电缆 USB · SATA · HDMI · VGA ... 外设 键盘 鼠标 显示器 磁盘 打印机 主机侧 系统总线 桥接层 外部线缆 外设侧"} />
 
-补充
-
-**I/O 接口 和 设备控制器 的关系**
+**补充说明**
+**I/O 接口和设备控制器 的关系**
 
 设备控制器更强调控制逻辑与功能；**I/O 接口**更强调连接位置与通信角色。两者其实并不是严格等同，但在很多场景下它们是同一个物理实体的不同视角。可以将 **I/O 接口**视为设备控制器的一部分。
 
@@ -56,7 +53,7 @@ title: "I/O 系统"
 
 #### 硬件和软件层
 
-上文提到的是 I/O 系统的 **硬件层次**，除了硬件部分，I/O 系统还包括一系列的 **软件组件**，用以管理和调度外设资源、提供抽象接口、增强设备的可用性和通用性。主要的 [软件层次](https://csgraduates.com/operating_system/io_device/devices/#io-%e8%bd%af%e4%bb%b6%e5%b1%82%e6%ac%a1) 如下：
+上文提到的是 I/O 系统的 **硬件层次**，除了硬件部分，I/O 系统还包括一系列的 **软件组件**，用以管理和调度外设资源、提供抽象接口、增强设备的可用性和通用性。主要的 软件层次 如下：
 
 - 用户层 I/O 软件
 - 设备独立性软件
@@ -67,19 +64,10 @@ title: "I/O 系统"
 
 ### I/O 接口
 
-真题
-3
-
-视频讲解
-2
-
-[IO接口结构](https://www.bilibili.com/cheese/play/ep2794846)
-[IO端口](https://www.bilibili.com/cheese/play/ep2794847)
-
-选择题
-[14#21](https://csgraduates.com/study_methods/408quiz/2014/#21)
-[17#21](https://csgraduates.com/study_methods/408quiz/2017/#21)
-[21#20](https://csgraduates.com/study_methods/408quiz/2021/#20)
+> **真题考察**
+> - 选择题：2014 年第 21 题、2017 年第 21 题、2021 年第 20 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 #### 结构
 
@@ -179,22 +167,11 @@ OUT 0x3F8, AL    ; 将 AL 中的数据写入串口
 
 ### I/O 方式
 
-真题
-3
-
-视频讲解
-3
-
-[IO方式考点](https://www.bilibili.com/cheese/play/ep2794848)
-[程序查询方式](https://www.bilibili.com/cheese/play/ep2794849)
-[通道IO](https://www.bilibili.com/cheese/play/ep2794887)
-
-选择题
-[11#22](https://csgraduates.com/study_methods/408quiz/2011/#22)
-[23#22](https://csgraduates.com/study_methods/408quiz/2023/#22)
-
-解答题
-[18#43](https://csgraduates.com/study_methods/408quiz/2018/#43)
+> **真题考察**
+> - 选择题：2011 年第 22 题、2023 年第 22 题
+> - 解答题：2018 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 **I/O 设备的速度通常远低于 CPU**，如果 CPU 一直等待设备完成操作，将会造成大量时间浪费。
 
@@ -237,29 +214,11 @@ OUT 0x3F8, AL    ; 将 AL 中的数据写入串口
 
 #### DMA 方式
 
-真题
-9
-
-视频讲解
-4
-
-[DMA思路](https://www.bilibili.com/cheese/play/ep2794859)
-[DMA控制器](https://www.bilibili.com/cheese/play/ep2794860)
-[DMA流程](https://www.bilibili.com/cheese/play/ep2794861)
-[DMA总线使用方式](https://www.bilibili.com/cheese/play/ep2794878)
-
-选择题
-[13#22](https://csgraduates.com/study_methods/408quiz/2013/#22)
-[17#32](https://csgraduates.com/study_methods/408quiz/2017/#32)
-[19#22](https://csgraduates.com/study_methods/408quiz/2019/#22)
-[20#22](https://csgraduates.com/study_methods/408quiz/2020/#22)
-[24#22](https://csgraduates.com/study_methods/408quiz/2024/#22)
-[25#21](https://csgraduates.com/study_methods/408quiz/2025/#21)
-
-解答题
-[09#43](https://csgraduates.com/study_methods/408quiz/2009/#43)
-[12#43](https://csgraduates.com/study_methods/408quiz/2012/#43)
-[22#44](https://csgraduates.com/study_methods/408quiz/2022/#44)
+> **真题考察**
+> - 选择题：2013 年第 22 题、2017 年第 32 题、2019 年第 22 题、2020 年第 22 题、2024 年第 22 题、2025 年第 21 题
+> - 解答题：2009 年第 43 题、2012 年第 43 题、2022 年第 44 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
 
 DMA（Direct Memory Access，直接内存访问）是一种计算机系统的 I/O（输入/输出）方式，它允许 **外部设备直接与主内存交换数据**，而无需 CPU 在数据传输过程中逐次参与。
 
@@ -281,8 +240,7 @@ DMA 让数据传送直接在 **外设和内存之间** 开辟一条 **数据通�
 
 > 这意味着在 DMA 方式下，CPU 的核心计算资源几乎不受数据传输的影响。
 
-注意
-
+**注意**
 **通过 **DMA** 方式，外设和内存之间进行数据传输是否还需要经过 **CPU**?**
 
 外设写入内存时，数据“绕过了 **CPU** 的寄存器和执行单元”，但仍然必须“经过 **CPU** 芯片内部的互连与 **内存控制器**”来完成写入，整个过程由 **CPU** 授权和调度，不占用 **CPU** 核心计算资源。
@@ -324,8 +282,7 @@ while (DC > 0) {
 
 当 DC 减到 0 时，DMA 传输结束，通过一个中断告诉 CPU 传输完成。
 
-注意
-
+**注意**
 **DMA 控制器和 **CPU** 的关系**
 
 上图展示的是早期计算机系统中的一种典型实现。在传统的单总线结构中，**DMA 控制器（DMAC）** 是一个独立于 **CPU** 的硬件模块，通过系统总线连接主存和 I/O 控制器。当需要进行 DMA 传输时，DMA 控制器首先向 CPU 申请系统总线的控制权，随后接管总线，在 **I/O 接口** 与 **主存** 之间直接完成数据传输。
@@ -413,8 +370,7 @@ DMA 方式与中断 I/O 方式都采用“请求—响应”的工作机制，�
 
 <InlineSvg src="/images/computer-organization/computer-organization-bus-io-014.svg" alt={"周期挪用方式 总线分时复用 总线独占 DMA 独占总线 总线时钟周期 DMA 使用总线 CPU 使用总线"} />
 
-注意
-
+**注意**
 **CPU** 和 **DMA** 控制器哪一个对于 **总线访问的优先级更高**？
 
 当 CPU 和 DMA 都需要访问主存时，**DMA 控制器可以优先获得总线使用权**：
@@ -475,8 +431,7 @@ CPU 不负责执行这些指令，而是由 **通道** 独立解释和执行。
 | 能否管理多个设备 | 一般较弱 | ✅ 可以同时管理多个设备 |
 | 应用场景 | 微机、PC、服务器 | 大型机、高性能计算机 |
 
-注意
-
+**注意**
 四种 I/O 方式可以理解为 CPU 参与程度逐渐降低的过程：
 
 - **程序查询**：CPU 负责等待 + 数据搬运。

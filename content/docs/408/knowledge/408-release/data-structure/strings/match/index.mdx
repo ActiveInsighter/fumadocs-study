@@ -1,11 +1,10 @@
 ---
 title: "模式匹配"
+description: "朴素模式匹配、KMP、next 数组和 nextval。"
 ---
 
-⭐
-中优先级
-
-这一节要考的话其实就是 kmp 算法，会考察下 **next 数组的构建** 和 **调整位置的方式**。虽然历年考查得其实也不是很多，但是这种涉及算法的还是得多留个心眼，因为有可能在今年的大题就考查了。
+> **复习优先级：中。**
+本节重点掌握 **KMP 的失配跳转思想、next 数组构造以及 nextval 优化**，并注意不同教材的下标与数组定义可能不同。
 
 **字符串模式匹配** 是计算机科学中的基础问题，主要是在一个 **主字符串** 中查找一个 **子字符串** 模式。
 
@@ -60,37 +59,16 @@ int simplePatternMatching(const char* mainStr, const char* pattern) {
 }
 ```
 
-简单模式匹配算法的 **核心思路** 其实就是将主串中的每个字串和模式串进行对比。举个例子，主串 `abaaabc` 和模式串 `abc` 进行简单模式匹配的过程如下：
-
-![](https://csgraduates.com/images/string_simple_match.gif)
+简单模式匹配算法的**核心思路**是依次尝试主串中的每个可能起点，并与模式串逐字符比较。例如，主串 `abaaabc` 和模式串 `abc` 进行简单模式匹配的过程如下：
 
 这个简单模式匹配算法的 **时间复杂度** 是
-$O(mn)$
-，其中
-$m$
-是 **主字符串** 的长度，
-$n$
+$O(mn)$，其中$m$是 **主字符串** 的长度，$n$
 是 **模式字符串** 的长度。
 
 ### KMP 算法
 
-真题
-3
-
-视频讲解
-6
-
-[字符串匹配概念](https://www.bilibili.com/cheese/play/ep2795053)
-[简单模式匹配](https://www.bilibili.com/cheese/play/ep2795054)
-[KMP 算法思路](https://www.bilibili.com/cheese/play/ep2795065)
-[next 数组计算流程](https://www.bilibili.com/cheese/play/ep2795068)
-[next 数组位置调整过程](https://www.bilibili.com/cheese/play/ep2795069)
-[修正后的 next 数组](https://www.bilibili.com/cheese/play/ep2795081)
-
-选择题
-[15#8](https://csgraduates.com/study_methods/408quiz/2015/#8)
-[19#9](https://csgraduates.com/study_methods/408quiz/2019/#9)
-[24#6](https://csgraduates.com/study_methods/408quiz/2024/#6)
+> **真题考察**
+> - 选择题：2015 年第 8 题、2019 年第 9 题、2024 年第 6 题
 
 与 **简单模式匹配算法** 不同， **KMP 算法** 在发现不匹配的字符时能够避免不必要的比较，从而提高效率。
 
@@ -98,14 +76,14 @@ $n$
 
 **简单模式匹配** 时间复杂度过高，因为每一次匹配失败都得从下一个位置重新开始。这就没有充分应用 **模式串** 的特性，比如对于字符串 `abcdabc`，我们可以发现：
 
-- 其 **前缀** 包含`a`, `ab`, `abc`, `abcd` 等
-- 起 **后缀** 包含`c`, `bc`, `abc`, `dabc` 等
+- 其 **真前缀**（不含完整字符串本身）包含`a`, `ab`, `abc`, `abcd` 等
+- 其 **真后缀**（不含完整字符串本身）包含`c`, `bc`, `abc`, `dabc` 等
 
 `abc` 是在其 **前缀** 和 **后缀** 中都包含的部分，在字符串匹配时，我们可以充分利用该信息，匹配失败时，我们可以不用从下一个位置开始，而是从 **模式串内部的某个位置** 开始。
 
 <InlineSvg src="/images/data-structure/data-structure-strings-match-002.svg" alt={"前后缀概念图解 - 字符串 \"abcdabc\" a b c d a b c 0 1 2 3 4 5 6 前缀 (Prefix): 从字符串开头开始的子串 a \"a\" (长度1) a b \"ab\" (长度2) a b c \"abc\" (长度3) a b c d \"abcd\" (长度4) 后缀 (Suffix): 到字符串末尾结束的子串 c \"c\" (长度1) b c \"bc\" (长度2) a b c \"abc\" (长度3) d a b c \"dabc\" (长度4) 关键发现：相"} />
 
-**KMP 算法** 就是基于这个思想，其核心是一个称为 “**部分匹配表**” 或 “**前缀函数**” 的辅助数组（通常称为 **next 数组**），该数组用于确定当 **模式串** 在 **主串** 不匹配时应该如何有效地移动 **模式串**。
+KMP 的核心是利用模式串自身的前后缀信息，在失配时避免主串指针回退。教材常使用经典 `next` 数组；现代实现则常使用 **LPS（longest proper prefix which is also suffix）/前缀函数**。二者含义与下标约定不同，但表达的是同一类失配跳转信息。
 
 #### 算法描述
 
@@ -124,7 +102,7 @@ $n$
 | pattern[0:index] 的相同前后缀长度 | 0 | 0 | 1 | 2 | 3 | 0 |
 | next | -1 | 0 | 0 | 1 | 2 | 3 |
 
-一般而言，**next 数组** 中的第一个元素被设置为 -1（因为第一个字符不存在 **前缀子串**）。
+本页纸笔推导采用一种常见的 **0 基经典 `next` 约定**：`next[0]=-1`。不同教材还可能使用 1 基下标或其他偏移定义，计算前应先确认题目约定。
 
 以 c 字符为例，我们需要计算 `next[5]`，所以需要统计 c 的 **前缀字符串** ababa 的最长相同 **前缀** 和 **后缀** 的长度，可以观察到，最长的相同 **前缀** 和 **后缀** 为 aba，长度为 3，所以 `next[5] = 3`。
 
@@ -143,62 +121,53 @@ $n$
 
 #### 算法实现
 
-算法实现了解即可，考试基本不会考察 **kmp 算法** 实现，只要能够熟练地在纸上模拟 **kmp 算法** 流程即可。
-```
-void computeNextArray(const char* pattern, int m, int* next) {
-    int len = 0;
-    next[0] = 0;
-    int i = 1;
+下面给出使用 **LPS 数组** 的现代实现。注意：这里的 `lps[0]=0`，与上一节用于纸笔模拟的经典 `next[0]=-1` **不是同一个数组定义**，不要直接混用数值。
 
-    while (i < m) {
+```c
+void computeLPS(const char *pattern, int m, int lps[]) {
+    int len = 0;
+    lps[0] = 0;
+
+    for (int i = 1; i < m; ) {
         if (pattern[i] == pattern[len]) {
-            len++;
-            next[i] = len;
-            i++;
+            lps[i++] = ++len;
+        } else if (len > 0) {
+            len = lps[len - 1];
         } else {
-            if (len != 0) {
-                len = next[len - 1];
-            } else {
-                next[i] = 0;
-                i++;
-            }
+            lps[i++] = 0;
         }
     }
 }
 
-int KMP(const char* mainStr, const char* pattern) {
-    int m = strlen(mainStr);
-    int n = strlen(pattern);
+int KMP(const char *text, const char *pattern) {
+    int n = strlen(text), m = strlen(pattern);
+    if (m == 0) return 0;
 
-    int next[n];
-    computeNextArray(pattern, n, next);
+    int lps[m];
+    computeLPS(pattern, m, lps);
 
     int i = 0, j = 0;
-    while (i < m) {
-        if (pattern[j] == mainStr[i]) {
-            i++;
-            j++;
-        }
-
-        if (j == n) {
-            return i - j;
-        } else if (i < m && pattern[j] != mainStr[i]) {
-            if (j != 0)
-                j = next[j - 1];
-            else
-                i++;
+    while (i < n) {
+        if (text[i] == pattern[j]) {
+            ++i; ++j;
+            if (j == m) return i - m;
+        } else if (j > 0) {
+            j = lps[j - 1];
+        } else {
+            ++i;
         }
     }
-
-    return -1; // 没有找到匹配
+    return -1;
 }
 ```
+
+KMP 预处理模式串和扫描主串都只做线性级别的指针推进，因此时间复杂度为 $O(n+m)$，额外空间复杂度为 $O(m)$。
 
 #### 修正后的 next 数组
 
-其实上述内容就是 **kmp 算法** 的核心了，当然有时候也会涉及到这样一个概念： **修正后的 next 数组**。
+在经典 `next` 数组基础上，还可以进一步构造**修正后的 next 数组**。
 
-这个概念其实来源于早期教材（特别是严蔚敏的《数据结构》）， **修正后的 next 数组** 常称作 **nextval 数组**，其目的是避免某些情况下的冗余匹配。
+修正后的 `next` 数组通常称为 **nextval 数组**，其目的是避免某些失配情况下的冗余比较。
 
 `nextval` 数组是为了修正 `next` 数组存在的以下 **问题**：当 `pattern[j] == pattern[next[j]]` 时，如果直接使用 `next[j]`，会导致 **重复比较已经失败过的字符**。
 
@@ -207,7 +176,7 @@ int KMP(const char* mainStr, const char* pattern) {
 - 如果 `pattern[j] == pattern[next[j]]` → 则 `nextval[j] = nextval[next[j]]`
 - 否则 → `nextval[j] = next[j]`
 
-`nextval` 的构建规则如下：
+下面的 `nextval` 规则继续沿用经典 `next[0]=-1` 约定：
 ```
 if (next[i] == -1) {
     nextval[i] = -1;
@@ -220,7 +189,7 @@ if (next[i] == -1) {
 }
 ```
 
-需要注意的，`nextval` 的计算过程是迭代向前的，因为我们希望减少无意义的比较，所以要争取找到一个不同的字符。
+需要注意，`nextval` 的计算过程是迭代向前的，因为我们希望减少无意义的比较，所以要争取找到一个不同的字符。
 
 <InlineSvg src="/images/data-structure/data-structure-strings-match-004.svg" alt={"图示"} />
 
@@ -245,4 +214,4 @@ if (next[i] == -1) {
 - `pattern[4] = a, pattern[next[4]] = pattern[2] = a`，相等，优化：`nextval[4] = nextval[2] = -1`
 - `nextval[5] = 3`（`pattern[5] = a, pattern[next[5]] = pattern[3] = b`，不相等，保留原值）
 
-其实 **kmp** 的现代实现中一般使用 **next 数组** 就足够了，`nextval` 主要是优化了极少数情况下的性能，特别是在大量重复字符的 **模式串** 里效果明显。
+现代实现常直接使用 LPS/前缀函数；`nextval` 主要用于经典 `next` 定义下进一步减少重复字符造成的无效比较。
