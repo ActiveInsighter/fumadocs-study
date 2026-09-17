@@ -375,7 +375,7 @@ TCP 的 **接收窗口** 可以按照逻辑划分为四个部分：
 
 **拥塞窗口**（cwnd） 是 **发送方** 内部维护的一个控制变量，用来限制未确认数据的数量，以避免在网络中引入过多分组而造成拥塞。
 
-cwnd 是 [拥塞控制](/computer_network/transport/tcp/#%e6%8b%a5%e5%a1%9e%e6%8e%a7%e5%88%b6) 的核心参数，TCP 的拥塞控制算法会根据 **ACK 返回情况** 和 **丢包信号** 动态调整 cwnd。
+cwnd 是 [拥塞控制](/docs/408/knowledge/408-release/computer_network/transport/tcp/#%e6%8b%a5%e5%a1%9e%e6%8e%a7%e5%88%b6) 的核心参数，TCP 的拥塞控制算法会根据 **ACK 返回情况** 和 **丢包信号** 动态调整 cwnd。
 
 发送窗口大小
 
@@ -504,7 +504,7 @@ TCP 是一种 **可靠传输协议**，它要确保发送的数据 **被对方�
 
 补充
 
-TCP 的超时重传机制介于 [回退 N 帧](/computer_network/datalink/flow_control/#%e5%9b%9e%e9%80%80-n-%e5%b8%a7) 和 [选择性重传](/computer_network/datalink/flow_control/#%e9%80%89%e6%8b%a9%e6%80%a7%e9%87%8d%e4%bc%a0) 之间。它保留了 GBN 的 **滑动窗口** 和 **累计确认机制**，同时借鉴了 SR 的 **乱序缓存** 和 **选择性重传** 思想，并通过快速重传、快速恢复、SACK 等机制进一步提高了传输效率。
+TCP 的超时重传机制介于 [回退 N 帧](/docs/408/knowledge/408-release/computer_network/datalink/flow_control/#%e5%9b%9e%e9%80%80-n-%e5%b8%a7) 和 [选择性重传](/docs/408/knowledge/408-release/computer_network/datalink/flow_control/#%e9%80%89%e6%8b%a9%e6%80%a7%e9%87%8d%e4%bc%a0) 之间。它保留了 GBN 的 **滑动窗口** 和 **累计确认机制**，同时借鉴了 SR 的 **乱序缓存** 和 **选择性重传** 思想，并通过快速重传、快速恢复、SACK 等机制进一步提高了传输效率。
 
 因此现代 TCP 通常只重传丢失的数据段，而不会像 GBN 那样重传之后所有未确认的数据，并且只为发送窗口最左边那个还没有确认的数据段维护一个超时器。
 
@@ -540,7 +540,7 @@ TCP 首部包含一个 **校验和**（Checksum）字段，用于检测数据在
 
 ![TCP 图 15](/images/computer-network/computer-network-transport-tcp-015.svg)
 
-TCP 的校验和计算方法和 [IP 校验和计算方法](/computer_network/network/ip/#%e5%b7%ae%e9%94%99%e6%a0%a1%e9%aa%8c%e5%ad%97%e6%ae%b5) 一致，不过两者校验的范围和目的有所不同。
+TCP 的校验和计算方法和 [IP 校验和计算方法](/docs/408/knowledge/408-release/computer_network/network/ip/#%e5%b7%ae%e9%94%99%e6%a0%a1%e9%aa%8c%e5%ad%97%e6%ae%b5) 一致，不过两者校验的范围和目的有所不同。
 
 其 IP 校验和只针对 IP 头部进行校验，主要用于检测数据在传输过程中由于网络故障等原因造成的错误。
 而 TCP 校验和不仅要校验 TCP 头部，还要校验 TCP 载荷（即数据部分）。因此，TCP 校验和能提供 **更全面的错误检测**。
@@ -615,7 +615,7 @@ MSS 是 **Maxium Segment Size** 的简称，即最大段大小。MSS 通常是�
 * **慢开始指数增长**：收到一个 ACK 后 cwnd += 1。
 * **拥塞避免线性增长**：收到一个 ACK 后 cwnd += 1/cwnd。
 
-TCP 通过 [超时检测](/computer_network/transport/tcp/#%e8%b6%85%e6%97%b6%e9%87%8d%e4%bc%a0) **检测网络是否出现拥塞**。一旦检测到超时，TCP 认为网络已经发生拥塞，并执行如下处理：
+TCP 通过 [超时检测](/docs/408/knowledge/408-release/computer_network/transport/tcp/#%e8%b6%85%e6%97%b6%e9%87%8d%e4%bc%a0) **检测网络是否出现拥塞**。一旦检测到超时，TCP 认为网络已经发生拥塞，并执行如下处理：
 
 * 将慢启动阈值（`ssthresh`）设置为当前 `cwnd` 的 **一半**（`ssthresh = cwnd / 2`），以限制后续的窗口增长速度。
 * 将拥塞窗口 `cwnd` 重新设为 **1 MSS**，相当于回到最保守的状态。

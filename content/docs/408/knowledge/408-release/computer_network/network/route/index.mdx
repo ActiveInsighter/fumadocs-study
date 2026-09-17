@@ -34,7 +34,7 @@ source: "https://csgraduates.com/computer_network/network/route/"
 
 **路由器** 怎么知道往哪里转发？
 
-路由器 内部有一个叫 [**路由表**](/computer_network/network/dev/#%e8%b7%af%e7%94%b1%e8%a1%a8) 的数据结构，里面记录了各种目的 IP 地址该怎么走。这个表告诉 路由器：当收到一个 IP Packet 时，应该把包发给哪个 **下一跳**（下一个路由器)。
+路由器 内部有一个叫 [**路由表**](/docs/408/knowledge/408-release/computer_network/network/dev/#%e8%b7%af%e7%94%b1%e8%a1%a8) 的数据结构，里面记录了各种目的 IP 地址该怎么走。这个表告诉 路由器：当收到一个 IP Packet 时，应该把包发给哪个 **下一跳**（下一个路由器)。
 
 **路由表** 如何建立？
 
@@ -307,7 +307,7 @@ B 不知道“我从 A 学到的这条路径，实际上也是绕了一圈又回
 
 ### BGP
 
-**BGP**（Border Gateway Protocol，边界网关协议）是互联网的核心路由协议，用于在不同 [**自治系统**](/computer_network/network/route/#%e8%87%aa%e6%b2%bb%e7%b3%bb%e7%bb%9f) 之间交换路由信息，属于路径向量（Path Vector）协议，目前广泛使用的版本是 BGP-4。
+**BGP**（Border Gateway Protocol，边界网关协议）是互联网的核心路由协议，用于在不同 [**自治系统**](/docs/408/knowledge/408-release/computer_network/network/route/#%e8%87%aa%e6%b2%bb%e7%b3%bb%e7%bb%9f) 之间交换路由信息，属于路径向量（Path Vector）协议，目前广泛使用的版本是 BGP-4。
 
 在 BGP 中，**自治系统**（AS）是互联网的基本单位，每个 AS 是一个由单个组织控制的网络集合（如一个运营商或大型企业）。AS 与 AS 之间的路由交换就是通过 BGP 完成的，AS 之内的路由交换通过 **内部网关协议** 完成。
 

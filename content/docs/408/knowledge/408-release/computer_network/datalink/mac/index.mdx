@@ -837,11 +837,15 @@ RTS/CTS 只能降低碰撞概率和碰撞代价，不能完全避免碰撞。
 
 #### IFS
 
-由于无线信道的可靠程度不如有线网络，802.11 MAC 层采用与 [**停等协议**](/computer_network/datalink/flow_control/#%e5%81%9c%e7%ad%89%e5%8d%8f%e8%ae%ae) 类似的一帧一确认机制，即发送方每发送一帧数据，都需要等待接收方返回 ACK 后才能继续发送下一帧。
+由于无线信道的可靠程度不如有线网络，802.11 MAC 层采用与 [**停等协议**](/docs/408/knowledge/408-release/computer_network/datalink/flow_control/#%e5%81%9c%e7%ad%89%e5%8d%8f%e8%ae%ae) 类似的一帧一确认机制，即发送方每发送一帧数据，都需要等待接收方返回 ACK 后才能继续发送下一帧。
 
 
 $$
-\text{发送 DATA}\to\text{等待 ACK}\to{\begin{aligned}\text{收到 ACK ：本帧成功} \\ \text{未收到 ACK ：退避后重传}\end{aligned}
+\text{发送 DATA}\to\text{等待 ACK}\to
+\begin{aligned}
+\text{收到 ACK: 本帧成功} \\
+\text{未收到 ACK: 退避后重传}
+\end{aligned}
 $$
 
 

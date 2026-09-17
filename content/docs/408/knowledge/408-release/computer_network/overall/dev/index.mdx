@@ -25,7 +25,7 @@ source: "https://csgraduates.com/computer_network/overall/dev/"
 
 📌 **冲突发生的根本原因：**
 
-以太网（尤其是早期使用 **共享总线** 或 **集线器** 的方式）采用了 [**CSMA/CD 协议**](/computer_network/datalink/mac/#csmacd-%e5%8d%8f%e8%ae%ae)（载波监听多路访问/冲突检测） 协议：
+以太网（尤其是早期使用 **共享总线** 或 **集线器** 的方式）采用了 [**CSMA/CD 协议**](/docs/408/knowledge/408-release/computer_network/datalink/mac/#csmacd-%e5%8d%8f%e8%ae%ae)（载波监听多路访问/冲突检测） 协议：
 
 1. 每个设备发送前先监听是否有信号；
 2. 如果发现没人发，就开始发；
@@ -57,8 +57,8 @@ source: "https://csgraduates.com/computer_network/overall/dev/"
 
 | 设备 | 功能描述 | 设备位于哪一层 | 隔离 **冲突域** ？ | 隔离 **广播域** ？ |
 | --- | --- | --- | --- | --- |
-| [中继器](/computer_network/physical/dev/#%e4%b8%ad%e7%bb%a7%e5%99%a8) | 放大或再生数字信号 | 物理层 | ❌ | ❌ |
-| [集线器](/computer_network/physical/dev/#%e9%9b%86%e7%ba%bf%e5%99%a8) | 多个设备的连接，广播所有传入的数据 | 物理层 | ❌ | ❌ |
-| [网桥](/computer_network/datalink/dev/#%e7%bd%91%e6%a1%a5) | 连接多个设备，仅向目标设备转发数据 | 数据链路层 | ✅ | ❌ |
-| [交换机](/computer_network/datalink/dev/#%e4%ba%a4%e6%8d%a2%e6%9c%ba) | 连接多个设备，仅向目标设备转发数据 | 数据链路层 | ✅ | ❌ |
-| [路由器](/computer_network/network/dev/#%e8%b7%af%e7%94%b1%e5%99%a8) | 连接不同的网络并路由数据 | 网络层 | ✅ | ✅ |
+| [中继器](/docs/408/knowledge/408-release/computer_network/physical/dev/#%e4%b8%ad%e7%bb%a7%e5%99%a8) | 放大或再生数字信号 | 物理层 | ❌ | ❌ |
+| [集线器](/docs/408/knowledge/408-release/computer_network/physical/dev/#%e9%9b%86%e7%ba%bf%e5%99%a8) | 多个设备的连接，广播所有传入的数据 | 物理层 | ❌ | ❌ |
+| [网桥](/docs/408/knowledge/408-release/computer_network/datalink/dev/#%e7%bd%91%e6%a1%a5) | 连接多个设备，仅向目标设备转发数据 | 数据链路层 | ✅ | ❌ |
+| [交换机](/docs/408/knowledge/408-release/computer_network/datalink/dev/#%e4%ba%a4%e6%8d%a2%e6%9c%ba) | 连接多个设备，仅向目标设备转发数据 | 数据链路层 | ✅ | ❌ |
+| [路由器](/docs/408/knowledge/408-release/computer_network/network/dev/#%e8%b7%af%e7%94%b1%e5%99%a8) | 连接不同的网络并路由数据 | 网络层 | ✅ | ✅ |

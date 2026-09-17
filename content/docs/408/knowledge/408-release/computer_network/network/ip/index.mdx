@@ -122,7 +122,7 @@ IP 协议位于 OSI 7 层模型的网络层，其承载上层（传输层）的�
 
 简而言之，IP 数据报的最大长度为 *65535 字节*，这是因为其“总长度”字段占 16 位，所能表示的最大无符号整数为 65535。然而，数据链路层（如以太网）的 **MTU**（最大传输单元）往往远小于该值，例如以太网的 **MTU** 通常为 *1500 字节*。
 
-因此，当 IP 数据报长度超过底层链路的 MTU 时，就需要将其拆分成多个更小的部分进行传输，这一过程称为 **IP 分片（IP Fragmentation）**。关于分片的详细内容可参考：[IP 数据报分片](/computer_network/network/ip/#ip-%e6%95%b0%e6%8d%ae%e6%8a%a5%e5%88%86%e7%89%87)。
+因此，当 IP 数据报长度超过底层链路的 MTU 时，就需要将其拆分成多个更小的部分进行传输，这一过程称为 **IP 分片（IP Fragmentation）**。关于分片的详细内容可参考：[IP 数据报分片](/docs/408/knowledge/408-release/computer_network/network/ip/#ip-%e6%95%b0%e6%8d%ae%e6%8a%a5%e5%88%86%e7%89%87)。
 
 ![IP 图 4](/images/computer-network/computer-network-network-ip-004.svg)
 
@@ -159,7 +159,7 @@ IP 首部的 checksum 为 IP 协议的差错校验字段，用于检验 IP 首�
 
 TTL（Time To Live）用于控制 IP 分组的 **生命周期**，发送方在发送 IP 分组时会设定一个 TTL 值，这个值是不固定的，但是一般是 32、64、128 或 255 这四个值中的一个。
 
-当 IP 分组经过 **路由器** 时，路由器会自动 IP 分组中的 **TTL 值减 1**，路由器 发现其 **TTL = 0**，则路由器会 **丢弃** 该 IP 分组，并且返回一个 [ICMP](/computer_network/network/icmp/) “Time Exceed” 消息。
+当 IP 分组经过 **路由器** 时，路由器会自动 IP 分组中的 **TTL 值减 1**，路由器 发现其 **TTL = 0**，则路由器会 **丢弃** 该 IP 分组，并且返回一个 [ICMP](/docs/408/knowledge/408-release/computer_network/network/icmp/) “Time Exceed” 消息。
 
 ![IP 图 6](/images/computer-network/computer-network-network-ip-006.svg)
 

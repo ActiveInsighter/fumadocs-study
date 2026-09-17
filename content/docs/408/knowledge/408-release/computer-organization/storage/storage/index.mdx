@@ -69,19 +69,19 @@ CHS 地址由 **柱面号（Cylinder Number）**、**磁头号（Head Number）*
   若需要对所有柱面进行二进制编码，则至少需要：
 
   $$
-\text{柱面号位数}=\lceillog_{2}\text{（柱面数量）}\rceil
+\text{柱面号位数}=\left\lceil\log_{2}(\text{柱面数量})\right\rceil
 $$
 - **磁头号（Head Number）**：目标扇区所在的盘面（对应具体磁头）  
   若需要对所有盘面进行二进制编码，则至少需要：
 
   $$
-\text{磁头号位数}=\lceillog_{2}\text{（盘面数量）}\rceil
+\text{磁头号位数}=\left\lceil\log_{2}(\text{盘面数量})\right\rceil
 $$
 - **扇区号（Sector Number）**：目标扇区在目标磁道上的编号  
   若需要对所有扇区进行二进制编码，则至少需要：
 
   $$
-\text{扇区号位数}=\lceillog_{2}\text{（每条磁道中的扇区数量）}\rceil
+\text{扇区号位数}=\left\lceil\log_{2}(\text{每条磁道中的扇区数量})\right\rceil
 $$
 
 ![CHS 地址 Cylinder · Head · Sector 柱面 C 同半径的磁道集合 扇区 S 磁道的最小存储单元 磁头 H H=3 H=2 H=1 H=0 柱面深度 CHS 地址结构 C (10 bits) H (2 b) S (5 bits) 示例：1000 柱面 × 4 盘面 × 32 扇区/磁道，共 17 bits C — 柱面号 目标磁道在哪一组柱面 ⌈log₂(柱面数)⌉ bits H — 磁头号 目标扇区在哪个盘面 ⌈log₂(盘面数)⌉ bits S —](/images/computer-organization/computer-organization-storage-storage-003.svg)
