@@ -1,0 +1,16 @@
+---
+title: "中央处理器"
+description: "CPU 数据通路、控制器、中断、流水线与多处理器。"
+---
+
+CPU 是“指令系统”真正落到硬件上的位置。本章应从一条指令的生命周期出发，理解寄存器、ALU、数据通路和控制信号如何协同工作。
+
+| 内容 | 重点 |
+| --- | --- |
+| [功能和结构](/docs/408/knowledge2/computer-organization/cpu/structure/) | CPU 组成、数据通路、寄存器功能 |
+| [控制器](/docs/408/knowledge2/computer-organization/cpu/controller/) | 控制信号、RTL、硬布线与微程序控制 |
+| [异常与中断](/docs/408/knowledge2/computer-organization/cpu/interrupt/) | 中断处理、异常分类、优先级与屏蔽 |
+| [指令流水线](/docs/408/knowledge2/computer-organization/cpu/pipeline/) | 五级流水、性能、结构/数据/控制冒险 |
+| [多处理机](/docs/408/knowledge2/computer-organization/cpu/multicore/) | Flynn 分类、多核与共享存储结构 |
+
+> **复习提示：** CPU 大题通常不会孤立出现，经常与指令系统、Cache、异常/中断结合。画数据通路时要明确“数据走哪条线”和“谁产生控制信号”。

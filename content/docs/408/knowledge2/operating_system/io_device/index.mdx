@@ -1,0 +1,16 @@
+---
+title: "I/O 管理"
+description: "I/O 软件层次、设备管理与磁盘调度。"
+---
+
+I/O 管理负责屏蔽设备差异，让进程通过统一接口使用外设，并通过中断、DMA、缓冲和调度等机制降低 CPU 与慢速设备之间的速度差异。
+
+<InlineSvg src="/images/operating-system/operating-system-io-device-001.svg" alt={"I/O 管理与外存管理知识框架"} />
+
+| 内容 | 重点 |
+| --- | --- |
+| [I/O 设备](/docs/408/knowledge2/operating_system/io_device/devices/) | 设备分类、I/O 控制方式、I/O 软件层次 |
+| [设备管理](/docs/408/knowledge2/operating_system/io_device/management/) | 缓冲、设备分配、SPOOLing、设备独立性 |
+| [磁盘](/docs/408/knowledge2/operating_system/io_device/disks/) | 磁盘结构、格式化、启动、FCFS/SSTF/SCAN/C-SCAN |
+
+> **复习提示：** I/O 控制方式应与计算机组成原理中的中断和 DMA 一起理解；操作系统更关注设备管理策略，组成原理更关注硬件传送过程。

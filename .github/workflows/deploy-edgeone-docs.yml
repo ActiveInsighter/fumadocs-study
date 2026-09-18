@@ -302,7 +302,7 @@ jobs:
             [[ "${status}" == '200' ]]
           }
 
-          for path in '/' '/docs/' '/search-index.json' "${router_url}" "${core_url}" "${body_url}" '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md'; do
+          for path in '/' '/docs/' '/search-index.json' "${router_url}" "${core_url}" "${body_url}" '/docs/408/' '/docs/408/knowledge2/' '/docs/408/knowledge2/computer-organization/cpu/multicore/' '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md'; do
             verify_deployment_path "${path}"
           done
 
@@ -329,6 +329,9 @@ jobs:
           wait_for_production_path "${router_url}" '200' 18 5
           wait_for_production_path "${core_url}" '200' 18 5
           wait_for_production_path "${body_url}" '200' 18 5
+          wait_for_production_path '/docs/408/' '200'
+          wait_for_production_path '/docs/408/knowledge2/' '200'
+          wait_for_production_path '/docs/408/knowledge2/computer-organization/cpu/multicore/' '200'
 
           probe_dir="$(mktemp -d)"
           trap 'rm -rf -- "${probe_dir}"' EXIT

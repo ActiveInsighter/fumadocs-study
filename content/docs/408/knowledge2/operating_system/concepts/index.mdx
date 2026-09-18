@@ -1,0 +1,16 @@
+---
+title: "计算机系统概述"
+description: "操作系统基本概念、程序运行环境与内核结构。"
+---
+
+本章建立操作系统的整体视角：操作系统为什么存在、应用程序如何进入内核、内核如何组织自身，以及系统启动后如何为程序提供服务。
+
+<InlineSvg src="/images/operating-system/operating-system-concepts-001.svg" alt={"操作系统概念、运行环境与结构知识框架"} />
+
+| 内容 | 重点 |
+| --- | --- |
+| [操作系统概念](/docs/408/knowledge2/operating_system/concepts/concept/) | 并发、共享、虚拟、异步，发展历程与系统引导 |
+| [程序运行环境](/docs/408/knowledge2/operating_system/concepts/environment/) | 用户态/内核态、中断与异常、系统调用、链接与装入 |
+| [操作系统结构](/docs/408/knowledge2/operating_system/concepts/structure/) | 分层、模块化、宏内核、微内核、外核、虚拟机 |
+
+> **复习提示：** 本章概念题较多。判断一个操作是否必须在内核态完成时，重点看它是否会直接控制硬件、修改关键系统状态或影响其他进程。

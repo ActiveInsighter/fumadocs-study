@@ -10,7 +10,7 @@ const releaseDocsRoots = [
   'data-structure',
   'operating_system',
   'computer_network',
-].map((course) => join(process.cwd(), 'content/docs/408/知识点总结2', course));
+].map((course) => join(process.cwd(), 'content/docs/408/knowledge2', course));
 
 function getMdxFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

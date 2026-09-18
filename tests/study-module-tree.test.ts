@@ -27,18 +27,18 @@ describe('study module metadata structure', () => {
   const englishPhraseMeta = readJson(join(docsRoot, 'english', 'phrases', 'meta.json'));
   const coursesMeta = readJson(join(docsRoot, '408', 'meta.json'));
   const coursesKnowledgeMeta = readJson(join(docsRoot, '408', 'knowledge', 'meta.json'));
-  const coursesSummaryMeta = readJson(join(docsRoot, '408', '知识点总结2', 'meta.json'));
+  const coursesSummaryMeta = readJson(join(docsRoot, '408', 'knowledge2', 'meta.json'));
   const coursesComputerOrganizationMeta = readJson(
-    join(docsRoot, '408', '知识点总结2', 'computer-organization', 'meta.json'),
+    join(docsRoot, '408', 'knowledge2', 'computer-organization', 'meta.json'),
   );
   const coursesDataStructureMeta = readJson(
-    join(docsRoot, '408', '知识点总结2', 'data-structure', 'meta.json'),
+    join(docsRoot, '408', 'knowledge2', 'data-structure', 'meta.json'),
   );
   const coursesOperatingSystemMeta = readJson(
-    join(docsRoot, '408', '知识点总结2', 'operating_system', 'meta.json'),
+    join(docsRoot, '408', 'knowledge2', 'operating_system', 'meta.json'),
   );
   const coursesComputerNetworkMeta = readJson(
-    join(docsRoot, '408', '知识点总结2', 'computer_network', 'meta.json'),
+    join(docsRoot, '408', 'knowledge2', 'computer_network', 'meta.json'),
   );
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
@@ -82,7 +82,7 @@ describe('study module metadata structure', () => {
     expect(coursesMeta.root).toBe(true);
     expect(coursesMeta.pages).toEqual([
       'index',
-      '知识点总结2',
+      'knowledge2',
       'knowledge',
       'problem-solving',
       'exam',
@@ -161,6 +161,7 @@ describe('study module metadata structure', () => {
       'phrases',
       'word-cards-demo',
       'claude-benchmarks',
+      'chart-components',
     ]);
     expect(englishVocabularyMeta.pages).toEqual([
       'index',
