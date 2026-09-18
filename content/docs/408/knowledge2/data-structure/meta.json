@@ -8,6 +8,7 @@
     "strings",
     "tree",
     "graph",
+    "search",
     "sort"
   ]
 }

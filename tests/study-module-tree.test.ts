@@ -119,6 +119,7 @@ describe('study module metadata structure', () => {
       'strings',
       'tree',
       'graph',
+      'search',
       'sort',
     ]);
     expect(coursesOperatingSystemMeta.pages).toEqual([
