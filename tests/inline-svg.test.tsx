@@ -5,10 +5,12 @@ import { describe, expect, it } from 'vitest';
 
 import { InlineSvg } from '../components/mdx/inline-svg';
 
-const releaseDocsRoot = join(
-  process.cwd(),
-  'content/docs/408/knowledge/408-release',
-);
+const releaseDocsRoots = [
+  'computer-organization',
+  'data-structure',
+  'operating_system',
+  'computer_network',
+].map((course) => join(process.cwd(), 'content/docs/408/知识点总结2', course));
 
 function getMdxFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -75,8 +77,8 @@ describe('InlineSvg', () => {
     expect(fallbackHtml).not.toContain('https://www.drawio.com/');
   });
 
-  it('converts every SVG image in the new 408 release directory to InlineSvg', () => {
-    const files = getMdxFiles(releaseDocsRoot);
+  it('converts every SVG image in 知识点总结2 to InlineSvg', () => {
+    const files = releaseDocsRoots.flatMap(getMdxFiles);
     const source = files.map((file) => readFileSync(file, 'utf8')).join('\n');
 
     expect(source).not.toMatch(/!\[[^\r\n]*\]\(\/images\/[^)\s]+\.svg\)/u);
@@ -87,7 +89,7 @@ describe('InlineSvg', () => {
     expect(references).toHaveLength(730);
 
     for (const src of references) {
-      expect(src, relative(process.cwd(), releaseDocsRoot)).toMatch(
+      expect(src, relative(process.cwd(), releaseDocsRoots[0])).toMatch(
         /^\/images\/[\w./-]+\.svg$/u,
       );
       expect(existsSync(join(process.cwd(), 'public', ...src.slice(1).split('/')))).toBe(true);

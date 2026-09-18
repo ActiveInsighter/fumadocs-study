@@ -27,8 +27,18 @@ describe('study module metadata structure', () => {
   const englishPhraseMeta = readJson(join(docsRoot, 'english', 'phrases', 'meta.json'));
   const coursesMeta = readJson(join(docsRoot, '408', 'meta.json'));
   const coursesKnowledgeMeta = readJson(join(docsRoot, '408', 'knowledge', 'meta.json'));
-  const coursesReleaseMeta = readJson(
-    join(docsRoot, '408', 'knowledge', '408-release', 'meta.json'),
+  const coursesSummaryMeta = readJson(join(docsRoot, '408', '知识点总结2', 'meta.json'));
+  const coursesComputerOrganizationMeta = readJson(
+    join(docsRoot, '408', '知识点总结2', 'computer-organization', 'meta.json'),
+  );
+  const coursesDataStructureMeta = readJson(
+    join(docsRoot, '408', '知识点总结2', 'data-structure', 'meta.json'),
+  );
+  const coursesOperatingSystemMeta = readJson(
+    join(docsRoot, '408', '知识点总结2', 'operating_system', 'meta.json'),
+  );
+  const coursesComputerNetworkMeta = readJson(
+    join(docsRoot, '408', '知识点总结2', 'computer_network', 'meta.json'),
   );
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
@@ -68,24 +78,65 @@ describe('study module metadata structure', () => {
     expect(mathExamMeta.pages).toEqual(['index']);
   });
 
-  it('uses the same three-way hierarchy for 408', () => {
+  it('exposes the four complete 408 courses at the module root', () => {
     expect(coursesMeta.root).toBe(true);
-    expect(coursesMeta.pages).toEqual(['index', 'knowledge', 'problem-solving', 'exam']);
+    expect(coursesMeta.pages).toEqual([
+      'index',
+      '知识点总结2',
+      'knowledge',
+      'problem-solving',
+      'exam',
+    ]);
     expect(coursesKnowledgeMeta.pages).toEqual([
       'index',
       'mind-map-demo',
-      '408-release',
       'data-structures',
       'computer-organization',
       'operating-systems',
       'computer-networks',
     ]);
-    expect(coursesReleaseMeta.pages).toEqual([
+    expect(coursesSummaryMeta.pages).toEqual([
       'index',
       'computer-organization',
       'data-structure',
       'operating_system',
       'computer_network',
+    ]);
+    expect(coursesComputerOrganizationMeta.pages).toEqual([
+      'index',
+      'overview',
+      'representation',
+      'storage',
+      'instruction',
+      'cpu',
+      'bus',
+    ]);
+    expect(coursesDataStructureMeta.pages).toEqual([
+      'index',
+      'basic',
+      'linearlist',
+      'array',
+      'strings',
+      'tree',
+      'graph',
+      'sort',
+    ]);
+    expect(coursesOperatingSystemMeta.pages).toEqual([
+      'index',
+      'concepts',
+      'process',
+      'memory',
+      'files',
+      'io_device',
+    ]);
+    expect(coursesComputerNetworkMeta.pages).toEqual([
+      'index',
+      'overall',
+      'physical',
+      'datalink',
+      'network',
+      'transport',
+      'application',
     ]);
     expect(coursesProblemSolvingMeta.pages).toEqual([
       'index',

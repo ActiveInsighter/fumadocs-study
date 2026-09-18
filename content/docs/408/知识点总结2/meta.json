@@ -1,0 +1,11 @@
+{
+  "title": "408 知识点总结2",
+  "description": "四门 408 专业课的完整课程讲义。",
+  "pages": [
+    "index",
+    "computer-organization",
+    "data-structure",
+    "operating_system",
+    "computer_network"
+  ]
+}

@@ -1,0 +1,652 @@
+---
+title: "指令操作码"
+---
+
+> **复习优先级：高。**
+本节要和 CPU 中的 **控制器** 放在一起理解，也是后续 CPU 的基础。当然，其中协处理器和字符串操作指令不大重要，可以不作为重点，其他的操作码都要 **深入理解**。
+
+> **真题考察**
+> - 解答题：2014 年第 44 题、2017 年第 44 题、2021 年第 43 题、2026 年第 43 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
+
+不同计算机架构的指令操作码不相同，但是其中涉及到的功能却大同小异。本节以 x86 平台的指令为例，说明一下指令操作码的主要分类和功能。
+
+### 数据传输指令
+
+#### 数据传送
+
+**数据传送指令**在 x86 中就是 `MOV`，将第二个操作数（**寄存器**的内容、**内存**中的内容或**常数**值）复制到第一个操作数（**寄存器**或**内存**），可以实现 **寄存器**、**内存**之间的 **数据传送**。
+
+- 语法
+- 实例
+
+```
+; 数据传送指令语法
+mov <reg>, <reg>   ; 复制寄存器值
+mov <reg>, <mem>   ; 从内存加载数据到寄存器
+mov <mem>, <reg>   ; 把寄存器值存入内存
+mov <reg>, <con>   ; 立即数赋值给寄存器
+mov <mem>, <con>   ; 立即数赋值给内存
+```
+
+```
+; 数据传送指令实例
+mov eax, ebx       ; 把 ebx 复制到 eax
+mov eax, [var]     ; 把变量 var 的值存入 eax
+mov [var], eax     ; 把 eax 的值存入变量 var
+mov ecx, 100       ; 将 100 赋值给 ecx
+mov byte ptr [var], 5  ; 只修改 var 指向的 1 字节
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-001.svg" alt={"立即数 存储器 通用存储器 段寄存器 AX  BX  CX  DX BP  SP  SI  DI CS  DS  ES  SS"} />
+
+#### 栈操作
+
+堆栈 指的是程序的运行栈，从高地址向低地址增长。`PUSH` 指令将 **数据**压入栈顶，`POP` 指令从栈顶取出 **数据**，并存入 **寄存器**或者 **内存单元**。
+
+- 语法
+- 实例
+- 入栈操作解释
+- 出栈操作解释
+
+```
+push <reg>    ; 将寄存器值压入堆栈
+push <mem>    ; 将内存值压入堆栈
+push <con>    ; 将立即数压入堆栈
+
+pop <reg>     ; 从堆栈弹出值存入寄存器
+pop <mem>     ; 从堆栈弹出值存入内存
+```
+
+```
+push eax      ; 将 eax 压入栈
+push 10       ; 将 10 压入栈
+pop ebx       ; 弹出栈顶的值存入 ebx
+```
+
+```
+; PUSH 指令等同于以下指令序列
+sub esp, 4      ; esp 向低地址移动
+mov [esp], eax  ; 把 eax 的值写入栈顶
+```
+
+```
+; POP 指令等同于以下指令序列
+mov ebx, [esp]  ; 从栈顶读取值
+add esp, 4      ; esp 向高地址移动
+```
+
+- 当执行 `PUSH` 指令时，需要将 `ESP` 的值 **减去数据大小**，然后将 **数据**写入新地址处。
+- 当执行 `POP` 指令时，需要将栈顶的 **数据**（即 `[ESP]` 处的值）读取到目标 **寄存器**或 **内存**，然后将 `ESP` 的值 **加上数据大小**，即弹出 **数据**。
+
+下图给出了一个入栈出栈指令的实例，通过 `PUSH` 和 `POP` 指令实现了 **寄存器** `EAX` 和 `EBX` 内容交换：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-002.svg" alt={"0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0000 FFF8H 0000 FFF7H 0000 FFF6H 0000 FFFFH 0000 FFFEH 0000 FFF5H 0000 FFF4H 0000 FFF3H 0000 FFF2H 0000 FFF1H 0000 FFF40 0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0"} />
+
+### 算术和逻辑运算指令
+
+#### 加减
+
+可以通过 `ADD` 和 `SUB` 两个指令实现 **加减** 操作：
+
+- `ADD` 指令执行 **加法**，将结果存入第一个操作数。
+- `SUB` 指令执行 **减法**：第一个操作数减去第二个操作数。
+
+- 语法
+- 实例
+
+```
+add <reg/mem>, <reg/mem/con>   ; 加法
+sub <reg/mem>, <reg/mem/con>   ; 减法
+```
+
+```
+add eax, ebx    ; eax ← eax + ebx
+sub eax, 10     ; eax ← eax - 10
+add [var], cl   ; var ← var + cl
+```
+
+#### 乘除
+
+在 x86 架构中，乘除法使用专门的指令 `MUL`、`IMUL`、`DIV` 和 `IDIV` 和 [乘除运算电路](/docs/408/知识点总结2/computer-organization/representation/circuit/#%e4%b9%98%e6%b3%95%e8%bf%90%e7%ae%97%e7%94%b5%e8%b7%af)，它们大多依赖默认 **寄存器**（如 `EAX` 和 `EDX`），操作前需准备好相关 **寄存器**的值。
+
+`EDX:EAX` 寄存器对在乘除法中扮演被乘数 / 乘积 / 被除数 / 商余的角色，整体数据通路如下图所示：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-003.svg" alt={"x86 乘除法：EDX:EAX 隐式寄存器对的数据通路 MUL / IMUL reg EAX × 操作数 → EDX:EAX EAX (被乘数) 操作数 reg/mem 乘法器 (Multiplier) EDX (高 32) EAX (低 32) 64 位乘积自动拆入 EDX:EAX DIV / IDIV reg EDX:EAX ÷ 操作数 → 商 EAX, 余 EDX EDX (高 32) EAX (低 32) 除数 reg/mem (32 位) 除法器 (Divider)"} />
+
+- 语法
+- 实例
+
+```
+; 无符号乘法
+mul <reg/mem>   ; EAX × 操作数 → EDX:EAX
+; 有符号乘法
+imul <reg/mem>              ; EAX × 操作数 → EDX:EAX
+imul reg, <reg/mem>         ; reg ← 被乘数 × 操作数
+imul reg, <reg/mem>, <imm>  ; reg ← 操作数 × 常数
+; 无符号除法
+div <reg/mem>   ; 被除数：EDX:EAX，商 → EAX，余数 → EDX
+; 有符号除法
+idiv <reg/mem>  ; 被除数：EDX:EAX，商 → EAX，余数 → EDX
+```
+
+```
+; 无符号乘法
+mov eax, 6
+mov ebx, 4
+mul ebx        ; → EAX = 24, EDX = 0
+
+; 有符号乘法
+mov eax, -6
+mov ebx, 4
+imul ebx       ; → EAX = -24, EDX = 0
+
+imul ecx, ebx      ; ecx ← ecx * ebx
+imul edx, ebx, 10  ; edx ← ebx * 10
+
+; 无符号除法
+mov edx, 0     ; 高位清零
+mov eax, 20
+mov ecx, 3
+div ecx        ; → EAX = 6, EDX = 2 （20 ÷ 3）
+
+; 有符号除法
+mov eax, -20
+cdq            ; EDX ← EAX 的符号扩展
+mov ecx, 3
+idiv ecx       ; → EAX = -6, EDX = -2
+```
+
+除法指令可能会触发 [异常](/docs/408/知识点总结2/computer-organization/cpu/interrupt/#%e5%bc%82%e5%b8%b8)：
+
+- **除数等于 0**：无符号或有符号除法中，如果除数是 0，会导致数学上未定义，立即触发异常。
+- **结果溢出**：特别常见于 `IDIV` 有符号除法中，被除数是最小负数 `0x80000000`，除以 `-1` 会得到 `0x80000000`（超出 `32` 位有符号整数范围）。
+
+加减乘除通过什么硬件完成
+
+| 运算类型 | 使用的硬件单元 | 速度 |
+| --- | --- | --- |
+| 加 / 减 | [ALU](/docs/408/知识点总结2/computer-organization/representation/circuit/#%e5%8a%a0%e6%b3%95%e8%bf%90%e7%ae%97%e7%94%b5%e8%b7%af)（加法器电路） | 很快 |
+| 乘法 | [乘法器](/docs/408/知识点总结2/computer-organization/representation/circuit/#%e4%b9%98%e6%b3%95%e8%bf%90%e7%ae%97%e7%94%b5%e8%b7%af)（Multiplier） | 中等 |
+| 除法 | [除法器](/docs/408/知识点总结2/computer-organization/representation/circuit/#%e9%99%a4%e6%b3%95%e8%bf%90%e7%ae%97%e7%94%b5%e8%b7%af)（Divider） | 很慢 |
+
+#### 位操作
+
+位操作用于对 **寄存器**或 **内存**中的二进制位直接进行按位运算，位操作包含如下类型：
+
+- `AND`：保留指定位，其它位清零；
+- `OR`：将指定位设置为 1；
+- `XOR`：将指定位翻转（0 ↔ 1）；
+- `NOT`：对操作数逐位取反；它是位运算，不等同于“求补码”。
+
+![](/images/computer-organization/computer-organization-instruction-instruction-ops-004.webp)
+
+- 语法
+- 实例
+
+```
+and <reg/mem>, <reg/mem/con>   ; 按位与：目标 ← 目标 & 源
+or  <reg/mem>, <reg/mem/con>   ; 按位或：目标 ← 目标 | 源
+xor <reg/mem>, <reg/mem/con>   ; 按位异或：目标 ← 目标 ^ 源
+not <reg/mem>                  ; 按位取反：目标 ← ~目标
+```
+
+```
+; 按位与：清除低位
+and eax, 0xF0      ; eax ← eax & 0xF0，仅保留高 4 位
+
+; 按位或：设置低位
+or eax, 0x0F       ; eax ← eax | 0x0F，将低 4 位全部置为 1
+
+; 按位异或：清零技巧
+xor eax, eax       ; eax ← eax ^ eax，结果为 0
+
+; 按位取反：翻转全部位
+not eax            ; eax ← ~eax
+```
+
+#### 自增自减
+
+自增（`INC`）与自减（`DEC`）分别等价于对操作数 **加 1** 或 **减 1**，常用于循环计数或栈指针调整等场景。
+
+- `INC` 在数值效果上相当于加 $1$。
+- `DEC` 在数值效果上相当于减 $1$。
+
+不同 ISA 对标志位的影响可能不同。例如在 x86 中，`INC/DEC` 不修改 CF，因此不能把它们与 `ADD/SUB 1` 在所有语义上完全等同。
+
+- 语法
+- 实例
+
+```
+inc <reg/mem>    ; 加 1：目标 ← 目标 + 1
+dec <reg/mem>    ; 减 1：目标 ← 目标 - 1
+```
+
+```
+inc eax          ; eax ← eax + 1
+dec ebx          ; ebx ← ebx - 1
+inc byte [cnt]   ; 将内存中 cnt 所指的字节加 1
+```
+
+#### 比较
+
+`CMP` 指令用于 **比较** 两个操作数的差值，**不保存结果，只更新条件标志位**（如 `ZF`、`SF`、`CF`、`OF`），常与条件跳转指令配合使用。
+
+本质上，`CMP A, B` 等价于 `SUB A, B`，但不会改变 `A` 的值。
+
+- 语法
+- 实例
+
+```
+cmp <reg/mem>, <reg/mem/con>  ; 比较：目标 - 源，仅影响标志位
+```
+
+```
+cmp eax, ebx       ; 比较 eax 和 ebx
+je  equal_label    ; 若 eax == ebx，跳转
+cmp byte [x], 0
+jl  less_than_zero ; 若 [x] 为负数，跳转
+```
+
+比较运算和加减操作一样，会影响以下 [条件标志](/docs/408/知识点总结2/computer-organization/cpu/structure/#%e6%9d%a1%e4%bb%b6%e6%a0%87%e5%bf%97)：
+
+- `ZF`（Zero Flag）：结果是否为零
+- `SF`（Sign Flag）：结果是否为负
+- `CF`（Carry Flag）：是否产生了进位/借位（无符号溢出）
+- `OF`（Overflow Flag）：是否有符号溢出
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-005.svg" alt={"CMP_Process"} />
+
+这些标志用于后续的 [条件跳转](/docs/408/知识点总结2/computer-organization/instruction/instruction_ops/#%e6%9d%a1%e4%bb%b6%e8%b7%b3%e8%bd%ac)，如 `je`、`jg`、`jl` 等。
+
+#### 移位
+
+> **真题考察**
+> - 选择题：2018 年第 16 题、2026 年第 13 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
+
+**移位**是一种常见的位运算操作，常用于实现快速的乘法、除法、符号扩展等功能。根据处理方式不同，移位可分为 **逻辑移位**、**算术移位**和**循环移位**三类：
+
+- **逻辑移位**（Logical Shift）：用于 **无符号整数**，空位统一用 `0` 填充。
+- **算术移位**（Arithmetic Shift）：用于 **有符号整数**，右移时保持符号位不变。
+- **循环移位**（Rotate Shift）：将移出的位补回另一端，不丢失任何一位。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-006.svg" alt={"1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 1 循环右移 循环左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 逻辑右移 逻辑左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 算术右移 算术左移 高位补充符号位 高位补充 0"} />
+
+常见的移位指令如下表所示：
+
+| 指令 | 含义 | 说明 |
+| --- | --- | --- |
+| `SHL`/`SAL` | 左移（逻辑/算术） | 功能相同，等效于乘以 2 的幂 |
+| `SHR` | 逻辑右移 | 高位补 `0`，用于 **无符号数** |
+| `SAR` | 算术右移 | 高位补符号位（即保留符号），用于 **有符号数** |
+| `ROL` | 循环左移 | 将最高位移出，补入最低位，位模式循环 |
+| `ROR` | 循环右移 | 将最低位移出，补入最高位，位模式循环 |
+
+逻辑移位
+
+**逻辑移位**适用于 **无符号整数**，移位时将空出的位补为 `0`，不考虑操作数的符号。
+
+- **逻辑左移 (`SHL`)**：整体向左移动，低位补 `0`，高位移出丢弃；
+- **逻辑右移 (`SHR`)**：整体向右移动，高位补 `0`，低位移出丢弃。
+
+```
+; 逻辑移位的实例
+mov al, 10000000b  ; 原值 -128（补码表示）
+shr al, 1          ; 结果变为 01000000b，即十进制 64
+```
+
+尽管原数是负数，但使用 `SHR` 逻辑右移时，仍然将高位补 `0`，因此结果不再保留符号。
+
+算术移位
+
+**算术移位**适用于 **有符号整数**，在右移时会 **保留符号位**（最高位），使符号不变，符合数学意义上的除法。
+
+- **算术左移 (`SAL`)**：整体向左移动，低位补 `0`，高位移出丢弃；
+- **算术右移 (`SAR`)**：整体向右移动，最高位保持原符号位的值。
+
+```
+; 算术移位的实例
+mov al, -16        ; 二进制补码：11110000（0xF0）
+sar al, 1          ; 结果：11111000（0xF8）→ -8
+```
+
+由于保留了最高位 `1`，右移后结果仍为负数。
+
+循环移位
+
+**循环移位**（Rotate Shift）是一种将移出的位 **重新从另一端补入** 的移位方式，不改变位的总数，也不会丢弃任何一位，常用于加密、校验等需要 “保留所有信息” 的场景。
+
+常见类型包括：
+
+- **循环左移 (`ROL`)**：将最高位移出后补入最低位；
+- **循环右移 (`ROR`)**：将最低位移出后补入最高位。
+
+```
+; 循环右移的实例
+mov al, 10000001b  ; 原值：0x81
+ror al, 1          ; 结果：11000000b（原最低位 1 补到了最高位）
+```
+
+与逻辑移位和算术移位不同，循环移位不引入新的位填充，因此所有位的内容只是位置发生变化，适用于 **无符号与有符号数** 的位模式操作，但不适合做乘除法运算。
+
+### 控制转移指令
+
+#### 无条件跳转
+
+**无条件跳转**到某个标签（label）。
+
+标签是一个可识别的标识符，标签通常是一个有意义的名字，后跟一个冒号，用于标记程序中的某个位置或地址。
+
+```
+jmp label
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-007.svg" alt={"JMP 跳转指令语义图"} />
+
+跳转指令编译后通常使用 [相对寻址](/docs/408/知识点总结2/computer-organization/instruction/format/#%e7%9b%b8%e5%af%b9%e5%af%bb%e5%9d%80)，也就是 **跳转偏移量** 是相对于下一条指令的地址（即当前 PC + 指令长度） 来计算的。
+
+对于 `jmp label` 指令，若 label 在距离当前指令之后 N 字节处，则相对寻址的偏移量可以通过以下公式计算：
+
+```
+偏移量 = 标签地址 - (当前 PC 值 + 指令长度)
+偏移量 = 标签地址 - (jmp 下一条指令地址)
+```
+
+**注意**
+在 **408** 中，一般教材讲到的：
+
+```
+JMP LABEL
+BEQ LABEL
+BNE LABEL
+CALL LABEL
+```
+
+默认都可以理解为：
+
+> **控制转移指令通常采用 PC 相对寻址（相对寻址）。**
+
+但从计算机体系结构的角度来说，JMP 并不天然等于相对寻址，它也可以是绝对或间接跳转。
+
+#### 条件跳转
+
+在 `CMP` 指令后常常跟一个 **条件跳转** 指令，**条件跳转**指令会检查 [标志寄存器](/docs/408/知识点总结2/computer-organization/cpu/structure/#%e6%a0%87%e5%bf%97%e5%af%84%e5%ad%98%e5%99%a8)（FLAGS）的标志，从而决定是否跳转到某个标签（条件成立时），如果选择不跳转的话，则继续向后执行。
+
+```
+; 比较 eax 和 ebx 的值
+cmp eax, ebx
+; 执行条件跳转
+je equal_label
+```
+
+条件跳转的过程可以通过下图进行辅助理解：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-008.svg" alt={"ConditionalJump"} />
+
+有符号数跳转
+
+对于**有符号数** 来说，存在以下条件跳转指令：
+
+| 指令 | 全称 | 跳转条件 |
+| --- | --- | --- |
+| `JE/JZ` | jump equal/zero（相等/零） | `ZF=1` |
+| `JNE/JNZ` | not equal/zero（不等/非零） | `ZF=0` |
+| `JG`（大于） | greater（大于） | `ZF=0 且 SF=OF` |
+| `JL`（小于） | less（小于） | `SF≠OF` |
+| `JGE`（大于等于） | greater equal（大于等于） | `SF=OF` |
+| `JLE`（小于等于） | less equal（小于等于） | `ZF=1 或 SF≠OF` |
+
+无符号数跳转
+
+对于**无符号数** 来说，存在以下条件跳转指令：
+
+| 指令 | 全称 | 跳转条件 |
+| --- | --- | --- |
+| `JA` | jump above（无符号大于） | `CF=0 且 ZF=0` |
+| `JAE` | jump above or equal（无符号大于等于） | `CF=0` |
+| `JB` | jump below（无符号小于） | `CF=1` |
+| `JBE` | jump below or equal（无符号小于等于） | `CF=1 或 ZF=1` |
+
+**注意**
+为什么针对有符号数和无符号数要有两套指令？
+
+因为 CPU 不区分有符号数和无符号数，它根本不知道 `cmp` 指令比较的数字是 int 还是 unsigned。
+
+所以指令集会提供两套跳转指令：
+
+- 编译器认为这是 signed → 用 JG/JL
+- 编译器认为这是 unsigned → 用 JA/JB
+
+#### 子程序调用
+
+在汇编语言中，调用一个子程序通常使用 `CALL` 指令，执行完子程序后使用 `RET` 指令返回。两者配合，实现了 **从主程序跳转到子程序，再返回继续执行** 的控制流程。
+
+```
+call subroutine
+...
+subroutine:
+    ; 执行一些操作
+    ret
+```
+
+`CALL` 指令用于 **调用子程序**，涉及以下步骤：
+
+- 保存返回地址：将当前指令的下一个地址（即返回地址）压入栈中，这样子程序返回时才知道从哪一条指令继续执行。
+- 跳转到子程序：将程序计数器设置为子程序的入口地址，开始执行子程序的代码。
+
+`RET` 指令用于 **从子程序返回到调用函数**，涉及以下步骤：
+
+- 从栈中弹出返回地址：从栈顶弹出一个值，并将这个值作为返回地址。这是之前 `CALL` 指令压入栈的地址。
+- 跳转到返回地址：将程序计数器设置为返回地址，继续执行从调用子程序的指令的下一条指令。
+
+子程序调用的过程可以通过下图进行辅助理解：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-009.svg" alt={"子程序调用过程图"} />
+
+图的阅读顺序对应四个步骤：
+
+1. **CALL 跳转**：执行 `call 0x2000`，PC 被设为子程序入口地址 `0x2000`，控制流从主程序跳转过去。
+2. **压入返回地址**：CALL 同时把下一条指令的地址（`0x1008`，即 `call` 后面那条）压入栈顶，SP 下移指向新的栈顶。
+3. **弹出返回地址**：子程序执行完毕，`ret` 从栈顶弹出 `0x1008`，SP 上移恢复。
+4. **RET 返回**：PC 被设为弹出的 `0x1008`，控制流跳回主程序，从 `call` 的下一条指令继续执行，宛如什么都没发生过。
+
+**补充说明**
+以下三个知识点可以放在一起学习：
+
+- 函数调用时内存结构
+- [子程序调用](/docs/408/知识点总结2/computer-organization/instruction/instruction_ops/#%e5%ad%90%e7%a8%8b%e5%ba%8f%e8%b0%83%e7%94%a8)
+- [函数定义和调用对应的汇编代码](/docs/408/知识点总结2/computer-organization/instruction/high_low_language/#%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89%e5%92%8c%e8%b0%83%e7%94%a8)
+
+### 陷阱指令
+
+> **真题考察**
+> - 选择题：2014 年第 25 题、2020 年第 18 题、2026 年第 17 题、2026 年第 21 题
+>
+> 真题题号仅用于标记考查范围，相关外部题库链接已移除。
+
+**陷阱指令**（Trap Instruction）是一类特殊的 **同步异常触发指令**，用于从 **用户态切换到内核态**，以请求操作系统执行特权操作。它们本质上是一种 **软件中断机制**，通常用于：
+
+- 实现 **系统调用**（如文件操作、进程控制等）；
+- 支持 **断点调试**（例如 IDE 或 GDB 中设置断点）；
+- 报告程序运行中出现的 **异常情况**（如除 0、非法访问）等。
+
+陷阱的特点是由 **程序主动触发**，与硬件中断（如 I/O、时钟中断）区分开来。
+
+INT
+
+`INT` 指令用于产生一个软件中断，它后面跟着一个中断向量号（通常是一个字节大小的立即数），用于指定要调用的中断或服务例程：
+
+```
+INT n  ; n 为中断向量号（0~255）
+```
+
+执行后，CPU 根据中断向量号 n 查找 [中断向量表](/docs/408/知识点总结2/computer-organization/cpu/interrupt/#%e4%b8%ad%e6%96%ad%e5%90%91%e9%87%8f%e8%a1%a8)（Interrupt Vector Table, IVT）中对应的处理程序地址，并跳转执行。常见用法如下：
+
+```
+mov eax, 1   ; 系统调用：exit
+mov ebx, 0   ; 退出代码
+int 0x80     ; 触发中断
+```
+
+`INT n` 触发的从用户态进入内核态、查表分派到处理程序、再通过 `iret` 返回用户态的完整过程如下图所示：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-010.svg" alt={"陷阱指令 INT n 的执行流程 用户态 (Ring 3) 内核态 (Ring 0) ① 用户程序 mov eax, 1 mov ebx, 0 int 0x80 ; 触发陷阱 ② IVT / IDT 查表 用 n 作索引找处理程序地址 0x00 → handler0 0x01 → handler1 0x80 → sys_call_handler ③ 内核处理程序 push 寄存器现场 根据 eax 分派 syscall 执行特权操作 (I/O, exit…) 恢复现场 / i"} />
+
+**补充说明**
+**Trap 指令和 TF 标志位的区别**
+
+**陷阱指令**（如 `INT`） ≠ **TF 标志位**。
+
+- `INT` 指令显式触发陷阱，由程序执行。
+- [TF](/docs/408/知识点总结2/computer-organization/cpu/structure/#%e6%8e%a7%e5%88%b6%e6%a0%87%e5%bf%97) 是 EFLAGS 寄存器中的一个位，设置为 1 后每执行一条指令就引发一次单步中断（INT 1），用于单步调试。
+- 二者都能进入内核态，但触发机制不同。
+
+**Trap** 指令一般通过 `INT` 指令执行，**TF** 标志位通过 `PUSHF` 和 `POPF` 修改。
+
+### 协处理器指令
+
+#### 开关中断
+
+`CLI` 和 `STI` 用于控制 CPU 的 **中断响应**能力。具体来说，这两条指令用于修改处理器的 **中断标志**（IF，Interrupt Flag），从而控制外部硬件中断的使能和禁止。
+
+**中断标志** (IF) 是状态寄存器中的一个标志位。如果 IF 位被设置（即为 1），处理器将响应外部硬件中断。如果 IF 位被清除（即为 0），处理器将忽略外部硬件中断请求。
+
+- `CLI`：清除 **中断标志**位（Clear Interrupt Flag），将 IF 位设置为 0，从而禁止处理器响应外部硬件中断。
+- `STI`：设置 **中断标志**位（Set Interrupt Flag），将 IF 位设置为 1，从而允许处理器响应外部硬件中断。
+
+```
+cli   ; 关闭中断
+sti   ; 开启中断
+```
+
+**补充说明**
+IF 位控制的是 [可屏蔽中断](/docs/408/知识点总结2/computer-organization/cpu/interrupt/#%e5%8f%af%e5%b1%8f%e8%94%bd%e4%b8%ad%e6%96%ad)（IRQ），但不会影响 [不可屏蔽中断](/docs/408/知识点总结2/computer-organization/cpu/interrupt/#%e4%b8%8d%e5%8f%af%e5%b1%8f%e8%94%bd%e4%b8%ad%e6%96%ad)（NMI）。
+
+### 输入输出
+
+`IN` 和 `OUT` 指令用于处理与外部设备的 **输入/输出**（I/O）操作。这些指令让 CPU 可以直接与硬件端口通信，从而读取或发送数据。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-011.svg" alt={"寄存器 寄存器 端口 端口 电流特性的转换 电流特性的转换 端口 电流特性的转换 CPU I/O 接口 in 指令 out 指令 键盘 显示器 外设"} />
+
+- `IN`：从指定的 **I/O 端口**读取数据到 **寄存器**。通过 `IN` 指令，可以从硬件设备读取状态信息或数据。
+- `OUT`： **将寄存器**中的数据写入到指定的 **I/O 端口**。通过 `OUT` 指令，CPU 可以向设备发送控制命令或数据。
+
+- 语法
+- 实例
+
+```
+; 输入指令
+in  reg, port      ; 从 I/O 端口 port 读取一个字节/字到 reg 寄存器
+
+; 输出指令
+out port, reg      ; 将 reg 寄存器中的值写入 I/O 端口 port
+```
+
+```
+; 读取键盘控制器状态（端口 0x60）
+in al, 0x60
+
+; 将 AL 中的数据再次写回键盘控制器
+out 0x60, al
+```
+
+注意 **I/O 端口**的 [编址方式](/docs/408/知识点总结2/computer-organization/bus/io/#%e7%bc%96%e5%9d%80%e6%96%b9%e5%bc%8f) 有两种：统一编址 和 独立编址，`IN/OUT` 指令仅适用于独立编址，对于统一编址，使用 `MOV` 指令即可完成输入输出。
+
+**输入输出指令**（如 `IN` / `OUT`）常用于 [程序查询方式](/docs/408/知识点总结2/computer-organization/bus/io/#%e7%a8%8b%e5%ba%8f%e6%9f%a5%e8%af%a2%e6%96%b9%e5%bc%8f) 和 [程序中断方式](/docs/408/知识点总结2/computer-organization/bus/io/#%e7%a8%8b%e5%ba%8f%e4%b8%ad%e6%96%ad%e6%96%b9%e5%bc%8f) 中，由 CPU 发出指令与设备进行数据交换。相比之下，DMA 方式则由硬件控制器自动完成传输，通常不依赖此类指令。
+
+程序查询方式 和 程序中断方式 这两种 **I/O** 方式的实现的核心逻辑可以参考下述代码：
+
+- 程序查询方式
+- 中断方式
+
+```
+// 用户态伪代码
+write_to_device(data) {
+    while (1) {
+        if (kernel_read_port(STATUS_PORT) & READY_BIT) { // 轮询
+            kernel_write_port(DATA_PORT, data);          // 实际执行 OUT
+            break;
+        }
+    }
+}
+
+// 内核态驱动伪代码，用一个 C 函数封装了底层输入输出汇编指令
+// 通过读取端口内容，获取设备状态
+uint8_t kernel_read_port(uint16_t port) {
+    asm("in %%dx, %%al" : "=a"(value) : "d"(port));
+    return value;
+}
+
+// 通过端口向设备写入
+void kernel_write_port(uint16_t port, uint8_t data) {
+    asm("out %%al, %%dx" : : "a"(data), "d"(port));
+}
+```
+
+```
+// 用户程序只发起请求，挂起等待中断
+read_from_device(buffer) {
+    request_read();  // 向设备发送读取命令
+}
+
+// 内核：中断服务例程
+interrupt_handler() {
+    uint8_t data = inb(DATA_PORT);  // IN 指令读取设备数据
+    kernel_buffer = data;
+    wake_up_user();
+}
+```
+
+- 在程序查询方式中，CPU 通过反复执行 **输入输出指令**轮询设备状态，当设备准备就绪后再通过 **输入输出指令**执行读写操作。
+- 在中断方式中，当设备准备好数据后会向 CPU 发送中断信号；CPU 响应后进入中断服务程序，并在其中执行 **输入输出指令**与设备进行数据交换。
+
+### 字符串操作指令
+
+字符串操作指令基本不考察，这里简单了解即可。
+
+MOVS
+
+复制字符串（`ES:EDI` ← `DS:ESI`）。
+
+```
+movs byte ptr es:[edi], byte ptr ds:[esi]  ; 复制 1 字节
+movs dword ptr es:[edi], dword ptr ds:[esi]  ; 复制 4 字节
+```
+
+LODS
+
+从 `DS:ESI` 加载数据到 `AL/AX/EAX`。
+
+```
+lodsb  ; 读取 1 字节
+lodsd  ; 读取 4 字节
+```
+
+STOS
+
+将 `AL/AX/EAX` 存储到 `ES:EDI`。
+
+```
+stosb  ; 存储 1 字节
+stosd  ; 存储 4 字节
+```
+
+CMPS
+
+比较两个字符串。
+
+```
+cmpsb  ; 比较字节
+cmpsd  ; 比较 4 字节
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-012.svg" alt={"x86 字符串操作指令语义图"} />
+
+### 总结
+
+$$
+\begin{array}{cc}\text{指令类别} &\text{说明}\\mathrm{MOV} &\text{数据传输}\\mathrm{PUSH/POP} &\text{堆栈操作}\\mathrm{ADD/SUB} &\text{加减运算}\\mathrm{MUL/DIV} &\text{乘除运算}\\mathrm{AND/OR/XOR/NOT} &\text{逻辑运算}\\mathrm{CMP} &\text{比较}\\mathrm{JMP} &\text{无条件跳转}\\mathrm{Jxx} &\text{条件跳转}\\mathrm{CALL/RET} &\text{子程序调用}\\mathrm{IN/OUT} &\text{输入/输出}\\mathrm{MOVS/LODS/STOS} &\text{字符串操作}\\mathrm{INT} &\text{触发中断}\\mathrm{CLI/STI} &\text{控制中断}\end{array}
+$$
