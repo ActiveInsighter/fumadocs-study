@@ -1,0 +1,215 @@
+---
+title: "高频易错点、总表与真题索引"
+description: "查找章节高频易错点、方法总表与真题复习索引。"
+---
+
+## 12. 本章高频易错点
+
+#### 折半查找
+
+* 必须基于有序表；
+* 适合可以随机访问的顺序存储结构；
+* 普通链表不适合直接做高效折半查找；
+* 偶数个元素时左右中点选择会影响判定树形状。
+
+#### B 树
+
+牢记：
+
+$$
+m\text{ 阶}
+\Rightarrow
+\text{最多 }m\text{ 棵子树}
+$$
+
+$$
+\Rightarrow
+\text{最多 }m-1\text{ 个关键字}
+$$
+
+非根结点的最少关键字数为：
+
+$$
+\left\lceil\frac m2\right\rceil-1
+$$
+
+插入的核心：
+
+```text
+叶结点插入
+→ 溢出
+→ 分裂
+→ 中间关键字上移
+```
+
+删除的核心：
+
+```text
+不足
+→ 能借则借
+→ 不能借则合并
+```
+
+#### B+ 树
+
+核心不是死记关键字数，而是抓住：
+
+```text
+内部结点：索引
+叶结点：数据
+叶结点之间：有序链表
+```
+
+查找实际记录必须到达叶结点。
+
+#### 散列表
+
+散列函数：
+
+```text
+负责确定初始地址
+```
+
+冲突处理方法：
+
+```text
+负责初始地址被占用以后去哪里
+```
+
+二者不要混为一谈。
+
+#### 开放定址删除
+
+不能直接恢复成普通空槽。
+
+通常需要：
+
+```text
+DELETED
+```
+
+标记，否则可能破坏后续元素的查找路径。
+
+#### ASL
+
+最重要的区别：
+
+```text
+成功 ASL
+→ 对已有元素求平均
+
+失败 ASL
+→ 对可能的初始散列地址求平均
+```
+
+失败查找最后遇到空槽：
+
+> **空槽对应的那一次探测也要计算。**
+
+---
+
+## 13. 查找方法总表
+
+| 方法   | 基本思想       | 结构要求   | 平均效率             | 主要考点        |
+| ---- | ---------- | ------ | ---------------- | ----------- |
+| 顺序查找 | 逐个比较       | 无特殊要求  | \(O(n)\)         | ASL、适用条件    |
+| 折半查找 | 每次舍弃一半     | 有序顺序表  | \(O(\log n)\)    | 判定树、比较次数    |
+| 分块查找 | 先查块，再查块内   | 块间有序   | 介于两者之间           | 索引表、ASL     |
+| BST  | 利用左小右大     | 二叉搜索树  | 平均 \(O(\log n)\) | 树高决定效率      |
+| AVL  | 保持高度平衡     | 平衡 BST | \(O(\log n)\)    | 平衡调整        |
+| 红黑树  | 弱平衡        | 红黑树    | \(O(\log n)\)    | 高度有界        |
+| B 树  | 多路平衡查找     | 多路平衡树  | \(O(\log n)\)    | 阶数、插入、删除    |
+| B+ 树 | 内部索引、叶子存数据 | 多路平衡树  | \(O(\log n)\)    | 与 B 树比较     |
+| 散列表  | 关键字直接映射地址  | 散列函数   | 平均 \(O(1)\)      | 冲突、ASL、装填因子 |
+
+---
+
+## 14. 408 真题与原始配套资源
+
+### 数组查找
+
+视频：
+
+* [顺序和折半查找](https://www.bilibili.com/cheese/play/ep2796770)
+* [分块查找](https://www.bilibili.com/cheese/play/ep2796771)
+
+相关选择题：
+
+* [2010 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2010/#9)
+* [2015 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2015/#7)
+* [2016 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2016/#9)
+* [2023 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2023/#8)
+* [2024 年第 5 题](https://www.csgraduates.com/study_methods/408quiz/2024/#5)
+* [2025 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2025/#7)
+
+原始专题：
+
+* [数组查找](https://www.csgraduates.com/data_structure/search/array/)
+
+### B 树与 B+ 树
+
+视频：
+
+* [B 树特性](https://www.bilibili.com/cheese/play/ep2796781)
+* [B 树查找](https://www.bilibili.com/cheese/play/ep2796782)
+* [B 树插入](https://www.bilibili.com/cheese/play/ep2796784)
+* [B 树删除](https://www.bilibili.com/cheese/play/ep2796785)
+* [B+ 树](https://www.bilibili.com/cheese/play/ep2796786)
+
+B 树相关选择题：
+
+* [2009 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2009/#8)
+* [2012 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2012/#9)
+* [2013 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2013/#10)
+* [2014 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2014/#9)
+* [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
+* [2018 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2018/#8)
+* [2020 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2020/#10)
+* [2022 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2022/#8)
+* [2023 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2023/#7)
+* [2025 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2025/#8)
+
+B+ 树相关选择题：
+
+* [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
+* [2017 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2017/#9)
+
+原始专题：
+
+* [树形查找](https://www.csgraduates.com/data_structure/search/tree/)
+
+B 树交互演示：
+
+* [B-Tree Visualization](https://www.cs.usfca.edu/~galles/visualization/BTree.html)
+
+### 散列表
+
+视频：
+
+* [散列表概念](https://www.bilibili.com/cheese/play/ep2807342)
+* [散列表操作](https://www.bilibili.com/cheese/play/ep2807345)
+* [冲突处理的拉链法](https://www.bilibili.com/cheese/play/ep2807347)
+* [冲突处理的开放定址法](https://www.bilibili.com/cheese/play/ep2807359)
+* [散列表扩容](https://www.bilibili.com/cheese/play/ep2807357)
+* [查找成功的平均查找长度](https://www.bilibili.com/cheese/play/ep2807351)
+* [查找失败的平均查找长度](https://www.bilibili.com/cheese/play/ep2807349)
+
+相关选择题：
+
+* [2011 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2011/#9)
+* [2014 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2014/#8)
+* [2018 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2018/#9)
+* [2019 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2019/#8)
+* [2022 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2022/#9)
+* [2023 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2023/#9)
+* [2025 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2025/#9)
+
+相关综合题：
+
+* [2010 年第 41 题](https://www.csgraduates.com/study_methods/408quiz/2010/#41)
+* [2013 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2013/#42)
+* [2024 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2024/#42)
+
+原始专题：
+
+* [散列表查找](https://www.csgraduates.com/data_structure/search/hash/)

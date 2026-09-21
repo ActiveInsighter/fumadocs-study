@@ -1,7 +1,9 @@
 ---
 title: "BST、AVL 与红黑树"
-description: "二叉排序树、AVL 平衡调整与红黑树。"
+description: "二叉排序树、AVL 平衡二叉树和红黑树的核心操作与比较。"
 ---
+
+## 十三、二叉排序树 BST
 
 > **真题考察**
 >
@@ -22,7 +24,7 @@ description: "二叉排序树、AVL 平衡调整与红黑树。"
 
 > **对 BST 进行中序遍历，可以得到递增有序序列。**
 
-## 1. 结点结构
+### 1. 结点结构
 
 ```c
 typedef struct TreeNode {
@@ -43,7 +45,7 @@ TreeNode* newNode(int data) {
 }
 ```
 
-## 2. 查找
+### 2. 查找
 
 ```c
 TreeNode* search(TreeNode* root, int data) {
@@ -83,7 +85,7 @@ $$
 O(n)
 $$
 
-## 3. 插入
+### 3. 插入
 
 BST 插入首先执行一次查找，找到应该出现的位置，再把新结点作为叶结点插入。
 
@@ -113,7 +115,7 @@ TreeNode* insert(TreeNode* root, int data) {
 
 按此顺序插入会得到近似单链表的结构，从而失去 BST 理想情况下的高效查找性能。
 
-## 4. 删除
+### 4. 删除
 
 <InlineSvg src="/images/data-structure/data-structure-tree-btree-013.svg" alt={"BST 删除节点的三种情况 情况 1：叶子节点 直接删除，无需后续处理 删除前 8 3 12 1 5 删 1 删除后 8 3 12 5 情况 2：只有一个子节点 用唯一子树替代被删节点 删除前 8 3 12 5 删 3 删除后 8 5 12 把唯一子节点 5 提到原位置 情况 3：两个子节点 用 中序后继（右子树最小） 或 中序前驱（左子树最大） 顶替，再递归删除该后继/前驱 删除前（删 8） 8 3 12 1 6 10 14 中序后继 = 10 ① 值替换 ② 删原 10 "} />
 
@@ -224,7 +226,7 @@ $$
 
 <InlineSvg src="/images/data-structure/data-structure-tree-btree-014.svg" alt={"图示"} />
 
-## 1. 最小不平衡子树
+### 1. 最小不平衡子树
 
 插入新结点后，从新结点沿祖先方向向上检查。
 
@@ -234,7 +236,7 @@ $$
 
 ---
 
-## 2. 四种旋转类型
+### 2. 四种旋转类型
 
 判断方法：
 
@@ -315,7 +317,7 @@ A 的右孩子的左子树
 >
 > LR、RL 是“折线”，先把折线拉直，再做一次单旋。
 
-## 3. AVL 结点定义
+### 3. AVL 结点定义
 
 ```c
 struct TreeNode {
@@ -326,7 +328,7 @@ struct TreeNode {
 };
 ```
 
-## 4. 左旋
+### 4. 左旋
 
 ```c
 struct TreeNode* leftRotate(
@@ -345,7 +347,7 @@ struct TreeNode* leftRotate(
 }
 ```
 
-## 5. 右旋
+### 5. 右旋
 
 ```c
 struct TreeNode* rightRotate(
@@ -364,7 +366,7 @@ struct TreeNode* rightRotate(
 }
 ```
 
-## 6. 高度与平衡因子
+### 6. 高度与平衡因子
 
 ```c
 int getHeight(struct TreeNode* node) {
@@ -409,7 +411,7 @@ void updateHeight(
 }
 ```
 
-## 7. AVL 插入完整框架
+### 7. AVL 插入完整框架
 
 ```c
 struct TreeNode* insert(
@@ -521,7 +523,7 @@ $$
 O(\log n)
 $$
 
-更具体地，具有 $n$ 个内部结点的红黑树高度满足数量级上界：
+更具体地，具有 \(n\) 个内部结点的红黑树高度满足数量级上界：
 
 $$
 h\le2\log_2(n+1)
@@ -536,8 +538,8 @@ $$
 | 本质   | BST                | BST               |       |             |
 | 平衡要求 | 严格                 | 相对宽松              |       |             |
 | 平衡条件 | 任意结点 (             | BF                | \le1) | 颜色、红结点限制、黑高 |
-| 树高   | $O(\log n)$，通常较矮 | $O(\log n)$     |       |             |
-| 查找   | 通常路径较短             | 同样为 $O(\log n)$ |       |             |
+| 树高   | \(O(\log n)\)，通常较矮 | \(O(\log n)\)     |       |             |
+| 查找   | 通常路径较短             | 同样为 \(O(\log n)\) |       |             |
 | 更新   | 平衡约束严格             | 常通过旋转与重新着色维护      |       |             |
 | 典型特点 | 查找性能优秀             | 插入、删除时维护成本通常更灵活   |       |             |
 

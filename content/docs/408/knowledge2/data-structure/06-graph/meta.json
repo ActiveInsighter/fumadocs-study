@@ -1,10 +1,9 @@
 {
   "title": "第 6 章 图",
   "pages": [
-    "index",
-    "01-concepts-storage",
-    "02-traversal",
-    "03-mst-shortest-path",
-    "04-dag-critical-path"
+    "01-basics-storage",
+    "02-traversal-mst",
+    "03-shortest-topology",
+    "04-critical-path-summary"
   ]
 }

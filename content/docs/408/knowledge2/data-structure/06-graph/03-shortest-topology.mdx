@@ -1,0 +1,382 @@
+---
+title: "最短路径与拓扑排序"
+description: "Dijkstra、Floyd-Warshall、AOV 网与拓扑排序。"
+---
+
+## 十九、最短路径
+
+> **真题考察**
+>
+> * 选择题：2012 年第 7 题、2016 年第 8 题、2021 年第 8 题
+> * 解答题：2009 年第 41 题、2014 年第 42 题
+
+408 主要掌握：
+
+* Dijkstra：单源最短路径；
+* Floyd-Warshall：所有顶点对最短路径。
+
+---
+
+## 二十、Dijkstra 算法
+
+Dijkstra 用于求：
+
+> 一个源点到其他所有顶点的最短路径。
+
+适用于：
+
+* 有向图或无向图；
+* 所有边权必须**非负**。
+
+![Dijkstra\_Animation](/images/data-structure/data-structure-graph-operation-009.gif)
+
+#### 1. 核心思想
+
+维护两个集合：
+
+* 已经确定最短距离的顶点；
+* 尚未确定最短距离的顶点。
+
+每轮从尚未确定的顶点中，选择当前距离源点最近的顶点 \(u\)，将其最短距离最终确定。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-010.svg" alt={"DijkstraDemo"} />
+
+#### 2. 两个核心数组
+
+##### `dist[]`
+
+$$
+dist[v]
+$$
+
+表示源点到 \(v\) 的当前最短暂定距离。
+
+初始化：
+
+$$
+dist[source]=0
+$$
+
+其余顶点：
+
+$$
+dist[v]=\infty
+$$
+
+##### `visited[]`
+
+表示顶点的最短距离是否已经最终确定。
+
+初始全部为 `false`。
+
+#### 3. 松弛
+
+如果已经知道从源点到 \(u\) 的最短距离，并存在边
+
+$$
+u\rightarrow v
+$$
+
+则尝试：
+
+$$
+dist[v]
+=
+\min\left(
+dist[v],
+dist[u]+w(u,v)
+\right)
+$$
+
+这个过程称为**松弛**。
+
+#### 4. 算法过程
+
+1. 初始化 `dist[]`；
+2. 在所有未确定顶点中找到 `dist` 最小的顶点 \(u\)；
+3. 将 \(u\) 标记为已确定；
+4. 用 \(u\) 松弛所有邻接顶点；
+5. 重复。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-011.svg" alt={"DijkstraAlgorithm"} />
+
+伪代码：
+
+```text
+function Dijkstra_Simple(Graph, source):
+    for each vertex v:
+        dist[v] ← ∞
+        visited[v] ← false
+
+    dist[source] ← 0
+
+    repeat |V| times:
+        u ← 未访问顶点中 dist[u] 最小的顶点
+
+        if dist[u] = ∞:
+            break
+
+        visited[u] ← true
+
+        for each neighbor v of u:
+            weight ← w(u, v)
+
+            if not visited[v]
+               and dist[v] > dist[u] + weight:
+
+                dist[v] ← dist[u] + weight
+
+    return dist
+```
+
+#### 5. 为什么不能处理负权边
+
+Dijkstra 一旦把顶点 \(u\) 标记为已确定，就认为
+
+$$
+dist[u]
+$$
+
+以后不可能再减小。
+
+负权边可能导致某条后来才发现的路径把已经确定的距离继续降低，从而破坏这一贪心性质。
+
+因此只要存在负权边，就不能直接使用标准 Dijkstra。
+
+#### 6. 复杂度
+
+顺序数组实现：
+
+$$
+O(V^2)
+$$
+
+邻接表 + 二叉堆：
+
+$$
+O((V+E)\log V)
+$$
+
+稀疏图中也常近似写为
+
+$$
+O(E\log V)
+$$
+
+---
+
+## 二十一、Floyd-Warshall 算法
+
+Floyd-Warshall 用于求：
+
+> **任意两个顶点之间**的最短路径。
+
+它是一种典型的动态规划算法。
+
+可以处理：
+
+* 有向图；
+* 无向图；
+* 负权边。
+
+但若存在相关的**负权环**，则不存在有限的最短路径。
+
+#### 1. 动态规划思想
+
+依次允许顶点
+
+$$
+v_1,v_2,\ldots,v_k
+$$
+
+作为中间顶点。
+
+当新允许顶点 \(k\) 作为中间点时：
+
+$$
+dist[i][j]
+=
+\min
+\left(
+dist[i][j],
+dist[i][k]+dist[k][j]
+\right)
+$$
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt={"Floyd-Warshall 逐步引入中间顶点"} />
+
+#### 2. 实现
+
+```c
+for (int k = 0; k < n; ++k) {
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (dist[i][k] != INF && dist[k][j] != INF) {
+                dist[i][j] =
+                    min(dist[i][j],
+                        dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+}
+```
+
+注意循环顺序必须首先枚举中间顶点 `k`。
+
+#### 3. 复杂度
+
+时间复杂度：
+
+$$
+O(V^3)
+$$
+
+空间复杂度：
+
+$$
+O(V^2)
+$$
+
+#### 4. Dijkstra 与 Floyd 对比
+
+| 项目       | Dijkstra      | Floyd-Warshall |
+| -------- | ------------- | -------------- |
+| 问题类型     | 单源最短路径        | 全源最短路径         |
+| 思想       | 贪心            | 动态规划           |
+| 负权边      | 不允许           | 可以             |
+| 负权环      | 不适用           | 无有限最短路         |
+| 典型复杂度    | \(O(V^2)\)    | \(O(V^3)\)     |
+| 408 常见考法 | 手工更新 `dist[]` | 手工更新距离矩阵       |
+
+---
+
+## 二十二、拓扑排序
+
+> **真题考察**
+>
+> * 选择题：2010 年第 8 题、2012 年第 6 题、2014 年第 7 题、2016 年第 7 题、2018 年第 7 题、2021 年第 7 题
+> * 解答题：2024 年第 41 题
+
+对于一个有向图，如果能够将全部顶点排列成
+
+$$
+v_1,v_2,\ldots,v_n
+$$
+
+使得对于每条有向边
+
+$$
+u\rightarrow v
+$$
+
+顶点 \(u\) 都出现在 \(v\) 之前，则该序列称为**拓扑序列**。
+
+只有 **DAG（Directed Acyclic Graph，有向无环图）**才存在拓扑序列。
+
+---
+
+## 二十三、AOV 网
+
+AOV 的全称为：
+
+**Activity On Vertex Network**
+
+即**顶点表示活动**。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-013.svg" alt={"AOV_Network"} />
+
+其中：
+
+* 顶点：任务或活动；
+* 有向边：任务之间的先后依赖关系。
+
+若存在
+
+$$
+u\rightarrow v
+$$
+
+表示活动 \(u\) 必须先于活动 \(v\) 完成。
+
+因此 AOV 网必须是 DAG，否则会产生循环依赖。
+
+---
+
+## 二十四、Kahn 拓扑排序
+
+Kahn 算法基于**入度**。
+
+#### 1. 核心思想
+
+不断寻找：
+
+> **入度为 0 的顶点。**
+
+因为入度为 0 说明该顶点当前不存在尚未完成的前驱。
+
+#### 2. 算法过程
+
+1. 统计每个顶点入度；
+2. 将所有入度为 0 的顶点放入容器；
+3. 取出一个入度为 0 的顶点并输出；
+4. 删除该顶点的所有出边；
+5. 对应后继顶点入度减 1；
+6. 新出现入度为 0 的顶点继续加入；
+7. 直到无法继续。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-014.svg" alt={"1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5"} />
+
+如果最终输出顶点数量小于
+
+$$
+|V|
+$$
+
+则说明剩余顶点形成了环，因此原图不是 DAG。
+
+#### 3. 拓扑序是否唯一
+
+不一定。
+
+如果某一步同时存在多个入度为 0 的顶点，就可以选择不同顶点先输出，因此可能产生多个合法拓扑序列。
+
+> **判断唯一性的常用思路**
+>
+> Kahn 算法过程中，如果每一步都只有一个入度为 0 的顶点，则拓扑序通常唯一；如果某一步存在多个可选顶点，则可以产生不同的拓扑序。
+
+---
+
+## 二十五、DFS + 栈求拓扑序
+
+也可以利用 DFS 获得拓扑序。
+
+步骤：
+
+1. 对图执行 DFS；
+2. 一个顶点的所有后继都访问完成后，将它压栈；
+3. DFS 全部结束后依次出栈。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-015.svg" alt={"topological_sort_dfs"} />
+
+因为：
+
+> 一个顶点只有在所有后继顶点 DFS 完成之后才会入栈。
+
+所以最终逆完成顺序就满足前驱在后继之前。
+
+若使用 DFS 判断图中是否有环，还需要额外维护：
+
+* 当前正在递归中的顶点；
+* 或使用三色标记法。
+
+#### 复杂度
+
+使用邻接表：
+
+$$
+O(V+E)
+$$
+
+Kahn 和 DFS 拓扑排序都可以达到这一复杂度。
+
+---
