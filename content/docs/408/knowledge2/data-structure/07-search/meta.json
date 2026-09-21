@@ -1,8 +1,9 @@
 {
   "title": "第 7 章 查找",
   "pages": [
-    "01-array-search",
+    "index",
+    "01-linear-search",
     "02-tree-search",
-    "03-hash-search"
+    "03-hash"
   ]
 }

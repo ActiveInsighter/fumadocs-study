@@ -1,0 +1,417 @@
+---
+title: "树与森林"
+description: "树的基本概念、存储结构、森林及树/森林与二叉树转换。"
+---
+
+> **真题考察**
+>
+> * 选择题：2010 年第 5 题、2011 年第 6 题、2013 年第 4 题、2021 年第 9 题、2022 年第 4 题
+> * 解答题：2016 年第 42 题
+
+## 1. 树的定义
+
+**树（Tree）**是一种具有层次关系的数据结构。
+
+一棵非空树满足：
+
+1. 有且仅有一个特殊结点，称为**根结点（Root）**；
+2. 除根结点外，其余结点可以划分为若干个互不相交的集合；
+3. 每个集合本身又是一棵树，称为根结点的**子树（Subtree）**。
+
+从图论角度看，可以将树理解为一种有根的、连通且无环的结构。若将边统一规定为从双亲指向孩子，则：
+
+* 根结点入度为 0；
+* 除根结点外，其余结点入度均为 1；
+* 从根到任一结点都存在唯一的一条路径。
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-001.svg" alt={"TreeConcepts"} />
+
+## 2. 结点之间的关系
+
+| 概念            | 含义                  |
+| ------------- | ------------------- |
+| 根结点           | 没有双亲的结点，一棵非空树有且仅有一个 |
+| 双亲 Parent     | 某结点的直接上层结点          |
+| 孩子 Child      | 某结点直接连接的下一层结点       |
+| 兄弟 Sibling    | 具有相同双亲的结点           |
+| 祖先 Ancestor   | 从根到该结点路径上除自身以外的所有结点 |
+| 子孙 Descendant | 某结点下面所有能够由其到达的结点    |
+
+## 3. 结点的度与树的度
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-002.svg" alt={"A B C D E F L M H I J K G 结点 度 A, D 3 B, G 2 C, E 1 K, F, L, M, H, I, J 0 树的度 = max(结点度) = 3"} />
+
+**结点的度**是该结点拥有的孩子数。
+
+**树的度**是整棵树中所有结点度的最大值。
+
+因此：
+
+* 度为 0 的结点称为**叶结点（叶子、终端结点）**；
+* 度大于 0 的结点称为**分支结点（非终端结点）**。
+
+> **易错点：树中结点的度 ≠ 无向图中顶点的度。**
+>
+> 在树的术语中，结点的度通常只计算孩子数；而把树看作无向图时，非根结点还存在一条连接双亲的边，因此其无向图顶点度通常为“孩子数 + 1”。
+
+## 4. 深度
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-003.svg" alt={"A B C D E F L M H I J K G 深度 1 结点 深度 A 1 B, C, D 2 E, F, G, H, I, J 3 K, L, M 4 树的深度 = 4 深度 2 深度 3 深度 4"} />
+
+按照 408 常用定义：
+
+* 根结点深度为 1；
+* 一个结点的深度等于**从根到该结点经过的结点数**；
+* 树的深度等于所有结点深度的最大值。
+
+例如某结点位于第 4 层，则其深度为 4。
+
+## 5. 高度
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-004.svg" alt={"A B C D E F L M H I J K G 结点 高度 A 4 B, C 3 D, E, G 2 F, H, I, J, K, L, M 1 树的高度 = 4 1 1 1 1 1 1 1 2 2 2 3 3 4"} />
+
+按照同样的计数方式：
+
+* 叶结点高度为 1；
+* 一个结点的高度等于从该结点到其最远叶结点经过的结点数；
+* 树的高度就是根结点的高度。
+
+因此对于整棵树：
+
+$$
+\text{树的高度}=\text{树的深度}
+$$
+
+但对某个具体结点而言，其高度和深度通常并不相等。
+
+> **易错点：高度有两种定义。**
+>
+> 有些资料使用“边数”定义高度，此时叶结点高度为 0；408 通常采用“结点数”定义，即根结点深度为 1、叶结点高度为 1。做题时应先确认题目的计数约定。
+
+## 6. 路径与路径长度
+
+树中任意两个结点之间存在且仅存在一条简单路径。
+
+* **路径**：从一个结点到另一个结点依次经过的结点序列；
+* **路径长度**：路径中经过的**边数**。
+
+因此：
+
+$$
+\text{路径长度}=\text{路径上的结点数}-1
+$$
+
+例如：
+
+```text
+A → B → D
+```
+
+经过 3 个结点，但只有 2 条边，所以路径长度为 2。
+
+## 7. 权与带权路径长度
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-005.svg" alt={"A B C D E F L M H I J K G 结点 权重 深度 F H I J K L M 5 3 8 7 11 15 2 2 2 2 2 3 3 3 带权路径长度 10 6 16 14 33 45 6 树的带权路径长度 = 10 + 6 + 16 + 14 + 33 + 45 + 6 = 130"} />
+
+在带权树中，可以给结点赋予一个权值，用于表示频率、代价或重要程度。
+
+若叶结点 $i$ 的权值为 $w_i$，从根到该叶结点的**路径长度（边数）**为 $l_i$，则该叶结点的带权路径长度为：
+
+$$
+w_i l_i
+$$
+
+整棵树的**带权路径长度（Weighted Path Length，WPL）**为所有叶结点带权路径长度之和：
+
+$$
+WPL=\sum_i w_i l_i
+$$
+
+> **注意**
+>
+> WPL 中的 $l_i$ 是根到叶结点经过的**边数**，不能直接把结点的“深度”代进去。
+>
+> 若根深度规定为 1，则有：
+>
+> $$
+> l_i=\text{depth}_i-1
+> $$
+
+WPL 是后面理解**哈夫曼树**的基础。
+
+---
+
+## 二、树的存储结构
+
+普通树中每个结点的孩子数量不固定，因此不能像二叉树一样简单地固定两个孩子指针。常见表示方法主要有三种。
+
+## 1. 双亲表示法
+
+双亲表示法使用数组保存所有结点，并为每个结点记录其双亲在数组中的位置。
+
+```c
+#define MAXSIZE 100
+
+typedef struct {
+    int data;
+    int parent;
+} PTNode;
+
+typedef struct {
+    PTNode nodes[MAXSIZE];
+    int n;
+} PTree;
+```
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-006.svg" alt={"A B C D E F G H I J A -1 B 0 C 0 D 0 E 1 F 1 G 3 H 6 I 6 J 6 Data Parent 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J Tree Data Structure Representation"} />
+
+其特点是：
+
+* 查找一个结点的双亲非常方便；
+* 查找一个结点的所有孩子则需要扫描数组。
+
+## 2. 孩子表示法
+
+孩子表示法为每个结点维护一条孩子链表，再使用数组保存各结点对应的链表头。
+
+```c
+#define MAXSIZE 100
+
+typedef struct ChildNode {
+    int child;
+    struct ChildNode* next;
+} *ChildPtr;
+
+typedef struct {
+    int data;
+    ChildPtr firstchild;
+} CTBox;
+
+typedef struct {
+    CTBox nodes[MAXSIZE];
+    int n;
+} CTree;
+```
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-007.svg" alt={"A B C D E F G H I J Tree 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 1 4 2 5 3 6 7 8 9 Representation"} />
+
+其特点是：
+
+* 查找某结点的孩子方便；
+* 若没有额外保存双亲信息，向上寻找双亲不方便。
+
+## 3. 孩子兄弟表示法
+
+孩子兄弟表示法是 408 中非常重要的一种表示方法。
+
+每个结点只保留两个指针：
+
+* `firstchild`：指向第一个孩子；
+* `rightsib`：指向右边的下一个兄弟。
+
+```c
+typedef struct CSNode {
+    int data;
+    struct CSNode* firstchild;
+    struct CSNode* rightsib;
+} CSNode, *CSTree;
+```
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-008.svg" alt={"A B C D E F G H I J Tree A ^ B ^ E ^ F ^ C D ^ ^ H ^ I ^ J ^ G ^ Representation"} />
+
+孩子兄弟表示法的本质是：
+
+> **把任意树用一棵二叉树表示。**
+
+因此它也是理解“树、森林和二叉树转换”的基础。
+
+---
+
+## 三、森林
+
+> **真题考察**
+>
+> * 选择题：2016 年第 5 题
+
+**森林（Forest）**是若干棵互不相交树的集合。
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-009.svg" alt={"B D E F I J C G H K"} />
+
+树与森林的关系可以理解为：
+
+* 一棵树只有一个根；
+* 一个森林可以包含多棵树，因此存在多个根；
+* 一棵树可以看作只含一棵树的特殊森林。
+
+若讨论森林的高度，可以定义为其中各棵树高度的最大值。
+
+---
+
+## 四、树、森林与二叉树的转换
+
+## 1. 树转换为二叉树
+
+> **真题考察**
+>
+> * 选择题：2019 年第 2 题
+
+转换原则可概括为：
+
+> **左孩子，右兄弟。**
+
+具体过程：
+
+1. 一个结点的第一个孩子变成其二叉树中的**左孩子**；
+2. 其余孩子依次变成前一个孩子的**右孩子**；
+3. 对树中每个结点重复上述操作。
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-010.svg" alt={"A B C D E F G A B C D E F G A B C D E F G 删除 树转化为二叉树"} />
+
+因此，在转换得到的二叉树中：
+
+* 左指针表示“第一个孩子”；
+* 右指针表示“下一个兄弟”。
+
+## 2. 森林转换为二叉树
+
+> **真题考察**
+>
+> * 选择题：2009 年第 6 题、2014 年第 5 题、2021 年第 4 题、2025 年第 4 题、2026 年第 4 题
+
+步骤如下：
+
+1. 先将森林中的每一棵树转换为二叉树；
+2. 第一棵树对应二叉树的根作为整个二叉树的根；
+3. 第二棵树的根作为第一棵树根的右孩子；
+4. 第三棵树的根作为第二棵树根的右孩子；
+5. 依次连接。
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-011.svg" alt={"A B C D E F G H I A B C D E F G H I 森林转化为二叉树 A B C D E F G H I A B C D E F G H I 删除"} />
+
+> **记忆**
+>
+> 森林本身的多棵树，在对应二叉树中通过各棵树根结点的**右孩子链**连接起来。
+
+---
+
+## 五、树与森林的遍历
+
+## 1. 树的遍历
+
+普通树主要有两种典型遍历。
+
+##### 先根遍历
+
+访问顺序：
+
+1. 先访问根结点；
+2. 再按从左到右的顺序先根遍历每一棵子树。
+
+相当于：
+
+```text
+根 → 各子树
+```
+
+##### 后根遍历
+
+访问顺序：
+
+1. 先按从左到右的顺序后根遍历每一棵子树；
+2. 最后访问根结点。
+
+相当于：
+
+```text
+各子树 → 根
+```
+
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-012.svg" alt={"树的先根遍历与后根遍历对比"} />
+
+普通树没有像二叉树那样天然定义的“中序遍历”。
+
+原因在于二叉树中有确定的：
+
+```text
+左子树 → 根 → 右子树
+```
+
+而普通树的孩子数可能是 0、1、2、3……，不存在天然的“左右两部分”。
+
+##### 树结点定义
+
+```c
+#define MAXCHILD 20
+
+typedef struct TreeNode {
+    int value;
+    int numChildren;
+    struct TreeNode *children[MAXCHILD];
+} TreeNode;
+```
+
+##### 先根遍历
+
+```c
+void preOrderTraversal(TreeNode* root) {
+    if (root == NULL) {
+        return;
+    }
+
+    printf("%d ", root->value);
+
+    for (int i = 0; i < root->numChildren; ++i) {
+        preOrderTraversal(root->children[i]);
+    }
+}
+```
+
+##### 后根遍历
+
+```c
+void postOrderTraversal(TreeNode* root) {
+    if (root == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < root->numChildren; ++i) {
+        postOrderTraversal(root->children[i]);
+    }
+
+    printf("%d ", root->value);
+}
+```
+
+对于原图中的树：
+
+```text
+先根遍历：A, B, E, F, C, D, G
+后根遍历：E, F, B, C, G, D, A
+```
+
+树转换为孩子兄弟二叉树后，有两个重要对应关系：
+
+| 原树     | 对应二叉树    |
+| ------ | -------- |
+| 树的先根遍历 | 二叉树的先序遍历 |
+| 树的后根遍历 | 二叉树的中序遍历 |
+
+## 2. 森林的遍历
+
+408 教材中通常定义：
+
+* **森林的先序遍历**：依次对森林中每棵树进行先根遍历；
+* **森林的中序遍历**：先中序遍历第一棵树根结点的子树森林，再访问第一棵树的根，最后遍历剩余森林。
+
+与对应的孩子兄弟二叉树比较：
+
+| 森林      | 对应二叉树    |
+| ------- | -------- |
+| 森林的先序遍历 | 二叉树的先序遍历 |
+| 森林的中序遍历 | 二叉树的中序遍历 |
+
+> **易错点**
+>
+> “森林的中序遍历”是教材针对森林递归结构定义的专门概念，并不意味着普通多叉树存在类似二叉树的天然“左—根—右”结构。
+
+---

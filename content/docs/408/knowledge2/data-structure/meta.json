@@ -1,6 +1,7 @@
 {
-  "title": "数据结构",
+  "title": "数据结构知识点总结2",
   "pages": [
+    "index",
     "01-introduction",
     "02-linear-list",
     "03-stack-queue-array",

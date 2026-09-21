@@ -1,0 +1,680 @@
+---
+title: "图的概念与存储"
+description: "图的基本概念、邻接矩阵、邻接表、邻接多重表与十字链表。"
+---
+
+> **真题考察**
+>
+> * 选择题：2009 年第 7 题、2010 年第 7 题、2011 年第 8 题、2017 年第 7 题、2022 年第 6 题、2025 年第 6 题、2026 年第 7 题
+
+## 1. 图的定义
+
+图由**顶点集**与**边集**组成，通常记作
+
+$$
+G=(V,E)
+$$
+
+其中：
+
+* $V$：顶点集合；
+* $E$：边或弧的集合。
+
+树可以看作一种特殊的图，它额外满足**连通且无环**等条件。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-001.svg" alt={"树与一般图的结构对比"} />
+
+## 2. 有向图与无向图
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-002.svg" alt={"无向图与有向图"} />
+
+##### 无向图
+
+边没有方向，一条连接顶点 $u$ 与 $v$ 的边可记为无序对
+
+$$
+\{u,v\}
+$$
+
+因此
+
+$$
+\{u,v\}=\{v,u\}
+$$
+
+##### 有向图
+
+边具有方向，通常称为**弧**。
+
+从 $u$ 指向 $v$ 的弧记作
+
+$$
+\langle u,v\rangle
+$$
+
+其中：
+
+* $u$：弧尾；
+* $v$：弧头。
+
+一般有
+
+$$
+\langle u,v\rangle\neq \langle v,u\rangle
+$$
+
+---
+
+## 二、连通性与完全图
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-003.svg" alt={"连通图、非连通图与完全图"} />
+
+## 1. 无向图的连通性
+
+若无向图中任意两个顶点之间都存在路径，则称该图为**连通图**。
+
+如果图不是连通图，则其中的**极大连通子图**称为该图的**连通分量**。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-004.svg" alt={"无向图的连通分量"} />
+
+这里要区分：
+
+* **极大连通子图**：已经无法再加入其他顶点而保持连通；
+* **最大连通子图**：强调顶点数量最大。
+
+连通分量的定义是**极大**，不是“最大”。
+
+## 2. 有向图的强连通
+
+对于有向图，若任意两个顶点 $u,v$ 都满足：
+
+* 存在 $u$ 到 $v$ 的有向路径；
+* 同时存在 $v$ 到 $u$ 的有向路径；
+
+则称图为**强连通图**。
+
+有向图的**极大强连通子图**称为**强连通分量**。
+
+## 3. 完全图
+
+##### 无向完全图
+
+任意两个不同顶点之间都有一条边。
+
+$n$ 个顶点的无向完全图边数为
+
+$$
+\binom{n}{2}
+=
+\frac{n(n-1)}{2}
+$$
+
+##### 有向完全图
+
+若任意两个不同顶点之间都同时存在两个方向的弧，且不考虑自环，则弧数为
+
+$$
+n(n-1)
+$$
+
+> **易错点**
+>
+> 无向完全图每对顶点只对应 **1 条边**；有向完全图每对顶点对应 **2 条方向相反的弧**。
+
+---
+
+## 三、顶点的度
+
+## 1. 无向图
+
+顶点 $v$ 的**度** $d(v)$ 是与该顶点关联的边数。
+
+由于一条无向边会同时贡献给两个端点，因此
+
+$$
+\sum_{v\in V}d(v)=2|E|
+$$
+
+这就是无向图的**握手定理**。
+
+因此无向图中奇数度顶点的个数一定为偶数。
+
+## 2. 有向图
+
+有向图中需要区分：
+
+* **入度** $d^-(v)$：以 $v$ 为终点的弧数；
+* **出度** $d^+(v)$：以 $v$ 为起点的弧数。
+
+总度为
+
+$$
+d(v)=d^-(v)+d^+(v)
+$$
+
+因为每条弧恰好贡献一次入度和一次出度，所以
+
+$$
+\sum_{v\in V}d^-(v)
+=
+\sum_{v\in V}d^+(v)
+=
+|E|
+$$
+
+---
+
+## 四、路径、回路与简单路径
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-005.svg" alt={"简单路径、非简单路径与回路"} />
+
+若边
+
+$$
+(v_0,v_1),(v_1,v_2),(v_2,v_3)
+$$
+
+依次存在，则
+
+$$
+v_0\rightarrow v_1\rightarrow v_2\rightarrow v_3
+$$
+
+构成一条路径。
+
+## 1. 路径长度
+
+无权图中，路径长度通常是路径包含的**边数**。
+
+例如
+
+$$
+v_0\rightarrow v_1\rightarrow v_2\rightarrow v_3
+$$
+
+长度为 3，而不是 4。
+
+带权图中，“路径长度”通常指路径上各边权值之和：
+
+$$
+L(P)=\sum_{e\in P}w(e)
+$$
+
+## 2. 常见概念
+
+* **简单路径**：路径中的顶点不重复；
+* **回路或环**：起点与终点相同的闭合路径；
+* **简单回路**：除起点与终点外，其余顶点不重复。
+
+---
+
+## 五、图的存储结构
+
+存储一个图时，本质上需要解决两个问题：
+
+1. 如何保存顶点；
+2. 如何保存顶点之间的边。
+
+408 中重点掌握以下四种结构：
+
+| 存储结构  | 主要适用对象 | 一条边如何存储   | 核心特点        |
+| ----- | ------ | --------- | ----------- |
+| 邻接矩阵  | 稠密图    | 矩阵元素      | 判断两点是否相邻快   |
+| 邻接表   | 稀疏图    | 链表结点      | 遍历邻接点方便     |
+| 邻接多重表 | 无向图    | 每条无向边一个结点 | 删除边方便、不重复存边 |
+| 十字链表  | 有向图    | 每条弧一个结点   | 同时方便访问入边和出边 |
+
+---
+
+## 六、邻接矩阵
+
+> **真题考察**
+>
+> * 选择题：2013 年第 7 题
+> * 解答题：2011 年第 41 题、2015 年第 42 题、2021 年第 41 题、2023 年第 41 题、2024 年第 41 题
+
+## 1. 基本思想
+
+邻接矩阵使用一个二维矩阵表示顶点之间的连接关系。
+
+假设图有 $n$ 个顶点，则建立一个 $n\times n$ 的矩阵 $A$。
+
+对于无权图：
+
+$$
+A[i][j]
+=
+\begin{cases}
+1,& v_i\text{ 与 }v_j\text{ 之间存在边}\\
+0,& \text{否则}
+\end{cases}
+$$
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-006.svg" alt={"v2 v4 v3 v1 有向图 G(V, E) 0 0 0 1 1 0 1 1 0 0 0 0 0 0 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向图 G(V, E) 0 1 0 1 1 0 1 1 0 1 0 1 1 1 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向带权图 G(V, E) 0 0.4 0 0.4 0.4 0 0.3 0.1 0 0.3 0 0.5 0.4 0.1 0.5 0 v1"} />
+
+## 2. 无向图
+
+无向图中：
+
+$$
+A[i][j]=A[j][i]
+$$
+
+因此邻接矩阵关于主对角线对称。
+
+如果不考虑自环，主对角线元素均为 0。
+
+## 3. 有向图
+
+若存在有向边
+
+$$
+v_i\rightarrow v_j
+$$
+
+则
+
+$$
+A[i][j]=1
+$$
+
+注意行表示**出发顶点**，列表示**到达顶点**。
+
+## 4. 带权图
+
+带权图通常将矩阵元素保存为边权。
+
+如果不存在边，可根据算法需要使用：
+
+* $0$；
+* $\infty$；
+* 特殊常量 `INF`。
+
+最短路径算法中更常使用 $\infty$ 表示两顶点当前不可达。
+
+## 5. C 语言实现
+
+```c
+#define MAX_VERTICES 100
+
+int adjMatrix[MAX_VERTICES][MAX_VERTICES];
+
+void initializeMatrix(int vertices) {
+    for (int i = 0; i < vertices; ++i) {
+        for (int j = 0; j < vertices; ++j) {
+            adjMatrix[i][j] = 0;
+        }
+    }
+}
+```
+
+无向图添加边：
+
+```c
+void addEdge(int start, int end) {
+    adjMatrix[start][end] = 1;
+    adjMatrix[end][start] = 1;
+}
+```
+
+若为有向图，只需执行：
+
+```c
+adjMatrix[start][end] = 1;
+```
+
+## 6. 邻接矩阵中的度
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-007.svg" alt={"统计出度 统计入度"} />
+
+对于有向图顶点 $v_i$：
+
+* 第 $i$ 行非零元素个数 = **出度**；
+* 第 $i$ 列非零元素个数 = **入度**。
+
+对于无向图：
+
+* 第 $i$ 行或第 $i$ 列非零元素个数 = 顶点的度。
+
+## 7. 复杂度
+
+若有 $V$ 个顶点：
+
+* 空间复杂度：
+
+$$
+O(V^2)
+$$
+
+* 判断 $u,v$ 是否直接相邻：
+
+$$
+O(1)
+$$
+
+* 枚举某个顶点的所有邻接点：
+
+$$
+O(V)
+$$
+
+因此邻接矩阵更适合**稠密图**。
+
+---
+
+## 七、邻接表
+
+> **真题考察**
+>
+> * 选择题：2016 年第 7 题、2026 年第 6 题
+> * 解答题：2018 年第 42 题
+
+## 1. 基本思想
+
+邻接表为**每个顶点维护一个邻接链表**。
+
+* 顶点表保存所有顶点；
+* 每个顶点的链表保存与其直接相邻的顶点。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-008.svg" alt={"v2 v4 v3 v1 有向图 G(V, E) v2 v4 v3 v1 无向图 G(V, E) v1 v4 v2 v1 v3 v4 v3 v4 v3 v1 v2 v4 v2 v1 v3 v4 v3 v2 v4 v4 v1 v2 v3"} />
+
+例如：
+
+```text
+0 ──> 2 ──> 1
+1 ──> 2 ──> 0
+2 ──> 1 ──> 0
+3 ──> NULL
+```
+
+顶点数组中保存的是邻接链表首结点的指针：
+
+```text
+    vertices
+┌───────────────┐
+│ 0 | firstarc ─┼──> 2 ──> 1
+├───────────────┤
+│ 1 | firstarc ─┼──> 2 ──> 0
+├───────────────┤
+│ 2 | firstarc ─┼──> 1 ──> 0
+├───────────────┤
+│ 3 | firstarc ─┼──> NULL
+└───────────────┘
+```
+
+## 2. 数据结构
+
+```c
+#define MAX_VERTEX_NUM 20
+
+typedef int VertexType;
+
+typedef struct ArcNode {
+    int adjvex;
+    struct ArcNode* nextarc;
+} ArcNode;
+
+typedef struct VNode {
+    VertexType data;
+    ArcNode* firstarc;
+} VNode;
+
+typedef VNode AdjList[MAX_VERTEX_NUM];
+
+typedef struct {
+    AdjList vertices;
+    int vexnum;
+    int arcnum;
+} ALGraph;
+```
+
+其中：
+
+* `VNode`：顶点表结点；
+* `data`：顶点数据；
+* `firstarc`：第一条邻接边；
+* `ArcNode`：边表结点；
+* `adjvex`：邻接顶点的下标；
+* `nextarc`：下一条邻接边；
+* `vexnum`：顶点数；
+* `arcnum`：边数。
+
+整体结构：
+
+```text
+ALGraph
+   │
+   └── vertices
+          │
+          ├── VNode[0] ──> ArcNode ──> ArcNode ──> ...
+          ├── VNode[1] ──> ArcNode ──> ArcNode ──> ...
+          ├── VNode[2] ──> ArcNode ──> ...
+          └── ...
+```
+
+## 3. 初始化
+
+```c
+void initGraph(ALGraph* graph, int vexnum) {
+    graph->vexnum = vexnum;
+    graph->arcnum = 0;
+
+    for (int i = 0; i < vexnum; ++i) {
+        graph->vertices[i].data = i;
+        graph->vertices[i].firstarc = NULL;
+    }
+}
+```
+
+## 4. 创建边结点
+
+```c
+ArcNode* newArcNode(int adjvex) {
+    ArcNode* node = (ArcNode*)malloc(sizeof(ArcNode));
+    node->adjvex = adjvex;
+    node->nextarc = NULL;
+    return node;
+}
+```
+
+## 5. 添加有向边
+
+```c
+void addArc(ALGraph* graph, int src, int dest) {
+    ArcNode* node = newArcNode(dest);
+
+    node->nextarc = graph->vertices[src].firstarc;
+    graph->vertices[src].firstarc = node;
+
+    graph->arcnum++;
+}
+```
+
+有向边
+
+$$
+u\rightarrow v
+$$
+
+只需要在 $u$ 的邻接表中加入 $v$。
+
+## 6. 添加无向边
+
+```c
+void addEdge(ALGraph* graph, int v1, int v2) {
+    ArcNode* n1 = newArcNode(v2);
+    n1->nextarc = graph->vertices[v1].firstarc;
+    graph->vertices[v1].firstarc = n1;
+
+    ArcNode* n2 = newArcNode(v1);
+    n2->nextarc = graph->vertices[v2].firstarc;
+    graph->vertices[v2].firstarc = n2;
+
+    graph->arcnum++;
+}
+```
+
+无向边
+
+$$
+\{u,v\}
+$$
+
+在邻接表中通常需要保存两个边表结点：
+
+* $u$ 的邻接表中保存 $v$；
+* $v$ 的邻接表中保存 $u$。
+
+## 7. 空间复杂度
+
+有向图：
+
+$$
+O(V+E)
+$$
+
+无向图虽然每条边会保存两个边结点，但仍然有
+
+$$
+O(V+2E)=O(V+E)
+$$
+
+因此邻接表尤其适合**稀疏图**。
+
+## 8. 求度
+
+无向图中：
+
+* 顶点 $v$ 的邻接链表长度就是 $d(v)$。
+
+有向图使用普通邻接表时：
+
+* 邻接链表长度直接得到**出度**；
+* 求入度通常需要扫描整个邻接表结构。
+
+这也是十字链表存在的重要原因之一。
+
+---
+
+## 八、邻接矩阵与邻接表对比
+
+| 操作              | 邻接矩阵       | 邻接表            |
+| --------------- | ---------- | -------------- |
+| 空间              | $O(V^2)$ | $O(V+E)$     |
+| 判断 $u,v$ 是否有边 | $O(1)$   | 一般 $O(d(u))$ |
+| 枚举 $u$ 的邻接点   | $O(V)$   | $O(d(u))$    |
+| 更适合             | 稠密图        | 稀疏图            |
+| 无向图             | 矩阵对称       | 每条边通常存两次       |
+| 有向图求出度          | 扫描行        | 链表长度           |
+| 有向图求入度          | 扫描列        | 普通邻接表不方便       |
+
+> **高频易错**
+>
+> 图本身确定后，DFS、BFS 的访问序列仍可能因为**邻接点存储次序不同**而不同。因此题目给出邻接矩阵或邻接表时，要严格按题目规定的顶点顺序访问。
+
+---
+
+## 九、邻接多重表
+
+> **真题考察**
+>
+> * 选择题：2024 年第 4 题
+
+邻接多重表主要用于**无向图**。
+
+普通邻接表表示无向图时，每条无向边需要存储两次。邻接多重表则让每条边只保存一个边结点，同时使该边能够挂接到两个端点的边链表中。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-009.svg" alt={"data firstedge mark ivex ilink jvex jlink 指向第一条依附于该顶点的边 存储顶点相关信息 标志域 指向下一条依附于 顶点 jvex 的边 指向下一条依附于 顶点 ivex 的边 VertexNode EdgeNode"} />
+
+## 1. 顶点结点
+
+通常包含：
+
+* 顶点信息；
+* `firstedge`：指向第一条依附于该顶点的边。
+
+## 2. 边结点
+
+一条边连接两个顶点，因此边结点通常包含：
+
+* `ivex`：边的一个端点；
+* `jvex`：另一个端点；
+* `ilink`：下一条与 `ivex` 关联的边；
+* `jlink`：下一条与 `jvex` 关联的边；
+* `mark`：访问标记；
+* 可选的权值等信息。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-010.svg" alt={"1 2 4 3 V 1 V 2 V 3 V 4 1 2 3 4 2 1 3 1 4 1 ^ 2 ^ 3 4 ^ 3 ^ a b c d e a b c d e"} />
+
+示例中 5 条无向边只需要 5 个边结点：
+
+| 边  | `ivex` | `jvex` | `ilink` 指向 | `jlink` 指向 |
+| -- | -----: | -----: | ---------- | ---------- |
+| 12 |      1 |      2 | 13         | 23         |
+| 13 |      1 |      3 | 14         | 32         |
+| 14 |      1 |      4 | NULL       | 43         |
+| 23 |      2 |      3 | NULL       | 34         |
+| 34 |      3 |      4 | NULL       | NULL       |
+
+## 3. `ilink` 与 `jlink` 的本质
+
+它们并不是简单地指向“下一条边”，而分别表示：
+
+* 沿着 `ivex` 对应顶点继续访问下一条关联边；
+* 沿着 `jvex` 对应顶点继续访问下一条关联边。
+
+因此同一个边结点同时属于两个顶点的关联边链。
+
+## 4. 相比邻接表的优势
+
+* 每条无向边只保存一次；
+* 删除边更加方便；
+* 修改一条边的信息时不需要同步两个边结点。
+
+---
+
+## 十、十字链表
+
+十字链表主要用于**有向图**。
+
+普通邻接表很容易获得某个顶点的所有出边，但不方便获得所有入边。十字链表将邻接表和逆邻接表的思想结合起来。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-011.svg" alt={"data firstin tailvex headvex hlink dlink (info) 指向该顶点的第一条出边 顶点数据 弧头（终点）在顶点表中的位置 VertexNode EdgeNode firstout 指向该顶点的第一条入边 弧尾（起点）在顶点表中的位置 指向同一终点的下一条边 指向同一起点的下一条边"} />
+
+## 1. 顶点结点
+
+每个顶点通常保存：
+
+* `data`：顶点信息；
+* `firstout`：该顶点第一条出边；
+* `firstin`：该顶点第一条入边。
+
+## 2. 边结点
+
+对有向边
+
+$$
+u\rightarrow v
+$$
+
+边结点通常包含：
+
+* `tailvex`：弧尾 $u$；
+* `headvex`：弧头 $v$；
+* `dlink` 或 `tlink`：下一条具有相同弧尾的边；
+* `hlink`：下一条具有相同弧头的边；
+* 可选 `info`：权值等附加信息。
+
+因此同一个边结点同时存在于：
+
+* 起点的**出边链表**；
+* 终点的**入边链表**。
+
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-012.svg" alt={"v0 v1 v2 v3 ^ 0 1 2 3 0 1 v0 v2 v3 v1 0 2 ^ 2 0 3 0 ^ 3 1 ^ 3 2 ^ ^ 2 3 ^ ^ 顶点 入弧 出弧"} />
+
+> **记忆**
+>
+> * 无向图想让“一条边只存一次” → **邻接多重表**；
+> * 有向图想同时方便找“入边和出边” → **十字链表**。
+
+---

@@ -1,0 +1,407 @@
+---
+title: "队列与循环队列"
+description: "队列、循环队列、链式队列及判空判满。"
+---
+
+> **复习优先级：中。**
+> 循环队列的 `front`、`rear`、队空、队满以及元素个数计算是高频易错点。
+>
+> **真题考察：**
+>
+> * 选择题：2010 年第 2 题、2011 年第 3 题、2014 年第 3 题、2016 年第 3 题、2021 年第 2 题；
+> * 解答题：2019 年第 42 题。
+
+## 1. 队列的定义
+
+**队列（Queue）**是一种只允许：
+
+* 在**队尾（rear）**插入元素；
+* 在**队头（front）**删除元素；
+
+的线性表。
+
+因此队列遵循：
+
+**先进先出（FIFO，First In First Out）**
+
+<InlineSvg src="/images/data-structure/data-structure-array-queue-001.svg" alt={"Back Front Enqueue Dequeue"} />
+
+例如依次入队：
+
+```text
+A → B → C
+```
+
+那么出队顺序只能是：
+
+```text
+A → B → C
+```
+
+---
+
+## 2. 基本操作
+
+| 操作           | 含义        |
+| ------------ | --------- |
+| `InitQueue`  | 初始化队列     |
+| `EnQueue`    | 队尾入队      |
+| `DeQueue`    | 队头出队      |
+| `GetHead`    | 获取队头元素    |
+| `QueueEmpty` | 判断队空      |
+| `QueueFull`  | 循环队列中判断队满 |
+
+---
+
+## 五、顺序队列与假溢出
+
+顺序队列使用数组保存元素，并维护：
+
+* `front`：队头位置；
+* `rear`：队尾位置。
+
+如果简单地让两个指针不断向数组右侧移动，会出现一个问题：
+
+> 数组前部虽然已经出现空闲空间，但 `rear` 已经到达数组末尾，无法继续入队。
+
+这称为**假溢出（False Overflow）**。
+
+<InlineSvg src="/images/data-structure/data-structure-array-queue-002.svg" alt={"front rear front a b c d e rear front e rear 空队 5个元素入队 出队4次 再出队一次 会出现 “假溢出”"} />
+
+解决方法是：
+
+> **把数组逻辑上首尾相连，形成循环队列。**
+
+---
+
+## 六、循环队列
+
+## 1. 基本思想
+
+循环队列把数组视为一个环。
+
+当 `rear` 到达数组最后一个位置之后，再继续移动时回到数组开头。
+
+<InlineSvg src="/images/data-structure/data-structure-array-queue-003.svg" alt={"0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满"} />
+
+指针移动统一写成：
+
+$$
+\text{next}(x)=(x+1)\bmod MaxSize
+$$
+
+---
+
+## 2. 为什么不能简单用 `front == rear` 同时表示队空和队满
+
+若：
+
+* 队空时规定 `front == rear`；
+* 队满后 `rear` 经过一圈也可能重新等于 `front`；
+
+那么两种状态无法区分。
+
+常见解决方案有三种：
+
+1. **牺牲一个存储单元**；
+2. 额外维护队列元素个数 `size`；
+3. 额外设置一个状态标志。
+
+408 中最常见的是第一种。
+
+---
+
+## 3. 牺牲一个存储单元
+
+设数组容量为 `MaxSize`。
+
+#### 队空
+
+$$
+front=rear
+$$
+
+#### 队满
+
+$$
+(rear+1)\bmod MaxSize=front
+$$
+
+因此实际最多只能存：
+
+$$
+MaxSize-1
+$$
+
+个元素。
+
+#### 队列长度
+
+$$
+L=(rear-front+MaxSize)\bmod MaxSize
+$$
+
+这个公式是循环队列选择题中的重要结论。
+
+---
+
+## 4. 循环队列实现
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int data[MAX_SIZE];
+    int front;
+    int rear;
+} CircularQueue;
+```
+
+初始化：
+
+```c
+void InitQueue(CircularQueue *Q) {
+    Q->front = 0;
+    Q->rear = 0;
+}
+```
+
+判断队空：
+
+```c
+bool QueueEmpty(CircularQueue *Q) {
+    return Q->front == Q->rear;
+}
+```
+
+判断队满：
+
+```c
+bool QueueFull(CircularQueue *Q) {
+    return (Q->rear + 1) % MAX_SIZE == Q->front;
+}
+```
+
+---
+
+## 5. 入队
+
+```c
+bool EnQueue(CircularQueue *Q, int x) {
+    if (QueueFull(Q)) {
+        return false;
+    }
+
+    Q->data[Q->rear] = x;
+    Q->rear = (Q->rear + 1) % MAX_SIZE;
+
+    return true;
+}
+```
+
+这里的约定是：
+
+> `rear` 指向**下一个待插入位置**，而不是当前最后一个元素。
+
+---
+
+## 6. 出队
+
+```c
+bool DeQueue(CircularQueue *Q, int *x) {
+    if (QueueEmpty(Q)) {
+        return false;
+    }
+
+    *x = Q->data[Q->front];
+    Q->front = (Q->front + 1) % MAX_SIZE;
+
+    return true;
+}
+```
+
+---
+
+## 7. 获取队首与队尾元素
+
+队首元素：
+
+```c
+bool GetHead(CircularQueue *Q, int *x) {
+    if (QueueEmpty(Q)) {
+        return false;
+    }
+
+    *x = Q->data[Q->front];
+    return true;
+}
+```
+
+由于 `rear` 指向下一个待插入位置，因此真正的队尾元素位于：
+
+$$
+(rear-1+MaxSize)\bmod MaxSize
+$$
+
+对应代码：
+
+```c
+bool GetRear(CircularQueue *Q, int *x) {
+    if (QueueEmpty(Q)) {
+        return false;
+    }
+
+    *x = Q->data[
+        (Q->rear - 1 + MAX_SIZE) % MAX_SIZE
+    ];
+
+    return true;
+}
+```
+
+> **易错点：**
+> 一定先确认题目对 `front` 和 `rear` 的定义。不同教材可能令 `rear` 指向“队尾元素”或“队尾元素的下一个位置”，相应公式也会发生变化。
+
+---
+
+## 七、链式队列
+
+## 1. 基本结构
+
+**链式队列**通常使用带头结点的单链表实现。
+
+<InlineSvg src="/images/data-structure/data-structure-array-queue-004.svg" alt={"a 1 a 2 a n NULL head rear front 队头 队尾 队列方向"} />
+
+维护两个指针：
+
+* `front`：指向头结点；
+* `rear`：指向最后一个有效结点。
+
+真正的队头元素是：
+
+```text
+front->next
+```
+
+空队列时：
+
+```text
+front == rear
+```
+
+并且二者都指向头结点。
+
+---
+
+## 2. 结构定义
+
+```c
+typedef struct QNode {
+    int data;
+    struct QNode *next;
+} QNode;
+
+typedef struct {
+    QNode *front;
+    QNode *rear;
+} LinkQueue;
+```
+
+初始化：
+
+```c
+void InitQueue(LinkQueue *Q) {
+    QNode *head =
+        (QNode *)malloc(sizeof(QNode));
+
+    head->next = NULL;
+
+    Q->front = head;
+    Q->rear = head;
+}
+```
+
+---
+
+## 3. 入队
+
+链式队列从队尾插入：
+
+```c
+void EnQueue(LinkQueue *Q, int x) {
+    QNode *p =
+        (QNode *)malloc(sizeof(QNode));
+
+    p->data = x;
+    p->next = NULL;
+
+    Q->rear->next = p;
+    Q->rear = p;
+}
+```
+
+时间复杂度：
+
+$$
+O(1)
+$$
+
+---
+
+## 4. 出队
+
+```c
+bool DeQueue(LinkQueue *Q, int *x) {
+    if (Q->front == Q->rear) {
+        return false;
+    }
+
+    QNode *p = Q->front->next;
+
+    *x = p->data;
+    Q->front->next = p->next;
+
+    if (Q->rear == p) {
+        Q->rear = Q->front;
+    }
+
+    free(p);
+    return true;
+}
+```
+
+当删除的结点同时也是队尾结点时，说明原队列只有一个有效元素。
+
+此时必须执行：
+
+```c
+Q->rear = Q->front;
+```
+
+否则 `rear` 会成为悬空指针。
+
+---
+
+## 5. 判空
+
+```c
+bool QueueEmpty(LinkQueue *Q) {
+    return Q->front == Q->rear;
+}
+```
+
+---
+
+## 6. 循环队列与链式队列比较
+
+| 对比项  | 循环队列     | 链式队列     |
+| ---- | -------- | -------- |
+| 存储方式 | 连续       | 链式       |
+| 入队   | $O(1)$ | $O(1)$ |
+| 出队   | $O(1)$ | $O(1)$ |
+| 容量   | 通常固定     | 动态变化     |
+| 空间利用 | 无指针域     | 每个结点需要指针 |
+| 局部性  | 好        | 较差       |
+| 溢出   | 数组空间耗尽   | 内存耗尽     |
+
+---
