@@ -1,32 +1,8 @@
 name: Deploy static docs preview
-# Preview deployment for the pure static CDN docs experiment.
+# Legacy EdgeOne preview deployment. Kept for manual use; Cloudflare is the
+# only automatic deployment target.
 
 on:
-  push:
-    branches:
-      - codex/static-docs-cdn
-      - codex/static-build-performance
-      - codex/zbsearch-static
-    paths:
-      - 'content/docs/**'
-      - 'app/**'
-      - 'components/**'
-      - 'lib/**'
-      - 'scripts/build-static-docs.mjs'
-      - 'scripts/analyze-static-output.mjs'
-      - 'scripts/dedupe-static-rsc.mjs'
-      - 'scripts/build-search-index.mjs'
-      - 'scripts/search-manifest.mjs'
-      - 'scripts/static-docs-config.mjs'
-      - 'scripts/static-docs-markdown.mjs'
-      - 'scripts/zbsearch-index.mjs'
-      - 'scripts/static-root-layout.tsx'
-      - 'next.config.static.mjs'
-      - 'source.config.ts'
-      - 'tests/static-docs-build.test.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/deploy-static-docs-preview.yml'
   workflow_dispatch:
 
 concurrency:

@@ -1,4 +1,4 @@
-# Fumadocs on EdgeOne
+# Fumadocs on Cloudflare
 
 A minimal Fumadocs documentation site built with Next.js 16 and Tailwind CSS 4.
 
@@ -61,14 +61,15 @@ and CDN cache identities across deployments.
 
 `npm run search:build` generates the same hierarchical search layout in `public/`
 for local development. `npm run build:static-docs` generates it directly in the
-EdgeOne deployment artifact and reports raw/gzip/Brotli sizes. The build has a
+static deployment artifact and reports raw/gzip/Brotli sizes. The build has a
 10 MB soft split target, warns at 15 MB, and rejects any individual static search
 file at 25,000,000 bytes to stay below EdgeOne's single-file limit.
 
 ## Deployment
 
 Production documentation deployments run in GitHub Actions and are uploaded to
-Tencent EdgeOne Makers. The documentation package is a pure static CDN build:
+Cloudflare Workers Static Assets. The documentation package is a pure static
+CDN build:
 
 - HTML, JS, CSS, Markdown downloads, the search manifest, category routers, and
   ZBSearch indexes are static files;
@@ -76,11 +77,17 @@ Tencent EdgeOne Makers. The documentation package is a pure static CDN build:
 - Cloud Functions: 0;
 - Edge Functions: 0.
 
+The EdgeOne deployment workflows and configuration remain in the repository for
+manual legacy use, but pushes to `main` and automatic normalization publish only
+to Cloudflare.
+
 The separate `fumadocs-upload` project still hosts the private Blob signer and
 download gateway functions used by the document publishing workflow.
 
 Required GitHub Actions secrets:
 
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
 - `EDGEONE_API_TOKEN`
 - `EDGEONE_INTERNAL_API_KEY`
 - `EDGEONE_DOWNLOAD_GATEWAY_SECRET`

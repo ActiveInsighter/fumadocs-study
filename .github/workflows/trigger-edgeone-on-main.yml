@@ -1,9 +1,6 @@
-name: Trigger EdgeOne deployment on main
+name: Legacy EdgeOne deployment trigger (manual only)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:

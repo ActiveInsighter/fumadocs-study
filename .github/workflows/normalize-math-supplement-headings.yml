@@ -59,7 +59,7 @@ jobs:
           git push origin HEAD:main
           echo 'changed=true' >> "$GITHUB_OUTPUT"
 
-      - name: Publish normalized version to Cloudflare and EdgeOne
+      - name: Publish normalized version to Cloudflare
         if: steps.commit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -67,4 +67,6 @@ jobs:
         run: |
           set -euo pipefail
           gh workflow run deploy-cloudflare-worker-assets.yml --ref main
-          gh workflow run deploy-edgeone-docs.yml --ref main
+          # EdgeOne deployment remains available through its manual workflow,
+          # but is intentionally not dispatched by the automatic publish path.
+          # gh workflow run deploy-edgeone-docs.yml --ref main
