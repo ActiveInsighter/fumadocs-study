@@ -60,12 +60,17 @@ describe('408 knowledge2 documentation layout', () => {
   it('does not keep a leaf directory whose only file is its index page', () => {
     expect(findSingleFileLeafDirectories(summaryRoot)).toEqual([]);
     expect(
-      existsSync(join(summaryRoot, 'computer-organization', 'cpu', 'multicore.mdx')),
+      existsSync(
+        join(
+          summaryRoot,
+          'computer-organization',
+          '05-cpu',
+          '05-parallel-multicore.mdx',
+        ),
+      ),
     ).toBe(true);
     expect(
-      existsSync(
-        join(summaryRoot, 'computer-organization', 'cpu', 'multicore', 'index.mdx'),
-      ),
+      existsSync(join(summaryRoot, 'computer-organization', 'cpu', 'multicore.mdx')),
     ).toBe(false);
   });
 

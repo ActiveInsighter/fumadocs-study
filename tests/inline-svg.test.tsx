@@ -86,7 +86,7 @@ describe('InlineSvg', () => {
     const references = [...source.matchAll(/<InlineSvg\s+src="([^"]+\.svg)"/gu)].map(
       ([, src]) => src,
     );
-    expect(references).toHaveLength(730);
+    expect(references).toHaveLength(574);
 
     for (const src of references) {
       expect(src, relative(process.cwd(), releaseDocsRoots[0])).toMatch(

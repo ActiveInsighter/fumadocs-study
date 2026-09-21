@@ -1,0 +1,8 @@
+{
+  "title": "第 6 章 总线与输入/输出系统",
+  "pages": [
+    "01-bus",
+    "02-io-interface-transfer",
+    "03-dma-channel"
+  ]
+}

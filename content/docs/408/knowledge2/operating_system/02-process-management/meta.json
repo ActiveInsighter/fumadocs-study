@@ -1,0 +1,10 @@
+{
+  "title": "第 2 章 进程管理",
+  "pages": [
+    "01-process-thread-ipc",
+    "02-scheduling",
+    "03-synchronization",
+    "04-classic-sync",
+    "05-deadlock"
+  ]
+}

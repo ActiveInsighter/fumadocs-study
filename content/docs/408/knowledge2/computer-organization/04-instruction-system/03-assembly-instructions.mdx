@@ -1,0 +1,1026 @@
+---
+title: "汇编指令与控制转移"
+description: "第 4 章 指令系统：汇编指令与控制转移。ISA、指令格式、寻址方式、数据对齐、大小端、汇编指令与函数调用。"
+---
+
+## 20. 不同位数的 x86 寄存器
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-005.svg" alt={"AH AL AX (16 bits) EAX (32 bits) RAX (64 bits)"} />
+
+x86 从 16 位发展到 32 位、64 位后，很多寄存器采用扩展命名：
+
+| 语义                  | 16 位 | 32 位 | 64 位 |
+| ------------------- | ---- | ---- | ---- |
+| Accumulator         | AX   | EAX  | RAX  |
+| Base                | BX   | EBX  | RBX  |
+| Counter             | CX   | ECX  | RCX  |
+| Data                | DX   | EDX  | RDX  |
+| Source Index        | SI   | ESI  | RSI  |
+| Destination Index   | DI   | EDI  | RDI  |
+| Base Pointer        | BP   | EBP  | RBP  |
+| Stack Pointer       | SP   | ESP  | RSP  |
+| Instruction Pointer | IP   | EIP  | RIP  |
+
+对于 `AX`：
+
+```text
+RAX
+└──────────────────────── 64 bit
+        EAX
+        └──────────────── 32 bit
+                    AX
+                    └──── 16 bit
+                   AH AL
+```
+
+考试中尤其要熟悉：
+
+* `EIP/RIP`：指令指针；
+* `ESP/RSP`：栈顶指针；
+* `EBP/RBP`：经典栈帧基址；
+* `EAX/RAX`：常用于返回值和算术运算。
+
+---
+
+## 21. Intel 与 AT&T 汇编语法
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-006.svg" alt={"图示"} />
+
+x86 常见两种汇编语法：
+
+* Intel
+* AT&T
+
+408 中通常更接近 Intel 风格，但题目可能出现 AT&T 表示法。
+
+#### Intel 格式
+
+```asm
+mov eax, 1
+mov ebx, 0ffh
+
+mov eax, [ebx]
+mov eax, [ebx+3]
+```
+
+#### AT&T 格式
+
+```asm
+movl $1, %eax
+movl $0xff, %ebx
+
+movl (%ebx), %eax
+movl 3(%ebx), %eax
+```
+
+最重要区别：
+
+```asm
+mov eax, ebx        ; Intel：目的，源
+movl %ebx, %eax     # AT&T：源，目的
+```
+
+| 特征    | Intel    | AT&T      |
+| ----- | -------- | --------- |
+| 操作数顺序 | 目的，源     | 源，目的      |
+| 寄存器   | `eax`    | `%eax`    |
+| 立即数   | `10`     | `$10`     |
+| 内存    | `[eax]`  | `(%eax)`  |
+| 数据长度  | 常根据操作数推断 | 常在助记符后加后缀 |
+
+#### 21.1 AT&T 长度后缀
+
+| 后缀  | 长度     |
+| --- | ------ |
+| `b` | 8 bit  |
+| `w` | 16 bit |
+| `l` | 32 bit |
+| `q` | 64 bit |
+
+例如：
+
+```asm
+movl $1, %eax
+```
+
+表示 32 位传送。
+
+#### 21.2 内存寻址对应关系
+
+Intel：
+
+```text
+[Base + Index × Scale + Displacement]
+```
+
+AT&T：
+
+```text
+Displacement(Base, Index, Scale)
+```
+
+例如：
+
+```asm
+mov eax, [ebx + ecx*4 + 8]
+movl 8(%ebx, %ecx, 4), %eax
+```
+
+二者的有效地址均为：
+
+$$
+EA=(EBX)+(ECX)\times4+8
+$$
+
+> **AT&T 辨认口诀**
+>
+> 1. `%` 是寄存器；
+> 2. `$` 是立即数；
+> 3. 左边是源，右边是目的；
+> 4. `b/w/l/q` 判断数据长度。
+
+---
+
+## 22. 常用机器指令
+
+> **真题考查**
+>
+> * 解答题：2014 年第 44 题、2017 年第 44 题、2021 年第 43 题、2026 年第 43 题
+
+不同 ISA 的具体助记符不同，但大多数处理器都会提供：
+
+* 数据传送；
+* 算术；
+* 逻辑；
+* 比较；
+* 移位；
+* 控制转移；
+* 函数调用；
+* 输入输出等功能。
+
+下面以 x86 为例理解指令语义。
+
+---
+
+## 23. 数据传送指令 MOV
+
+`MOV` 用来复制数据。
+
+常见形式：
+
+```asm
+mov <reg>, <reg>
+mov <reg>, <mem>
+mov <mem>, <reg>
+mov <reg>, <imm>
+mov <mem>, <imm>
+```
+
+例如：
+
+```asm
+mov eax, ebx
+mov eax, [var]
+mov [var], eax
+mov ecx, 100
+mov byte ptr [var], 5
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-001.svg" alt={"立即数 存储器 通用存储器 段寄存器 AX  BX  CX  DX BP  SP  SI  DI CS  DS  ES  SS"} />
+
+> **易错点**
+>
+> 普通 x86 `MOV` 一般不能让源操作数和目的操作数同时都是普通内存操作数：
+>
+> ```text
+> memory → memory
+> ```
+>
+> 通常需要先经过寄存器。
+
+---
+
+## 24. PUSH 与 POP
+
+经典 x86 栈通常向**低地址方向增长**。
+
+#### PUSH
+
+对于 32 位数据，可以理解为：
+
+```asm
+sub esp, 4
+mov [esp], eax
+```
+
+也就是：
+
+1. `ESP` 减小；
+2. 新数据写入新的栈顶。
+
+#### POP
+
+可以理解为：
+
+```asm
+mov ebx, [esp]
+add esp, 4
+```
+
+即：
+
+1. 读取当前栈顶；
+2. `ESP` 增大。
+
+例如：
+
+```asm
+push eax
+push 10
+pop ebx
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-002.svg" alt={"0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP 0000 FFF9H 0000 FFF8H 0000 FFF7H 0000 FFF6H 0000 FFFFH 0000 FFFEH 0000 FFF5H 0000 FFF4H 0000 FFF3H 0000 FFF2H 0000 FFF1H 0000 FFF40 0000 FFFDH 0000 FFFCH 0000 FFFBH 0000 FFFAH ESP"} />
+
+---
+
+## 25. ADD 与 SUB
+
+```asm
+add eax, ebx
+sub eax, 10
+add [var], cl
+```
+
+语义分别为：
+
+$$
+EAX\leftarrow EAX+EBX
+$$
+
+$$
+EAX\leftarrow EAX-10
+$$
+
+加减法还会更新一系列条件标志，例如：
+
+* ZF
+* SF
+* CF
+* OF
+
+这些标志随后可被条件跳转指令使用。
+
+---
+
+## 26. MUL、IMUL、DIV、IDIV
+
+x86 的乘除指令存在一些**隐含寄存器**。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-003.svg" alt={"x86 乘除法：EDX:EAX 隐式寄存器对的数据通路 MUL / IMUL reg EAX × 操作数 → EDX:EAX EAX (被乘数) 操作数 reg/mem 乘法器 (Multiplier) EDX (高 32) EAX (低 32) 64 位乘积自动拆入 EDX:EAX DIV / IDIV reg EDX:EAX ÷ 操作数 → 商 EAX, 余 EDX EDX (高 32) EAX (低 32) 除数 reg/mem (32 位) 除法器 (Divider)"} />
+
+#### 26.1 乘法
+
+单操作数形式：
+
+```asm
+mul ebx
+```
+
+无符号乘法可理解为：
+
+$$
+EDX:EAX\leftarrow EAX\times EBX
+$$
+
+其中：
+
+* EAX：乘积低 32 位；
+* EDX：乘积高 32 位。
+
+有符号版本：
+
+```asm
+imul ebx
+```
+
+也把完整乘积放入 `EDX:EAX`。
+
+此外 `IMUL` 还有显式目的寄存器形式：
+
+```asm
+imul ecx, ebx
+imul edx, ebx, 10
+```
+
+---
+
+#### 26.2 除法
+
+```asm
+div ecx
+```
+
+把：
+
+```text
+EDX:EAX
+```
+
+作为完整被除数。
+
+运算完成后：
+
+* 商 → EAX
+* 余数 → EDX
+
+例如：
+
+```asm
+mov edx, 0
+mov eax, 20
+mov ecx, 3
+div ecx
+```
+
+结果：
+
+```text
+EAX = 6
+EDX = 2
+```
+
+有符号除法：
+
+```asm
+mov eax, -20
+cdq
+mov ecx, 3
+idiv ecx
+```
+
+`CDQ` 会把 EAX 的符号扩展到 EDX。
+
+---
+
+#### 26.3 除法异常
+
+两种情况尤其重要：
+
+1. **除数为 0**
+2. **商无法用目标位数表示**
+
+例如 32 位有符号整数的最小值除以 `-1`，数学结果超出 32 位有符号整数最大范围，会触发异常。
+
+#### 26.4 运算硬件
+
+| 运算 | 典型硬件      |
+| -- | --------- |
+| 加减 | ALU / 加法器 |
+| 乘法 | 乘法器       |
+| 除法 | 除法器       |
+
+相关硬件可结合：
+
+* [加法运算电路](/docs/408/knowledge2/computer-organization/02-data-representation/01-number-systems-integers/)
+* [乘法运算电路](/docs/408/knowledge2/computer-organization/02-data-representation/01-number-systems-integers/)
+* [除法运算电路](/docs/408/knowledge2/computer-organization/02-data-representation/01-number-systems-integers/)
+
+---
+
+## 27. 位运算
+
+常见位运算：
+
+* `AND`
+* `OR`
+* `XOR`
+* `NOT`
+
+![](/images/computer-organization/computer-organization-instruction-instruction-ops-004.webp)
+
+#### AND
+
+常用于**清零某些位**：
+
+```asm
+and eax, 0xF0
+```
+
+#### OR
+
+常用于**置 1 某些位**：
+
+```asm
+or eax, 0x0F
+```
+
+#### XOR
+
+常用于翻转某些位，也常用：
+
+```asm
+xor eax, eax
+```
+
+把寄存器清零。
+
+#### NOT
+
+```asm
+not eax
+```
+
+对全部 bit 逐位取反。
+
+> **注意**
+>
+> `NOT` 只是按位取反，并不等于“求二进制补码”。
+>
+> 二进制补码的取负通常是：
+>
+> ```text
+> 按位取反 + 1
+> ```
+
+---
+
+## 28. INC 与 DEC
+
+```asm
+inc eax
+dec ebx
+```
+
+数值效果分别相当于：
+
+$$
+x\leftarrow x+1
+$$
+
+和
+
+$$
+x\leftarrow x-1
+$$
+
+但具体标志位语义由 ISA 决定。
+
+例如 x86 中：
+
+> `INC/DEC` 不修改 CF。
+
+因此不能认为 `INC x` 与 `ADD x,1` 在全部标志位语义上完全等价。
+
+---
+
+## 29. CMP 与条件标志
+
+`CMP` 的核心是：
+
+> **执行减法以产生条件标志，但不保存减法结果。**
+
+```asm
+cmp eax, ebx
+```
+
+可理解为内部计算：
+
+$$
+EAX-EBX
+$$
+
+但 EAX 本身不会被修改。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-005.svg" alt={"CMP_Process"} />
+
+常见条件标志：
+
+| 标志 | 含义           |
+| -- | ------------ |
+| ZF | 结果是否为 0      |
+| SF | 结果符号         |
+| CF | 无符号运算中的进位/借位 |
+| OF | 有符号溢出        |
+
+这些标志随后交给：
+
+```asm
+JE
+JNE
+JG
+JL
+JA
+JB
+...
+```
+
+判断是否跳转。
+
+---
+
+## 30. 移位指令
+
+> **真题考查**
+>
+> * 选择题：2018 年第 16 题、2026 年第 13 题
+
+三类移位必须区分：
+
+1. **逻辑移位**
+2. **算术移位**
+3. **循环移位**
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-006.svg" alt={"1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 1 循环右移 循环左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 逻辑右移 逻辑左移 1 0 1 1 1 0 1 0 1 0 1 1 1 0 1 1 1 0 1 1 1 0 1 0 0 1 1 1 0 1 0 0 算术右移 算术左移 高位补充符号位 高位补充 0"} />
+
+| 指令    | 含义   |
+| ----- | ---- |
+| `SHL` | 逻辑左移 |
+| `SAL` | 算术左移 |
+| `SHR` | 逻辑右移 |
+| `SAR` | 算术右移 |
+| `ROL` | 循环左移 |
+| `ROR` | 循环右移 |
+
+在 x86 中，`SHL` 和 `SAL` 的位移动作相同。
+
+---
+
+### 30.1 逻辑移位
+
+空位补 0。
+
+逻辑左移：
+
+```text
+高位丢弃 ← 数据整体左移 ← 低位补 0
+```
+
+逻辑右移：
+
+```text
+高位补 0 → 数据整体右移 → 低位丢弃
+```
+
+例如：
+
+```asm
+mov al, 10000000b
+shr al, 1
+```
+
+结果：
+
+```text
+01000000b
+```
+
+即使原位模式按补码解释为负数，逻辑右移仍然补 0。
+
+---
+
+### 30.2 算术移位
+
+算术右移用于保持有符号数符号：
+
+```asm
+mov al, -16
+sar al, 1
+```
+
+```text
+11110000
+     ↓ SAR 1
+11111000
+```
+
+结果仍然是负数，数值为 `-8`。
+
+算术右移的关键：
+
+> **高位补原符号位。**
+
+---
+
+### 30.3 循环移位
+
+循环移位不会简单丢弃移出的 bit，而是把它从另一端送回来。
+
+例如：
+
+```asm
+mov al, 10000001b
+ror al, 1
+```
+
+得到：
+
+```text
+11000000b
+```
+
+原最低位的 `1` 被送到了最高位。
+
+---
+
+## 31. 控制转移指令
+
+控制转移指令直接修改程序的执行顺序。
+
+主要包括：
+
+* JMP
+* 条件跳转 Jxx
+* CALL
+* RET
+
+---
+
+### 31.1 无条件跳转 JMP
+
+```asm
+jmp label
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-007.svg" alt={"JMP 跳转指令语义图"} />
+
+若使用 PC 相对寻址：
+
+$$
+offset=Target-PC_{\text{next}}
+$$
+
+机器指令中保存的是偏移量，而不是标签字符串。
+
+> **408 常用模型**
+>
+> 对：
+>
+> ```asm
+> JMP LABEL
+> BEQ LABEL
+> BNE LABEL
+> CALL LABEL
+> ```
+>
+> 通常可优先考虑 PC 相对寻址。
+>
+> 但从真实 ISA 角度看，跳转也可能存在绝对寻址或间接寻址形式。
+
+---
+
+## 32. 条件跳转
+
+典型结构：
+
+```asm
+cmp eax, ebx
+je equal_label
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-008.svg" alt={"ConditionalJump"} />
+
+CPU 先由 `CMP` 设置条件标志，再由跳转指令读取标志。
+
+---
+
+### 32.1 相等与不等
+
+| 指令        | 条件     |
+| --------- | ------ |
+| `JE/JZ`   | ZF = 1 |
+| `JNE/JNZ` | ZF = 0 |
+
+---
+
+### 32.2 有符号数比较
+
+| 指令    | 含义   | 条件               |
+| ----- | ---- | ---------------- |
+| `JG`  | 大于   | `ZF=0` 且 `SF=OF` |
+| `JL`  | 小于   | `SF≠OF`          |
+| `JGE` | 大于等于 | `SF=OF`          |
+| `JLE` | 小于等于 | `ZF=1` 或 `SF≠OF` |
+
+有符号数必须结合：
+
+* SF
+* OF
+* ZF
+
+判断。
+
+---
+
+### 32.3 无符号数比较
+
+| 指令    | 含义   | 条件              |
+| ----- | ---- | --------------- |
+| `JA`  | 大于   | `CF=0` 且 `ZF=0` |
+| `JAE` | 大于等于 | `CF=0`          |
+| `JB`  | 小于   | `CF=1`          |
+| `JBE` | 小于等于 | `CF=1` 或 `ZF=1` |
+
+> **为什么有两套跳转指令？**
+>
+> CPU 看到的只是二进制位模式。
+>
+> 同一组 bit 究竟解释成：
+>
+> * signed
+> * unsigned
+>
+> 是程序和编译器赋予的语义。
+>
+> 因此比较完成后：
+>
+> * signed 使用 `JG/JL/...`
+> * unsigned 使用 `JA/JB/...`
+
+---
+
+## 33. CALL 与 RET
+
+子程序调用通常使用：
+
+```asm
+call subroutine
+...
+subroutine:
+    ...
+    ret
+```
+
+`CALL` 主要完成两件事：
+
+1. 保存**返回地址**；
+2. 跳转到子程序入口。
+
+`RET` 主要完成：
+
+1. 从栈中取出返回地址；
+2. 把返回地址送入 PC；
+3. 从调用点的下一条指令继续执行。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-009.svg" alt={"子程序调用过程图"} />
+
+例如：
+
+```text
+主程序地址 0x1000：
+CALL 0x2000
+
+下一条指令：
+0x1008
+```
+
+执行 CALL 时：
+
+```text
+返回地址 0x1008 → 压栈
+PC → 0x2000
+```
+
+执行 RET 时：
+
+```text
+栈顶 0x1008 → PC
+```
+
+于是程序重新从：
+
+```text
+0x1008
+```
+
+继续执行。
+
+---
+
+## 34. 陷阱指令与软件异常
+
+> **真题考查**
+>
+> * 选择题：2014 年第 25 题、2020 年第 18 题、2026 年第 17、21 题
+
+陷阱或软件异常类机制常用于：
+
+* 系统调用；
+* 调试；
+* 显式进入操作系统内核服务。
+
+例如传统 x86：
+
+```asm
+INT n
+```
+
+其中 `n` 表示中断/异常向量号。
+
+执行后 CPU 会根据对应向量找到处理程序，并转移到相应处理入口。
+
+```asm
+mov eax, 1
+mov ebx, 0
+int 0x80
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-010.svg" alt={"陷阱指令 INT n 的执行流程 用户态 (Ring 3) 内核态 (Ring 0) ① 用户程序 mov eax, 1 mov ebx, 0 int 0x80 ; 触发陷阱 ② IVT / IDT 查表 用 n 作索引找处理程序地址 0x00 → handler0 0x01 → handler1 0x80 → sys_call_handler ③ 内核处理程序 push 寄存器现场 根据 eax 分派 syscall 执行特权操作 (I/O, exit…) 恢复现场"} />
+
+典型过程：
+
+```text
+用户程序
+   ↓
+执行陷阱/系统调用指令
+   ↓
+CPU 保存必要现场
+   ↓
+根据向量进入处理程序
+   ↓
+切换到内核态执行服务
+   ↓
+恢复现场
+   ↓
+返回用户程序
+```
+
+#### 34.1 陷阱与普通异常
+
+需要区分：
+
+* `INT` 等指令：程序**显式执行**；
+* 除 0、非法访问等：通常由某条普通指令执行过程中被 CPU **检测出来**。
+
+二者都属于同步于当前指令执行的异常类事件，但触发机制并不相同。
+
+---
+
+### 34.2 Trap 与 TF
+
+不要把 Trap 指令与 `TF` 标志混淆。
+
+`TF` 是 x86 FLAGS/EFLAGS 中的 **Trap Flag**。
+
+当 TF 被设置后，处理器可进入单步调试模式，每执行一条指令便产生调试异常。
+
+因此：
+
+* `INT`：执行一条显式软件中断/陷阱指令；
+* `TF`：控制单步调试行为。
+
+---
+
+## 35. CLI 与 STI
+
+`CLI` 和 `STI` 修改 x86 的 IF（Interrupt Flag）。
+
+```asm
+cli
+sti
+```
+
+其中：
+
+* `CLI`：IF 清零；
+* `STI`：IF 置 1。
+
+IF 主要控制：
+
+> **可屏蔽外部中断**
+
+并不会屏蔽不可屏蔽中断 NMI。
+
+这类指令通常涉及特权状态，普通用户态程序不能随意执行。
+
+---
+
+## 36. IN 与 OUT
+
+对于**独立 I/O 编址**，CPU 可以使用独立的 I/O 指令访问端口：
+
+```asm
+in  reg, port
+out port, reg
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-011.svg" alt={"寄存器 寄存器 端口 端口 电流特性的转换 电流特性的转换 端口 电流特性的转换 CPU I/O 接口 in 指令 out 指令 键盘 显示器 外设"} />
+
+例如：
+
+```asm
+in al, 0x60
+out 0x60, al
+```
+
+如果采用**统一编址**，I/O 设备寄存器映射到普通内存地址空间，则通常可使用普通 Load/Store 或 MOV 类访存指令，不需要独立的 IN/OUT。
+
+相关内容可结合：
+
+* [I/O 编址方式](/docs/408/knowledge2/computer-organization/06-bus-io/02-io-interface-transfer/)
+* [程序查询方式](/docs/408/knowledge2/computer-organization/06-bus-io/02-io-interface-transfer/)
+* [程序中断方式](/docs/408/knowledge2/computer-organization/06-bus-io/02-io-interface-transfer/)
+
+---
+
+### 36.1 程序查询方式
+
+核心思想：
+
+> CPU 不停查询设备状态。
+
+```c
+write_to_device(data) {
+    while (1) {
+        if (kernel_read_port(STATUS_PORT) & READY_BIT) {
+            kernel_write_port(DATA_PORT, data);
+            break;
+        }
+    }
+}
+```
+
+底层驱动可能封装端口 I/O 指令：
+
+```c
+uint8_t kernel_read_port(uint16_t port) {
+    asm("in %%dx, %%al" : "=a"(value) : "d"(port));
+    return value;
+}
+
+void kernel_write_port(uint16_t port, uint8_t data) {
+    asm("out %%al, %%dx" : : "a"(data), "d"(port));
+}
+```
+
+缺点：
+
+> CPU 会把大量时间浪费在轮询等待上。
+
+---
+
+### 36.2 程序中断方式
+
+设备准备好后主动产生中断。
+
+```c
+read_from_device(buffer) {
+    request_read();
+}
+
+interrupt_handler() {
+    uint8_t data = inb(DATA_PORT);
+    kernel_buffer = data;
+    wake_up_user();
+}
+```
+
+此时 CPU 不必持续查询设备。
+
+DMA 则进一步把大批量数据传输工作交给 DMA 控制器完成。
+
+---
+
+## 37. 字符串操作指令
+
+该部分 408 优先级较低，掌握功能即可。
+
+#### MOVS
+
+复制数据：
+
+```asm
+movs byte ptr es:[edi], byte ptr ds:[esi]
+movs dword ptr es:[edi], byte ptr ds:[esi]
+```
+
+#### LODS
+
+从源地址加载：
+
+```asm
+lodsb
+lodsd
+```
+
+#### STOS
+
+保存到目的地址：
+
+```asm
+stosb
+stosd
+```
+
+#### CMPS
+
+比较两个数据序列：
+
+```asm
+cmpsb
+cmpsd
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-instruction-ops-012.svg" alt={"x86 字符串操作指令语义图"} />
+
+---

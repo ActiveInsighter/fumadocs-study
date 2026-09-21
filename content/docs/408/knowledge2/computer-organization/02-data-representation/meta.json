@@ -1,0 +1,8 @@
+{
+  "title": "第 2 章 数据的表示和运算",
+  "pages": [
+    "01-number-systems-integers",
+    "02-floating-point",
+    "03-type-conversion"
+  ]
+}

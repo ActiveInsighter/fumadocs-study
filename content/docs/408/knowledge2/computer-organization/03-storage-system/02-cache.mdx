@@ -1,0 +1,335 @@
+---
+title: "Cache 高速缓存"
+description: "第 3 章 存储系统：Cache 高速缓存。存储层次、主存组织、Cache、虚拟存储器、磁盘、RAID 与 SSD。"
+---
+
+## 3. Cache 高速缓存
+
+Cache 是本章最高频知识点之一。408 常把 Cache 与物理地址、主存芯片、页表/TLB 放进一道综合题中。
+
+### 3.1 Cache 的基本原理
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-001.svg" alt="CPU、Cache 与主存关系" />
+
+Cache 位于 CPU 与主存之间，保存近期可能再次访问的主存数据副本。
+
+CPU 发出一次访问时：
+
+* 若目标数据已经在 Cache 中，称为 **Cache 命中（Hit）**；
+* 若不在 Cache 中，称为 **Cache 未命中（Miss）**，通常需要从主存取回相应数据块并填入 Cache。
+
+Cache 能工作的根本依据是程序访问的**局部性原理**。
+
+#### 3.1.1 时间局部性
+
+刚访问过的数据或指令，在短时间内再次被访问的概率较高。例如：
+
+```c
+int sum = 0;
+int arr[1000];
+
+// 初始化数组
+// ....
+for (int i = 0; i < 1000; i++) {
+    sum += arr[i];
+    sum += arr[i];
+}
+```
+
+第二次访问 `arr[i]` 就体现了时间局部性。
+
+#### 3.1.2 空间局部性
+
+刚访问某个地址后，其附近地址很可能马上被访问。例如顺序遍历数组。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-002.svg" alt="空间局部性示意" />
+
+因此 Cache 与主存之间不是每次只搬一个字节，而是以**块**为单位交换。
+
+---
+
+### 3.2 Cache Line、Cache Block 与主存块
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-003.svg" alt="Cache Line 与主存块" />
+
+需要分清三个表述：
+
+* **主存块（Memory Block）**：主存被等长划分后的数据块；
+* **Cache Block**：Cache 中用于保存一个主存块数据的区域；
+* **Cache Line**：通常指一个完整 Cache 行，除数据块外还包含 Tag、Valid、Dirty 等元数据。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-004.svg" alt="Cache 块与主存块对应关系" />
+
+若 Cache 块大小为 B 字节，且系统按字节编址，则块内偏移位数为：
+
+$$
+b=\log_2 B
+$$
+
+典型块大小可以是 32 B、64 B、128 B 等，但具体数值以题目为准。
+
+> **Cache 块 ≠ 虚拟存储器页面。** 两者都是“分块”，但服务对象、大小、管理方式完全不同：Cache 块用于 CPU—主存速度层次，页用于虚拟内存—物理内存地址转换和主存—辅存层次。
+
+---
+
+### 3.3 Cache 与主存的映射方式
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-005.svg" alt="Cache 三种映射方式" />
+
+映射方式回答的问题是：**某个主存块允许放到 Cache 的哪些行？**
+
+三种基本方式：
+
+* 直接映射；
+* 全相联映射；
+* 组相联映射。
+
+#### 3.3.1 直接映射
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-006.svg" alt="直接映射" />
+
+设 Cache 有 C 行，主存块号为 j，则直接映射规定：
+
+$$
+i=j\bmod C
+$$
+
+其中 i 是唯一允许放置的 Cache 行号。
+
+例如 Cache 为 256 KB、块大小为 64 B，则行数：
+
+$$
+C=\frac{256\text{ KB}}{64\text{ B}}=4096
+$$
+
+主存块 10000 映射到：
+
+$$
+10000\bmod4096=1808
+$$
+
+优点是硬件简单、查找快；缺点是冲突最严重：两个经常交替访问的主存块如果映射到同一行，会反复替换。
+
+#### 3.3.2 全相联映射
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-007.svg" alt="全相联映射" />
+
+任意主存块都可以放入任意 Cache 行。访问时，需要把请求的 Tag 与所有候选行的 Tag 做相联比较；硬件概念上是并行比较，而不是软件式逐行遍历。
+
+优点是几乎消除了由固定位置造成的冲突；缺点是比较器多、硬件复杂，替换选择也更复杂。
+
+#### 3.3.3 组相联映射
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-008.svg" alt="组相联映射" />
+
+组相联是前两者的折中。Cache 被分为若干组，每组有若干行。
+
+若为 n 路组相联，则**每组有 n 行**。设组数为 S，则：
+
+$$
+S=\frac{C}{n}
+$$
+
+主存块 j 只能进入：
+
+$$
+s=j\bmod S
+$$
+
+所确定的那一组，但可以放到组内任意一路。
+
+例如仍为 256 KB Cache、块 64 B，共 4096 行；若采用 4 路组相联：
+
+$$
+S=\frac{4096}{4}=1024
+$$
+
+主存块 10000 对应组号：
+
+$$
+10000\bmod1024=784
+$$
+
+> **高频易错点：** “4 路组相联”表示**每组 4 行**，不是“总共 4 组”。
+
+##### 组相联硬件结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-009.svg" alt="组相联 Cache 硬件结构" />
+
+先用组索引选中一个组，再把请求 Tag 与该组所有路的 Tag 并行比较；某一路满足 Valid=1 且 Tag 匹配，即命中，再由多路选择器输出相应数据。
+
+#### 3.3.4 三种映射方式比较
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-010.svg" alt="Cache 映射方式比较" />
+
+| 项目        | 直接映射    | 组相联      | 全相联        |
+| --------- | ------- | -------- | ---------- |
+| 一个主存块可放位置 | 唯一 1 行  | 指定组内任意一路 | 任意行        |
+| Tag 比较范围  | 1 行     | 组内 n 行   | 所有行        |
+| 硬件复杂度     | 最低      | 中等       | 最高         |
+| 冲突失效      | 最明显     | 较少       | 最少         |
+| 是否需要替换选择  | 不需要选候选行 | 组满时需要    | Cache 满时需要 |
+
+在 Cache 容量、块大小等条件相同时，提高相联度通常能减少**冲突失效**，但硬件比较、替换维护和访问延迟成本会上升。
+
+---
+
+### 3.4 Cache 地址结构
+
+Cache 题最稳定的解法是：**先把物理地址切成“Tag + 匹配字段 + 块内偏移”。**
+
+#### 3.4.1 块内偏移
+
+系统按字节编址、块大小 B 字节时：
+
+$$
+\text{Offset bits}=\log_2 B
+$$
+
+#### 3.4.2 Cache 匹配字段
+
+* 直接映射：匹配字段是 Cache 行号；
+* 全相联：没有行号/组号字段；
+* 组相联：匹配字段是组号。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-011.svg" alt="Cache 地址字段通用结构" />
+
+若物理地址共 p bit，则：
+
+**直接映射**
+
+$$
+\text{Tag bits}=p-\log_2 C-\log_2 B
+$$
+
+**n 路组相联**
+
+$$
+S=\frac{C}{n}
+$$
+
+$$
+\text{Tag bits}=p-\log_2 S-\log_2 B
+$$
+
+**全相联**
+
+$$
+\text{Tag bits}=p-\log_2 B
+$$
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-012.svg" alt="三种 Cache 映射的物理地址划分" />
+
+> **统一模板：** 先算块内偏移，再算行号/组号，最后剩下的高位全部是 Tag。不要一上来背三套互不关联的公式。
+
+---
+
+### 3.5 Cache 的实际存储结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-013.svg" alt="Cache 行的元数据和数据" />
+
+一个 Cache Line 不仅存放数据块，还会附带控制信息：
+
+* **Valid**：该行当前是否包含有效数据；
+* **Tag**：标识该数据来自哪个主存块；
+* **Dirty**：回写法中表示该行是否被 CPU 修改、尚未同步到主存；
+* **替换相关信息**：如访问位、计数或顺序状态；
+* **Data**：真正的数据块。
+
+因此题目若问“Cache 总容量”，要先判断它说的是：
+
+* **数据容量**，还是
+* **包含 Tag/Valid/Dirty 等开销的总位数**。
+
+> **LRU 位数注意：** 教材题可能给定某种简化实现并要求按“每行若干状态位”计算；真实严格 LRU 需要维护组内相对次序，并不存在对所有实现都成立的“每行固定等于某公式”的结论。考试以题设和教材模型为准。
+
+---
+
+### 3.6 Cache 块替换
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-014.svg" alt="不同映射方式是否需要替换算法" />
+
+* **直接映射**：目标行唯一，不需要在多个候选行中选择，冲突时直接替换那一行；
+* **组相联**：目标组内若全部有效，需要选择一路淘汰；
+* **全相联**：Cache 满时需要在所有行中选择淘汰行。
+
+#### 3.6.1 一般替换流程
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-015.svg" alt="Cache 访问与替换流程" />
+
+1. 根据地址映射方式确定候选行或候选组；
+2. 比较 Valid 和 Tag；
+3. 若命中，直接访问；
+4. 若未命中且存在无效空行，优先使用空行；
+5. 若无空行，按替换算法选择牺牲块；
+6. 若采用回写法且牺牲块 Dirty=1，先写回主存；
+7. 从主存调入新块并更新 Tag、Valid 等信息。
+
+#### 3.6.2 常见替换算法
+
+| 算法             | 思想           | 典型状态          |
+| -------------- | ------------ | ------------- |
+| Random         | 随机选择         | 几乎不需维护访问历史    |
+| FIFO           | 淘汰最早进入的块     | 维护进入先后顺序      |
+| LRU            | 淘汰最长时间未被访问的块 | 维护近期访问次序      |
+| LFU            | 淘汰访问次数最少的块   | 维护计数          |
+| Clock          | 用访问位近似 LRU   | 常见 1 个引用位     |
+| Enhanced Clock | 同时考虑访问位和修改位  | 引用位 + Dirty 等 |
+
+> Clock/改进型 Clock 在操作系统页面置换中更常见，但作为“替换思想”理解即可；具体题目看它用于 Cache 还是页面。
+
+---
+
+### 3.7 Cache 写策略
+
+写操作要回答两个独立问题：
+
+1. **写命中时，主存什么时候更新？**
+2. **写未命中时，是否先把主存块调入 Cache？**
+
+#### 3.7.1 写命中：Write-Through 与 Write-Back
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-016.svg" alt="直写法与回写法" />
+
+**Write-Through（直写/写穿）**：
+
+* 写 Cache 的同时也写主存；
+* Cache 与主存较容易保持一致；
+* 写主存次数多；
+* 通常不需要 Dirty 位判断“是否曾修改”。
+
+**Write-Back（回写）**：
+
+* 写命中时只更新 Cache；
+* 把该行 Dirty 置 1；
+* 只有该行被替换时，才把修改后的整块写回主存；
+* 能减少主存写次数，但一致性管理更复杂。
+
+#### 3.7.2 写未命中：Write-Allocate 与 No-Write-Allocate
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-017.svg" alt="写分配与非写分配" />
+
+**Write-Allocate（写分配）**：先把相应主存块调入 Cache，再在 Cache 中完成写入。
+
+**No-Write-Allocate（非写分配）**：写未命中时直接写主存，不因为这次写操作把整块调入 Cache。
+
+#### 3.7.3 常见组合
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-cache-018.svg" alt="Cache 写策略的常见组合" />
+
+最常见的两组搭配是：
+
+* **Write-Through + No-Write-Allocate**：更偏向主存；
+* **Write-Back + Write-Allocate**：更偏向 Cache，充分利用局部性。
+
+这不是说其他组合逻辑上绝对不可能，而是 408 和经典体系结构中以上两种最典型。
+
+> **一眼判断 Dirty 位：** 题目若明确采用 Write-Through，通常无需依靠 Dirty 位；若采用 Write-Back，则 Dirty 位非常关键。
+
+**原资料真题索引：**
+
+* Cache 基本原理：选择题 2009 Q21、2014 Q16、2016 Q15、2017 Q14、2020 Q15；综合题 2010 Q44、2011 Q44、2012 Q43、2013 Q43、2014 Q45、2016 Q45、2023 Q43。
+* 映射与地址结构：选择题 2009 Q14、2012 Q17、2015 Q15、2016 Q15、2021 Q16、2022 Q16、2026 Q18；综合题 2018 Q44、2019 Q46、2025 Q43。
+* 写策略：2015 Q15、2015 Q16、2021 Q16。
+
+---

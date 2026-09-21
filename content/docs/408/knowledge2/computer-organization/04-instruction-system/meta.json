@@ -1,0 +1,9 @@
+{
+  "title": "第 4 章 指令系统",
+  "pages": [
+    "01-isa-addressing",
+    "02-alignment-endian-risc-cisc",
+    "03-assembly-instructions",
+    "04-compilation-function-call"
+  ]
+}

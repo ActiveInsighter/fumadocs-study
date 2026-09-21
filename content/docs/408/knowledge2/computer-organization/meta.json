@@ -1,12 +1,11 @@
 {
-  "title": "组成原理",
+  "title": "计算机组成原理",
   "pages": [
-    "index",
-    "overview",
-    "representation",
-    "storage",
-    "instruction",
-    "cpu",
-    "bus"
+    "01-computer-system-overview",
+    "02-data-representation",
+    "03-storage-system",
+    "04-instruction-system",
+    "05-cpu",
+    "06-bus-io"
   ]
 }

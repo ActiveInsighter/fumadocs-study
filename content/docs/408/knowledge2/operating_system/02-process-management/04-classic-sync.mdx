@@ -1,0 +1,403 @@
+---
+title: "经典同步问题"
+description: "第 2 章 进程管理：经典同步问题。进程线程、处理机调度、同步互斥、经典同步问题与死锁。"
+---
+
+## 二十五、生产者—消费者问题
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-002.svg" alt={"Producer Producer Consumer Consumer Text is not SVG - cannot display"} />
+
+生产者和消费者共享固定大小缓冲区。
+
+需要同时解决：
+
+1. **缓冲区互斥访问**
+2. **缓冲区满时生产者等待**
+3. **缓冲区空时消费者等待**
+
+设缓冲区容量为 `n`：
+
+```c
+semaphore mutex = 1;
+semaphore empty = n;
+semaphore full  = 0;
+```
+
+生产者：
+
+```c
+producer() {
+    while (1) {
+        produce_item();
+
+        P(empty);
+        P(mutex);
+
+        put_item();
+
+        V(mutex);
+        V(full);
+    }
+}
+```
+
+消费者：
+
+```c
+consumer() {
+    while (1) {
+        P(full);
+        P(mutex);
+
+        get_item();
+
+        V(mutex);
+        V(empty);
+
+        consume_item();
+    }
+}
+```
+
+三者含义：
+
+* `empty`：还有多少空槽；
+* `full`：已有多少产品；
+* `mutex`：缓冲区临界区互斥。
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-003.svg" alt={"ProducerConsumer"} />
+
+<Callout type="warn" title="高频错误：P 操作顺序">
+生产者应先 `P(empty)` 再 `P(mutex)`；消费者应先 `P(full)` 再 `P(mutex)`。
+
+如果先获得 `mutex` 再等待 `empty/full`，可能出现持有互斥锁等待资源，而另一个进程无法进入临界区改变资源状态，形成死锁。 </Callout>
+
+---
+
+## 二十六、读者—写者问题
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-004.svg" alt={"reader reader reader reader writer writer x reader writer writer x x writer 可以多个读者一起读， 但是此时写者不能写 系统一个时刻最多允许一个写者在写， 并且此时其他读者和写者都不允许操作"} />
+
+基本要求：
+
+* 多个读者可以同时读；
+* 写者与写者互斥；
+* 写者与读者互斥；
+* 写者访问时必须独占共享资源。
+
+因此：
+
+| 当前状态 | 新读者  | 新写者 |
+| ---- | ---- | --- |
+| 无人访问 | 可进入  | 可进入 |
+| 有读者  | 可并发读 | 等待  |
+| 有写者  | 等待   | 等待  |
+
+进一步根据公平策略，可形成：
+
+1. 读者优先；
+2. 写者优先；
+3. 公平访问。
+
+---
+
+### 1. 读者优先
+
+目标：
+
+> 已经有读者访问时，新读者仍可加入。
+
+需要：
+
+* `read_count`：当前读者数量；
+* `mutex`：保护 `read_count`；
+* `wrt`：控制共享资源。
+
+```c
+int read_count = 0;
+
+semaphore wrt   = 1;
+semaphore mutex = 1;
+
+reader() {
+    while (1) {
+        P(mutex);
+
+        read_count++;
+
+        if (read_count == 1) {
+            P(wrt);
+        }
+
+        V(mutex);
+
+        read();
+
+        P(mutex);
+
+        read_count--;
+
+        if (read_count == 0) {
+            V(wrt);
+        }
+
+        V(mutex);
+    }
+}
+
+writer() {
+    while (1) {
+        P(wrt);
+
+        write();
+
+        V(wrt);
+    }
+}
+```
+
+核心：
+
+> **第一个读者负责锁住写者，最后一个读者负责释放写者。**
+
+问题：
+
+> 如果读者持续到来，写者可能长期无法执行，即写者饥饿。
+
+---
+
+### 2. 写者优先
+
+目标：
+
+> 一旦已有写者等待，不再允许后来的读者不断插队。
+
+```c
+int read_count  = 0;
+int write_count = 0;
+
+semaphore wrt         = 1;
+semaphore mutex       = 1;
+semaphore write_mutex = 1;
+semaphore readTry     = 1;
+
+reader() {
+    while (1) {
+        P(readTry);
+        P(mutex);
+
+        read_count++;
+
+        if (read_count == 1) {
+            P(wrt);
+        }
+
+        V(mutex);
+        V(readTry);
+
+        read();
+
+        P(mutex);
+
+        read_count--;
+
+        if (read_count == 0) {
+            V(wrt);
+        }
+
+        V(mutex);
+    }
+}
+
+writer() {
+    while (1) {
+        P(write_mutex);
+
+        write_count++;
+
+        if (write_count == 1) {
+            P(readTry);
+        }
+
+        V(write_mutex);
+
+        P(wrt);
+
+        write();
+
+        V(wrt);
+
+        P(write_mutex);
+
+        write_count--;
+
+        if (write_count == 0) {
+            V(readTry);
+        }
+
+        V(write_mutex);
+    }
+}
+```
+
+第一个等待写者关闭 `readTry`，从而阻止后来的新读者继续加入。
+
+代价：
+
+> 如果写者持续到达，可能反过来导致读者饥饿。
+
+---
+
+### 3. 公平方案
+
+引入一个统一的排队信号量：
+
+```c
+int read_count = 0;
+
+semaphore wrt   = 1;
+semaphore mutex = 1;
+semaphore queue = 1;
+```
+
+读者：
+
+```c
+reader() {
+    while (1) {
+        P(queue);
+        P(mutex);
+
+        read_count++;
+
+        if (read_count == 1) {
+            P(wrt);
+        }
+
+        V(mutex);
+        V(queue);
+
+        read();
+
+        P(mutex);
+
+        read_count--;
+
+        if (read_count == 0) {
+            V(wrt);
+        }
+
+        V(mutex);
+    }
+}
+```
+
+写者：
+
+```c
+writer() {
+    while (1) {
+        P(queue);
+        P(wrt);
+
+        V(queue);
+
+        write();
+
+        V(wrt);
+    }
+}
+```
+
+思想：
+
+> 后到达的进程不能无限插到已经等待的另一类进程前面。
+
+读者—写者问题的读者优先流程可结合下图理解：
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-005.svg" alt={"ReaderWriterProblem"} />
+
+---
+
+## 二十七、哲学家就餐问题
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-006.svg" alt={"SVG figure 6"} />
+
+假设：
+
+* N 位哲学家围成一圈；
+* 相邻哲学家之间一把叉子；
+* 共 N 把叉子；
+* 哲学家吃饭必须同时拥有左右两把叉子。
+
+若所有哲学家都：
+
+> 先拿左叉，再拿右叉。
+
+可能出现：
+
+```text
+P0：拿到左叉，等待右叉
+P1：拿到左叉，等待右叉
+P2：拿到左叉，等待右叉
+...
+Pn：拿到左叉，等待右叉
+```
+
+于是形成循环等待：
+
+```text
+P0 → P1 → P2 → ... → Pn → P0
+```
+
+产生死锁。
+
+一种解决方案是：
+
+> **破坏所有哲学家完全相同的资源申请顺序。**
+
+例如：
+
+* 前 N - 1 位：先左后右；
+* 最后一位：先右后左。
+
+```c
+semaphore fork[N] = {1, 1, ..., 1};
+
+void philosopher(int i) {
+    int first;
+    int second;
+
+    if (i != N - 1) {
+        first  = i;
+        second = (i + 1) % N;
+    } else {
+        first  = (i + 1) % N;
+        second = i;
+    }
+
+    while (1) {
+        think();
+
+        P(fork[first]);
+        P(fork[second]);
+
+        eat();
+
+        V(fork[second]);
+        V(fork[first]);
+    }
+}
+```
+
+这样破坏统一的循环申请方向，使系统不再形成原来的完整循环等待链。
+
+<InlineSvg src="/images/operating-system/operating-system-process-problem-007.svg" alt={"图示"} />
+
+其他常见思想还包括：
+
+* 最多允许 N - 1 位哲学家同时尝试取叉；
+* 一次性检查并申请两把叉；
+* 对所有资源统一编号并按编号顺序申请。
+
+---

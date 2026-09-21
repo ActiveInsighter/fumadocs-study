@@ -1,0 +1,408 @@
+---
+title: "并行处理、多核与复习总结"
+description: "第 5 章 中央处理器：并行处理、多核与复习总结。CPU 数据通路、寄存器、控制器、异常中断、流水线与多处理机。"
+---
+
+## 5.34 多处理机与并行处理
+
+> **复习优先级：低**
+>
+> 了解 Flynn 分类、多核、逻辑核心和共享存储结构即可。
+
+> **历年真题范围**
+>
+> 2022 年第 22 题等。
+
+**多处理机（Multiprocessor）**包含多个处理单元，可以同时执行计算任务，以提高：
+
+* 并行性；
+* 吞吐率；
+* 多任务处理能力。
+
+但增加处理器数量并不意味着性能一定按比例增长，因为还受到：
+
+* 串行部分；
+* 通信；
+* 同步；
+* 缓存；
+* 访存带宽；
+* 负载均衡
+
+等因素影响。
+
+---
+
+## 5.35 Flynn 分类法
+
+Flynn 根据：
+
+* 指令流数量；
+* 数据流数量
+
+把体系结构分成四类。
+
+|      | 单数据流 | 多数据流 |
+| ---- | ---- | ---- |
+| 单指令流 | SISD | SIMD |
+| 多指令流 | MISD | MIMD |
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-001.svg" alt="Flynn 分类法" />
+
+---
+
+### 5.35.1 指令流与数据流
+
+**指令流**表示处理器执行的一串指令。
+
+**数据流**表示这些指令处理的数据。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-002.svg" alt="指令流和数据流" />
+
+例如：
+
+```asm
+ADD R1, R2
+```
+
+指令规定：
+
+> 做什么。
+
+寄存器中的具体值规定：
+
+> 对什么数据做。
+
+---
+
+### 5.35.2 SISD
+
+SISD：
+
+> **Single Instruction Stream, Single Data Stream**
+
+即：
+
+* 一条指令流；
+* 一条数据流。
+
+是传统串行处理器的基本模型。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-003.svg" alt="SISD 矩阵加法示意" />
+
+例如 2×2 矩阵加法，如果每次只能处理一个元素：
+
+```text
+a11 + b11
+a12 + b12
+a21 + b21
+a22 + b22
+```
+
+需要依次完成。
+
+---
+
+### 5.35.3 SIMD
+
+SIMD：
+
+> **Single Instruction Stream, Multiple Data Stream**
+
+即：
+
+> **同一条指令同时作用于多组不同数据。**
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-004.svg" alt="SIMD 并行结构" />
+
+特别适合：
+
+* 向量运算；
+* 矩阵运算；
+* 图像处理；
+* 多媒体；
+* 科学计算。
+
+例如：
+
+```text
+ADD
+↓
+PU1：a1 + b1
+PU2：a2 + b2
+PU3：a3 + b3
+PU4：a4 + b4
+```
+
+所有处理单元做相同运算，只是数据不同。
+
+---
+
+### 5.35.4 SIMD 与 SIMT
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-005.svg" alt="SIMT Warp 分支分歧" />
+
+SIMT：
+
+> **Single Instruction, Multiple Threads**
+
+常用于描述 GPU 的线程执行模型。
+
+每个线程具有自己的：
+
+* 寄存器状态；
+* 程序状态；
+* 线程上下文。
+
+一个 warp 中的线程通常以同一条指令推进。
+
+遇到：
+
+```c
+if (condition) {
+    A();
+} else {
+    B();
+}
+```
+
+不同线程条件不同，就可能产生 **分支分歧（Warp Divergence）**。
+
+处理器通常需要分别执行不同路径，然后重新汇合。
+
+因此不能简单理解成：
+
+> warp 内每个线程可以在同一时刻随意执行完全不同的机器指令。
+
+---
+
+### 5.35.5 MISD
+
+MISD：
+
+> **Multiple Instruction Stream, Single Data Stream**
+
+多个处理单元对同一数据流执行不同操作。
+
+实际通用计算机中十分少见。
+
+某些容错或特殊流水计算结构可以用这一模型辅助描述。
+
+---
+
+### 5.35.6 MIMD
+
+MIMD：
+
+> **Multiple Instruction Stream, Multiple Data Stream**
+
+多个处理单元：
+
+* 执行不同指令；
+* 处理不同数据。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-006.svg" alt="MIMD 并行处理" />
+
+现代：
+
+* 多核 CPU；
+* 多处理器服务器
+
+通常属于 MIMD。
+
+---
+
+## 5.36 多核处理器
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-007.svg" alt="单核与多核处理器" />
+
+**多核处理器**是在同一处理器芯片或封装内集成多个处理核心。
+
+每个核心通常能够相对独立：
+
+* 取指；
+* 译码；
+* 执行；
+* 处理中断；
+* 运行软件线程。
+
+---
+
+### 5.36.1 并发与并行
+
+#### 并发
+
+多个任务在一段时间内都在推进。
+
+单核 CPU 通过快速切换也可以实现并发。
+
+#### 并行
+
+多个任务在 **同一时刻** 真正同时执行。
+
+通常需要：
+
+* 多核心；
+* 多处理器；
+* SIMD 执行单元等。
+
+---
+
+## 5.37 物理核心
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-008.svg" alt="CPU 物理核心" />
+
+物理核心是芯片上真实存在的硬件执行核心。
+
+每个核心通常拥有：
+
+* 自己的寄存器状态；
+* 取指、译码逻辑；
+* 执行单元；
+* 流水线；
+* 私有 L1 Cache；
+* 某些实现中的私有 L2 Cache。
+
+较高层 Cache 可能被多个核心共享。
+
+因此不能简单说：
+
+> 每个核心一定拥有完全独立的所有 Cache。
+
+---
+
+## 5.38 逻辑核心与 SMT
+
+支持 **SMT（Simultaneous Multithreading）** 时，一个物理核心可以向操作系统暴露多个 **硬件线程/逻辑处理器**。
+
+Intel 的相关实现常称为：
+
+> Hyper-Threading，超线程。
+
+例如：
+
+```text
+4 个物理核心
+×
+每核 2 路 SMT
+=
+8 个逻辑处理器
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-009.svg" alt="物理核心与逻辑处理器" />
+
+逻辑核心不是由操作系统凭空虚拟出来的。
+
+硬件需要为不同硬件线程维护独立的部分体系结构状态，例如：
+
+* PC；
+* 通用寄存器；
+* FLAGS；
+* 异常/中断状态等。
+
+但多个逻辑线程通常共享：
+
+* ALU；
+* FPU；
+* Load/Store 单元；
+* 部分调度资源；
+* Cache；
+* 访存带宽。
+
+因此 SMT 的本质可以记为：
+
+> **复制线程状态，复用和共享大量执行资源。**
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-010.svg" alt="软件线程、逻辑核心和物理核心" />
+
+所以：
+
+```text
+8 个逻辑核心
+≠
+8 个完整物理核心
+```
+
+超线程主要提高：
+
+* 核心资源利用率；
+* 多线程吞吐率。
+
+而不是把物理执行能力直接翻倍。
+
+---
+
+## 5.39 共享内存多处理机
+
+多个处理器共享统一的物理内存空间：
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-011.svg" alt="共享内存多处理机" />
+
+典型结构：
+
+```text
+P1 ─┐
+P2 ─┼─ 系统互联 ─ 共享主存
+P3 ─┘
+```
+
+特点：
+
+* 处理器通过共享变量交换信息；
+* 需要同步机制避免竞争；
+* 系统互联性能影响扩展能力；
+* 多核拥有私有 Cache 时还需要处理缓存一致性问题。
+
+---
+
+## 5.40 本章易错点总表
+
+| 易错点                   | 正确理解                             |
+| --------------------- | -------------------------------- |
+| 数据通路就是 ALU            | 数据通路还包括寄存器、MUX、总线等               |
+| ALU 可以保存结果            | ALU 通常是组合逻辑，结果要写入寄存器             |
+| `Rin` 是读寄存器           | `Rin` 是写入，`Rout` 是读出             |
+| PC 一定是一个名叫 PC 的寄存器    | PC 是体系结构功能概念，8086 用 `CS:IP` 实现定位 |
+| `CF` 和 `OF` 一样        | CF 主要描述无符号进位，OF 描述有符号溢出          |
+| PF 为奇数个 1 时置 1        | x86 中为偶校验：偶数个 1 时置 1             |
+| `DF=1` 地址增加           | `DF=1` 通常地址递减                    |
+| 微程序就是普通软件             | 微程序存在控制存储器，是控制器内部机制              |
+| 微命令就是微指令              | 一条微指令可包含多个微命令                    |
+| 中断时所有寄存器都由硬件自动保存      | 具体体系结构不同；408 常见：硬件保断点，软件保现场      |
+| 中断和异常完全相同             | 外部中断异步，异常同步；教材术语可能不同             |
+| 中断屏蔽就是关闭所有中断          | 屏蔽字可以选择性屏蔽某些中断源                  |
+| 流水线降低单条指令延迟           | 主要提高吞吐率                          |
+| 多周期处理器就是流水线           | 多周期不要求多条指令重叠                     |
+| 五级流水中 WAR、WAW 都一定造成冲突 | 经典顺序五级流水主要关注 RAW                 |
+| 有 Forwarding 就没有数据冒险  | Load-Use 往往仍需 Stall              |
+| SIMD 与 MIMD 一样        | SIMD 同指令多数据，MIMD 多指令多数据          |
+| 逻辑核心等于完整物理核心          | SMT 逻辑核心共享大量执行资源                 |
+
+---
+
+## 5.41 408 解题主线
+
+遇到 CPU 综合题，可以按照以下顺序分析：
+
+```text
+① 看指令
+      ↓
+② 明确源操作数和目的操作数
+      ↓
+③ 写 RTL 微操作
+      ↓
+④ 画数据通路
+      ↓
+⑤ 推控制信号
+      ↓
+⑥ 判断何时读寄存器、何时得到结果
+      ↓
+⑦ 若有流水线，判断 RAW / 资源冲突 / 分支
+      ↓
+⑧ 根据 Forwarding、Stall 等题设重新排时序
+      ↓
+⑨ 若发生异常或中断，判断断点、现场及返回位置
+```
+
+本章真正需要形成的整体认识是：
+
+> **CPU 的本质，就是在控制器产生的时序控制信号驱动下，让数据沿着数据通路在寄存器、ALU、存储器之间有序流动；流水线进一步让多条指令的这些操作重叠执行，而异常与中断机制负责在特殊事件出现时安全地改变正常指令流。**

@@ -1,0 +1,328 @@
+---
+title: "数据对齐、大小端与 RISC/CISC"
+description: "第 4 章 指令系统：数据对齐、大小端与 RISC/CISC。ISA、指令格式、寻址方式、数据对齐、大小端、汇编指令与函数调用。"
+---
+
+## 17. 数据对齐
+
+> **真题考查**
+>
+> * 选择题：2012 年第 15 题、2020 年第 14 题、2025 年第 15 题
+
+**数据对齐**（Data Alignment）要求某些数据对象的起始地址满足特定的倍数关系。
+
+假设对象对齐要求为 K Byte，则通常要求：
+
+$$
+Address\bmod K=0
+$$
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-001.svg" alt={"0x00: 0x04: 0x08: 0x0C: 0x10: 0x00: 0x04: 0x08: 0x0C: 0x10: 对齐的数据布局 char padding int (4字节) short pad double (8字节) 未对齐的数据布局 char int short double CPU 访问 int 1次内存访问 CPU 访问 int 2次内存访问 对齐优势 ✓ 单次访问获取完整数据 ✓ 硬件优化，访问速度快 未对齐问题 ✗ 需要多次内存访问 ✗ 某些架构会触发异常"} />
+
+为什么需要对齐？
+
+如果一个 4 Byte 数据跨越了处理器的一次自然访问边界，就可能：
+
+* 需要两次内存访问；
+* 需要硬件拼接数据；
+* 降低访问效率；
+* 某些架构甚至会触发对齐异常。
+
+---
+
+### 17.1 常见数据类型的对齐
+
+408 题目若没有特殊说明，通常可按下面的典型规则理解：
+
+| 数据类型        |     大小 |       常见对齐 |
+| ----------- | -----: | ---------: |
+| `char`      | 1 Byte |     1 Byte |
+| `short`     | 2 Byte |     2 Byte |
+| `int`       | 4 Byte |     4 Byte |
+| `float`     | 4 Byte |     4 Byte |
+| `double`    | 8 Byte |     8 Byte |
+| `long long` | 8 Byte |     8 Byte |
+| 64 位指针      | 8 Byte | 常见为 8 Byte |
+
+实际 ABI 和编译器可能存在差异，考试应优先服从题目给定条件。
+
+C11 可以通过 `_Alignof` 查询实现中的对齐要求：
+
+```c
+#include <stdint.h>
+#include <stdio.h>
+
+#define EVAL_PRINT(expr) printf("%-20s = %u\n", #expr, (unsigned)(expr));
+
+int main(void) {
+    EVAL_PRINT(_Alignof(char));
+    EVAL_PRINT(_Alignof(uint8_t));
+    EVAL_PRINT(_Alignof(uint16_t));
+    EVAL_PRINT(_Alignof(uint32_t));
+    EVAL_PRINT(_Alignof(int));
+    EVAL_PRINT(_Alignof(uint64_t));
+    EVAL_PRINT(_Alignof(void *));
+    EVAL_PRINT(_Alignof(size_t));
+    return 0;
+}
+```
+
+典型 64 位环境中可能得到：
+
+```text
+_Alignof(char)       = 1
+_Alignof(uint8_t)    = 1
+_Alignof(uint16_t)   = 2
+_Alignof(uint32_t)   = 4
+_Alignof(int)        = 4
+_Alignof(uint64_t)   = 8
+_Alignof(void*)      = 8
+_Alignof(size_t)     = 8
+```
+
+---
+
+### 17.2 结构体中的 Padding
+
+为了使每个成员满足自己的对齐要求，编译器可能在成员之间插入**填充字节**（Padding）。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-002.svg" alt={"图示"} />
+
+计算结构体布局时通常遵循：
+
+1. 每个成员从满足自身对齐要求的位置开始；
+2. 不满足时，在前一个成员后插入 Padding；
+3. 结构体总大小通常还需要是其**最大成员对齐要求**的整数倍，因此末尾也可能有 Padding。
+
+> **高频易错**
+>
+> 不要只计算各成员大小之和。
+>
+> 结构体题通常同时考：
+>
+> * 成员大小；
+> * 成员起始地址；
+> * 成员之间的 Padding；
+> * 结构体尾部 Padding。
+
+---
+
+## 18. 大端与小端
+
+> **真题考查**
+>
+> * 选择题：2016 年第 14 题、2018 年第 15 题、2019 年第 15 题、2020 年第 14 题、2025 年第 15 题
+> * 解答题：2023 年第 44 题、2024 年第 44 题
+
+**大小端**（Endianness）描述的是：
+
+> **一个多字节数据内部，各字节在内存地址中的排列顺序。**
+
+假设 32 位整数：
+
+```text
+0x12345678
+```
+
+分成四个字节：
+
+```text
+0x12  0x34  0x56  0x78
+ ↑                    ↑
+高位字节             低位字节
+```
+
+---
+
+### 18.1 大端序
+
+**Big-Endian：高位字节放低地址。**
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-003.svg" alt={"32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x12 0x34 0x56 0x78 ← 低地址 ← 高地址 大端序特征 • 高位字节 → 低地址 • 低位字节 → 高地址"} />
+
+```text
+地址       内容
+0x1000     12
+0x1001     34
+0x1002     56
+0x1003     78
+```
+
+记忆：
+
+> **大端：高位 → 低地址**
+
+---
+
+### 18.2 小端序
+
+**Little-Endian：低位字节放低地址。**
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-004.svg" alt={"32位整数: 0x12345678 字节分解: 0x12 0x34 0x56 0x78 高位字节 低位字节 内存存储: 0x1000: 0x1001: 0x1002: 0x1003: 0x78 0x56 0x34 0x12 ← 低地址 ← 高地址 小端序特征 • 低位字节 → 低地址 • 高位字节 → 高地址"} />
+
+```text
+地址       内容
+0x1000     78
+0x1001     56
+0x1002     34
+0x1003     12
+```
+
+记忆：
+
+> **小端：低位 → 低地址**
+
+---
+
+### 18.3 数组中的大小端
+
+假设题设规定：
+
+```c
+long a[2] = {
+    0x76543210,
+    0xFEDCBA98
+};
+```
+
+且规定 `long` 为 8 Byte，则：
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-alignment-005.svg" alt={"0x10 0x32 0x54 ox76 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x76 0x54 0x32 0x10 0x98 0xBA 0xDC 0xFE 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xFE 0xDC 0xBA 0x98 0x1000 0x1000 0x1008 0x1008 Little Endian Big Endian"} />
+
+> **注意**
+>
+> C 语言中的 `long` 大小与 ABI 有关，并非所有 64 位平台都规定 `long=8 Byte`。考试应以题设为准。
+
+#### 18.4 大小端不改变字节内部的 bit 顺序
+
+这是一个非常常见的混淆点。
+
+大小端只讨论：
+
+> **字节和字节之间怎样排列。**
+
+不讨论一个字节内部：
+
+```text
+bit7 ... bit0
+```
+
+如何编号。
+
+因此不要把“字节序”和“位序”混为一谈。
+
+Intel x86/x86-64 通常采用小端序，而网络协议中的“网络字节序”通常采用大端序。
+
+---
+
+## 19. CISC 与 RISC
+
+> **真题考查**
+>
+> * 选择题：2009 年第 17 题、2025 年第 17 题
+> * 解答题：2017 年第 44 题
+
+**CISC**（Complex Instruction Set Computer）和 **RISC**（Reduced Instruction Set Computer）代表两种经典的指令集设计思想。
+
+![csic 和 risc 处理器](/images/computer-organization/computer-organization-instruction-concepts-002.png)
+
+---
+
+### 19.1 CISC
+
+典型特征：
+
+* 指令数量较多；
+* 指令功能复杂；
+* 指令长度可能变化；
+* 寻址方式丰富；
+* 某些指令可以直接对内存操作数进行复杂计算；
+* 经典教材中常与微程序控制联系；
+* 译码逻辑相对复杂。
+
+典型代表：
+
+* x86
+* x86-64
+
+---
+
+### 19.2 RISC
+
+典型思想：
+
+* 指令功能较简单；
+* 编码形式更加规整；
+* 寻址方式较少；
+* 通常强调寄存器操作；
+* 常采用 Load/Store 思想；
+* 经典教材中常与硬布线控制联系；
+* 更容易构建规则、高效的流水线。
+
+典型代表：
+
+* ARM
+* MIPS
+* RISC-V
+
+现代 ISA 已经比早期教材中的二分法复杂得多，因此：
+
+> “CISC 一定微程序、RISC 一定硬布线”“RISC 所有指令永远等长”都不宜当作绝对规律。
+
+但在 408 基础题中仍应掌握这种**典型差异**。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-003.svg" alt={"图示"} />
+
+---
+
+### 19.3 CISC 与 RISC 对同一程序的实现差异
+
+例如：
+
+```c
+for (i = 0; i < 24; i++)
+    for (j = 0; j < 64; j++)
+        a[i][j] = 10;
+```
+
+CISC 指令通常允许一条指令完成较复杂的地址计算与访存，例如 x86 可以出现：
+
+```asm
+mov dword ptr [ecx + edx*4 + 00422000h], 0Ah
+```
+
+而典型 RISC 往往把地址计算拆为多条简单指令：
+
+```asm
+sll   $v1, $v1, 6
+add   $v1, $v1, $a0
+sll   $v1, $v1, 2
+lui   $at, 0x0042
+ori   $v0, $at, 0x2000
+add   $v0, $v1, $v0
+li    $a1, 10
+sw    $a1, 0($v0)
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-concepts-004.svg" alt={"图示"} />
+
+核心区别不是“谁一定更快”，而是：
+
+> **CISC 倾向于让单条指令完成更多工作；RISC 倾向于用更多规则、简单的指令组合完成同样任务。**
+
+---
+
+### 19.4 对比表
+
+| 特征      | CISC         | RISC           |
+| ------- | ------------ | -------------- |
+| 指令数量    | 较多           | 相对精简           |
+| 指令功能    | 较复杂          | 较简单            |
+| 指令长度    | 常为变长         | 通常更规则          |
+| 寻址方式    | 较丰富          | 较少             |
+| 内存操作    | 一些指令可直接对内存操作 | 常采用 Load/Store |
+| 控制实现    | 教材典型：微程序     | 教材典型：硬布线       |
+| 译码      | 较复杂          | 较规则            |
+| 单条指令工作量 | 较多           | 较少             |
+
+---
