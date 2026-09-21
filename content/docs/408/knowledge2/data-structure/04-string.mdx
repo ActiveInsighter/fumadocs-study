@@ -99,7 +99,7 @@ char s[] = "abc";
 
 ## 2. 与模式匹配有关的几个概念
 
-<InlineSvg src="/images/data-structure/data-structure-strings-match-001.svg" alt={"模式匹配算法核心概念 主串 (Str): 待搜索的完整字符串 A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 模式串 (Pattern): 要在主串中查找的目标字符串 C A B 匹配结果: A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 匹配位置: 4 核心概念: ■ 主串 (Str) 完整的待搜索字符串 示例: "ABABCABD" ■ 子串 (Substr) 主串中的任意连续片段 示例: "CAB" (位置4-6) ■ 模式串 (Patt"} />
+<InlineSvg src="/images/data-structure/data-structure-strings-match-001.svg" alt={"模式匹配算法核心概念 主串 (Str): 待搜索的完整字符串 A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 模式串 (Pattern): 要在主串中查找的目标字符串 C A B 匹配结果: A 0 B 1 A 2 B 3 C 4 A 5 B 6 D 7 匹配位置: 4 核心概念: ■ 主串 (Str) 完整的待搜索字符串 示例: \"ABABCABD\" ■ 子串 (Substr) 主串中的任意连续片段 示例: \"CAB\" (位置4-6) ■ 模式串 (Patt"} />
 
 学习字符串模式匹配之前，需要区分以下概念。
 
@@ -723,7 +723,7 @@ abc
 
 既是其真前缀，也是其真后缀。
 
-<InlineSvg src="/images/data-structure/data-structure-strings-match-002.svg" alt={"前后缀概念图解 - 字符串 "abcdabc" a b c d a b c 0 1 2 3 4 5 6 前缀 (Prefix): 从字符串开头开始的子串 a "a" (长度1) a b "ab" (长度2) a b c "abc" (长度3) a b c d "abcd" (长度4) 后缀 (Suffix): 到字符串末尾结束的子串 c "c" (长度1) b c "bc" (长度2) a b c "abc" (长度3) d a b c "dabc" (长度4) 关键发现：相"} />
+<InlineSvg src="/images/data-structure/data-structure-strings-match-002.svg" alt={"前后缀概念图解 - 字符串 \"abcdabc\" a b c d a b c 0 1 2 3 4 5 6 前缀 (Prefix): 从字符串开头开始的子串 a \"a\" (长度1) a b \"ab\" (长度2) a b c \"abc\" (长度3) a b c d \"abcd\" (长度4) 后缀 (Suffix): 到字符串末尾结束的子串 c \"c\" (长度1) b c \"bc\" (长度2) a b c \"abc\" (长度3) d a b c \"dabc\" (长度4) 关键发现：相"} />
 
 于是其最长相等真前后缀长度为：
 
