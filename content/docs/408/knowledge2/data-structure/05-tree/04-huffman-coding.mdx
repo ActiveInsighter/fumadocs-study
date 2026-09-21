@@ -5,7 +5,7 @@ description: "编码基础、前缀编码、WPL、哈夫曼树构造与哈夫曼
 
 ## 十六、编码与解码
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-001.svg" alt={"符号映射 反向映射 比特流 符号序列 原始符号序列 编码 解码"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-001.svg" alt="符号映射 反向映射 比特流 符号序列 原始符号序列 编码 解码" />
 
 **编码（Encoding）**是把原始符号或数据按照一定规则转换成另一种表示形式的过程。
 
@@ -62,14 +62,14 @@ $$
 
 因此至少需要 3 bit。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-002.svg" alt={"五种符号的三位定长编码示例"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-002.svg" alt="五种符号的三位定长编码示例" />
 
 在二叉编码树中：
 
 * 定长编码对应的叶结点往往位于同一深度；
 * 变长编码允许不同叶结点处于不同深度。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-003.svg" alt={"定长编码与变长编码比较"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-003.svg" alt="定长编码与变长编码比较" />
 
 ---
 
@@ -95,7 +95,7 @@ $$
 
 不存在某一码字是另一码字开头的一部分，因此属于前缀编码。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-004.svg" alt={"A B C D A B D C 0 0 0 0 1 1 1 0 1 1 0 0 1 1 前缀编码 非前缀编码"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-004.svg" alt="A B C D A B D C 0 0 0 0 1 1 1 0 1 1 0 0 1 1 前缀编码 非前缀编码" />
 
 前缀编码可以用二叉树表示。
 
@@ -272,7 +272,7 @@ $$
 > * 选择题：2010 年第 6 题、2015 年第 3 题、2018 年第 5 题、2019 年第 3 题、2021 年第 5 题、2022 年第 5 题、2023 年第 4 题、2025 年第 5 题、2026 年第 5 题
 > * 解答题：2012 年第 41 题
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-005.svg" alt={"SVG figure 5"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-005.svg" alt="SVG figure 5" />
 
 如果所有符号都使用相同长度的编码，那么高频符号和低频符号占用的位数完全相同。
 
@@ -311,7 +311,7 @@ $$
 6. 将新树重新放回森林；
 7. 重复，直到只剩一棵树。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-006.svg" alt={"HuffmanTreeConstruction"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-006.svg" alt="HuffmanTreeConstruction" />
 
 ### 重要性质
 
@@ -371,7 +371,7 @@ $$
 
 从根到某个叶结点经过的 0、1 序列，就是该符号的编码。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-app-007.svg" alt={"a b c d 7 5 2 4 a b 7 5 c d 6 a b 7 c d 11 a b c d 18 0 0 0 1 1 1"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-app-007.svg" alt="a b c d 7 5 2 4 a b 7 5 c d 6 a b 7 c d 11 a b c d 18 0 0 0 1 1 1" />
 
 例如权值：
 

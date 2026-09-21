@@ -7,7 +7,7 @@ description: "线性表定义、基本操作与顺序表的存储、查找、插
 
 顺序表和链表具有相同的逻辑结构，但采用不同的物理存储方式，因此它们在**随机访问、插入删除、空间开销和缓存局部性**等方面存在明显差异。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-001.svg" alt={"线性表及其顺序存储与链式存储"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-001.svg" alt="线性表及其顺序存储与链式存储" />
 
 | 存储方式 | 核心特点       | 按位访问   | 插入、删除            | 额外空间  |
 | ---- | ---------- | ------ | ---------------- | ----- |
@@ -30,7 +30,7 @@ description: "线性表定义、基本操作与顺序表的存储、查找、插
 
 ### 1.1 线性表的定义
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-def-001.svg" alt={"线性表 Linear List L = (a₁, a₂, a₃, ..., aᵢ, aᵢ₊₁, ..., aₙ) a₁ a₂ a₃ ... aᵢ aᵢ₊₁ ... aₙ 当前元素 前驱 后继 线性表特点： 个数有限： 表中元素个数是确定的有限值 类型相同： 所有元素数据类型一致，占用相同存储空间 逻辑有序： 元素间存在先后顺序，有前驱和后继关系"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-def-001.svg" alt="线性表 Linear List L = (a₁, a₂, a₃, ..., aᵢ, aᵢ₊₁, ..., aₙ) a₁ a₂ a₃ ... aᵢ aᵢ₊₁ ... aₙ 当前元素 前驱 后继 线性表特点： 个数有限： 表中元素个数是确定的有限值 类型相同： 所有元素数据类型一致，占用相同存储空间 逻辑有序： 元素间存在先后顺序，有前驱和后继关系" />
 
 **线性表（Linear List）**是由**零个或多个具有相同数据类型的数据元素组成的有限序列**。
 
@@ -70,7 +70,7 @@ $$
 * **顺序存储**：形成顺序表；
 * **链式存储**：形成链表。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-def-002.svg" alt={"1 2 3 4 5 1 3 2 物 理 地 址 逐 渐 增 大 顺序表 链表 5 4 物 理 地 址 逐 渐 增 大"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-def-002.svg" alt="1 2 3 4 5 1 3 2 物 理 地 址 逐 渐 增 大 顺序表 链表 5 4 物 理 地 址 逐 渐 增 大" />
 
 #### 顺序表
 
@@ -102,7 +102,7 @@ $$
 
 ### 1.3 线性表的抽象操作
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-def-003.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-def-003.svg" alt="图示" />
 
 常见基本操作如下。
 
@@ -139,7 +139,7 @@ $$
 LOC(a_i)=LOC(A)+(i-1)\times sizeof(Elem)
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-001.svg" alt={"a 1 a i a 2 a n Sequential List A Index 0 1 i-1 n-1 Memory Address LOC(A) LOC(A) + sizeof(Elem) LOC(A) + (i-1) x sizeof(Elem) Maxsize - 1 LOC(A) + (n-1) x sizeof(Elem) LOC(A) + (Maxsize-1) x sizeof(Elem)"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-001.svg" alt="a 1 a i a 2 a n Sequential List A Index 0 1 i-1 n-1 Memory Address LOC(A) LOC(A) + sizeof(Elem) LOC(A) + (i-1) x sizeof(Elem) Maxsize - 1 LOC(A) + (n-1) x sizeof(Elem) LOC(A) + (Maxsize-1) x sizeof(Elem)" />
 
 这就是顺序表可以进行**随机访问**的根本原因。
 
@@ -198,7 +198,7 @@ void InitList(SeqList *L) {
 }
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-002.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-002.svg" alt="图示" />
 
 > **逻辑位置与数组下标**
 >
@@ -217,7 +217,7 @@ void InitList(SeqList *L) {
 
 若要在第 `pos` 个位置插入新元素 `e`，原来从该位置开始的元素都需要向后移动一位。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-003.svg" alt={"顺序表插入过程图解：在位置 3 插入元素 99 步骤1：初始状态 10 20 30 40 50 1 2 3 4 5 6 7 length = 5 插入位置 pos=3 步骤2：从尾部开始，向后移动元素 10 20 30 40 50 50 移动 10 20 30 40 40 50 移动 10 20 30 30 40 50 移动 步骤3：插入新元素并更新长度 10 20 99 30 40 50 新元素 99 length = 6 关键要点： 1. 检查插入位置合法性：1 ≤ po"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-003.svg" alt="顺序表插入过程图解：在位置 3 插入元素 99 步骤1：初始状态 10 20 30 40 50 1 2 3 4 5 6 7 length = 5 插入位置 pos=3 步骤2：从尾部开始，向后移动元素 10 20 30 40 50 50 移动 10 20 30 40 40 50 移动 10 20 30 30 40 50 移动 步骤3：插入新元素并更新长度 10 20 99 30 40 50 新元素 99 length = 6 关键要点： 1. 检查插入位置合法性：1 ≤ po" />
 
 ```c
 bool Insert(SeqList *L, int pos, ElementType e) {
@@ -281,7 +281,7 @@ $$
 
 删除第 `pos` 个元素后，需要将后面的元素全部向前移动一位。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-004.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-sequential-004.svg" alt="图示" />
 
 ```c
 bool Delete(SeqList *L, int pos, ElementType *e) {

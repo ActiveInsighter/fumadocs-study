@@ -7,7 +7,7 @@ description: "树的基本概念、存储结构、森林，以及树/森林与�
 
 **基本概念与性质 → 存储结构 → 树/森林与二叉树转换 → 二叉树遍历与重建 → 搜索树与平衡树 → 哈夫曼树 → 并查集。**
 
-<InlineSvg src="/images/data-structure/data-structure-tree-001.svg" alt={"树与二叉树知识结构"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-001.svg" alt="树与二叉树知识结构" />
 
 > **复习重点**
 >
@@ -38,7 +38,7 @@ description: "树的基本概念、存储结构、森林，以及树/森林与�
 * 除根结点外，其余结点入度均为 1；
 * 从根到任一结点都存在唯一的一条路径。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-001.svg" alt={"TreeConcepts"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-001.svg" alt="TreeConcepts" />
 
 ### 2. 结点之间的关系
 
@@ -53,7 +53,7 @@ description: "树的基本概念、存储结构、森林，以及树/森林与�
 
 ### 3. 结点的度与树的度
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-002.svg" alt={"A B C D E F L M H I J K G 结点 度 A, D 3 B, G 2 C, E 1 K, F, L, M, H, I, J 0 树的度 = max(结点度) = 3"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-002.svg" alt="A B C D E F L M H I J K G 结点 度 A, D 3 B, G 2 C, E 1 K, F, L, M, H, I, J 0 树的度 = max(结点度) = 3" />
 
 **结点的度**是该结点拥有的孩子数。
 
@@ -70,7 +70,7 @@ description: "树的基本概念、存储结构、森林，以及树/森林与�
 
 ### 4. 深度
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-003.svg" alt={"A B C D E F L M H I J K G 深度 1 结点 深度 A 1 B, C, D 2 E, F, G, H, I, J 3 K, L, M 4 树的深度 = 4 深度 2 深度 3 深度 4"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-003.svg" alt="A B C D E F L M H I J K G 深度 1 结点 深度 A 1 B, C, D 2 E, F, G, H, I, J 3 K, L, M 4 树的深度 = 4 深度 2 深度 3 深度 4" />
 
 按照 408 常用定义：
 
@@ -82,7 +82,7 @@ description: "树的基本概念、存储结构、森林，以及树/森林与�
 
 ### 5. 高度
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-004.svg" alt={"A B C D E F L M H I J K G 结点 高度 A 4 B, C 3 D, E, G 2 F, H, I, J, K, L, M 1 树的高度 = 4 1 1 1 1 1 1 1 2 2 2 3 3 4"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-004.svg" alt="A B C D E F L M H I J K G 结点 高度 A 4 B, C 3 D, E, G 2 F, H, I, J, K, L, M 1 树的高度 = 4 1 1 1 1 1 1 1 2 2 2 3 3 4" />
 
 按照同样的计数方式：
 
@@ -125,7 +125,7 @@ A → B → D
 
 ### 7. 权与带权路径长度
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-005.svg" alt={"A B C D E F L M H I J K G 结点 权重 深度 F H I J K L M 5 3 8 7 11 15 2 2 2 2 2 3 3 3 带权路径长度 10 6 16 14 33 45 6 树的带权路径长度 = 10 + 6 + 16 + 14 + 33 + 45 + 6 = 130"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-005.svg" alt="A B C D E F L M H I J K G 结点 权重 深度 F H I J K L M 5 3 8 7 11 15 2 2 2 2 2 3 3 3 带权路径长度 10 6 16 14 33 45 6 树的带权路径长度 = 10 + 6 + 16 + 14 + 33 + 45 + 6 = 130" />
 
 在带权树中，可以给结点赋予一个权值，用于表示频率、代价或重要程度。
 
@@ -177,7 +177,7 @@ typedef struct {
 } PTree;
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-006.svg" alt={"A B C D E F G H I J A -1 B 0 C 0 D 0 E 1 F 1 G 3 H 6 I 6 J 6 Data Parent 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J Tree Data Structure Representation"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-006.svg" alt="A B C D E F G H I J A -1 B 0 C 0 D 0 E 1 F 1 G 3 H 6 I 6 J 6 Data Parent 0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J Tree Data Structure Representation" />
 
 其特点是：
 
@@ -207,7 +207,7 @@ typedef struct {
 } CTree;
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-007.svg" alt={"A B C D E F G H I J Tree 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 1 4 2 5 3 6 7 8 9 Representation"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-007.svg" alt="A B C D E F G H I J Tree 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 1 4 2 5 3 6 7 8 9 Representation" />
 
 其特点是：
 
@@ -231,7 +231,7 @@ typedef struct CSNode {
 } CSNode, *CSTree;
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-008.svg" alt={"A B C D E F G H I J Tree A ^ B ^ E ^ F ^ C D ^ ^ H ^ I ^ J ^ G ^ Representation"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-008.svg" alt="A B C D E F G H I J Tree A ^ B ^ E ^ F ^ C D ^ ^ H ^ I ^ J ^ G ^ Representation" />
 
 孩子兄弟表示法的本质是：
 
@@ -249,7 +249,7 @@ typedef struct CSNode {
 
 **森林（Forest）**是若干棵互不相交树的集合。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-009.svg" alt={"B D E F I J C G H K"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-009.svg" alt="B D E F I J C G H K" />
 
 树与森林的关系可以理解为：
 
@@ -279,7 +279,7 @@ typedef struct CSNode {
 2. 其余孩子依次变成前一个孩子的**右孩子**；
 3. 对树中每个结点重复上述操作。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-010.svg" alt={"A B C D E F G A B C D E F G A B C D E F G 删除 树转化为二叉树"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-010.svg" alt="A B C D E F G A B C D E F G A B C D E F G 删除 树转化为二叉树" />
 
 因此，在转换得到的二叉树中：
 
@@ -300,7 +300,7 @@ typedef struct CSNode {
 4. 第三棵树的根作为第二棵树根的右孩子；
 5. 依次连接。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-011.svg" alt={"A B C D E F G H I A B C D E F G H I 森林转化为二叉树 A B C D E F G H I A B C D E F G H I 删除"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-011.svg" alt="A B C D E F G H I A B C D E F G H I 森林转化为二叉树 A B C D E F G H I A B C D E F G H I 删除" />
 
 > **记忆**
 >
@@ -340,7 +340,7 @@ typedef struct CSNode {
 各子树 → 根
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-tree-tree-012.svg" alt={"树的先根遍历与后根遍历对比"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-tree-012.svg" alt="树的先根遍历与后根遍历对比" />
 
 普通树没有像二叉树那样天然定义的“中序遍历”。
 

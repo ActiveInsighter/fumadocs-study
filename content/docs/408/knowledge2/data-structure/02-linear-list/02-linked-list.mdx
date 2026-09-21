@@ -16,9 +16,9 @@ description: "单链表、双向链表、循环链表和静态链表的结构与
 * 数据域 `data`；
 * 后继指针域 `next`。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-001.svg" alt={"a 1 a 2 a n Linked List L header node NULL"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-001.svg" alt="a 1 a 2 a n Linked List L header node NULL" />
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-002.svg" alt={"data next"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-002.svg" alt="data next" />
 
 单链表最重要的特征是：
 
@@ -44,7 +44,7 @@ description: "单链表、双向链表、循环链表和静态链表的结构与
 * 每个结点需要额外保存指针；
 * 结点物理位置通常较分散，缓存局部性往往不如连续数组。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-003.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-003.svg" alt="图示" />
 
 连续数组中相邻元素地址相邻，因此顺序访问通常具有较好的空间局部性。
 
@@ -69,7 +69,7 @@ typedef struct Node {
 } Node;
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-004.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-004.svg" alt="图示" />
 
 其中：
 
@@ -197,7 +197,7 @@ head->next == NULL
 
 希望将 `s` 插入 `p` 之后。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-005.svg" alt={"p q p q n p q n"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-005.svg" alt="p q p q n p q n" />
 
 原结构：
 
@@ -355,7 +355,7 @@ bool InsertAtPos(Node *head, int pos, int value) {
 
 假设 `p` 指向已有结点，希望删除 `p` 的直接后继 `q`。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-006.svg" alt={"p q p q p p→next ≠ NULL 时 p→next = q→next free(q);"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-006.svg" alt="p q p q p p→next ≠ NULL 时 p→next = q→next free(q);" />
 
 ```c
 bool DeleteAfter(Node *p) {
@@ -514,7 +514,7 @@ free(p);
 
 如果经常需要访问前驱，可以在每个结点中增加一个前驱指针。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-007.svg" alt={"^ a1 a2 a3 prev data next head DNode"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-007.svg" alt="^ a1 a2 a3 prev data next head DNode" />
 
 双向链表结点：
 
@@ -622,7 +622,7 @@ free(p);
 
 > 链表尾部不再以普通的 `NULL` 作为唯一结束形式，而是通过指针重新连接到链表前部。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-009.svg" alt={"a 1 a 2 a n head a 2 a 1 a 3 ^ head 循环单链表 循环双链表"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-009.svg" alt="a 1 a 2 a n head a 2 a 1 a 3 ^ head 循环单链表 循环双链表" />
 
 循环链表可以分为：
 
@@ -720,7 +720,7 @@ head->next == head
 
 **静态链表**使用数组来模拟链式结构。
 
-<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-008.svg" alt={"2 b 5 a 1 d -1 c 3 0 1 2 3 4 5 6 静态链表示例 a b c d ^ 对应的单链表"} />
+<InlineSvg src="/images/data-structure/data-structure-linearlist-linked-008.svg" alt="2 b 5 a 1 d -1 c 3 0 1 2 3 4 5 6 静态链表示例 a b c d ^ 对应的单链表" />
 
 结点定义：
 

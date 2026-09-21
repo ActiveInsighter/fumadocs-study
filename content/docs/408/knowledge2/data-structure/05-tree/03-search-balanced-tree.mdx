@@ -18,7 +18,7 @@ description: "二叉排序树、AVL 平衡二叉树和红黑树的核心操作�
 2. 右子树中所有关键字均大于该结点；
 3. 左右子树本身也分别是 BST。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-012.svg" alt={"8 3 10 1 6 4 7 14 13"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-012.svg" alt="8 3 10 1 6 4 7 14 13" />
 
 因此 BST 的一个核心性质是：
 
@@ -117,7 +117,7 @@ TreeNode* insert(TreeNode* root, int data) {
 
 ### 4. 删除
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-013.svg" alt={"BST 删除节点的三种情况 情况 1：叶子节点 直接删除，无需后续处理 删除前 8 3 12 1 5 删 1 删除后 8 3 12 5 情况 2：只有一个子节点 用唯一子树替代被删节点 删除前 8 3 12 5 删 3 删除后 8 5 12 把唯一子节点 5 提到原位置 情况 3：两个子节点 用 中序后继（右子树最小） 或 中序前驱（左子树最大） 顶替，再递归删除该后继/前驱 删除前（删 8） 8 3 12 1 6 10 14 中序后继 = 10 ① 值替换 ② 删原 10 "} />
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-013.svg" alt="BST 删除节点的三种情况 情况 1：叶子节点 直接删除，无需后续处理 删除前 8 3 12 1 5 删 1 删除后 8 3 12 5 情况 2：只有一个子节点 用唯一子树替代被删节点 删除前 8 3 12 5 删 3 删除后 8 5 12 把唯一子节点 5 提到原位置 情况 3：两个子节点 用 中序后继（右子树最小） 或 中序前驱（左子树最大） 顶替，再递归删除该后继/前驱 删除前（删 8） 8 3 12 1 6 10 14 中序后继 = 10 ① 值替换 ② 删原 10 " />
 
 BST 删除分三种情况。
 
@@ -224,7 +224,7 @@ $$
 O(\log n)
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-014.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-014.svg" alt="图示" />
 
 ### 1. 最小不平衡子树
 
@@ -309,7 +309,7 @@ A 的右孩子的左子树
 | LR   | 先左旋，再右旋 |
 | RL   | 先右旋，再左旋 |
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-015.svg" alt={"A B (+1) (0) B L B R A R h A B (+2) (+1) B L B R A R h h+1 X X Insert X into B L LL Rotation B A B R A R B L h+1 X h h h (0) (0) A B (-1) (0) B L B R A L h h Insert X into B R A B (-2) (-1) B L B R A L h X h h+1 RR Rotation B A A L B L h (0"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-015.svg" alt="A B (+1) (0) B L B R A R h A B (+2) (+1) B L B R A R h h+1 X X Insert X into B L LL Rotation B A B R A R B L h+1 X h h h (0) (0) A B (-1) (0) B L B R A L h h Insert X into B R A B (-2) (-1) B L B R A L h X h h+1 RR Rotation B A A L B L h (0" />
 
 > **记忆**
 >
@@ -505,7 +505,7 @@ $$
 
 而是使用结点颜色和黑高约束维持**近似平衡**。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-016.svg" alt={"红黑树及黑色 NIL 哨兵"} />
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-016.svg" alt="红黑树及黑色 NIL 哨兵" />
 
 典型红黑树满足：
 

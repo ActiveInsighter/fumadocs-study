@@ -31,7 +31,7 @@ $$
 
 完成查找。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-001.svg" alt={"关键字通过散列函数映射到散列表槽位"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-001.svg" alt="关键字通过散列函数映射到散列表槽位" />
 
 ---
 
@@ -43,7 +43,7 @@ $$
 H(key)=address
 $$
 
-<InlineSvg src="/images/data-structure/search/hash/figure-002.svg" alt={"多个关键字经过散列函数映射到散列表地址"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-002.svg" alt="多个关键字经过散列函数映射到散列表地址" />
 
 一个理想的散列函数应满足：
 
@@ -96,7 +96,7 @@ $$
 
 这种不同关键字称为**同义词**，它们之间发生了**散列冲突**。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-003.svg" alt={"关键字 15 和 25 是同义词，15 和 17 是非同义词"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-003.svg" alt="关键字 15 和 25 是同义词，15 和 17 是非同义词" />
 
 例如：
 
@@ -136,11 +136,11 @@ Delete(key)
 4. 若不匹配但需要继续探测，则根据冲突处理方法访问下一个地址；
 5. 遇到能够证明关键字不存在的空位置，或所有候选位置均已检查，则失败。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-004.svg" alt={"散列表查找流程"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-004.svg" alt="散列表查找流程" />
 
 一个采用线性探测的例子：
 
-<InlineSvg src="/images/data-structure/search/hash/figure-005.svg" alt={"查找 Bob 时初始位置冲突后进行线性探测"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-005.svg" alt="查找 Bob 时初始位置冲突后进行线性探测" />
 
 如果冲突较少，散列表通常可以实现平均：
 
@@ -170,7 +170,7 @@ $$
 
 如果发生冲突，就按照冲突处理方法继续寻找位置。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-006.svg" alt={"散列表插入流程"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-006.svg" alt="散列表插入流程" />
 
 采用开放定址法时，可概括为：
 
@@ -201,7 +201,7 @@ $$
 * 平方探测；
 * 双散列。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-007.svg" alt={"散列表冲突处理方法分类"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-007.svg" alt="散列表冲突处理方法分类" />
 
 ---
 
@@ -266,7 +266,7 @@ H(key)+3
 
 并对表长取模。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-008.svg" alt={"线性探测的连续地址探测序列"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-008.svg" alt="线性探测的连续地址探测序列" />
 
 #### 优点
 
@@ -324,7 +324,7 @@ $$
 
 并对表长取模。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-009.svg" alt={"平方探测按照正负平方增量寻找空槽"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-009.svg" alt="平方探测按照正负平方增量寻找空槽" />
 
 平方探测能够缓解线性探测中严重的一次聚集问题。
 
@@ -370,7 +370,7 @@ $$
 i=0,1,2,\ldots
 $$
 
-<InlineSvg src="/images/data-structure/search/hash/figure-010.svg" alt={"双散列使用第二散列函数决定探测步长"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-010.svg" alt="双散列使用第二散列函数决定探测步长" />
 
 例如：
 
@@ -445,7 +445,7 @@ DELETED
 
 > 每个散列地址对应一条链表，所有映射到同一个散列地址的关键字都保存在这条链中。
 
-<InlineSvg src="/images/data-structure/search/hash/figure-011.svg" alt={"拉链法将同一散列地址上的冲突元素连接成链表"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-011.svg" alt="拉链法将同一散列地址上的冲突元素连接成链表" />
 
 假设：
 
@@ -552,7 +552,7 @@ $$
 L_i=3
 $$
 
-<InlineSvg src="/images/data-structure/search/hash/figure-012.svg" alt={"散列表成功和失败平均查找长度示意"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-012.svg" alt="散列表成功和失败平均查找长度示意" />
 
 ---
 
@@ -914,11 +914,11 @@ $$
 
 开放定址法扩容示意：
 
-<InlineSvg src="/images/data-structure/search/hash/figure-013.svg" alt={"开放定址散列表扩容后重新按照新散列函数分配地址"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-013.svg" alt="开放定址散列表扩容后重新按照新散列函数分配地址" />
 
 拉链法扩容示意：
 
-<InlineSvg src="/images/data-structure/search/hash/figure-014.svg" alt={"拉链法散列表扩容前后的桶和链表变化"} />
+<InlineSvg src="/images/data-structure/search/hash/figure-014.svg" alt="拉链法散列表扩容前后的桶和链表变化" />
 
 ---
 

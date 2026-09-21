@@ -5,7 +5,7 @@ description: "图的基本概念、邻接矩阵、邻接表、邻接多重表和
 
 图是一种描述**多对多关系**的数据结构。本章既要掌握图的基本术语与存储结构，又要能够根据具体问题选择并手工执行经典图算法。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-001.svg" alt={"图结构与经典算法概览"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-001.svg" alt="图结构与经典算法概览" />
 
 | 模块     | 408 复习重点                 |
 | ------ | ------------------------ |
@@ -50,11 +50,11 @@ $$
 
 树可以看作一种特殊的图，它额外满足**连通且无环**等条件。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-001.svg" alt={"树与一般图的结构对比"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-001.svg" alt="树与一般图的结构对比" />
 
 ### 2. 有向图与无向图
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-002.svg" alt={"无向图与有向图"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-002.svg" alt="无向图与有向图" />
 
 #### 无向图
 
@@ -95,7 +95,7 @@ $$
 
 ## 二、连通性与完全图
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-003.svg" alt={"连通图、非连通图与完全图"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-003.svg" alt="连通图、非连通图与完全图" />
 
 ### 1. 无向图的连通性
 
@@ -103,7 +103,7 @@ $$
 
 如果图不是连通图，则其中的**极大连通子图**称为该图的**连通分量**。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-004.svg" alt={"无向图的连通分量"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-004.svg" alt="无向图的连通分量" />
 
 这里要区分：
 
@@ -194,7 +194,7 @@ $$
 
 ## 四、路径、回路与简单路径
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-005.svg" alt={"简单路径、非简单路径与回路"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-005.svg" alt="简单路径、非简单路径与回路" />
 
 若边
 
@@ -278,7 +278,7 @@ A[i][j]
 \end{cases}
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-006.svg" alt={"v2 v4 v3 v1 有向图 G(V, E) 0 0 0 1 1 0 1 1 0 0 0 0 0 0 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向图 G(V, E) 0 1 0 1 1 0 1 1 0 1 0 1 1 1 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向带权图 G(V, E) 0 0.4 0 0.4 0.4 0 0.3 0.1 0 0.3 0 0.5 0.4 0.1 0.5 0 v1"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-006.svg" alt="v2 v4 v3 v1 有向图 G(V, E) 0 0 0 1 1 0 1 1 0 0 0 0 0 0 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向图 G(V, E) 0 1 0 1 1 0 1 1 0 1 0 1 1 1 1 0 v1 v2 v3 v4 v1 v2 v3 v4 v2 v4 v3 v1 无向带权图 G(V, E) 0 0.4 0 0.4 0.4 0 0.3 0.1 0 0.3 0 0.5 0.4 0.1 0.5 0 v1" />
 
 ### 2. 无向图
 
@@ -353,7 +353,7 @@ adjMatrix[start][end] = 1;
 
 ### 6. 邻接矩阵中的度
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-007.svg" alt={"统计出度 统计入度"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-007.svg" alt="统计出度 统计入度" />
 
 对于有向图顶点 $v_i$：
 
@@ -404,7 +404,7 @@ $$
 * 顶点表保存所有顶点；
 * 每个顶点的链表保存与其直接相邻的顶点。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-008.svg" alt={"v2 v4 v3 v1 有向图 G(V, E) v2 v4 v3 v1 无向图 G(V, E) v1 v4 v2 v1 v3 v4 v3 v4 v3 v1 v2 v4 v2 v1 v3 v4 v3 v2 v4 v4 v1 v2 v3"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-008.svg" alt="v2 v4 v3 v1 有向图 G(V, E) v2 v4 v3 v1 无向图 G(V, E) v1 v4 v2 v1 v3 v4 v3 v4 v3 v1 v2 v4 v2 v1 v3 v4 v3 v2 v4 v4 v1 v2 v3" />
 
 例如：
 
@@ -612,7 +612,7 @@ $$
 
 普通邻接表表示无向图时，每条无向边需要存储两次。邻接多重表则让每条边只保存一个边结点，同时使该边能够挂接到两个端点的边链表中。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-009.svg" alt={"data firstedge mark ivex ilink jvex jlink 指向第一条依附于该顶点的边 存储顶点相关信息 标志域 指向下一条依附于 顶点 jvex 的边 指向下一条依附于 顶点 ivex 的边 VertexNode EdgeNode"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-009.svg" alt="data firstedge mark ivex ilink jvex jlink 指向第一条依附于该顶点的边 存储顶点相关信息 标志域 指向下一条依附于 顶点 jvex 的边 指向下一条依附于 顶点 ivex 的边 VertexNode EdgeNode" />
 
 #### 1. 顶点结点
 
@@ -632,7 +632,7 @@ $$
 * `mark`：访问标记；
 * 可选的权值等信息。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-010.svg" alt={"1 2 4 3 V 1 V 2 V 3 V 4 1 2 3 4 2 1 3 1 4 1 ^ 2 ^ 3 4 ^ 3 ^ a b c d e a b c d e"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-010.svg" alt="1 2 4 3 V 1 V 2 V 3 V 4 1 2 3 4 2 1 3 1 4 1 ^ 2 ^ 3 4 ^ 3 ^ a b c d e a b c d e" />
 
 示例中 5 条无向边只需要 5 个边结点：
 
@@ -667,7 +667,7 @@ $$
 
 普通邻接表很容易获得某个顶点的所有出边，但不方便获得所有入边。十字链表将邻接表和逆邻接表的思想结合起来。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-011.svg" alt={"data firstin tailvex headvex hlink dlink (info) 指向该顶点的第一条出边 顶点数据 弧头（终点）在顶点表中的位置 VertexNode EdgeNode firstout 指向该顶点的第一条入边 弧尾（起点）在顶点表中的位置 指向同一终点的下一条边 指向同一起点的下一条边"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-011.svg" alt="data firstin tailvex headvex hlink dlink (info) 指向该顶点的第一条出边 顶点数据 弧头（终点）在顶点表中的位置 VertexNode EdgeNode firstout 指向该顶点的第一条入边 弧尾（起点）在顶点表中的位置 指向同一终点的下一条边 指向同一起点的下一条边" />
 
 #### 1. 顶点结点
 
@@ -698,7 +698,7 @@ $$
 * 起点的**出边链表**；
 * 终点的**入边链表**。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-defs-012.svg" alt={"v0 v1 v2 v3 ^ 0 1 2 3 0 1 v0 v2 v3 v1 0 2 ^ 2 0 3 0 ^ 3 1 ^ 3 2 ^ ^ 2 3 ^ ^ 顶点 入弧 出弧"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-defs-012.svg" alt="v0 v1 v2 v3 ^ 0 1 2 3 0 1 v0 v2 v3 v1 0 2 ^ 2 0 3 0 ^ 3 1 ^ 3 2 ^ ^ 2 3 ^ ^ 顶点 入弧 出弧" />
 
 > **记忆**
 >

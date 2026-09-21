@@ -39,7 +39,7 @@ description: "归并、快速、快速选择、堆、希尔、桶和基数排序
 1, 2, 3, 4, 7, 8
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-009.svg" alt={"二路归并过程示意图"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-009.svg" alt="二路归并过程示意图" />
 
 归并时分别使用两个指针指向两个有序序列当前未处理的首元素：
 
@@ -60,7 +60,7 @@ description: "归并、快速、快速选择、堆、希尔、桶和基数排序
 → ...
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-010.svg" alt={"38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-010.svg" alt="38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 38 27 43 3 9 82 10 27 38 3 43 9 82 10 3 27 38 43 9 10 82 3 9 10 27 38 43 82" />
 
 ### 5.3 代码模板
 
@@ -189,7 +189,7 @@ void quickSort(int a[], int low, int high) {
 
 以下图的数组为例，可观察 `left`、`right` 与 `pivot` 的变化。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-011.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-011.svg" alt="图示" />
 
 一次划分结束后必须掌握三个性质：
 
@@ -201,7 +201,7 @@ void quickSort(int a[], int low, int high) {
 
 枢轴虽然已经归位，但左右两个区间内部仍可能无序，因此需要继续递归。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-012.svg" alt={"4 3 1 2 5 9 7 10 6 1 2 4 3 6 7 10 9 1 3 4 4 7 9 10 7 10 pivot pivot pivot pivot pivot pivot pivot pivot pivot"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-012.svg" alt="4 3 1 2 5 9 7 10 6 1 2 4 3 6 7 10 9 1 3 4 4 7 9 10 7 10 pivot pivot pivot pivot pivot pivot pivot pivot pivot" />
 
 若每次枢轴都能将序列近似均分，递归树高度为：
 
@@ -247,7 +247,7 @@ $$
 
 若只需要寻找第 $k$ 小元素，就没有必要同时递归左右两个区间。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-013.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-013.svg" alt="图示" />
 
 设一次划分后枢轴位置为 `pivotIndex`：
 
@@ -315,7 +315,7 @@ $$
 * **大根堆**：父结点不小于子结点，根结点最大；
 * **小根堆**：父结点不大于子结点，根结点最小。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-014.svg" alt={"10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-014.svg" alt="10 15 30 40 50 100 40 100 40 50 10 15 50 40 小根堆 大根堆" />
 
 因此：
 
@@ -326,7 +326,7 @@ $$
 
 ### 8.2 堆的顺序存储
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-015.svg" alt={"100 19 36 17 3 25 1 2 7 二叉树结构 堆的数组顺序表示 100 19 36 17 3 25 1 2 7 0 1 2 3 4 5 6 7 8"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-015.svg" alt="100 19 36 17 3 25 1 2 7 二叉树结构 堆的数组顺序表示 100 19 36 17 3 25 1 2 7 0 1 2 3 4 5 6 7 8" />
 
 堆通常直接存储在数组中。
 
@@ -371,7 +371,7 @@ $$
 3. 若最大值不是当前结点，则交换；
 4. 对交换后的子树继续向下调整。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-016.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-016.svg" alt="图示" />
 
 ```cpp
 void heapify(int heap[], int size, int i) {
@@ -408,7 +408,7 @@ $$
 1. 从空堆开始不断插入；
 2. 对一个无序数组，从**最后一个非叶结点**开始逆序执行 `heapify`。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-017.svg" alt={"1 3 5 4 6 13 10 9 8 15 17 swap 从结点 6 执行 heapify 1 3 5 4 17 13 10 9 8 15 6 从结点 4 执行 heapify swap 1 3 5 9 17 13 10 4 8 15 6 从结点 5 执行 heapify swap 1 3 13 9 17 5 10 4 8 15 6 swap swap 1 17 13 9 15 5 10 4 8 3 6 从结点 3 执行 heapify 从根结点执行 heapify sw"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-017.svg" alt="1 3 5 4 6 13 10 9 8 15 17 swap 从结点 6 执行 heapify 1 3 5 4 17 13 10 9 8 15 6 从结点 4 执行 heapify swap 1 3 5 9 17 13 10 4 8 15 6 从结点 5 执行 heapify swap 1 3 13 9 17 5 10 4 8 15 6 swap swap 1 17 13 9 15 5 10 4 8 3 6 从结点 3 执行 heapify 从根结点执行 heapify sw" />
 
 下标从 0 开始时：
 
@@ -436,7 +436,7 @@ void buildHeap(int heap[], int size) {
 2. 堆大小减 1；
 3. 从根开始向下调整。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-018.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-018.svg" alt="图示" />
 
 ```cpp
 void heapDelete(int heap[], int *size) {
@@ -466,7 +466,7 @@ $$
 3. 若破坏堆序，则向上交换；
 4. 直到到达根或重新满足堆性质。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-019.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-019.svg" alt="图示" />
 
 ```cpp
 void heapInsert(int heap[], int *size, int value) {
@@ -498,7 +498,7 @@ $$
 
 升序堆排序使用**大根堆**。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-020.svg" alt={"堆排序流程图"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-020.svg" alt="堆排序流程图" />
 
 过程如下：
 
@@ -509,7 +509,7 @@ $$
 5. 对根结点重新执行 `heapify`；
 6. 不断重复，直到所有元素归位。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-021.svg" alt={"24 23 18 19 14 24 23 18 19 14 24 23 18 19 14 23 19 18 14 24 23 19 18 14 24 19 14 18 23 24 19 14 18 23 24 18 14 19 23 24 18 14 19 23 24 14 18 19 23 24 14 18 19 23 24 14 18 19 23 24 Original Array After Heap Sort 14 18 19 23 24"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-021.svg" alt="24 23 18 19 14 24 23 18 19 14 24 23 18 19 14 23 19 18 14 24 23 19 18 14 24 19 14 18 23 24 19 14 18 23 24 18 14 19 23 24 18 14 19 23 24 14 18 19 23 24 14 18 19 23 24 14 18 19 23 24 Original Array After Heap Sort 14 18 19 23 24" />
 
 ```cpp
 void heapSort(int heap[], int size) {
@@ -558,7 +558,7 @@ $$
 
 > 先使整个序列“基本有序”，最后再进行一次增量为 1 的直接插入排序。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-022.svg" alt={"希尔排序流程图"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-022.svg" alt="希尔排序流程图" />
 
 设增量为 `gap`。
 
@@ -610,7 +610,7 @@ void shellSort(int a[], int n) {
 }
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-023.svg" alt={"32 95 16 82 24 66 35 19 75 54 40 43 93 68 19 75 16 40 24 66 35 32 95 54 82 43 93 68 0 1 2 3 4 5 6 7 8 9 10 11 12 13 original gap = 7 19 24 16 35 32 43 40 68 66 54 75 95 93 82 gap = 3 gap = 1 16 19 24 32 35 40 43 54 66 68 75 82 93 95 同色的元素表示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-023.svg" alt="32 95 16 82 24 66 35 19 75 54 40 43 93 68 19 75 16 40 24 66 35 32 95 54 82 43 93 68 0 1 2 3 4 5 6 7 8 9 10 11 12 13 original gap = 7 19 24 16 35 32 43 40 68 66 54 75 95 93 82 gap = 3 gap = 1 16 19 24 32 35 40 43 54 66 68 75 82 93 95 同色的元素表示" />
 
 希尔最初提出的方案可以使用：
 
@@ -650,7 +650,7 @@ $$
 12, 9, 24, 4, 19, 21, 14, 6, 2, 16
 ```
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-024.svg" alt={"12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-024.svg" alt="12 9 24 4 19 21 14 6 2 16 4, 2 9, 6 12, 14 19, 16 24, 21 2, 4 6, 9 12, 14 16, 19 21, 24 2 4 6 9 12 14 16 19 21 24" />
 
 桶排序特别适合：
 
@@ -721,11 +721,11 @@ LSD 从最低有效位开始。
 
 每一轮都必须使用**稳定排序**。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-025.svg" alt={"0 1 2 3 4 5 6 7 8 9 278 109 063 930 599 184 505 269 008 083 0 1 2 3 4 5 6 7 8 9 930 083 063 184 505 278 008 109 599 269 0 1 2 3 4 5 6 7 8 9 505 008 109 930 063 269 278 083 184 599 278, 109, 063, 930, 589, 184, 505, 269, 008, 083 第一次排序，按照个位将"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-025.svg" alt="0 1 2 3 4 5 6 7 8 9 278 109 063 930 599 184 505 269 008 083 0 1 2 3 4 5 6 7 8 9 930 083 063 184 505 278 008 109 599 269 0 1 2 3 4 5 6 7 8 9 505 008 109 930 063 269 278 083 184 599 278, 109, 063, 930, 589, 184, 505, 269, 008, 083 第一次排序，按照个位将" />
 
 经过三轮后：
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-026.svg" alt={"2 7 8 1 0 9 0 6 3 9 3 0 5 9 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 9 3 0 0 6 3 0 8 3 1 8 4 5 0 5 2 7 8 0 0 8 1 0 9 5 9 9 2 6 9 5 0 5 0 0 8 1 0 9 9 3 0 0 6 3 2 6 9 2 7 8 0 8 3 1 8 4 5 9 9 0 0 8 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 9 9 0 6 3 9 3 0"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-026.svg" alt="2 7 8 1 0 9 0 6 3 9 3 0 5 9 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 9 3 0 0 6 3 0 8 3 1 8 4 5 0 5 2 7 8 0 0 8 1 0 9 5 9 9 2 6 9 5 0 5 0 0 8 1 0 9 9 3 0 0 6 3 2 6 9 2 7 8 0 8 3 1 8 4 5 9 9 0 0 8 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 9 9 0 6 3 9 3 0" />
 
 伪代码：
 
@@ -763,7 +763,7 @@ $$
 
 MSD 从最高有效位开始，根据最高位先把元素分组，再在每个组内部递归处理下一位。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-027.svg" alt={"2 7 8 1 0 9 0 6 3 9 3 0 5 8 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 0 6 3 0 0 8 0 8 3 1 0 9 1 8 4 2 7 8 2 6 9 5 8 9 5 0 5 9 3 0 0 0 8 0 6 3 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 8 9"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-027.svg" alt="2 7 8 1 0 9 0 6 3 9 3 0 5 8 9 1 8 4 5 0 5 2 6 9 0 0 8 0 8 3 0 6 3 0 0 8 0 8 3 1 0 9 1 8 4 2 7 8 2 6 9 5 8 9 5 0 5 9 3 0 0 0 8 0 6 3 0 8 3 1 0 9 1 8 4 2 6 9 2 7 8 5 0 5 5 8 9" />
 
 MSD 特别适合：
 
@@ -773,7 +773,7 @@ MSD 特别适合：
 
 例如字符串：
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-028.svg" alt={"B A D B A N C O F G E \0 N E R \0 F E \0 C O M P A R I S O N \0 C O M P U T E R \0 M I D N I G H T \0 W A N D E R \0 M A R D R O B E \0 W O R K E R \0 使用 MSD 对字符串进行排序，绿色表示递归的范围"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-028.svg" alt="B A D B A N C O F G E \0 N E R \0 F E \0 C O M P A R I S O N \0 C O M P U T E R \0 M I D N I G H T \0 W A N D E R \0 M A R D R O B E \0 W O R K E R \0 使用 MSD 对字符串进行排序，绿色表示递归的范围" />
 
 ### 14.1 LSD 与 MSD 对比
 

@@ -13,7 +13,7 @@ description: "多维数组地址计算、特殊矩阵压缩存储、稀疏矩阵
 
 因此二维数组地址计算的核心，就是把二维下标映射为一维偏移量。
 
-<InlineSvg src="/images/data-structure/data-structure-array-matrix-001.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-array-matrix-001.svg" alt="图示" />
 
 ---
 
@@ -176,7 +176,7 @@ $$
 \frac{n(n+1)}{2}
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-array-matrix-002.svg" alt={"对称矩阵压缩存储"} />
+<InlineSvg src="/images/data-structure/data-structure-array-matrix-002.svg" alt="对称矩阵压缩存储" />
 
 ![对称矩阵按下三角区域压缩到一维数组的存储示意](/images/data-structure/data-structure-array-matrix-003.png)
 
@@ -264,7 +264,7 @@ a11 a12 a13 a14
 
 只需保存上三角中的独立元素。
 
-<InlineSvg src="/images/data-structure/data-structure-array-matrix-004.svg" alt={"三角矩阵压缩存储"} />
+<InlineSvg src="/images/data-structure/data-structure-array-matrix-004.svg" alt="三角矩阵压缩存储" />
 
 独立元素个数为：
 
@@ -426,7 +426,7 @@ $$
 
 因此只需要存储 $t$ 个三元组。
 
-<InlineSvg src="/images/data-structure/data-structure-array-matrix-012.svg" alt={"0 0 1 0 0 0 0 0 2 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 6 0 0 0 0 0 0 0 7 4 i j a ij 0 2 1 1 1 2 2 0 3 3 3 5 4 4 6 5 5 7 5 6 4 稀疏矩阵 三元组表"} />
+<InlineSvg src="/images/data-structure/data-structure-array-matrix-012.svg" alt="0 0 1 0 0 0 0 0 2 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 6 0 0 0 0 0 0 0 7 4 i j a ij 0 2 1 1 1 2 2 0 3 3 3 5 4 4 6 5 5 7 5 6 4 稀疏矩阵 三元组表" />
 
 通常按照：
 
@@ -504,7 +504,7 @@ A[i][j]
 
 如果既需要经常按行访问，又需要经常按列访问，可以采用**十字链表（Cross List）**。
 
-<InlineSvg src="/images/data-structure/data-structure-array-matrix-013.svg" alt={"3 1 1 3 2 2 -1 ^ ^ 3 1 2 ^ ^ ^ 1 4 5 ^ ^ rhead chead 0 0 5 0 -1 0 0 2 0 0 0"} />
+<InlineSvg src="/images/data-structure/data-structure-array-matrix-013.svg" alt="3 1 1 3 2 2 -1 ^ ^ 3 1 2 ^ ^ ^ 1 4 5 ^ ^ rhead chead 0 0 5 0 -1 0 0 2 0 0 0" />
 
 每个非零元素对应一个结点，结点包含：
 

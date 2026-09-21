@@ -39,7 +39,7 @@ Dijkstra 用于求：
 
 每轮从尚未确定的顶点中，选择当前距离源点最近的顶点 $u$，将其最短距离最终确定。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-010.svg" alt={"DijkstraDemo"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-010.svg" alt="DijkstraDemo" />
 
 #### 2. 两个核心数组
 
@@ -98,7 +98,7 @@ $$
 4. 用 $u$ 松弛所有邻接顶点；
 5. 重复。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-011.svg" alt={"DijkstraAlgorithm"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-011.svg" alt="DijkstraAlgorithm" />
 
 伪代码：
 
@@ -203,7 +203,7 @@ dist[i][k]+dist[k][j]
 \right)
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt={"Floyd-Warshall 逐步引入中间顶点"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-012.svg" alt="Floyd-Warshall 逐步引入中间顶点" />
 
 #### 2. 实现
 
@@ -283,7 +283,7 @@ AOV 的全称为：
 
 即**顶点表示活动**。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-013.svg" alt={"AOV_Network"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-013.svg" alt="AOV_Network" />
 
 其中：
 
@@ -324,7 +324,7 @@ Kahn 算法基于**入度**。
 6. 新出现入度为 0 的顶点继续加入；
 7. 直到无法继续。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-014.svg" alt={"1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-014.svg" alt="1 2 4 3 5 2 4 3 5 4 3 5 3 5 5 结点编号 1 2 3 4 5 初始结点度 0 1 2 2 2 1 轮后 0 2 1 2 2 轮后 1 0 2 3 轮后 0 1 4 轮后 0 5 轮后 输出 1 输出 2 输出 4 输出 3 输出 1 输出 2 输出 4 输出 3 输出 5" />
 
 如果最终输出顶点数量小于
 
@@ -356,7 +356,7 @@ $$
 2. 一个顶点的所有后继都访问完成后，将它压栈；
 3. DFS 全部结束后依次出栈。
 
-<InlineSvg src="/images/data-structure/data-structure-graph-operation-015.svg" alt={"topological_sort_dfs"} />
+<InlineSvg src="/images/data-structure/data-structure-graph-operation-015.svg" alt="topological_sort_dfs" />
 
 因为：
 

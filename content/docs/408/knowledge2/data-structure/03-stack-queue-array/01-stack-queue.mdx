@@ -16,7 +16,7 @@ description: "顺序栈、链栈、循环队列、链式队列及其核心操作
 * 固定入栈序列对应的合法出栈序列；
 * 卡特兰数。
 
-<InlineSvg src="/images/data-structure/data-structure-array-001.svg" alt={"栈队列与数组知识结构"} />
+<InlineSvg src="/images/data-structure/data-structure-array-001.svg" alt="栈队列与数组知识结构" />
 
 | 模块   | 408 重点               |
 | ---- | -------------------- |
@@ -49,7 +49,7 @@ description: "顺序栈、链栈、循环队列、链式队列及其核心操作
 
 即最后进入栈中的元素最先离开。
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-001.svg" alt={"PUSH POP"} />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-001.svg" alt="PUSH POP" />
 
 例如依次执行：
 
@@ -98,7 +98,7 @@ push(C)
 
 **顺序栈**是在顺序表基础上实现的栈，通常使用数组保存元素，并设置一个变量 `top` 表示栈顶位置。
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-002.svg" alt={"0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈"} />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-002.svg" alt="0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈" />
 
 一种最常见的约定是：
 
@@ -114,7 +114,7 @@ $$
 
 下图展示了空栈、入栈、出栈和栈满时 `top` 的变化：
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-003.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-003.svg" alt="图示" />
 
 ---
 
@@ -248,7 +248,7 @@ bool GetTop(SeqStack *S, int *x) {
 
 栈也可以使用单链表实现，称为**链栈**。
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt={"a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底"} />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt="a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底" />
 
 为了使入栈和出栈都保持常数时间，通常把链表的**头部作为栈顶**。
 
@@ -397,7 +397,7 @@ bool StackEmpty(LinkedStack *S) {
 
 **先进先出（FIFO，First In First Out）**
 
-<InlineSvg src="/images/data-structure/data-structure-array-queue-001.svg" alt={"Back Front Enqueue Dequeue"} />
+<InlineSvg src="/images/data-structure/data-structure-array-queue-001.svg" alt="Back Front Enqueue Dequeue" />
 
 例如依次入队：
 
@@ -439,7 +439,7 @@ A → B → C
 
 这称为**假溢出（False Overflow）**。
 
-<InlineSvg src="/images/data-structure/data-structure-array-queue-002.svg" alt={"front rear front a b c d e rear front e rear 空队 5个元素入队 出队4次 再出队一次 会出现 “假溢出”"} />
+<InlineSvg src="/images/data-structure/data-structure-array-queue-002.svg" alt="front rear front a b c d e rear front e rear 空队 5个元素入队 出队4次 再出队一次 会出现 “假溢出”" />
 
 解决方法是：
 
@@ -455,7 +455,7 @@ A → B → C
 
 当 `rear` 到达数组最后一个位置之后，再继续移动时回到数组开头。
 
-<InlineSvg src="/images/data-structure/data-structure-array-queue-003.svg" alt={"0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满"} />
+<InlineSvg src="/images/data-structure/data-structure-array-queue-003.svg" alt="0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满" />
 
 指针移动统一写成：
 
@@ -643,7 +643,7 @@ bool GetRear(CircularQueue *Q, int *x) {
 
 **链式队列**通常使用带头结点的单链表实现。
 
-<InlineSvg src="/images/data-structure/data-structure-array-queue-004.svg" alt={"a 1 a 2 a n NULL head rear front 队头 队尾 队列方向"} />
+<InlineSvg src="/images/data-structure/data-structure-array-queue-004.svg" alt="a 1 a 2 a n NULL head rear front 队头 队尾 队列方向" />
 
 维护两个指针：
 

@@ -40,7 +40,7 @@ description: "表达式求值、前中后缀转换、合法出栈序列与卡特
 
 因此根结点是 `/`，其左子树代表乘法表达式，右子树是 `7`。
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-001.svg" alt={"ExpressionTree"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-001.svg" alt="ExpressionTree" />
 
 表达式树反映的是：
 
@@ -60,7 +60,7 @@ description: "表达式求值、前中后缀转换、合法出栈序列与卡特
 | 中序遍历   | 中缀表达式 |
 | 后序遍历   | 后缀表达式 |
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-002.svg" alt={"表达式树与前序、中序、后序表达式"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-002.svg" alt="表达式树与前序、中序、后序表达式" />
 
 例如表达式：
 
@@ -76,7 +76,7 @@ description: "表达式求值、前中后缀转换、合法出栈序列与卡特
 | 中缀表达式 | `(A + B) * C` |
 | 后缀表达式 | `A B + C *`   |
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-003.svg" alt={"ExpressionTypes"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-003.svg" alt="ExpressionTypes" />
 
 前缀表达式又称**波兰表达式**。
 
@@ -132,7 +132,7 @@ A op B
 
 再把结果压回操作数栈。
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-004.svg" alt={"基本计算单元"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-004.svg" alt="基本计算单元" />
 
 > **极重要：**
 >
@@ -192,7 +192,7 @@ A op B
 
 扫描结束后，再把运算符栈中剩余运算全部完成。
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-005.svg" alt={"InfixEvaluation"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-005.svg" alt="InfixEvaluation" />
 
 ---
 
@@ -239,7 +239,7 @@ $$
 4. 完成运算；
 5. 将结果重新入栈。
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-006.svg" alt={"后序表达式求值中操作数栈的操作"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-006.svg" alt="后序表达式求值中操作数栈的操作" />
 
 ---
 
@@ -524,7 +524,7 @@ ab/cd*ef*-g/+
 
 > **任何时刻都只能弹出当前栈顶元素。**
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-007.svg" alt={"A B • • • • • • A B • • • B 出栈 A • • • A 出栈 出栈序列： • • • B A • • • A 一定在 B 之后出栈"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-007.svg" alt="A B • • • • • • A B • • • B 出栈 A • • • A 出栈 出栈序列： • • • B A • • • A 一定在 B 之后出栈" />
 
 如果元素 `A` 比 `B` 先入栈，并且在 `B` 入栈时 `A` 仍然没有出栈，那么：
 
@@ -603,7 +603,7 @@ C_n
 \frac{(2n)!}{n!(n+1)!}
 $$
 
-<InlineSvg src="/images/data-structure/data-structure-array-application-008.svg" alt={"卡特兰数及其典型计数问题"} />
+<InlineSvg src="/images/data-structure/data-structure-array-application-008.svg" alt="卡特兰数及其典型计数问题" />
 
 前几个卡特兰数：
 

@@ -13,7 +13,7 @@ description: "排序基本概念、冒泡排序、插入排序与简单选择排
 * **趟特征**：给出中间序列时，能否判断是哪种排序。
 * **适用场景**：数据规模、数据分布、内外存条件等。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-001.svg" alt={"排序算法分类与比较"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-001.svg" alt="排序算法分类与比较" />
 
 > **408 复习重点**
 >
@@ -115,7 +115,7 @@ swap(a, b);
 
 一趟通常指外层循环的一次完整处理。中间序列判断题经常利用不同排序算法的“一趟特征”。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-004.svg" alt={"图示"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-004.svg" alt="图示" />
 
 | 算法     | 一趟的主要操作        | 一趟结束后的典型特征          |
 | ------ | -------------- | ------------------- |
@@ -156,7 +156,7 @@ swap(a, b);
 
 其前几次冒泡过程如下。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-005.svg" alt={"5 1 4 2 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 2 4 5 8 1 2 4 5 8 1 2 4 5 8 第一次冒泡 ：将最大的数放到最后一个位置 第二次冒泡 ：将第二大的数放到倒数第二个位置"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-005.svg" alt="5 1 4 2 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 5 4 2 8 1 4 5 2 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 4 2 5 8 1 2 4 5 8 1 2 4 5 8 1 2 4 5 8 第一次冒泡 ：将最大的数放到最后一个位置 第二次冒泡 ：将第二大的数放到倒数第二个位置" />
 
 ### 2.1 代码模板
 
@@ -211,7 +211,7 @@ void bubbleSort(int a[], int n) {
 
 排序过程如下。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-006.svg" alt={"4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-006.svg" alt="4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6 4 3 2 10 12 1 5 6" />
 
 ### 3.1 直接插入排序
 
@@ -261,7 +261,7 @@ void insertionSort(int a[], int n) {
 
 插入排序寻找插入位置时，可以使用折半查找。
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-007.svg" alt={"直接插入排序与折半插入排序对比图"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-007.svg" alt="直接插入排序与折半插入排序对比图" />
 
 两者区别主要在于：
 
@@ -307,7 +307,7 @@ $$
 | `(11, 12, 22, 25)`     | `(64)`                 | 64    |
 | `(11, 12, 22, 25, 64)` | `()`                   | —     |
 
-<InlineSvg src="/images/data-structure/data-structure-sort-internal-008.svg" alt={"11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64"} />
+<InlineSvg src="/images/data-structure/data-structure-sort-internal-008.svg" alt="11 25 12 22 64 11 25 12 22 64 11 12 25 22 64 11 12 22 25 64 11 12 22 25 64 11 12 22 25 64" />
 
 ### 4.1 代码模板
 

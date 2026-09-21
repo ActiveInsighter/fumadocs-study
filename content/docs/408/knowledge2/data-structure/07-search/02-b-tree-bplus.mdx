@@ -85,7 +85,7 @@ $$
 
 从根到任意叶结点的路径长度相同。
 
-<InlineSvg src="/images/data-structure/search/tree/figure-002.svg" alt={"m 阶 B 树的容量、根结点和最小分支数规则"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-002.svg" alt="m 阶 B 树的容量、根结点和最小分支数规则" />
 
 #### 典型计算
 
@@ -153,7 +153,7 @@ $$
 
 B 树结点可抽象表示为：
 
-<InlineSvg src="/images/data-structure/search/tree/figure-003.svg" alt={"B 树结点中的关键字和子树指针结构"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-003.svg" alt="B 树结点中的关键字和子树指针结构" />
 
 一个含 $n$ 个关键字的结点可表示为：
 
@@ -202,7 +202,7 @@ $$
 
 一个五阶 B 树示例如下：
 
-<InlineSvg src="/images/data-structure/search/tree/figure-004.svg" alt={"五阶 B 树结构示例"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-004.svg" alt="五阶 B 树结构示例" />
 
 观察图中的结点可以得到：
 
@@ -219,7 +219,7 @@ B 树的查找过程本质上是：
 
 > **结点内部查找 + 选择下一棵子树。**
 
-<InlineSvg src="/images/data-structure/search/tree/figure-005.svg" alt={"B 树根据结点关键字选择下一棵子树的过程"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-005.svg" alt="B 树根据结点关键字选择下一棵子树的过程" />
 
 假设当前结点关键字为：
 
@@ -325,7 +325,7 @@ $$
 
 中间关键字左侧的关键字组成左结点，右侧组成右结点。
 
-<InlineSvg src="/images/data-structure/search/tree/figure-006.svg" alt={"三阶 B 树插入 60 后发生结点分裂"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-006.svg" alt="三阶 B 树插入 60 后发生结点分裂" />
 
 #### 第四步：继续向上处理
 
@@ -339,7 +339,7 @@ $$
 
 下面展示三阶 B 树连续插入多个关键字的过程：
 
-<InlineSvg src="/images/data-structure/search/tree/figure-007.svg" alt={"三阶 B 树连续插入 78、52、81、40、33、90、85、20、38 的过程"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-007.svg" alt="三阶 B 树连续插入 78、52、81、40、33、90、85、20、38 的过程" />
 
 #### 插入过程口诀
 
@@ -425,7 +425,7 @@ $$
 
 如果父结点因此也出现下溢，则继续向上处理。
 
-<InlineSvg src="/images/data-structure/search/tree/figure-008.svg" alt={"三阶 B 树删除中的直接删除、借关键字和合并情况"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-008.svg" alt="三阶 B 树删除中的直接删除、借关键字和合并情况" />
 
 #### 根结点的特殊情况
 
@@ -461,13 +461,13 @@ B+ 树是在 B 树基础上发展出的多路平衡查找结构。
 
 在理解 B+ 树之前，先观察普通 B 树保存键值对时的形式：
 
-<InlineSvg src="/images/data-structure/search/tree/figure-009.svg" alt={"普通 B 树中内部结点和叶结点均可以保存键值对"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-009.svg" alt="普通 B 树中内部结点和叶结点均可以保存键值对" />
 
 B+ 树最关键的设计变化是：
 
 > **实际数据记录全部集中在叶结点，内部结点只充当索引。**
 
-<InlineSvg src="/images/data-structure/search/tree/figure-010.svg" alt={"B+ 树内部结点只保存索引关键字，数据集中在叶结点"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-010.svg" alt="B+ 树内部结点只保存索引关键字，数据集中在叶结点" />
 
 ---
 
@@ -503,7 +503,7 @@ Leaf1 → Leaf2 → Leaf3 → ...
 * 顺序访问；
 * 数据库索引扫描。
 
-<InlineSvg src="/images/data-structure/search/tree/figure-011.svg" alt={"B+ 树内部索引、叶结点数据及叶结点链表结构"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-011.svg" alt="B+ 树内部索引、叶结点数据及叶结点链表结构" />
 
 ---
 
@@ -601,7 +601,7 @@ B+ 树中的数据全部位于叶结点，因此实际记录删除发生在叶�
 
 内部结点只是索引，必要时更新相应索引值即可。
 
-<InlineSvg src="/images/data-structure/search/tree/figure-012.svg" alt={"B 树和 B+ 树在查找、插入和删除操作上的对比"} />
+<InlineSvg src="/images/data-structure/search/tree/figure-012.svg" alt="B 树和 B+ 树在查找、插入和删除操作上的对比" />
 
 ---
 
