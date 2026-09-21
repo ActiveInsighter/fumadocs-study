@@ -70,7 +70,8 @@ consumer() {
 <Callout type="warn" title="高频错误：P 操作顺序">
 生产者应先 `P(empty)` 再 `P(mutex)`；消费者应先 `P(full)` 再 `P(mutex)`。
 
-如果先获得 `mutex` 再等待 `empty/full`，可能出现持有互斥锁等待资源，而另一个进程无法进入临界区改变资源状态，形成死锁。 </Callout>
+如果先获得 `mutex` 再等待 `empty/full`，可能出现持有互斥锁等待资源，而另一个进程无法进入临界区改变资源状态，形成死锁。
+</Callout>
 
 ---
 
