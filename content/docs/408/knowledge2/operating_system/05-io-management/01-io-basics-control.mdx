@@ -250,7 +250,7 @@ fwrite(&s, sizeof s, 1, fp);
 
 用户态库函数最终可以通过 `read`、`write` 等系统调用进入内核。
 
-<InlineSvg src="/images/operating-system/operating-system-io-device-devices-004.svg" alt={"用户层 I/O 软件 把"简单的库调用"翻译成"复杂的系统调用"，向下陷入内核 应用程序 printf("hello %d", n); fgets(buf, 128, stdin); fwrite(&s, sizeof s, 1, fp); // 想的是"输出一段话"，不关心设备 调用库函数 用户层 I/O 软件（库 / 运行时） 运行在用户态 ① 格式化 / 解析 printf scanf sprintf atoi / strtol ② 用户级缓冲 fopen / fclo"} />
+<InlineSvg src="/images/operating-system/operating-system-io-device-devices-004.svg" alt={'用户层 I/O 软件 把"简单的库调用"翻译成"复杂的系统调用"，向下陷入内核 应用程序 printf("hello %d", n); fgets(buf, 128, stdin); fwrite(&s, sizeof s, 1, fp); // 想的是"输出一段话"，不关心设备 调用库函数 用户层 I/O 软件（库 / 运行时） 运行在用户态 ① 格式化 / 解析 printf scanf sprintf atoi / strtol ② 用户级缓冲 fopen / fclo'} />
 
 > **易错点**
 >

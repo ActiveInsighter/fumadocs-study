@@ -273,7 +273,7 @@ I/O 通道
 
 操作系统可以通过**逻辑设备表 LUT（Logical Unit Table）**维护两者之间的映射。
 
-<InlineSvg src="/images/operating-system/operating-system-io-device-management-005.svg" alt={"逻辑设备 → 物理设备映射 应用只认友好名，内核通过 LUT 查到真实硬件 应用层 内核 · 逻辑设备表 (LUT) 硬件层 App A open("/dev/sda") App B open("/dev/lp0") App C open("/dev/tty1") 逻辑名 驱动 / 类型 物理地址 /dev/sda block · SATA PCI 0:1f:2 /dev/lp0 char · printer USB bus2 /dev/tty1 char · console"} />
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-005.svg" alt={'逻辑设备 → 物理设备映射 应用只认友好名，内核通过 LUT 查到真实硬件 应用层 内核 · 逻辑设备表 (LUT) 硬件层 App A open("/dev/sda") App B open("/dev/lp0") App C open("/dev/tty1") 逻辑名 驱动 / 类型 物理地址 /dev/sda block · SATA PCI 0:1f:2 /dev/lp0 char · printer USB bus2 /dev/tty1 char · console'} />
 
 例如，在类 Unix 系统中可以看到大量设备文件：
 
@@ -313,7 +313,7 @@ autofs_notrigger     rdisk0
 
 > **利用磁盘模拟脱机输入/输出，使多个进程能够以类似共享的方式使用原本的独占设备。**
 
-<InlineSvg src="/images/operating-system/operating-system-io-device-management-006.svg" alt={"SPOOLing 技术 — 概念与典型应用 Simultaneous Peripheral Operations On-Line · 用磁盘做中间缓冲，把独占设备"改造"成共享设备 一、核心概念 多个用户 / 进程 P1 P2 P3 提交 I/O 请求后 立即返回，继续 执行自己的任务 感觉像独享设备 写入 SPOOLing 子系统（假脱机） 运行在主机 / CPU，用软件模拟"外围控制机" 输入井（磁盘） 模拟脱机时的输入带 job#1 data... job#2 data"} />
+<InlineSvg src="/images/operating-system/operating-system-io-device-management-006.svg" alt={'SPOOLing 技术 — 概念与典型应用 Simultaneous Peripheral Operations On-Line · 用磁盘做中间缓冲，把独占设备"改造"成共享设备 一、核心概念 多个用户 / 进程 P1 P2 P3 提交 I/O 请求后 立即返回，继续 执行自己的任务 感觉像独享设备 写入 SPOOLing 子系统（假脱机） 运行在主机 / CPU，用软件模拟"外围控制机" 输入井（磁盘） 模拟脱机时的输入带 job#1 data... job#2 data'} />
 
 ---
 
