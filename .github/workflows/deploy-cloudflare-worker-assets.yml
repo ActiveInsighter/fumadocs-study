@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - 'codex/knowledge2-mindmap-preview-0923'
   workflow_dispatch:
     inputs:
       deploy:
