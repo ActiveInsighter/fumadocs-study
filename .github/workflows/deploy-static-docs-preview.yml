@@ -3,9 +3,6 @@ name: Deploy static docs preview
 # only automatic deployment target.
 
 on:
-  push:
-    branches:
-      - 'codex/knowledge2-mindmap-preview-0923'
   workflow_dispatch:
 
 concurrency:
