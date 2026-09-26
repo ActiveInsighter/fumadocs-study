@@ -20,8 +20,7 @@ export function buildCloudflareRedirects(rewrites) {
 
   const lines = [
     '# Generated from .static-docs/edgeone.json by scripts/prepare-cloudflare-static-assets.mjs.',
-    '# Cloudflare Workers Static Assets does not support 200 rewrite rules in _redirects.',
-    '# Use temporary redirects instead; browser/fetch clients follow them to the canonical RSC asset.',
+    '# HTTP 200 rules are internal proxy rewrites: the browser URL stays unchanged.',
   ];
 
   for (const rewrite of rewrites) {
