@@ -1,0 +1,765 @@
+---
+title: 翻转二叉树：把“遍历 + 节点操作”真正连起来
+description: 以 LeetCode 226 为主线，理解翻转二叉树的局部操作、递归与迭代实现、DFS/BFS 选择、递归中序的修改陷阱，以及遍历过程中修改树结构时应遵循的方法论。
+---
+
+# 翻转二叉树：把“遍历 + 节点操作”真正连起来
+
+> LeetCode 226 · Invert Binary Tree
+
+[题目链接](https://leetcode.cn/problems/invert-binary-tree/)
+
+给定一棵二叉树，把它沿竖直中轴做镜像翻转：每个节点原来的左子树变成右子树，右子树变成左子树。
+
+![226. 翻转二叉树](https://file1.kamacoder.com/i/algo/20210203192644329.png)
+
+从整棵树看，“镜像”似乎是一个全局操作；但真正写代码时，问题会迅速化简成一个非常局部的动作：
+
+```text
+对每一个非空节点：交换它的 left 和 right。
+```
+
+![整棵二叉树的镜像过程](https://file1.kamacoder.com/i/algo/20210203192724351.png)
+
+<Callout title="这道题真正训练的能力" type="idea">
+
+翻转二叉树本身并不难。它最值得掌握的是下面这个二叉树通用模型：
+
+```text
+遍历整棵树 + 在每个节点执行一个局部操作
+```
+
+只要你能够保证**每个节点恰好被处理一次**，并且处理顺序不会破坏后续遍历，那么递归 DFS、显式栈 DFS、队列 BFS 都可以完成任务。
+
+</Callout>
+
+## 1. 从“整棵树镜像”降维成“交换每个节点的孩子”
+
+设某个节点为 `root`：
+
+```text
+        root
+       /    \
+      L      R
+```
+
+翻转后应该变成：
+
+```text
+        root
+       /    \
+      R      L
+```
+
+所以单个节点的核心操作只有：
+
+```cpp
+swap(root->left, root->right);
+```
+
+如果对整棵树的每个节点都执行一次这个操作，整棵树自然就完成镜像。
+
+这类题最常见的思维误区是：试图直接想象“整棵树怎么翻过去”。更稳定的办法是把问题拆成：
+
+```text
+全局目标 = 遍历覆盖 + 局部操作
+```
+
+<Cards>
+  <Card title="遍历覆盖">确保所有非空节点都会访问到，而且不会漏掉或重复处理。</Card>
+  <Card title="局部操作">当前节点只负责交换自己的左右孩子，不操心整棵树。</Card>
+  <Card title="顺序安全">如果局部操作会改变树结构，要确认它不会让后续遍历走错分支。</Card>
+</Cards>
+
+## 2. 最推荐：前序递归
+
+前序遍历的顺序是：
+
+```text
+中 → 左 → 右
+```
+
+把“访问节点”的动作替换成“交换左右孩子”即可：
+
+```cpp title="LeetCode 226 · 前序递归"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        swap(root->left, root->right);  // 中：先翻转当前节点
+        invertTree(root->left);         // 左：翻转交换后的左子树
+        invertTree(root->right);        // 右：翻转交换后的右子树
+
+        return root;
+    }
+};
+```
+
+![翻转二叉树的递归过程](https://file1.kamacoder.com/i/algo/%E7%BF%BB%E8%BD%AC%E4%BA%8C%E5%8F%89%E6%A0%91.gif)
+
+### 递归三步法
+
+#### 第一步：确定函数语义
+
+```cpp
+TreeNode* invertTree(TreeNode* root)
+```
+
+把“以 `root` 为根的整棵子树”翻转，并返回这棵子树的根。
+
+#### 第二步：确定终止条件
+
+```cpp
+if (root == nullptr) return nullptr;
+```
+
+空树不需要处理。
+
+#### 第三步：确定单层逻辑
+
+```cpp
+swap(root->left, root->right);
+invertTree(root->left);
+invertTree(root->right);
+```
+
+这一层只负责：
+
+1. 翻转当前节点；
+2. 把翻转左子树的问题交给递归；
+3. 把翻转右子树的问题交给递归。
+
+<Callout title="为什么交换之后继续递归也没问题？" type="success">
+
+因为目标本来就是“翻转当前节点之后的新左子树”和“新右子树”。
+
+交换只改变两个指针的归属，不会丢失任何子树；原右子树现在由 `root->left` 指向，原左子树现在由 `root->right` 指向。
+
+</Callout>
+
+## 3. 后序递归同样成立
+
+后序遍历的顺序是：
+
+```text
+左 → 右 → 中
+```
+
+也可以先把左右子树各自翻转，再交换当前节点的两个孩子：
+
+```cpp title="后序递归"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        invertTree(root->left);
+        invertTree(root->right);
+        swap(root->left, root->right);
+
+        return root;
+    }
+};
+```
+
+为什么前序和后序都可以？因为两者都满足：
+
+- 当前节点只交换一次；
+- 原左子树处理一次；
+- 原右子树处理一次。
+
+区别仅仅是“先翻当前节点”还是“先翻两棵子树”。
+
+## 4. 一个很重要的陷阱：普通递归中序为什么会出问题
+
+标准递归中序是：
+
+```text
+左 → 中 → 右
+```
+
+很多人会自然写出：
+
+```cpp
+invertTree(root->left);
+swap(root->left, root->right);
+invertTree(root->right);
+```
+
+看起来很合理，但这里隐藏了一个关键问题：
+
+> **`swap` 修改了后续递归所依赖的指针。**
+
+假设一开始：
+
+```text
+root->left  = L
+root->right = R
+```
+
+执行完：
+
+```cpp
+invertTree(root->left);
+```
+
+原左子树 `L` 已经处理完。
+
+随后交换：
+
+```cpp
+swap(root->left, root->right);
+```
+
+此时：
+
+```text
+root->left  = R
+root->right = L
+```
+
+如果下一句仍然是：
+
+```cpp
+invertTree(root->right);
+```
+
+那么访问到的是**已经处理过的原左子树 `L`**，原右子树 `R` 反而没有被递归处理。
+
+<Callout title="不是‘中序永远不能做’，而是‘修改结构后不能照搬旧指针语义’" type="warning">
+
+真正的问题不在“中序”三个字，而在于：
+
+```text
+你在遍历尚未结束时修改了 left / right，
+却仍按修改前的语义继续访问 root->right。
+```
+
+这是一类非常重要的树题陷阱：**遍历过程中修改拓扑结构时，必须重新检查后续指针到底指向谁。**
+
+</Callout>
+
+## 5. 如果一定要按“左 → 中 → 另一侧”写
+
+交换后，原右子树已经跑到了 `root->left`，所以应继续递归新的左孩子：
+
+```cpp title="结构修改后的特殊写法"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        invertTree(root->left);         // 先处理原左子树
+        swap(root->left, root->right);  // 交换
+        invertTree(root->left);         // 此时 left 是原右子树
+
+        return root;
+    }
+};
+```
+
+这段代码可以正确运行，但它已经不是普通意义上直接套模板的中序遍历。
+
+考试和面试中没有必要故意选择这种写法。前序或后序更直观、更不容易错。
+
+## 6. 用显式栈做 DFS
+
+递归本质上依赖系统调用栈。我们也可以自己维护一个栈完成同样的遍历。
+
+```cpp title="迭代 DFS · 前序思想"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        stack<TreeNode*> st;
+        st.push(root);
+
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+
+            swap(node->left, node->right);
+
+            if (node->right) st.push(node->right);
+            if (node->left) st.push(node->left);
+        }
+
+        return root;
+    }
+};
+```
+
+这里依旧是：
+
+```text
+取出节点 → 处理节点 → 把孩子放入待访问集合
+```
+
+因为栈是 LIFO，如果希望访问顺序表现为：
+
+```text
+中 → 左 → 右
+```
+
+就应该先压右，再压左。
+
+### “交换前入栈”还是“交换后入栈”？
+
+两种都能写对，但必须保持语义一致。
+
+上面的代码是：
+
+```text
+先交换 → 再把交换后的 left/right 入栈
+```
+
+这没有问题，因为无论左右位置如何变化，两棵原始子树最终都会各自入栈一次。
+
+如果想让推理更直接，也可以先保存两个孩子，再交换当前节点。
+
+## 7. 用 BFS 也完全可以
+
+翻转二叉树并不依赖“深度优先”这个性质。只要每个节点访问一次即可，所以层序遍历同样成立。
+
+```cpp title="BFS · 队列实现"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            swap(node->left, node->right);
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        return root;
+    }
+};
+```
+
+这里其实**不需要**像按层输出那样固定 `size`，因为本题并不关心层边界。
+
+当然，按层写也可以：
+
+```cpp
+while (!q.empty()) {
+    int size = q.size();
+    for (int i = 0; i < size; ++i) {
+        ...
+    }
+}
+```
+
+只是多维护了一层当前题目不需要的信息。
+
+<Callout title="什么时候 BFS 必须固定 size？" type="info">
+
+只有当题目需要“按层统计”时，`size = q.size()` 才是核心，例如：
+
+- 每层平均值；
+- 每层最大值；
+- 右视图；
+- 锯齿层序；
+- 第几层、层深度等。
+
+本题只要求“所有节点都处理一次”，普通队列遍历已经足够。
+
+</Callout>
+
+## 8. 四种常见写法的本质其实一样
+
+| 写法 | 待访问节点放在哪里 | 节点处理动作 | 是否依赖层边界 |
+| --- | --- | --- | --- |
+| 递归 DFS | 系统调用栈 | `swap(left, right)` | 否 |
+| 显式栈 DFS | `stack` | `swap(left, right)` | 否 |
+| 队列 BFS | `queue` | `swap(left, right)` | 否 |
+| 标记法统一迭代 | `stack + marker` | 标记到达时交换 | 否 |
+
+所以真正的统一抽象是：
+
+```text
+while / recursion：
+    访问一个节点
+    执行 swap(left, right)
+    安排它的两个子树之后继续被访问
+```
+
+## 9. 正确性：为什么交换所有节点一定得到镜像树
+
+可以从递归定义理解。
+
+设一棵树为：
+
+```text
+T = (root, L, R)
+```
+
+其中 `L`、`R` 分别是左右子树。
+
+它的镜像可以递归定义为：
+
+$$
+M(T) = (root, M(R), M(L))
+$$
+
+也就是说：
+
+1. 根节点值不变；
+2. 原右子树的镜像成为新左子树；
+3. 原左子树的镜像成为新右子树。
+
+前序递归的代码正好执行了这件事：
+
+```text
+交换 L 和 R
+递归得到 M(R)
+递归得到 M(L)
+```
+
+因此整个算法与镜像树的递归定义一致。
+
+## 10. 时间复杂度与空间复杂度
+
+设二叉树节点总数为 $n$，树高为 $h$，最大宽度为 $w$。
+
+### 时间复杂度
+
+每个节点恰好访问一次，每次只做常数次指针操作：
+
+$$
+O(n)
+$$
+
+### 递归 DFS 空间复杂度
+
+取决于递归深度：
+
+$$
+O(h)
+$$
+
+- 平衡二叉树：$h = O(\log n)$；
+- 极端链状树：$h = O(n)$。
+
+### 显式栈 DFS
+
+最坏情况：
+
+$$
+O(n)
+$$
+
+实际占用取决于遍历时栈中同时保存的节点数。
+
+### BFS
+
+队列中最多同时保存一层附近的节点，空间复杂度为：
+
+$$
+O(w)
+$$
+
+最坏同样可达到：
+
+$$
+O(n)
+$$
+
+## 11. 这道题为什么是“遍历方法论”的分水岭
+
+前面的遍历题通常只是：
+
+```text
+访问节点 → 收集 node->val
+```
+
+而翻转二叉树第一次非常明确地把“访问动作”改成了：
+
+```text
+访问节点 → 修改树结构
+```
+
+这会带来一个更通用的做题框架：
+
+```text
+1. 我需要遍历哪些节点？
+2. 每个节点上要做什么？
+3. 这个操作是在进入节点时做，还是离开节点时做？
+4. 操作会不会改变后续要走的指针？
+5. 如果会改变，是否需要提前保存原始关系？
+```
+
+以后遇到下面这些题，这套思维会反复出现：
+
+- 删除 / 修剪节点；
+- 合并两棵树；
+- 改变父子关系；
+- 构造新树；
+- BST 插入、删除；
+- 链表原地反转。
+
+## 12. 常见错误
+
+### 错误 1：知道答案，却说不清自己用了什么遍历
+
+代码能 AC 不代表方法真的掌握。
+
+看到递归：
+
+```cpp
+swap(...);
+dfs(left);
+dfs(right);
+```
+
+应该立刻知道这是：
+
+```text
+中 → 左 → 右
+```
+
+即前序。
+
+### 错误 2：普通中序模板中交换后继续递归 `right`
+
+交换之后 `right` 已经不是原来的右子树。
+
+### 错误 3：为了层序遍历机械地写 `size`
+
+如果不需要按层统计，就不必固定层大小。
+
+### 错误 4：交换后只递归一侧
+
+整棵树的每个非空节点都必须被处理一次。
+
+### 错误 5：把“值交换”误认为“左右子树交换”
+
+题目要求改变结构，应交换：
+
+```cpp
+root->left
+root->right
+```
+
+而不是交换左右孩子节点中的 `val`。
+
+## 13. 一页速记
+
+<Callout title="翻转二叉树模板" type="success">
+
+**局部操作：**
+
+```cpp
+swap(node->left, node->right);
+```
+
+**核心不变量：**
+
+```text
+每个非空节点恰好执行一次 swap。
+```
+
+**最推荐：** 前序递归。
+
+**也可以：** 后序递归、栈 DFS、队列 BFS。
+
+**最需要警惕：** 遍历过程中修改 `left/right` 后，后续访问的指针语义已经可能改变。
+
+</Callout>
+
+## 14. 进阶：统一迭代法为什么能安全“中序处理”
+
+在统一迭代法中，栈里保存的是**已经安排好的待处理节点引用**。节点何时执行处理由标记控制，而不是每一步都沿当前 `left/right` 指针重新寻找后继。
+
+因此，即使在“处理中间节点”时交换了左右孩子，之前已经压入栈中的节点引用仍然存在，不会像直接递归中序那样因为 `root->right` 的含义改变而重复走错子树。
+
+例如：
+
+```cpp title="标记法示意"
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        stack<TreeNode*> st;
+        if (root) st.push(root);
+
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+
+            if (node != nullptr) {
+                st.pop();
+                if (node->right) st.push(node->right);
+                st.push(node);
+                st.push(nullptr);
+                if (node->left) st.push(node->left);
+            } else {
+                st.pop();
+                node = st.top();
+                st.pop();
+                swap(node->left, node->right);
+            }
+        }
+
+        return root;
+    }
+};
+```
+
+这进一步说明：
+
+> 遍历名称不是唯一关键，真正关键的是“后续待访问对象如何被保存和确定”。
+
+## 其他语言实现
+
+下面统一使用最清晰的递归或直接 DFS/BFS 写法。重点不是语言语法差异，而是保持同一个不变量：**每个节点交换一次左右孩子。**
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) return null;
+
+        TreeNode tmp = root.left;
+        root.left = root.right;
+        root.right = tmp;
+
+        invertTree(root.left);
+        invertTree(root.right);
+        return root;
+    }
+}
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def invertTree(self, root):
+        if not root:
+            return None
+
+        root.left, root.right = root.right, root.left
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
+```
+
+
+
+```go title="Go" tab="Go"
+func invertTree(root *TreeNode) *TreeNode {
+    if root == nil {
+        return nil
+    }
+
+    root.Left, root.Right = root.Right, root.Left
+    invertTree(root.Left)
+    invertTree(root.Right)
+    return root
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var invertTree = function(root) {
+    if (root === null) return null;
+
+    [root.left, root.right] = [root.right, root.left];
+    invertTree(root.left);
+    invertTree(root.right);
+    return root;
+};
+```
+
+
+
+```typescript title="TypeScript" tab="TypeScript"
+function invertTree(root: TreeNode | null): TreeNode | null {
+    if (root === null) return null;
+
+    const temp = root.left;
+    root.left = root.right;
+    root.right = temp;
+
+    invertTree(root.left);
+    invertTree(root.right);
+    return root;
+}
+```
+
+
+
+```c title="C" tab="C"
+struct TreeNode* invertTree(struct TreeNode* root) {
+    if (root == NULL) return NULL;
+
+    struct TreeNode* temp = root->left;
+    root->left = root->right;
+    root->right = temp;
+
+    invertTree(root->left);
+    invertTree(root->right);
+    return root;
+}
+```
+
+### Swift
+
+```swift title="Swift"
+func invertTree(_ root: TreeNode?) -> TreeNode? {
+    guard let node = root else { return nil }
+
+    swap(&node.left, &node.right)
+    _ = invertTree(node.left)
+    _ = invertTree(node.right)
+    return node
+}
+```
+
+
+
+```rust title="Rust" tab="Rust"
+impl Solution {
+    pub fn invert_tree(
+        root: Option<Rc<RefCell<TreeNode>>>
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        if let Some(node) = root.as_ref() {
+            let left = node.borrow().left.clone();
+            let right = node.borrow().right.clone();
+
+            node.borrow_mut().left = Self::invert_tree(right);
+            node.borrow_mut().right = Self::invert_tree(left);
+        }
+        root
+    }
+}
+```
+
+
+
+```csharp title="C#" tab="C#"
+public class Solution {
+    public TreeNode InvertTree(TreeNode root) {
+        if (root == null) return null;
+
+        TreeNode temp = root.left;
+        root.left = root.right;
+        root.right = temp;
+
+        InvertTree(root.left);
+        InvertTree(root.right);
+        return root;
+    }
+}
+```

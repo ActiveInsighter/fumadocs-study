@@ -1,0 +1,946 @@
+---
+title: 区间和：前缀和如何把重复查询降到 O(1)
+description: 从多次区间求和的 O(nm) 暴力方案出发，推导一维前缀和，重点讲清 prefix[i] 的定义、闭区间公式、哨兵位写法、复杂度权衡以及溢出问题。
+---
+
+
+# 区间和：前缀和如何把重复查询降到 O(1)
+
+题目：卡码网 58「区间和」。
+
+给定一个整数数组 `nums`，随后会有多次区间查询。对于每个闭区间 `[l,r]`，输出：
+
+$$
+nums[l]+nums[l+1]+\cdots+nums[r]
+$$
+
+例如：
+
+```text
+nums = [1, 2, 3, 4, 5]
+```
+
+查询：
+
+```text
+0 1
+1 3
+```
+
+答案分别为：
+
+$$
+1+2=3
+$$
+
+和：
+
+$$
+2+3+4=9
+$$
+
+---
+
+## 1. 单次区间求和很简单，多次查询才是重点
+
+如果只查询一次 `[l,r]`，直接遍历即可：
+
+```cpp
+long long sum = 0;
+for (int i = l; i <= r; ++i) {
+    sum += nums[i];
+}
+```
+
+一次查询的最坏复杂度是：
+
+$$
+O(n)
+$$
+
+如果一共有 $m$ 次查询，而且每次都可能覆盖大部分数组，那么总复杂度可能达到：
+
+$$
+O(nm)
+$$
+
+例如：
+
+$$
+n=10^5,\qquad m=10^5
+$$
+
+最坏操作量约为：
+
+$$
+10^{10}
+$$
+
+这通常远远超过普通在线评测可接受范围。
+
+所以真正的问题是：
+
+> 能不能先花一点时间预处理数组，让以后每次区间查询都变得非常快？
+
+这就是前缀和。
+
+---
+
+## 2. 前缀和的本质：缓存重复计算结果
+
+假设原数组为：
+
+```text
+nums = [a0, a1, a2, a3, ...]
+```
+
+定义：
+
+$$
+prefix[i]
+$$
+
+表示数组前若干项的累计和。
+
+最常见的定义有两种：
+
+1. `prefix[i]` 表示 `[0,i]` 的和；
+2. `prefix[i]` 表示 `[0,i)` 的和。
+
+这两种都正确，但第二种通常边界更统一。
+
+本文推荐第二种。
+
+---
+
+## 3. 推荐写法：让 `prefix[0] = 0`
+
+构造长度为：
+
+$$
+n+1
+$$
+
+的前缀和数组，并定义：
+
+$$
+prefix[0]=0
+$$
+
+以及：
+
+$$
+prefix[i+1]=prefix[i]+nums[i]
+$$
+
+于是：
+
+$$
+prefix[k]=\sum_{i=0}^{k-1} nums[i]
+$$
+
+也就是说：
+
+> `prefix[k]` 保存半开区间 `[0,k)` 的元素和。
+
+例如：
+
+```text
+nums   = [1, 2, 3, 4, 5]
+index     0  1  2  3  4
+```
+
+前缀和为：
+
+```text
+prefix = [0, 1, 3, 6, 10, 15]
+index      0  1  2  3   4   5
+```
+
+即：
+
+$$
+prefix[3]=1+2+3=6
+$$
+
+原文示意图：
+
+![前缀和数组示意](https://file1.kamacoder.com/i/algo/20240627110604.png)
+
+---
+
+## 4. 区间和公式怎么推导
+
+现在要求闭区间：
+
+$$
+[l,r]
+$$
+
+的元素和。
+
+根据定义：
+
+$$
+prefix[r+1]
+$$
+
+表示：
+
+$$
+nums[0]+nums[1]+\cdots+nums[r]
+$$
+
+而：
+
+$$
+prefix[l]
+$$
+
+表示：
+
+$$
+nums[0]+nums[1]+\cdots+nums[l-1]
+$$
+
+两者相减：
+
+$$
+prefix[r+1]-prefix[l]
+$$
+
+前面的公共部分全部抵消，剩下：
+
+$$
+nums[l]+nums[l+1]+\cdots+nums[r]
+$$
+
+因此：
+
+$$
+\boxed{sum(l,r)=prefix[r+1]-prefix[l]}
+$$
+
+这是最值得记住的一维前缀和公式。
+
+---
+
+## 5. 为什么推荐多开一个哨兵位
+
+原文使用的是另一种定义：
+
+$$
+p[i]=nums[0]+\cdots+nums[i]
+$$
+
+此时：
+
+$$
+sum(l,r)=
+\begin{cases}
+p[r], & l=0\\
+p[r]-p[l-1], & l>0
+\end{cases}
+$$
+
+代码就需要额外判断：
+
+```cpp
+if (l == 0) {
+    sum = p[r];
+} else {
+    sum = p[r] - p[l - 1];
+}
+```
+
+如果采用长度 `n+1` 的写法：
+
+```cpp
+prefix[0] = 0;
+```
+
+则无论 `l` 是否为 `0`，都统一为：
+
+```cpp
+prefix[r + 1] - prefix[l]
+```
+
+例如：
+
+```text
+l = 0, r = 1
+```
+
+直接得到：
+
+$$
+prefix[2]-prefix[0]
+$$
+
+因为：
+
+$$
+prefix[0]=0
+$$
+
+所以完全不需要特判。
+
+<Callout title="哨兵位的意义" type="info">
+算法里多开一个位置，往往不是浪费空间，而是在消除边界分支。前缀和、链表虚拟头结点、动态规划额外的第 0 行/列，本质上都有类似思想：用一个人为构造的“空状态”统一边界。
+</Callout>
+
+---
+
+## 6. 用图理解“相减为什么得到区间”
+
+原文中 `[2,5]` 的示意非常典型：
+
+![区间和相减示意](https://file1.kamacoder.com/i/algo/20240627111319.png)
+
+如果采用原文的闭前缀定义：
+
+$$
+p[5]=nums[0]+\cdots+nums[5]
+$$
+
+$$
+p[1]=nums[0]+nums[1]
+$$
+
+于是：
+
+$$
+p[5]-p[1]
+$$
+
+就只剩下：
+
+$$
+nums[2]+nums[3]+nums[4]+nums[5]
+$$
+
+而使用本文推荐的半开前缀定义，则同一个区间写成：
+
+$$
+prefix[6]-prefix[2]
+$$
+
+两种定义数学上完全等价，只是下标表达不同。
+
+---
+
+## 7. 标准构造方式
+
+创建：
+
+```cpp
+vector<long long> prefix(n + 1, 0);
+```
+
+依次读取数组，并构造：
+
+```cpp
+prefix[i + 1] = prefix[i] + x;
+```
+
+每次查询 `[l,r]`，直接计算：
+
+```cpp
+prefix[r + 1] - prefix[l]
+```
+
+完整 C++：
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+
+    vector<long long> prefix(n + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        long long x;
+        cin >> x;
+        prefix[i + 1] = prefix[i] + x;
+    }
+
+    int l, r;
+    while (cin >> l >> r) {
+        cout << prefix[r + 1] - prefix[l] << '\n';
+    }
+
+    return 0;
+}
+```
+
+---
+
+## 8. 为什么查询可以做到 $O(1)$
+
+前缀数组已经预先存下：
+
+```text
+从开头到每个位置之前的累计和
+```
+
+因此每次查询只需要：
+
+1. 一次数组访问 `prefix[r+1]`；
+2. 一次数组访问 `prefix[l]`；
+3. 一次减法。
+
+这些操作数量不随区间长度变化。
+
+所以单次查询复杂度是：
+
+$$
+O(1)
+$$
+
+---
+
+## 9. 总复杂度：预处理换查询速度
+
+构造前缀和需要遍历数组一次：
+
+$$
+O(n)
+$$
+
+每次查询：
+
+$$
+O(1)
+$$
+
+一共有 $m$ 次查询，因此总时间：
+
+$$
+O(n+m)
+$$
+
+前缀数组长度约为 $n$：
+
+$$
+O(n)
+$$
+
+额外空间。
+
+与暴力相比：
+
+| 方法 | 预处理 | 单次查询 | $m$ 次查询总复杂度 | 额外空间 |
+| --- | ---: | ---: | ---: | ---: |
+| 每次直接累加 | $O(1)$ | $O(n)$ | $O(nm)$ | $O(1)$ |
+| 前缀和 | $O(n)$ | $O(1)$ | $O(n+m)$ | $O(n)$ |
+
+这是一种非常经典的算法思想：
+
+> 用额外空间和一次预处理，换取后续大量查询的高效率。
+
+---
+
+## 10. 前缀和真正适合什么场景
+
+一维前缀和最适合：
+
+> 数组本身基本不修改，但区间和查询很多。
+
+也就是典型的：
+
+```text
+静态数组 + 大量区间查询
+```
+
+如果数组会频繁修改，例如：
+
+```text
+nums[i] += delta
+```
+
+那么更新一个位置后，所有后续 `prefix` 都可能变化。
+
+一次修改可能需要：
+
+$$
+O(n)
+$$
+
+这时通常需要更强的数据结构，例如：
+
+- 树状数组（Fenwick Tree）；
+- 线段树（Segment Tree）。
+
+<Callout title="数据结构选择" type="info">
+静态区间和：前缀和通常是最简单、最快的方案。动态单点修改 + 区间查询：优先考虑树状数组或线段树。不要看到“区间和”就只会一种方法，要结合“是否修改”判断。
+</Callout>
+
+---
+
+## 11. 为什么前缀和通常使用 `long long`
+
+即使单个元素能放进 `int`，很多元素相加后也可能溢出。
+
+例如：
+
+$$
+nums[i]\le10^9
+$$
+
+且：
+
+$$
+n=10^5
+$$
+
+那么总和最多可达到数量级：
+
+$$
+10^{14}
+$$
+
+而 32 位有符号整数上限约为：
+
+$$
+2.147\times10^9
+$$
+
+因此前缀和数组通常更稳妥地写成：
+
+```cpp
+vector<long long> prefix(n + 1);
+```
+
+竞赛中一个很实用的经验是：
+
+> 涉及“大量整数求和”时，先检查和的最大数量级，而不是只检查单个元素的范围。
+
+---
+
+## 12. 最容易犯的边界错误
+
+### 错误一：把闭区间公式写错
+
+本文定义：
+
+$$
+prefix[i]=sum([0,i))
+$$
+
+因此：
+
+$$
+sum([l,r])=prefix[r+1]-prefix[l]
+$$
+
+不是：
+
+$$
+prefix[r]-prefix[l]
+$$
+
+---
+
+### 错误二：混用两种前缀和定义
+
+如果你定义：
+
+```text
+p[i] = nums[0] + ... + nums[i]
+```
+
+那么就要用：
+
+$$
+p[r]-p[l-1]
+$$
+
+如果你定义：
+
+```text
+prefix[i] = nums[0] + ... + nums[i-1]
+```
+
+那么要用：
+
+$$
+prefix[r+1]-prefix[l]
+$$
+
+两套写法不能混在一起。
+
+---
+
+### 错误三：忘记 `[l,r]` 是闭区间
+
+闭区间长度为：
+
+$$
+r-l+1
+$$
+
+很多下标错误本质上都是没有先明确“开区间/闭区间”。
+
+---
+
+### 错误四：前缀和值类型溢出
+
+即使答案样例很小，也应该根据数据上限判断是否需要 `long long`。
+
+---
+
+## 13. 前缀和与滑动窗口有什么区别
+
+这两类技巧都常用于连续数组，但解决问题的角度不同。
+
+### 前缀和
+
+擅长：
+
+> 已知区间边界，快速求区间统计值。
+
+例如：
+
+```text
+给定 l、r，求 [l,r] 的和
+```
+
+### 滑动窗口
+
+擅长：
+
+> 边移动区间边界，边寻找满足条件的最优区间。
+
+例如：
+
+```text
+寻找和 >= target 的最短连续区间
+```
+
+可以简单理解为：
+
+```text
+前缀和：快速“算一个区间”
+滑动窗口：高效“找一个区间”
+```
+
+当然，在更复杂的问题中两者也可以组合使用。
+
+---
+
+## 14. 前缀和的进一步扩展
+
+### 14.1 前缀计数
+
+不一定只能保存“和”。
+
+例如：
+
+```text
+prefix[i] = 前 i 个元素中偶数的数量
+```
+
+那么可以 $O(1)$ 查询任一区间中偶数个数。
+
+---
+
+### 14.2 二维前缀和
+
+矩阵中要大量查询子矩形区域和时，可以把一维思想扩展到二维。
+
+构造：
+
+$$
+prefix[i][j]
+$$
+
+保存左上区域的总和。
+
+查询任意矩形时通过容斥：
+
+$$
+A-B-C+D
+$$
+
+即可在：
+
+$$
+O(1)
+$$
+
+内得到结果。
+
+---
+
+### 14.3 前缀和 + 哈希表
+
+例如经典题：
+
+> 和为 $k$ 的子数组数量。
+
+若：
+
+$$
+prefix[j]-prefix[i]=k
+$$
+
+则：
+
+$$
+prefix[i]=prefix[j]-k
+$$
+
+因此可以一边扫描前缀和，一边通过哈希表统计历史前缀值。
+
+这说明前缀和不仅是“区间查询技巧”，还是很多连续子数组问题的重要数学变形工具。
+
+---
+
+## 15. ACM 输入输出中的细节
+
+原题采用多组区间一直读到 EOF 的形式：
+
+```text
+while (cin >> l >> r)
+```
+
+表示：
+
+> 只要还能成功读入一组 `l r`，就继续处理。
+
+C++ 中建议开启：
+
+```cpp
+ios::sync_with_stdio(false);
+cin.tie(nullptr);
+```
+
+在大多数竞赛输入规模下，这样的 `cin/cout` 已经足够高效，同时代码也更统一。
+
+无需为了“听说 scanf 更快”而机械混用：
+
+```cpp
+cin
+scanf
+```
+
+保持一种 I/O 体系通常更清晰，也能避免同步设置导致的问题。
+
+---
+
+## 16. 一页总结
+
+<Callout title="核心结论" type="info">
+- 前缀和适合“静态数组 + 多次区间查询”。
+- 推荐定义 `prefix[0] = 0`，令 `prefix[i]` 表示 `[0,i)` 的和。
+- 闭区间 `[l,r]` 的和统一写为 `prefix[r + 1] - prefix[l]`。
+- 预处理复杂度 $O(n)$，单次查询 $O(1)$，$m$ 次查询总复杂度 $O(n+m)$。
+- 区间累计值很容易超过 `int`，应根据数据范围判断是否使用 `long long`。
+- 如果数组会频繁修改，前缀和通常不再合适，应考虑树状数组或线段树。
+</Callout>
+
+---
+
+## 17. 其他语言实现
+
+
+
+```cpp tab="C++"
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+
+    vector<long long> prefix(n + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        long long x;
+        cin >> x;
+        prefix[i + 1] = prefix[i] + x;
+    }
+
+    int l, r;
+    while (cin >> l >> r) {
+        cout << prefix[r + 1] - prefix[l] << '\n';
+    }
+
+    return 0;
+}
+```
+
+
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st;
+
+        int n = Integer.parseInt(br.readLine().trim());
+        long[] prefix = new long[n + 1];
+
+        for (int i = 0; i < n; i++) {
+            long x = Long.parseLong(br.readLine().trim());
+            prefix[i + 1] = prefix[i] + x;
+        }
+
+        String line;
+        StringBuilder out = new StringBuilder();
+
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            st = new StringTokenizer(line);
+            int l = Integer.parseInt(st.nextToken());
+            int r = Integer.parseInt(st.nextToken());
+
+            out.append(prefix[r + 1] - prefix[l]).append('\n');
+        }
+
+        System.out.print(out);
+    }
+}
+```
+
+
+
+```python tab="Python"
+import sys
+
+
+def main() -> None:
+    data = list(map(int, sys.stdin.buffer.read().split()))
+    if not data:
+        return
+
+    n = data[0]
+    prefix = [0] * (n + 1)
+
+    for i in range(n):
+        prefix[i + 1] = prefix[i] + data[i + 1]
+
+    ans = []
+    index = n + 1
+
+    while index + 1 < len(data):
+        left = data[index]
+        right = data[index + 1]
+        index += 2
+        ans.append(str(prefix[right + 1] - prefix[left]))
+
+    sys.stdout.write("\n".join(ans))
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n int
+    fmt.Fscan(in, &n)
+
+    prefix := make([]int64, n+1)
+
+    for i := 0; i < n; i++ {
+        var x int64
+        fmt.Fscan(in, &x)
+        prefix[i+1] = prefix[i] + x
+    }
+
+    for {
+        var left, right int
+        if _, err := fmt.Fscan(in, &left, &right); err != nil {
+            break
+        }
+
+        fmt.Fprintln(out, prefix[right+1]-prefix[left])
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+if (data.length === 0) process.exit(0);
+
+let index = 0;
+const n = data[index++];
+const prefix = new Array(n + 1).fill(0);
+
+for (let i = 0; i < n; i++) {
+    prefix[i + 1] = prefix[i] + data[index++];
+}
+
+const output = [];
+while (index + 1 < data.length) {
+    const left = data[index++];
+    const right = data[index++];
+    output.push(String(prefix[right + 1] - prefix[left]));
+}
+
+process.stdout.write(output.join('\n'));
+```
+
+
+
+```typescript tab="TypeScript"
+import * as fs from 'fs';
+
+const input = fs.readFileSync(0, 'utf8').trim();
+if (input.length === 0) process.exit(0);
+
+const data = input.split(/\s+/).map(Number);
+let index = 0;
+
+const n = data[index++];
+const prefix: number[] = new Array(n + 1).fill(0);
+
+for (let i = 0; i < n; i++) {
+    prefix[i + 1] = prefix[i] + data[index++];
+}
+
+const output: string[] = [];
+
+while (index + 1 < data.length) {
+    const left = data[index++];
+    const right = data[index++];
+    output.push(String(prefix[right + 1] - prefix[left]));
+}
+
+process.stdout.write(output.join('\n'));
+```

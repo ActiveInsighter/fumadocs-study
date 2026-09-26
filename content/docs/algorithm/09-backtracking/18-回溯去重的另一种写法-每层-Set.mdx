@@ -1,0 +1,1027 @@
+---
+title: 回溯去重的另一种写法：每层 Set
+author: 算法学习笔记
+summary: 从“树层去重”的本质出发，系统比较排序 + used 与每层 Set 两类写法，解释 Set 为什么必须定义在递归层内、为什么不能做成全局变量，以及它在子集 II、组合总和 II、全排列 II 中如何统一使用。
+description: 回溯算法去重专题：树层去重、树枝状态、每层 Set、used 数组、排序、子集 II、组合总和 II、全排列 II、错误写法与复杂度分析。
+---
+
+
+# 回溯去重的另一种写法：每层 Set
+
+前面在 `90. 子集 II`、`40. 组合总和 II`、`47. 全排列 II` 中，我们已经反复遇到同一个问题：
+
+> **输入中存在重复值，但答案不能因为“同一层从另一个相同值出发”而重复。**
+
+常见写法是排序后借助相邻元素和 `used` 数组判断；另一种更直接的思路是：
+
+```text
+每进入一层递归，就创建一个只属于这一层的 Set；
+本层某个数值已经作为候选使用过，就不允许它再次开启同层分支。
+```
+
+这篇的重点并不是多背一种代码，而是把“Set 到底该放在哪里”彻底弄清楚。
+
+<Callout title="一句话抓住本质">
+
+$$
+\boxed{\text{每层 Set 记录的是“本层已经尝试过的值”，而不是“整条路径已经使用过的值”}}
+$$
+
+因此它的生命周期必须和**当前递归层**一致。
+
+</Callout>
+
+## 1. 先区分两个完全不同的“重复”
+
+回溯题中的重复通常来自两个维度。
+
+### 1.1 树枝重复：同一条路径能不能再次使用？
+
+例如全排列中，同一个数组下标不能在一条路径里被使用两次：
+
+```text
+nums = [1,2,3]
+
+[1] → 不能再次选下标 0 的 1
+```
+
+这类状态通常由：
+
+```cpp
+used[i]
+```
+
+维护。
+
+它描述的是：
+
+$$
+\boxed{\text{当前路径状态}}
+$$
+
+### 1.2 树层重复：同一父节点下能不能再次用相同值开分支？
+
+例如：
+
+```text
+nums = [1a,1b,2]
+```
+
+在根节点下：
+
+```text
+[] → 1a
+[] → 1b
+```
+
+如果只看数值，两棵子树往往等价。
+
+所以第二个 `1` 应该在**这一层**被跳过。
+
+这就是：
+
+$$
+\boxed{\text{树层去重}}
+$$
+
+每层 `Set` 正是专门解决这一件事。
+
+## 2. 为什么 `Set` 必须定义在递归函数内部？
+
+标准结构是：
+
+```cpp
+void backtracking(...) {
+    unordered_set<int> usedThisLevel;
+
+    for (...) {
+        if (usedThisLevel.count(value)) {
+            continue;
+        }
+
+        usedThisLevel.insert(value);
+        // 选择
+        backtracking(...);
+        // 回溯
+    }
+}
+```
+
+每调用一次 `backtracking`，都会得到一个新的：
+
+```text
+usedThisLevel
+```
+
+于是不同父节点拥有不同的“本层已使用集合”。
+
+可以把递归树想成：
+
+```text
+父节点 A
+└── Set_A：只负责 A 的孩子
+
+父节点 B
+└── Set_B：只负责 B 的孩子
+```
+
+两个集合互不影响。
+
+<Callout type="info" title="关键不是“第几层”，而是“哪个父节点”">
+
+口头上常说“同一层去重”，更严谨的说法其实是：
+
+> **同一父节点的所有候选孩子之间去重。**
+
+因为递归树中即使深度相同，不同父节点也必须拥有彼此独立的去重状态。
+
+</Callout>
+
+## 3. 子集 II：为什么没排序时仍可能出现重复？
+
+原资料用：
+
+```text
+[2,1,2,2]
+```
+
+演示未排序数组产生重复子集的情况：
+
+![子集 II 未排序时的重复分支](https://file1.kamacoder.com/i/algo/2020111316440479-20230310121930316.png)
+
+对于 `90. 子集 II`，即使采用每层 `Set`，通常仍然建议先排序：
+
+```cpp
+sort(nums.begin(), nums.end());
+```
+
+原因有两个：
+
+1. 排序让重复值聚集，搜索树结构更容易观察；
+2. 与后续剪枝、相邻去重写法保持统一。
+
+需要特别注意：
+
+```text
+Set 负责“本层是否出现过某个值”
+startIndex 负责“下一层只能继续向右选择”
+```
+
+它们职责不同。
+
+## 4. 子集 II 的每层 Set 写法
+
+```cpp title="C++：90. 子集 II"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, int startIndex) {
+        result.push_back(path);
+
+        unordered_set<int> usedThisLevel;
+
+        for (int i = startIndex; i < static_cast<int>(nums.size()); ++i) {
+            if (usedThisLevel.count(nums[i])) {
+                continue;
+            }
+
+            usedThisLevel.insert(nums[i]);
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        result.clear();
+        path.clear();
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+这里非常值得观察一件事：
+
+```cpp
+usedThisLevel.insert(nums[i]);
+```
+
+在递归回来以后**不需要 erase**。
+
+为什么？
+
+因为当前这个 `Set` 的任务就是记录：
+
+```text
+这个父节点下，哪些值已经被用来开启过分支？
+```
+
+既然 `nums[i]` 已经在本层尝试过，那么后面再次遇到相同值就应该永久跳过，直到当前递归函数结束。
+
+## 5. 错误写法一：把 Set 做成全局变量
+
+下面这种写法看起来像是在“选择后加入，回溯时删除”：
+
+```cpp
+unordered_set<int> usedSet;
+
+void backtracking(...) {
+    for (...) {
+        if (usedSet.count(nums[i])) continue;
+
+        usedSet.insert(nums[i]);
+        path.push_back(nums[i]);
+        backtracking(...);
+        path.pop_back();
+        usedSet.erase(nums[i]);
+    }
+}
+```
+
+问题在于：
+
+```text
+usedSet 已经不再属于某一个父节点
+```
+
+而是被整棵递归树共享。
+
+原资料用下图展示这种状态污染：
+
+![把 Set 设为全局变量会污染不同递归节点](https://file1.kamacoder.com/i/algo/202011131625054.png)
+
+此时 Set 记录的更像是“当前递归路径上出现过什么”，它已经偏离了“同一父节点下的本层去重”这一目标。
+
+### 为什么 `insert + erase` 也救不了？
+
+因为这种写法把两个不同概念混在了一起：
+
+```text
+路径状态：进入子树时改变，退出子树时恢复
+本层历史：一旦本层试过，就应该一直保留到本层循环结束
+```
+
+树层去重信息本来就**不应该在一次子递归结束后撤销**。
+
+## 6. 错误写法二：全局 Set + 每次递归 `clear()`
+
+另一种常见误区：
+
+```cpp
+unordered_set<int> usedSet;
+
+void backtracking(...) {
+    usedSet.clear();
+
+    for (...) {
+        ...
+    }
+}
+```
+
+看起来似乎“进入新的一层就清空”。
+
+但递归调用会共享同一个对象：
+
+```text
+父节点正在使用 Set
+    ↓
+进入子节点
+    ↓
+子节点 clear()
+    ↓
+父节点原本记录的本层状态被清掉
+```
+
+所以回到父节点后，本层去重信息已经丢失。
+
+结论很明确：
+
+$$
+\boxed{\text{每个递归调用必须拥有自己的 Set 实例}}
+$$
+
+## 7. 组合总和 II：Set 与剪枝可以同时存在
+
+`40. 组合总和 II` 中，每个下标最多使用一次，并且不能产生重复组合。
+
+排序后可以同时利用：
+
+```text
+Set：本层去重
+排序：让 sum + candidates[i] > target 后直接 break
+```
+
+```cpp title="C++：40. 组合总和 II"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(
+        const vector<int>& candidates,
+        int target,
+        int startIndex,
+        int sum
+    ) {
+        if (sum == target) {
+            result.push_back(path);
+            return;
+        }
+
+        unordered_set<int> usedThisLevel;
+
+        for (int i = startIndex; i < static_cast<int>(candidates.size()); ++i) {
+            if (sum + candidates[i] > target) {
+                break;
+            }
+
+            if (usedThisLevel.count(candidates[i])) {
+                continue;
+            }
+
+            usedThisLevel.insert(candidates[i]);
+            path.push_back(candidates[i]);
+            backtracking(candidates, target, i + 1, sum + candidates[i]);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        result.clear();
+        path.clear();
+        backtracking(candidates, target, 0, 0);
+        return result;
+    }
+};
+```
+
+<Callout type="warning" title="不要把“去重”和“剪枝”混为一谈">
+
+```cpp
+if (usedThisLevel.count(candidates[i])) continue;
+```
+
+是在删除**等价答案分支**。
+
+而：
+
+```cpp
+if (sum + candidates[i] > target) break;
+```
+
+是在删除**不可能成功的分支**。
+
+二者目的完全不同。
+
+</Callout>
+
+## 8. 全排列 II：Set 不能取代 `used[i]`
+
+在排列问题中，每层都要从整个数组重新遍历：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i)
+```
+
+因此需要两个状态：
+
+```text
+used[i]           → 当前下标是否已经在这条树枝中使用
+usedThisLevel     → 当前父节点下这个数值是否已经开过分支
+```
+
+标准 Set 写法：
+
+```cpp title="C++：47. 全排列 II"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, vector<bool>& used) {
+        if (path.size() == nums.size()) {
+            result.push_back(path);
+            return;
+        }
+
+        unordered_set<int> usedThisLevel;
+
+        for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
+            if (used[i]) {
+                continue;
+            }
+
+            if (usedThisLevel.count(nums[i])) {
+                continue;
+            }
+
+            usedThisLevel.insert(nums[i]);
+            used[i] = true;
+            path.push_back(nums[i]);
+
+            backtracking(nums, used);
+
+            path.pop_back();
+            used[i] = false;
+        }
+    }
+
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        result.clear();
+        path.clear();
+
+        vector<bool> used(nums.size(), false);
+        backtracking(nums, used);
+        return result;
+    }
+};
+```
+
+这里甚至不依赖相邻元素比较，因此从“正确性”上讲不一定要求排序。
+
+但如果希望代码风格统一、输出顺序稳定，排序仍然可以保留。
+
+## 9. `Set` 写法与“排序 + 相邻判断”到底怎么选？
+
+| 方案 | 本层去重方式 | 是否需要额外哈希结构 | 是否常要求排序 | 优点 | 代价 |
+| --- | --- | ---: | ---: | --- | --- |
+| 相邻元素判断 | 比较 `nums[i]` 与 `nums[i-1]` | 否 | 通常是 | 快、空间小 | 需要正确理解 `used[i-1]` / `startIndex` |
+| 每层 `Set` | `Set` 记录本层已用值 | 是 | 视题目而定 | 语义直观、适合不能排序的情况 | 有哈希/集合开销 |
+
+在已经排序的 `90 / 40 / 47` 这类题里，通常更推荐：
+
+```text
+排序 + 相邻判断
+```
+
+原因是常数更小、额外空间更少。
+
+而当：
+
+```text
+不能排序，或者本层候选不是自然相邻结构
+```
+
+每层 `Set` 往往更自然。
+
+`491. 非递减子序列` 就是典型例子。
+
+## 10. 为什么 Set 版本空间复杂度更高？
+
+假设递归深度最多为 $n$。
+
+如果每层都有一个最多存 $O(n)$ 个元素的 `Set`，最坏情况下递归栈上同时存在：
+
+$$
+O(n)
+$$
+
+个集合，每个集合最多：
+
+$$
+O(n)
+$$
+
+因此额外空间上界可以达到：
+
+$$
+O(n^2)
+$$
+
+而全局共享的 `used` 数组只有：
+
+$$
+O(n)
+$$
+
+再加递归栈：
+
+$$
+O(n)
+$$
+
+总额外空间仍为：
+
+$$
+O(n)
+$$
+
+当然，具体题目中每层 Set 的实际大小通常远小于 $n$，但从最坏情况分析，二者确实存在差别。
+
+## 11. 时间开销为什么也通常更大？
+
+每层 Set 需要频繁执行：
+
+```text
+查找
+插入
+哈希
+可能的扩容 / 冲突处理
+```
+
+平均情况下哈希集合查找和插入接近：
+
+$$
+O(1)
+$$
+
+但它的常数成本明显高于简单数组访问：
+
+```cpp
+used[i]
+```
+
+或者相邻值比较：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+所以：
+
+> **Set 写法更像“语义清楚的通用工具”，相邻去重写法则通常是排序后更高效的专用工具。**
+
+## 12. 一张表统一三类题
+
+| 题目 | 下一层候选范围 | 是否需要路径 `used` | 本层 Set 的含义 |
+| --- | --- | --- | --- |
+| 90. 子集 II | `i + 1 ... n-1` | 否 | 本父节点下相同值只开一次分支 |
+| 40. 组合总和 II | `i + 1 ... n-1` | 否 | 本父节点下相同值只开一次分支 |
+| 47. 全排列 II | `0 ... n-1` | 是 | 本父节点下相同值只开一次分支 |
+
+这三题真正统一的地方不是代码，而是：
+
+$$
+\boxed{\text{每一个父节点，都拥有自己独立的“本层候选历史”}}
+$$
+
+## 13. 最容易写错的四件事
+
+### ① 把 Set 设成全局变量
+
+会把多个父节点的去重状态混在一起。
+
+### ② 每次递归 `clear()` 同一个全局 Set
+
+子递归会清掉父递归还需要的信息。
+
+### ③ 回溯时 `erase` 本层 Set
+
+本层已经尝试过的值，本来就应该保持“已尝试”直到当前循环结束。
+
+### ④ 以为 Set 可以替代排列中的 `used[i]`
+
+Set 管的是**数值级同层去重**；`used[i]` 管的是**下标级路径占用**，两者不能互相替代。
+
+## 14. 最终记忆模型
+
+遇到重复元素的回溯题时，可以按下面顺序判断：
+
+```text
+1. 一条路径里，同一个下标能不能重复使用？
+   └─ 决定是否需要 used / startIndex
+
+2. 同一父节点下，相同数值能不能重复开分支？
+   └─ 决定是否需要树层去重
+
+3. 能不能排序？
+   ├─ 能：优先考虑排序 + 相邻判断
+   └─ 不能：考虑每层 Set / 计数数组
+
+4. Set 的生命周期是谁？
+   └─ 当前父节点对应的这一次递归调用
+```
+
+最终可以压缩为：
+
+$$
+\boxed{
+\text{路径状态看树枝}
+\qquad
+\text{去重状态看树层}
+}
+$$
+
+## 15. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    private List<List<Integer>> res = new ArrayList<>();
+    private List<Integer> path = new ArrayList<>();
+    private boolean[] used = null;
+
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        used = new boolean[nums.length];
+        Arrays.sort(nums);
+        backtracking(nums);
+        return res;
+    }
+
+    public void backtracking(int[] nums) {
+        if (path.size() == nums.length) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        HashSet<Integer> hashSet = new HashSet<>();//层去重
+        for (int i = 0; i < nums.length; i++) {
+            if (hashSet.contains(nums[i]))
+                continue;
+            if (used[i] == true)//枝去重
+                continue;
+            hashSet.add(nums[i]);//记录元素
+            used[i] = true;
+            path.add(nums[i]);
+            backtracking(nums);
+            path.remove(path.size() - 1);
+            used[i] = false;
+        }
+    }
+}
+
+class Solution {
+    List<List<Integer>> reslut = new ArrayList<>();
+    LinkedList<Integer> path = new LinkedList<>();
+
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        if(nums.length == 0){
+            reslut.add(path);
+            return reslut;
+        }
+        Arrays.sort(nums);
+        backtracking(nums,0);
+        return reslut;
+    }
+
+    public void backtracking(int[] nums,int startIndex){
+        reslut.add(new ArrayList<>(path));
+        if(startIndex >= nums.length)return;
+        HashSet<Integer> hashSet = new HashSet<>();
+        for(int i = startIndex; i < nums.length; i++){
+            if(hashSet.contains(nums[i])){
+                continue;
+            }
+            hashSet.add(nums[i]);
+            path.add(nums[i]);
+            backtracking(nums,i+1);
+            path.removeLast();
+        }
+    }
+}
+
+class Solution {
+    List<List<Integer>> result = new ArrayList<>();
+    LinkedList<Integer> path = new LinkedList<>();
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        Arrays.sort( candidates );
+        if( candidates[0] > target ) return result;
+        backtracking(candidates,target,0,0);
+        return result;
+    }
+
+    public void backtracking(int[] candidates,int target,int sum,int startIndex){
+        if( sum > target )return;
+        if( sum == target ){
+            result.add( new ArrayList<>(path) );
+        }
+        HashSet<Integer> hashSet = new HashSet<>();
+        for( int i = startIndex; i < candidates.length; i++){
+            if( hashSet.contains(candidates[i]) ){
+                continue;
+            }
+            hashSet.add(candidates[i]);
+            path.add(candidates[i]);
+            sum += candidates[i];
+            backtracking(candidates,target,sum,i+1);
+            path.removeLast();
+            sum -= candidates[i];
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def subsetsWithDup(self, nums):
+        nums.sort()  # 去重需要排序
+        result = []
+        self.backtracking(nums, 0, [], result)
+        return result
+
+    def backtracking(self, nums, startIndex, path, result):
+        result.append(path[:])
+        used = set()
+        for i in range(startIndex, len(nums)):
+            if nums[i] in used:
+                continue
+            used.add(nums[i])
+            path.append(nums[i])
+            self.backtracking(nums, i + 1, path, result)
+            path.pop()
+
+class Solution:
+    def combinationSum2(self, candidates, target):
+        candidates.sort()
+        result = []
+        self.backtracking(candidates, target, 0, 0, [], result)
+        return result
+
+    def backtracking(self, candidates, target, sum, startIndex, path, result):
+        if sum == target:
+            result.append(path[:])
+            return
+        used = set()
+        for i in range(startIndex, len(candidates)):
+            if sum + candidates[i] > target:
+                break
+            if candidates[i] in used:
+                continue
+            used.add(candidates[i])
+            sum += candidates[i]
+            path.append(candidates[i])
+            self.backtracking(candidates, target, sum, i + 1, path, result)
+            sum -= candidates[i]
+            path.pop()
+
+class Solution:
+    def permuteUnique(self, nums):
+        nums.sort()  # 排序
+        result = []
+        self.backtracking(nums, [False] * len(nums), [], result)
+        return result
+
+    def backtracking(self, nums, used, path, result):
+        if len(path) == len(nums):
+            result.append(path[:])
+            return
+        used_set = set()
+        for i in range(len(nums)):
+            if nums[i] in used_set:
+                continue
+            if not used[i]:
+                used_set.add(nums[i])
+                used[i] = True
+                path.append(nums[i])
+                self.backtracking(nums, used, path, result)
+                path.pop()
+                used[i] = False
+```
+
+
+
+```javascript tab="JavaScript"
+function subsetsWithDup(nums) {
+    nums.sort((a, b) => a - b);
+    const resArr = [];
+    backTraking(nums, 0, []);
+    return resArr;
+    function backTraking(nums, startIndex, route) {
+        resArr.push([...route]);
+        const helperSet = new Set();
+        for (let i = startIndex, length = nums.length; i < length; i++) {
+            if (helperSet.has(nums[i])) continue;
+            helperSet.add(nums[i]);
+            route.push(nums[i]);
+            backTraking(nums, i + 1, route);
+            route.pop();
+        }
+    }
+};
+
+function combinationSum2(candidates, target) {
+    candidates.sort((a, b) => a - b);
+    const resArr = [];
+    backTracking(candidates, target, 0, 0, []);
+    return resArr;
+    function backTracking( candidates, target, curSum, startIndex, route ) {
+        if (curSum > target) return;
+        if (curSum === target) {
+            resArr.push([...route]);
+            return;
+        }
+        const helperSet = new Set();
+        for (let i = startIndex, length = candidates.length; i < length; i++) {
+            let tempVal = candidates[i];
+            if (helperSet.has(tempVal)) continue;
+            helperSet.add(tempVal);
+            route.push(tempVal);
+            backTracking(candidates, target, curSum + tempVal, i + 1, route);
+            route.pop();
+        }
+    }
+};
+
+function permuteUnique(nums) {
+    const resArr = [];
+    const usedArr = [];
+    backTracking(nums, []);
+    return resArr;
+    function backTracking(nums, route) {
+        if (nums.length === route.length) {
+            resArr.push([...route]);
+            return;
+        }
+        const usedSet = new Set();
+        for (let i = 0, length = nums.length; i < length; i++) {
+            if (usedArr[i] === true || usedSet.has(nums[i])) continue;
+            usedSet.add(nums[i]);
+            route.push(nums[i]);
+            usedArr[i] = true;
+            backTracking(nums, route);
+            usedArr[i] = false;
+            route.pop();
+        }
+    }
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function subsetsWithDup(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b);
+    const resArr: number[][] = [];
+    backTraking(nums, 0, []);
+    return resArr;
+    function backTraking(nums: number[], startIndex: number, route: number[]): void {
+        resArr.push([...route]);
+        const helperSet: Set<number> = new Set();
+        for (let i = startIndex, length = nums.length; i < length; i++) {
+            if (helperSet.has(nums[i])) continue;
+            helperSet.add(nums[i]);
+            route.push(nums[i]);
+            backTraking(nums, i + 1, route);
+            route.pop();
+        }
+    }
+};
+
+function combinationSum2(candidates: number[], target: number): number[][] {
+    candidates.sort((a, b) => a - b);
+    const resArr: number[][] = [];
+    backTracking(candidates, target, 0, 0, []);
+    return resArr;
+    function backTracking(
+        candidates: number[], target: number,
+        curSum: number, startIndex: number, route: number[]
+    ) {
+        if (curSum > target) return;
+        if (curSum === target) {
+            resArr.push([...route]);
+            return;
+        }
+        const helperSet: Set<number> = new Set();
+        for (let i = startIndex, length = candidates.length; i < length; i++) {
+            let tempVal: number = candidates[i];
+            if (helperSet.has(tempVal)) continue;
+            helperSet.add(tempVal);
+            route.push(tempVal);
+            backTracking(candidates, target, curSum + tempVal, i + 1, route);
+            route.pop();
+
+        }
+    }
+};
+
+function permuteUnique(nums: number[]): number[][] {
+    const resArr: number[][] = [];
+    const usedArr: boolean[] = [];
+    backTracking(nums, []);
+    return resArr;
+    function backTracking(nums: number[], route: number[]): void {
+        if (nums.length === route.length) {
+            resArr.push([...route]);
+            return;
+        }
+        const usedSet: Set<number> = new Set();
+        for (let i = 0, length = nums.length; i < length; i++) {
+            if (usedArr[i] === true || usedSet.has(nums[i])) continue;
+            usedSet.add(nums[i]);
+            route.push(nums[i]);
+            usedArr[i] = true;
+            backTracking(nums, route);
+            usedArr[i] = false;
+            route.pop();
+        }
+    }
+};
+```
+
+
+
+```rust tab="Rust"
+use std::collections::HashSet;
+impl Solution {
+    pub fn subsets_with_dup(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut res = vec![];
+        let mut path = vec![];
+        nums.sort();
+        Self::backtracking(&nums, &mut path, &mut res, 0);
+        res
+    }
+
+    pub fn backtracking(
+        nums: &Vec<i32>,
+        path: &mut Vec<i32>,
+        res: &mut Vec<Vec<i32>>,
+        start_index: usize,
+    ) {
+        res.push(path.clone());
+        let mut helper_set = HashSet::new();
+        for i in start_index..nums.len() {
+            if helper_set.contains(&nums[i]) {
+                continue;
+            }
+            helper_set.insert(nums[i]);
+            path.push(nums[i]);
+            Self::backtracking(nums, path, res, i + 1);
+            path.pop();
+        }
+    }
+}
+
+use std::collections::HashSet;
+impl Solution {
+    pub fn backtracking(
+        candidates: &Vec<i32>,
+        target: i32,
+        sum: i32,
+        path: &mut Vec<i32>,
+        res: &mut Vec<Vec<i32>>,
+        start_index: usize,
+    ) {
+        if sum > target {
+            return;
+        }
+        if sum == target {
+            res.push(path.clone());
+        }
+        let mut helper_set = HashSet::new();
+        for i in start_index..candidates.len() {
+            if sum + candidates[i] <= target {
+                if helper_set.contains(&candidates[i]) {
+                    continue;
+                }
+                helper_set.insert(candidates[i]);
+                path.push(candidates[i]);
+                Self::backtracking(candidates, target, sum + candidates[i], path, res, i + 1);
+                path.pop();
+            }
+        }
+    }
+
+    pub fn combination_sum2(mut candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
+        let mut res = vec![];
+        let mut path = vec![];
+        candidates.sort();
+        Self::backtracking(&candidates, target, 0, &mut path, &mut res, 0);
+        res
+    }
+}
+
+use std::collections::HashSet;
+impl Solution {
+    pub fn permute_unique(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
+        let mut res = vec![];
+        let mut path = vec![];
+        let mut used = vec![false; nums.len()];
+        Self::backtracking(&mut res, &mut path, &nums, &mut used);
+        res
+    }
+    pub fn backtracking(
+        res: &mut Vec<Vec<i32>>,
+        path: &mut Vec<i32>,
+        nums: &Vec<i32>,
+        used: &mut Vec<bool>,
+    ) {
+        if path.len() == nums.len() {
+            res.push(path.clone());
+            return;
+        }
+        let mut helper_set = HashSet::new();
+        for i in 0..nums.len() {
+            if used[i] || helper_set.contains(&nums[i]) {
+                continue;
+            }
+            helper_set.insert(nums[i]);
+            path.push(nums[i]);
+            used[i] = true;
+            Self::backtracking(res, path, nums, used);
+            used[i] = false;
+            path.pop();
+        }
+    }
+}
+```

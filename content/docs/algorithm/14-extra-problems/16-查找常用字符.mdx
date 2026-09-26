@@ -1,0 +1,458 @@
+---
+title: 查找常用字符
+description: 用定长频次数组求多个字符串的“多重集合交集”，理解为什么公共字符次数等于各字符串中该字符出现次数的最小值。
+---
+
+# 1002. 查找常用字符
+
+[LeetCode 1002：查找常用字符](https://leetcode.cn/problems/find-common-characters/)
+
+给定字符串数组 `words`，找出所有在 **每个字符串中都出现** 的字符。字符可以重复出现，答案顺序任意。
+
+例如：
+
+```text
+words = ["bella", "label", "roller"]
+答案 = ["e", "l", "l"]
+```
+
+这里 `l` 要出现两次，因为三个字符串中 `l` 的出现次数分别为 `2、2、2`；而 `e` 的出现次数分别为 `1、1、1`。
+
+再看：
+
+```text
+words = ["cool", "lock", "cook"]
+答案 = ["c", "o"]
+```
+
+## 一、把问题看成“多重集合求交集”
+
+普通集合只关心某个元素是否出现；本题还要保留重复次数，因此更准确地说，是在求多个字符串字符频率的 **多重集合交集**。
+
+假设字符 `c` 在三个字符串中的出现次数分别为：
+
+$3,2,5$
+
+那么它最多只能作为公共字符出现：
+
+$\min(3,2,5)=2$
+
+次。
+
+因此，对任意字符 `x`：
+
+$common[x]=\min(count_1[x],count_2[x],\dots,count_n[x])$
+
+这就是整道题最核心的公式。
+
+> [!IMPORTANT]
+> 本题不是判断“字符是否每个字符串都出现过”，而是要统计它能够被共同保留 **多少次**。所以不能只用布尔数组，必须记录频率。
+
+## 二、为什么使用长度为 26 的数组最合适
+
+题目保证所有字符都是小写英文字母，所以字符集合固定为：
+
+```text
+a ~ z
+```
+
+只有 26 种可能。
+
+可以直接建立：
+
+```cpp
+int minFreq[26] = {0};
+```
+
+其中：
+
+```text
+minFreq[0]  -> 'a'
+minFreq[1]  -> 'b'
+...
+minFreq[25] -> 'z'
+```
+
+字符 `c` 对应的下标为：
+
+```cpp
+c - 'a'
+```
+
+相比 `unordered_map<char, int>`，定长数组：
+
+- 代码更简单；
+- 常数更小；
+- 不需要哈希；
+- 更符合“小写字母频次统计”这一经典模板。
+
+## 三、核心做法：不断取频率最小值
+
+### 1. 用第一个字符串初始化
+
+先统计 `words[0]`：
+
+```cpp
+for (char c : words[0]) {
+    minFreq[c - 'a']++;
+}
+```
+
+此时 `minFreq[x]` 表示字符 `x` 在第一个字符串里的出现次数。
+
+### 2. 统计后续每个字符串
+
+对于每一个后续字符串，再准备一个临时频次数组：
+
+```cpp
+int freq[26] = {0};
+```
+
+统计完成后，对 26 个字符逐一更新：
+
+```cpp
+minFreq[i] = min(minFreq[i], freq[i]);
+```
+
+这样处理完所有字符串以后，`minFreq[i]` 就等于该字符在所有字符串中的最小出现次数。
+
+原文示意图：
+
+![查找常用字符](https://file1.kamacoder.com/i/algo/1002.%E6%9F%A5%E6%89%BE%E5%B8%B8%E7%94%A8%E5%AD%97%E7%AC%A6.png)
+
+## 四、用示例手算一次
+
+输入：
+
+```text
+["bella", "label", "roller"]
+```
+
+只观察 `e` 和 `l`：
+
+| 字符 | bella | label | roller | 最小值 |
+| --- | ---: | ---: | ---: | ---: |
+| `e` | 1 | 1 | 1 | 1 |
+| `l` | 2 | 2 | 2 | 2 |
+
+所以答案包含：
+
+```text
+"e" 一次
+"l" 两次
+```
+
+即：
+
+```text
+["e", "l", "l"]
+```
+
+### 一个容易忽略的例子
+
+```text
+["lll", "ll", "lllll"]
+```
+
+字符 `l` 的频率为：
+
+$3,2,5$
+
+公共频率：
+
+$\min(3,2,5)=2$
+
+所以答案是：
+
+```text
+["l", "l"]
+```
+
+不是一个 `l`。
+
+## 五、C++ 实现
+
+```cpp
+class Solution {
+public:
+    vector<string> commonChars(vector<string>& words) {
+        int minFreq[26] = {0};
+
+        // 用第一个字符串初始化公共频率
+        for (char c : words[0]) {
+            minFreq[c - 'a']++;
+        }
+
+        // 不断与后续字符串的频率取最小值
+        for (int i = 1; i < words.size(); ++i) {
+            int freq[26] = {0};
+
+            for (char c : words[i]) {
+                freq[c - 'a']++;
+            }
+
+            for (int j = 0; j < 26; ++j) {
+                minFreq[j] = min(minFreq[j], freq[j]);
+            }
+        }
+
+        vector<string> ans;
+
+        // 按最终最小频率恢复答案
+        for (int i = 0; i < 26; ++i) {
+            while (minFreq[i] > 0) {
+                ans.emplace_back(1, char('a' + i));
+                --minFreq[i];
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+## 六、正确性理解
+
+对于任意字符 `x`，假设它在所有字符串中的出现次数为：
+
+$c_1,c_2,\dots,c_n$
+
+如果要让 `x` 在最终答案中出现 $k$ 次，那么每个字符串里至少都要有 $k$ 个 `x`，因此：
+
+$k\le c_i\quad(1\le i\le n)$
+
+于是：
+
+$k\le\min(c_1,c_2,\dots,c_n)$
+
+另一方面，取：
+
+$k=\min(c_1,c_2,\dots,c_n)$
+
+显然每个字符串都至少拥有这么多个 `x`，因此该值一定可行。
+
+所以公共字符 `x` 的最大重复次数正是：
+
+$\min(c_1,c_2,\dots,c_n)$
+
+## 七、复杂度分析
+
+设所有字符串字符总数为：
+
+$S=\sum_{i=1}^{n}|words_i|$
+
+统计所有字符需要：
+
+$O(S)$
+
+每处理一个字符串还要扫描固定的 26 个桶，因此为：
+
+$O(S+26n)$
+
+因为 26 是常数，通常直接记作：
+
+$O(S)$
+
+额外空间只有两个长度为 26 的数组：
+
+$O(1)$
+
+## 八、常见错误
+
+### 错误 1：只判断是否出现
+
+例如：
+
+```text
+["ll", "ll", "ll"]
+```
+
+若只记录 `l` 是否存在，会得到一个 `l`，但正确答案应该有两个。
+
+### 错误 2：取最大值而不是最小值
+
+公共部分受出现次数最少的那个字符串限制，所以必须取：
+
+```cpp
+min(...)
+```
+
+不是 `max(...)`。
+
+### 错误 3：每轮临时数组没有清零
+
+每个字符串的 `freq` 必须重新初始化，否则会把上一个字符串的频率累加进来。
+
+## 九、方法总结
+
+> [!TIP]
+> 一看到“多个字符串共同拥有的字符，并且重复次数也要保留”，就可以立即联想到：**字符频次数组 + 对应位置不断取最小值**。
+
+这个模式可以抽象成：
+
+```text
+每个对象做一次计数
+        ↓
+同一维度逐项取 min
+        ↓
+得到所有对象共同能够提供的数量
+```
+
+它不仅适用于字符，也适用于任何“小范围离散元素”的多重集合交集问题。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public List<String> commonChars(String[] words) {
+        int[] minFreq = new int[26];
+
+        for (char c : words[0].toCharArray()) {
+            minFreq[c - 'a']++;
+        }
+
+        for (int i = 1; i < words.length; i++) {
+            int[] freq = new int[26];
+
+            for (char c : words[i].toCharArray()) {
+                freq[c - 'a']++;
+            }
+
+            for (int j = 0; j < 26; j++) {
+                minFreq[j] = Math.min(minFreq[j], freq[j]);
+            }
+        }
+
+        List<String> ans = new ArrayList<>();
+        for (int i = 0; i < 26; i++) {
+            while (minFreq[i]-- > 0) {
+                ans.add(String.valueOf((char) ('a' + i)));
+            }
+        }
+
+        return ans;
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def commonChars(self, words: List[str]) -> List[str]:
+        min_freq = [0] * 26
+
+        for c in words[0]:
+            min_freq[ord(c) - ord('a')] += 1
+
+        for word in words[1:]:
+            freq = [0] * 26
+            for c in word:
+                freq[ord(c) - ord('a')] += 1
+
+            for i in range(26):
+                min_freq[i] = min(min_freq[i], freq[i])
+
+        ans = []
+        for i in range(26):
+            ans.extend([chr(ord('a') + i)] * min_freq[i])
+
+        return ans
+```
+
+```javascript tab="JavaScript"
+var commonChars = function(words) {
+    const minFreq = new Array(26).fill(0);
+    const base = 'a'.charCodeAt(0);
+
+    for (const c of words[0]) {
+        minFreq[c.charCodeAt(0) - base]++;
+    }
+
+    for (let i = 1; i < words.length; i++) {
+        const freq = new Array(26).fill(0);
+
+        for (const c of words[i]) {
+            freq[c.charCodeAt(0) - base]++;
+        }
+
+        for (let j = 0; j < 26; j++) {
+            minFreq[j] = Math.min(minFreq[j], freq[j]);
+        }
+    }
+
+    const ans = [];
+    for (let i = 0; i < 26; i++) {
+        for (let k = 0; k < minFreq[i]; k++) {
+            ans.push(String.fromCharCode(base + i));
+        }
+    }
+
+    return ans;
+};
+```
+
+```typescript tab="TypeScript"
+function commonChars(words: string[]): string[] {
+    const minFreq: number[] = new Array(26).fill(0);
+    const base = 'a'.charCodeAt(0);
+
+    for (const c of words[0]) {
+        minFreq[c.charCodeAt(0) - base]++;
+    }
+
+    for (let i = 1; i < words.length; i++) {
+        const freq: number[] = new Array(26).fill(0);
+
+        for (const c of words[i]) {
+            freq[c.charCodeAt(0) - base]++;
+        }
+
+        for (let j = 0; j < 26; j++) {
+            minFreq[j] = Math.min(minFreq[j], freq[j]);
+        }
+    }
+
+    const ans: string[] = [];
+    for (let i = 0; i < 26; i++) {
+        for (let k = 0; k < minFreq[i]; k++) {
+            ans.push(String.fromCharCode(base + i));
+        }
+    }
+
+    return ans;
+}
+```
+
+```go tab="Go"
+func commonChars(words []string) []string {
+    minFreq := make([]int, 26)
+
+    for _, c := range words[0] {
+        minFreq[c-'a']++
+    }
+
+    for i := 1; i < len(words); i++ {
+        freq := make([]int, 26)
+
+        for _, c := range words[i] {
+            freq[c-'a']++
+        }
+
+        for j := 0; j < 26; j++ {
+            if freq[j] < minFreq[j] {
+                minFreq[j] = freq[j]
+            }
+        }
+    }
+
+    ans := []string{}
+    for i := 0; i < 26; i++ {
+        for k := 0; k < minFreq[i]; k++ {
+            ans = append(ans, string(rune('a'+i)))
+        }
+    }
+
+    return ans
+}
+```

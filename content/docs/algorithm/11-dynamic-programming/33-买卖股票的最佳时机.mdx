@@ -1,0 +1,586 @@
+---
+title: 买卖股票的最佳时机
+sidebarTitle: 买卖股票的最佳时机
+summary: 从“只能完成一次交易”的约束出发，建立持有/不持有两状态 DP，理解 -prices[i] 的真正含义，并对比动态规划与维护历史最低价的贪心写法。
+---
+
+# 121. 买卖股票的最佳时机
+
+[LeetCode 121：买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
+
+给定股票每天的价格 `prices[i]`，最多只能完成 **一次买入和一次卖出**，并且必须先买后卖，求最大利润。
+
+例如：
+
+```text
+prices = [7, 1, 5, 3, 6, 4]
+```
+
+最优操作是在价格为 $1$ 时买入，在价格为 $6$ 时卖出，因此：
+
+$$
+6-1=5
+$$
+
+<Callout type="info" title="本题是股票系列的起点">
+这道题本身可以用贪心很轻松地解决，但更重要的是学会股票问题最通用的建模方式：每天只关心“持有股票”和“不持有股票”两种状态。后面的多次交易、两次交易、$k$ 次交易、冷冻期、手续费都可以在这个框架上扩展。
+</Callout>
+
+## 1. 最直观的思路：枚举买入和卖出日
+
+如果第 $i$ 天买入，第 $j$ 天卖出，其中：
+
+$$
+i<j
+$$
+
+利润为：
+
+$$
+prices[j]-prices[i]
+$$
+
+因此可以枚举所有二元组 $(i,j)$。
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int ans = 0;
+
+        for (int i = 0; i < prices.size(); ++i) {
+            for (int j = i + 1; j < prices.size(); ++j) {
+                ans = max(ans, prices[j] - prices[i]);
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+复杂度为：
+
+$$
+O(n^2)
+$$
+
+这能帮助我们理解题意，但不是最终解法。
+
+## 2. 贪心视角：维护历史最低价
+
+假设今天准备卖出。
+
+为了让今天卖出的利润最大，买入价格当然应该尽可能低，而且这个买入必须发生在今天之前或今天。
+
+因此扫描到第 $i$ 天时，只要维护：
+
+$$
+minPrice=\min(prices[0],prices[1],\ldots,prices[i])
+$$
+
+那么以今天作为卖出日能得到的最好利润就是：
+
+$$
+prices[i]-minPrice
+$$
+
+再在所有卖出日中取最大值即可。
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int minPrice = INT_MAX;
+        int ans = 0;
+
+        for (int price : prices) {
+            minPrice = min(minPrice, price);
+            ans = max(ans, price - minPrice);
+        }
+
+        return ans;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+<Callout type="success" title="贪心的核心不是“找全局最小和全局最大”">
+不能分别取整个数组的最小值和最大值，因为最大值可能出现在最小值之前。正确做法是：对每一天，都只使用它左侧已经出现过的最低价格。
+</Callout>
+
+## 3. 为什么还要学习动态规划
+
+因为本题的贪心写法虽然最短，但扩展性有限。
+
+后续股票题一旦加入这些条件：
+
+- 可以交易多次；
+- 最多交易两次；
+- 最多交易 $k$ 次；
+- 卖出后有冷冻期；
+- 每次交易收手续费；
+
+“维护一个最低价格”的方法就不够用了。
+
+因此本题最值得掌握的是 **状态 DP**。
+
+## 4. 状态设计：每天只有两种核心状态
+
+定义：
+
+$$
+dp[i][0]=\text{第 }i\text{ 天结束时，持有一股股票的最大现金}
+$$
+
+$$
+dp[i][1]=\text{第 }i\text{ 天结束时，不持有股票的最大现金}
+$$
+
+这里的“现金”可以是负数。
+
+例如初始现金为 $0$，花 $7$ 元买入股票后：
+
+$$
+0-7=-7
+$$
+
+所以“持有股票状态”的值为负完全正常。
+
+<Callout type="warning" title="持有 ≠ 今天买入">
+“第 $i$ 天持有股票”只表示第 $i$ 天结束时手中有股票。它可能是今天刚买，也可能是更早以前买入、今天什么都没做。
+</Callout>
+
+## 5. 推导持有状态
+
+考虑第 $i$ 天结束时仍然持有股票。
+
+有两种来源。
+
+### 情况一：昨天就已经持有
+
+今天不操作：
+
+$$
+dp[i-1][0]
+$$
+
+### 情况二：今天买入
+
+因为本题最多只能完成 **一次交易**，所以在今天买入之前不能已经通过股票交易赚过钱。
+
+初始现金就是 $0$，买入后：
+
+$$
+-prices[i]
+$$
+
+因此：
+
+$$
+\boxed{
+dp[i][0]=\max(dp[i-1][0],-prices[i])
+}
+$$
+
+### 为什么不是 `dp[i - 1][1] - prices[i]`？
+
+这是本题最关键的细节。
+
+如果写成：
+
+$$
+dp[i-1][1]-prices[i]
+$$
+
+就意味着：
+
+> 可以先完成一次卖出，再重新买入。
+
+这实际上允许了多次交易，已经变成后面的“买卖股票的最佳时机 II”。
+
+本题只能交易一次，所以买入动作只能从初始现金 $0$ 出发：
+
+$$
+0-prices[i]
+$$
+
+即：
+
+$$
+-prices[i]
+$$
+
+<Callout type="info" title="这一行决定了交易次数限制">
+单次交易：`max(昨天持有, -prices[i])`。多次交易：`max(昨天持有, 昨天不持有 - prices[i])`。两者只差一个状态来源，但含义完全不同。
+</Callout>
+
+## 6. 推导不持有状态
+
+第 $i$ 天结束时不持有股票，也有两种来源。
+
+### 情况一：昨天就不持有
+
+今天不操作：
+
+$$
+dp[i-1][1]
+$$
+
+### 情况二：今天卖出
+
+昨天必须持有股票，因此：
+
+$$
+dp[i-1][0]+prices[i]
+$$
+
+于是：
+
+$$
+\boxed{
+dp[i][1]=\max(dp[i-1][1],dp[i-1][0]+prices[i])
+}
+$$
+
+## 7. 初始化
+
+第 $0$ 天只有两种状态。
+
+### 持有股票
+
+只能当天买入：
+
+$$
+\boxed{dp[0][0]=-prices[0]}
+$$
+
+### 不持有股票
+
+什么都不做：
+
+$$
+\boxed{dp[0][1]=0}
+$$
+
+所以：
+
+```text
+dp[0] = [-prices[0], 0]
+```
+
+## 8. 遍历顺序
+
+两个状态都依赖前一天：
+
+$$
+dp[i-1]
+$$
+
+因此从左到右遍历即可：
+
+```text
+0 → 1 → 2 → ... → n - 1
+```
+
+## 9. 手算示例
+
+以：
+
+```text
+prices = [7, 1, 5, 3, 6, 4]
+```
+
+为例。
+
+![买卖股票的最佳时机 DP 状态](https://file1.kamacoder.com/i/algo/20210224225642465.png)
+
+可以得到：
+
+| 天数 | 价格 | 持有 `dp[i][0]` | 不持有 `dp[i][1]` |
+| --- | ---: | ---: | ---: |
+| 0 | 7 | -7 | 0 |
+| 1 | 1 | -1 | 0 |
+| 2 | 5 | -1 | 4 |
+| 3 | 3 | -1 | 4 |
+| 4 | 6 | -1 | 5 |
+| 5 | 4 | -1 | 5 |
+
+最终答案为：
+
+$$
+\boxed{5}
+$$
+
+### 为什么最终取“不持有”状态
+
+如果最后一天仍然持有股票，说明股票还没有卖掉。
+
+本题求已经实现的最大利润，因此最终应该处于不持有状态：
+
+$$
+\boxed{dp[n-1][1]}
+$$
+
+而且本题允许“不交易”，所以该值至少为 $0$。
+
+## 10. 二维 DP 实现
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        vector<array<int, 2>> dp(n);
+
+        dp[0][0] = -prices[0];
+        dp[0][1] = 0;
+
+        for (int i = 1; i < n; ++i) {
+            dp[i][0] = max(dp[i - 1][0], -prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+
+        return dp[n - 1][1];
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+## 11. 空间压缩
+
+第 $i$ 天只依赖第 $i-1$ 天，所以没有必要保存整张表。
+
+设：
+
+```text
+hold = 持有股票的最大现金
+cash = 不持有股票的最大现金
+```
+
+更新时先保存旧的 `hold`：
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int hold = -prices[0];
+        int cash = 0;
+
+        for (int i = 1; i < prices.size(); ++i) {
+            int prevHold = hold;
+
+            hold = max(hold, -prices[i]);
+            cash = max(cash, prevHold + prices[i]);
+        }
+
+        return cash;
+    }
+};
+```
+
+空间复杂度降为：
+
+$$
+O(1)
+$$
+
+## 12. 动态规划与贪心其实在维护同一件事
+
+DP 中：
+
+$$
+dp[i][0]=\max(dp[i-1][0],-prices[i])
+$$
+
+不断展开可以得到：
+
+$$
+dp[i][0]
+=
+\max(-prices[0],-prices[1],\ldots,-prices[i])
+$$
+
+等价于：
+
+$$
+dp[i][0]
+=
+-\min(prices[0],prices[1],\ldots,prices[i])
+$$
+
+所以 DP 的“持有状态”，本质上正是在维护历史最低买入价。
+
+而：
+
+$$
+dp[i][1]
+=
+\max(dp[i-1][1],dp[i-1][0]+prices[i])
+$$
+
+就是在不断尝试：
+
+> 用今天的价格卖出，能不能刷新历史最大利润？
+
+因此贪心和 DP 并不是两套毫无关系的方法，而是同一结构的不同表达。
+
+## 13. 与“打家劫舍”的共同点：状态不一定按下标定义
+
+前面的打家劫舍常见定义是：
+
+$$
+dp[i]=\text{考虑前 }i\text{ 个房屋的最大收益}
+$$
+
+到了股票问题，我们开始使用：
+
+$$
+dp[i][state]
+$$
+
+也就是说，仅有“处理到第几天”还不够，还必须记录系统此时所处的状态。
+
+这类问题通常可以理解为：
+
+$$
+\boxed{
+\text{位置维度}+\text{状态维度}
+}
+$$
+
+后续股票题就是不断增加状态，而不是改变动态规划的本质。
+
+## 14. 易错点
+
+### 易错点一：把“持有”理解为“当天买入”
+
+错误。
+
+`dp[i][0]` 表示第 $i$ 天结束时持有股票，可能来自昨天已经持有。
+
+### 易错点二：单次交易写成 `dp[i - 1][1] - prices[i]`
+
+这会允许卖出后再次买入，相当于允许多次交易。
+
+### 易错点三：直接取全局最低价和全局最高价
+
+如果最高价出现在最低价之前，就违反“先买后卖”。
+
+### 易错点四：最后返回持有状态
+
+最后仍持有意味着利润尚未兑现，最终应返回：
+
+$$
+dp[n-1][1]
+$$
+
+## 15. 一页速记
+
+<Cards>
+  <Card title="状态">
+    `dp[i][0]`：第 `i` 天持有股票的最大现金；`dp[i][1]`：第 `i` 天不持有股票的最大现金。
+  </Card>
+  <Card title="持有转移">
+    `$dp[i][0] = \max(dp[i-1][0], -prices[i])$`
+  </Card>
+  <Card title="不持有转移">
+    `$dp[i][1] = \max(dp[i-1][1], dp[i-1][0] + prices[i])$`
+  </Card>
+  <Card title="关键限制">
+    买入从 `-prices[i]` 出发，而不是从上一天不持有状态出发，这正是“最多一次交易”的体现。
+  </Card>
+</Cards>
+
+## 16. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    public int maxProfit(int[] prices) {
+        int hold = -prices[0];
+        int cash = 0;
+
+        for (int i = 1; i < prices.length; i++) {
+            int prevHold = hold;
+            hold = Math.max(hold, -prices[i]);
+            cash = Math.max(cash, prevHold + prices[i]);
+        }
+
+        return cash;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def maxProfit(self, prices: list[int]) -> int:
+        hold = -prices[0]
+        cash = 0
+
+        for price in prices[1:]:
+            prev_hold = hold
+            hold = max(hold, -price)
+            cash = max(cash, prev_hold + price)
+
+        return cash
+```
+
+
+
+```javascript tab="JavaScript"
+var maxProfit = function(prices) {
+    let hold = -prices[0];
+    let cash = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+        const prevHold = hold;
+        hold = Math.max(hold, -prices[i]);
+        cash = Math.max(cash, prevHold + prices[i]);
+    }
+
+    return cash;
+};
+```
+
+
+
+```go tab="Go"
+func maxProfit(prices []int) int {
+    hold := -prices[0]
+    cash := 0
+
+    for i := 1; i < len(prices); i++ {
+        prevHold := hold
+        hold = max(hold, -prices[i])
+        cash = max(cash, prevHold+prices[i])
+    }
+
+    return cash
+}
+```

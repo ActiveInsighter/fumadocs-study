@@ -1,0 +1,787 @@
+---
+title: 沉没孤岛
+subtitle: 从边界反向标记，保留外岛并沉没所有封闭陆地
+summary: 通过卡码网 102 掌握边界洪泛与原地三态标记：先找出所有与边界连通的陆地，再将未被标记的内部陆地统一沉没。
+---
+
+# 沉没孤岛
+
+> **卡码网 102. 沉没孤岛**
+>
+> 给定一个由 `0`（水）和 `1`（陆地）组成的网格。孤岛指完全位于矩阵内部、整座岛都不接触边界的陆地区域。现在要求把所有孤岛沉没，即把孤岛中的 `1` 变成 `0`，而所有与边界连通的陆地保持不变。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1174)
+
+这道题和上一题“孤岛的总面积”几乎共享同一个核心：
+
+> **真正需要识别的不是“孤岛”，而是“与边界连通的陆地”。**
+
+上一题只需要统计剩余陆地；本题则需要真正修改网格，所以我们把状态划分得更清楚：
+
+```text
+0：水
+1：尚未判定的陆地
+2：与边界连通、必须保留的陆地
+```
+
+最终统一转换：
+
+```text
+1 → 0    // 内部孤岛沉没
+2 → 1    // 恢复边界连通陆地
+0 → 0    // 水保持不变
+```
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+4 5
+1 1 0 0 0
+1 1 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+```
+
+输出：
+
+```text
+1 1 0 0 0
+1 1 0 0 0
+0 0 0 0 0
+0 0 0 1 1
+```
+
+原题示意图：
+
+![沉没孤岛前](https://file1.kamacoder.com/i/algo/20240517110932.png)
+
+将孤岛沉没后：
+
+![沉没孤岛后](https://file1.kamacoder.com/i/algo/20240517110953.png)
+
+中央单独的陆地没有任何路径连到矩阵边界，所以会被沉没；左上和右下的陆地虽然形状不同，但都接触边界，因此必须保留。
+
+---
+
+## 2. 为什么不能直接“看到内部的 1 就改成 0”
+
+“位于内部”并不等于“属于孤岛”。
+
+例如：
+
+```text
+1 1 1 0
+0 0 1 0
+0 1 1 0
+0 0 0 0
+```
+
+位置 `(2,1)` 虽然不是边界点，但它通过其他陆地连接到了最上方边界：
+
+```text
+(2,1) → (2,2) → (1,2) → (0,2)
+```
+
+因此它不属于孤岛。
+
+所以判断标准不是：
+
+> 这个格子是不是在内部？
+
+而是：
+
+> **这个格子所在的整个连通块，能不能连到边界？**
+
+这再次把问题转化成图上的连通性问题。
+
+---
+
+## 3. 核心思路：先保护“不能沉没”的陆地
+
+从结果角度看，最终只有两类陆地：
+
+- 与边界连通：保留；
+- 与边界不连通：沉没。
+
+直接从每个内部 `1` 出发判断它是否能走到边界当然可以，但会产生大量重复搜索。
+
+更好的思路是反过来：
+
+从四条边上的所有陆地出发做 DFS/BFS。
+  将所有能够被边界搜索到的陆地从 `1` 标记成 `2`。
+  扫描整个矩阵，把仍为 `1` 的陆地全部改成 `0`。
+  把所有 `2` 恢复成 `1`。
+  原题给出的过程示意：
+
+![边界标记与最终转换](https://file1.kamacoder.com/i/algo/20240517113813.png)
+
+<Callout type="info" title="为什么用 2 作为临时状态">
+
+如果从边界搜索时直接把这些陆地改成 `0`，后面就无法区分：
+
+- 原本就是水的 `0`；
+- 需要保留、只是暂时处理过的陆地。
+
+因此设置第三种状态 `2` 最自然。
+
+</Callout>
+
+---
+
+## 4. 从集合角度理解
+
+设所有陆地格子的集合为 $L$。
+
+设所有能够通过陆地路径连接到边界的陆地集合为 $B$。
+
+显然：
+
+$$
+B\subseteq L
+$$
+
+那么孤岛中的所有陆地就是：
+
+$$
+L-B
+$$
+
+题目最终要做的是：
+
+$$
+\forall v\in L-B,\quad v:1\rightarrow0
+$$
+
+而集合 $B$ 中的陆地保持为 `1`。
+
+算法第一阶段的边界 DFS/BFS，本质上就是求集合 $B$。
+
+---
+
+## 5. 为什么必须从四条边全部出发
+
+第一组边界不是一个起点，而是所有外边界格子的集合：
+
+$$
+\{(0,j),(N-1,j),(i,0),(i,M-1)\}
+$$
+
+任何一座非孤岛只要接触其中任意一个位置，就必须被保护。
+
+因此要扫描：
+
+- 左边界；
+- 右边界；
+- 上边界；
+- 下边界。
+
+四个角会被扫描两次，但不影响正确性。
+
+一旦某个角上的连通块已经从 `1` 标记成 `2`，第二次遇到它时就不会再次搜索。
+
+---
+
+## 6. DFS 如何完成“保护”
+
+定义：
+
+```cpp
+void markBoundaryLand(int x, int y)
+```
+
+表示：
+
+> 从一个已经确认属于边界连通区域的陆地 `(x,y)` 出发，把整个连通块全部标记成 `2`。
+
+```cpp
+void markBoundaryLand(int x, int y) {
+    grid[x][y] = 2;
+
+    for (const auto& d : dir) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1) {
+            markBoundaryLand(nx, ny);
+        }
+    }
+}
+```
+
+关键点只有一句：
+
+```cpp
+grid[x][y] = 2;
+```
+
+它同时承担两件事：
+
+1. 记录该点属于“边界可达陆地”；
+2. 记录该点已经访问过，避免重复搜索。
+
+所以无需再开 `visited` 数组。
+
+---
+
+## 7. 三阶段状态变化
+
+假设某些陆地与边界相连，某些陆地完全封闭。
+
+### 阶段一：初始状态
+
+```text
+0 = 水
+1 = 所有陆地
+```
+
+### 阶段二：边界洪泛后
+
+```text
+0 = 水
+1 = 孤岛候选
+2 = 与边界连通的陆地
+```
+
+### 阶段三：统一收尾
+
+```cpp
+if (grid[i][j] == 1) {
+    grid[i][j] = 0;
+} else if (grid[i][j] == 2) {
+    grid[i][j] = 1;
+}
+```
+
+最终：
+
+```text
+0 = 水 + 被沉没的孤岛
+1 = 原本与边界连通的陆地
+```
+
+<Callout type="tip" title="三态标记是本题最值得记忆的实现技巧">
+
+很多原地修改题都可以把状态扩充为：
+
+```text
+原状态 A
+原状态 B
+临时状态 C
+```
+
+先利用 `C` 完成分类，最后再统一恢复或转换。
+
+</Callout>
+
+---
+
+## 8. C++ 推荐实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int DIR[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+
+int n, m;
+vector<vector<int>> grid;
+
+void markBoundaryLand(int x, int y) {
+    grid[x][y] = 2;
+
+    for (const auto& d : DIR) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1) {
+            markBoundaryLand(nx, ny);
+        }
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> m;
+    grid.assign(n, vector<int>(m));
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    // 左、右边界
+    for (int i = 0; i < n; ++i) {
+        if (grid[i][0] == 1) {
+            markBoundaryLand(i, 0);
+        }
+        if (grid[i][m - 1] == 1) {
+            markBoundaryLand(i, m - 1);
+        }
+    }
+
+    // 上、下边界
+    for (int j = 0; j < m; ++j) {
+        if (grid[0][j] == 1) {
+            markBoundaryLand(0, j);
+        }
+        if (grid[n - 1][j] == 1) {
+            markBoundaryLand(n - 1, j);
+        }
+    }
+
+    // 1 是孤岛：沉没；2 是边界连通陆地：恢复
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 1) {
+                grid[i][j] = 0;
+            } else if (grid[i][j] == 2) {
+                grid[i][j] = 1;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (j > 0) cout << ' ';
+            cout << grid[i][j];
+        }
+        cout << '\n';
+    }
+
+    return 0;
+}
+```
+
+---
+
+## 9. 正确性证明
+
+要证明最终恰好沉没所有孤岛，只需要证明两个方向。
+
+### 9.1 与边界连通的陆地一定不会被沉没
+
+设陆地格子 $u$ 与边界连通。
+
+则存在某个边界陆地格子 $s$，并存在一条全由陆地组成的路径：
+
+$$
+s\leadsto u
+$$
+
+算法一定会从 $s$ 启动搜索，因此沿这条路径最终访问到 $u$，并把它标记成 `2`。
+
+收尾阶段 `2` 会恢复为 `1`，所以 $u$ 被保留。
+
+### 9.2 孤岛中的陆地一定会被沉没
+
+如果某个陆地 $u$ 位于孤岛中，它与任何边界陆地都不连通。
+
+因此所有从边界出发的搜索都不可能到达 $u$，它会始终保持为 `1`。
+
+收尾阶段所有剩余 `1` 都会变成 `0`，所以 $u$ 被沉没。
+
+两者合起来，算法恰好完成题目要求。
+
+---
+
+## 10. 复杂度分析
+
+设矩阵大小为 $N\times M$。
+
+边界搜索过程中，每个陆地格子最多从 `1` 变成 `2` 一次，因此每个格子最多被有效访问一次。
+
+最终还要扫描整个矩阵一次完成状态恢复。
+
+所以时间复杂度为：
+
+$$
+O(NM)
+$$
+
+如果使用递归 DFS，最坏情况下递归栈深度为：
+
+$$
+O(NM)
+$$
+
+由于直接复用 `grid` 作为访问标记，除递归栈外不需要额外的 $N\times M$ 数组。
+
+---
+
+## 11. 为什么 DFS 和 BFS 都可以
+
+题目只要求找出“与边界属于同一个连通块”的所有格子，并不涉及最短路径。
+
+因此：
+
+```text
+DFS：一路深入，直到走不动再回溯
+BFS：一层一层向外扩展
+```
+
+最终得到的边界可达集合完全相同。
+
+BFS 版本只需要把递归换成队列：
+
+```cpp
+void markBoundaryLand(int sx, int sy) {
+    queue<pair<int, int>> q;
+    q.push({sx, sy});
+    grid[sx][sy] = 2;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (const auto& d : DIR) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                continue;
+            }
+
+            if (grid[nx][ny] == 1) {
+                grid[nx][ny] = 2; // 入队即标记
+                q.push({nx, ny});
+            }
+        }
+    }
+}
+```
+
+注意 BFS 仍应遵守：
+
+> **入队即标记，而不是出队时才标记。**
+
+否则同一个格子可能被多个邻居重复加入队列。
+
+---
+
+## 12. 与上一题“孤岛的总面积”的关系
+
+两题的第一阶段完全相同：
+
+```text
+从边界出发
+→ 找出全部边界连通陆地
+```
+
+区别只在第二阶段。
+
+| 题目 | 边界连通陆地怎么处理 | 剩余内部陆地怎么处理 |
+| --- | --- | --- |
+| 孤岛的总面积 | 删除或标记 | 统计数量 |
+| 沉没孤岛 | 临时标记为 `2` | 直接改成 `0` |
+
+因此这两题可以统一抽象成：
+
+$$
+\text{先计算边界可达集合，再根据题目要求处理其补集}
+$$
+
+---
+
+## 13. 高频错误
+
+<Cards>
+  <Card title="把内部格子直接当孤岛">
+    孤岛的判定对象是整个连通块。内部格子可能通过一条很长的陆地路径连接到边界。
+  </Card>
+  <Card title="边界搜索直接改成 0">
+    如果后续需要保留这些陆地，就必须用 `2` 等临时状态区分“原水域”和“需要恢复的陆地”。
+  </Card>
+  <Card title="漏掉一条边">
+    非孤岛可能只接触上、下、左、右任意一条边，四条边都必须作为搜索源。
+  </Card>
+  <Card title="把对角相邻算作连通">
+    本题只允许上下左右四方向，对角线接触不构成同一座岛。
+  </Card>
+</Cards>
+
+---
+
+## 14. 一句话模板
+
+遇到“把所有完全被包围的区域删除 / 替换 / 沉没”时，可以直接想到：
+
+```text
+1. 从边界出发搜索所有可达区域
+2. 用特殊状态保护它们
+3. 处理剩余区域
+4. 恢复特殊状态
+```
+
+这就是经典的 **边界洪泛 + 原地三态标记**。
+
+---
+
+## 15. 其他语言版本
+
+以下实现都采用同一策略：`1 → 2` 标记边界连通陆地，最后统一执行 `1 → 0`、`2 → 1`。
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+    };
+
+    static int n, m;
+    static int[][] grid;
+
+    static void dfs(int x, int y) {
+        grid[x][y] = 2;
+
+        for (int[] d : DIR) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+            if (grid[nx][ny] == 1) {
+                dfs(nx, ny);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        grid = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; j++) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (grid[i][0] == 1) dfs(i, 0);
+            if (grid[i][m - 1] == 1) dfs(i, m - 1);
+        }
+
+        for (int j = 0; j < m; j++) {
+            if (grid[0][j] == 1) dfs(0, j);
+            if (grid[n - 1][j] == 1) dfs(n - 1, j);
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) grid[i][j] = 0;
+                else if (grid[i][j] == 2) grid[i][j] = 1;
+
+                if (j > 0) out.append(' ');
+                out.append(grid[i][j]);
+            }
+            out.append('\n');
+        }
+
+        System.out.print(out);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+sys.setrecursionlimit(1_000_000)
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def dfs(x, y):
+    grid[x][y] = 2
+
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if not (0 <= nx < n and 0 <= ny < m):
+            continue
+        if grid[nx][ny] == 1:
+            dfs(nx, ny)
+
+
+for i in range(n):
+    if grid[i][0] == 1:
+        dfs(i, 0)
+    if grid[i][m - 1] == 1:
+        dfs(i, m - 1)
+
+for j in range(m):
+    if grid[0][j] == 1:
+        dfs(0, j)
+    if grid[n - 1][j] == 1:
+        dfs(n - 1, j)
+
+for i in range(n):
+    for j in range(m):
+        if grid[i][j] == 1:
+            grid[i][j] = 0
+        elif grid[i][j] == 2:
+            grid[i][j] = 1
+
+for row in grid:
+    print(*row)
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n, m int
+    grid [][]int
+    dir = [4][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+)
+
+func dfs(x, y int) {
+    grid[x][y] = 2
+
+    for _, d := range dir {
+        nx, ny := x+d[0], y+d[1]
+        if nx < 0 || nx >= n || ny < 0 || ny >= m {
+            continue
+        }
+        if grid[nx][ny] == 1 {
+            dfs(nx, ny)
+        }
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    fmt.Fscan(in, &n, &m)
+    grid = make([][]int, n)
+
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    for i := 0; i < n; i++ {
+        if grid[i][0] == 1 {
+            dfs(i, 0)
+        }
+        if grid[i][m-1] == 1 {
+            dfs(i, m-1)
+        }
+    }
+
+    for j := 0; j < m; j++ {
+        if grid[0][j] == 1 {
+            dfs(0, j)
+        }
+        if grid[n-1][j] == 1 {
+            dfs(n-1, j)
+        }
+    }
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] == 1 {
+                grid[i][j] = 0
+            } else if grid[i][j] == 2 {
+                grid[i][j] = 1
+            }
+
+            if j > 0 {
+                fmt.Fprint(out, " ")
+            }
+            fmt.Fprint(out, grid[i][j])
+        }
+        fmt.Fprintln(out)
+    }
+}
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => data[p++])
+);
+
+const dir = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+function flood(sx, sy) {
+  const queue = [[sx, sy]];
+  let head = 0;
+  grid[sx][sy] = 2;
+
+  while (head < queue.length) {
+    const [x, y] = queue[head++];
+
+    for (const [dx, dy] of dir) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+      if (grid[nx][ny] !== 1) continue;
+
+      grid[nx][ny] = 2;
+      queue.push([nx, ny]);
+    }
+  }
+}
+
+for (let i = 0; i < n; i++) {
+  if (grid[i][0] === 1) flood(i, 0);
+  if (grid[i][m - 1] === 1) flood(i, m - 1);
+}
+
+for (let j = 0; j < m; j++) {
+  if (grid[0][j] === 1) flood(0, j);
+  if (grid[n - 1][j] === 1) flood(n - 1, j);
+}
+
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] === 1) grid[i][j] = 0;
+    else if (grid[i][j] === 2) grid[i][j] = 1;
+  }
+}
+
+console.log(grid.map(row => row.join(' ')).join('\n'));
+```

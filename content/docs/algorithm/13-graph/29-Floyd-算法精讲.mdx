@@ -1,0 +1,929 @@
+---
+title: Floyd 算法精讲
+subtitle: 用动态规划一次求出所有点对最短路
+summary: 以卡码网 97「小明逛公园」为主线，理解 Floyd-Warshall 的状态定义、为什么 k 必须放最外层、二维空间压缩、负权边与负环边界，以及多源最短路与多次 Dijkstra 的选择。
+---
+
+# Floyd 算法精讲
+
+> **卡码网 97. 小明逛公园**
+>
+> 给定 $N$ 个景点与 $M$ 条双向带权道路，再给出多组 `(start, end)` 查询，要求回答任意两点之间的最短距离。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1155)
+
+前面学习的：
+
+- Dijkstra；
+- Bellman-Ford；
+- SPFA；
+
+本质上都是**单源最短路**：固定一个源点，求它到其他点的最短距离。
+
+Floyd-Warshall 解决的是另一类问题：
+
+> **一次性求出任意两点之间的最短距离。**
+
+也就是全源 / 多源最短路（All-Pairs Shortest Paths，APSP）。
+
+---
+
+## 1. Floyd 最适合什么场景
+
+设图有 $n$ 个顶点。
+
+Floyd 的典型复杂度：
+
+$$
+O(n^3)
+$$
+
+空间复杂度：
+
+$$
+O(n^2)
+$$
+
+它非常适合：
+
+- 顶点数中等；
+- 查询很多；
+- 需要任意点对之间的最短路；
+- 图较稠密；
+- 边权允许为负，但不能让查询意义上的最短路被负环破坏。
+
+不适合：
+
+- $n$ 很大；
+- 图非常稀疏；
+- 只有少量源点查询。
+
+---
+
+## 2. Floyd 的核心不是“三重循环”，而是动态规划
+
+很多人只会背：
+
+```cpp
+for (k)
+    for (i)
+        for (j)
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+```
+
+但真正理解 Floyd，需要先理解：
+
+> **“允许哪些顶点作为中间点”是一个逐步扩大的状态。**
+
+定义：
+
+$$
+dp_k[i][j]
+$$
+
+表示：
+
+> 从 $i$ 到 $j$，只允许编号集合 $\{1,2,\dots,k\}$ 中的点作为中间点时，最短距离是多少。
+
+注意：
+
+- 起点 $i$、终点 $j$ 不属于“中间点限制”；
+- $k$ 不是“路径上一定经过点 $k$”；
+- $k$ 表示“允许使用的中间点集合已经扩展到 $1\sim k$”。
+
+---
+
+## 3. 为什么状态转移只有两种情况
+
+考虑是否使用顶点 $k$ 作为中间点。
+
+### 情况一：最短路不经过 k
+
+那么答案还是上一层：
+
+$$
+dp_k[i][j]=dp_{k-1}[i][j]
+$$
+
+### 情况二：最短路经过 k
+
+那么路径可以拆成：
+
+```text
+i -> ... -> k -> ... -> j
+```
+
+其中：
+
+- $i\to k$ 部分只能使用 $1\sim k-1$ 作为中间点；
+- $k\to j$ 部分也只能使用 $1\sim k-1$ 作为中间点。
+
+所以：
+
+$$
+dp_k[i][j]
+=
+dp_{k-1}[i][k]+dp_{k-1}[k][j]
+$$
+
+两种情况取最小：
+
+$$
+\boxed{
+dp_k[i][j]
+=
+\min\left(
+    dp_{k-1}[i][j],
+    dp_{k-1}[i][k]+dp_{k-1}[k][j]
+\right)
+}
+$$
+
+这就是 Floyd 的完整递推式。
+
+---
+
+## 4. 三维 DP 的初始化
+
+当：
+
+$$
+k=0
+$$
+
+时，不允许任何中间点。
+
+因此：
+
+- 若存在直接边 $i\to j$，则 `dp[0][i][j] = w(i,j)`；
+- 若 $i=j$，距离应为 $0$；
+- 否则为无穷大。
+
+原资料用三维结构展示了 $k=0$ 这一“底层”：
+
+![Floyd 三维 DP 初始化平面](https://file1.kamacoder.com/i/algo/20240425104247.png)
+
+一个严谨的初始化应该写成：
+
+```cpp
+for (int i = 1; i <= n; ++i) {
+    dist[i][i] = 0;
+}
+
+for (每条边 u -> v, w) {
+    dist[u][v] = min(dist[u][v], w);
+}
+```
+
+如果是无向图，还要：
+
+```cpp
+dist[v][u] = min(dist[v][u], w);
+```
+
+<Callout type="warning" title="不要漏掉 dist[i][i] = 0">
+
+从一个点到它自身的空路径长度应当为：
+
+$$
+0
+$$
+
+即使原题查询里不一定出现 `i == j`，把对角线初始化为 $0$ 也是 Floyd 的标准写法，后续判负环还会依赖它。
+
+</Callout>
+
+---
+
+## 5. 为什么 k 必须放在最外层
+
+从递推式：
+
+$$
+dp_k[i][j]
+=
+\min(
+    dp_{k-1}[i][j],
+    dp_{k-1}[i][k]+dp_{k-1}[k][j]
+)
+$$
+
+可以看出：
+
+> **第 $k$ 层必须建立在完整的第 $k-1$ 层之上。**
+
+所以计算顺序必须是：
+
+```text
+完整算完 k=1
+    ↓
+完整算完 k=2
+    ↓
+完整算完 k=3
+    ↓
+...
+```
+
+这就要求：
+
+```cpp
+for (int k = 1; k <= n; ++k) {
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            ...
+        }
+    }
+}
+```
+
+原资料从三维视角展示了正确的“逐层向上”遍历：
+
+![k 在最外层时逐层推进](https://file1.kamacoder.com/i/algo/20240424120109.png)
+
+---
+
+## 6. k 放到里面为什么会错
+
+如果写成：
+
+```cpp
+for (int i = 1; i <= n; ++i)
+    for (int j = 1; j <= n; ++j)
+        for (int k = 1; k <= n; ++k)
+```
+
+那么程序是在固定一个 `(i,j)` 后，把所有 `k` 都算完，再去处理下一个 `(i,j)`。
+
+问题是：
+
+> 某些你当前需要的 `dist[i][k]` 或 `dist[k][j]`，可能还没有在正确的中间点集合下更新完。
+
+这破坏了 DP 的层次依赖。
+
+原资料对应的错误遍历示意图：
+
+![k 放在内层时破坏层次依赖](https://file1.kamacoder.com/i/algo/20240424115827.png)
+
+考虑：
+
+```text
+1 -> 3 = 1
+3 -> 4 = 1
+4 -> 2 = 1
+1 -> 2 = 10
+```
+
+显然：
+
+$$
+1\to3\to4\to2
+$$
+
+代价为：
+
+$$
+1+1+1=3
+$$
+
+优于直接边 $10$。
+
+原资料示意图：
+
+![错误遍历顺序反例](https://file1.kamacoder.com/i/algo/20240424120942.png)
+
+若把 $k$ 放在不正确的位置，就可能在 `dist[1][2]` 被处理时，尚未准备好通过 `3,4` 组合出的最短路径。
+
+---
+
+## 7. 再看一个依赖未准备好的例子
+
+原资料还给出：
+
+```text
+1 -> 2 = 1
+2 -> 3 = 10
+```
+
+![k 循环顺序的第二个反例](https://file1.kamacoder.com/i/algo/20240425112636.png)
+
+要正确计算：
+
+$$
+dp_2[1][3]
+$$
+
+需要：
+
+$$
+dp_1[1][2]
+$$
+
+和：
+
+$$
+dp_1[2][3]
+$$
+
+都已经正确。
+
+这再次说明：
+
+> **Floyd 的本质是按“允许的中间点集合”分层，`k` 必须是最外层阶段变量。**
+
+---
+
+## 8. 从三维 DP 压缩成二维
+
+完整三维定义很适合推导：
+
+$$
+dp_k[i][j]
+$$
+
+但它需要：
+
+$$
+O(n^3)
+$$
+
+空间。
+
+实际上第 $k$ 层只依赖第 $k-1$ 层，所以最少可以用滚动数组把空间降为：
+
+$$
+O(n^2)
+$$
+
+更进一步，甚至可以直接原地更新：
+
+$$
+dist[i][j]
+=
+\min(dist[i][j],dist[i][k]+dist[k][j])
+$$
+
+于是经典 Floyd 只需要一个二维矩阵。
+
+---
+
+## 9. 为什么二维数组可以原地更新
+
+这一步很值得理解，因为它和上一章“有限边数 Bellman-Ford 不能原地更新”正好形成对比。
+
+当固定某个 $k$ 时：
+
+```cpp
+dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+```
+
+本轮可能已经更新了：
+
+```text
+dist[i][k]
+dist[k][j]
+```
+
+但这不会破坏正确性。
+
+因为：
+
+$$
+dist[k][k]=0
+$$
+
+在不存在相关负环时，使用 $k$ 作为中间点不会让 `dist[i][k]` 因“再次经过 k”获得一个本质不同、更优的状态；同理 `dist[k][j]` 也如此。
+
+因此二维原地转移能够保持正确的 DP 语义。
+
+<Callout type="info" title="两个“能否原地更新”的结论不要混淆">
+
+有限边数 Bellman-Ford：**不能**原地使用本轮新值，因为会突破边数层数限制。
+
+Floyd：**可以**二维原地更新，因为固定 $k$ 时的状态压缩不会破坏“只允许 $1\sim k$ 作为中间点”的语义。
+
+</Callout>
+
+---
+
+## 10. 标准二维 Floyd 模板
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    const long long INF = (1LL << 60);
+    vector<vector<long long>> dist(
+        n + 1,
+        vector<long long>(n + 1, INF)
+    );
+
+    for (int i = 1; i <= n; ++i) {
+        dist[i][i] = 0;
+    }
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+
+        // 无向图；如果存在重边，保留最小边权
+        dist[u][v] = min(dist[u][v], w);
+        dist[v][u] = min(dist[v][u], w);
+    }
+
+    for (int k = 1; k <= n; ++k) {
+        for (int i = 1; i <= n; ++i) {
+            if (dist[i][k] == INF) continue;
+
+            for (int j = 1; j <= n; ++j) {
+                if (dist[k][j] == INF) continue;
+
+                dist[i][j] = min(
+                    dist[i][j],
+                    dist[i][k] + dist[k][j]
+                );
+            }
+        }
+    }
+
+    int q;
+    cin >> q;
+
+    while (q--) {
+        int start, end;
+        cin >> start >> end;
+
+        cout << (dist[start][end] == INF ? -1 : dist[start][end]) << '\n';
+    }
+}
+```
+
+---
+
+## 11. 为什么要判断 INF 再相加
+
+不要无脑写：
+
+```cpp
+dist[i][k] + dist[k][j]
+```
+
+如果 `INF` 取的是很大的整数，比如：
+
+```cpp
+LLONG_MAX
+```
+
+相加可能溢出。
+
+因此推荐：
+
+```cpp
+if (dist[i][k] == INF || dist[k][j] == INF) continue;
+```
+
+然后再相加。
+
+或者把 `INF` 取成安全余量，例如：
+
+```cpp
+const long long INF = (1LL << 60);
+```
+
+即便如此，显式判断不可达仍然更清晰。
+
+---
+
+## 12. 重边也要处理
+
+若输入中可能有：
+
+```text
+1 2 10
+1 2 3
+```
+
+初始化不能直接覆盖：
+
+```cpp
+dist[1][2] = w;
+```
+
+而应写：
+
+```cpp
+dist[1][2] = min(dist[1][2], w);
+```
+
+否则后输入的较大边可能覆盖更小的直接边。
+
+---
+
+## 13. Floyd 能处理负权边吗
+
+可以。
+
+Floyd 不依赖 Dijkstra 那种“当前最小点已经最终确定”的贪心性质，因此边权可以为负。
+
+例如：
+
+```text
+1 -> 2 = 4
+1 -> 3 = 10
+2 -> 3 = -8
+```
+
+Floyd 可以正常得到：
+
+$$
+dist[1][3]=4-8=-4
+$$
+
+但如果图中存在负环，情况就不同。
+
+---
+
+## 14. Floyd 如何检测负环
+
+标准初始化中：
+
+$$
+dist[i][i]=0
+$$
+
+如果 Floyd 完成后某个点满足：
+
+$$
+dist[i][i]<0
+$$
+
+说明存在一个从 $i$ 出发又回到 $i$ 的负权闭环。
+
+因此：
+
+$$
+\boxed{\exists i,\ dist[i][i]<0\Rightarrow\text{存在负环}}
+$$
+
+注意：
+
+> 存在负环，并不意味着任意点对的最短路都变成 $-\infty$。
+
+只有那些能够：
+
+```text
+start -> 负环 -> end
+```
+
+的点对才会被这个负环影响。
+
+---
+
+## 15. Floyd 为什么是“多源最短路”而不是“多次单源”
+
+Floyd 的一次 DP 同时更新全部：
+
+$$
+n^2
+$$
+
+个点对。
+
+最终 `dist[i][j]` 直接保存：
+
+> 任意 $i$ 到任意 $j$ 的最短距离。
+
+所以后续每次查询只需要：
+
+$$
+O(1)
+$$
+
+这正是“先 $O(n^3)$ 预处理，再 $O(1)$ 回答大量查询”的典型思想。
+
+---
+
+## 16. Floyd 与多次 Dijkstra 怎么选
+
+如果边权非负，可以比较：
+
+### Floyd
+
+$$
+O(n^3)
+$$
+
+### 对每个源点跑一次堆优化 Dijkstra
+
+单次：
+
+$$
+O((n+m)\log n)
+$$
+
+跑 $n$ 次：
+
+$$
+O(n(n+m)\log n)
+$$
+
+因此：
+
+- 稠密图：$m\approx n^2$，Floyd 往往更直接；
+- 稀疏图：$m\ll n^2$，多次 Dijkstra 可能更有优势；
+- 有负权边：普通 Dijkstra 不适用；
+- 若有负权边但无负环，可考虑 Johnson 等更高级算法。
+
+---
+
+## 17. Floyd 与 Bellman-Ford 的思维对比
+
+| 算法 | 状态推进维度 | 典型问题 |
+|---|---|---|
+| Bellman-Ford | 允许使用的边数逐轮增加 | 单源、可有负边 |
+| 有限边数 Bellman-Ford | 严格按边数分层 | 最多走 $k$ 条边 |
+| Floyd | 允许作为中间点的集合逐步扩大 | 任意点对最短路 |
+
+二者都非常“动态规划”：
+
+Bellman-Ford 关注：
+
+$$
+\text{路径能使用多少条边}
+$$
+
+Floyd 关注：
+
+$$
+\text{路径能使用哪些中间点}
+$$
+
+---
+
+## 18. 图示串起来理解
+
+Floyd 的三维 DP 可以想成一层一层向上计算：
+
+![Floyd 三维状态层](https://file1.kamacoder.com/i/algo/20240425104247.png)
+
+正确顺序是固定一个 $k$，把这一整层所有 `(i,j)` 算完：
+
+![Floyd 正确逐层遍历](https://file1.kamacoder.com/i/algo/20240424120109.png)
+
+如果改变层次方向：
+
+![Floyd 错误遍历方向](https://file1.kamacoder.com/i/algo/20240424115827.png)
+
+就可能漏掉本应由此前完整层状态组合出的更短路径：
+
+![Floyd 遍历顺序反例图](https://file1.kamacoder.com/i/algo/20240424120942.png)
+
+以及：
+
+![Floyd 依赖未准备好的反例图](https://file1.kamacoder.com/i/algo/20240425112636.png)
+
+把这些图和公式结合起来，`k` 为什么必须在最外层就不再需要死记。
+
+---
+
+## 19. 高频易错点
+
+| 易错点 | 错误写法 | 正确处理 |
+|---|---|---|
+| 对角线 | 全部初始化 INF | `dist[i][i] = 0` |
+| 重边 | 后一条直接覆盖前一条 | 取最小直接边 |
+| 循环顺序 | 随便交换 `i,j,k` | `k` 必须在最外层 |
+| INF 相加 | 不判断直接加 | 先判断两段均可达 |
+| 有向 / 无向 | 默认双向赋值 | 按题意决定是否写反向边 |
+| 负权边 | 误以为 Floyd 不支持 | 可以支持负边 |
+| 负环 | 只看边权是否有负数 | 检查 `dist[i][i] < 0` |
+| 查询很多 | 每次重新跑最短路 | Floyd 预处理后 $O(1)$ 查询 |
+
+---
+
+## 20. 一句话记忆 Floyd
+
+> **依次允许每个顶点成为中间点，并尝试用 `i -> k -> j` 改进 `i -> j`。**
+
+公式：
+
+$$
+\boxed{
+dist[i][j]
+=
+\min(dist[i][j],dist[i][k]+dist[k][j])
+}
+$$
+
+循环：
+
+```text
+k 最外层
+    i
+        j
+```
+
+复杂度：
+
+$$
+O(n^3)
+$$
+
+空间：
+
+$$
+O(n^2)
+$$
+
+这四点就是 Floyd 最核心的骨架。
+
+---
+
+## 21. 多语言模板
+
+```cpp tab="C++"
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    const long long INF = (1LL << 60);
+    vector<vector<long long>> dist(n + 1, vector<long long>(n + 1, INF));
+
+    for (int i = 1; i <= n; ++i) {
+        dist[i][i] = 0;
+    }
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        dist[u][v] = min(dist[u][v], w);
+        dist[v][u] = min(dist[v][u], w);
+    }
+
+    for (int k = 1; k <= n; ++k) {
+        for (int i = 1; i <= n; ++i) {
+            if (dist[i][k] == INF) continue;
+            for (int j = 1; j <= n; ++j) {
+                if (dist[k][j] == INF) continue;
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+            }
+        }
+    }
+
+    int q;
+    cin >> q;
+    while (q--) {
+        int s, t;
+        cin >> s >> t;
+        cout << (dist[s][t] == INF ? -1 : dist[s][t]) << '\n';
+    }
+}
+```
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        long INF = Long.MAX_VALUE / 4;
+        long[][] dist = new long[n + 1][n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            Arrays.fill(dist[i], INF);
+            dist[i][i] = 0;
+        }
+
+        for (int i = 0; i < m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+
+            dist[u][v] = Math.min(dist[u][v], w);
+            dist[v][u] = Math.min(dist[v][u], w);
+        }
+
+        for (int k = 1; k <= n; k++) {
+            for (int i = 1; i <= n; i++) {
+                if (dist[i][k] == INF) continue;
+                for (int j = 1; j <= n; j++) {
+                    if (dist[k][j] == INF) continue;
+                    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+
+        int q = Integer.parseInt(br.readLine());
+        StringBuilder out = new StringBuilder();
+
+        while (q-- > 0) {
+            st = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(st.nextToken());
+            int t = Integer.parseInt(st.nextToken());
+            out.append(dist[s][t] == INF ? -1 : dist[s][t]).append('\n');
+        }
+
+        System.out.print(out);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+INF = float("inf")
+
+dist = [[INF] * (n + 1) for _ in range(n + 1)]
+
+for i in range(1, n + 1):
+    dist[i][i] = 0
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    dist[u][v] = min(dist[u][v], w)
+    dist[v][u] = min(dist[v][u], w)
+
+for k in range(1, n + 1):
+    for i in range(1, n + 1):
+        if dist[i][k] == INF:
+            continue
+        for j in range(1, n + 1):
+            if dist[k][j] == INF:
+                continue
+            dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+q = int(input())
+for _ in range(q):
+    s, t = map(int, input().split())
+    print(-1 if dist[s][t] == INF else dist[s][t])
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const INF = Number.POSITIVE_INFINITY;
+
+const dist = Array.from({ length: n + 1 }, () => Array(n + 1).fill(INF));
+
+for (let i = 1; i <= n; i++) {
+    dist[i][i] = 0;
+}
+
+for (let i = 0; i < m; i++) {
+    const u = data[p++];
+    const v = data[p++];
+    const w = data[p++];
+
+    dist[u][v] = Math.min(dist[u][v], w);
+    dist[v][u] = Math.min(dist[v][u], w);
+}
+
+for (let k = 1; k <= n; k++) {
+    for (let i = 1; i <= n; i++) {
+        if (dist[i][k] === INF) continue;
+        for (let j = 1; j <= n; j++) {
+            if (dist[k][j] === INF) continue;
+            dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
+        }
+    }
+}
+
+const q = data[p++];
+const ans = [];
+
+for (let i = 0; i < q; i++) {
+    const s = data[p++];
+    const t = data[p++];
+    ans.push(dist[s][t] === INF ? -1 : dist[s][t]);
+}
+
+console.log(ans.join('\n'));
+```

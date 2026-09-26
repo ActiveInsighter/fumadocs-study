@@ -1,0 +1,868 @@
+---
+title: 两两交换链表节点：哨兵节点与局部指针重连
+description: 以 LeetCode 24 为主线，系统掌握链表相邻节点交换的局部重连方法、虚拟头结点、不变量、指针修改顺序以及递归解法。
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# 两两交换链表节点：哨兵节点与局部指针重连
+
+> 对应题目：[LeetCode 24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
+
+给定链表：
+
+```text
+1 → 2 → 3 → 4 → null
+```
+
+要求得到：
+
+```text
+2 → 1 → 4 → 3 → null
+```
+
+如果节点数为奇数，例如：
+
+```text
+1 → 2 → 3 → 4 → 5
+```
+
+最终：
+
+```text
+2 → 1 → 4 → 3 → 5
+```
+
+最后一个没有配对的节点保持不变。
+
+原题示意：
+
+![两两交换链表节点](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9-%E9%A2%98%E6%84%8F.jpg)
+
+---
+
+## 1. 不能只交换节点值
+
+题目要求交换的是**节点本身**，因此不能写成：
+
+```cpp
+swap(node1->val, node2->val);
+```
+
+虽然结果中的数值顺序看起来一样，但链表结构没有改变。
+
+真正需要完成的是：
+
+```text
+prev → first → second → next
+```
+
+变成：
+
+```text
+prev → second → first → next
+```
+
+因此这是一道典型的“局部指针重连”题。
+
+---
+
+## 2. 为什么虚拟头结点特别适合这道题
+
+第一次交换时，原链表头结点会变化：
+
+```text
+1 → 2 → ...
+```
+
+交换后：
+
+```text
+2 → 1 → ...
+```
+
+如果直接从 `head` 开始操作，就必须单独更新头指针。
+
+更自然的做法是增加虚拟头结点：
+
+```text
+dummy → 1 → 2 → 3 → 4
+```
+
+然后每一轮都处理：
+
+```text
+cur → first → second → next
+```
+
+这样第一组和后续所有组的逻辑完全一致。
+
+<Callout title="哨兵节点的价值" type="info">
+虚拟头结点不是为了“多一个节点”，而是为了保证每一对待交换节点前面都存在一个稳定的前驱 `cur`。
+</Callout>
+
+---
+
+## 3. 先把局部结构画出来
+
+假设当前结构：
+
+```text
+cur → first → second → next
+```
+
+希望得到：
+
+```text
+cur → second → first → next
+```
+
+原题的分步示意图：
+
+![两两交换步骤一](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B91.png)
+
+![两两交换步骤二](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B92.png)
+
+![两两交换步骤三](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B93.png)
+
+链表指针题一旦涉及三个以上节点，最稳妥的方法通常不是“脑内模拟”，而是先画局部结构。
+
+---
+
+## 4. 推荐的三步重连顺序
+
+先保存：
+
+```cpp
+ListNode* first = cur->next;
+ListNode* second = cur->next->next;
+```
+
+局部结构：
+
+```text
+cur → first → second → next
+```
+
+然后依次做三步。
+
+**让前驱指向第二个节点**
+
+```cpp
+cur->next = second;
+```
+
+此时：
+
+```text
+cur → second
+
+first → second → next
+```
+
+  **让第一个节点跳过第二个节点，接到后续链表**
+
+```cpp
+first->next = second->next;
+```
+
+此时：
+
+```text
+cur → second
+
+first → next
+```
+
+  **让第二个节点指向第一个节点**
+
+```cpp
+second->next = first;
+```
+
+最终：
+
+```text
+cur → second → first → next
+```
+
+  这个顺序的优点是：
+
+> 不需要额外保存 `next`，因为在第二步执行时，`second->next` 仍然保存着原来的后继节点。
+
+---
+
+## 5. 一轮交换之后 `cur` 应该移动到哪里
+
+交换前：
+
+```text
+cur → first → second → next
+```
+
+交换后：
+
+```text
+cur → second → first → next
+```
+
+下一轮希望从：
+
+```text
+first → next1 → next2
+```
+
+继续交换。
+
+所以应让：
+
+```cpp
+cur = first;
+```
+
+因为此时 `first` 已经成为这一组交换后的尾节点，也就是下一组的前驱。
+
+这是整道题最重要的循环不变量：
+
+> `cur` 始终指向“下一对待交换节点”的前驱节点。
+
+---
+
+## 6. 循环什么时候结束
+
+一轮交换必须至少存在两个真实节点：
+
+```text
+cur → first → second
+```
+
+因此循环条件是：
+
+```cpp
+cur->next != nullptr && cur->next->next != nullptr
+```
+
+也可以写得更直观：
+
+```cpp
+while (cur->next && cur->next->next) {
+    ...
+}
+```
+
+### 偶数个节点
+
+例如：
+
+```text
+1 → 2 → 3 → 4
+```
+
+最终所有节点都能配成一组。
+
+### 奇数个节点
+
+例如：
+
+```text
+1 → 2 → 3 → 4 → 5
+```
+
+处理完前四个节点后：
+
+```text
+cur → 5 → null
+```
+
+此时：
+
+```cpp
+cur->next != nullptr
+```
+
+但：
+
+```cpp
+cur->next->next == nullptr
+```
+
+循环自动结束，节点 `5` 保持原样。
+
+---
+
+## 7. 完整迭代代码
+
+```cpp
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode dummy(0, head);
+        ListNode* cur = &dummy;
+
+        while (cur->next != nullptr &&
+               cur->next->next != nullptr) {
+            ListNode* first = cur->next;
+            ListNode* second = first->next;
+
+            cur->next = second;
+            first->next = second->next;
+            second->next = first;
+
+            cur = first;
+        }
+
+        return dummy.next;
+    }
+};
+```
+
+---
+
+## 8. 用完整例子走一遍
+
+链表：
+
+```text
+dummy → 1 → 2 → 3 → 4 → null
+```
+
+初始：
+
+```text
+cur = dummy
+first = 1
+second = 2
+```
+
+第一次交换：
+
+```text
+dummy → 2 → 1 → 3 → 4 → null
+                ↑
+               cur
+```
+
+此时：
+
+```text
+cur = 1
+```
+
+第二轮：
+
+```text
+first = 3
+second = 4
+```
+
+交换后：
+
+```text
+dummy → 2 → 1 → 4 → 3 → null
+                        ↑
+                       cur
+```
+
+此时已经没有两个节点可交换，结束。
+
+返回：
+
+```cpp
+dummy.next
+```
+
+即：
+
+```text
+2 → 1 → 4 → 3
+```
+
+---
+
+## 9. 为什么时间复杂度仍然是 $O(n)$
+
+每次循环处理两个节点：
+
+```text
+(first, second)
+```
+
+若共有 $n$ 个节点，循环次数约为：
+
+$$
+\left\lfloor \frac{n}{2} \right\rfloor
+$$
+
+每轮只执行常数次指针操作，所以：
+
+$$
+T(n)=O(n)
+$$
+
+只使用：
+
+```text
+dummy
+cur
+first
+second
+```
+
+常数个额外指针，因此辅助空间：
+
+$$
+S(n)=O(1)
+$$
+
+---
+
+## 10. 递归思路：交换前两个，再处理剩余链表
+
+对于：
+
+```text
+1 → 2 → 3 → 4 → ...
+```
+
+把前两个节点记为：
+
+```text
+first = 1
+second = 2
+```
+
+剩余部分是：
+
+```text
+3 → 4 → ...
+```
+
+如果假设递归函数已经可以完成：
+
+```cpp
+swapPairs(second->next)
+```
+
+那么只需要：
+
+```cpp
+first->next = swapPairs(second->next);
+second->next = first;
+```
+
+最后返回新的局部头结点：
+
+```cpp
+return second;
+```
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+
+        ListNode* second = head->next;
+
+        head->next = swapPairs(second->next);
+        second->next = head;
+
+        return second;
+    }
+};
+```
+
+---
+
+## 11. 递归为什么这样连接
+
+原结构：
+
+```text
+first → second → rest
+```
+
+递归之后：
+
+```text
+swapPairs(rest)
+```
+
+会得到已经处理好的后续链表：
+
+```text
+rest'
+```
+
+于是当前层只需要构造：
+
+```text
+second → first → rest'
+```
+
+即：
+
+```cpp
+first->next = swapPairs(second->next);
+second->next = first;
+```
+
+返回：
+
+```cpp
+second
+```
+
+### 递归终止条件
+
+如果：
+
+```cpp
+head == nullptr
+```
+
+说明没有节点。
+
+如果：
+
+```cpp
+head->next == nullptr
+```
+
+说明只剩一个节点，不需要交换。
+
+所以统一写成：
+
+```cpp
+if (head == nullptr || head->next == nullptr) {
+    return head;
+}
+```
+
+---
+
+## 12. 迭代与递归如何选择
+
+| 方法 | 时间复杂度 | 辅助空间 | 特点 |
+| --- | --- | --- | --- |
+| 迭代 + dummy | $O(n)$ | $O(1)$ | 最稳健、最推荐 |
+| 递归 | $O(n)$ | $O(n)$ | 代码短、结构清晰 |
+
+递归每处理一对节点都会产生一层调用栈，深度大约：
+
+$$
+\left\lceil \frac{n}{2} \right\rceil
+$$
+
+因此空间复杂度仍为：
+
+$$
+O(n)
+$$
+
+---
+
+## 13. 高频错误分析
+
+### 错误 1：只交换节点值
+
+```cpp
+swap(first->val, second->val);
+```
+
+这不满足题目“实际交换节点”的要求。
+
+---
+
+### 错误 2：没有虚拟头结点，却忘记更新头结点
+
+第一组交换后：
+
+```text
+1 → 2
+```
+
+会变成：
+
+```text
+2 → 1
+```
+
+新头结点已经是 `2`。
+
+使用 `dummy` 后可以统一返回：
+
+```cpp
+return dummy.next;
+```
+
+---
+
+### 错误 3：指针修改顺序导致后续链表丢失
+
+如果随意改写多个 `next`，很容易失去原来的后继节点。
+
+最安全的方式是先明确局部四个角色：
+
+```text
+cur → first → second → next
+```
+
+然后再按固定顺序重连。
+
+---
+
+### 错误 4：交换完成后 `cur` 只移动一个错误位置
+
+交换后：
+
+```text
+cur → second → first → ...
+```
+
+下一轮前驱应当是：
+
+```text
+first
+```
+
+所以：
+
+```cpp
+cur = first;
+```
+
+而不是继续停留在 `cur` 或移动到 `second`。
+
+---
+
+### 错误 5：循环条件只检查一个节点
+
+错误：
+
+```cpp
+while (cur->next != nullptr)
+```
+
+如果链表剩余一个节点，再访问：
+
+```cpp
+cur->next->next
+```
+
+会导致无法完成一对交换。
+
+正确条件：
+
+```cpp
+while (cur->next != nullptr &&
+       cur->next->next != nullptr)
+```
+
+---
+
+## 14. 链表局部重连的通用思维
+
+这道题真正值得迁移的不是“两两交换”本身，而是一套链表重连方法。
+
+<Cards>
+  <Card title="先识别角色">
+    给局部节点命名：`prev`、`first`、`second`、`next`。
+  </Card>
+  <Card title="先保存可能丢失的边">
+    在改 `next` 之前确认后续链表是否还能访问。
+  </Card>
+  <Card title="固定局部目标结构">
+    先画出变换前后，再写指针语句。
+  </Card>
+  <Card title="最后恢复循环不变量">
+    每轮结束后，让控制指针移动到下一组正确位置。
+  </Card>
+</Cards>
+
+以后遇到：
+
+- K 个一组翻转；
+- 局部反转；
+- 重排链表；
+- 删除区间；
+- 交换相邻节点；
+
+都可以使用同样的思维。
+
+---
+
+## 15. 关于在线评测运行时间
+
+有时同一份 $O(n)$ 代码多次提交，会看到：
+
+```text
+4 ms
+8 ms
+12 ms
+```
+
+甚至对应非常不同的“击败百分比”。
+
+这通常不能说明算法复杂度发生了变化。
+
+在线评测时间会受到：
+
+- 机器负载；
+- 调度抖动；
+- 运行环境；
+- 测试顺序；
+- 编译器与缓存状态；
+
+等因素影响。
+
+因此做算法题时优先关注：
+
+$$
+O(1), O(\log n), O(n), O(n\log n), O(n^2)
+$$
+
+这样的数量级差异，而不是几毫秒级的单次提交波动。
+
+---
+
+## 16. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 为什么用 `dummy` | 统一第一组和后续组的前驱处理 |
+| 每轮需要几个真实节点 | 至少两个 |
+| 局部结构 | `cur → first → second → next` |
+| 交换目标 | `cur → second → first → next` |
+| 交换后 `cur` 去哪里 | `first` |
+| 迭代时间复杂度 | $O(n)$ |
+| 迭代辅助空间 | $O(1)$ |
+| 递归时间复杂度 | $O(n)$ |
+| 递归辅助空间 | $O(n)$ |
+
+<Callout title="本题最值得带走的结论" type="success">
+复杂链表指针题不要依赖记忆修改顺序。先把局部节点命名，再画出“修改前 → 修改后”，最后按目标逐条重连，通常比死记模板稳定得多。
+</Callout>
+
+---
+
+## 其他语言版本
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode dummy(0, head);
+        ListNode* cur = &dummy;
+
+        while (cur->next != nullptr &&
+               cur->next->next != nullptr) {
+            ListNode* first = cur->next;
+            ListNode* second = first->next;
+
+            cur->next = second;
+            first->next = second->next;
+            second->next = first;
+
+            cur = first;
+        }
+
+        return dummy.next;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode dummy = new ListNode(0, head);
+        ListNode cur = dummy;
+
+        while (cur.next != null && cur.next.next != null) {
+            ListNode first = cur.next;
+            ListNode second = first.next;
+
+            cur.next = second;
+            first.next = second.next;
+            second.next = first;
+
+            cur = first;
+        }
+
+        return dummy.next;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        dummy = ListNode(0, head)
+        cur = dummy
+
+        while cur.next is not None and cur.next.next is not None:
+            first = cur.next
+            second = first.next
+
+            cur.next = second
+            first.next = second.next
+            second.next = first
+
+            cur = first
+
+        return dummy.next
+```
+
+
+
+```go tab="Go"
+func swapPairs(head *ListNode) *ListNode {
+    dummy := &ListNode{Val: 0, Next: head}
+    cur := dummy
+
+    for cur.Next != nil && cur.Next.Next != nil {
+        first := cur.Next
+        second := first.Next
+
+        cur.Next = second
+        first.Next = second.Next
+        second.Next = first
+
+        cur = first
+    }
+
+    return dummy.Next
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var swapPairs = function (head) {
+  const dummy = new ListNode(0, head);
+  let cur = dummy;
+
+  while (cur.next !== null && cur.next.next !== null) {
+    const first = cur.next;
+    const second = first.next;
+
+    cur.next = second;
+    first.next = second.next;
+    second.next = first;
+
+    cur = first;
+  }
+
+  return dummy.next;
+};
+```

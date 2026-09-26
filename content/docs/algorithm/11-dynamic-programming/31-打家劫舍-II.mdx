@@ -1,0 +1,490 @@
+---
+title: 打家劫舍 II
+sidebarTitle: 打家劫舍 II
+summary: 将环形房屋约束拆解为两个互斥的线性区间，复用打家劫舍 I 的状态转移，并系统解释“考虑首尾”与“必须偷首尾”的区别。
+---
+
+# 213. 打家劫舍 II
+
+[LeetCode 213：打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/)
+
+在「打家劫舍 I」中，房屋排成一条直线；本题唯一但关键的变化是：**首尾两间房屋也相邻**。
+
+因此，如果房屋编号为 $0,1,\ldots,n-1$，除了普通的相邻限制外，还额外存在：
+
+$$
+0 \leftrightarrow n-1
+$$
+
+这使得原本的线性 DP 不能直接覆盖整个数组。
+
+<Callout type="info" title="本题真正新增的只有一个约束">
+线性版本的状态定义与递推式都不需要改变。真正要做的是先消除“首尾相邻”这个环形约束，再复用已经掌握的线性打家劫舍模型。
+</Callout>
+
+## 1. 从线性问题回忆状态转移
+
+对于一段线性房屋区间，定义：
+
+$$
+\boxed{dp[i]=\text{考虑到第 }i\text{ 间房屋时可获得的最大金额}}
+$$
+
+到达第 $i$ 间房屋时只有两种选择：
+
+- 不偷第 $i$ 间：收益为 $dp[i-1]$；
+- 偷第 $i$ 间：第 $i-1$ 间不能偷，收益为 $dp[i-2]+nums[i]$。
+
+因此：
+
+$$
+\boxed{dp[i]=\max(dp[i-1],\ dp[i-2]+nums[i])}
+$$
+
+本题的难点不在这个公式，而在于：**怎样把一个环变成可以套用该公式的线段。**
+
+## 2. 为什么首尾不能同时进入同一个候选方案
+
+首尾房屋相邻，因此合法方案一定满足：
+
+$$
+\boxed{\text{首房与尾房至少有一间不偷}}
+$$
+
+于是所有合法最优解一定属于下面两个集合之一：
+
+1. 不考虑最后一间房，即只在区间 $[0,n-2]$ 中求最优解；
+2. 不考虑第一间房，即只在区间 $[1,n-1]$ 中求最优解。
+
+于是原问题直接变成两个线性子问题：
+
+$$
+\boxed{
+answer=\max(rob(0,n-2),\ rob(1,n-1))
+}
+$$
+
+这就是本题最核心的降维思路。
+
+## 3. 原文中的三种“考虑范围”
+
+如果把情况拆得更细，可以看到三种范围：
+
+### 3.1 不考虑首尾
+
+![打家劫舍 II：不考虑首尾](https://file1.kamacoder.com/i/algo/20210129160748643-20230310134000692.jpg)
+
+范围为：
+
+$$
+[1,n-2]
+$$
+
+### 3.2 考虑首元素，不考虑尾元素
+
+![打家劫舍 II：考虑首元素](https://file1.kamacoder.com/i/algo/20210129160821374-20230310134003961.jpg)
+
+范围为：
+
+$$
+[0,n-2]
+$$
+
+### 3.3 考虑尾元素，不考虑首元素
+
+![打家劫舍 II：考虑尾元素](https://file1.kamacoder.com/i/algo/20210129160842491-20230310134008133.jpg)
+
+范围为：
+
+$$
+[1,n-1]
+$$
+
+注意：这里的“考虑”只是说明某个房屋**允许被选**，并不代表它一定会被偷。
+
+例如，在区间 $[1,n-1]$ 中运行线性 DP 时，最后一间房虽然被纳入候选范围，但如果偷它不是最优选择，DP 完全可以不偷它。
+
+<Callout type="warning" title="“考虑”不等于“必须选择”">
+很多初学者会误以为“情况二”代表一定偷第一间、“情况三”代表一定偷最后一间。实际上，我们只是把该房屋留在候选区间里，最终是否选择仍由状态转移决定。
+</Callout>
+
+## 4. 为什么只需要两个区间
+
+看起来似乎还有“首尾都不考虑”的第三种情况：
+
+$$
+[1,n-2]
+$$
+
+但它已经包含在前两个范围中：
+
+$$
+[1,n-2]\subseteq[0,n-2]
+$$
+
+并且：
+
+$$
+[1,n-2]\subseteq[1,n-1]
+$$
+
+线性 DP 并不会强迫我们选区间端点，因此如果真正的最优解恰好首尾都不偷，那么它会自然地出现在这两个子问题中的至少一个里面。
+
+所以只需要：
+
+$$
+\boxed{[0,n-2]\quad\text{和}\quad[1,n-1]}
+$$
+
+## 5. 边界情况
+
+### 5.1 只有一间房
+
+当：
+
+$$
+n=1
+$$
+
+没有所谓的环形冲突，答案直接为：
+
+$$
+nums[0]
+$$
+
+### 5.2 只有两间房
+
+两间房互相相邻，只能选金额更大的一间：
+
+$$
+\max(nums[0],nums[1])
+$$
+
+虽然通用的“两区间法”也能处理，但单独理解这个边界有助于确认模型正确。
+
+## 6. 用滚动变量实现线性子问题
+
+线性版本只依赖：
+
+$$
+dp[i-1],\quad dp[i-2]
+$$
+
+因此没有必要真的保存整个数组。
+
+设：
+
+- `prev2` 表示前两个位置对应的最优值；
+- `prev1` 表示前一个位置对应的最优值。
+
+每次更新：
+
+$$
+cur=\max(prev1,prev2+nums[i])
+$$
+
+然后滚动：
+
+$$
+prev2\leftarrow prev1
+$$
+
+$$
+prev1\leftarrow cur
+$$
+
+这样空间复杂度即可从 $O(n)$ 降为：
+
+$$
+\boxed{O(1)}
+$$
+
+## 7. C++ 实现
+
+```cpp
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 1) return nums[0];
+
+        int excludeLast = robRange(nums, 0, n - 2);
+        int excludeFirst = robRange(nums, 1, n - 1);
+
+        return max(excludeLast, excludeFirst);
+    }
+
+private:
+    int robRange(const vector<int>& nums, int left, int right) {
+        int prev2 = 0;
+        int prev1 = 0;
+
+        for (int i = left; i <= right; ++i) {
+            int cur = max(prev1, prev2 + nums[i]);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+
+        return prev1;
+    }
+};
+```
+
+## 8. 手算示例
+
+以：
+
+```text
+nums = [1, 2, 3, 1]
+```
+
+为例。
+
+### 区间一：排除最后一间
+
+考虑：
+
+```text
+[1, 2, 3]
+```
+
+最优选择是：
+
+$$
+1+3=4
+$$
+
+因此：
+
+$$
+rob(0,2)=4
+$$
+
+### 区间二：排除第一间
+
+考虑：
+
+```text
+[2, 3, 1]
+```
+
+最优值为：
+
+$$
+3
+$$
+
+所以最终：
+
+$$
+\boxed{\max(4,3)=4}
+$$
+
+## 9. 正确性理解
+
+任何合法方案都不可能同时选首尾。
+
+因此它必然满足以下至少一个条件：
+
+- 没有选最后一间，因此完整落在 $[0,n-2]$；
+- 没有选第一间，因此完整落在 $[1,n-1]$。
+
+两个区间分别求出的最优值已经覆盖所有合法方案，再取二者最大值，就一定得到全局最优解。
+
+这也是一种非常典型的技巧：
+
+$$
+\boxed{\text{通过枚举少量关键冲突条件，把环形问题拆成线性问题}}
+$$
+
+## 10. 复杂度
+
+线性子问题各运行一次，每次最多扫描 $n$ 个元素：
+
+$$
+\boxed{T(n)=O(n)}
+$$
+
+只使用常数个变量：
+
+$$
+\boxed{S(n)=O(1)}
+$$
+
+## 11. 易错点
+
+### 易错点一：直接在整个数组上套线性 DP
+
+这样无法处理：
+
+$$
+nums[0]\text{ 与 }nums[n-1]
+$$
+
+之间的冲突。
+
+### 易错点二：强制第一间或最后一间必须被选
+
+我们只是限制候选范围，不应该人为强制端点进入答案。
+
+### 易错点三：额外单独计算“首尾都不选”
+
+没有必要，因为该方案已经被两个大区间覆盖。
+
+### 易错点四：对子数组做大量切片
+
+某些语言中 `nums[:-1]`、`nums[1:]` 会创建新数组。逻辑没有问题，但如果追求更稳定的空间表现，可以直接传左右边界。
+
+## 12. 迁移模型：环形 DP 的常见处理方式
+
+本题给出了一个很重要的思维模板：
+
+> 当只有少量元素之间存在“首尾冲突”时，可以枚举冲突两端的取舍，把环形问题转化为若干个线性问题。
+
+典型判断顺序是：
+
+1. 找到环真正新增的依赖；
+2. 枚举这个依赖的少量合法情况；
+3. 在每个情况下复用成熟的线性 DP；
+4. 汇总这些子问题的最优值。
+
+<Callout type="success" title="一句话记忆">
+环形打家劫舍 = “去掉最后一间做一次线性 DP” 与 “去掉第一间做一次线性 DP” 取最大值。
+</Callout>
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 1) return nums[0];
+        return Math.max(robRange(nums, 0, n - 2),
+                        robRange(nums, 1, n - 1));
+    }
+
+    private int robRange(int[] nums, int left, int right) {
+        int prev2 = 0, prev1 = 0;
+        for (int i = left; i <= right; i++) {
+            int cur = Math.max(prev1, prev2 + nums[i]);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+        return prev1;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 1:
+            return nums[0]
+
+        return max(
+            self.rob_range(nums, 0, n - 2),
+            self.rob_range(nums, 1, n - 1)
+        )
+
+    def rob_range(self, nums, left, right):
+        prev2 = prev1 = 0
+        for i in range(left, right + 1):
+            cur = max(prev1, prev2 + nums[i])
+            prev2, prev1 = prev1, cur
+        return prev1
+```
+
+```go tab="Go"
+func rob(nums []int) int {
+    n := len(nums)
+    if n == 1 {
+        return nums[0]
+    }
+    return max(robRange(nums, 0, n-2), robRange(nums, 1, n-1))
+}
+
+func robRange(nums []int, left, right int) int {
+    prev2, prev1 := 0, 0
+    for i := left; i <= right; i++ {
+        cur := max(prev1, prev2+nums[i])
+        prev2, prev1 = prev1, cur
+    }
+    return prev1
+}
+
+func max(a, b int) int {
+    if a > b { return a }
+    return b
+}
+```
+
+```javascript tab="JavaScript"
+var rob = function(nums) {
+    const n = nums.length;
+    if (n === 1) return nums[0];
+
+    return Math.max(
+        robRange(nums, 0, n - 2),
+        robRange(nums, 1, n - 1)
+    );
+};
+
+function robRange(nums, left, right) {
+    let prev2 = 0, prev1 = 0;
+    for (let i = left; i <= right; i++) {
+        const cur = Math.max(prev1, prev2 + nums[i]);
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
+```
+
+```typescript tab="TypeScript"
+function rob(nums: number[]): number {
+    const n = nums.length;
+    if (n === 1) return nums[0];
+
+    return Math.max(
+        robRange(nums, 0, n - 2),
+        robRange(nums, 1, n - 1)
+    );
+}
+
+function robRange(nums: number[], left: number, right: number): number {
+    let prev2 = 0;
+    let prev1 = 0;
+
+    for (let i = left; i <= right; i++) {
+        const cur = Math.max(prev1, prev2 + nums[i]);
+        prev2 = prev1;
+        prev1 = cur;
+    }
+    return prev1;
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn rob(nums: Vec<i32>) -> i32 {
+        let n = nums.len();
+        if n == 1 {
+            return nums[0];
+        }
+
+        Self::rob_range(&nums, 0, n - 2)
+            .max(Self::rob_range(&nums, 1, n - 1))
+    }
+
+    fn rob_range(nums: &[i32], left: usize, right: usize) -> i32 {
+        let (mut prev2, mut prev1) = (0, 0);
+        for i in left..=right {
+            let cur = prev1.max(prev2 + nums[i]);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+        prev1
+    }
+}
+```

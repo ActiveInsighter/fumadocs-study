@@ -1,0 +1,1024 @@
+---
+title: 二叉树的递归遍历：真正理解前序、中序与后序
+description: 从“递归函数的语义”出发掌握二叉树 DFS，理解前序、中序、后序遍历的本质、调用栈、复杂度与常见错误。
+---
+
+# 二叉树的递归遍历：真正理解前序、中序与后序
+
+二叉树是学习递归最合适的数据结构之一：**一棵树天然由“根节点 + 左子树 + 右子树”组成，而左右子树本身又是二叉树。**
+
+因此，二叉树递归的关键并不是背代码，而是先说清楚：**这个递归函数到底负责完成什么任务？**
+
+<Callout title="先记住一句话" type="idea">
+
+写递归时，不要试图在脑中同时展开十几层调用。你只需要相信：**递归函数能够正确完成它承诺的子问题**，然后设计当前这一层该做什么。
+
+</Callout>
+
+## 1. 二叉树递归为什么如此自然
+
+对任意非空节点 `root`，它都可以拆成三个部分：
+
+```text
+        root
+       /    \
+   left    right
+   子树     子树
+```
+
+如果我们已经会解决“一棵更小的二叉树”，那么整棵树只需要：
+
+1. 处理当前节点；
+2. 递归处理左子树；
+3. 递归处理右子树。
+
+这正是递归的基本思想——**把原问题拆成结构完全相同、规模更小的子问题。**
+
+## 2. 写递归时固定问自己三个问题
+
+很多递归代码“看得懂却写不出”，本质上不是语法问题，而是没有先定义递归函数的职责。
+
+以后遇到二叉树递归，可以固定按照下面三个问题思考。
+
+### 2.1 这个函数表示什么？
+
+例如：
+
+```cpp title="递归函数的契约"
+void traversal(TreeNode* root, vector<int>& result)
+```
+
+可以把它理解成：
+
+> `traversal(root, result)` 会按照规定的遍历顺序，把 **以 `root` 为根的整棵子树** 的节点值加入 `result`。
+
+这句话非常重要。只要函数语义定义清楚，之后调用：
+
+```cpp
+traversal(root->left, result);
+```
+
+就不需要继续手动思考左子树内部的每一层细节；它的含义就是“把整棵左子树处理好”。
+
+### 2.2 最小问题是什么？
+
+当 `root == nullptr` 时，当前子树为空，没有任何节点需要处理：
+
+```cpp
+if (root == nullptr) return;
+```
+
+这就是最自然的递归终止条件。
+
+<Callout title="为什么漏掉终止条件会栈溢出？" type="warn">
+
+每一次函数调用都会占用调用栈空间。如果递归不能收敛到空节点，调用层数会持续增长，最终耗尽栈空间。
+
+</Callout>
+
+### 2.3 当前这一层做什么？
+
+对于普通遍历，当前层真正可调整的只有三件事：
+
+```text
+处理根节点
+递归左子树
+递归右子树
+```
+
+**这三步的相对顺序，就是前序、中序、后序遍历的来源。**
+
+## 3. 前序、中序、后序的“序”到底指什么
+
+这里的“前 / 中 / 后”，指的不是左右子树，而是**根节点相对于左右子树在什么时候被处理**。
+
+<Cards>
+  <Card title="前序遍历">根 → 左 → 右：根节点最先处理。</Card>
+  <Card title="中序遍历">左 → 根 → 右：根节点夹在左右子树之间处理。</Card>
+  <Card title="后序遍历">左 → 右 → 根：根节点最后处理。</Card>
+</Cards>
+
+三种遍历的骨架完全一样：
+
+| 遍历方式 | 执行顺序 | 根节点处理时机 |
+| --- | --- | --- |
+| 前序 | 根 → 左 → 右 | 进入当前节点后立刻处理 |
+| 中序 | 左 → 根 → 右 | 左子树完成后处理 |
+| 后序 | 左 → 右 → 根 | 两棵子树都完成后处理 |
+
+这也是为什么递归写法只需要移动一行“处理当前节点”的代码，就能得到三种遍历。
+
+## 4. 前序遍历：根 → 左 → 右
+
+前序遍历要求当前节点最先被处理。
+
+```cpp title="LeetCode 144 · 前序遍历"
+class Solution {
+public:
+    void traversal(TreeNode* root, vector<int>& result) {
+        if (root == nullptr) return;
+
+        result.push_back(root->val);      // 根
+        traversal(root->left, result);    // 左
+        traversal(root->right, result);   // 右
+    }
+
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        traversal(root, result);
+        return result;
+    }
+};
+```
+
+如果只看递归函数，它其实可以压缩成非常稳定的模板：
+
+```cpp
+if (root == nullptr) return;
+process(root);
+traversal(root->left);
+traversal(root->right);
+```
+
+### 前序遍历适合解决什么问题？
+
+前序遍历天然具有“**先知道父节点，再处理孩子**”的特征，因此很适合自顶向下传递信息，例如：
+
+- 记录从根到当前节点的路径；
+- 把父节点状态传给左右孩子；
+- 构造或序列化树时先创建根节点；
+- 需要在进入子树之前完成某些操作。
+
+可以把它理解为：**进入节点时处理。**
+
+## 5. 中序遍历：左 → 根 → 右
+
+中序遍历把根节点的处理放在左右子树之间：
+
+```cpp title="LeetCode 94 · 中序遍历"
+class Solution {
+public:
+    void traversal(TreeNode* root, vector<int>& result) {
+        if (root == nullptr) return;
+
+        traversal(root->left, result);    // 左
+        result.push_back(root->val);      // 根
+        traversal(root->right, result);   // 右
+    }
+
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        traversal(root, result);
+        return result;
+    }
+};
+```
+
+中序遍历在普通二叉树中只是三种 DFS 顺序之一，但在**二叉搜索树（BST）**中极其重要。
+
+如果 BST 不含重复值并满足：
+
+```text
+左子树 < 根节点 < 右子树
+```
+
+那么中序遍历得到的序列就是严格递增序列。
+
+例如：
+
+```text
+        4
+       / \
+      2   6
+     / \ / \
+    1  3 5  7
+```
+
+中序遍历结果为：
+
+```text
+1, 2, 3, 4, 5, 6, 7
+```
+
+<Callout title="BST 题看到“有序”就想到中序遍历" type="success">
+
+验证 BST、求第 $k$ 小元素、最小差值、众数、前驱后继等问题，都经常利用中序遍历把树上的顺序关系转化成线性序列上的顺序关系。
+
+</Callout>
+
+## 6. 后序遍历：左 → 右 → 根
+
+后序遍历要求左右子树都处理结束后，才处理当前节点：
+
+```cpp title="LeetCode 145 · 后序遍历"
+class Solution {
+public:
+    void traversal(TreeNode* root, vector<int>& result) {
+        if (root == nullptr) return;
+
+        traversal(root->left, result);    // 左
+        traversal(root->right, result);   // 右
+        result.push_back(root->val);      // 根
+    }
+
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> result;
+        traversal(root, result);
+        return result;
+    }
+};
+```
+
+后序遍历最重要的特征是：**处理当前节点时，左右子树的信息已经准备好了。**
+
+因此它特别适合“自底向上”汇总信息，例如：
+
+- 求二叉树高度；
+- 判断是否为平衡二叉树；
+- 统计子树节点数量；
+- 树形动态规划；
+- 删除整棵树时先释放左右子树，再释放根节点。
+
+可以把它理解为：**离开节点时处理。**
+
+## 7. 用一棵树真正走一遍递归
+
+假设二叉树为：
+
+```text
+        1
+       / \
+      2   3
+     / \
+    4   5
+```
+
+### 前序遍历
+
+```text
+1 → 2 → 4 → 5 → 3
+```
+
+因为每次进入节点后，先立即处理根。
+
+### 中序遍历
+
+```text
+4 → 2 → 5 → 1 → 3
+```
+
+因为总是先把左子树走到底，再处理当前节点。
+
+### 后序遍历
+
+```text
+4 → 5 → 2 → 3 → 1
+```
+
+因为父节点必须等待左右子树全部返回后才能处理。
+
+## 8. 递归调用栈到底发生了什么
+
+以中序遍历为例：
+
+```cpp
+traversal(root->left, result);
+result.push_back(root->val);
+traversal(root->right, result);
+```
+
+当程序执行 `traversal(root->left)` 时，当前函数并没有消失，而是暂停在调用位置，相关状态被保存在**函数调用栈**里。
+
+可以粗略理解为：
+
+```text
+traversal(1)
+└── 等待 traversal(2) 返回
+    └── 等待 traversal(4) 返回
+        └── traversal(nullptr) 返回
+```
+
+当最深层调用返回后，程序会自动恢复上一层：
+
+```text
+处理 4
+→ 返回 2
+→ 处理 2
+→ 再进入 5
+```
+
+因此递归并没有“魔法”。它只是由运行时帮我们维护了一套栈结构，记住：
+
+- 当前函数的参数；
+- 局部变量；
+- 返回地址；
+- 下一条应该继续执行的指令位置。
+
+下一篇迭代遍历，本质上就是**把这部分栈管理显式地交给我们自己**。
+
+## 9. 时间复杂度与空间复杂度
+
+设树共有 $n$ 个节点，高度为 $h$。
+
+三种递归遍历都会访问每个节点一次，因此：
+
+$$
+T(n)=O(n)
+$$
+
+递归额外空间主要来自调用栈，最大递归深度等于树高，因此：
+
+$$
+S(n)=O(h)
+$$
+
+于是：
+
+| 树形 | 高度 $h$ | 递归栈空间 |
+| --- | ---: | ---: |
+| 平衡二叉树 | $O(\log n)$ | $O(\log n)$ |
+| 极端退化为链表 | $O(n)$ | $O(n)$ |
+
+<Callout title="不要把递归空间复杂度写成固定的 O(n)" type="warn">
+
+更准确的表达是 $O(h)$。只有当树退化成链表时，$h=n$，最坏空间复杂度才是 $O(n)$。
+
+</Callout>
+
+## 10. 从“遍历题”过渡到真正的递归题
+
+真正有价值的是把遍历模板进一步抽象成两种递归思维。
+
+### 自顶向下：把信息传给孩子
+
+```cpp
+void dfs(TreeNode* root, State state) {
+    if (root == nullptr) return;
+
+    State next = update(state, root);
+    dfs(root->left, next);
+    dfs(root->right, next);
+}
+```
+
+这类问题通常更接近前序思维：**当前节点先得到信息，再把信息传下去。**
+
+典型例子：路径记录、路径和、深度参数等。
+
+### 自底向上：让子树返回答案
+
+```cpp
+Info dfs(TreeNode* root) {
+    if (root == nullptr) return baseInfo;
+
+    Info left = dfs(root->left);
+    Info right = dfs(root->right);
+
+    return merge(root, left, right);
+}
+```
+
+这类问题通常更接近后序思维：**先获得左右子树答案，再合并成当前子树答案。**
+
+典型例子：树高、平衡判断、子树节点数、树形 DP。
+
+<Callout title="这是二叉树递归最重要的升级" type="idea">
+
+以后看到题目时，优先问：
+
+- 我需要把信息从父节点向下传吗？
+- 还是需要等左右子树算完，再向上返回？
+
+这比死记“前中后序模板”更有迁移能力。
+
+</Callout>
+
+## 11. 常见错误
+
+### 错误 1：没有先定义递归函数的含义
+
+如果连 `dfs(root)` 返回什么、负责什么都不清楚，很容易在不同递归层里重复计算或逻辑冲突。
+
+### 错误 2：终止条件与返回值不匹配
+
+例如函数声明返回 `int`，空节点却只写：
+
+```cpp
+if (root == nullptr) return;
+```
+
+这在语义和类型上都不成立。应该根据函数契约返回合法的“空树答案”。
+
+### 错误 3：把“遍历顺序”和“节点处理时机”当成两件无关的事
+
+实际上：
+
+```text
+前序 = 根在两个递归调用之前处理
+中序 = 根在两个递归调用之间处理
+后序 = 根在两个递归调用之后处理
+```
+
+### 错误 4：递归里修改共享状态却忘记恢复
+
+普通遍历只往 `result` 末尾添加值，一般不需要回溯；但如果维护当前路径：
+
+```cpp
+path.push_back(root->val);
+...
+path.pop_back();
+```
+
+就必须明确哪些状态属于“当前递归路径”，离开当前节点时是否需要恢复。
+
+## 12. 三道必须独立写出的基础题
+
+- [LeetCode 144：二叉树的前序遍历](https://leetcode.cn/problems/binary-tree-preorder-traversal/)
+- [LeetCode 94：二叉树的中序遍历](https://leetcode.cn/problems/binary-tree-inorder-traversal/)
+- [LeetCode 145：二叉树的后序遍历](https://leetcode.cn/problems/binary-tree-postorder-traversal/)
+
+建议不要复制模板，而是每道题都先写一句递归函数定义，再完成：
+
+```text
+函数语义 → 终止条件 → 当前层逻辑
+```
+
+最终应该做到：看到遍历顺序，几乎可以直接写出代码。
+
+## 13. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 递归函数先写什么？ | 先定义函数负责解决什么子问题 |
+| 空节点怎么处理？ | 通常作为最基本的终止条件 |
+| 前序 | 根 → 左 → 右，进入节点时处理 |
+| 中序 | 左 → 根 → 右，BST 中尤其重要 |
+| 后序 | 左 → 右 → 根，适合自底向上汇总 |
+| 时间复杂度 | $O(n)$ |
+| 递归额外空间 | $O(h)$ |
+| 迭代为什么可行？ | 因为递归本身依赖调用栈，可用显式栈模拟 |
+
+## 14. 其他语言版本
+
+下面各语言都实现前序、中序、后序三种递归遍历。代码块使用 Fumadocs 的 Code Block Tabs，可直接切换语言。
+
+```java tab="Java" tab-group="binary-tree-recursive"
+// 前序遍历·递归·LC144_二叉树的前序遍历
+class Solution {
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> result = new ArrayList<Integer>();
+        preorder(root, result);
+        return result;
+    }
+
+    public void preorder(TreeNode root, List<Integer> result) {
+        if (root == null) {
+            return;
+        }
+        result.add(root.val);
+        preorder(root.left, result);
+        preorder(root.right, result);
+    }
+}
+// 中序遍历·递归·LC94_二叉树的中序遍历
+class Solution {
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        inorder(root, res);
+        return res;
+    }
+
+    void inorder(TreeNode root, List<Integer> list) {
+        if (root == null) {
+            return;
+        }
+        inorder(root.left, list);
+        list.add(root.val);             // 注意这一句
+        inorder(root.right, list);
+    }
+}
+// 后序遍历·递归·LC145_二叉树的后序遍历
+class Solution {
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        postorder(root, res);
+        return res;
+    }
+
+    void postorder(TreeNode root, List<Integer> list) {
+        if (root == null) {
+            return;
+        }
+        postorder(root.left, list);
+        postorder(root.right, list);
+        list.add(root.val);             // 注意这一句
+    }
+}
+```
+
+```python tab="Python"
+# 前序遍历-递归-LC144_二叉树的前序遍历
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def preorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+
+        def dfs(node):
+            if node is None:
+                return
+
+            res.append(node.val)
+            dfs(node.left)
+            dfs(node.right)
+        dfs(root)
+        return res
+
+# 中序遍历-递归-LC94_二叉树的中序遍历
+class Solution:
+    def inorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+
+        def dfs(node):
+            if node is None:
+                return
+
+            dfs(node.left)
+            res.append(node.val)
+            dfs(node.right)
+        dfs(root)
+        return res
+
+# 后序遍历-递归-LC145_二叉树的后序遍历
+class Solution:
+    def postorderTraversal(self, root: TreeNode) -> List[int]:
+        res = []
+
+        def dfs(node):
+            if node is None:
+                return
+
+            dfs(node.left)
+            dfs(node.right)
+            res.append(node.val)
+
+        dfs(root)
+        return res
+```
+
+```go tab="Go"
+func preorderTraversal(root *TreeNode) (res []int) {
+    var traversal func(node *TreeNode)
+    traversal = func(node *TreeNode) {
+	if node == nil {
+            return
+	}
+	res = append(res,node.Val)
+	traversal(node.Left)
+	traversal(node.Right)
+    }
+    traversal(root)
+    return res
+}
+
+func inorderTraversal(root *TreeNode) (res []int) {
+    var traversal func(node *TreeNode)
+    traversal = func(node *TreeNode) {
+	if node == nil {
+	    return
+	}
+	traversal(node.Left)
+	res = append(res,node.Val)
+	traversal(node.Right)
+    }
+    traversal(root)
+    return res
+}
+
+func postorderTraversal(root *TreeNode) (res []int) {
+    var traversal func(node *TreeNode)
+    traversal = func(node *TreeNode) {
+	if node == nil {
+	    return
+	}
+	traversal(node.Left)
+	traversal(node.Right)
+        res = append(res,node.Val)
+    }
+    traversal(root)
+    return res
+}
+```
+
+```javascript tab="JavaScript"
+var preorderTraversal = function(root) {
+// 第一种
+//  let res=[];
+//  const dfs=function(root){
+//      if(root===null)return ;
+//      //先序遍历所以从父节点开始
+//      res.push(root.val);
+//      //递归左子树
+//      dfs(root.left);
+//      //递归右子树
+//      dfs(root.right);
+//  }
+//  //只使用一个参数 使用闭包进行存储结果
+//  dfs(root);
+//  return res;
+// 第二种
+  return root
+    ? [
+        // 前序遍历：中左右
+        root.val,
+        // 递归左子树
+        ...preorderTraversal(root.left),
+        // 递归右子树
+        ...preorderTraversal(root.right),
+      ]
+    : [];
+};
+
+var inorderTraversal = function(root) {
+// 第一种
+
+    // let res=[];
+    // const dfs=function(root){
+    //     if(root===null){
+    //         return ;
+    //     }
+    //     dfs(root.left);
+    //     res.push(root.val);
+    //     dfs(root.right);
+    // }
+    // dfs(root);
+    // return res;
+
+// 第二种
+  return root
+    ? [
+        // 中序遍历：左中右
+        // 递归左子树
+        ...inorderTraversal(root.left),
+        root.val,
+        // 递归右子树
+        ...inorderTraversal(root.right),
+      ]
+    : [];
+};
+
+var postorderTraversal = function(root) {
+    // 第一种
+    // let res=[];
+    // const dfs=function(root){
+    //     if(root===null){
+    //         return ;
+    //     }
+    //     dfs(root.left);
+    //     dfs(root.right);
+    //     res.push(root.val);
+    // }
+    // dfs(root);
+    // return res;
+
+  // 第二种
+  // 后续遍历：左右中
+  return root
+    ? [
+        // 递归左子树
+        ...postorderTraversal(root.left),
+        // 递归右子树
+        ...postorderTraversal(root.right),
+        root.val,
+      ]
+    : [];
+};
+```
+
+```typescript tab="TypeScript"
+// 前序遍历
+function preorderTraversal(node: TreeNode | null): number[] {
+    function traverse(node: TreeNode | null, res: number[]): void {
+        if (node === null) return;
+        res.push(node.val);
+        traverse(node.left, res);
+        traverse(node.right, res);
+    }
+    const res: number[] = [];
+    traverse(node, res);
+    return res;
+}
+
+// 中序遍历
+function inorderTraversal(node: TreeNode | null): number[] {
+    function traverse(node: TreeNode | null, res: number[]): void {
+        if (node === null) return;
+        traverse(node.left, res);
+        res.push(node.val);
+        traverse(node.right, res);
+    }
+    const res: number[] = [];
+    traverse(node, res);
+    return res;
+}
+
+// 后序遍历
+function postorderTraversal(node: TreeNode | null): number[] {
+    function traverse(node: TreeNode | null, res: number[]): void {
+        if (node === null) return;
+        traverse(node.left, res);
+        traverse(node.right, res);
+        res.push(node.val);
+    }
+    const res: number[] = [];
+    traverse(node, res);
+    return res;
+}
+```
+
+```c tab="C"
+//前序遍历：
+void preOrder(struct TreeNode* root, int* ret, int* returnSize) {
+    if(root == NULL)
+        return;
+    ret[(*returnSize)++] = root->val;
+    preOrder(root->left, ret, returnSize);
+    preOrder(root->right, ret, returnSize);
+}
+
+int* preorderTraversal(struct TreeNode* root, int* returnSize){
+    int* ret = (int*)malloc(sizeof(int) * 100);
+    *returnSize = 0;
+    preOrder(root, ret, returnSize);
+    return ret;
+}
+
+//中序遍历：
+void inOrder(struct TreeNode* node, int* ret, int* returnSize) {
+    if(!node)
+        return;
+    inOrder(node->left, ret, returnSize);
+    ret[(*returnSize)++] = node->val;
+    inOrder(node->right, ret, returnSize);
+}
+
+int* inorderTraversal(struct TreeNode* root, int* returnSize){
+    int* ret = (int*)malloc(sizeof(int) * 100);
+    *returnSize = 0;
+    inOrder(root, ret, returnSize);
+    return ret;
+}
+
+//后序遍历：
+void postOrder(struct TreeNode* node, int* ret, int* returnSize) {
+    if(node == NULL)
+        return;
+    postOrder(node->left, ret, returnSize);
+    postOrder(node->right, ret, returnSize);
+    ret[(*returnSize)++] = node->val;
+}
+
+int* postorderTraversal(struct TreeNode* root, int* returnSize){
+    int* ret= (int*)malloc(sizeof(int) * 100);
+    *returnSize = 0;
+    postOrder(root, ret, returnSize);
+    return ret;
+}
+```
+
+```swift tab="Swift"
+func preorderTraversal(_ root: TreeNode?) -> [Int] {
+    var res = [Int]()
+    preorder(root, res: &res)
+    return res
+}
+func preorder(_ root: TreeNode?, res: inout [Int]) {
+    if root == nil {
+        return
+    }
+    res.append(root!.val)
+    preorder(root!.left, res: &res)
+    preorder(root!.right, res: &res)
+}
+
+func inorderTraversal(_ root: TreeNode?) -> [Int] {
+    var res = [Int]()
+    inorder(root, res: &res)
+    return res
+}
+func inorder(_ root: TreeNode?, res: inout [Int]) {
+    if root == nil {
+        return
+    }
+    inorder(root!.left, res: &res)
+    res.append(root!.val)
+    inorder(root!.right, res: &res)
+}
+
+func postorderTraversal(_ root: TreeNode?) -> [Int] {
+    var res = [Int]()
+    postorder(root, res: &res)
+    return res
+}
+func postorder(_ root: TreeNode?, res: inout [Int]) {
+    if root == nil {
+        return
+    }
+    postorder(root!.left, res: &res)
+    postorder(root!.right, res: &res)
+    res.append(root!.val)
+}
+```
+
+```scala tab="Scala"
+object Solution {
+  import scala.collection.mutable.ListBuffer
+  def preorderTraversal(root: TreeNode): List[Int] = {
+    val res = ListBuffer[Int]()
+    def traversal(curNode: TreeNode): Unit = {
+      if(curNode == null) return
+      res.append(curNode.value)
+      traversal(curNode.left)
+      traversal(curNode.right)
+    }
+    traversal(root)
+    res.toList
+  }
+}
+
+object Solution {
+  import scala.collection.mutable.ListBuffer
+  def inorderTraversal(root: TreeNode): List[Int] = {
+    val res = ListBuffer[Int]()
+    def traversal(curNode: TreeNode): Unit = {
+      if(curNode == null) return
+      traversal(curNode.left)
+      res.append(curNode.value)
+      traversal(curNode.right)
+    }
+    traversal(root)
+    res.toList
+  }
+}
+
+object Solution {
+  import scala.collection.mutable.ListBuffer
+  def postorderTraversal(root: TreeNode): List[Int] = {
+    val res = ListBuffer[Int]()
+    def traversal(curNode: TreeNode): Unit = {
+      if (curNode == null) return
+      traversal(curNode.left)
+      traversal(curNode.right)
+      res.append(curNode.value)
+    }
+    traversal(root)
+    res.toList
+  }
+}
+```
+
+```rust tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+impl Solution {
+    pub fn preorder_traversal(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
+        let mut res = vec![];
+        Self::traverse(&root, &mut res);
+        res
+    }
+
+//前序遍历
+    pub fn traverse(root: &Option<Rc<RefCell<TreeNode>>>, res: &mut Vec<i32>) {
+        if let Some(node) = root {
+            res.push(node.borrow().val);
+            Self::traverse(&node.borrow().left, res);
+            Self::traverse(&node.borrow().right, res);
+        }
+    }
+//后序遍历
+    pub fn traverse(root: &Option<Rc<RefCell<TreeNode>>>, res: &mut Vec<i32>) {
+        if let Some(node) = root {
+            Self::traverse(&node.borrow().left, res);
+            Self::traverse(&node.borrow().right, res);
+            res.push(node.borrow().val);
+        }
+    }
+//中序遍历
+    pub fn traverse(root: &Option<Rc<RefCell<TreeNode>>>, res: &mut Vec<i32>) {
+        if let Some(node) = root {
+            Self::traverse(&node.borrow().left, res);
+            res.push(node.borrow().val);
+            Self::traverse(&node.borrow().right, res);
+        }
+    }
+}
+```
+
+```csharp tab="C#"
+// 前序遍历
+public IList<int> PreorderTraversal(TreeNode root)
+{
+    var res = new List<int>();
+    if (root == null) return res;
+    Traversal(root, res);
+    return res;
+
+}
+public void Traversal(TreeNode cur, IList<int> res)
+{
+    if (cur == null) return;
+    res.Add(cur.val);
+    Traversal(cur.left, res);
+    Traversal(cur.right, res);
+}
+
+// 中序遍历
+public IList<int> InorderTraversal(TreeNode root)
+{
+    var res = new List<int>();
+    if (root == null) return res;
+    Traversal(root, res);
+    return res;
+}
+public void Traversal(TreeNode cur, IList<int> res)
+{
+    if (cur == null) return;
+    Traversal(cur.left, res);
+    res.Add(cur.val);
+    Traversal(cur.right, res);
+}
+
+// 后序遍历
+public IList<int> PostorderTraversal(TreeNode root)
+{
+    var res = new List<int>();
+    if (root == null) return res;
+    Traversal(root, res);
+    return res;
+}
+public void Traversal(TreeNode cur, IList<int> res)
+{
+    if (cur == null) return;
+    Traversal(cur.left, res);
+    Traversal(cur.right, res);
+    res.Add(cur.val);
+}
+```
+
+```php tab="PHP"
+// 144.前序遍历
+function preorderTraversal($root) {
+    $output = [];
+    $this->traversal($root, $output);
+    return $output;
+}
+
+function traversal($root, array &$output) {
+    if ($root->val === null) {
+        return;
+    }
+
+    $output[] = $root->val;
+    $this->traversal($root->left, $output);
+    $this->traversal($root->right, $output);
+}
+
+// 94.中序遍历
+function inorderTraversal($root) {
+    $output = [];
+    $this->traversal($root, $output);
+    return $output;
+}
+
+function traversal($root, array &$output) {
+    if ($root->val === null) {
+        return;
+    }
+
+    $this->traversal($root->left, $output);
+    $output[] = $root->val;
+    $this->traversal($root->right, $output);
+}
+
+// 145.后序遍历
+function postorderTraversal($root) {
+    $output = [];
+    $this->traversal($root, $output);
+    return $output;
+}
+
+function traversal($root, array &$output) {
+    if ($root->val === null) {
+        return;
+    }
+
+    $this->traversal($root->left, $output);
+    $this->traversal($root->right, $output);
+    $output[] = $root->val;
+}
+```

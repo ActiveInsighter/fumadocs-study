@@ -1,0 +1,443 @@
+---
+title: Dota2 参议院
+description: 用队列模拟“谁先行动谁就淘汰下一名对手”的循环博弈，理解环形顺序、索引加 n 回队以及贪心策略为什么成立。
+---
+
+# 649. Dota2 参议院
+
+[LeetCode 649：Dota2 参议院](https://leetcode.cn/problems/dota2-senate/)
+
+参议院中只有两个阵营：
+
+- `R`：Radiant；
+- `D`：Dire。
+
+每个仍拥有权利的参议员，在轮到自己时都可以让一名对方阵营的参议员永久失去权利。投票按照字符串中的顺序循环进行，直到只剩一个阵营可以行动。
+
+题目要求预测最终获胜阵营。
+
+## 一、真正困难的地方：这是一个“循环顺序”的博弈
+
+例如：
+
+```text
+RDD
+```
+
+第一轮中：
+
+1. 第一个 `R` 先行动，可以淘汰一个 `D`；
+2. 剩余的另一个 `D` 仍然会在本轮稍后行动；
+3. 它可以淘汰最前面的 `R`；
+4. 下一轮只剩 `D`。
+
+因此，不能只比较 `R` 和 `D` 的数量。
+
+更准确地说，决定胜负的是：
+
+> **当前还活着的双方参议员，谁的下一次行动时间更早。**
+
+这使得本题非常适合用两个队列维护“下一次出手位置”。
+
+## 二、关键贪心：先行动的人一定淘汰下一名对手
+
+假设当前最早能行动的 `R` 在位置 $i$，最早能行动的 `D` 在位置 $j$。
+
+如果：
+
+$$
+i < j
+$$
+
+说明 `R` 先行动。
+
+此时最优策略一定是直接淘汰这个即将行动的 `D`。
+
+原因很简单：
+
+- 已经行动过的对手，本轮不会再次行动；
+- 还没有行动的对手，越靠前威胁越大；
+- 如果不先处理最近的对手，它可能马上淘汰己方成员。
+
+因此每一次比较，只需要让行动时间更早的一方淘汰另一方。
+
+> [!TIP]
+> 与其把本题理解成复杂博弈，不如把它看成“两个循环队列争夺下一次行动权”。
+
+## 三、为什么用“索引 + n”可以表示下一轮
+
+设字符串长度为 $n$。
+
+初始时，把所有 `R` 和 `D` 的下标分别放入两个队列：
+
+```text
+R 队列：所有 R 的原始下标
+D 队列：所有 D 的原始下标
+```
+
+例如：
+
+```text
+senate = "RDD"
+
+R: [0]
+D: [1, 2]
+```
+
+比较队首：
+
+```text
+0 < 1
+```
+
+因此位置 `0` 的 `R` 淘汰位置 `1` 的 `D`。
+
+但是这个 `R` 自己还活着，下一轮仍然可以继续行动。
+
+它下一轮的行动时间应该排在当前所有位置之后，所以把：
+
+$$
+0+n
+$$
+
+重新压入 `R` 队列。
+
+如果 $n=3$：
+
+```text
+R: [3]
+D: [2]
+```
+
+此时 `D` 的位置 `2` 小于 `R` 的位置 `3`，说明 `D` 会先行动，于是 `D` 淘汰 `R`。
+
+最终 `R` 队列为空，`D` 获胜。
+
+### 这其实是在展开一个无限时间轴
+
+原始下标表示第一轮：
+
+```text
+0, 1, 2, ..., n-1
+```
+
+下一轮可以理解为：
+
+```text
+n, n+1, ..., 2n-1
+```
+
+再下一轮：
+
+```text
+2n, 2n+1, ...
+```
+
+因此给存活成员的下标加 $n$，就自然表示它下一轮的行动顺序。
+
+## 四、推荐解法：双队列模拟
+
+### 算法步骤
+
+1. 扫描字符串；
+2. 把所有 `R` 的位置加入 `radiant`；
+3. 把所有 `D` 的位置加入 `dire`；
+4. 当两个队列都非空时：
+   - 取双方队首位置 $r,d$；
+   - 较小者先行动；
+   - 先行动者淘汰另一方；
+   - 先行动者以 `index + n` 的形式进入下一轮；
+5. 哪个队列最后非空，哪个阵营获胜。
+
+## 五、C++ 实现
+
+```cpp
+class Solution {
+public:
+    string predictPartyVictory(string senate) {
+        int n = senate.size();
+        queue<int> radiant;
+        queue<int> dire;
+
+        for (int i = 0; i < n; ++i) {
+            if (senate[i] == 'R') {
+                radiant.push(i);
+            } else {
+                dire.push(i);
+            }
+        }
+
+        while (!radiant.empty() && !dire.empty()) {
+            int r = radiant.front();
+            int d = dire.front();
+            radiant.pop();
+            dire.pop();
+
+            if (r < d) {
+                // R 先行动，淘汰当前最早的 D
+                radiant.push(r + n);
+            } else {
+                // D 先行动，淘汰当前最早的 R
+                dire.push(d + n);
+            }
+        }
+
+        return radiant.empty() ? "Dire" : "Radiant";
+    }
+};
+```
+
+## 六、为什么这个算法是正确的
+
+每次从两个队列中取出的都是：
+
+```text
+当前双方最早能行动的人
+```
+
+如果 $r<d$，那么在时间顺序上：
+
+```text
+R 先行动 -> D 还没行动
+```
+
+因此这个 `R` 完全可以在 `D` 获得行动机会之前将其淘汰。
+
+与此同时，`R` 自己存活，因此把它放到下一轮：
+
+$$
+r+n
+$$
+
+这一步同时保证了两件事：
+
+- **当前轮次顺序正确**；
+- **跨轮次顺序仍然正确**。
+
+不断重复这一过程，直到某一方无人可行动，另一方自然胜出。
+
+## 七、复杂度分析
+
+设参议员数量为 $n$。
+
+每次循环至少会永久淘汰一名参议员，因此总淘汰次数不超过 $n-1$。
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(n)$
+
+> [!NOTE]
+> 虽然某个存活参议员可能多次进入队列，但每轮比较都会淘汰一名对手，所以总操作数量仍然是线性的。
+
+## 八、另一种写法：欠账变量 `ban`
+
+原资料使用了一个差值变量来记录“尚未执行的禁令”。可以理解为：
+
+```text
+ban > 0：前面有 R 可以淘汰后续 D
+ban < 0：前面有 D 可以淘汰后续 R
+```
+
+扫描时：
+
+- 遇到 `R`，若 `ban < 0`，则当前 `R` 被淘汰；否则它存活；
+- 遇到 `D`，若 `ban > 0`，则当前 `D` 被淘汰；否则它存活。
+
+这种方法同样正确，但状态含义更隐晦。
+
+双队列写法把“行动时间”显式表示出来，通常更容易证明，也更适合考试和面试中解释。
+
+## 九、常见错误
+
+### 1. 只比较两边人数
+
+例如：
+
+```text
+RD
+```
+
+人数相同，但 `R` 先行动，因此 `R` 获胜。
+
+胜负取决于顺序，而不是简单计数。
+
+### 2. 淘汰任意一个对手
+
+真正关键的是：
+
+> 淘汰当前**下一位最早会行动**的对手。
+
+否则可能让更靠前的对手先出手，造成额外损失。
+
+### 3. 存活成员重新入队时忘记 `+ n`
+
+若仍然把原下标放回队列，就无法区分当前轮和下一轮。
+
+正确写法是：
+
+```cpp
+queue.push(index + n);
+```
+
+## 十、模板总结
+
+本题可以浓缩为一个非常有用的循环队列模板：
+
+```text
+两个阵营各维护一个“下一次行动时间”队列
+        ↓
+比较双方队首
+        ↓
+较小者先行动并淘汰较大者
+        ↓
+存活者以 index + n 进入下一轮
+        ↓
+直到一方队列为空
+```
+
+以后遇到“按固定顺序循环执行、执行后仍可进入下一轮”的题目，都可以考虑这种 **索引时间轴** 思想。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public String predictPartyVictory(String senate) {
+        int n = senate.length();
+        Queue<Integer> radiant = new ArrayDeque<>();
+        Queue<Integer> dire = new ArrayDeque<>();
+
+        for (int i = 0; i < n; i++) {
+            if (senate.charAt(i) == 'R') {
+                radiant.offer(i);
+            } else {
+                dire.offer(i);
+            }
+        }
+
+        while (!radiant.isEmpty() && !dire.isEmpty()) {
+            int r = radiant.poll();
+            int d = dire.poll();
+
+            if (r < d) {
+                radiant.offer(r + n);
+            } else {
+                dire.offer(d + n);
+            }
+        }
+
+        return radiant.isEmpty() ? "Dire" : "Radiant";
+    }
+}
+```
+
+```python tab="Python"
+from collections import deque
+
+class Solution:
+    def predictPartyVictory(self, senate: str) -> str:
+        n = len(senate)
+        radiant = deque()
+        dire = deque()
+
+        for i, ch in enumerate(senate):
+            if ch == 'R':
+                radiant.append(i)
+            else:
+                dire.append(i)
+
+        while radiant and dire:
+            r = radiant.popleft()
+            d = dire.popleft()
+
+            if r < d:
+                radiant.append(r + n)
+            else:
+                dire.append(d + n)
+
+        return "Radiant" if radiant else "Dire"
+```
+
+```go tab="Go"
+func predictPartyVictory(senate string) string {
+    n := len(senate)
+    radiant := make([]int, 0)
+    dire := make([]int, 0)
+
+    for i := 0; i < n; i++ {
+        if senate[i] == 'R' {
+            radiant = append(radiant, i)
+        } else {
+            dire = append(dire, i)
+        }
+    }
+
+    for len(radiant) > 0 && len(dire) > 0 {
+        r := radiant[0]
+        d := dire[0]
+        radiant = radiant[1:]
+        dire = dire[1:]
+
+        if r < d {
+            radiant = append(radiant, r+n)
+        } else {
+            dire = append(dire, d+n)
+        }
+    }
+
+    if len(radiant) > 0 {
+        return "Radiant"
+    }
+    return "Dire"
+}
+```
+
+```javascript tab="JavaScript"
+var predictPartyVictory = function(senate) {
+    const n = senate.length;
+    const radiant = [];
+    const dire = [];
+
+    for (let i = 0; i < n; i++) {
+        if (senate[i] === 'R') radiant.push(i);
+        else dire.push(i);
+    }
+
+    let ri = 0;
+    let di = 0;
+
+    while (ri < radiant.length && di < dire.length) {
+        const r = radiant[ri++];
+        const d = dire[di++];
+
+        if (r < d) radiant.push(r + n);
+        else dire.push(d + n);
+    }
+
+    return ri < radiant.length ? "Radiant" : "Dire";
+};
+```
+
+```typescript tab="TypeScript"
+function predictPartyVictory(senate: string): string {
+    const n = senate.length;
+    const radiant: number[] = [];
+    const dire: number[] = [];
+
+    for (let i = 0; i < n; i++) {
+        if (senate[i] === 'R') radiant.push(i);
+        else dire.push(i);
+    }
+
+    let ri = 0;
+    let di = 0;
+
+    while (ri < radiant.length && di < dire.length) {
+        const r = radiant[ri++];
+        const d = dire[di++];
+
+        if (r < d) radiant.push(r + n);
+        else dire.push(d + n);
+    }
+
+    return ri < radiant.length ? "Radiant" : "Dire";
+}
+```

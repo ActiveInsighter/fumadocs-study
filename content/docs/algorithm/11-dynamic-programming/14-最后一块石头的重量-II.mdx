@@ -1,0 +1,781 @@
+---
+title: 最后一块石头的重量 II
+description: 从“石头两两粉碎”推导出“把所有石头分成重量尽可能接近的两堆”，再转化为 01 背包，理解最小差值问题与子集和问题之间的统一模型。
+icon: Hammer
+---
+
+# 最后一块石头的重量 II
+
+> LeetCode 1049 · Last Stone Weight II
+
+有若干块正整数重量的石头。每次任选两块重量分别为 $x$、$y$ 的石头进行粉碎，其中 $x\le y$：
+
+- 若 $x=y$，两块都消失；
+- 若 $x<y$，剩下一块重量为 $y-x$ 的石头。
+
+最终最多剩一块石头，要求它的**最小可能重量**。
+
+示例：
+
+```text
+stones = [2, 7, 4, 1, 8, 1]
+```
+
+答案为：
+
+```text
+1
+```
+
+<Callout type="info" title="不要真的模拟碰撞过程">
+这道题最容易掉进的坑，是研究“下一次该选哪两块石头碰撞”。但碰撞顺序不是核心。真正重要的是：最终结果可以等价成把所有石头划分成两组，并让两组总重量的差尽可能小。
+</Callout>
+
+## 1. 为什么碰撞最终等价于“两组重量之差”
+
+一次碰撞：
+
+$$
+y-x
+$$
+
+可以理解成给两块石头赋予相反符号：
+
+$$
+(+y)+(-x)
+$$
+
+不断进行碰撞后，最终剩余重量本质上可以写成原始石头重量的某种正负号组合：
+
+$$
+\left|\pm s_1\pm s_2\pm\cdots\pm s_n\right|
+$$
+
+把所有取正号的石头放入集合 $A$，所有取负号的石头放入集合 $B$，那么最终重量就是：
+
+$$
+\boxed{\left|sum(A)-sum(B)\right|}
+$$
+
+所以原问题等价于：
+
+> 把所有石头分成两堆，使两堆总重量尽可能接近。
+
+这一步是整道题最关键的模型转换。
+
+## 2. 为什么只需要考虑总重量的一半
+
+设所有石头总重量为：
+
+$$
+S
+$$
+
+假设其中一堆重量为：
+
+$$
+x
+$$
+
+另一堆就是：
+
+$$
+S-x
+$$
+
+两堆的差为：
+
+$$
+|(S-x)-x|=|S-2x|
+$$
+
+为了让这个差最小，就希望：
+
+$$
+x
+$$
+
+尽可能接近：
+
+$$
+\frac{S}{2}
+$$
+
+因此只需寻找：
+
+> 在不超过 $S/2$ 的前提下，最多能选出多大的石头总重量？
+
+令：
+
+$$
+\boxed{target=\left\lfloor\frac{S}{2}\right\rfloor}
+$$
+
+问题就转化为 01 背包。
+
+## 3. 和“分割等和子集”有什么区别
+
+上一题“分割等和子集”要求：
+
+$$
+\text{能否恰好凑出 }\frac{S}{2}
+$$
+
+而本题并不要求一定能凑到一半，只要求：
+
+$$
+\text{在不超过 }\frac{S}{2}\text{ 的前提下尽可能接近它}
+$$
+
+所以两题底层模型相同，但最终问题不同。
+
+| 问题 | 目标 |
+| --- | --- |
+| 分割等和子集 | 判断是否能恰好得到 $S/2$ |
+| 最后一块石头的重量 II | 求不超过 $S/2$ 的最大可达重量 |
+
+<Callout type="tip" title="同一个 dp，可以回答不同问题">
+两题甚至可以使用完全相同的 01 背包更新公式。区别只在于最终如何解释 `dp[target]`。
+</Callout>
+
+## 4. 01 背包建模
+
+把每块石头看作一件物品。
+
+对于石头：
+
+$$
+stones[i]
+$$
+
+令：
+
+$$
+weight[i]=stones[i]
+$$
+
+同时令：
+
+$$
+value[i]=stones[i]
+$$
+
+背包容量：
+
+$$
+target=\left\lfloor\frac{S}{2}\right\rfloor
+$$
+
+每块石头只能属于其中一堆一次，因此依然是 01 背包。
+
+## 5. 状态定义
+
+定义：
+
+$$
+\boxed{dp[j]=\text{容量不超过 }j\text{ 时，最多能够选出的石头总重量}}
+$$
+
+由于这里“价值”等于“重量”，因此：
+
+$$
+dp[j]\le j
+$$
+
+我们的最终目标是求：
+
+$$
+dp[target]
+$$
+
+它代表最接近总重量一半、且不超过一半的那一堆重量。
+
+## 6. 状态转移
+
+当前石头重量为：
+
+$$
+stones[i]
+$$
+
+有两种选择。
+
+### 不选当前石头
+
+答案保持：
+
+$$
+dp[j]
+$$
+
+### 选择当前石头
+
+如果：
+
+$$
+j\ge stones[i]
+$$
+
+则可以从：
+
+$$
+dp[j-stones[i]]
+$$
+
+转移过来，再加入当前石头：
+
+$$
+dp[j-stones[i]]+stones[i]
+$$
+
+因此：
+
+$$
+\boxed{
+dp[j]=\max\left(dp[j],\ dp[j-stones[i]]+stones[i]\right)
+}
+$$
+
+这就是标准一维 01 背包公式。
+
+## 7. 为什么仍然必须倒序
+
+每块石头只能被放入其中一堆一次，因此内层容量必须倒序：
+
+```cpp
+for (int stone : stones) {
+    for (int j = target; j >= stone; --j) {
+        dp[j] = max(dp[j], dp[j - stone] + stone);
+    }
+}
+```
+
+倒序保证右侧读取的：
+
+$$
+dp[j-stone]
+$$
+
+仍属于处理当前石头之前的旧状态，不会在同一轮重复使用当前石头。
+
+## 8. 初始化
+
+因为所有石头重量均为正数，而且状态是“容量内能够取得的最大重量”，所以：
+
+$$
+\boxed{dp[j]=0}
+$$
+
+即可。
+
+代码：
+
+```cpp
+vector<int> dp(target + 1, 0);
+```
+
+## 9. 用 `[2,4,1,1]` 手推
+
+先用一个更紧凑的例子：
+
+```text
+stones = [2, 4, 1, 1]
+```
+
+总重量：
+
+$$
+S=8
+$$
+
+目标容量：
+
+$$
+target=4
+$$
+
+我们希望从所有石头中选出一部分，使其总重量尽量接近 $4$，但不能超过 $4$。
+
+显然可以直接选重量为 $4$ 的石头，所以：
+
+$$
+dp[4]=4
+$$
+
+另一堆重量为：
+
+$$
+8-4=4
+$$
+
+最终差值：
+
+$$
+4-4=0
+$$
+
+原始资料中的 DP 状态图：
+
+![最后一块石头的重量 II DP 状态](https://file1.kamacoder.com/i/algo/20210121115805904.jpg)
+
+## 10. 最终答案为什么是 `sum - 2 * dp[target]`
+
+设较轻的一堆重量为：
+
+$$
+x=dp[target]
+$$
+
+另一堆重量为：
+
+$$
+S-x
+$$
+
+因为：
+
+$$
+x\le\left\lfloor\frac{S}{2}\right\rfloor
+$$
+
+所以一定有：
+
+$$
+S-x\ge x
+$$
+
+两堆相抵之后的剩余重量为：
+
+$$
+(S-x)-x
+$$
+
+化简：
+
+$$
+\boxed{S-2x}
+$$
+
+代入：
+
+$$
+x=dp[target]
+$$
+
+最终答案：
+
+$$
+\boxed{S-2\cdot dp[target]}
+$$
+
+这条公式非常重要。
+
+## 11. 完整 C++ 实现
+
+```cpp
+class Solution {
+public:
+    int lastStoneWeightII(vector<int>& stones) {
+        int sum = accumulate(stones.begin(), stones.end(), 0);
+        int target = sum / 2;
+
+        vector<int> dp(target + 1, 0);
+
+        for (int stone : stones) {
+            for (int j = target; j >= stone; --j) {
+                dp[j] = max(dp[j], dp[j - stone] + stone);
+            }
+        }
+
+        return sum - 2 * dp[target];
+    }
+};
+```
+
+## 12. 再看题目示例 `[2,7,4,1,8,1]`
+
+总重量：
+
+$$
+S=2+7+4+1+8+1=23
+$$
+
+所以：
+
+$$
+target=\left\lfloor\frac{23}{2}\right\rfloor=11
+$$
+
+可以选出一组重量为：
+
+$$
+2+7+1+1=11
+$$
+
+因此：
+
+$$
+dp[11]=11
+$$
+
+另一组重量：
+
+$$
+23-11=12
+$$
+
+最终最小差值：
+
+$$
+12-11=1
+$$
+
+也就是：
+
+$$
+23-2\times11=1
+$$
+
+与题目答案一致。
+
+## 13. 为什么不需要构造具体碰撞顺序
+
+一旦知道可以把石头分成两组，其总重量分别为：
+
+$$
+A
+$$
+
+和：
+
+$$
+B
+$$
+
+最终就存在一种正负抵消关系，使剩余量等于：
+
+$$
+|A-B|
+$$
+
+因此 DP 只需要寻找最优分组重量，并不需要恢复每一步碰撞。
+
+这是一类非常常见的算法思想：
+
+> 原题描述的是某个过程，但真正决定答案的可能只是过程结束后的某个代数不变量。
+
+本题中的不变量就是“把每块石头分配到正组或负组后，两组总重量之差”。
+
+## 14. 也可以使用布尔可达 DP
+
+还可以定义：
+
+$$
+\boxed{dp[j]=\text{是否能选出若干石头，使总重量恰好为 }j}
+$$
+
+初始化：
+
+$$
+dp[0]=true
+$$
+
+转移：
+
+$$
+\boxed{dp[j]=dp[j]\lor dp[j-stone]}
+$$
+
+同样倒序更新。
+
+处理全部石头后，从：
+
+$$
+target
+$$
+
+向下寻找第一个可达重量 $j$：
+
+$$
+dp[j]=true
+$$
+
+那么答案就是：
+
+$$
+S-2j
+$$
+
+代码：
+
+```cpp
+vector<bool> dp(target + 1, false);
+dp[0] = true;
+
+for (int stone : stones) {
+    for (int j = target; j >= stone; --j) {
+        dp[j] = dp[j] || dp[j - stone];
+    }
+}
+
+for (int j = target; j >= 0; --j) {
+    if (dp[j]) {
+        return sum - 2 * j;
+    }
+}
+```
+
+最大价值 DP 通常更直接，因为 `dp[target]` 本身就已经给出了最接近一半的可达重量，不需要额外倒序搜索。
+
+## 15. 与前一题放在一起理解
+
+现在把两道题统一起来。
+
+### 分割等和子集
+
+目标：
+
+$$
+\boxed{dp[target]=target?}
+$$
+
+关注的是：**是否能恰好达到一半**。
+
+### 最后一块石头的重量 II
+
+目标：
+
+$$
+\boxed{S-2\cdot dp[target]}
+$$
+
+关注的是：**在不超过一半时最多能达到多少**。
+
+共同部分都是：
+
+```cpp
+for (int x : nums) {
+    for (int j = target; j >= x; --j) {
+        dp[j] = max(dp[j], dp[j - x] + x);
+    }
+}
+```
+
+<Callout type="info" title="背包变形题的识别方式">
+当题目出现“把一组数分成两堆，使两边尽量相等 / 差最小 / 一边恰好达到某个和”时，应优先想到“子集和 + 01 背包”。
+</Callout>
+
+## 16. 常见错误
+
+### 错误 1：使用贪心模拟每次撞最大的两块石头
+
+局部选择“当前最接近”并不能保证最终全局最优。题目要求的是所有可能碰撞序列中的最小剩余重量，本质上需要全局划分。
+
+### 错误 2：直接要求恰好凑出 `target`
+
+当总和的一半无法恰好组成时，答案仍然要继续求最接近一半的可达重量。
+
+例如如果只能凑到：
+
+$$
+target-1
+$$
+
+它仍可能是最优解。
+
+### 错误 3：容量正序
+
+这样会把同一块石头重复使用，违背 01 背包约束。
+
+### 错误 4：返回 `target - dp[target]`
+
+真正需要比较的是两堆重量：
+
+$$
+dp[target]
+$$
+
+和：
+
+$$
+S-dp[target]
+$$
+
+所以差值应为：
+
+$$
+\boxed{S-2\cdot dp[target]}
+$$
+
+而不是 `target - dp[target]`。
+
+## 17. 复杂度
+
+设石头数量为：
+
+$$
+n
+$$
+
+总重量为：
+
+$$
+S
+$$
+
+背包容量约为：
+
+$$
+\frac{S}{2}
+$$
+
+因此时间复杂度为：
+
+$$
+\boxed{O\left(n\cdot\frac{S}{2}\right)=O(nS)}
+$$
+
+空间复杂度为：
+
+$$
+\boxed{O\left(\frac{S}{2}\right)=O(S)}
+$$
+
+在题目限制：
+
+$$
+n\le30,
+\qquad
+stones[i]\le1000
+$$
+
+下：
+
+$$
+S\le30000
+$$
+
+所以容量最多约为：
+
+$$
+15000
+$$
+
+一维 DP 完全可以接受。
+
+## 18. 本篇结论
+
+这道题最重要的不是背包模板，而是模型转换：
+
+$$
+\boxed{
+\text{石头反复碰撞}
+\Longrightarrow
+\text{两组重量之差}
+\Longrightarrow
+\text{两组尽量接近}
+\Longrightarrow
+\text{01 背包逼近 }S/2
+}
+$$
+
+最终：
+
+$$
+\boxed{answer=S-2\cdot dp[\lfloor S/2\rfloor]}
+$$
+
+理解这一条链路以后，类似的“最小差值划分”问题就都可以自然地联想到子集和与 01 背包。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int lastStoneWeightII(int[] stones) {
+        int sum = 0;
+        for (int stone : stones) {
+            sum += stone;
+        }
+
+        int target = sum / 2;
+        int[] dp = new int[target + 1];
+
+        for (int stone : stones) {
+            for (int j = target; j >= stone; --j) {
+                dp[j] = Math.max(dp[j], dp[j - stone] + stone);
+            }
+        }
+
+        return sum - 2 * dp[target];
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def lastStoneWeightII(self, stones: list[int]) -> int:
+        total = sum(stones)
+        target = total // 2
+        dp = [0] * (target + 1)
+
+        for stone in stones:
+            for j in range(target, stone - 1, -1):
+                dp[j] = max(dp[j], dp[j - stone] + stone)
+
+        return total - 2 * dp[target]
+```
+
+```go tab="Go"
+func lastStoneWeightII(stones []int) int {
+    sum := 0
+    for _, stone := range stones {
+        sum += stone
+    }
+
+    target := sum / 2
+    dp := make([]int, target+1)
+
+    for _, stone := range stones {
+        for j := target; j >= stone; j-- {
+            candidate := dp[j-stone] + stone
+            if candidate > dp[j] {
+                dp[j] = candidate
+            }
+        }
+    }
+
+    return sum - 2*dp[target]
+}
+```
+
+```javascript tab="JavaScript"
+var lastStoneWeightII = function(stones) {
+  const sum = stones.reduce((acc, x) => acc + x, 0);
+  const target = Math.floor(sum / 2);
+  const dp = new Array(target + 1).fill(0);
+
+  for (const stone of stones) {
+    for (let j = target; j >= stone; --j) {
+      dp[j] = Math.max(dp[j], dp[j - stone] + stone);
+    }
+  }
+
+  return sum - 2 * dp[target];
+};
+```
+
+```typescript tab="TypeScript"
+function lastStoneWeightII(stones: number[]): number {
+  const sum = stones.reduce((acc, x) => acc + x, 0);
+  const target = Math.floor(sum / 2);
+  const dp: number[] = new Array(target + 1).fill(0);
+
+  for (const stone of stones) {
+    for (let j = target; j >= stone; --j) {
+      dp[j] = Math.max(dp[j], dp[j - stone] + stone);
+    }
+  }
+
+  return sum - 2 * dp[target];
+}
+```

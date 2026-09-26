@@ -1,0 +1,965 @@
+---
+title: 二叉搜索树中的众数：有序序列上的连续计数
+---
+
+# 二叉搜索树中的众数：有序序列上的连续计数
+
+> LeetCode 501 · Find Mode in Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/find-mode-in-binary-search-tree/)
+
+给定一棵允许出现重复值的二叉搜索树，找出所有出现频率最高的节点值，也就是所有众数。
+
+例如：
+
+```text
+    1
+     \
+      2
+     /
+    2
+```
+
+![二叉搜索树中的众数](https://file1.kamacoder.com/i/algo/20201014221532206.png)
+
+中序遍历得到：
+
+```text
+1, 2, 2
+```
+
+因此众数为：
+
+```text
+[2]
+```
+
+<Callout title="本题的升级点" type="idea">
+
+上一题“最小绝对差”用 `pre` 比较中序相邻节点；这一题仍然使用 `pre`，但这次要把**相同值的连续段长度**统计出来。
+
+BST 中序有序不是一个单独技巧，而是一整类问题的统一入口。
+
+</Callout>
+
+## 1. 如果它只是一棵普通二叉树
+
+先不使用 BST 性质。
+
+对于普通二叉树，节点值没有顺序，相同值可能散落在树的任何位置，所以最自然的方法是：
+
+```text
+遍历整棵树
+→ 哈希表统计 value -> frequency
+→ 找到最大频率
+→ 收集所有达到最大频率的 value
+```
+
+例如：
+
+```cpp title="普通二叉树：哈希计数"
+class Solution {
+private:
+    void count(TreeNode* root, unordered_map<int, int>& freq) {
+        if (root == nullptr) return;
+        ++freq[root->val];
+        count(root->left, freq);
+        count(root->right, freq);
+    }
+
+public:
+    vector<int> findMode(TreeNode* root) {
+        unordered_map<int, int> freq;
+        count(root, freq);
+
+        int maxCount = 0;
+        for (const auto& [value, count] : freq) {
+            maxCount = max(maxCount, count);
+        }
+
+        vector<int> result;
+        for (const auto& [value, count] : freq) {
+            if (count == maxCount) {
+                result.push_back(value);
+            }
+        }
+        return result;
+    }
+};
+```
+
+这已经可以做到期望 $O(n)$ 时间，但需要额外哈希表保存频率。
+
+问题是：
+
+> **既然题目特意告诉我们这是 BST，能不能连哈希表都不要？**
+
+答案是可以。
+
+## 2. BST 为什么能省掉哈希表
+
+二叉搜索树中序遍历后，值按照非递减顺序排列。
+
+如果允许重复值，那么所有相同的值一定连续出现。
+
+例如：
+
+```text
+1, 1, 2, 3, 3, 3, 5, 5
+```
+
+统计频率不再需要一个：
+
+```text
+value → count
+```
+
+映射表。
+
+只需顺着序列扫描：
+
+```text
+当前值 == 前一个值 → 当前连续段 count + 1
+当前值 != 前一个值 → 开始新的连续段，count = 1
+```
+
+![BST 中序序列中的连续相同值](https://file1.kamacoder.com/i/algo/20210204152758889.png)
+
+这和“对一个已经排序的数组做游程计数”完全一样。
+
+<Callout title="为什么重复值一定连续" type="info">
+
+因为中序遍历结果有序。一个有序序列中，如果两个值都等于 $x$，那么夹在它们之间的元素既不能小于 $x$ 又不能大于 $x$，因此同值元素必然形成连续区间。
+
+</Callout>
+
+## 3. 四个状态变量要分别表示什么
+
+本题最值得掌握的不是代码，而是四个状态的不变量。
+
+<Cards>
+  <Card title="pre">中序遍历中上一个访问到的节点。</Card>
+  <Card title="count">当前值这一连续段已经出现了多少次。</Card>
+  <Card title="maxCount">遍历到目前为止见过的最高频率。</Card>
+  <Card title="result">当前所有频率等于 `maxCount` 的值。</Card>
+</Cards>
+
+只要这四个变量的含义始终不变，代码就很自然。
+
+## 4. 第一步：更新当前值的频率 `count`
+
+处理中序当前节点 `cur` 时，有三种情况。
+
+### 情况一：这是第一个节点
+
+```cpp
+if (pre == nullptr) {
+    count = 1;
+}
+```
+
+### 情况二：和上一个节点值相同
+
+说明还在同一个连续段中：
+
+```cpp
+else if (pre->val == cur->val) {
+    ++count;
+}
+```
+
+### 情况三：值发生变化
+
+说明新的连续段开始：
+
+```cpp
+else {
+    count = 1;
+}
+```
+
+最后别忘了：
+
+```cpp
+pre = cur;
+```
+
+于是可以写成：
+
+```cpp
+if (pre == nullptr || pre->val != cur->val) {
+    count = 1;
+} else {
+    ++count;
+}
+pre = cur;
+```
+
+## 5. 第二步：在线维护所有众数
+
+真正容易写错的是 `result` 的维护。
+
+对于当前频率 `count`，只有三种关系：
+
+### `count < maxCount`
+
+当前值还没有达到最高频率，不处理。
+
+### `count == maxCount`
+
+当前值追平历史最高频率，它也是一个众数：
+
+```cpp
+result.push_back(cur->val);
+```
+
+### `count > maxCount`
+
+说明旧的“众数集合”全部失效。
+
+必须同时做三件事：
+
+```cpp
+maxCount = count;
+result.clear();
+result.push_back(cur->val);
+```
+
+<Callout title="为什么 count 变大时必须 clear" type="warning">
+
+假设当前已经得到：
+
+```text
+maxCount = 2
+result = [1, 4]
+```
+
+后来值 `7` 连续出现第 3 次，此时：
+
+```text
+count = 3 > maxCount
+```
+
+那么频率为 2 的 `1` 和 `4` 已经不再是众数，必须全部删除，只保留新的频率 3 对应值。
+
+</Callout>
+
+## 6. 为什么一次遍历就能找齐所有众数
+
+很多人第一反应是：
+
+```text
+第一遍：求 maxCount
+第二遍：再找所有 frequency == maxCount 的值
+```
+
+当然可以，但其实没必要。
+
+在线维护的规则是：
+
+```text
+count < maxCount  → 忽略
+count = maxCount  → 加入当前值
+count > maxCount  → 提升 maxCount，清空旧答案，只加入当前值
+```
+
+因此 `result` 始终满足一个不变量：
+
+> 在已经遍历过的节点中，`result` 恰好保存所有达到当前 `maxCount` 的值。
+
+所以遍历结束时，它自然就是全局答案。
+
+## 7. 推荐递归写法
+
+```cpp title="中序递归：一次遍历求全部众数"
+class Solution {
+private:
+    TreeNode* pre = nullptr;
+    int count = 0;
+    int maxCount = 0;
+    vector<int> result;
+
+    void inorder(TreeNode* cur) {
+        if (cur == nullptr) return;
+
+        inorder(cur->left);
+
+        if (pre == nullptr || pre->val != cur->val) {
+            count = 1;
+        } else {
+            ++count;
+        }
+
+        if (count > maxCount) {
+            maxCount = count;
+            result.clear();
+            result.push_back(cur->val);
+        } else if (count == maxCount) {
+            result.push_back(cur->val);
+        }
+
+        pre = cur;
+
+        inorder(cur->right);
+    }
+
+public:
+    vector<int> findMode(TreeNode* root) {
+        pre = nullptr;
+        count = 0;
+        maxCount = 0;
+        result.clear();
+
+        inorder(root);
+        return result;
+    }
+};
+```
+
+### 为什么这里把 `count > maxCount` 写在前面更直观
+
+我们可以直接按优先级理解：
+
+```text
+发现更高纪录
+→ 旧答案全部作废
+→ 建立新答案
+```
+
+否则才判断是否只是“追平纪录”。
+
+写成：
+
+```cpp
+if (count > maxCount) {
+    ...
+} else if (count == maxCount) {
+    ...
+}
+```
+
+语义最清晰，也避免同一个节点被重复处理。
+
+## 8. 手推一次状态变化
+
+假设中序序列为：
+
+```text
+1, 1, 2, 3, 3, 3, 4, 4, 4
+```
+
+状态变化如下：
+
+| `cur` | `count` | `maxCount` | `result` |
+| ---: | ---: | ---: | --- |
+| 1 | 1 | 1 | `[1]` |
+| 1 | 2 | 2 | `[1]` |
+| 2 | 1 | 2 | `[1]` |
+| 3 | 1 | 2 | `[1]` |
+| 3 | 2 | 2 | `[1, 3]` |
+| 3 | 3 | 3 | `[3]` |
+| 4 | 1 | 3 | `[3]` |
+| 4 | 2 | 3 | `[3]` |
+| 4 | 3 | 3 | `[3, 4]` |
+
+最后答案：
+
+```text
+[3, 4]
+```
+
+特别注意两个关键时刻：
+
+```text
+3 第三次出现：超过旧纪录 → clear → [3]
+4 第三次出现：追平纪录 → append → [3, 4]
+```
+
+## 9. 迭代中序写法
+
+把递归换成显式栈后，节点处理逻辑完全不用改变。
+
+```cpp title="迭代中序"
+class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        stack<TreeNode*> st;
+        TreeNode* cur = root;
+        TreeNode* pre = nullptr;
+
+        int count = 0;
+        int maxCount = 0;
+        vector<int> result;
+
+        while (cur != nullptr || !st.empty()) {
+            while (cur != nullptr) {
+                st.push(cur);
+                cur = cur->left;
+            }
+
+            cur = st.top();
+            st.pop();
+
+            if (pre == nullptr || pre->val != cur->val) {
+                count = 1;
+            } else {
+                ++count;
+            }
+
+            if (count > maxCount) {
+                maxCount = count;
+                result.clear();
+                result.push_back(cur->val);
+            } else if (count == maxCount) {
+                result.push_back(cur->val);
+            }
+
+            pre = cur;
+            cur = cur->right;
+        }
+
+        return result;
+    }
+};
+```
+
+递归和迭代只是遍历实现不同，核心状态机完全相同：
+
+```text
+比较 pre 与 cur
+→ 更新 count
+→ 比较 count 与 maxCount
+→ 更新 result
+```
+
+## 10. 为什么不会把同一个值重复加入 `result`
+
+看起来同一个值连续出现多次，当 `count == maxCount` 时可能反复 `push_back`。
+
+但注意 `maxCount` 也在不断变化。
+
+例如某个值连续出现 3 次：
+
+```text
+第 1 次：count = 1
+第 2 次：count = 2
+第 3 次：count = 3
+```
+
+只要它不断刷新最高频率，就会执行：
+
+```text
+clear + push
+```
+
+而不是积累多个相同值。
+
+当它只是追平一个已经存在的全局最高频率时，这个“追平”只会发生在该连续段达到 `maxCount` 的那个时刻一次。
+
+因此结果中不会因为连续计数而重复收集同一个众数。
+
+## 11. 复杂度分析
+
+### BST 专用写法
+
+每个节点只访问一次：
+
+$$
+O(n)
+$$
+
+除结果数组外，额外空间来自递归栈或显式栈：
+
+$$
+O(h)
+$$
+
+其中 $h$ 是树高。
+
+平衡树时：
+
+$$
+O(\log n)
+$$
+
+退化树时：
+
+$$
+O(n)
+$$
+
+### 普通二叉树哈希写法
+
+时间通常也是：
+
+$$
+O(n)
+$$
+
+但还需要最多保存 $O(n)$ 个不同值的哈希表。
+
+这就是 BST 有序性真正帮我们省掉的东西。
+
+## 12. 常见错误
+
+### 错误一：忘记 `result.clear()`
+
+这是本题最典型错误。
+
+一旦出现新的更高频率，旧结果就已经全部失效。
+
+正确逻辑：
+
+```cpp
+if (count > maxCount) {
+    maxCount = count;
+    result.clear();
+    result.push_back(cur->val);
+}
+```
+
+### 错误二：值变化后没有把 `count` 重置为 1
+
+当前节点本身已经出现了一次，所以应该是：
+
+```cpp
+count = 1;
+```
+
+而不是：
+
+```cpp
+count = 0;
+```
+
+### 错误三：忘记更新 `pre`
+
+如果不执行：
+
+```cpp
+pre = cur;
+```
+
+下一次就无法判断当前值是不是上一段的延续。
+
+### 错误四：在普通二叉树上照搬这套方法
+
+这套连续计数成立的前提是：
+
+```text
+中序序列有序
+```
+
+普通二叉树没有这个保证，相同值可能被其他值隔开，因此必须使用哈希表等全局统计方法。
+
+### 错误五：为了求众数先排序整个节点数组
+
+如果输入本来就是 BST，再把节点值收集出来然后排序一次，相当于把已经拥有的有序性丢掉再重新制造：
+
+$$
+O(n\log n)
+$$
+
+这是没有必要的。
+
+## 13. 与“最小绝对差”的统一理解
+
+这两题其实是一套模板。
+
+### 最小绝对差
+
+中序遍历后：
+
+```text
+有序序列
+```
+
+只需要关心：
+
+```text
+当前元素与前一个元素的差
+```
+
+状态：
+
+```text
+pre + minDifference
+```
+
+### 众数
+
+中序遍历后：
+
+```text
+有序序列，相同值连续
+```
+
+只需要关心：
+
+```text
+当前元素是否等于前一个元素
+```
+
+状态：
+
+```text
+pre + count + maxCount + result
+```
+
+共同思想都是：
+
+```text
+不要把 BST 只看成树
+而要把它看成一个可以在线生成的有序序列
+```
+
+<Callout title="本题真正要带走的能力" type="success">
+
+看到 BST 后，不要急着套普通二叉树的遍历模板。先问自己：
+
+> **如果把 BST 中序遍历成有序数组，这道题会不会立刻变简单？**
+
+如果答案是“会”，通常就可以进一步思考：能否在中序遍历过程中在线处理，从而连数组都不保存。
+
+</Callout>
+
+## 14. 复盘清单
+
+完成本篇后，应能独立解释：
+
+- 普通二叉树求众数为什么通常需要哈希表？
+- BST 为什么可以不使用哈希表？
+- 为什么相同值在 BST 的中序序列中一定连续？
+- `pre`、`count`、`maxCount`、`result` 各自维护什么不变量？
+- `count > maxCount` 时为什么一定要清空旧结果？
+- 为什么一次中序遍历就能同时得到最大频率和全部众数？
+- 为什么这道题和“BST 最小绝对差”本质上属于同一类题？
+
+## 其他语言实现
+
+下面各语言统一采用“**中序遍历 + 连续计数 + 在线维护众数**”这一核心解法。
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    private TreeNode pre;
+    private int count;
+    private int maxCount;
+    private List<Integer> result;
+
+    public int[] findMode(TreeNode root) {
+        pre = null;
+        count = 0;
+        maxCount = 0;
+        result = new ArrayList<>();
+
+        inorder(root);
+        return result.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private void inorder(TreeNode node) {
+        if (node == null) return;
+
+        inorder(node.left);
+
+        if (pre == null || pre.val != node.val) {
+            count = 1;
+        } else {
+            count++;
+        }
+
+        if (count > maxCount) {
+            maxCount = count;
+            result.clear();
+            result.add(node.val);
+        } else if (count == maxCount) {
+            result.add(node.val);
+        }
+
+        pre = node;
+        inorder(node.right);
+    }
+}
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def findMode(self, root):
+        pre = None
+        count = 0
+        max_count = 0
+        result = []
+
+        def inorder(node):
+            nonlocal pre, count, max_count, result
+            if node is None:
+                return
+
+            inorder(node.left)
+
+            if pre is None or pre.val != node.val:
+                count = 1
+            else:
+                count += 1
+
+            if count > max_count:
+                max_count = count
+                result.clear()
+                result.append(node.val)
+            elif count == max_count:
+                result.append(node.val)
+
+            pre = node
+            inorder(node.right)
+
+        inorder(root)
+        return result
+```
+
+
+
+```go title="Go" tab="Go"
+func findMode(root *TreeNode) []int {
+    var pre *TreeNode
+    count, maxCount := 0, 0
+    result := make([]int, 0)
+
+    var inorder func(*TreeNode)
+    inorder = func(node *TreeNode) {
+        if node == nil {
+            return
+        }
+
+        inorder(node.Left)
+
+        if pre == nil || pre.Val != node.Val {
+            count = 1
+        } else {
+            count++
+        }
+
+        if count > maxCount {
+            maxCount = count
+            result = result[:0]
+            result = append(result, node.Val)
+        } else if count == maxCount {
+            result = append(result, node.Val)
+        }
+
+        pre = node
+        inorder(node.Right)
+    }
+
+    inorder(root)
+    return result
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var findMode = function(root) {
+    let pre = null;
+    let count = 0;
+    let maxCount = 0;
+    const result = [];
+
+    const inorder = (node) => {
+        if (node === null) return;
+
+        inorder(node.left);
+
+        count = pre === null || pre.val !== node.val ? 1 : count + 1;
+
+        if (count > maxCount) {
+            maxCount = count;
+            result.length = 0;
+            result.push(node.val);
+        } else if (count === maxCount) {
+            result.push(node.val);
+        }
+
+        pre = node;
+        inorder(node.right);
+    };
+
+    inorder(root);
+    return result;
+};
+```
+
+
+
+```typescript title="TypeScript" tab="TypeScript"
+function findMode(root: TreeNode | null): number[] {
+    let pre: TreeNode | null = null;
+    let count = 0;
+    let maxCount = 0;
+    const result: number[] = [];
+
+    function inorder(node: TreeNode | null): void {
+        if (node === null) return;
+
+        inorder(node.left);
+
+        count = pre === null || pre.val !== node.val ? 1 : count + 1;
+
+        if (count > maxCount) {
+            maxCount = count;
+            result.length = 0;
+            result.push(node.val);
+        } else if (count === maxCount) {
+            result.push(node.val);
+        }
+
+        pre = node;
+        inorder(node.right);
+    }
+
+    inorder(root);
+    return result;
+}
+```
+
+### Scala
+
+```scala title="Scala"
+object Solution {
+  def findMode(root: TreeNode): Array[Int] = {
+    var pre: TreeNode = null
+    var count = 0
+    var maxCount = 0
+    val result = scala.collection.mutable.ArrayBuffer[Int]()
+
+    def inorder(node: TreeNode): Unit = {
+      if (node == null) return
+
+      inorder(node.left)
+
+      if (pre == null || pre.value != node.value) count = 1
+      else count += 1
+
+      if (count > maxCount) {
+        maxCount = count
+        result.clear()
+        result += node.value
+      } else if (count == maxCount) {
+        result += node.value
+      }
+
+      pre = node
+      inorder(node.right)
+    }
+
+    inorder(root)
+    result.toArray
+  }
+}
+```
+
+
+
+```rust title="Rust" tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn find_mode(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<i32> {
+        fn inorder(
+            node: &Option<Rc<RefCell<TreeNode>>>,
+            pre: &mut Option<i32>,
+            count: &mut i32,
+            max_count: &mut i32,
+            result: &mut Vec<i32>,
+        ) {
+            let Some(rc) = node else { return };
+
+            let (left, val, right) = {
+                let node = rc.borrow();
+                (node.left.clone(), node.val, node.right.clone())
+            };
+
+            inorder(&left, pre, count, max_count, result);
+
+            if pre.is_none() || *pre != Some(val) {
+                *count = 1;
+            } else {
+                *count += 1;
+            }
+
+            if *count > *max_count {
+                *max_count = *count;
+                result.clear();
+                result.push(val);
+            } else if *count == *max_count {
+                result.push(val);
+            }
+
+            *pre = Some(val);
+            inorder(&right, pre, count, max_count, result);
+        }
+
+        let mut pre = None;
+        let mut count = 0;
+        let mut max_count = 0;
+        let mut result = Vec::new();
+        inorder(
+            &root,
+            &mut pre,
+            &mut count,
+            &mut max_count,
+            &mut result,
+        );
+        result
+    }
+}
+```
+
+
+
+```csharp title="C#" tab="C#"
+public class Solution
+{
+    private TreeNode pre = null;
+    private int count = 0;
+    private int maxCount = 0;
+    private readonly List<int> result = new List<int>();
+
+    public int[] FindMode(TreeNode root)
+    {
+        pre = null;
+        count = 0;
+        maxCount = 0;
+        result.Clear();
+
+        Inorder(root);
+        return result.ToArray();
+    }
+
+    private void Inorder(TreeNode node)
+    {
+        if (node == null) return;
+
+        Inorder(node.left);
+
+        count = pre == null || pre.val != node.val ? 1 : count + 1;
+
+        if (count > maxCount)
+        {
+            maxCount = count;
+            result.Clear();
+            result.Add(node.val);
+        }
+        else if (count == maxCount)
+        {
+            result.Add(node.val);
+        }
+
+        pre = node;
+        Inorder(node.right);
+    }
+}
+```

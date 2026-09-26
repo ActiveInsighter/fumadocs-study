@@ -1,0 +1,1042 @@
+---
+title: 验证二叉搜索树：中序有序与上下界约束
+---
+
+# 验证二叉搜索树：中序有序与上下界约束
+
+> LeetCode 98 · Validate Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/validate-binary-search-tree/)
+
+给定一棵二叉树，判断它是否是一棵合法的二叉搜索树（BST）。
+
+![验证二叉搜索树](https://file1.kamacoder.com/i/algo/20230310000750.png)
+
+这道题看似只是在检查：
+
+```text
+左孩子 < 根 < 右孩子
+```
+
+但真正的 BST 条件要强得多：
+
+```text
+左子树中的所有节点 < 根
+右子树中的所有节点 > 根
+并且左右子树自身也必须满足同样条件
+```
+
+它是 BST 系列中最重要的基础题之一，因为它同时揭示了两个核心视角：
+
+1. **BST 的中序遍历必须严格递增；**
+2. **每个节点都处在祖先共同限定的合法区间中。**
+
+## 1. 最大陷阱：只比较父子节点是不够的
+
+下面这棵树：
+
+```text
+       10
+      /  \
+     5    15
+         /  \
+        6    20
+```
+
+根节点局部看起来完全正常：
+
+```text
+5 < 10 < 15
+```
+
+节点 `15` 自己也满足：
+
+```text
+6 < 15 < 20
+```
+
+但整棵树并不是 BST。
+
+因为 `6` 位于根节点 `10` 的**右子树**，所以它必须满足：
+
+$6 > 10$
+
+显然不成立。
+
+![只检查父子关系会漏掉跨层约束](https://file1.kamacoder.com/i/algo/20230310000824.png)
+
+<Callout title="最重要的纠错" type="warning">
+
+BST 的约束不是：
+
+```text
+左孩子 < 当前节点 < 右孩子
+```
+
+而是：
+
+```text
+左子树所有节点 < 当前节点 < 右子树所有节点
+```
+
+因此必须让祖先节点的约束能够传递到更深层。
+
+</Callout>
+
+## 2. 视角一：BST 的中序遍历严格递增
+
+BST 的定义决定了：
+
+```text
+左子树 < 根 < 右子树
+```
+
+而中序遍历顺序正是：
+
+```text
+左 → 中 → 右
+```
+
+因此一棵合法 BST 的中序序列一定是**严格递增**的。
+
+例如：
+
+```text
+       8
+      / \
+     3   10
+    / \    \
+   1   6    14
+```
+
+中序遍历得到：
+
+```text
+1, 3, 6, 8, 10, 14
+```
+
+只要遍历过程中出现：
+
+```text
+当前值 <= 上一个值
+```
+
+就说明 BST 条件被破坏。
+
+## 3. 最直观写法：先生成中序数组
+
+初学时可以先把“树问题”转换成“数组问题”：
+
+```cpp
+class Solution {
+private:
+    vector<int> values;
+
+    void inorder(TreeNode* root) {
+        if (root == nullptr) return;
+        inorder(root->left);
+        values.push_back(root->val);
+        inorder(root->right);
+    }
+
+public:
+    bool isValidBST(TreeNode* root) {
+        inorder(root);
+
+        for (int i = 1; i < values.size(); ++i) {
+            if (values[i] <= values[i - 1]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+这份写法非常适合理解本质，因为逻辑完全分成两步：
+
+```text
+BST → 中序序列
+判断序列是否严格递增
+```
+
+但是它额外使用了 $O(n)$ 的数组空间。
+
+## 4. 更好的中序写法：只记住前一个节点
+
+其实判断一个序列是否严格递增，并不需要保存整个序列。
+
+只要每次比较：
+
+```text
+当前元素 > 前一个元素
+```
+
+即可。
+
+因此在中序遍历时维护一个 `pre`：
+
+```cpp
+class Solution {
+private:
+    TreeNode* pre = nullptr;
+
+public:
+    bool isValidBST(TreeNode* root) {
+        if (root == nullptr) return true;
+
+        if (!isValidBST(root->left)) {
+            return false;
+        }
+
+        if (pre != nullptr && root->val <= pre->val) {
+            return false;
+        }
+        pre = root;
+
+        return isValidBST(root->right);
+    }
+};
+```
+
+这个写法尤其值得掌握。
+
+### 为什么 `pre` 更新的位置只能在“中”
+
+中序顺序是：
+
+```text
+左 → 中 → 右
+```
+
+所以：
+
+```cpp
+pre = root;
+```
+
+必须发生在：
+
+```text
+左子树已经遍历完成
+当前节点已经完成比较
+右子树还没有开始
+```
+
+这样 `pre` 才始终表示：
+
+> **中序序列中刚刚访问过的那个节点。**
+
+## 5. 为什么必须“严格递增”
+
+题目定义的 BST 不允许重复值。
+
+因此合法关系是：
+
+```text
+pre.val < cur.val
+```
+
+而不是：
+
+```text
+pre.val <= cur.val
+```
+
+所以违规条件应该写成：
+
+```cpp
+if (pre != nullptr && root->val <= pre->val) {
+    return false;
+}
+```
+
+等值也必须判错。
+
+## 6. 不要依赖“人为设置一个极小初值”
+
+一种常见写法是：
+
+```cpp
+long long prev = LLONG_MIN;
+```
+
+然后用当前值和 `prev` 比较。
+
+对于节点值类型为 `int` 的题目，这样通常可行，因为 `long long` 范围更大。
+
+但从算法设计角度，更稳妥的写法是直接使用：
+
+```cpp
+TreeNode* pre = nullptr;
+```
+
+原因是它完全不依赖数值范围。
+
+<Callout title="哨兵值的通用风险" type="warning">
+
+只要你用：
+
+```text
+“取一个绝对不可能出现的最小值 / 最大值”
+```
+
+就要立刻检查题目的数据范围。
+
+如果合法输入恰好能够等于这个哨兵值，算法就可能错误。
+
+能用“是否存在前驱节点”表达状态时，通常比人为造一个极值更稳健。
+
+</Callout>
+
+## 7. 视角二：递归传递合法上下界
+
+验证 BST 还有一种非常重要、也更贴近定义的方法。
+
+对根节点而言，最初可以取：
+
+```text
+(-∞, +∞)
+```
+
+假设当前节点值为 `x`，那么：
+
+```text
+左子树中的所有节点必须属于 (lower, x)
+右子树中的所有节点必须属于 (x, upper)
+```
+
+于是祖先约束会随着递归不断向下收紧。
+
+例如：
+
+```text
+       10
+         \
+          15
+         /
+        6
+```
+
+节点 `6` 虽然满足：
+
+```text
+6 < 15
+```
+
+但当递归进入 `10` 的右子树时，它已经继承了约束：
+
+```text
+值必须 > 10
+```
+
+因此走到 `6` 时，合法区间实际上是：
+
+```text
+(10, 15)
+```
+
+`6` 会立刻被判定非法。
+
+### C++ 上下界写法
+
+```cpp
+class Solution {
+private:
+    bool validate(TreeNode* node, long long lower, long long upper) {
+        if (node == nullptr) return true;
+
+        if (node->val <= lower || node->val >= upper) {
+            return false;
+        }
+
+        return validate(node->left, lower, node->val)
+            && validate(node->right, node->val, upper);
+    }
+
+public:
+    bool isValidBST(TreeNode* root) {
+        return validate(root, LLONG_MIN, LLONG_MAX);
+    }
+};
+```
+
+## 8. 中序法与上下界法到底是什么关系
+
+两种方法看起来完全不同，其实都在验证同一件事。
+
+### 中序法
+
+把全局约束转化成：
+
+```text
+整个中序序列严格递增
+```
+
+它利用的是 BST 的**遍历性质**。
+
+### 上下界法
+
+把全局约束显式写成：
+
+```text
+每个节点都必须位于祖先共同限定的区间内
+```
+
+它利用的是 BST 的**递归定义**。
+
+可以这样记：
+
+| 方法 | 核心状态 | 更适合训练什么 |
+| --- | --- | --- |
+| 中序 + `pre` | 上一个访问节点 | BST 中序有序性 |
+| 上下界递归 | 当前合法区间 | 祖先约束向下传递 |
+
+两种都非常重要，建议都掌握。
+
+## 9. 迭代中序遍历
+
+如果想避免递归，可以直接套中序遍历模板：
+
+```cpp
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        stack<TreeNode*> st;
+        TreeNode* cur = root;
+        TreeNode* pre = nullptr;
+
+        while (cur != nullptr || !st.empty()) {
+            while (cur != nullptr) {
+                st.push(cur);
+                cur = cur->left;
+            }
+
+            cur = st.top();
+            st.pop();
+
+            if (pre != nullptr && cur->val <= pre->val) {
+                return false;
+            }
+            pre = cur;
+
+            cur = cur->right;
+        }
+
+        return true;
+    }
+};
+```
+
+这里的栈只是为了模拟：
+
+```text
+左 → 中 → 右
+```
+
+判断逻辑仍然只有一句：
+
+```cpp
+cur->val > pre->val
+```
+
+## 10. 为什么这题不能像“BST 搜索”那样只走一条路径
+
+上一题搜索某个目标值时，每个节点都能根据：
+
+```text
+target < node.val
+target > node.val
+```
+
+确定唯一方向。
+
+但验证 BST 的任务不同：
+
+> 你需要证明整棵树所有节点都符合约束。
+
+即使左子树完全正确，也不能据此推出右子树正确。
+
+所以必须检查整棵树，最坏情况下会访问全部 $n$ 个节点。
+
+时间复杂度：
+
+$O(n)$
+
+空间复杂度取决于树高：
+
+$O(h)$
+
+其中 $h$ 是递归栈或显式栈的最大深度。
+
+## 11. 高频错误总结
+
+### 错误 1：只比较左右孩子
+
+```cpp
+root->left->val < root->val
+root->right->val > root->val
+```
+
+只能检查局部关系，无法验证祖先约束。
+
+### 错误 2：把 BST 理解成“非递减”
+
+本题不允许重复节点值，所以必须严格递增。
+
+### 错误 3：中序遍历顺序写错
+
+如果不是严格：
+
+```text
+左 → 中 → 右
+```
+
+就不能利用“中序递增”性质。
+
+### 错误 4：递归发现左子树已经失败，却还继续计算
+
+推荐直接短路：
+
+```cpp
+if (!isValidBST(root->left)) {
+    return false;
+}
+```
+
+这样逻辑更清楚，也避免无意义搜索。
+
+### 错误 5：跨多次调用保留了旧的 `pre`
+
+如果 `pre` 是类成员，而同一个对象可能多次调用 `isValidBST`，需要确保每次验证前状态已经重置。
+
+算法题平台通常每个测试会重新构造 `Solution`，但工程代码不能依赖这个隐含条件。
+
+## 12. 推荐的解题判断链
+
+看到“验证 BST”，可以快速想到：
+
+```text
+BST
+ ↓
+中序遍历严格递增
+ ↓
+不必保存整个数组
+ ↓
+只比较当前节点与前驱节点 pre
+```
+
+或者：
+
+```text
+BST
+ ↓
+每个节点都有合法区间
+ ↓
+左子树缩小 upper
+右子树提高 lower
+```
+
+这两条思考链分别对应两套稳定模板。
+
+<Callout title="本题真正要带走的能力" type="success">
+
+这题不是在背一个 `isValidBST` 函数，而是在学习：
+
+1. 如何把树的全局性质转化成遍历序列性质；
+2. 如何让祖先产生的约束沿递归向下传递；
+3. 如何识别“只看父子节点”的局部判断为什么不足。
+
+这三个思想会反复出现在后续 BST、区间递归和树形约束题中。
+
+</Callout>
+
+## 其他语言版本
+
+```java tab="Java"
+//使用統一迭代法
+class Solution {
+    public boolean isValidBST(TreeNode root) {
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode pre = null;
+        if(root != null)
+            stack.add(root);
+        while(!stack.isEmpty()){
+            TreeNode curr = stack.peek();
+            if(curr != null){
+                stack.pop();
+                if(curr.right != null)
+                    stack.add(curr.right);
+                stack.add(curr);
+                stack.add(null);
+                if(curr.left != null)
+                    stack.add(curr.left);
+            }else{
+                stack.pop();
+                TreeNode temp = stack.pop();
+                if(pre != null && pre.val >= temp.val)
+                    return false;
+                pre = temp;
+            }
+        }
+        return true;
+    }
+}
+
+class Solution {
+    // 递归
+    TreeNode max;
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        // 左
+        boolean left = isValidBST(root.left);
+        if (!left) {
+            return false;
+        }
+        // 中
+        if (max != null && root.val <= max.val) {
+            return false;
+        }
+        max = root;
+        // 右
+        boolean right = isValidBST(root.right);
+        return right;
+    }
+}
+
+class Solution {
+    // 迭代
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode pre = null;
+        while (root != null || !stack.isEmpty()) {
+            while (root != null) {
+                stack.push(root);
+                root = root.left;// 左
+            }
+            // 中，处理
+            TreeNode pop = stack.pop();
+            if (pre != null && pop.val <= pre.val) {
+                return false;
+            }
+            pre = pop;
+
+            root = pop.right;// 右
+        }
+        return true;
+    }
+}
+
+// 简洁实现·递归解法
+class Solution {
+    public boolean isValidBST(TreeNode root) {
+        return validBST(Long.MIN_VALUE, Long.MAX_VALUE, root);
+    }
+    boolean validBST(long lower, long upper, TreeNode root) {
+        if (root == null) return true;
+        if (root.val <= lower || root.val >= upper) return false;
+        return validBST(lower, root.val, root.left) && validBST(root.val, upper, root.right);
+    }
+}
+// 简洁实现·中序遍历
+class Solution {
+    private long prev = Long.MIN_VALUE;
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        if (!isValidBST(root.left)) {
+            return false;
+        }
+        if (root.val <= prev) { // 不满足二叉搜索树条件
+            return false;
+        }
+        prev = root.val;
+        return isValidBST(root.right);
+    }
+}
+```
+
+```python tab="Python"
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self):
+        self.vec = []
+
+    def traversal(self, root):
+        if root is None:
+            return
+        self.traversal(root.left)
+        self.vec.append(root.val)  # 将二叉搜索树转换为有序数组
+        self.traversal(root.right)
+
+    def isValidBST(self, root):
+        self.vec = []  # 清空数组
+        self.traversal(root)
+        for i in range(1, len(self.vec)):
+            # 注意要小于等于，搜索树里不能有相同元素
+            if self.vec[i] <= self.vec[i - 1]:
+                return False
+        return True
+
+class Solution:
+    def __init__(self):
+        self.maxVal = float('-inf')  # 因为后台测试数据中有int最小值
+
+    def isValidBST(self, root):
+        if root is None:
+            return True
+
+        left = self.isValidBST(root.left)
+        # 中序遍历，验证遍历的元素是不是从小到大
+        if self.maxVal < root.val:
+            self.maxVal = root.val
+        else:
+            return False
+        right = self.isValidBST(root.right)
+
+        return left and right
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def __init__(self):
+        self.pre = None  # 用来记录前一个节点
+
+    def isValidBST(self, root):
+        if root is None:
+            return True
+
+        left = self.isValidBST(root.left)
+
+        if self.pre is not None and self.pre.val >= root.val:
+            return False
+        self.pre = root  # 记录前一个节点
+
+        right = self.isValidBST(root.right)
+        return left and right
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root):
+        stack = []
+        cur = root
+        pre = None  # 记录前一个节点
+        while cur is not None or len(stack) > 0:
+            if cur is not None:
+                stack.append(cur)
+                cur = cur.left  # 左
+            else:
+                cur = stack.pop()  # 中
+                if pre is not None and cur.val <= pre.val:
+                    return False
+                pre = cur  # 保存前一个访问的结点
+                cur = cur.right  # 右
+        return True
+```
+
+```go tab="Go"
+func isValidBST(root *TreeNode) bool {
+	// 二叉搜索树也可以是空树
+    if root == nil {
+        return true
+    }
+    // 由题目中的数据限制可以得出min和max
+    return check(root,math.MinInt64,math.MaxInt64)
+}
+
+func check(node *TreeNode,min,max int64) bool {
+    if node == nil {
+        return true
+    }
+
+    if min >= int64(node.Val) || max <= int64(node.Val) {
+        return false
+    }
+    // 分别对左子树和右子树递归判断，如果左子树和右子树都符合则返回true
+    return check(node.Right,int64(node.Val),max) && check(node.Left,min,int64(node.Val))
+}
+
+// 中序遍历解法
+func isValidBST(root *TreeNode) bool {
+    // 保存上一个指针
+    var prev *TreeNode
+    var travel func(node *TreeNode) bool
+    travel = func(node *TreeNode) bool {
+        if node == nil {
+            return true
+        }
+        leftRes := travel(node.Left)
+        // 当前值小于等于前一个节点的值，返回false
+        if prev != nil && node.Val <= prev.Val {
+            return false
+        }
+        prev = node
+        rightRes := travel(node.Right)
+        return leftRes && rightRes
+    }
+    return travel(root)
+}
+```
+
+```javascript tab="JavaScript"
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+var isValidBST = function (root) {
+    let arr = [];
+    const buildArr = (root) => {
+        if (root) {
+            buildArr(root.left);
+            arr.push(root.val);
+            buildArr(root.right);
+        }
+    }
+    buildArr(root);
+    for (let i = 1; i < arr.length; ++i) {
+        if (arr[i] <= arr[i - 1])
+            return false;
+    }
+    return true;
+};
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+let pre = null;
+var isValidBST = function (root) {
+    let pre = null;
+    const inOrder = (root) => {
+        if (root === null)
+            return true;
+        let left = inOrder(root.left);
+
+        if (pre !== null && pre.val >= root.val)
+            return false;
+        pre = root;
+
+        let right = inOrder(root.right);
+        return left && right;
+    }
+    return inOrder(root);
+};
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @return {boolean}
+ */
+let pre = null;
+var isValidBST = function (root) {
+	const queue = [];
+	let cur = root;
+	let pre = null;
+	while (cur !== null || queue.length !== 0) {
+		if (cur !== null) {
+			queue.push(cur);
+			cur = cur.left;
+		} else {
+			cur = queue.pop();
+			if (pre !== null && cur.val <= pre.val) {
+				return false;
+			}
+			pre = cur;
+			cur = cur.right;
+		}
+	}
+	return true;
+};
+```
+
+```typescript tab="TypeScript"
+function isValidBST(root: TreeNode | null): boolean {
+    const traversalArr: number[] = [];
+    function inorderTraverse(root: TreeNode | null): void {
+        if (root === null) return;
+        inorderTraverse(root.left);
+        traversalArr.push(root.val);
+        inorderTraverse(root.right);
+    }
+    inorderTraverse(root);
+    for (let i = 0, length = traversalArr.length; i < length - 1; i++) {
+        if (traversalArr[i] >= traversalArr[i + 1]) return false;
+    }
+    return true;
+};
+
+function isValidBST(root: TreeNode | null): boolean {
+    let maxVal = -Infinity;
+    function inorderTraverse(root: TreeNode | null): boolean {
+        if (root === null) return true;
+        let leftValid: boolean = inorderTraverse(root.left);
+        if (!leftValid) return false;
+        if (maxVal < root.val) {
+            maxVal = root.val
+        } else {
+            return false;
+        }
+        let rightValid: boolean = inorderTraverse(root.right);
+        return leftValid && rightValid;
+    }
+    return inorderTraverse(root);
+};
+
+function isValidBST(root: TreeNode | null): boolean {
+	const queue: TreeNode[] = [];
+	let cur: TreeNode | null = root;
+	let pre: TreeNode | null = null;
+	while (cur !== null || queue.length !== 0) {
+		if (cur !== null) {
+			queue.push(cur);
+			cur = cur.left;
+		} else {
+			cur = queue.pop()!;
+			if (pre !== null && cur!.val <= pre.val) {
+				return false;
+			}
+			pre = cur;
+			cur = cur!.right;
+		}
+	}
+	return true;
+}
+```
+
+```scala label="Scala"
+object Solution {
+  import scala.collection.mutable
+  def isValidBST(root: TreeNode): Boolean = {
+    var arr = new mutable.ArrayBuffer[Int]()
+    // 递归中序遍历二叉树，将节点添加到arr
+    def traversal(node: TreeNode): Unit = {
+      if (node == null) return
+      traversal(node.left)
+      arr.append(node.value)
+      traversal(node.right)
+    }
+    traversal(root)
+    // 这个数组如果是升序就代表是二叉搜索树
+    for (i <- 1 until arr.size) {
+      if (arr(i) <= arr(i - 1)) return false
+    }
+    true
+  }
+}
+
+object Solution {
+  def isValidBST(root: TreeNode): Boolean = {
+    var flag = true
+    var preValue:Long = Long.MinValue // 这里要使用Long类型
+
+    def traversal(node: TreeNode): Unit = {
+      if (node == null || flag == false) return
+      traversal(node.left)
+      if (node.value > preValue) preValue = node.value
+      else flag = false
+      traversal(node.right)
+    }
+    traversal(root)
+    flag
+  }
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn is_valid_bst(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        Self::valid_bst(i64::MIN, i64::MAX, root)
+    }
+    pub fn valid_bst(low: i64, upper: i64, root: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        if root.is_none() {
+            return true;
+        }
+        let root = root.as_ref().unwrap().borrow();
+        if root.val as i64 <= low || root.val as i64 >= upper {
+            return false;
+        }
+        Self::valid_bst(low, root.val as i64, root.left.clone())
+            && Self::valid_bst(root.val as i64, upper, root.right.clone())
+    }
+}
+
+impl Solution {
+    pub fn is_valid_bst(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
+        let mut vec = vec![];
+        Self::valid_bst(root, &mut vec);
+        for i in 1..vec.len() {
+            if vec[i] <= vec[i - 1] {
+                return false;
+            }
+        }
+        true
+    }
+    pub fn valid_bst(root: Option<Rc<RefCell<TreeNode>>>, mut v: &mut Vec<i64>) {
+        if root.is_none() {
+            return;
+        }
+        let node = root.as_ref().unwrap().borrow();
+        Self::valid_bst(node.left.clone(), v);
+        v.push(node.val as i64);
+        Self::valid_bst(node.right.clone(), v);
+    }
+}
+```
+
+```csharp tab="C#"
+// 递归
+public long val = Int64.MinValue;
+public bool IsValidBST(TreeNode root)
+{
+    if (root == null) return true;
+    bool left = IsValidBST(root.left);
+    if (root.val > val) val = root.val;
+    else return false;
+    bool right = IsValidBST(root.right);
+    return left && right;
+}
+```

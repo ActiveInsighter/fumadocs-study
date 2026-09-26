@@ -1,0 +1,878 @@
+---
+title: 路径总和：存在性搜索、剩余目标与递归短路
+description: 以 LeetCode 112 为主线，系统理解根到叶路径、剩余目标值、布尔递归的短路返回、显式与隐式回溯，并对比 LeetCode 113 为什么必须搜索整棵树。
+---
+
+# 路径总和：存在性搜索、剩余目标与递归短路
+
+> LeetCode 112 · Path Sum
+
+[题目链接](https://leetcode.cn/problems/path-sum/)
+
+给定一棵二叉树和目标值 `targetSum`，判断是否存在一条**从根节点到叶子节点**的路径，使路径上所有节点值之和恰好等于目标值。
+
+![路径总和示例](https://file1.kamacoder.com/i/algo/20230407210247.png)
+
+例如上图中：
+
+```text
+5 → 4 → 11 → 2
+```
+
+满足：
+
+$$
+5+4+11+2=22
+$$
+
+所以目标值为 $22$ 时返回 `true`。
+
+<Callout title="本题最重要的四个字：根到叶子" type="warning">
+
+满足和为目标值还不够，路径必须：
+
+```text
+从根开始
+一直走到叶子结束
+```
+
+如果某个中间节点处累计和已经等于 `targetSum`，但它还有孩子，**不能立即返回 `true`**。
+
+</Callout>
+
+## 1. 先把“路径”定义准确
+
+设一条合法路径为：
+
+$$
+P=(v_0,v_1,\ldots,v_k)
+$$
+
+必须同时满足：
+
+- $v_0$ 是根节点；
+- 相邻节点存在父子关系；
+- $v_k$ 是叶子节点；
+- 节点值之和满足：
+
+$$
+\sum_{i=0}^{k} val(v_i)=targetSum
+$$
+
+这里的叶子条件不能省略。
+
+## 2. 两种等价的状态设计
+
+路径和问题可以有两种最常见的状态表达。
+
+### 累计和
+
+从根开始累加：
+
+```text
+currentSum += node.val
+```
+
+到叶子时判断：
+
+```text
+currentSum == targetSum
+```
+
+### 剩余目标
+
+把目标值逐层减掉：
+
+```text
+remain -= node.val
+```
+
+到叶子时判断：
+
+```text
+remain == node.val
+```
+
+或者在进入下一层前已经减掉当前节点，则判断 `remain == 0`。
+
+两者完全等价，但“剩余目标”往往更容易直接写成递归定义。
+
+## 3. 最干净的递归定义
+
+定义：
+
+```cpp
+bool hasPathSum(TreeNode* root, int targetSum)
+```
+
+函数语义是：
+
+> 在以 `root` 为根的子树中，是否存在一条**从 `root` 到某个叶子**的路径，使路径和等于 `targetSum`。
+
+这个定义非常重要，因为它直接决定递推关系。
+
+如果当前节点值为 `root->val`，那么进入孩子后，孩子还需要完成的目标就是：
+
+$$
+targetSum-root.val
+$$
+
+因此递推式可以写成：
+
+$$
+F(u,t)=F(u.left,t-val(u))\lor F(u.right,t-val(u))
+$$
+
+但叶子节点必须单独处理。
+
+## 4. 为什么叶子节点是核心终止条件
+
+空节点：
+
+```cpp
+if (root == nullptr) return false;
+```
+
+如果当前节点是叶子：
+
+```cpp
+if (root->left == nullptr && root->right == nullptr) {
+    return targetSum == root->val;
+}
+```
+
+这里不能写成：
+
+```cpp
+if (targetSum == root->val) return true;
+```
+
+因为当前节点可能还不是叶子。
+
+例如：
+
+```text
+目标和 = 5
+
+    5
+   /
+  100
+```
+
+根节点值已经是 $5$，但合法路径必须走到叶子，所以不能在根节点直接成功。
+
+## 5. 为什么本题的递归函数应该返回 `bool`
+
+这是这道题最值得学习的递归设计问题。
+
+我们只需要回答：
+
+```text
+“是否存在至少一条符合条件的路径？”
+```
+
+一旦任意一条分支找到答案，其他分支就没有继续搜索的必要。
+
+因此最自然的递归结果是：
+
+```text
+true  = 当前子树中已经找到合法路径
+false = 当前子树中没有合法路径
+```
+
+并使用逻辑或：
+
+```cpp
+leftResult || rightResult
+```
+
+![路径总和的搜索过程](https://file1.kamacoder.com/i/algo/2021020316051216.png)
+
+<Callout title="存在性搜索 = 可以短路" type="idea">
+
+如果题目问的是：
+
+```text
+是否存在一个解
+```
+
+那么递归通常可以把“是否找到”作为返回值向上传播，并在找到后立即停止继续搜索。
+
+如果题目问的是：
+
+```text
+找出所有解
+```
+
+那就不能在第一个解出现时结束，通常需要遍历完整搜索空间并把答案收集起来。
+
+</Callout>
+
+## 6. 递归三步法
+
+### 1. 参数与返回值
+
+参数：
+
+```text
+当前节点 root
+当前还需要凑出的 targetSum
+```
+
+返回值：
+
+```text
+当前子树是否存在合法根到叶路径
+```
+
+### 2. 终止条件
+
+空节点无法形成路径：
+
+```cpp
+if (root == nullptr) return false;
+```
+
+叶子节点直接检查剩余目标：
+
+```cpp
+if (root->left == nullptr && root->right == nullptr) {
+    return targetSum == root->val;
+}
+```
+
+### 3. 递归左右子树
+
+当前节点被选入路径后：
+
+```cpp
+int remain = targetSum - root->val;
+```
+
+然后只要左右任一子树成功即可：
+
+```cpp
+return hasPathSum(root->left, remain)
+    || hasPathSum(root->right, remain);
+```
+
+## 7. C++ 最推荐写法
+
+```cpp title="递归：剩余目标 + 短路返回"
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        if (root == nullptr) return false;
+
+        if (root->left == nullptr && root->right == nullptr) {
+            return targetSum == root->val;
+        }
+
+        int remain = targetSum - root->val;
+
+        return hasPathSum(root->left, remain)
+            || hasPathSum(root->right, remain);
+    }
+};
+```
+
+这段代码很短，但每一行都对应前面的递归定义。
+
+## 8. `||` 不只是合并答案，还会短路
+
+C++ 中：
+
+```cpp
+A || B
+```
+
+如果 `A` 已经为 `true`，那么 `B` 不需要再计算。
+
+因此：
+
+```cpp
+hasPathSum(root->left, remain)
+|| hasPathSum(root->right, remain)
+```
+
+表示：
+
+```text
+先搜索左子树
+如果找到，立即结束
+否则再搜索右子树
+```
+
+这就是递归中的**剪枝 / 短路返回**。
+
+它不会改变最坏时间复杂度，但能减少很多不必要搜索。
+
+## 9. 回溯到底在哪里
+
+源代码中常见另一种写法：
+
+```cpp
+count -= child->val;
+if (dfs(child, count)) return true;
+count += child->val;
+```
+
+这显式体现了：
+
+```text
+做选择 → 递归 → 撤销选择
+```
+
+而推荐写法：
+
+```cpp
+dfs(child, count - child->val)
+```
+
+把新状态直接作为参数传给下一层。
+
+由于整数是值传递，当前栈帧中的 `count` 没有被修改，所以递归返回时自然恢复原值。
+
+这仍然是回溯，只是状态恢复由调用栈和参数值自动完成。
+
+<Callout title="什么时候必须显式回溯" type="info">
+
+如果递归状态是共享可变对象，例如：
+
+```cpp
+vector<int> path;
+```
+
+那么通常就必须写：
+
+```cpp
+path.push_back(...);  // 做选择
+dfs(...);
+path.pop_back();      // 撤销选择
+```
+
+这正是后面的 Path Sum II 会遇到的情况。
+
+</Callout>
+
+## 10. 解法二：显式栈 DFS
+
+递归调用栈实际上保存了两类信息：
+
+```text
+当前节点
+到达当前节点时的路径状态
+```
+
+所以改成显式栈时，也必须同时保存它们。
+
+最直观的是保存：
+
+```cpp
+pair<TreeNode*, long long>
+```
+
+其中第二项表示从根到当前节点的路径和。
+
+```cpp title="显式栈 DFS"
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        if (root == nullptr) return false;
+
+        stack<pair<TreeNode*, long long>> st;
+        st.push({root, root->val});
+
+        while (!st.empty()) {
+            auto [node, sum] = st.top();
+            st.pop();
+
+            if (node->left == nullptr && node->right == nullptr
+                && sum == targetSum) {
+                return true;
+            }
+
+            if (node->right != nullptr) {
+                st.push({node->right, sum + node->right->val});
+            }
+            if (node->left != nullptr) {
+                st.push({node->left, sum + node->left->val});
+            }
+        }
+
+        return false;
+    }
+};
+```
+
+### 为什么栈里不能只放节点
+
+如果只保存：
+
+```cpp
+TreeNode*
+```
+
+当节点以后从栈中弹出时，你已经不知道：
+
+```text
+“从根走到它的路径和是多少”
+```
+
+所以迭代化递归时，一个非常通用的原则是：
+
+> 递归参数中携带了什么状态，显式栈元素通常也要携带对应状态。
+
+## 11. BFS 也能做吗
+
+可以。
+
+把栈换成队列，仍然同时保存：
+
+```text
+节点 + 根到该节点的路径和
+```
+
+就可以按层搜索。
+
+但本题不要求“最短路径”“最浅层答案”，所以 BFS 相比 DFS 没有本质优势。
+
+## 12. 一个很重要的误区：不能用 `sum > target` 剪枝
+
+很多人会想到：
+
+```text
+当前路径和已经超过 targetSum，就不用继续了
+```
+
+这在本题中**不成立**，因为节点值允许为负数。
+
+例如：
+
+```text
+target = 5
+
+10 → -8 → 3
+```
+
+路径前半段已经达到 $10>5$，但后面仍可能通过负数重新回到目标值。
+
+所以除非题目明确保证节点值非负，否则不能使用这种大小关系剪枝。
+
+## 13. Path Sum II：为什么“找全部路径”完全不同
+
+LeetCode 113 要求返回**所有**路径和等于目标值的根到叶路径。
+
+[题目链接](https://leetcode.cn/problems/path-sum-ii/)
+
+![Path Sum II 示例](https://file1.kamacoder.com/i/algo/20210203160854654.png)
+
+这时即使找到一条合法路径，也必须继续搜索其他分支。
+
+![Path Sum II 搜索过程](https://file1.kamacoder.com/i/algo/20210203160922745.png)
+
+因此 112 和 113 的递归目标根本不同：
+
+| 问题 | 搜索目标 | 找到一条后能否结束 | 典型递归返回值 |
+| --- | --- | --- | --- |
+| 112 Path Sum | 是否存在一条 | 可以 | `bool` |
+| 113 Path Sum II | 找出所有路径 | 不可以 | 常用 `void` + 收集结果 |
+
+## 14. Path Sum II 的标准回溯结构
+
+我们维护：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+`path` 始终表示：
+
+> 从根节点到当前节点的完整路径。
+
+于是每走向一个孩子：
+
+```text
+加入孩子 → 递归 → 删除孩子
+```
+
+```cpp title="Path Sum II：完整搜索 + 显式回溯"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void dfs(TreeNode* node, long long remain) {
+        if (node->left == nullptr && node->right == nullptr) {
+            if (remain == node->val) {
+                result.push_back(path);
+            }
+            return;
+        }
+
+        long long nextRemain = remain - node->val;
+
+        if (node->left != nullptr) {
+            path.push_back(node->left->val);
+            dfs(node->left, nextRemain);
+            path.pop_back();
+        }
+
+        if (node->right != nullptr) {
+            path.push_back(node->right->val);
+            dfs(node->right, nextRemain);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        result.clear();
+        path.clear();
+
+        if (root == nullptr) return result;
+
+        path.push_back(root->val);
+        dfs(root, targetSum);
+        return result;
+    }
+};
+```
+
+这里的 `path` 是共享可变状态，所以：
+
+```cpp
+path.push_back(...)
+```
+
+和：
+
+```cpp
+path.pop_back()
+```
+
+必须严格成对。
+
+## 15. 112 与 113：递归返回值怎么判断
+
+可以总结成一个非常实用的判断框架。
+
+<Cards>
+  <Card title="只找一个解">让递归返回“是否找到”，成功后向上传播并立即结束。</Card>
+  <Card title="找所有解">不能因为找到一个答案就停止，需要完整遍历，并把答案加入外部结果集合。</Card>
+  <Card title="子树结果还要参与父层计算">让递归返回子树计算结果，例如高度、节点数、布尔状态或目标节点。</Card>
+</Cards>
+
+这比死记“哪些题返回 `bool`，哪些题返回 `void`”更重要。
+
+## 16. 复杂度分析
+
+对于 112 Path Sum，无论递归 DFS 还是显式栈 DFS，最坏情况下都需要访问所有节点。
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+递归额外空间由树高决定：
+
+$$
+O(h)
+$$
+
+平衡树中：
+
+$$
+h=O(\log n)
+$$
+
+退化链表中：
+
+$$
+h=O(n)
+$$
+
+显式栈最坏也可能保存 $O(n)$ 个状态。
+
+对于 113 Path Sum II，除了搜索成本，还必须考虑输出本身的大小，因此不能简单把所有复制路径的成本忽略掉。
+
+## 17. 常见错误
+
+### 17.1 忘记“必须到叶子”
+
+错误：
+
+```cpp
+if (targetSum == root->val) return true;
+```
+
+正确：必须同时满足当前节点是叶子。
+
+### 17.2 把空节点当作路径终点
+
+合法终点是：
+
+```text
+叶子节点
+```
+
+而不是：
+
+```text
+叶子的 nullptr 孩子
+```
+
+把终止条件放在真实节点处通常更容易保持语义清晰。
+
+### 17.3 为 112 收集整条路径
+
+112 只判断存在性，不需要保存所有节点值。
+
+只携带：
+
+```text
+剩余目标值
+```
+
+就足够了。
+
+### 17.4 为 113 找到第一条路径就 `return true`
+
+113 要求所有答案，提前终止会漏解。
+
+### 17.5 忘记恢复共享 `path`
+
+```cpp
+path.push_back(child->val);
+dfs(child, ...);
+// 忘了 pop_back()
+```
+
+会让一个分支的节点残留到另一个分支里。
+
+## 18. 和「二叉树的所有路径」的联系
+
+前面的“二叉树的所有路径”已经建立了一个重要模板：
+
+```text
+根到当前节点的路径 = DFS 的路径状态
+```
+
+本题是在这个模板上增加“路径和”约束：
+
+```text
+257：把所有根到叶路径收集起来
+112：只判断是否存在满足和条件的一条路径
+113：收集所有满足和条件的路径
+```
+
+它们的区别并不在“会不会 DFS”，而在：
+
+```text
+搜索目标是什么
+状态需要保存什么
+找到答案后是否继续
+递归返回值承担什么职责
+```
+
+<Callout title="一句话记忆" type="success">
+
+Path Sum 最推荐的思维模型是：
+
+```text
+每经过一个节点，就把它的值从“剩余目标”中扣掉；
+只有走到叶子时，才判断这条根到叶路径是否真正完成目标。
+```
+
+112 是**存在性搜索**，可以 `bool + ||` 短路；
+113 是**枚举所有解**，必须完整搜索并显式回溯路径。
+
+</Callout>
+
+## 其他语言版本
+
+
+
+```java tab="Java"
+class Solution {
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) return false;
+
+        if (root.left == null && root.right == null) {
+            return targetSum == root.val;
+        }
+
+        int remain = targetSum - root.val;
+        return hasPathSum(root.left, remain)
+            || hasPathSum(root.right, remain);
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if root is None:
+            return False
+
+        if root.left is None and root.right is None:
+            return targetSum == root.val
+
+        remain = targetSum - root.val
+        return (
+            self.hasPathSum(root.left, remain)
+            or self.hasPathSum(root.right, remain)
+        )
+```
+
+
+
+```go tab="Go"
+func hasPathSum(root *TreeNode, targetSum int) bool {
+    if root == nil {
+        return false
+    }
+
+    if root.Left == nil && root.Right == nil {
+        return targetSum == root.Val
+    }
+
+    remain := targetSum - root.Val
+    return hasPathSum(root.Left, remain) ||
+        hasPathSum(root.Right, remain)
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var hasPathSum = function(root, targetSum) {
+  if (root === null) return false;
+
+  if (root.left === null && root.right === null) {
+    return targetSum === root.val;
+  }
+
+  const remain = targetSum - root.val;
+  return hasPathSum(root.left, remain) ||
+         hasPathSum(root.right, remain);
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
+  if (root === null) return false;
+
+  if (root.left === null && root.right === null) {
+    return targetSum === root.val;
+  }
+
+  const remain = targetSum - root.val;
+  return hasPathSum(root.left, remain) ||
+         hasPathSum(root.right, remain);
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func hasPathSum(_ root: TreeNode?, _ targetSum: Int) -> Bool {
+        guard let root = root else { return false }
+
+        if root.left == nil && root.right == nil {
+            return targetSum == root.val
+        }
+
+        let remain = targetSum - root.val
+        return hasPathSum(root.left, remain) ||
+               hasPathSum(root.right, remain)
+    }
+}
+```
+
+
+
+```c tab="C"
+bool hasPathSum(struct TreeNode* root, int targetSum) {
+    if (root == NULL) return false;
+
+    if (root->left == NULL && root->right == NULL) {
+        return targetSum == root->val;
+    }
+
+    int remain = targetSum - root->val;
+    return hasPathSum(root->left, remain) ||
+           hasPathSum(root->right, remain);
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def hasPathSum(root: TreeNode, targetSum: Int): Boolean = {
+    if (root == null) return false
+
+    if (root.left == null && root.right == null) {
+      return targetSum == root.value
+    }
+
+    val remain = targetSum - root.value
+    hasPathSum(root.left, remain) || hasPathSum(root.right, remain)
+  }
+}
+```
+
+
+
+```rust tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn has_path_sum(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        target_sum: i32,
+    ) -> bool {
+        let Some(node) = root else { return false };
+        let node_ref = node.borrow();
+
+        if node_ref.left.is_none() && node_ref.right.is_none() {
+            return target_sum == node_ref.val;
+        }
+
+        let remain = target_sum - node_ref.val;
+        let left = node_ref.left.clone();
+        let right = node_ref.right.clone();
+        drop(node_ref);
+
+        Self::has_path_sum(left, remain) ||
+            Self::has_path_sum(right, remain)
+    }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    public bool HasPathSum(TreeNode root, int targetSum) {
+        if (root == null) return false;
+
+        if (root.left == null && root.right == null) {
+            return targetSum == root.val;
+        }
+
+        int remain = targetSum - root.val;
+        return HasPathSum(root.left, remain) ||
+               HasPathSum(root.right, remain);
+    }
+}
+```

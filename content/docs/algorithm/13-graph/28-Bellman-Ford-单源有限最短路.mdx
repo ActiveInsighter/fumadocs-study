@@ -1,0 +1,891 @@
+---
+title: Bellman-Ford 单源有限最短路
+subtitle: 在“最多经过 k 个城市”限制下，为什么必须冻结上一轮状态
+summary: 以卡码网 96「城市间货物运输 III」为主线，系统掌握有限边数最短路的动态规划本质、Bellman-Ford 的分层松弛、为什么原地更新会越过边数限制，以及 SPFA 分层优化与 Dijkstra 不适用的原因。
+---
+
+# Bellman-Ford 单源有限最短路
+
+> **卡码网 96. 城市间货物运输 III**
+>
+> 给定一张允许负权边的有向图，要求从 `src` 到 `dst` 的最小代价，并限制**最多经过 $k$ 个中间城市**。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1154)
+
+这道题最容易犯的错误不是不会 Bellman-Ford，而是把“松弛 $k+1$ 轮”理解成：
+
+> **把普通 Bellman-Ford 的循环次数从 $n-1$ 改成 $k+1$ 就行。**
+
+实际上还差一个关键条件：
+
+> **第 $t$ 轮必须只从第 $t-1$ 轮的结果转移，不能在同一轮里继续使用刚更新出来的距离。**
+
+这正是“有限边数最短路”和普通 Bellman-Ford 最核心的区别。
+
+---
+
+## 1. 先把题意翻译成“最多使用多少条边”
+
+题目说：
+
+> 最多经过 $k$ 个城市。
+
+这里的“经过”通常指起点与终点之间的**中间城市**。
+
+如果路径形如：
+
+```text
+src -> v1 -> v2 -> ... -> vk -> dst
+```
+
+那么中间城市有 $k$ 个，而边数为：
+
+$$
+k+1
+$$
+
+因此原问题等价于：
+
+> **求从 `src` 到 `dst`、最多使用 $k+1$ 条边的最短路。**
+
+原资料示意图：
+
+![经过 k 个中间城市对应 k+1 条边](https://file1.kamacoder.com/i/algo/20240402115614.png)
+
+<Callout type="info" title="先统一计数口径">
+
+做“限站数 / 限中转次数 / 限经过城市数”题时，第一步一定要把限制转成**最多使用多少条边**。
+
+- 经过 $k$ 个中间点：最多 $k+1$ 条边；
+- 最多中转 $k$ 次：通常也是最多 $k+1$ 条边；
+- 最多走 $k$ 条边：直接就是 $k$ 条边。
+
+不同题目的自然语言可能不同，代码中的循环次数必须与题意口径严格对应。
+
+</Callout>
+
+---
+
+## 2. Bellman-Ford 为什么天然适合“限制边数”
+
+Bellman-Ford 的核心操作是对一条边：
+
+```text
+u -> v, weight = w
+```
+
+执行松弛：
+
+$$
+dist[v]=\min(dist[v],dist[u]+w)
+$$
+
+如果把 Bellman-Ford 看成“按边数逐层扩展”，那么：
+
+- 只允许使用至多 $0$ 条边：只有源点自己可达；
+- 松弛一轮后：得到至多使用 $1$ 条边的最短距离；
+- 再松弛一轮：得到至多使用 $2$ 条边的最短距离；
+- ……
+- 松弛 $k+1$ 轮：得到至多使用 $k+1$ 条边的最短距离。
+
+因此这道题最自然的状态就是：
+
+$$
+dp_t[v]=\text{从 src 到 v，最多使用 }t\text{ 条边的最小代价}
+$$
+
+状态转移：
+
+$$
+dp_t[v]
+=
+\min\left(
+    dp_{t-1}[v],
+    \min_{(u,v,w)\in E}\{dp_{t-1}[u]+w\}
+\right)
+$$
+
+这就是一个非常标准的动态规划。
+
+---
+
+## 3. 为什么“普通 Bellman-Ford 原地更新”会出错
+
+很多人会直接写：
+
+```cpp
+for (int round = 1; round <= k + 1; ++round) {
+    for (auto [u, v, w] : edges) {
+        if (dist[u] != INF) {
+            dist[v] = min(dist[v], dist[u] + w);
+        }
+    }
+}
+```
+
+看起来每轮只扫描一次所有边，好像正好对应一条边。
+
+但这里有一个隐藏问题：
+
+> **同一轮扫描中，后面的边会立即使用前面的边刚更新出来的 `dist`。**
+
+这样一轮扫描可能传播很多条边，而不是一条边。
+
+---
+
+## 4. 一个能把错误暴露出来的负环例子
+
+考虑：
+
+```text
+1 -> 2  weight = -1
+2 -> 3  weight =  1
+3 -> 1  weight = -1
+3 -> 4  weight =  1
+```
+
+源点为 `1`，终点为 `4`，最多经过 $3$ 个中间城市，所以最多允许使用：
+
+$$
+3+1=4
+$$
+
+条边。
+
+初始：
+
+```text
+dist[1] = 0
+其余 = INF
+```
+
+![初始距离状态](https://file1.kamacoder.com/i/algo/20240409111940.png)
+
+扫描第一条边 `1 -> 2`：
+
+![1 到 2 第一次松弛](https://file1.kamacoder.com/i/algo/20240409111914.png)
+
+得到：
+
+```text
+dist[2] = -1
+```
+
+接着，同一轮马上扫描 `2 -> 3`。
+
+此时程序已经使用了**本轮刚刚更新的 `dist[2]`**：
+
+![2 到 3 在同一轮继续传播](https://file1.kamacoder.com/i/algo/20240409111903.png)
+
+于是 `dist[3]` 也被更新。
+
+接着 `3 -> 1` 又继续使用本轮新值：
+
+![3 到 1 在同一轮继续传播](https://file1.kamacoder.com/i/algo/20240409111849.png)
+
+最后 `3 -> 4` 也会被更新：
+
+![3 到 4 在同一轮继续传播](https://file1.kamacoder.com/i/algo/20241018192042.png)
+
+于是一次所谓的“全边松弛”实际上沿着：
+
+```text
+1 -> 2 -> 3 -> 1
+```
+
+甚至：
+
+```text
+1 -> 2 -> 3 -> 4
+```
+
+连续传播了多条边。
+
+这就破坏了“第 $t$ 轮只允许使用至多 $t$ 条边”的约束。
+
+---
+
+## 5. 原地更新为什么在普通 Bellman-Ford 中没问题
+
+这里很容易产生疑问：
+
+> 普通 Bellman-Ford 明明也是原地更新，为什么那里可以？
+
+原因是普通 Bellman-Ford 的目标只是：
+
+> **最终求出最短距离。**
+
+它并不要求每一轮严格表示“恰好又多允许一条边”。
+
+如果某轮因为边的顺序一次传播了多条边，只会让正确答案**更早出现**，不会破坏最终最短路。
+
+但本题的约束本身就是：
+
+$$
+\text{路径使用边数}\le k+1
+$$
+
+所以“更早传播”反而会越界。
+
+<Callout type="warning" title="同一个松弛公式，语义完全不同">
+
+普通 Bellman-Ford：
+
+- 关心最终答案；
+- 本轮使用本轮新值没有问题；
+- 边顺序只影响收敛速度。
+
+有限边数 Bellman-Ford：
+
+- 每一轮都对应一个严格的边数上限；
+- 必须从上一轮状态转移；
+- 本轮不能继续使用本轮新值。
+
+</Callout>
+
+---
+
+## 6. 正确做法：冻结上一轮状态
+
+每一轮开始时复制：
+
+```cpp
+prev = dist;
+```
+
+然后所有松弛都从 `prev[u]` 出发：
+
+```cpp
+if (prev[u] != INF) {
+    dist[v] = min(dist[v], prev[u] + w);
+}
+```
+
+这样第 $t$ 轮只能从第 $t-1$ 轮继续走一条边。
+
+数学上就是：
+
+$$
+dp_t[v]
+=
+\min\left(
+    dp_{t-1}[v],
+    \min_{(u,v,w)\in E}(dp_{t-1}[u]+w)
+\right)
+$$
+
+空间上只需要保留：
+
+```text
+上一轮 prev
+当前累计最优 dist
+```
+
+因此不需要真的开二维 DP。
+
+---
+
+## 7. 正确 C++ 模板
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int from;
+    int to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<Edge> edges(m);
+    for (auto& e : edges) {
+        cin >> e.from >> e.to >> e.weight;
+    }
+
+    int src, dst, k;
+    cin >> src >> dst >> k;
+
+    const long long INF = (1LL << 60);
+    vector<long long> dist(n + 1, INF);
+    dist[src] = 0;
+
+    // 最多经过 k 个中间城市 = 最多使用 k + 1 条边
+    for (int round = 0; round < k + 1; ++round) {
+        vector<long long> prev = dist;
+        bool updated = false;
+
+        for (const auto& e : edges) {
+            if (prev[e.from] == INF) continue;
+
+            long long candidate = prev[e.from] + e.weight;
+            if (candidate < dist[e.to]) {
+                dist[e.to] = candidate;
+                updated = true;
+            }
+        }
+
+        // 已经没有更新，继续增加允许边数也不会改变答案
+        if (!updated) break;
+    }
+
+    if (dist[dst] == INF) {
+        cout << "unreachable\n";
+    } else {
+        cout << dist[dst] << '\n';
+    }
+}
+```
+
+---
+
+## 8. 为什么 `dist` 仍然可以保留“之前更少边数”的答案
+
+注意我们不是写：
+
+```cpp
+next[v] = prev[u] + w;
+```
+
+而是：
+
+```cpp
+dist[v] = min(dist[v], prev[u] + w);
+```
+
+这是因为题目要求：
+
+> **最多**使用 $k+1$ 条边。
+
+不是：
+
+> **恰好**使用 $k+1$ 条边。
+
+因此第 $t$ 轮状态应当包含：
+
+- 以前用 $0,1,\dots,t-1$ 条边得到的答案；
+- 本轮新增加的“最多 $t$ 条边”的答案。
+
+如果题目改成“恰好使用 $t$ 条边”，状态定义就必须不同。
+
+---
+
+## 9. 边的顺序为什么会影响错误版本
+
+原资料继续给出了一个非常重要的观察：
+
+> 原地更新时，边的输入顺序会影响一轮中能传播多远。
+
+如果边恰好按路径方向排列：
+
+```text
+1 -> 2
+2 -> 3
+3 -> 4
+```
+
+那么一轮就可能一路传到 `4`。
+
+如果顺序改成：
+
+```text
+3 -> 4
+2 -> 3
+1 -> 2
+```
+
+同一轮前面的边处理时，上游距离还没更新，于是传播会慢很多。
+
+这说明错误版本的“第几轮能到哪个点”并不由路径边数唯一决定，而受输入边顺序影响。
+
+原资料对应示意图如下：
+
+![边顺序影响传播示意图 1](https://file1.kamacoder.com/i/algo/20240410154340.png)
+
+![边顺序影响传播示意图 2](https://file1.kamacoder.com/i/algo/20240410154940.png)
+
+![边顺序影响传播示意图 3](https://file1.kamacoder.com/i/algo/20240410155545.png)
+
+![边顺序影响传播示意图 4](https://file1.kamacoder.com/i/algo/20240410160046.png)
+
+而冻结 `prev` 后，无论输入边顺序怎样，第 $t$ 轮都只能由第 $t-1$ 轮状态转移，语义稳定。
+
+---
+
+## 10. 本题的本质其实是动态规划
+
+把边数限制显式写出来：
+
+$$
+dp[t][v]
+=
+\text{从 src 到 v，最多使用 }t\text{ 条边的最小代价}
+$$
+
+那么有：
+
+$$
+dp[t][v]=dp[t-1][v]
+$$
+
+以及对每条边 $(u,v,w)$：
+
+$$
+dp[t][v]
+=
+\min(dp[t][v],dp[t-1][u]+w)
+$$
+
+整个问题就变成：
+
+```text
+边数维度 t
+    ↓
+上一层状态 dp[t-1]
+    ↓
+扫描所有边转移
+    ↓
+当前层 dp[t]
+```
+
+原资料用于解释这种“上一层 -> 下一层”的示意图：
+
+![有限边数最短路的状态扩展示意图 1](https://file1.kamacoder.com/i/algo/20240130115306.png)
+
+![有限边数最短路的状态扩展示意图 2](https://file1.kamacoder.com/i/algo/20240130115421.png)
+
+![有限边数最短路的状态扩展示意图 3](https://file1.kamacoder.com/i/algo/20240130120434.png)
+
+![有限边数最短路的状态扩展示意图 4](https://file1.kamacoder.com/i/algo/20240130121240.png)
+
+所以这类题真正应该形成的记忆是：
+
+> **Bellman-Ford = 按边进行状态转移；有限边数 Bellman-Ford = 必须分层转移。**
+
+---
+
+## 11. 为什么负环在这道题里并不会让答案无限小
+
+普通最短路中，一旦某条有效路径可以反复进入负环：
+
+$$
+W_{cycle}<0
+$$
+
+就可以不断绕环，使路径代价趋近：
+
+$$
+-\infty
+$$
+
+但本题限制最多使用 $k+1$ 条边。
+
+因此即使存在负环，你最多也只能绕有限次数。
+
+所以答案仍然是一个有限的优化问题：
+
+$$
+\min_{P:\ |E(P)|\le k+1} w(P)
+$$
+
+这也是为什么“有限边数”版本不需要像普通 Bellman-Ford 那样额外判负环。
+
+---
+
+## 12. SPFA 能不能做
+
+可以，但必须同样保留“分层”语义。
+
+普通 SPFA 只要某个点变短，就立即放入队列继续传播。
+
+如果直接照搬，就会和错误的原地 Bellman-Ford 一样：
+
+> **一轮队列处理可能传播任意多条边。**
+
+因此有限边数 SPFA 必须：
+
+1. 每轮只处理当前队列这一层；
+2. 当前层新入队的点留到下一层处理；
+3. 松弛时仍然基于上一轮距离快照。
+
+原资料关于 SPFA 分层扩展的示意图：
+
+![SPFA 分层示意图 1](https://file1.kamacoder.com/i/algo/20240201105335.png)
+
+![SPFA 分层示意图 2](https://file1.kamacoder.com/i/algo/20240418113308.png)
+
+![SPFA 分层示意图 3](https://file1.kamacoder.com/i/algo/20240418113952.png)
+
+一个稳妥的写法：
+
+```cpp
+vector<long long> dist(n + 1, INF);
+dist[src] = 0;
+
+queue<int> q;
+q.push(src);
+
+for (int round = 0; round < k + 1 && !q.empty(); ++round) {
+    int size = q.size();
+    vector<long long> prev = dist;
+    vector<char> inNext(n + 1, false);
+
+    while (size--) {
+        int u = q.front();
+        q.pop();
+
+        for (auto [v, w] : graph[u]) {
+            if (prev[u] == INF) continue;
+
+            if (prev[u] + w < dist[v]) {
+                dist[v] = prev[u] + w;
+                if (!inNext[v]) {
+                    q.push(v);
+                    inNext[v] = true;
+                }
+            }
+        }
+    }
+}
+```
+
+<Callout type="warning" title="不要把普通 SPFA 的队列语义直接搬过来">
+
+本题的关键不是“只扫描可能更新的边”，而是：
+
+$$
+\text{第 }t\text{ 层只能依赖第 }t-1\text{ 层}
+$$
+
+任何会让新状态在本层继续向下传播的写法，都可能突破边数限制。
+
+</Callout>
+
+---
+
+## 13. 为什么不能直接用 Dijkstra
+
+Dijkstra 的正确性依赖一个非常重要的前提：
+
+$$
+\text{所有边权}\ge 0
+$$
+
+而这道题允许负权边。
+
+因此一个节点当前被取出时，它的距离并不能保证已经最终确定。
+
+即使没有负环，也可能出现：
+
+```text
+src -> A = 5
+src -> B = 10
+B -> A = -20
+```
+
+先看到 `A=5` 并不代表 `A` 的最终最短距离就是 $5$，因为后面还可能通过负边改成：
+
+$$
+10-20=-10
+$$
+
+原资料对应对比示意图：
+
+![负权边破坏 Dijkstra 贪心性质 1](https://file1.kamacoder.com/i/algo/20240508112249.png)
+
+![负权边破坏 Dijkstra 贪心性质 2](https://file1.kamacoder.com/i/algo/20240508112416.png)
+
+因此这类“允许负权 + 限边数”问题，应优先想到：
+
+> **Bellman-Ford 分层 DP。**
+
+---
+
+## 14. 复杂度
+
+设：
+
+- 顶点数为 $n$；
+- 边数为 $m$；
+- 最多经过 $k$ 个中间城市。
+
+需要做：
+
+$$
+k+1
+$$
+
+轮松弛，每轮扫描全部 $m$ 条边。
+
+时间复杂度：
+
+$$
+O((k+1)m)=O(km)
+$$
+
+每轮复制一次距离数组：
+
+$$
+O(n)
+$$
+
+因此更严格地写，总时间是：
+
+$$
+O((k+1)(m+n))
+$$
+
+通常图问题中写作：
+
+$$
+O(km)
+$$
+
+空间复杂度：
+
+$$
+O(n+m)
+$$
+
+若只讨论额外距离数组空间，则为：
+
+$$
+O(n)
+$$
+
+---
+
+## 15. 易错点总结
+
+| 易错点 | 错误理解 | 正确理解 |
+|---|---|---|
+| 城市数与边数 | 经过 $k$ 个城市就松弛 $k$ 轮 | 经过 $k$ 个中间城市对应最多 $k+1$ 条边 |
+| 原地更新 | 普通 Bellman-Ford 怎么写，这里就怎么写 | 本题必须冻结上一轮状态 |
+| 边顺序 | 每轮天然只传播一条边 | 原地更新时一轮可能沿输入顺序传播多条边 |
+| 负环 | 有负环就一定无解 | 有边数上限时只能绕有限次，答案仍有限 |
+| SPFA | 队列里新点可立即继续扩展 | 必须分层，下一层再扩展 |
+| Dijkstra | 加一个层数状态就都能做 | 负权边仍会破坏 Dijkstra 的贪心前提 |
+
+---
+
+## 16. 一眼识别题型
+
+如果题目同时出现：
+
+- 有向图；
+- 边权可能为负；
+- 最多经过 $k$ 个点；
+- 最多中转 $k$ 次；
+- 最多使用 $k$ 条边；
+
+优先考虑：
+
+```text
+有限边数 Bellman-Ford
+        ↓
+把限制换算为最大边数 L
+        ↓
+循环 L 轮
+        ↓
+每轮 prev = dist
+        ↓
+只从 prev 松弛到 dist
+```
+
+这就是本题最重要的可迁移模板。
+
+---
+
+## 17. 多语言模板
+
+```cpp tab="C++"
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int from, to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<Edge> edges(m);
+    for (auto& e : edges) {
+        cin >> e.from >> e.to >> e.weight;
+    }
+
+    int src, dst, k;
+    cin >> src >> dst >> k;
+
+    const long long INF = (1LL << 60);
+    vector<long long> dist(n + 1, INF);
+    dist[src] = 0;
+
+    for (int round = 0; round < k + 1; ++round) {
+        vector<long long> prev = dist;
+        bool updated = false;
+
+        for (const auto& e : edges) {
+            if (prev[e.from] == INF) continue;
+
+            long long candidate = prev[e.from] + e.weight;
+            if (candidate < dist[e.to]) {
+                dist[e.to] = candidate;
+                updated = true;
+            }
+        }
+
+        if (!updated) break;
+    }
+
+    cout << (dist[dst] == INF ? "unreachable" : to_string(dist[dst])) << '\n';
+}
+```
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class Edge {
+        int from, to;
+        long weight;
+
+        Edge(int from, int to, long weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        Edge[] edges = new Edge[m];
+        for (int i = 0; i < m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            edges[i] = new Edge(u, v, w);
+        }
+
+        st = new StringTokenizer(br.readLine());
+        int src = Integer.parseInt(st.nextToken());
+        int dst = Integer.parseInt(st.nextToken());
+        int k = Integer.parseInt(st.nextToken());
+
+        long INF = Long.MAX_VALUE / 4;
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, INF);
+        dist[src] = 0;
+
+        for (int round = 0; round < k + 1; round++) {
+            long[] prev = dist.clone();
+            boolean updated = false;
+
+            for (Edge e : edges) {
+                if (prev[e.from] == INF) continue;
+
+                long candidate = prev[e.from] + e.weight;
+                if (candidate < dist[e.to]) {
+                    dist[e.to] = candidate;
+                    updated = true;
+                }
+            }
+
+            if (!updated) break;
+        }
+
+        System.out.println(dist[dst] == INF ? "unreachable" : dist[dst]);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+edges = []
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    edges.append((u, v, w))
+
+src, dst, k = map(int, input().split())
+
+INF = float("inf")
+dist = [INF] * (n + 1)
+dist[src] = 0
+
+for _ in range(k + 1):
+    prev = dist.copy()
+    updated = False
+
+    for u, v, w in edges:
+        if prev[u] != INF and prev[u] + w < dist[v]:
+            dist[v] = prev[u] + w
+            updated = True
+
+    if not updated:
+        break
+
+print("unreachable" if dist[dst] == INF else dist[dst])
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const edges = [];
+
+for (let i = 0; i < m; i++) {
+    const u = data[p++];
+    const v = data[p++];
+    const w = data[p++];
+    edges.push([u, v, w]);
+}
+
+const src = data[p++];
+const dst = data[p++];
+const k = data[p++];
+
+const INF = Number.POSITIVE_INFINITY;
+const dist = Array(n + 1).fill(INF);
+dist[src] = 0;
+
+for (let round = 0; round < k + 1; round++) {
+    const prev = dist.slice();
+    let updated = false;
+
+    for (const [u, v, w] of edges) {
+        if (prev[u] !== INF && prev[u] + w < dist[v]) {
+            dist[v] = prev[u] + w;
+            updated = true;
+        }
+    }
+
+    if (!updated) break;
+}
+
+console.log(dist[dst] === INF ? 'unreachable' : dist[dst]);
+```

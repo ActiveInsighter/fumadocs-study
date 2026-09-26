@@ -1,0 +1,1386 @@
+---
+title: Dijkstra（朴素版）精讲
+subtitle: 从贪心“定点”与松弛操作理解非负权单源最短路
+summary: 以卡码网 47「参加科学大会」为主线系统学习朴素 Dijkstra：理解 dist 数组、已确定集合、松弛公式、贪心正确性、负权边失效原因、路径恢复、邻接矩阵实现，以及它与 Prim 的本质区别。
+---
+
+# Dijkstra（朴素版）精讲
+
+> **卡码网 47. 参加科学大会**
+>
+> 给定一张有向带权图，节点编号为 $1\sim N$，从节点 $1$ 出发到节点 $N$。求最短路径长度；若不可达，输出 `-1`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1047)
+
+这是一道标准的 **单源最短路（Single-Source Shortest Path, SSSP）** 问题。
+
+Dijkstra 算法解决的是：
+
+> **边权全部非负时，从一个源点出发，到其余所有顶点的最短距离。**
+
+因此题目虽然只问：
+
+```text
+1 -> N 的最短距离
+```
+
+Dijkstra 实际上会同时得到：
+
+```text
+1 -> 1
+1 -> 2
+...
+1 -> N
+```
+
+的最短距离。
+
+题目示例中最短路径如下：
+
+![题目示例中的最短路径](https://file1.kamacoder.com/i/algo/20240227101345.png)
+
+若终点根本不可达，则输出 `-1`：
+
+![终点不可达的情况](https://file1.kamacoder.com/i/algo/20240227101401.png)
+
+<Callout type="warning" title="Dijkstra 的适用前提">
+
+标准 Dijkstra 要求所有边权满足：
+
+$$
+w(u,v)\ge 0
+$$
+
+如果图中可能存在负权边，应考虑 Bellman-Ford / SPFA 等算法，而不能直接套 Dijkstra。
+
+</Callout>
+
+---
+
+## 1. 最短路到底在求什么
+
+设有向带权图：
+
+$$
+G=(V,E)
+$$
+
+源点为 $s$。
+
+对于任意顶点 $v$，我们希望求：
+
+$$
+\operatorname{dist}(s,v)
+$$
+
+也就是从 $s$ 到 $v$ 的所有路径中，边权和的最小值。
+
+若一条路径为：
+
+$$
+s=v_0\rightarrow v_1\rightarrow \cdots\rightarrow v_k=v
+$$
+
+其长度为：
+
+$$
+\sum_{i=0}^{k-1}w(v_i,v_{i+1})
+$$
+
+最短路就是在所有合法路径中取最小值。
+
+原题对应的有向带权图如下：
+
+![Dijkstra 示例图](https://file1.kamacoder.com/i/algo/20240125162647.png)
+
+---
+
+## 2. Dijkstra 最核心的两个状态
+
+朴素 Dijkstra 通常维护两个数组。
+
+### `dist[v]`
+
+表示：
+
+> 当前已知的“源点 $s$ 到顶点 $v$ 的最短距离上界”。
+
+初始化：
+
+$$
+dist[s]=0
+$$
+
+其余：
+
+$$
+dist[v]=+\infty
+$$
+
+在算法运行过程中，`dist[v]` 会不断变小。
+
+### `visited[v]`
+
+表示：
+
+> 顶点 $v$ 的最短距离是否已经被最终确定。
+
+当：
+
+```cpp
+visited[v] = true;
+```
+
+意味着：
+
+```text
+dist[v] 已经是源点到 v 的真正最短距离，之后不再改变。
+```
+
+<Callout type="info" title="理解 visited 比背代码更重要">
+
+Dijkstra 的核心并不是“访问过一次就不能访问”。
+
+更准确的语义是：
+
+> 每轮从所有“尚未确定最短距离”的点中，选择当前 `dist` 最小的点，并证明这个值已经不可能再被改小，于是将它“定点”。
+
+</Callout>
+
+---
+
+## 3. 松弛：最短路算法的核心操作
+
+假设当前已经知道从源点到 `u` 的距离 `dist[u]`，并存在边：
+
+$$
+u\rightarrow v
+$$
+
+边权为：
+
+$$
+w(u,v)
+$$
+
+那么通过 `u` 到达 `v` 的候选距离为：
+
+$$
+dist[u]+w(u,v)
+$$
+
+因此更新公式为：
+
+$$
+dist[v]
+=
+\min\left(dist[v],\ dist[u]+w(u,v)\right)
+$$
+
+这一步叫 **松弛（relaxation）**。
+
+代码写成：
+
+```cpp
+if (dist[u] != INF &&
+    graph[u][v] != INF &&
+    dist[u] + graph[u][v] < dist[v]) {
+    dist[v] = dist[u] + graph[u][v];
+}
+```
+
+<Callout type="tip" title="为什么叫“松弛”">
+
+可以把 `dist[v]` 看成当前对最短距离的一个上界。
+
+发现一条更短路径时，就把这个上界“压低”：
+
+```text
+旧上界  ----->  更小的新上界
+```
+
+几乎所有经典最短路算法都围绕“松弛边”展开，区别主要在于：**按什么顺序松弛、每条边需要松弛多少次。**
+
+</Callout>
+
+---
+
+## 4. Dijkstra 三步循环
+
+每轮固定执行三步：
+
+### 选择 `dist` 最小的未确定顶点
+
+在所有：
+
+```text
+visited[v] == false
+```
+
+的节点中选择：
+
+$$
+dist[v]
+$$
+
+最小的节点 `cur`。
+
+### 将 `cur` 的最短距离定下来
+
+```cpp
+visited[cur] = true;
+```
+
+### 用 `cur` 松弛它能到达的节点
+
+对于每条边：
+
+$$
+cur\rightarrow v
+$$
+
+尝试：
+
+$$
+dist[v]
+=
+\min(dist[v],dist[cur]+w(cur,v))
+$$
+
+一句口诀：
+
+> **选最近未定点 → 定点 → 用它松弛邻居。**
+
+---
+
+## 5. 初始化
+
+所有距离先设为无穷大：
+
+```cpp
+vector<long long> dist(n + 1, INF);
+```
+
+源点到自己的距离为：
+
+$$
+dist[s]=0
+$$
+
+所有节点一开始都未被最终确定：
+
+```cpp
+vector<bool> visited(n + 1, false);
+```
+
+原资料的初始化示意图：
+
+![Dijkstra 初始化](https://file1.kamacoder.com/i/algo/20240130115306.png)
+
+本题节点从 `1` 开始，所以通常直接开长度 `n + 1` 的数组，让数组下标与节点编号一致。
+
+---
+
+## 6. 第一次定点：源点 1
+
+初始时：
+
+$$
+dist[1]=0
+$$
+
+其他节点均为 $+\infty$。
+
+因此第一个被选中的一定是源点 `1`。
+
+把 `1` 定点后，扫描它的出边：
+
+```text
+1 -> 2，权值 1
+1 -> 3，权值 4
+```
+
+于是：
+
+$$
+dist[2]=1
+$$
+
+$$
+dist[3]=4
+$$
+
+对应示意图：
+
+![从源点松弛相邻节点](https://file1.kamacoder.com/i/algo/20240130115421.png)
+
+---
+
+## 7. 第二次定点：节点 2
+
+未确定节点中：
+
+```text
+dist[2] = 1
+dist[3] = 4
+其余 = INF
+```
+
+因此选择节点 `2`。
+
+然后用 `2` 松弛：
+
+```text
+2 -> 3
+2 -> 4
+2 -> 6
+```
+
+例如：
+
+$$
+dist[3]
+=
+\min(4,1+2)
+=3
+$$
+
+因此原来的 `4` 被更新为 `3`。
+
+整体状态如下：
+
+![定点 2 后进行松弛](https://file1.kamacoder.com/i/algo/20240130121240.png)
+
+这正是最短路算法的一个重要特点：
+
+> **第一次发现一个节点时得到的距离不一定是最终答案。**
+
+只有当它被选为“当前未确定点中 `dist` 最小的点”时，Dijkstra 才会把它最终定下来。
+
+---
+
+## 8. 第三次定点：节点 3
+
+此时：
+
+```text
+dist[3] = 3
+```
+
+是所有未定点中的最小值，于是选择节点 `3`。
+
+通过：
+
+```text
+3 -> 4，权值 2
+```
+
+得到候选值：
+
+$$
+dist[3]+2=5
+$$
+
+若之前：
+
+$$
+dist[4]=6
+$$
+
+则更新为：
+
+$$
+dist[4]=5
+$$
+
+对应图：
+
+![定点 3 后更新节点 4](https://file1.kamacoder.com/i/algo/20240130120434.png)
+
+---
+
+## 9. 后续过程
+
+接下来节点 `4` 与节点 `6` 的 `dist` 都可能为 `5`。
+
+当最小值相同：
+
+> 任选一个都可以，不影响最终最短距离的正确性。
+
+例如先选择节点 `4`：
+
+![定点 4 并更新节点 5](https://file1.kamacoder.com/i/algo/20240201105335.png)
+
+得到：
+
+$$
+dist[5]=8
+$$
+
+再选择节点 `6`：
+
+![定点 6 并更新节点 7](https://file1.kamacoder.com/i/algo/20240201110250.png)
+
+得到：
+
+$$
+dist[7]=14
+$$
+
+随后选择节点 `5`：
+
+![定点 5 后再次更新节点 7](https://file1.kamacoder.com/i/algo/20240201110651.png)
+
+通过路径：
+
+```text
+1 -> ... -> 5 -> 7
+```
+
+把：
+
+$$
+dist[7]
+$$
+
+从 `14` 改成 `12`。
+
+最后定点节点 `7`：
+
+![终点被最终确定](https://file1.kamacoder.com/i/algo/20240201110920.png)
+
+因此答案为：
+
+$$
+dist[7]=12
+$$
+
+最短路径示意：
+
+![最终最短路径](https://file1.kamacoder.com/i/algo/20240201111352.png)
+
+---
+
+## 10. 为什么“当前最小 dist”可以直接定点
+
+这是 Dijkstra 正确性的核心。
+
+假设当前选择了一个尚未确定的节点 `u`，并且：
+
+$$
+dist[u]
+$$
+
+在所有未确定节点中最小。
+
+我们想证明：`dist[u]` 已经不可能再被某条未来路径变得更小。
+
+假设存在一条更短路径从源点 $s$ 到 $u$。
+
+沿这条路径，从已经定点的集合走向尚未定点的集合，一定会第一次跨过某条边：
+
+$$
+x\rightarrow y
+$$
+
+其中：
+
+- $x$ 已经定点；
+- $y$ 尚未定点。
+
+因为所有边权都非负：
+
+$$
+w(e)\ge0
+$$
+
+所以沿该路径从 $s$ 到 $y$ 的距离不会大于继续走到 $u$ 的距离。
+
+而 `x` 定点时，本应已经通过边 $x\rightarrow y$ 松弛 `dist[y]`。
+
+于是会得到某个尚未确定节点 `y` 满足：
+
+$$
+dist[y]<dist[u]
+$$
+
+这与“`u` 是当前未确定节点中 `dist` 最小的节点”矛盾。
+
+因此 `dist[u]` 可以安全定点。
+
+<Callout type="warning" title="这份证明依赖边权非负">
+
+如果存在负权边，沿路径继续往后走时，总距离可能突然变小。
+
+于是“当前看起来最近的点”并不一定真的已经最优，Dijkstra 的贪心依据就失效了。
+
+</Callout>
+
+---
+
+## 11. 朴素版为什么是 $O(V^2)$
+
+每轮要从所有未确定节点中寻找：
+
+```text
+dist 最小的节点
+```
+
+朴素做法直接扫描全部顶点：
+
+```cpp
+for (int v = 1; v <= n; ++v) {
+    if (!visited[v] && dist[v] < minValue) {
+        ...
+    }
+}
+```
+
+总共最多定点 $V$ 次，因此选点部分：
+
+$$
+O(V^2)
+$$
+
+如果使用邻接矩阵，再扫描所有潜在邻居也是 $O(V)$ 每轮，所以整体仍为：
+
+$$
+O(V^2)
+$$
+
+空间复杂度若使用邻接矩阵：
+
+$$
+O(V^2)
+$$
+
+本题 $N\le500$，朴素邻接矩阵完全可以接受。
+
+---
+
+## 12. 一个更稳健的 C++ 实现
+
+原始模板经常把：
+
+```cpp
+cur = 1;
+```
+
+作为默认值。
+
+如果剩余所有节点都不可达，这种写法容易让代码继续错误地“定点”某个节点。
+
+更稳健的写法是：
+
+```cpp
+int cur = -1;
+```
+
+若最终仍为 `-1`，说明剩余节点全部不可达，可以直接停止。
+
+同时，为避免距离加法溢出，距离建议使用 `long long`。
+
+```cpp
+#include <iostream>
+#include <limits>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+
+    vector<vector<long long>> graph(
+        n + 1,
+        vector<long long>(n + 1, INF)
+    );
+
+    for (int i = 0; i < m; ++i) {
+        int s, e;
+        long long w;
+        cin >> s >> e >> w;
+
+        // 若存在重边，只保留较小权值更稳妥
+        graph[s][e] = min(graph[s][e], w);
+    }
+
+    const int start = 1;
+    const int target = n;
+
+    vector<long long> dist(n + 1, INF);
+    vector<bool> visited(n + 1, false);
+
+    dist[start] = 0;
+
+    for (int round = 1; round <= n; ++round) {
+        // 1. 找当前 dist 最小的未定点
+        int cur = -1;
+        long long minValue = INF;
+
+        for (int v = 1; v <= n; ++v) {
+            if (!visited[v] && dist[v] < minValue) {
+                minValue = dist[v];
+                cur = v;
+            }
+        }
+
+        // 剩余节点均不可达
+        if (cur == -1) break;
+
+        // 2. 最短距离定点
+        visited[cur] = true;
+
+        // 如果只关心一个终点，可以提前结束
+        if (cur == target) break;
+
+        // 3. 用 cur 松弛其他节点
+        for (int v = 1; v <= n; ++v) {
+            if (visited[v] || graph[cur][v] == INF) continue;
+
+            if (dist[cur] + graph[cur][v] < dist[v]) {
+                dist[v] = dist[cur] + graph[cur][v];
+            }
+        }
+    }
+
+    cout << (dist[target] == INF ? -1 : dist[target]) << '\n';
+    return 0;
+}
+```
+
+---
+
+## 13. 为什么可以在终点定点时提前结束
+
+若题目只关心源点到一个指定终点 `target` 的距离，则当：
+
+```cpp
+cur == target
+```
+
+时可以直接结束。
+
+因为 `target` 被选出来的那一刻：
+
+$$
+dist[target]
+$$
+
+已经被 Dijkstra 的贪心性质证明为最终最短距离。
+
+后续即使继续计算，也只是在求其他节点的最短路，不会再改变终点答案。
+
+<Callout type="info" title="注意：发现终点 ≠ 可以结束">
+
+第一次松弛到终点时不能退出。
+
+例如当前得到：
+
+$$
+dist[target]=20
+$$
+
+后续完全可能通过其他节点把它更新成 `12`。
+
+只有当终点成为“当前未定点中 dist 最小的节点”并被正式定点时，才可以提前结束。
+
+</Callout>
+
+---
+
+## 14. 如何恢复最短路径
+
+如果不仅要求最短距离，还要求输出具体路径，就维护：
+
+```text
+parent[v]
+```
+
+表示当前最短路径中，`v` 的前驱节点。
+
+当松弛成功：
+
+```cpp
+if (dist[cur] + graph[cur][v] < dist[v]) {
+    dist[v] = dist[cur] + graph[cur][v];
+    parent[v] = cur;
+}
+```
+
+最终从终点反向追踪：
+
+```text
+target
+parent[target]
+parent[parent[target]]
+...
+start
+```
+
+再整体反转即可。
+
+核心代码：
+
+```cpp
+vector<int> parent(n + 1, -1);
+
+// 松弛时
+if (dist[cur] + graph[cur][v] < dist[v]) {
+    dist[v] = dist[cur] + graph[cur][v];
+    parent[v] = cur;
+}
+```
+
+原资料给出的最短路径树关系为：
+
+```text
+-1 -> 1
+ 1 -> 2
+ 2 -> 3
+ 3 -> 4
+ 4 -> 5
+ 2 -> 6
+ 5 -> 7
+```
+
+对应最短路径图：
+
+![通过 parent 恢复最短路径](https://file1.kamacoder.com/i/algo/20240201111352.png)
+
+### 路径恢复模板
+
+```cpp
+vector<int> path;
+
+if (dist[target] != INF) {
+    for (int cur = target; cur != -1; cur = parent[cur]) {
+        path.push_back(cur);
+    }
+    reverse(path.begin(), path.end());
+}
+```
+
+如果只需要 `start -> target`，还可以在追踪到 `start` 时停止。
+
+---
+
+## 15. 调试 Dijkstra：盯住 `dist`
+
+图论代码较长，最有效的调试方式之一就是每轮打印：
+
+```text
+本轮定点是谁？
+dist 数组变成了什么？
+```
+
+示例过程可观察为：
+
+```text
+select: 1
+1:0 2:1 3:4 4:INF 5:INF 6:INF 7:INF
+
+select: 2
+1:0 2:1 3:3 4:6 5:INF 6:5 7:INF
+
+select: 3
+1:0 2:1 3:3 4:5 5:INF 6:5 7:INF
+
+select: 4
+1:0 2:1 3:3 4:5 5:8 6:5 7:INF
+
+select: 6
+1:0 2:1 3:3 4:5 5:8 6:5 7:14
+
+select: 5
+1:0 2:1 3:3 4:5 5:8 6:5 7:12
+
+select: 7
+1:0 2:1 3:3 4:5 5:8 6:5 7:12
+```
+
+如果某一步与手推不一致，问题通常就在：
+
+- 建边方向；
+- 重边处理；
+- 松弛公式；
+- `visited` 判断；
+- 选点条件；
+- `INF` 溢出。
+
+---
+
+## 16. 为什么负权边会让 Dijkstra 失效
+
+考虑下面这张带负权边的图：
+
+![存在负权边的图](https://file1.kamacoder.com/i/algo/20240227104334.png)
+
+初始化：
+
+![负权示例初始化](https://file1.kamacoder.com/i/algo/20240227104801.png)
+
+从节点 `1` 出发后，Dijkstra 根据当前距离先选择一个看起来很近的节点：
+
+![负权示例第一次松弛](https://file1.kamacoder.com/i/algo/20240227110217.png)
+
+随后节点 `3` 可能先被定点：
+
+![节点 3 被过早定点](https://file1.kamacoder.com/i/algo/20240227110330.png)
+
+再继续：
+
+![继续按当前最短距离定点](https://file1.kamacoder.com/i/algo/20240227110346.png)
+
+节点 `5` 也可能在节点 `2` 之前被定点：
+
+![负权示例中节点 5 被定点](https://file1.kamacoder.com/i/algo/20240227110405.png)
+
+最后才处理节点 `2`：
+
+![后处理节点 2 时已经来不及修正已定点节点](https://file1.kamacoder.com/i/algo/20240227110711.png)
+
+问题就出在：
+
+> 负权边可能让一条“先绕远、后突然变短”的路径，最终优于当前已经定点的结果。
+
+在非负权图中，路径继续向后走时，总长度只会：
+
+$$
+\text{不减}
+$$
+
+但有负权边时，路径长度可能突然下降。
+
+因此：
+
+```text
+当前最小 dist
+```
+
+不再意味着：
+
+```text
+这个距离以后绝不可能变得更小
+```
+
+Dijkstra 的核心贪心证明随之崩溃。
+
+---
+
+## 17. Dijkstra、Bellman-Ford 与 BFS 怎么选
+
+<Cards>
+  <Card title="BFS">
+    所有边权相同，尤其是无权图 / 单位权图。复杂度通常为 $O(V+E)$。
+  </Card>
+  <Card title="Dijkstra">
+    边权可以不同，但必须非负。堆优化后常用于大规模稀疏图。
+  </Card>
+  <Card title="Bellman-Ford">
+    允许负权边，并且可以判断从源点可达的负权环。
+  </Card>
+</Cards>
+
+简单决策：
+
+```text
+无权 / 每条边代价相同
+        ↓
+       BFS
+
+有权且所有边权 >= 0
+        ↓
+     Dijkstra
+
+可能存在负权边
+        ↓
+   Bellman-Ford / SPFA
+```
+
+---
+
+## 18. Dijkstra 与 Prim 为什么代码很像
+
+朴素 Prim 与朴素 Dijkstra 都会维护：
+
+```text
+一个“已经确定”的集合
+一个距离数组
+每轮选距离最小的未确定点
+```
+
+所以代码外形很相似。
+
+但二者的 `dist` 含义完全不同。
+
+### Prim
+
+Prim 的：
+
+$$
+minDist[v]
+$$
+
+表示：
+
+> 当前生成树到 `v` 的最小单条连接边权。
+
+更新：
+
+$$
+minDist[v]
+=
+\min(minDist[v],w(cur,v))
+$$
+
+### Dijkstra
+
+Dijkstra 的：
+
+$$
+dist[v]
+$$
+
+表示：
+
+> 源点到 `v` 的最短路径长度。
+
+更新：
+
+$$
+dist[v]
+=
+\min(dist[v],dist[cur]+w(cur,v))
+$$
+
+对比：
+
+| 项目 | Prim | Dijkstra |
+| --- | --- | --- |
+| 目标 | 最小生成树 | 单源最短路 |
+| `dist` 含义 | 点到当前树的最小接边 | 源点到点的最短路径 |
+| 更新公式 | `w(cur,v)` | `dist[cur] + w(cur,v)` |
+| 是否关心完整路径长度 | 否 | 是 |
+| 能否处理负边 | 可以 | 标准算法不可以 |
+
+<Callout type="warning" title="最容易混淆的地方">
+
+两段代码最大的差异只看一行：
+
+```text
+Prim:      minDist[v] = min(minDist[v], weight(cur, v))
+Dijkstra:  dist[v]    = min(dist[v], dist[cur] + weight(cur, v))
+```
+
+少掉的 `dist[cur]` 正是“生成树接边”和“从源点累计路径长度”的本质区别。
+
+</Callout>
+
+---
+
+## 19. 邻接矩阵还是邻接表
+
+### 朴素 Dijkstra + 邻接矩阵
+
+适合：
+
+- $V$ 不大；
+- 图较稠密；
+- 希望代码直观。
+
+复杂度：
+
+$$
+O(V^2)
+$$
+
+### 堆优化 Dijkstra + 邻接表
+
+适合：
+
+- $V,E$ 很大；
+- 图较稀疏。
+
+典型复杂度：
+
+$$
+O((V+E)\log V)
+$$
+
+通常简写为：
+
+$$
+O(E\log V)
+$$
+
+下一篇堆优化版会把“每轮 $O(V)$ 扫描最小 `dist`”替换为优先队列。
+
+---
+
+## 20. 常见错误
+
+### 错误一：负权图直接使用 Dijkstra
+
+必须先检查题目是否保证：
+
+$$
+w\ge0
+$$
+
+### 错误二：`cur` 默认设成一个合法顶点
+
+如果剩余节点不可达，可能错误定点。
+
+建议：
+
+```cpp
+int cur = -1;
+```
+
+### 错误三：`INF + w` 溢出
+
+不要直接使用接近类型上限的 `INF` 再无条件相加。
+
+可以使用：
+
+```cpp
+const long long INF = LLONG_MAX / 4;
+```
+
+并先判断：
+
+```cpp
+dist[cur] != INF
+```
+
+### 错误四：忽略重边
+
+若输入可能存在：
+
+```text
+u -> v 权值 10
+u -> v 权值 3
+```
+
+邻接矩阵应写：
+
+```cpp
+graph[u][v] = min(graph[u][v], w);
+```
+
+而不是直接让最后一条输入覆盖前面更短的边。
+
+### 错误五：第一次到达终点就退出
+
+“被松弛到”不代表已经确定最短路。
+
+只有终点正式被选为 `cur` 时，才可安全提前结束。
+
+### 错误六：把 Dijkstra 的 `dist` 与 Prim 的 `minDist` 混淆
+
+一定要先说清楚数组语义，再写更新式。
+
+---
+
+## 21. 一页速记
+
+<Cards>
+  <Card title="适用条件">
+    单源最短路，所有边权非负。
+  </Card>
+  <Card title="dist 定义">
+    `dist[v]` 是源点到 `v` 的当前最短距离上界。
+  </Card>
+  <Card title="每轮动作">
+    选最小未定点 → 定点 → 松弛它的出边。
+  </Card>
+  <Card title="松弛公式">
+    $dist[v]=\min(dist[v],dist[u]+w(u,v))$。
+  </Card>
+  <Card title="朴素复杂度">
+    邻接矩阵实现为 $O(V^2)$ 时间、$O(V^2)$ 空间。
+  </Card>
+  <Card title="负权边">
+    不可直接使用标准 Dijkstra，应考虑 Bellman-Ford。
+  </Card>
+</Cards>
+
+真正需要背下来的不是完整代码，而是：
+
+```text
+初始化：dist[s] = 0
+
+重复：
+1. 找未确定点中 dist 最小的 cur
+2. cur 定点
+3. 对 cur -> v 做松弛
+
+relax:
+dist[v] = min(dist[v], dist[cur] + w(cur,v))
+```
+
+---
+
+## 其他语言版本
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final long INF = Long.MAX_VALUE / 4;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        long[][] graph = new long[n + 1][n + 1];
+        for (int i = 0; i <= n; ++i) {
+            Arrays.fill(graph[i], INF);
+        }
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(st.nextToken());
+            int e = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            graph[s][e] = Math.min(graph[s][e], w);
+        }
+
+        int start = 1;
+        int target = n;
+
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, INF);
+        boolean[] visited = new boolean[n + 1];
+        dist[start] = 0;
+
+        for (int round = 1; round <= n; ++round) {
+            int cur = -1;
+            long minValue = INF;
+
+            for (int v = 1; v <= n; ++v) {
+                if (!visited[v] && dist[v] < minValue) {
+                    minValue = dist[v];
+                    cur = v;
+                }
+            }
+
+            if (cur == -1) break;
+
+            visited[cur] = true;
+            if (cur == target) break;
+
+            for (int v = 1; v <= n; ++v) {
+                if (visited[v] || graph[cur][v] == INF) continue;
+
+                long candidate = dist[cur] + graph[cur][v];
+                if (candidate < dist[v]) {
+                    dist[v] = candidate;
+                }
+            }
+        }
+
+        System.out.println(dist[target] == INF ? -1 : dist[target]);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+INF = float('inf')
+
+n, m = map(int, input().split())
+graph = [[INF] * (n + 1) for _ in range(n + 1)]
+
+for _ in range(m):
+    s, e, w = map(int, input().split())
+    graph[s][e] = min(graph[s][e], w)
+
+start = 1
+target = n
+
+dist = [INF] * (n + 1)
+visited = [False] * (n + 1)
+dist[start] = 0
+
+for _ in range(n):
+    cur = -1
+    min_value = INF
+
+    for v in range(1, n + 1):
+        if not visited[v] and dist[v] < min_value:
+            min_value = dist[v]
+            cur = v
+
+    if cur == -1:
+        break
+
+    visited[cur] = True
+
+    if cur == target:
+        break
+
+    for v in range(1, n + 1):
+        if visited[v] or graph[cur][v] == INF:
+            continue
+
+        candidate = dist[cur] + graph[cur][v]
+        if candidate < dist[v]:
+            dist[v] = candidate
+
+print(-1 if dist[target] == INF else dist[target])
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+const m = data[idx++];
+const INF = Number.POSITIVE_INFINITY;
+
+const graph = Array.from(
+  { length: n + 1 },
+  () => new Array(n + 1).fill(INF)
+);
+
+for (let i = 0; i < m; ++i) {
+  const s = data[idx++];
+  const e = data[idx++];
+  const w = data[idx++];
+  graph[s][e] = Math.min(graph[s][e], w);
+}
+
+const start = 1;
+const target = n;
+const dist = new Array(n + 1).fill(INF);
+const visited = new Array(n + 1).fill(false);
+
+dist[start] = 0;
+
+for (let round = 1; round <= n; ++round) {
+  let cur = -1;
+  let minValue = INF;
+
+  for (let v = 1; v <= n; ++v) {
+    if (!visited[v] && dist[v] < minValue) {
+      minValue = dist[v];
+      cur = v;
+    }
+  }
+
+  if (cur === -1) break;
+
+  visited[cur] = true;
+  if (cur === target) break;
+
+  for (let v = 1; v <= n; ++v) {
+    if (visited[v] || graph[cur][v] === INF) continue;
+
+    const candidate = dist[cur] + graph[cur][v];
+    if (candidate < dist[v]) {
+      dist[v] = candidate;
+    }
+  }
+}
+
+console.log(dist[target] === INF ? -1 : dist[target]);
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+const INF int64 = 1 << 60
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    graph := make([][]int64, n+1)
+    for i := 0; i <= n; i++ {
+        graph[i] = make([]int64, n+1)
+        for j := 0; j <= n; j++ {
+            graph[i][j] = INF
+        }
+    }
+
+    for i := 0; i < m; i++ {
+        var s, e int
+        var w int64
+        fmt.Fscan(in, &s, &e, &w)
+        if w < graph[s][e] {
+            graph[s][e] = w
+        }
+    }
+
+    start := 1
+    target := n
+
+    dist := make([]int64, n+1)
+    visited := make([]bool, n+1)
+    for i := 0; i <= n; i++ {
+        dist[i] = INF
+    }
+    dist[start] = 0
+
+    for round := 1; round <= n; round++ {
+        cur := -1
+        minValue := INF
+
+        for v := 1; v <= n; v++ {
+            if !visited[v] && dist[v] < minValue {
+                minValue = dist[v]
+                cur = v
+            }
+        }
+
+        if cur == -1 {
+            break
+        }
+
+        visited[cur] = true
+        if cur == target {
+            break
+        }
+
+        for v := 1; v <= n; v++ {
+            if visited[v] || graph[cur][v] == INF {
+                continue
+            }
+
+            candidate := dist[cur] + graph[cur][v]
+            if candidate < dist[v] {
+                dist[v] = candidate
+            }
+        }
+    }
+
+    if dist[target] == INF {
+        fmt.Fprintln(out, -1)
+    } else {
+        fmt.Fprintln(out, dist[target])
+    }
+}
+```

@@ -1,0 +1,634 @@
+---
+title: 打家劫舍 III
+sidebarTitle: 打家劫舍 III
+summary: 将“不能同时选择父子节点”的约束建模为树形 DP，利用后序遍历在每个节点返回“不偷/偷”两个状态，并解释为什么单状态递归会产生重复计算。
+---
+
+# 337. 打家劫舍 III
+
+[LeetCode 337：打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/)
+
+前两道“打家劫舍”问题分别发生在线性数组和环形数组上，本题把结构进一步换成了一棵二叉树。
+
+规则仍然只有一句：
+
+> 如果两个直接相连的房屋同时被偷，就会触发警报。
+
+在树上，“直接相连”恰好就是：
+
+$$
+\boxed{\text{父节点与子节点不能同时选择}}
+$$
+
+![打家劫舍 III](https://file1.kamacoder.com/i/algo/20210223173849619.png)
+
+<Callout type="info" title="这是一道典型的树形 DP">
+数组 DP 的状态沿下标传播；树形 DP 的状态沿树的边传播。本题每个节点的最优决策依赖左右子树，因此天然适合“后序遍历 + 状态返回值”。
+</Callout>
+
+## 1. 为什么普通的一维 DP 不再适用
+
+在线性数组中，第 $i$ 个位置只需要依赖前面的有限状态，例如：
+
+$$
+dp[i-1],\quad dp[i-2]
+$$
+
+但在二叉树中，一个节点可能拥有左右两棵结构完全不同的子树。
+
+我们不能再用一个简单的下标表示“前面已经处理到哪里”。
+
+真正需要描述的是：
+
+> 对于以某个节点 `node` 为根的整棵子树，当 `node` 偷或不偷时，分别能获得多少钱？
+
+这正是树形 DP 的状态设计起点。
+
+## 2. 为什么必须区分“偷当前节点”和“不偷当前节点”
+
+如果只让递归函数返回：
+
+$$
+\text{这棵子树最多能偷多少钱}
+$$
+
+信息其实不够。
+
+因为父节点如果决定“偷”，就必须知道左右孩子在**不偷孩子本身**的前提下能获得的最大值。
+
+单独一个最大值无法告诉父节点：这个最大值到底有没有偷孩子。
+
+所以每个节点必须返回两个状态。
+
+定义：
+
+$$
+\boxed{dp_0(node)=\text{不偷 }node\text{ 时，这棵子树的最大收益}}
+$$
+
+$$
+\boxed{dp_1(node)=\text{偷 }node\text{ 时，这棵子树的最大收益}}
+$$
+
+在代码中可以返回：
+
+```text
+[notRob, rob]
+```
+
+## 3. 为什么使用后序遍历
+
+当前节点的两个状态都依赖左右孩子已经计算好的状态。
+
+所以顺序必须是：
+
+1. 先计算左子树；
+2. 再计算右子树；
+3. 最后计算当前节点。
+
+这正是：
+
+$$
+\boxed{\text{后序遍历}}
+$$
+
+<Callout type="success" title="判断树形 DP 遍历顺序的小技巧">
+如果当前节点的状态要依赖孩子返回的信息，通常优先想到后序遍历。它本质上是在做“自底向上”的动态规划。
+</Callout>
+
+## 4. 空节点的状态
+
+对于空节点：
+
+$$
+node=null
+$$
+
+无论“偷”还是“不偷”，收益都只能视为 $0$。
+
+因此可以直接返回：
+
+$$
+\boxed{[0,0]}
+$$
+
+这个定义使递归边界非常自然，不需要额外分类叶子节点。
+
+## 5. 状态转移：偷当前节点
+
+设左孩子返回：
+
+$$
+[left_0,left_1]
+$$
+
+右孩子返回：
+
+$$
+[right_0,right_1]
+$$
+
+如果决定偷当前节点 `node`，那么左右孩子都不能偷。
+
+因此：
+
+$$
+\boxed{
+rob=node.val+left_0+right_0
+}
+$$
+
+注意，这里不能写：
+
+$$
+node.val+\max(left_0,left_1)+\max(right_0,right_1)
+$$
+
+因为一旦孩子选择了 `left_1` 或 `right_1`，就会和当前节点产生父子冲突。
+
+## 6. 状态转移：不偷当前节点
+
+如果不偷当前节点，那么左右孩子就没有额外限制。
+
+左孩子可以偷，也可以不偷，选择收益更大的情况：
+
+$$
+\max(left_0,left_1)
+$$
+
+右孩子同理：
+
+$$
+\max(right_0,right_1)
+$$
+
+因此：
+
+$$
+\boxed{
+notRob=\max(left_0,left_1)+\max(right_0,right_1)
+}
+$$
+
+这里非常容易出现一个误区：
+
+> 不偷父节点，并不意味着必须偷孩子。
+
+正确理解应该是：不偷父节点以后，孩子恢复了“可偷也可不偷”的自由，所以每棵子树继续独立选择最优状态。
+
+## 7. 完整递推关系
+
+对任意节点 $u$，令左右孩子分别为 $L,R$，则：
+
+$$
+\boxed{
+dp_0(u)=\max(dp_0(L),dp_1(L))+\max(dp_0(R),dp_1(R))
+}
+$$
+
+$$
+\boxed{
+dp_1(u)=u.val+dp_0(L)+dp_0(R)
+}
+$$
+
+根节点没有父节点限制，所以最终答案为：
+
+$$
+\boxed{
+\max(dp_0(root),dp_1(root))
+}
+$$
+
+## 8. C++ 实现
+
+```cpp
+class Solution {
+public:
+    int rob(TreeNode* root) {
+        auto [notRob, robCur] = dfs(root);
+        return max(notRob, robCur);
+    }
+
+private:
+    pair<int, int> dfs(TreeNode* node) {
+        if (node == nullptr) {
+            return {0, 0};
+        }
+
+        // 后序遍历：先得到左右子树状态
+        auto [leftNotRob, leftRob] = dfs(node->left);
+        auto [rightNotRob, rightRob] = dfs(node->right);
+
+        // 不偷当前节点：孩子可以偷，也可以不偷
+        int notRob = max(leftNotRob, leftRob)
+                   + max(rightNotRob, rightRob);
+
+        // 偷当前节点：两个孩子都必须不偷
+        int robCur = node->val + leftNotRob + rightNotRob;
+
+        return {notRob, robCur};
+    }
+};
+```
+
+## 9. 手算一棵小树
+
+假设二叉树为：
+
+```text
+      3
+     / \
+    2   3
+     \   \
+      3   1
+```
+
+从叶子开始计算。
+
+### 叶子节点 `3`
+
+$$
+notRob=0
+$$
+
+$$
+rob=3
+$$
+
+返回：
+
+$$
+[0,3]
+$$
+
+### 叶子节点 `1`
+
+同理返回：
+
+$$
+[0,1]
+$$
+
+### 左侧节点 `2`
+
+它只有一个右孩子 `3`。
+
+不偷 `2`：
+
+$$
+notRob=\max(0,3)=3
+$$
+
+偷 `2`：
+
+$$
+rob=2+0=2
+$$
+
+返回：
+
+$$
+[3,2]
+$$
+
+### 右侧节点 `3`
+
+右孩子为 `1`。
+
+不偷当前节点：
+
+$$
+notRob=\max(0,1)=1
+$$
+
+偷当前节点：
+
+$$
+rob=3+0=3
+$$
+
+返回：
+
+$$
+[1,3]
+$$
+
+### 根节点 `3`
+
+不偷根：
+
+$$
+notRob=\max(3,2)+\max(1,3)=6
+$$
+
+偷根：
+
+$$
+rob=3+3+1=7
+$$
+
+最终：
+
+$$
+\boxed{\max(6,7)=7}
+$$
+
+## 10. 为什么暴力递归会重复计算
+
+一种直观但低效的写法是：
+
+- 如果偷当前节点，就递归四个孙子；
+- 如果不偷当前节点，就递归两个孩子。
+
+看起来符合规则，但问题是同一棵子树会被多次求解。
+
+例如计算：
+
+```text
+rob(root->left)
+```
+
+时会再次访问它的孩子；而“偷根节点”的分支此前已经计算过这些孙子。
+
+于是递归树中存在大量重复状态。
+
+可以用哈希表记忆化解决，但更好的做法是：
+
+$$
+\boxed{\text{一次 DFS 同时返回偷与不偷两个状态}}
+$$
+
+这样每个节点只处理一次。
+
+## 11. 树形 DP 与记忆化递归的关系
+
+本题有三种常见做法：
+
+| 方法 | 核心返回值 | 是否重复计算 | 时间复杂度 |
+| --- | --- | --- | --- |
+| 暴力递归 | 子树最大收益 | 是 | 可能接近指数级 |
+| 记忆化递归 | 子树最大收益 | 否 | $O(n)$ |
+| 树形 DP | 偷 / 不偷两个状态 | 否 | $O(n)$ |
+
+树形 DP 不只是为了优化复杂度，更重要的是它把“父节点真正需要的信息”表达得更完整。
+
+## 12. 为什么两个子树可以直接相加
+
+当当前节点的状态确定以后，左子树和右子树之间没有直接边，也就没有新的冲突。
+
+因此两个子问题彼此独立，可以直接相加：
+
+$$
+left+right
+$$
+
+这也是树形 DP 经常成立的重要原因：
+
+> 删除当前节点与孩子之间的决策关系后，各个子树成为相互独立的子问题。
+
+## 13. 复杂度
+
+每个节点只访问一次，并在节点处做常数次运算：
+
+$$
+\boxed{T(n)=O(n)}
+$$
+
+递归栈深度等于树高 $h$：
+
+$$
+\boxed{S(n)=O(h)}
+$$
+
+如果树近似平衡：
+
+$$
+h=O(\log n)
+$$
+
+最坏情况下退化成链：
+
+$$
+h=O(n)
+$$
+
+## 14. 易错点
+
+### 易错点一：只返回一个最大值
+
+父节点无法判断这个最大值是否偷了孩子，因此信息不充分。
+
+### 易错点二：不偷父节点就强制偷孩子
+
+不偷父节点只是解除孩子限制，孩子仍应在“偷 / 不偷”中取最大值。
+
+### 易错点三：使用前序遍历
+
+当前节点的决策依赖孩子的 DP 状态，应该先算孩子，再算自己。
+
+### 易错点四：偷当前节点时仍取孩子的最大值
+
+偷父节点以后，孩子必须明确处于“不偷”状态，只能使用：
+
+$$
+left_0,\ right_0
+$$
+
+## 15. 树形 DP 的通用模板
+
+本题可以抽象成非常通用的树形 DP 模板：
+
+```cpp
+State dfs(TreeNode* node) {
+    if (!node) return baseState;
+
+    State left = dfs(node->left);
+    State right = dfs(node->right);
+
+    State cur;
+    // 根据左右子树状态推导当前节点状态
+    return cur;
+}
+```
+
+解决树形 DP 时，优先问自己三个问题：
+
+1. **父节点需要从孩子那里知道什么信息？**
+2. **这些信息需要几个状态才能完整表达？**
+3. **当前节点的不同决策会对子节点施加什么限制？**
+
+如果这三个问题能够回答清楚，状态转移通常就已经非常接近答案。
+
+<Callout type="success" title="一句话记忆">
+打家劫舍 III = 后序遍历每个节点，并返回 `[不偷当前节点的最优值, 偷当前节点的最优值]`。
+</Callout>
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int rob(TreeNode root) {
+        int[] state = dfs(root);
+        return Math.max(state[0], state[1]);
+    }
+
+    private int[] dfs(TreeNode node) {
+        if (node == null) return new int[]{0, 0};
+
+        int[] left = dfs(node.left);
+        int[] right = dfs(node.right);
+
+        int notRob = Math.max(left[0], left[1])
+                   + Math.max(right[0], right[1]);
+        int rob = node.val + left[0] + right[0];
+
+        return new int[]{notRob, rob};
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def rob(self, root: Optional[TreeNode]) -> int:
+        not_rob, rob_cur = self.dfs(root)
+        return max(not_rob, rob_cur)
+
+    def dfs(self, node):
+        if not node:
+            return 0, 0
+
+        left_not, left_rob = self.dfs(node.left)
+        right_not, right_rob = self.dfs(node.right)
+
+        not_rob = max(left_not, left_rob) + max(right_not, right_rob)
+        rob_cur = node.val + left_not + right_not
+
+        return not_rob, rob_cur
+```
+
+```go tab="Go"
+func rob(root *TreeNode) int {
+    state := dfs(root)
+    return max(state[0], state[1])
+}
+
+func dfs(node *TreeNode) [2]int {
+    if node == nil {
+        return [2]int{0, 0}
+    }
+
+    left := dfs(node.Left)
+    right := dfs(node.Right)
+
+    notRob := max(left[0], left[1]) + max(right[0], right[1])
+    robCur := node.Val + left[0] + right[0]
+
+    return [2]int{notRob, robCur}
+}
+
+func max(a, b int) int {
+    if a > b { return a }
+    return b
+}
+```
+
+```javascript tab="JavaScript"
+var rob = function(root) {
+    const [notRob, robCur] = dfs(root);
+    return Math.max(notRob, robCur);
+};
+
+function dfs(node) {
+    if (!node) return [0, 0];
+
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+
+    const notRob = Math.max(left[0], left[1])
+                 + Math.max(right[0], right[1]);
+    const robCur = node.val + left[0] + right[0];
+
+    return [notRob, robCur];
+}
+```
+
+```typescript tab="TypeScript"
+function rob(root: TreeNode | null): number {
+    const [notRob, robCur] = dfs(root);
+    return Math.max(notRob, robCur);
+}
+
+function dfs(node: TreeNode | null): [number, number] {
+    if (node === null) return [0, 0];
+
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+
+    const notRob = Math.max(left[0], left[1])
+                 + Math.max(right[0], right[1]);
+    const robCur = node.val + left[0] + right[0];
+
+    return [notRob, robCur];
+}
+```
+
+```c tab="C"
+typedef struct {
+    int notRob;
+    int rob;
+} State;
+
+int maxInt(int a, int b) {
+    return a > b ? a : b;
+}
+
+State dfs(struct TreeNode* node) {
+    if (node == NULL) {
+        State empty = {0, 0};
+        return empty;
+    }
+
+    State left = dfs(node->left);
+    State right = dfs(node->right);
+
+    State cur;
+    cur.notRob = maxInt(left.notRob, left.rob)
+               + maxInt(right.notRob, right.rob);
+    cur.rob = node->val + left.notRob + right.notRob;
+    return cur;
+}
+
+int rob(struct TreeNode* root) {
+    State ans = dfs(root);
+    return maxInt(ans.notRob, ans.rob);
+}
+```
+
+```rust tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        let (not_rob, rob_cur) = Self::dfs(&root);
+        not_rob.max(rob_cur)
+    }
+
+    fn dfs(node: &Option<Rc<RefCell<TreeNode>>>) -> (i32, i32) {
+        match node {
+            None => (0, 0),
+            Some(rc) => {
+                let node_ref = rc.borrow();
+                let left = Self::dfs(&node_ref.left);
+                let right = Self::dfs(&node_ref.right);
+
+                let not_rob = left.0.max(left.1) + right.0.max(right.1);
+                let rob_cur = node_ref.val + left.0 + right.0;
+
+                (not_rob, rob_cur)
+            }
+        }
+    }
+}
+```

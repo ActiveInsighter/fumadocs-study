@@ -1,0 +1,1348 @@
+---
+title: 用栈实现队列
+description: 用输入栈与输出栈模拟 FIFO 队列，掌握“两次反转恢复顺序”、惰性搬运与均摊 O(1) 复杂度分析。
+---
+
+# 232. 用栈实现队列
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/implement-queue-using-stacks/">
+    LeetCode 232 · Implement Queue using Stacks
+  </Card>
+</Cards>
+
+要求仅使用栈的标准操作，实现一个先进先出队列。
+
+需要支持：
+
+```text
+push(x)
+pop()
+peek()
+empty()
+```
+
+例如：
+
+```text
+push(1)
+push(2)
+peek()  -> 1
+pop()   -> 1
+empty() -> false
+```
+
+限制：
+
+> 只能使用栈允许的操作，例如压栈、弹栈、访问栈顶、判空。
+
+<Callout type="info" title="这道题真正考什么">
+栈是：
+
+```text
+LIFO
+```
+
+队列是：
+
+```text
+FIFO
+```
+
+要用栈模拟队列，关键就是：
+
+> **利用两次顺序反转，把后进先出重新变成先进先出。**
+</Callout>
+
+---
+
+# 1. 一个栈为什么不够自然
+
+假设依次入队：
+
+```text
+1
+2
+3
+```
+
+队列希望出队顺序：
+
+```text
+1
+2
+3
+```
+
+但如果全部压入一个栈：
+
+```text
+top
+ ↓
+ 3
+ 2
+ 1
+```
+
+弹出顺序却是：
+
+```text
+3
+2
+1
+```
+
+正好相反。
+
+所以只用一个普通栈，无法直接得到队列的 FIFO 顺序。
+
+---
+
+# 2. 两个栈的核心设计
+
+使用两个栈：
+
+```text
+stackIn
+stackOut
+```
+
+职责明确：
+
+### 输入栈 `stackIn`
+
+负责：
+
+```text
+push
+```
+
+所有新元素直接进入这里。
+
+### 输出栈 `stackOut`
+
+负责：
+
+```text
+pop / peek
+```
+
+队头元素永远从这里获取。
+
+---
+
+## 3. 为什么两个栈能把顺序恢复
+
+依次 push：
+
+```text
+1
+2
+3
+```
+
+进入 `stackIn` 后：
+
+```text
+top
+ ↓
+ 3
+ 2
+ 1
+```
+
+如果把它们逐个弹出，再压入 `stackOut`：
+
+```text
+stackOut:
+
+top
+ ↓
+ 1
+ 2
+ 3
+```
+
+于是：
+
+```text
+stackOut.top() == 1
+```
+
+正好是最早入队的元素。
+
+也就是说：
+
+```text
+第一次栈反转
++
+第二次栈反转
+=
+恢复原顺序
+```
+
+这就是双栈模拟队列的数学本质。
+
+---
+
+# 4. push 为什么特别简单
+
+新元素应该进入：
+
+```text
+队尾
+```
+
+而暂时把所有新元素都放进：
+
+```cpp
+stackIn
+```
+
+即可。
+
+```cpp
+void push(int x) {
+    stackIn.push(x);
+}
+```
+
+此时不需要立刻搬到 `stackOut`。
+
+---
+
+# 5. pop 的关键：只有输出栈为空时才搬运
+
+这是整道题最重要的规则：
+
+> **只有 `stackOut` 为空，才把 `stackIn` 的所有元素一次性搬过去。**
+
+伪代码：
+
+```text
+如果 stackOut 非空：
+    直接从 stackOut 弹出
+
+如果 stackOut 为空：
+    把 stackIn 全部倒入 stackOut
+    再从 stackOut 弹出
+```
+
+原始动画：
+
+![双栈模拟队列](https://file1.kamacoder.com/i/algo/232.%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97%E7%89%88%E6%9C%AC2.gif)
+
+---
+
+## 6. 为什么必须“全部搬完”
+
+假设：
+
+```text
+stackIn
+top
+ ↓
+ 3
+ 2
+ 1
+```
+
+如果只搬一个：
+
+```text
+stackOut = [3]
+```
+
+那么弹出的会是：
+
+```text
+3
+```
+
+仍然错误。
+
+必须全部搬：
+
+```text
+3 -> stackOut
+2 -> stackOut
+1 -> stackOut
+```
+
+最终：
+
+```text
+stackOut.top() = 1
+```
+
+才能得到正确队头。
+
+---
+
+# 7. 为什么 `stackOut` 非空时不能再搬
+
+这是本题最容易写错的地方。
+
+假设当前：
+
+```text
+stackOut:
+top
+ ↓
+ 2
+ 3
+```
+
+它表示：
+
+```text
+2 比 3 更早进入队列
+```
+
+此时又 push：
+
+```text
+4
+5
+```
+
+进入：
+
+```text
+stackIn:
+top
+ ↓
+ 5
+ 4
+```
+
+队列真实顺序应为：
+
+```text
+2, 3, 4, 5
+```
+
+如果此时把 `stackIn` 倒进仍非空的 `stackOut`：
+
+```text
+4
+5
+2
+3
+```
+
+队头顺序会被破坏。
+
+所以：
+
+> **只要 stackOut 里还有旧元素，它们一定比 stackIn 中的新元素更早入队，必须优先全部出完。**
+
+---
+
+## 8. 用一个状态例子完整理解
+
+操作：
+
+```text
+push(1)
+push(2)
+pop()
+push(3)
+push(4)
+pop()
+pop()
+pop()
+```
+
+---
+
+### push(1), push(2)
+
+```text
+stackIn:
+top
+ ↓
+ 2
+ 1
+
+stackOut:
+empty
+```
+
+---
+
+### 第一次 pop
+
+`stackOut` 为空，所以全部搬运：
+
+```text
+stackOut:
+top
+ ↓
+ 1
+ 2
+```
+
+弹出：
+
+```text
+1
+```
+
+剩：
+
+```text
+stackOut:
+top
+ ↓
+ 2
+```
+
+---
+
+### push(3), push(4)
+
+新元素仍然只进入 `stackIn`：
+
+```text
+stackIn:
+top
+ ↓
+ 4
+ 3
+
+stackOut:
+top
+ ↓
+ 2
+```
+
+此时不能搬运。
+
+因为真实队列顺序：
+
+```text
+2, 3, 4
+```
+
+---
+
+### 第二次 pop
+
+`stackOut` 非空：
+
+```text
+直接弹出 2
+```
+
+---
+
+### 第三次 pop
+
+此时 `stackOut` 空。
+
+再把：
+
+```text
+4
+3
+```
+
+全部倒过去：
+
+```text
+stackOut:
+top
+ ↓
+ 3
+ 4
+```
+
+弹出：
+
+```text
+3
+```
+
+---
+
+### 第四次 pop
+
+直接弹出：
+
+```text
+4
+```
+
+队列顺序完全正确。
+
+---
+
+# 9. 推荐抽象：`moveIfNeeded`
+
+`pop()` 和 `peek()` 都需要同一个逻辑：
+
+```text
+如果 stackOut 为空
+就把 stackIn 全部搬过去
+```
+
+不要复制两遍代码。
+
+可以抽象：
+
+```cpp
+void moveIfNeeded() {
+    if (!stackOut.empty()) {
+        return;
+    }
+
+    while (!stackIn.empty()) {
+        stackOut.push(stackIn.top());
+        stackIn.pop();
+    }
+}
+```
+
+这样：
+
+```cpp
+pop()
+peek()
+```
+
+都可以复用。
+
+<Callout type="tip" title="这不仅是算法技巧，也是代码设计技巧">
+“多个操作共享相同状态迁移逻辑”时，应尽量抽成一个辅助函数。
+
+这样能减少：
+
+- 重复代码；
+- 边界差异；
+- 修改时漏改某一处。
+</Callout>
+
+---
+
+# 10. 推荐标准解法
+
+```cpp
+class MyQueue {
+private:
+    stack<int> stackIn;
+    stack<int> stackOut;
+
+    void moveIfNeeded() {
+        if (!stackOut.empty()) {
+            return;
+        }
+
+        while (!stackIn.empty()) {
+            stackOut.push(stackIn.top());
+            stackIn.pop();
+        }
+    }
+
+public:
+    MyQueue() = default;
+
+    void push(int x) {
+        stackIn.push(x);
+    }
+
+    int pop() {
+        moveIfNeeded();
+
+        int value = stackOut.top();
+        stackOut.pop();
+
+        return value;
+    }
+
+    int peek() {
+        moveIfNeeded();
+        return stackOut.top();
+    }
+
+    bool empty() {
+        return stackIn.empty() && stackOut.empty();
+    }
+};
+```
+
+---
+
+## 11. 为什么 `peek()` 不需要先 pop 再 push 回去
+
+一种写法：
+
+```cpp
+int value = pop();
+stackOut.push(value);
+return value;
+```
+
+逻辑上可以成立。
+
+但更自然的是：
+
+```cpp
+moveIfNeeded();
+return stackOut.top();
+```
+
+因为 `peek()` 的语义就是：
+
+> 只看队头，不删除。
+
+所以应该尽量直接使用：
+
+```text
+top
+```
+
+而不是通过：
+
+```text
+pop + push
+```
+
+模拟读取。
+
+---
+
+# 12. empty 为什么两个栈都必须为空
+
+队列里的元素可能分布在两个栈。
+
+例如：
+
+```text
+stackOut = [旧元素]
+stackIn  = [新元素]
+```
+
+只检查其中一个都会出错。
+
+所以：
+
+```cpp
+return stackIn.empty() && stackOut.empty();
+```
+
+只有：
+
+```text
+两个栈都空
+```
+
+整个模拟队列才是真的空。
+
+---
+
+# 13. 最容易误解的复杂度：pop 不是 O(n) 吗
+
+单看某一次 `pop()`：
+
+```text
+如果 stackOut 为空
+需要搬运 k 个元素
+```
+
+这一次确实可能是：
+
+$$
+O(k)
+$$
+
+甚至：
+
+$$
+O(n)
+$$
+
+但从一系列操作整体来看，每个元素：
+
+1. 被压入 `stackIn` 一次；
+2. 最多从 `stackIn` 弹出一次；
+3. 被压入 `stackOut` 一次；
+4. 最多从 `stackOut` 弹出一次。
+
+也就是说：
+
+> 每个元素只会被搬运常数次。
+
+因此连续执行 $n$ 次操作时，总工作量仍是：
+
+$$
+O(n)
+$$
+
+平均到每次操作：
+
+$$
+O(1)
+$$
+
+这叫：
+
+> **均摊时间复杂度（amortized complexity）**
+
+---
+
+## 14. 均摊复杂度怎么理解
+
+假设：
+
+```text
+push 1
+push 2
+push 3
+pop
+pop
+pop
+```
+
+前三次 push：
+
+```text
+每次 O(1)
+```
+
+第一次 pop：
+
+```text
+搬 3 个元素
+```
+
+看起来是：
+
+$$
+O(3)
+$$
+
+但后面两个 pop：
+
+```text
+直接从 stackOut 弹出
+```
+
+都是：
+
+$$
+O(1)
+$$
+
+总工作量与元素数量同阶。
+
+所以不能只盯着：
+
+```text
+某一次最贵操作
+```
+
+而要看：
+
+```text
+一批操作的总成本
+```
+
+---
+
+# 15. 势能直觉
+
+可以把 `stackIn` 中的元素理解成：
+
+```text
+尚未支付搬运成本
+```
+
+每个 push 进去的元素，将来最多只需要：
+
+```text
+搬一次到 stackOut
+```
+
+搬过去后就再也不会搬回去。
+
+因此每个元素的生命周期：
+
+```text
+push into In
+     ↓
+move to Out
+     ↓
+pop from Out
+```
+
+最多经历常数次操作。
+
+这就是均摊 $O(1)$ 的直觉。
+
+---
+
+# 16. 为什么不能每次 pop 都来回倒栈
+
+一种低效实现：
+
+```text
+每次 pop:
+    In 全倒到 Out
+    弹一个
+    剩下再倒回 In
+```
+
+这样一次 pop 可能搬：
+
+$$
+O(n)
+$$
+
+而且后续每次 pop 都重复搬。
+
+$n$ 次 pop 可能达到：
+
+$$
+O(n^2)
+$$
+
+正确设计的关键是：
+
+> `stackOut` 中剩余元素不要倒回去。
+
+让它们留在那里，等待后续继续出队。
+
+---
+
+## 17. 这其实是一种“惰性处理”
+
+push 时：
+
+```text
+暂时不整理队列顺序
+```
+
+只有真正需要：
+
+```text
+pop / peek
+```
+
+而且输出栈为空时，才进行搬运。
+
+这种策略叫：
+
+> **惰性（lazy）操作**
+
+核心思想：
+
+```text
+能晚做的工作先不做
+直到确实需要时再批量完成
+```
+
+这可以避免重复工作。
+
+---
+
+# 18. 队列顺序的不变量
+
+整个结构中可以维护这样一个不变量：
+
+### 如果 `stackOut` 非空
+
+它的栈顶：
+
+```text
+一定是当前队头
+```
+
+并且：
+
+```text
+stackOut 中所有元素
+都比 stackIn 中所有元素更早入队
+```
+
+### 如果 `stackOut` 为空
+
+把 `stackIn` 全部倒过去后：
+
+```text
+最早进入 stackIn 的元素
+会来到 stackOut 栈顶
+```
+
+所以仍然恢复正确 FIFO 顺序。
+
+---
+
+## 19. 为什么是“两次反转”
+
+假设输入顺序：
+
+```text
+1, 2, 3
+```
+
+进入第一个栈：
+
+```text
+3, 2, 1
+```
+
+顺序反转一次。
+
+再倒入第二个栈：
+
+```text
+1, 2, 3
+```
+
+又反转一次。
+
+数学直觉：
+
+```text
+reverse(reverse(sequence))
+=
+sequence
+```
+
+于是 FIFO 被恢复。
+
+---
+
+# 20. 和“用队列实现栈”有什么不同
+
+这两道题看起来对称，但难度并不完全一样。
+
+### 两个栈实现队列
+
+非常自然：
+
+```text
+一次反转 + 再一次反转
+```
+
+而且可以做到：
+
+```text
+均摊 O(1)
+```
+
+### 队列实现栈
+
+通常需要通过：
+
+```text
+旋转队列
+```
+
+让新元素或旧元素调整到队头。
+
+所以理解：
+
+```text
+LIFO 与 FIFO 的顺序变换
+```
+
+比死记模板更重要。
+
+---
+
+# 21. 常见错误
+
+### 错误一：每次 pop 都把 stackIn 倒过去
+
+如果 `stackOut` 非空，绝对不能再倒。
+
+否则会破坏旧元素优先级。
+
+---
+
+### 错误二：只搬一部分 stackIn
+
+必须：
+
+```text
+全部搬完
+```
+
+才能让最早进入的元素翻到栈顶。
+
+---
+
+### 错误三：empty 只看一个栈
+
+必须：
+
+```cpp
+stackIn.empty() &&
+stackOut.empty()
+```
+
+---
+
+### 错误四：把 pop 的最坏复杂度直接写成每次 O(n)
+
+单次最坏确实可能：
+
+$$
+O(n)
+$$
+
+但标准题目分析通常强调：
+
+> 均摊复杂度为 $O(1)$。
+
+应该把“单次最坏”和“均摊”区分开。
+
+---
+
+# 22. 一眼识别本题
+
+看到：
+
+```text
+只能使用栈
+但要模拟 FIFO
+```
+
+直接想到：
+
+```text
+输入栈
+输出栈
+```
+
+核心规则：
+
+```text
+push → 永远进入 In
+
+pop / peek:
+    Out 非空 → 直接使用
+    Out 为空 → In 全部倒入 Out
+```
+
+一句话记忆：
+
+> **输入栈负责收，输出栈负责发；输出栈没空之前，输入栈绝不倒进去。**
+
+---
+
+# 23. 多语言实现
+
+### C++
+
+```cpp
+class MyQueue {
+private:
+    stack<int> stackIn;
+    stack<int> stackOut;
+
+    void moveIfNeeded() {
+        if (!stackOut.empty()) {
+            return;
+        }
+
+        while (!stackIn.empty()) {
+            stackOut.push(stackIn.top());
+            stackIn.pop();
+        }
+    }
+
+public:
+    MyQueue() = default;
+
+    void push(int x) {
+        stackIn.push(x);
+    }
+
+    int pop() {
+        moveIfNeeded();
+
+        int value = stackOut.top();
+        stackOut.pop();
+
+        return value;
+    }
+
+    int peek() {
+        moveIfNeeded();
+        return stackOut.top();
+    }
+
+    bool empty() {
+        return stackIn.empty() && stackOut.empty();
+    }
+};
+```
+
+  ### Java
+
+```java
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+class MyQueue {
+    private Deque<Integer> stackIn;
+    private Deque<Integer> stackOut;
+
+    public MyQueue() {
+        stackIn = new ArrayDeque<>();
+        stackOut = new ArrayDeque<>();
+    }
+
+    private void moveIfNeeded() {
+        if (!stackOut.isEmpty()) {
+            return;
+        }
+
+        while (!stackIn.isEmpty()) {
+            stackOut.push(stackIn.pop());
+        }
+    }
+
+    public void push(int x) {
+        stackIn.push(x);
+    }
+
+    public int pop() {
+        moveIfNeeded();
+        return stackOut.pop();
+    }
+
+    public int peek() {
+        moveIfNeeded();
+        return stackOut.peek();
+    }
+
+    public boolean empty() {
+        return stackIn.isEmpty() && stackOut.isEmpty();
+    }
+}
+```
+
+  ### Python
+
+```python
+class MyQueue:
+    def __init__(self):
+        self.stack_in = []
+        self.stack_out = []
+
+    def _move_if_needed(self) -> None:
+        if self.stack_out:
+            return
+
+        while self.stack_in:
+            self.stack_out.append(
+                self.stack_in.pop()
+            )
+
+    def push(self, x: int) -> None:
+        self.stack_in.append(x)
+
+    def pop(self) -> int:
+        self._move_if_needed()
+        return self.stack_out.pop()
+
+    def peek(self) -> int:
+        self._move_if_needed()
+        return self.stack_out[-1]
+
+    def empty(self) -> bool:
+        return (
+            not self.stack_in
+            and not self.stack_out
+        )
+```
+
+  ### Go
+
+```go
+type MyQueue struct {
+    stackIn  []int
+    stackOut []int
+}
+
+func Constructor() MyQueue {
+    return MyQueue{}
+}
+
+func (q *MyQueue) moveIfNeeded() {
+    if len(q.stackOut) > 0 {
+        return
+    }
+
+    for len(q.stackIn) > 0 {
+        last := len(q.stackIn) - 1
+
+        q.stackOut = append(
+            q.stackOut,
+            q.stackIn[last],
+        )
+
+        q.stackIn = q.stackIn[:last]
+    }
+}
+
+func (q *MyQueue) Push(x int) {
+    q.stackIn = append(q.stackIn, x)
+}
+
+func (q *MyQueue) Pop() int {
+    q.moveIfNeeded()
+
+    last := len(q.stackOut) - 1
+    value := q.stackOut[last]
+    q.stackOut = q.stackOut[:last]
+
+    return value
+}
+
+func (q *MyQueue) Peek() int {
+    q.moveIfNeeded()
+    return q.stackOut[len(q.stackOut)-1]
+}
+
+func (q *MyQueue) Empty() bool {
+    return (
+        len(q.stackIn) == 0 &&
+        len(q.stackOut) == 0
+    )
+}
+```
+
+  ### JavaScript
+
+```javascript
+var MyQueue = function() {
+    this.stackIn = [];
+    this.stackOut = [];
+};
+
+MyQueue.prototype.moveIfNeeded = function() {
+    if (this.stackOut.length !== 0) {
+        return;
+    }
+
+    while (this.stackIn.length !== 0) {
+        this.stackOut.push(
+            this.stackIn.pop()
+        );
+    }
+};
+
+MyQueue.prototype.push = function(x) {
+    this.stackIn.push(x);
+};
+
+MyQueue.prototype.pop = function() {
+    this.moveIfNeeded();
+    return this.stackOut.pop();
+};
+
+MyQueue.prototype.peek = function() {
+    this.moveIfNeeded();
+    return this.stackOut[this.stackOut.length - 1];
+};
+
+MyQueue.prototype.empty = function() {
+    return (
+        this.stackIn.length === 0 &&
+        this.stackOut.length === 0
+    );
+};
+```
+
+  ### TypeScript
+
+```typescript
+class MyQueue {
+    private stackIn: number[] = [];
+    private stackOut: number[] = [];
+
+    private moveIfNeeded(): void {
+        if (this.stackOut.length !== 0) {
+            return;
+        }
+
+        while (this.stackIn.length !== 0) {
+            this.stackOut.push(
+                this.stackIn.pop()!
+            );
+        }
+    }
+
+    push(x: number): void {
+        this.stackIn.push(x);
+    }
+
+    pop(): number {
+        this.moveIfNeeded();
+        return this.stackOut.pop()!;
+    }
+
+    peek(): number {
+        this.moveIfNeeded();
+        return this.stackOut[this.stackOut.length - 1];
+    }
+
+    empty(): boolean {
+        return (
+            this.stackIn.length === 0 &&
+            this.stackOut.length === 0
+        );
+    }
+}
+```
+
+  ---
+
+# 24. 复杂度总结
+
+| 操作 | 单次最坏 | 均摊 |
+| --- | ---: | ---: |
+| `push` | $O(1)$ | $O(1)$ |
+| `pop` | $O(n)$ | $O(1)$ |
+| `peek` | $O(n)$ | $O(1)$ |
+| `empty` | $O(1)$ | $O(1)$ |
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+因为两个栈合计最多保存队列中的全部元素。
+
+---
+
+## 25. 本题总结
+
+双栈模拟队列可以概括成：
+
+```text
+新元素 → stackIn
+
+需要队头：
+    stackOut 非空
+        ↓
+      直接用
+
+    stackOut 为空
+        ↓
+    stackIn 全部倒入 stackOut
+```
+
+最重要的三个结论：
+
+1. **两个栈连续反转两次，可以恢复 FIFO 顺序。**
+2. `stackOut` 非空时绝对不要重新搬运 `stackIn`。
+3. 单次 `pop` 可能是 $O(n)$，但每个元素只搬一次，因此均摊复杂度为 $O(1)$。
+
+真正理解这三点后，这道题就不需要背代码了。

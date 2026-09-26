@@ -1,0 +1,777 @@
+---
+title: 不同路径 II
+description: 在网格路径计数中加入障碍物，掌握不可达状态、边界初始化与一维状态压缩。
+icon: Grid2X2X
+---
+
+# 不同路径 II
+
+> LeetCode 63：Unique Paths II
+
+给定一个 $m\times n$ 网格，机器人从左上角出发，每次只能向**右**或向**下**移动一步。与“不同路径”不同的是，网格中现在存在障碍物：
+
+- `0`：可以通过；
+- `1`：障碍物，不能进入。
+
+要求从左上角走到右下角一共有多少条不同路径。
+
+![](https://file1.kamacoder.com/i/algo/20210111204901338.png)
+
+例如：
+
+```text
+obstacleGrid = [
+  [0,0,0],
+  [0,1,0],
+  [0,0,0]
+]
+```
+
+答案为：
+
+```text
+2
+```
+
+因为中央格子被障碍物封锁，只剩两条合法路线。
+
+![](https://file1.kamacoder.com/i/algo/20210111204939971.png)
+
+<Callout type="info" title="这道题真正的新知识不是递推公式">
+与上一题相比，核心转移几乎没有变化。真正需要掌握的是：**当一个状态不可达时，如何让它自然地退出后续转移。** 这类处理方式会在迷宫、路径计数、棋盘 DP 中反复出现。
+</Callout>
+
+## 1. 与“不同路径”相比，哪里发生了变化
+
+没有障碍时，到达 $(i,j)$ 的最后一步只能来自：
+
+- $(i-1,j)$；
+- $(i,j-1)$。
+
+因此：
+
+$$
+dp[i][j]=dp[i-1][j]+dp[i][j-1]
+$$
+
+加入障碍后，这个逻辑仍然成立，但有一个前提：
+
+> 当前格子 $(i,j)$ 必须允许进入。
+
+如果当前位置是障碍物，那么无论上方、左方有多少条路径，都不能进入该格子，因此：
+
+$$
+\boxed{dp[i][j]=0}
+$$
+
+于是完整转移可以写成：
+
+$$
+dp[i][j]=
+\begin{cases}
+0, & obstacleGrid[i][j]=1\\
+dp[i-1][j]+dp[i][j-1], & obstacleGrid[i][j]=0
+\end{cases}
+$$
+
+这就是本题最核心的变化。
+
+## 2. 动态规划五步分析
+
+### 2.1 状态定义
+
+定义：
+
+$$
+dp[i][j]
+$$
+
+表示：
+
+> 从起点 $(0,0)$ 出发，到达格子 $(i,j)$ 的合法路径数量。
+
+注意这里的“合法”已经隐含了：路径不能经过障碍物。
+
+最终答案：
+
+$$
+dp[m-1][n-1]
+$$
+
+### 2.2 状态转移
+
+若当前格子不是障碍物：
+
+$$
+\boxed{dp[i][j]=dp[i-1][j]+dp[i][j-1]}
+$$
+
+若当前格子是障碍物：
+
+$$
+\boxed{dp[i][j]=0}
+$$
+
+代码表达为：
+
+```cpp
+if (obstacleGrid[i][j] == 1) {
+    dp[i][j] = 0;
+} else {
+    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+}
+```
+
+<Callout type="tip" title="为什么把障碍状态设为 0 特别自然">
+因为这里求的是“路径条数”。0 恰好表示“没有合法路径能到达这里”。之后其他状态再把它参与加法时，它不会贡献任何路径，相当于障碍物自动从状态图中消失。
+</Callout>
+
+## 3. 最容易错的地方：第一行和第一列
+
+上一题“不同路径”中：
+
+$$
+dp[i][0]=1,\qquad dp[0][j]=1
+$$
+
+因为第一行只能一直向右，第一列只能一直向下。
+
+但本题存在障碍物。
+
+假设第一列中某个位置出现障碍：
+
+```text
+S
+.
+#
+.
+.
+```
+
+机器人到达 `#` 之后便无法继续往下，因此障碍之后所有格子都不可达。
+
+对应状态应为：
+
+```text
+1
+1
+0
+0
+0
+```
+
+原资料中的边界示意图：
+
+![](https://file1.kamacoder.com/i/algo/20210104114513928.png)
+
+所以初始化不能简单地把第一行、第一列全部赋为 1。
+
+正确方式是：**从起点开始，直到遇见第一个障碍为止。**
+
+```cpp
+for (int i = 0; i < m && obstacleGrid[i][0] == 0; ++i) {
+    dp[i][0] = 1;
+}
+
+for (int j = 0; j < n && obstacleGrid[0][j] == 0; ++j) {
+    dp[0][j] = 1;
+}
+```
+
+一旦遇到障碍，后面保持初始值 0 即可。
+
+## 4. 起点和终点需要单独判断吗
+
+如果起点就是障碍：
+
+```text
+# . .
+. . .
+. . F
+```
+
+显然答案为 0。
+
+如果终点是障碍，同样不可能到达。
+
+因此可以提前判断：
+
+```cpp
+if (obstacleGrid[0][0] == 1 ||
+    obstacleGrid[m - 1][n - 1] == 1) {
+    return 0;
+}
+```
+
+实际上，只要初始化和转移写得足够统一，即使不单独判断终点也能得到 0；但显式写出来能让代码含义更清晰。
+
+## 5. 遍历顺序
+
+对于普通格子：
+
+$$
+dp[i][j]=dp[i-1][j]+dp[i][j-1]
+$$
+
+因此计算 $(i,j)$ 前必须保证：
+
+- 上方状态已经求出；
+- 左方状态已经求出。
+
+所以可以从上到下、从左到右遍历：
+
+```cpp
+for (int i = 1; i < m; ++i) {
+    for (int j = 1; j < n; ++j) {
+        ...
+    }
+}
+```
+
+## 6. 手工推导一次 DP 表
+
+示例：
+
+```text
+0 0 0
+0 1 0
+0 0 0
+```
+
+初始状态：
+
+```text
+1 1 1
+1 0 0
+1 0 0
+```
+
+中央障碍位置保持：
+
+$$
+dp[1][1]=0
+$$
+
+继续计算：
+
+$$
+dp[1][2]=dp[0][2]+dp[1][1]=1+0=1
+$$
+
+$$
+dp[2][1]=dp[1][1]+dp[2][0]=0+1=1
+$$
+
+$$
+dp[2][2]=dp[1][2]+dp[2][1]=1+1=2
+$$
+
+最终：
+
+|   | 0 | 1 | 2 |
+| ---: | ---: | ---: | ---: |
+| 0 | 1 | 1 | 1 |
+| 1 | 1 | 0 | 1 |
+| 2 | 1 | 1 | 2 |
+
+原资料中的推导图：
+
+![](https://file1.kamacoder.com/i/algo/20210104114548983.png)
+
+![](https://file1.kamacoder.com/i/algo/20210104114610256.png)
+
+## 7. 二维 DP 标准实现
+
+```cpp
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m = obstacleGrid.size();
+        int n = obstacleGrid[0].size();
+
+        if (obstacleGrid[0][0] == 1 ||
+            obstacleGrid[m - 1][n - 1] == 1) {
+            return 0;
+        }
+
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m && obstacleGrid[i][0] == 0; ++i) {
+            dp[i][0] = 1;
+        }
+
+        for (int j = 0; j < n && obstacleGrid[0][j] == 0; ++j) {
+            dp[0][j] = 1;
+        }
+
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                if (obstacleGrid[i][j] == 1) {
+                    dp[i][j] = 0;
+                } else {
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                }
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+};
+```
+
+### 复杂度
+
+一共有 $m\times n$ 个格子：
+
+$$
+O(mn)
+$$
+
+二维 DP 数组空间为：
+
+$$
+O(mn)
+$$
+
+## 8. 一维滚动数组：如何处理障碍物
+
+和“不同路径”一样，本题也可以压缩成一维数组。
+
+令：
+
+```cpp
+dp[j]
+```
+
+表示当前处理到这一行时，到达第 $j$ 列的路径数。
+
+对于没有障碍的格子：
+
+$$
+\boxed{dp[j]=dp[j]+dp[j-1]}
+$$
+
+其中：
+
+- 更新前的 `dp[j]`：来自上方；
+- 已更新的 `dp[j - 1]`：来自左方。
+
+真正关键的是：遇到障碍时必须执行：
+
+```cpp
+dp[j] = 0;
+```
+
+而不是 `continue`。
+
+### 为什么不能只 `continue`
+
+假设上一行的 `dp[j]` 原本是 5。
+
+如果当前格子是障碍物，只执行：
+
+```cpp
+continue;
+```
+
+那么 `dp[j]` 仍然保留 5。
+
+下一行计算时，这 5 条路径会被误认为可以穿过障碍继续向下传播。
+
+所以障碍物实际上是在告诉我们：
+
+> 到达当前位置的路径数立即失效。
+
+即：
+
+$$
+\boxed{dp[j]=0}
+$$
+
+<Callout type="warning" title="二维 DP 与一维 DP 的细节不同">
+二维数组通常初始化为 0，所以遇到障碍时可以直接 `continue`，当前位置仍是 0；一维数组会复用上一行旧值，因此遇到障碍时必须主动把 `dp[j]` 清零。
+</Callout>
+
+## 9. 推荐的一维写法
+
+最简洁的初始化方式是：
+
+```cpp
+dp[0] = 1;
+```
+
+然后直接从第 0 行、第 0 列开始统一遍历。
+
+```cpp
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m = obstacleGrid.size();
+        int n = obstacleGrid[0].size();
+
+        vector<int> dp(n, 0);
+        dp[0] = 1;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (obstacleGrid[i][j] == 1) {
+                    dp[j] = 0;
+                } else if (j > 0) {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        return dp[n - 1];
+    }
+};
+```
+
+这个版本非常值得掌握，因为它把：
+
+- 起点；
+- 第一行；
+- 第一列；
+- 普通位置；
+- 障碍位置；
+
+几乎全部统一进同一套循环逻辑中。
+
+### 复杂度
+
+时间复杂度仍然是：
+
+$$
+O(mn)
+$$
+
+空间复杂度降为：
+
+$$
+O(n)
+$$
+
+如果让较短的维度作为滚动数组，还可以记为：
+
+$$
+O(\min(m,n))
+$$
+
+## 10. 为什么不能再用组合数学直接求答案
+
+上一题没有障碍时，一条路径固定由：
+
+- $m-1$ 次向下；
+- $n-1$ 次向右；
+
+组成，因此可直接使用组合数：
+
+$$
+\binom{m+n-2}{m-1}
+$$
+
+但加入障碍物之后，合法性取决于**路径经过哪些具体格子**。
+
+不能只知道“总共向右几步、向下几步”，还必须知道排列过程是否经过障碍。
+
+因此简单组合数公式失效。
+
+<Callout type="info" title="更深一层理解">
+没有障碍时，所有移动排列都合法；加入障碍后，一部分排列被空间位置约束排除。DP 的优势就在于它能在局部状态中逐步过滤非法路径。
+</Callout>
+
+## 11. 高频错误总结
+
+### 错误一：第一行、第一列全部初始化为 1
+
+错误：
+
+```cpp
+for (int i = 0; i < m; ++i) dp[i][0] = 1;
+for (int j = 0; j < n; ++j) dp[0][j] = 1;
+```
+
+如果边界上存在障碍，障碍后面的格子其实已经不可达。
+
+### 错误二：障碍位置还参与转移
+
+错误：
+
+```cpp
+dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+```
+
+无论当前位置是否为障碍都执行，会让路径“穿墙”。
+
+### 错误三：一维数组中遇到障碍只 `continue`
+
+必须：
+
+```cpp
+dp[j] = 0;
+```
+
+否则上一行的旧路径数会泄漏到下一行。
+
+### 错误四：把障碍处理理解成“减掉一条路径”
+
+障碍不是减少固定数量的路径，而是让该状态彻底不可达：
+
+$$
+dp[i][j]=0
+$$
+
+其影响会继续传播到右方和下方。
+
+## 12. 这道题真正应该记住什么
+
+“不同路径 II”不是让你背一个新公式，而是建立一种更普遍的 DP 思维：
+
+> **非法状态应在状态空间中被赋予一个不会影响合法转移的值。**
+
+本题求路径数量，所以非法状态设为：
+
+$$
+0
+$$
+
+如果将来做的是最短路径类 DP，非法状态可能初始化为：
+
+$$
++\infty
+$$
+
+如果做最大收益类 DP，非法状态则可能初始化为：
+
+$$
+-\infty
+$$
+
+这就是“不可达状态”的统一处理思想。
+
+## 13. 一句话总结
+
+核心只有两条：
+
+$$
+\boxed{
+obstacleGrid[i][j]=1\Rightarrow dp[i][j]=0
+}
+$$
+
+以及：
+
+$$
+\boxed{
+dp[i][j]=dp[i-1][j]+dp[i][j-1]
+}
+$$
+
+如果使用一维压缩，则要额外牢记：
+
+$$
+\boxed{
+\text{遇到障碍必须执行 }dp[j]=0
+}
+$$
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        int m = obstacleGrid.length;
+        int n = obstacleGrid[0].length;
+        int[] dp = new int[n];
+        dp[0] = 1;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (obstacleGrid[i][j] == 1) {
+                    dp[j] = 0;
+                } else if (j > 0) {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        return dp[n - 1];
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: list[list[int]]) -> int:
+        m, n = len(obstacleGrid), len(obstacleGrid[0])
+        dp = [0] * n
+        dp[0] = 1
+
+        for i in range(m):
+            for j in range(n):
+                if obstacleGrid[i][j] == 1:
+                    dp[j] = 0
+                elif j > 0:
+                    dp[j] += dp[j - 1]
+
+        return dp[-1]
+```
+
+```go tab="Go"
+func uniquePathsWithObstacles(obstacleGrid [][]int) int {
+    m, n := len(obstacleGrid), len(obstacleGrid[0])
+    dp := make([]int, n)
+    dp[0] = 1
+
+    for i := 0; i < m; i++ {
+        for j := 0; j < n; j++ {
+            if obstacleGrid[i][j] == 1 {
+                dp[j] = 0
+            } else if j > 0 {
+                dp[j] += dp[j-1]
+            }
+        }
+    }
+
+    return dp[n-1]
+}
+```
+
+```javascript tab="JavaScript"
+var uniquePathsWithObstacles = function(obstacleGrid) {
+    const m = obstacleGrid.length;
+    const n = obstacleGrid[0].length;
+    const dp = new Array(n).fill(0);
+    dp[0] = 1;
+
+    for (let i = 0; i < m; ++i) {
+        for (let j = 0; j < n; ++j) {
+            if (obstacleGrid[i][j] === 1) {
+                dp[j] = 0;
+            } else if (j > 0) {
+                dp[j] += dp[j - 1];
+            }
+        }
+    }
+
+    return dp[n - 1];
+};
+```
+
+```typescript tab="TypeScript"
+function uniquePathsWithObstacles(obstacleGrid: number[][]): number {
+    const m = obstacleGrid.length;
+    const n = obstacleGrid[0].length;
+    const dp: number[] = new Array(n).fill(0);
+    dp[0] = 1;
+
+    for (let i = 0; i < m; ++i) {
+        for (let j = 0; j < n; ++j) {
+            if (obstacleGrid[i][j] === 1) {
+                dp[j] = 0;
+            } else if (j > 0) {
+                dp[j] += dp[j - 1];
+            }
+        }
+    }
+
+    return dp[n - 1];
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn unique_paths_with_obstacles(obstacle_grid: Vec<Vec<i32>>) -> i32 {
+        let n = obstacle_grid[0].len();
+        let mut dp = vec![0; n];
+        dp[0] = 1;
+
+        for row in obstacle_grid.iter() {
+            for j in 0..n {
+                if row[j] == 1 {
+                    dp[j] = 0;
+                } else if j > 0 {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        dp[n - 1]
+    }
+}
+```
+
+```c tab="C"
+int uniquePathsWithObstacles(int** obstacleGrid, int obstacleGridSize,
+                             int* obstacleGridColSize) {
+    int m = obstacleGridSize;
+    int n = obstacleGridColSize[0];
+    int* dp = (int*)calloc(n, sizeof(int));
+    dp[0] = 1;
+
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (obstacleGrid[i][j] == 1) {
+                dp[j] = 0;
+            } else if (j > 0) {
+                dp[j] += dp[j - 1];
+            }
+        }
+    }
+
+    int ans = dp[n - 1];
+    free(dp);
+    return ans;
+}
+```
+
+```scala label="Scala"
+object Solution {
+  def uniquePathsWithObstacles(obstacleGrid: Array[Array[Int]]): Int = {
+    val n = obstacleGrid(0).length
+    val dp = Array.fill(n)(0)
+    dp(0) = 1
+
+    for (row <- obstacleGrid) {
+      for (j <- 0 until n) {
+        if (row(j) == 1) {
+          dp(j) = 0
+        } else if (j > 0) {
+          dp(j) += dp(j - 1)
+        }
+      }
+    }
+
+    dp(n - 1)
+  }
+}
+```
+
+```csharp tab="C#"
+public class Solution
+{
+    public int UniquePathsWithObstacles(int[][] obstacleGrid)
+    {
+        int n = obstacleGrid[0].Length;
+        int[] dp = new int[n];
+        dp[0] = 1;
+
+        foreach (int[] row in obstacleGrid)
+        {
+            for (int j = 0; j < n; ++j)
+            {
+                if (row[j] == 1)
+                {
+                    dp[j] = 0;
+                }
+                else if (j > 0)
+                {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        return dp[n - 1];
+    }
+}
+```

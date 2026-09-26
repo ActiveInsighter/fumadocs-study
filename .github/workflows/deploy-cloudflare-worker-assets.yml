@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - codex/algorithm-notes-0926
   workflow_dispatch:
     inputs:
       deploy:
@@ -85,6 +86,9 @@ jobs:
         run: |
           set -euo pipefail
 
+          test -s .static-docs/index.html
+          grep -Fq 'href="/docs/politics/"' .static-docs/index.html
+          grep -Fq 'href="/blog/"' .static-docs/index.html
           test -s .static-docs/_redirects
           test -s .static-docs/.assetsignore
           test -s .static-docs/404.html
@@ -120,13 +124,14 @@ jobs:
             echo "- Uploadable asset files: ${file_count}/20000"
             echo "- Largest uploadable asset: $((largest_bytes / 1024 / 1024)) MiB / 25 MiB"
             echo "- Local static package: $((package_bytes / 1024 / 1024)) MiB"
+            echo '- Root index.html: present'
             echo '- Worker JavaScript: none (assets-only deployment)'
-            echo '- RSC dedupe aliases: restored through two Cloudflare 200 proxy rules'
+            echo '- RSC dedupe aliases: served through Cloudflare 200 proxy rewrites'
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Validate Wrangler configuration with a dry run
         shell: bash
-        run: npx --yes wrangler@4.129.0 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
+        run: npx --yes wrangler@4.136.3 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
 
       - name: Check Cloudflare deployment credentials
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
@@ -145,15 +150,35 @@ jobs:
             exit 1
           }
 
+      - name: Select Cloudflare Worker target
+        id: worker
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == 'refs/heads/main' ]]; then
+            worker_name='fumadocs-static-docs'
+          else
+            suffix="$(printf '%s' "${GITHUB_REF_NAME}" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's/[^a-z0-9-]+/-/g; s/-+/-/g; s/^-|-$//g' \
+              | cut -c1-30)"
+            suffix="${suffix%-}"
+            [[ -n "${suffix}" ]] || suffix='branch'
+            worker_name="fumadocs-preview-${suffix}"
+          fi
+          echo "name=${worker_name}" >> "${GITHUB_OUTPUT}"
+          echo "- Cloudflare Worker target: \`${worker_name}\`" >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.129.0'
-          command: deploy --config wrangler.jsonc
+          wranglerVersion: '4.136.3'
+          command: deploy --config wrangler.jsonc --name ${{ steps.worker.outputs.name }}
 
       - name: Verify Cloudflare deployment
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
@@ -184,13 +209,177 @@ jobs:
           }
 
           wait_for_route '/'
+
+          homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
+          if ! grep -Fq 'href="/docs/politics/"' <<<"${homepage}" || ! grep -Fq 'href="/blog/"' <<<"${homepage}"; then
+            echo '::error::Cloudflare root route did not render the expected study homepage links.'
+            printf '%s' "${homepage}" | head -c 1200
+            echo
+            exit 1
+          fi
+
           for path in \
             '/docs/' \
             '/search-index.json' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt'; do
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
+            '/docs/algorithm/' \
+            '/docs/algorithm/08-binary-tree/28-bst-lca/'; do
             wait_for_route "${path}"
           done
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Verify client navigation in Headless Chrome
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        shell: bash
+        env:
+          DEPLOYMENT_URL: ${{ steps.cloudflare-deploy.outputs.deployment-url }}
+        run: |
+          set -euo pipefail
+          chrome_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          [[ -n "${chrome_bin}" ]] || {
+            echo '::error::No Chrome/Chromium executable is available on the runner.'
+            exit 1
+          }
+          rm -rf /tmp/fumadocs-browser-check
+          npm install --prefix /tmp/fumadocs-browser-check --no-audit --no-fund puppeteer-core@24.22.3
+          CHROME_BIN="${chrome_bin}" NODE_PATH=/tmp/fumadocs-browser-check/node_modules node <<'NODE'
+          const puppeteer = require('puppeteer-core');
+          (async () => {
+          const base = process.env.DEPLOYMENT_URL.replace(/\/$/, '');
+          const browser = await puppeteer.launch({
+            executablePath: process.env.CHROME_BIN,
+            headless: true,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          try {
+            const page = await browser.newPage();
+            const badText = 'This page could not be found.';
+            page.on('response', (response) => {
+              const url = response.url();
+              if (response.status() >= 400 || url.includes('.txt') || url.includes('_rsc=')) {
+                console.log('[browser-response]', response.status(), url);
+              }
+            });
+            page.on('requestfailed', (request) => {
+              console.log('[browser-request-failed]', request.url(), request.failure()?.errorText || 'unknown');
+            });
+
+            await page.goto(base + '/', { waitUntil: 'networkidle2', timeout: 120000 });
+            const beforeText = await page.evaluate(() => document.body.innerText);
+            console.log('[browser-check] homepage path=' + await page.evaluate(() => location.pathname));
+            if (beforeText.includes(badText)) {
+              console.log('[browser-check] homepage body=' + beforeText.slice(0, 800));
+              throw new Error('Homepage visibly rendered the Next.js 404 page.');
+            }
+
+            async function clickFromHome(href) {
+              await page.goto(base + '/', { waitUntil: 'networkidle2', timeout: 120000 });
+              await page.click(`a[href="${href}"]`);
+              await page.waitForFunction(
+                (expected) => location.pathname === expected || document.body.innerText.includes('This page could not be found.'),
+                { timeout: 120000 },
+                href,
+              );
+              await new Promise((resolve) => setTimeout(resolve, 1200));
+              const text = await page.evaluate(() => document.body.innerText);
+              const path = await page.evaluate(() => location.pathname);
+              console.log('[browser-check] click ' + href + ' -> ' + path);
+              if (path !== href) throw new Error('Client navigation landed on unexpected path: ' + path + ' expected=' + href);
+              if (text.includes(badText)) {
+                console.log('[browser-check] visible body=' + text.slice(0, 800));
+                throw new Error('Client navigation visibly rendered the Next.js 404 page for ' + href);
+              }
+            }
+
+            for (const href of [
+              '/docs/politics/',
+              '/docs/english/',
+              '/docs/math/',
+              '/docs/408/',
+              '/blog/',
+            ]) {
+              await clickFromHome(href);
+            }
+
+            await page.goto(base + '/docs/algorithm/', { waitUntil: 'networkidle2', timeout: 120000 });
+            const deepHref = await page.evaluate(() => {
+              const links = Array.from(document.querySelectorAll('a[href]'))
+                .map((element) => element.getAttribute('href'))
+                .filter((href) => href && href.startsWith('/docs/algorithm/') && href !== '/docs/algorithm/');
+              return links.find((href) => href.endsWith('/')) ?? links[0] ?? null;
+            });
+            if (!deepHref) {
+              throw new Error('Algorithm index exposes no internal document link to verify.');
+            }
+            await page.click(`a[href="${deepHref}"]`);
+            await page.waitForFunction(
+              (expected) =>
+                location.pathname === expected ||
+                location.pathname === expected.replace(/\/$/, '') ||
+                document.body.innerText.includes('This page could not be found.'),
+              { timeout: 120000 },
+              deepHref,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            const deepText = await page.evaluate(() => document.body.innerText);
+            const deepPath = await page.evaluate(() => location.pathname);
+            console.log('[browser-check] deep click ' + deepHref + ' -> ' + deepPath);
+            const normalizedDeepPath = deepPath.replace(/\/$/, '');
+            const normalizedDeepHref = deepHref.replace(/\/$/, '');
+            if (normalizedDeepPath !== normalizedDeepHref || deepText.includes(badText)) {
+              throw new Error('Deep Fumadocs client navigation failed: ' + deepPath + ' expected=' + deepHref);
+            }
+            console.log('[browser-check] all homepage module links, blog index, and real deep Fumadocs navigation passed');
+
+            const codeTabsPath =
+              '/docs/algorithm/04-hash-table/05-%E5%BF%AB%E4%B9%90%E6%95%B0/';
+            await page.goto(base + codeTabsPath, {
+              waitUntil: 'networkidle2',
+              timeout: 120000,
+            });
+            const languageTabs = await page.evaluate(() =>
+              Array.from(document.querySelectorAll('[role="tab"]'))
+                .map((element) => element.textContent?.trim())
+                .filter(Boolean),
+            );
+            console.log('[browser-check] code tabs=' + languageTabs.join(', '));
+            for (const language of ['C++', 'Java', 'Python', 'Go', 'JavaScript']) {
+              if (!languageTabs.includes(language)) {
+                throw new Error(
+                  'Missing Fumadocs code tab "' + language + '" on ' + codeTabsPath,
+                );
+              }
+            }
+
+            const clickedJava = await page.evaluate(() => {
+              const target = Array.from(document.querySelectorAll('[role="tab"]')).find(
+                (element) => element.textContent?.trim() === 'Java',
+              );
+              if (!(target instanceof HTMLElement)) return false;
+              target.click();
+              return true;
+            });
+            if (!clickedJava) {
+              throw new Error('Could not click Java Fumadocs code tab.');
+            }
+            await page.waitForFunction(
+              () =>
+                Array.from(document.querySelectorAll('[role="tab"]')).some(
+                  (element) =>
+                    element.textContent?.trim() === 'Java' &&
+                    element.getAttribute('aria-selected') === 'true',
+                ),
+              { timeout: 30000 },
+            );
+            console.log('[browser-check] Fumadocs multilingual code tabs rendered and switched to Java');
+          } finally {
+            await browser.close();
+          }
+          })().catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE

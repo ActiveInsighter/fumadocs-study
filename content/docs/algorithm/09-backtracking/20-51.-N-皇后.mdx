@@ -1,0 +1,1296 @@
+---
+title: 51. N 皇后
+author: 算法学习笔记
+summary: 把 N 皇后建模为“每一行恰好放一个皇后”的树形搜索，系统讲清递归层、选择集合、列与两类对角线约束、O(1) 合法性判断、回溯恢复，以及棋盘类问题如何套入通用回溯模板。
+description: LeetCode 51 N 皇后：回溯、棋盘搜索、列约束、主副对角线、剪枝、搜索树、复杂度分析与多语言实现。
+---
+
+
+# 51. N 皇后
+
+[LeetCode 题目链接](https://leetcode.cn/problems/n-queens/)
+
+在一个 $n \times n$ 棋盘上放置 $n$ 个皇后，使任意两个皇后都不能互相攻击。
+
+皇后可以攻击同一：
+
+- 行；
+- 列；
+- 两条对角线方向。
+
+因此合法方案必须满足：**每行、每列、每条对角线上至多一个皇后**。
+
+题目要求返回所有不同的棋盘方案，其中：
+
+- `Q` 表示皇后；
+- `.` 表示空位置。
+
+以 $n=4$ 为例：
+
+![4 皇后的两种合法方案](https://file1.kamacoder.com/i/algo/20211020232201.png)
+
+```text title="n = 4"
+[
+  [".Q..", "...Q", "Q...", "..Q."],
+  ["..Q.", "Q...", "...Q", ".Q.."]
+]
+```
+
+<Callout title="这道题真正要学什么？">
+
+N 皇后的价值不只是“会写一道棋盘题”，而是把此前的一维组合、子集、排列搜索推广到二维棋盘：
+
+$$
+\boxed{\text{二维棋盘} \rightarrow \text{仍然可以抽象成一棵选择树}}
+$$
+
+关键是找到：**每一层递归负责什么、这一层有哪些选择、哪些选择应该被剪枝。**
+
+</Callout>
+
+## 1. 最重要的建模：一层递归只负责一行
+
+最直接的暴力想法是：
+
+> 对棋盘上每个格子判断放不放皇后。
+
+但这样会产生大量根本不可能合法的状态，因为题目要求每一行最终只能有一个皇后。
+
+更好的建模是：
+
+> 第 `row` 层递归，只决定第 `row` 行的皇后放在哪一列。
+
+于是：
+
+| 回溯元素 | 在 N 皇后中的含义 |
+| --- | --- |
+| 递归深度 | 当前处理到第几行 `row` |
+| 本层选择 | 当前行可以尝试的列 `col = 0 ... n-1` |
+| 路径 | 前 `row` 行已经放好的皇后 |
+| 剪枝 | 当前 `(row, col)` 与已有皇后冲突 |
+| 叶子节点 | `row == n`，说明所有行都成功放置 |
+
+原资料把 $3 \times 3$ 棋盘的搜索过程画成树形结构：
+
+![N 皇后搜索树](https://file1.kamacoder.com/i/algo/20210130182532303.jpg)
+
+可以把它理解成：
+
+$$
+\text{树高}=n
+$$
+
+因为一共需要处理 $n$ 行；而每层最多有 $n$ 个候选列。
+
+这和排列问题非常像，只不过“某一列是否还能选”之外，又多了对角线约束。
+
+## 2. 为什么根本不需要检查“同行冲突”？
+
+这是理解本题结构的第一个关键点。
+
+因为每层递归只处理一行，并且这一层只会选择一个 `col` 后就进入下一层：
+
+```text
+row = 0：选择一列
+    ↓
+row = 1：选择一列
+    ↓
+row = 2：选择一列
+    ↓
+...
+```
+
+所以同一条搜索路径中，每一行天然只会放一个皇后。
+
+也就是说：
+
+$$
+\boxed{\text{同行约束已经被递归结构本身保证}}
+$$
+
+不需要再写额外代码检查同行。
+
+这种思维非常重要：**能由搜索结构天然保证的条件，就不要再作为额外状态维护。**
+
+## 3. 剩下真正需要检查的三类冲突
+
+准备在 `(row, col)` 放皇后时，只需要判断：
+
+1. `col` 这一列是否已有皇后；
+2. `\` 方向对角线是否已有皇后；
+3. `/` 方向对角线是否已有皇后。
+
+### 3.1 同列冲突
+
+如果两枚皇后的列号相同：
+
+$$
+col_1 = col_2
+$$
+
+它们就在同一列。
+
+可以维护：
+
+```cpp
+vector<bool> colUsed(n, false);
+```
+
+其中：
+
+```text
+colUsed[c] = true
+```
+
+表示第 `c` 列已经存在皇后。
+
+于是列冲突可以 $O(1)$ 判断。
+
+## 4. 两种对角线为什么能用一个编号表示？
+
+这是本题最值得掌握的技巧之一。
+
+设某个格子的坐标为：
+
+$$
+(row,col)
+$$
+
+### 4.1 `\` 方向：`row - col` 相同
+
+同一条 `\` 方向对角线上的格子满足：
+
+$$
+row-col=\text{常数}
+$$
+
+例如：
+
+```text
+(0,0) (1,1) (2,2) (3,3)
+```
+
+都有：
+
+$$
+row-col=0
+$$
+
+但 `row - col` 可能为负数，范围为：
+
+$$
+-(n-1) \le row-col \le n-1
+$$
+
+因此通常平移 $n-1$：
+
+$$
+\text{diag1}=row-col+n-1
+$$
+
+这样编号范围就变成：
+
+$$
+0 \le \text{diag1} \le 2n-2
+$$
+
+一共需要 `2n - 1` 个位置。
+
+### 4.2 `/` 方向：`row + col` 相同
+
+同一条 `/` 方向对角线满足：
+
+$$
+row+col=\text{常数}
+$$
+
+例如：
+
+```text
+(0,3) (1,2) (2,1) (3,0)
+```
+
+都有：
+
+$$
+row+col=3
+$$
+
+因此可以直接定义：
+
+$$
+\text{diag2}=row+col
+$$
+
+它的范围同样是：
+
+$$
+0 \le \text{diag2} \le 2n-2
+$$
+
+所以也需要 `2n - 1` 个布尔状态。
+
+<Callout title="对角线编号建议直接记住">
+
+对于坐标 `(row, col)`：
+
+`\\` 方向可以记为：
+
+$$
+\boxed{d_1=row-col+n-1}
+$$
+
+`/` 方向可以记为：
+
+$$
+\boxed{d_2=row+col}
+$$
+
+二维棋盘中的很多对角线约束题都可以复用这个结论。
+
+</Callout>
+
+## 5. 回溯三部曲
+
+### 定义状态
+
+我们需要：
+
+```text
+row         当前准备处理的行
+chessboard  当前棋盘
+colUsed     哪些列已被占用
+diag1Used   哪些 \ 对角线已被占用
+diag2Used   哪些 / 对角线已被占用
+```
+
+其中棋盘本身负责保存最终答案，三个布尔数组负责快速判断冲突。
+
+### 终止条件
+
+当：
+
+```cpp
+row == n
+```
+
+说明第 `0 ... n-1` 行都已经成功放置了皇后。
+
+此时当前棋盘就是一个完整解：
+
+```cpp
+result.push_back(chessboard);
+```
+
+原资料中的另一幅树形图，本质上展示的就是“走到第 $n$ 层即到达叶子”：
+
+![N 皇后递归到叶子节点时得到一个完整方案](https://file1.kamacoder.com/i/algo/20210130182532303-20230310122134167.jpg)
+
+### 单层搜索
+
+第 `row` 行依次尝试所有列：
+
+```cpp
+for (int col = 0; col < n; ++col)
+```
+
+如果列、两条对角线都没有冲突，就：
+
+```text
+放皇后
+→ 标记三个约束状态
+→ 递归下一行
+→ 撤销三个状态
+→ 移除皇后
+```
+
+这正是最标准的“做选择 → 递归 → 撤销选择”。
+
+## 6. 搜索过程为什么天然包含剪枝？
+
+假设当前要把皇后放在 `(row, col)`。
+
+若出现任意一种冲突：
+
+```text
+当前列已使用
+或
+当前 \ 对角线已使用
+或
+当前 / 对角线已使用
+```
+
+则这个节点下面的所有方案都不可能合法。
+
+因此直接：
+
+```cpp
+continue;
+```
+
+不进入下一层。
+
+这就是剪枝：
+
+$$
+\boxed{\text{在确定一个部分解已经不可能成功时，立即停止扩展它}}
+$$
+
+和组合问题中的“剩余元素不够”不同，N 皇后的剪枝条件来自**约束冲突**。
+
+## 7. 推荐实现：用三个数组做到 $O(1)$ 合法性判断
+
+原始写法可以每次向上扫描列和两条对角线，这当然正确，但一次合法性判断最坏需要 $O(n)$。
+
+更适合作为模板的写法是维护三个占用数组：
+
+```cpp
+class Solution {
+private:
+    vector<vector<string>> result;
+    vector<bool> colUsed;
+    vector<bool> diag1Used; // row - col + n - 1
+    vector<bool> diag2Used; // row + col
+
+    void backtrack(int row, int n, vector<string>& board) {
+        if (row == n) {
+            result.push_back(board);
+            return;
+        }
+
+        for (int col = 0; col < n; ++col) {
+            int d1 = row - col + n - 1;
+            int d2 = row + col;
+
+            if (colUsed[col] || diag1Used[d1] || diag2Used[d2]) {
+                continue;
+            }
+
+            board[row][col] = 'Q';
+            colUsed[col] = true;
+            diag1Used[d1] = true;
+            diag2Used[d2] = true;
+
+            backtrack(row + 1, n, board);
+
+            board[row][col] = '.';
+            colUsed[col] = false;
+            diag1Used[d1] = false;
+            diag2Used[d2] = false;
+        }
+    }
+
+public:
+    vector<vector<string>> solveNQueens(int n) {
+        result.clear();
+        colUsed.assign(n, false);
+        diag1Used.assign(2 * n - 1, false);
+        diag2Used.assign(2 * n - 1, false);
+
+        vector<string> board(n, string(n, '.'));
+        backtrack(0, n, board);
+        return result;
+    }
+};
+```
+
+### 这份代码最核心的四行
+
+```cpp
+board[row][col] = 'Q';
+backtrack(row + 1, n, board);
+board[row][col] = '.';
+```
+
+以及与棋盘同步维护的约束状态：
+
+```cpp
+colUsed[col]
+diag1Used[row - col + n - 1]
+diag2Used[row + col]
+```
+
+只要理解“状态必须同步做与撤销”，这道题的主体就很稳定。
+
+## 8. 手推 $n=4$：为什么有些分支很快死亡？
+
+从第 `0` 行开始，假设先把皇后放在第 `0` 列：
+
+```text
+Q...
+....
+....
+....
+```
+
+第 `1` 行：
+
+- 第 `0` 列：同列冲突；
+- 第 `1` 列：对角线冲突；
+- 第 `2`、`3` 列才值得继续尝试。
+
+如果继续放：
+
+```text
+Q...
+..Q.
+....
+....
+```
+
+那么第 `2` 行可能已经找不到任何合法列，于是这一分支立即回退。
+
+注意：**我们不会等到整个棋盘填完之后再检查合法性。**
+
+而是在每放一个皇后之前就检查约束，因此大量非法棋盘根本不会被生成。
+
+这正是回溯比纯粹枚举所有棋盘高效得多的原因。
+
+## 9. N 皇后与全排列到底有什么关系？
+
+如果忽略对角线约束，只要求：
+
+- 每行一个皇后；
+- 每列一个皇后；
+
+那么第 $0$ 行选择一个列，第 $1$ 行选择剩余列……最终其实就是对列号：
+
+$$
+0,1,\dots,n-1
+$$
+
+做全排列。
+
+因此可以把 N 皇后理解为：
+
+$$
+\boxed{\text{全排列搜索} + \text{两类对角线约束剪枝}}
+$$
+
+这个视角能把它和前面的排列题连起来，而不是把棋盘题当成完全陌生的新类型。
+
+## 10. 为什么 `startIndex` 在这里消失了？
+
+组合题中经常有：
+
+```text
+startIndex
+```
+
+因为我们需要控制“下一层只能从后面继续选”，从而避免组合重复。
+
+但 N 皇后每一层表示不同的行，并且每一层都必须重新考虑所有列：
+
+```cpp
+for (int col = 0; col < n; ++col)
+```
+
+因此不存在组合问题中的 `startIndex`。
+
+真正限制列重复的是：
+
+```cpp
+colUsed[col]
+```
+
+这说明：**回溯模板里的参数不是固定的，要由搜索树的语义决定。**
+
+## 11. 常见错误
+
+### 11.1 忘记撤销约束状态
+
+错误：
+
+```cpp
+colUsed[col] = true;
+backtrack(...);
+// 忘了恢复
+```
+
+后果是后面的兄弟分支会错误地认为该列仍被占用。
+
+正确回溯必须保证：
+
+$$
+\text{递归返回后，状态恢复到进入该分支之前}
+$$
+
+### 11.2 对角线编号写反并不可怕，范围错才可怕
+
+`row-col` 与 `row+col` 分别对应哪一个视觉方向并不是重点。
+
+重点是：
+
+- `row-col` 需要加 `n-1` 才能作为数组下标；
+- 两类编号数组都需要大小 `2*n-1`。
+
+### 11.3 在每层同时放多个皇后
+
+如果一层循环里连续在多个列放皇后而不递归，就破坏了“一层对应一行”的建模。
+
+正确结构一定是：
+
+```text
+这一行选一个列
+→ 立刻递归下一行
+```
+
+### 11.4 收集答案时没有复制当前棋盘
+
+在部分语言中，若直接把可变对象引用加入结果，而后面继续回溯修改它，历史答案也可能被改掉。
+
+因此要确保保存的是当前棋盘的副本。
+
+## 12. 复杂度怎么理解？
+
+因为每行只能选择尚未占用的列，如果暂时忽略对角线剪枝，候选规模最多类似：
+
+$$
+n \times (n-1) \times (n-2) \times \cdots \times 1=n!
+$$
+
+因此通常把搜索上界写作：
+
+$$
+O(n!)
+$$
+
+对角线剪枝会让实际访问节点数远小于 $n!$ 的简单上界。
+
+如果使用本篇的布尔数组，单次冲突检查为 $O(1)$。
+
+此外，若一共有 $S$ 个答案，每个答案需要复制 $n \times n$ 棋盘，输出本身还至少需要：
+
+$$
+O(Sn^2)
+$$
+
+空间方面：
+
+- 递归深度：$O(n)$；
+- 三个约束数组：$O(n)$；
+- 当前棋盘：$O(n^2)$；
+- 不计返回结果时，总体由棋盘主导，为 $O(n^2)$。
+
+## 13. 一张表记住棋盘回溯模型
+
+| 问题 | N 皇后中的答案 |
+| --- | --- |
+| 一层递归表示什么？ | 一行 |
+| 本层有哪些选择？ | 这一行的所有列 |
+| 路径是什么？ | 已放置的皇后 |
+| 如何避免同行？ | 搜索结构天然保证 |
+| 如何避免同列？ | `colUsed[col]` |
+| 如何判断 `\` 对角线？ | `row - col + n - 1` |
+| 如何判断 `/` 对角线？ | `row + col` |
+| 什么时候收集答案？ | `row == n` |
+| 如何回溯？ | 同时撤销棋盘和三个占用状态 |
+
+<Callout title="最终模板">
+
+N 皇后可以压缩成一句话：
+
+$$
+\boxed{
+\text{逐行放置}
++\text{逐列枚举}
++\text{列/对角线剪枝}
++\text{状态恢复}
+}
+$$
+
+遇到类似“每行放一个元素，并受列、对角线或其他跨行约束”的棋盘题，可以优先尝试这个模型。
+
+</Callout>
+
+## 14. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    List<List<String>> res = new ArrayList<>();
+
+    public List<List<String>> solveNQueens(int n) {
+        char[][] chessboard = new char[n][n];
+        for (char[] c : chessboard) {
+            Arrays.fill(c, '.');
+        }
+        backTrack(n, 0, chessboard);
+        return res;
+    }
+
+    public void backTrack(int n, int row, char[][] chessboard) {
+        if (row == n) {
+            res.add(Array2List(chessboard));
+            return;
+        }
+
+        for (int col = 0;col < n; ++col) {
+            if (isValid (row, col, n, chessboard)) {
+                chessboard[row][col] = 'Q';
+                backTrack(n, row+1, chessboard);
+                chessboard[row][col] = '.';
+            }
+        }
+
+    }
+
+    public List Array2List(char[][] chessboard) {
+        List<String> list = new ArrayList<>();
+
+        for (char[] c : chessboard) {
+            list.add(String.copyValueOf(c));
+        }
+        return list;
+    }
+
+    public boolean isValid(int row, int col, int n, char[][] chessboard) {
+        // 检查列
+        for (int i=0; i<row; ++i) { // 相当于剪枝
+            if (chessboard[i][col] == 'Q') {
+                return false;
+            }
+        }
+
+        // 检查45度对角线
+        for (int i=row-1, j=col-1; i>=0 && j>=0; i--, j--) {
+            if (chessboard[i][j] == 'Q') {
+                return false;
+            }
+        }
+
+        // 检查135度对角线
+        for (int i=row-1, j=col+1; i>=0 && j<=n-1; i--, j++) {
+            if (chessboard[i][j] == 'Q') {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+// 方法2：使用boolean数组表示已经占用的直(斜)线
+class Solution {
+    List<List<String>> res = new ArrayList<>();
+    boolean[] usedCol, usedDiag45, usedDiag135;    // boolean数组中的每个元素代表一条直(斜)线
+    public List<List<String>> solveNQueens(int n) {
+        usedCol = new boolean[n];                  // 列方向的直线条数为 n
+        usedDiag45 = new boolean[2 * n - 1];       // 45°方向的斜线条数为 2 * n - 1
+        usedDiag135 = new boolean[2 * n - 1];      // 135°方向的斜线条数为 2 * n - 1
+		//用于收集结果, 元素的index表示棋盘的row，元素的value代表棋盘的column
+        int[] board = new int[n];
+        backTracking(board, n, 0);
+        return res;
+    }
+    private void backTracking(int[] board, int n, int row) {
+        if (row == n) {
+            //收集结果
+            List<String> temp = new ArrayList<>();
+            for (int i : board) {
+                char[] str = new char[n];
+                Arrays.fill(str, '.');
+                str[i] = 'Q';
+                temp.add(new String(str));
+            }
+            res.add(temp);
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            if (usedCol[col] | usedDiag45[row + col] | usedDiag135[row - col + n - 1]) {
+                continue;
+            }
+            board[row] = col;
+			// 标记该列出现过
+            usedCol[col] = true;
+			// 同一45°斜线上元素的row + col为定值, 且各不相同
+            usedDiag45[row + col] = true;
+			// 同一135°斜线上元素row - col为定值, 且各不相同
+			// row - col 值有正有负, 加 n - 1 是为了对齐零点
+            usedDiag135[row - col + n - 1] = true;
+            // 递归
+            backTracking(board, n, row + 1);
+            usedCol[col] = false;
+            usedDiag45[row + col] = false;
+            usedDiag135[row - col + n - 1] = false;
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        result = []  # 存储最终结果的二维字符串数组
+
+        chessboard = ['.' * n for _ in range(n)]  # 初始化棋盘
+        self.backtracking(n, 0, chessboard, result)  # 回溯求解
+        return [[''.join(row) for row in solution] for solution in result]  # 返回结果集
+
+    def backtracking(self, n: int, row: int, chessboard: List[str], result: List[List[str]]) -> None:
+        if row == n:
+            result.append(chessboard[:])  # 棋盘填满，将当前解加入结果集
+            return
+
+        for col in range(n):
+            if self.isValid(row, col, chessboard):
+                chessboard[row] = chessboard[row][:col] + 'Q' + chessboard[row][col+1:]  # 放置皇后
+                self.backtracking(n, row + 1, chessboard, result)  # 递归到下一行
+                chessboard[row] = chessboard[row][:col] + '.' + chessboard[row][col+1:]  # 回溯，撤销当前位置的皇后
+
+    def isValid(self, row: int, col: int, chessboard: List[str]) -> bool:
+        # 检查列
+        for i in range(row):
+            if chessboard[i][col] == 'Q':
+                return False  # 当前列已经存在皇后，不合法
+
+        # 检查 45 度角是否有皇后
+        i, j = row - 1, col - 1
+        while i >= 0 and j >= 0:
+            if chessboard[i][j] == 'Q':
+                return False  # 左上方向已经存在皇后，不合法
+            i -= 1
+            j -= 1
+
+        # 检查 135 度角是否有皇后
+        i, j = row - 1, col + 1
+        while i >= 0 and j < len(chessboard):
+            if chessboard[i][j] == 'Q':
+                return False  # 右上方向已经存在皇后，不合法
+            i -= 1
+            j += 1
+
+        return True  # 当前位置合法
+```
+
+
+
+```go tab="Go"
+func solveNQueens(n int) [][]string {
+    var res [][]string
+	chessboard := make([][]string, n)
+	for i := 0; i < n; i++ {
+		chessboard[i] = make([]string, n)
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			chessboard[i][j] = "."
+		}
+	}
+	var backtrack func(int)
+	backtrack = func(row int) {
+		if row == n {
+			temp := make([]string, n)
+			for i, rowStr := range chessboard {
+				temp[i] = strings.Join(rowStr, "")
+			}
+			res = append(res, temp)
+			return
+		}
+		for i := 0; i < n; i++ {
+			if isValid(n, row, i, chessboard) {
+				chessboard[row][i] = "Q"
+				backtrack(row + 1)
+				chessboard[row][i] = "."
+			}
+		}
+	}
+	backtrack(0)
+	return res
+}
+
+func isValid(n, row, col int, chessboard [][]string) bool {
+	for i := 0; i < row; i++ {
+		if chessboard[i][col] == "Q" {
+			return false
+		}
+	}
+	for i, j := row-1, col-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
+		if chessboard[i][j] == "Q" {
+			return false
+		}
+	}
+	for i, j := row-1, col+1; i >= 0 && j < n; i, j = i-1, j+1 {
+		if chessboard[i][j] == "Q" {
+			return false
+		}
+	}
+	return true
+}
+```
+
+
+
+```javascript tab="JavaScript"
+/**
+ * @param {number} n
+ * @return {string[][]}
+ */
+var solveNQueens = function (n) {
+	const ans = [];
+	const path = [];
+	const matrix = new Array(n).fill(0).map(() => new Array(n).fill("."));
+	// 判断是否能相互攻击
+	const canAttack = (matrix, row, col) => {
+		let i;
+		let j;
+		// 判断正上方和正下方是否有皇后
+		for (i = 0, j = col; i < n; i++) {
+			if (matrix[i][j] === "Q") {
+				return true;
+			}
+		}
+		// 判断正左边和正右边是否有皇后
+		for (i = row, j = 0; j < n; j++) {
+			if (matrix[i][j] === "Q") {
+				return true;
+			}
+		}
+		// 判断左上方是否有皇后
+		for (i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+			if (matrix[i][j] === "Q") {
+				return true;
+			}
+		}
+         // 判断右上方是否有皇后
+		for (i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+			if (matrix[i][j] === "Q") {
+				return true;
+			}
+		}
+		return false;
+	};
+	const backtrack = (matrix, row, col) => {
+		if (path.length === matrix.length) {
+			ans.push(path.slice());
+			return;
+		}
+		for (let i = row; i < matrix.length; i++) {
+			for (let j = col; j < matrix.length; j++) {
+				// 当前位置会导致互相攻击 继续下一轮搜索
+				if (canAttack(matrix, i, j)) {
+					continue;
+				}
+				matrix[i][j] = "Q";
+				path.push(matrix[i].join(""));
+				// 另起一行搜索 同一行只能有一个皇后
+				backtrack(matrix, i + 1, 0);
+				matrix[i][j] = ".";
+				path.pop();
+			}
+		}
+	};
+	backtrack(matrix, 0, 0);
+	return ans;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function solveNQueens(n: number): string[][] {
+    const board: string[][] = new Array(n).fill(0).map(_ => new Array(n).fill('.'));
+    const resArr: string[][] = [];
+    backTracking(n, 0, board);
+    return resArr;
+    function backTracking(n: number, rowNum: number, board: string[][]): void {
+        if (rowNum === n) {
+            resArr.push(transformBoard(board));
+            return;
+        }
+        for (let i = 0; i < n; i++) {
+            if (isValid(i, rowNum, board) === true) {
+                board[rowNum][i] = 'Q';
+                backTracking(n, rowNum + 1, board);
+                board[rowNum][i] = '.';
+            }
+        }
+    }
+};
+function isValid(col: number, row: number, board: string[][]): boolean {
+    const n: number = board.length;
+    if (col < 0 || col >= n || row < 0 || row >= n) return false;
+    // 检查列
+    for (let row of board) {
+        if (row[col] === 'Q') return false;
+    }
+    // 检查45度方向
+    let x: number = col,
+        y: number = row;
+    while (y >= 0 && x < n) {
+        if (board[y--][x++] === 'Q') return false;
+    }
+    // 检查135度方向
+    x = col;
+    y = row;
+    while (x >= 0 && y >= 0) {
+        if (board[y--][x--] === 'Q') return false;
+    }
+    return true;
+}
+function transformBoard(board: string[][]): string[] {
+    const resArr = [];
+    for (let row of board) {
+        resArr.push(row.join(''));
+    }
+    return resArr;
+}
+```
+
+### Swift
+
+```swift
+func solveNQueens(_ n: Int) -> [[String]] {
+    var result = [[String]]()
+    // 棋盘，使用Character的二维数组，以便于更新元素
+    var chessboard = [[Character]](repeating: [Character](repeating: ".", count: n), count: n)
+    // 检查棋盘是否符合N皇后
+    func isVaild(row: Int, col: Int) -> Bool {
+        // 检查列
+        for i in 0 ..< row {
+            if chessboard[i][col] == "Q" { return false }
+        }
+
+        var i, j: Int
+        // 检查45度
+        i = row - 1
+        j = col - 1
+        while i >= 0, j >= 0 {
+            if chessboard[i][j] == "Q" { return false }
+            i -= 1
+            j -= 1
+        }
+        // 检查135度
+        i = row - 1
+        j = col + 1
+        while i >= 0, j < n {
+            if chessboard[i][j] == "Q" { return false }
+            i -= 1
+            j += 1
+        }
+
+        return true
+    }
+    func backtracking(row: Int) {
+        if row == n {
+            result.append(chessboard.map { String($0) })
+        }
+
+        for col in 0 ..< n {
+            guard isVaild(row: row, col: col) else { continue }
+            chessboard[row][col] = "Q" // 放置皇后
+            backtracking(row: row + 1)
+            chessboard[row][col] = "." // 回溯
+        }
+    }
+    backtracking(row: 0)
+    return result
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    fn is_valid(row: usize, col: usize, chessboard: &mut Vec<Vec<char>>, n: usize) -> bool {
+        let mut i = 0 as usize;
+        while i < row {
+            if chessboard[i][col] == 'Q' { return false; }
+            i += 1;
+        }
+        let (mut i, mut j) = (row as i32 - 1, col as i32 - 1);
+        while i >= 0 && j >= 0 {
+            if chessboard[i as usize][j as usize] == 'Q' { return false; }
+            i -= 1;
+            j -= 1;
+        }
+        let (mut i, mut j) = (row as i32 - 1, col as i32 + 1);
+        while i >= 0 && j < n as i32 {
+            if chessboard[i as usize][j as usize] == 'Q' { return false; }
+            i -= 1;
+            j += 1;
+        }
+        return true;
+    }
+    fn backtracking(result: &mut Vec<Vec<String>>, n: usize, row: usize, chessboard: &mut Vec<Vec<char>>) {
+        if row == n {
+            let mut chessboard_clone: Vec<String> = Vec::new();
+            for i in chessboard {
+                chessboard_clone.push(i.iter().collect::<String>());
+            }
+            result.push(chessboard_clone);
+            return;
+        }
+        for col in 0..n {
+            if Self::is_valid(row, col, chessboard, n) {
+                chessboard[row][col] = 'Q';
+                Self::backtracking(result, n, row + 1, chessboard);
+                chessboard[row][col] = '.';
+            }
+        }
+    }
+    pub fn solve_n_queens(n: i32) -> Vec<Vec<String>> {
+        let mut result: Vec<Vec<String>> = Vec::new();
+        let mut chessboard: Vec<Vec<char>> = vec![vec!['.'; n as usize]; n as usize];
+        Self::backtracking(&mut result, n as usize, 0, &mut chessboard);
+        result
+    }
+}
+```
+
+
+
+```c tab="C"
+char ***ans;
+char **path;
+int ansTop, pathTop;
+//将path中元素复制到ans中
+void copyPath(int n) {
+    char **tempPath = (char**)malloc(sizeof(char*) * pathTop);
+    int i;
+    for(i = 0; i < pathTop; ++i) {
+        tempPath[i] = (char*)malloc(sizeof(char) * n + 1);
+        int j;
+        for(j = 0; j < n; ++j)
+            tempPath[i][j] = path[i][j];
+        tempPath[i][j] = '\0';
+
+    }
+    ans[ansTop++] = tempPath;
+}
+
+//判断当前位置是否有效（是否不被其它皇后影响）
+int isValid(int x, int y, int n) {
+    int i, j;
+    //检查同一行以及同一列是否有效
+    for(i = 0; i < n; ++i) {
+        if(path[y][i] == 'Q' || path[i][x] == 'Q')
+            return 0;
+    }
+    //下面两个for循环检查斜角45度是否有效
+    i = y - 1;
+    j = x - 1;
+    while(i >= 0 && j >= 0) {
+        if(path[i][j] == 'Q')
+            return 0;
+        --i, --j;
+    }
+
+    i = y + 1;
+    j = x + 1;
+    while(i < n && j < n) {
+        if(path[i][j] == 'Q')
+            return 0;
+        ++i, ++j;
+    }
+
+    //下面两个for循环检查135度是否有效
+    i = y - 1;
+    j = x + 1;
+    while(i >= 0 && j < n) {
+        if(path[i][j] == 'Q')
+            return 0;
+        --i, ++j;
+    }
+
+    i = y + 1;
+    j = x -1;
+    while(j >= 0 && i < n) {
+        if(path[i][j] == 'Q')
+            return 0;
+        ++i, --j;
+    }
+    return 1;
+}
+
+void backTracking(int n, int depth) {
+    //若path中有四个元素，将其拷贝到ans中。从当前层返回
+    if(pathTop == n) {
+        copyPath(n);
+        return;
+    }
+
+    //遍历横向棋盘
+    int i;
+    for(i = 0; i < n; ++i) {
+        //若当前位置有效
+        if(isValid(i, depth, n)) {
+            //在当前位置放置皇后
+            path[depth][i] = 'Q';
+            //path中元素数量+1
+            ++pathTop;
+
+            backTracking(n, depth + 1);
+            //进行回溯
+            path[depth][i] = '.';
+            //path中元素数量-1
+            --pathTop;
+        }
+    }
+}
+
+//初始化存储char*数组path，将path中所有元素设为'.'
+void initPath(int n) {
+    int i, j;
+    for(i = 0; i < n; i++) {
+        //为path中每个char*开辟空间
+        path[i] = (char*)malloc(sizeof(char) * n + 1);
+        //将path中所有字符设为'.'
+        for(j = 0; j < n; j++)
+            path[i][j] = '.';
+        //在每个字符串结尾加入'\0'
+        path[i][j] = '\0';
+    }
+}
+
+char *** solveNQueens(int n, int* returnSize, int** returnColumnSizes){
+    //初始化辅助变量
+    ans = (char***)malloc(sizeof(char**) * 400);
+    path = (char**)malloc(sizeof(char*) * n);
+    ansTop = pathTop = 0;
+
+    //初始化path数组
+    initPath(n);
+    backTracking(n, 0);
+
+    //设置返回数组大小
+    *returnSize = ansTop;
+    int i;
+    *returnColumnSizes = (int*)malloc(sizeof(int) * ansTop);
+    for(i = 0; i < ansTop; ++i) {
+        (*returnColumnSizes)[i] = n;
+    }
+    return ans;
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  import scala.collection.mutable
+  def solveNQueens(n: Int): List[List[String]] = {
+    var result = mutable.ListBuffer[List[String]]()
+
+    def judge(x: Int, y: Int, maze: Array[Array[Boolean]]): Boolean = {
+      // 正上方
+      var xx = x
+      while (xx >= 0) {
+        if (maze(xx)(y)) return false
+        xx -= 1
+      }
+      // 左边
+      var yy = y
+      while (yy >= 0) {
+        if (maze(x)(yy)) return false
+        yy -= 1
+      }
+      // 左上方
+      xx = x
+      yy = y
+      while (xx >= 0 && yy >= 0) {
+        if (maze(xx)(yy)) return false
+        xx -= 1
+        yy -= 1
+      }
+      xx = x
+      yy = y
+      // 右上方
+      while (xx >= 0 && yy < n) {
+        if (maze(xx)(yy)) return false
+        xx -= 1
+        yy += 1
+      }
+      true
+    }
+
+    def backtracking(row: Int, maze: Array[Array[Boolean]]): Unit = {
+      if (row == n) {
+        // 将结果转换为题目所需要的形式
+        var path = mutable.ListBuffer[String]()
+        for (x <- maze) {
+          var tmp = mutable.ListBuffer[String]()
+          for (y <- x) {
+            if (y == true) tmp.append("Q")
+            else tmp.append(".")
+          }
+          path.append(tmp.mkString)
+        }
+        result.append(path.toList)
+        return
+      }
+
+      for (j <- 0 until n) {
+        // 判断这个位置是否可以放置皇后
+        if (judge(row, j, maze)) {
+          maze(row)(j) = true
+          backtracking(row + 1, maze)
+          maze(row)(j) = false
+        }
+      }
+    }
+
+    backtracking(0, Array.ofDim[Boolean](n, n))
+    result.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public List<IList<string>> res = new();
+    public IList<IList<string>> SolveNQueens(int n)
+    {
+        char[][] chessBoard = new char[n][];
+        for (int i = 0; i < n; i++)
+        {
+            chessBoard[i] = new char[n];
+            for (int j = 0; j < n; j++)
+            {
+                chessBoard[i][j] = '.';
+            }
+        }
+        BackTracking(n, 0, chessBoard);
+        return res;
+    }
+    public void BackTracking(int n, int row, char[][] chessBoard)
+    {
+        if (row == n)
+        {
+            res.Add(chessBoard.Select(x => new string(x)).ToList());
+            return;
+        }
+        for (int col = 0; col < n; col++)
+        {
+            if (IsValid(row, col, chessBoard, n))
+            {
+                chessBoard[row][col] = 'Q';
+                BackTracking(n, row + 1, chessBoard);
+                chessBoard[row][col] = '.';
+            }
+        }
+    }
+    public bool IsValid(int row, int col, char[][] chessBoard, int n)
+    {
+        for (int i = 0; i < row; i++)
+        {
+            if (chessBoard[i][col] == 'Q') return false;
+        }
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--)
+        {
+            if (chessBoard[i][j] == 'Q') return false;
+        }
+        for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++)
+        {
+            if (chessBoard[i][j] == 'Q') return false;
+        }
+        return true;
+    }
+}
+```

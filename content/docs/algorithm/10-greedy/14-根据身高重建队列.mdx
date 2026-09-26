@@ -1,0 +1,1067 @@
+---
+title: 根据身高重建队列
+summary: 典型的“双维约束”贪心题：先按身高降序、同身高按 k 升序排序，再把每个人插入下标 k；核心是先固定不会再被后续元素破坏的维度。
+description: LeetCode 406 根据身高重建队列。系统讲解双维约束的拆解方法、排序规则、按 k 插入的正确性、交换视角、复杂度、容器选择、常见错误以及多语言实现。
+---
+
+
+# 406. 根据身高重建队列
+
+[LeetCode 406. 根据身高重建队列](https://leetcode.cn/problems/queue-reconstruction-by-height/)
+
+给定数组 `people`，其中每个元素：
+
+```text
+people[i] = [h_i, k_i]
+```
+
+表示第 $i$ 个人：
+
+- 身高为 $h_i$；
+- 在最终队列中，他前面必须**恰好有 $k_i$ 个身高大于等于 $h_i$ 的人**。
+
+要求重建一个满足所有约束的队列。
+
+例如：
+
+```text
+people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]
+```
+
+一种合法答案是：
+
+```text
+[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]
+```
+
+这道题最值得学习的并不是插入操作本身，而是一个非常重要的贪心套路：
+
+$$
+\boxed{\text{多维约束问题：先固定一个维度，再处理另一个维度}}
+$$
+
+---
+
+## 1. 为什么这道题难：两个维度同时限制顺序
+
+每个人有两个信息：
+
+```text
+[h, k]
+```
+
+其中：
+
+- $h$ 决定谁会被计入“前面比我高或和我一样高的人”；
+- $k$ 决定这些人中必须有多少个出现在自己之前。
+
+如果同时想着：
+
+> 我要既满足身高关系，又满足每个人的 k。
+
+很容易陷入局部调整：
+
+- 把某个人往前挪，可能修复了他的 $k$；
+- 但又破坏了另一个人的 $k$；
+- 再修另一个人，又可能破坏前面已经满足的关系。
+
+这和「分发糖果」中同时考虑左右两侧约束的问题非常相似。
+
+<Callout type="info" title="双维问题的通用处理方式">
+当两个维度彼此影响时，不要试图同时满足。优先寻找一个排序方式，使其中一个维度先变成“稳定状态”，之后只处理第二个维度。
+</Callout>
+
+---
+
+## 2. 应该先处理 h，还是先处理 k？
+
+这是本题最关键的一步。
+
+### 2.1 如果先按 k 排序
+
+假设按照 $k$ 从小到大排序。
+
+虽然小 $k$ 的人被放在了前面，但这并不能保证：
+
+```text
+前面的那些人身高 >= 当前人的身高
+```
+
+所以仅仅把 $k$ 小的人放在前面，没有任何直接意义。
+
+因为题目要求的不是：
+
+```text
+前面有 k 个人
+```
+
+而是：
+
+```text
+前面有 k 个身高 >= 自己的人
+```
+
+因此，$k$ 必须依赖身高信息才能解释。
+
+### 2.2 先按身高排序
+
+如果先让：
+
+$$
+h \text{ 从大到小排序}
+$$
+
+那么当我们处理某个人时，已经处理过的人一定满足：
+
+$$
+h_{\text{previous}} \ge h_{\text{current}}
+$$
+
+也就是说：
+
+> 当前队列里已经出现的人，全部都是会被当前人的 $k$ 统计进去的人。
+
+这样，问题突然就简单了。
+
+当前人要求前面有 $k$ 个不矮于自己的人，那么只需要：
+
+$$
+\boxed{\text{把当前人插入下标 }k}
+$$
+
+即可。
+
+---
+
+## 3. 排序规则为什么是：身高降序，k 升序
+
+完整排序规则是：
+
+```text
+1. h 大的在前
+2. h 相同，k 小的在前
+```
+
+也就是：
+
+$$
+(h_1,k_1)<(h_2,k_2)
+$$
+
+当且仅当：
+
+$$
+h_1>h_2
+$$
+
+或者：
+
+$$
+h_1=h_2 \quad\text{且}\quad k_1<k_2
+$$
+
+C++ 比较函数：
+
+```cpp
+static bool cmp(const vector<int>& a, const vector<int>& b) {
+    if (a[0] == b[0]) {
+        return a[1] < b[1];
+    }
+    return a[0] > b[0];
+}
+```
+
+### 为什么相同身高时 k 必须升序？
+
+假设有：
+
+```text
+[7,0], [7,1]
+```
+
+两个人身高相同，所以彼此都会被计入“身高大于等于自己的人”。
+
+显然应该：
+
+```text
+[7,0] 在前
+[7,1] 在后
+```
+
+因为第二个人需要前面有一个身高至少为 $7$ 的人。
+
+如果反过来先处理 `[7,1]`，此时队列为空，插入下标 $1$ 本身就不符合当前结构。
+
+因此同身高时必须先处理 $k$ 小的人。
+
+<Callout type="warning" title="排序中的次关键字不是随便写的">
+很多贪心题的正确性不仅依赖主排序规则，也依赖同值时的次排序规则。面试或考试中，一定要单独解释“相同主关键字时为什么这样排”。
+</Callout>
+
+---
+
+## 4. 排序之后，问题为什么变成了“按 k 插入”
+
+原数组：
+
+```text
+[[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]
+```
+
+排序之后：
+
+```text
+[[7,0],[7,1],[6,1],[5,0],[5,2],[4,4]]
+```
+
+现在依次插入。
+
+### 插入 `[7,0]`
+
+```text
+[[7,0]]
+```
+
+它前面需要 $0$ 个身高至少为 $7$ 的人，因此插在下标 $0$。
+
+### 插入 `[7,1]`
+
+```text
+[[7,0],[7,1]]
+```
+
+它前面需要 $1$ 个身高至少为 $7$ 的人，因此插在下标 $1$。
+
+### 插入 `[6,1]`
+
+当前已有：
+
+```text
+[7,0], [7,1]
+```
+
+两个人都比 $6$ 高。
+
+把 `[6,1]` 插入下标 $1$：
+
+```text
+[[7,0],[6,1],[7,1]]
+```
+
+它前面正好有一个身高不低于 $6$ 的人。
+
+### 插入 `[5,0]`
+
+插入下标 $0$：
+
+```text
+[[5,0],[7,0],[6,1],[7,1]]
+```
+
+虽然 `[5,0]` 被插到了最前面，但它身高更矮，因此不会破坏已经处理的高个子的 $k$。
+
+### 插入 `[5,2]`
+
+插入下标 $2$：
+
+```text
+[[5,0],[7,0],[5,2],[6,1],[7,1]]
+```
+
+它前面有：
+
+```text
+[5,0], [7,0]
+```
+
+其中两个人的身高都至少为 $5$，因此满足 $k=2$。
+
+### 插入 `[4,4]`
+
+插入下标 $4$：
+
+```text
+[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]
+```
+
+前面四个人的身高都至少为 $4$，因此满足要求。
+
+原资料中的过程图也很好地展示了这一点：
+
+![406. 根据身高重建队列](https://file1.kamacoder.com/i/algo/20201216201851982.png)
+
+---
+
+## 5. 最关键的问题：为什么后插入的矮个子不会破坏前面的人？
+
+这是本题贪心正确性的核心。
+
+假设我们已经处理了一个人：
+
+```text
+[h, k]
+```
+
+因为排序是身高降序，所以之后再处理的人一定满足：
+
+$$
+h' \le h
+$$
+
+如果后面插入一个更矮的人：
+
+$$
+h'<h
+$$
+
+那么即使他被插到 `[h,k]` 前面，也不会被 `[h,k]` 的条件计数，因为题目只统计：
+
+$$
+\text{身高} \ge h
+$$
+
+的人。
+
+因此，更矮的人可以随意穿插到前面，而不会改变已经确定的 $k$。
+
+### 相同身高怎么办？
+
+相同身高的人确实会互相计数。
+
+但我们已经规定：
+
+$$
+k \text{ 从小到大处理}
+$$
+
+所以当处理同身高的 `[h,k]` 时，之前处理的同身高人数正好处于正确的相对关系中。
+
+这就保证了：
+
+> 一旦某个人插入完成，他的约束以后不会再被破坏。
+
+这是一种非常典型的“前缀不变性”。
+
+---
+
+## 6. 更严谨的正确性证明
+
+可以用不变式证明整个过程。
+
+定义当前已经处理完前 $i$ 个人后得到的队列为 $Q_i$。
+
+我们维护如下不变式：
+
+> $Q_i$ 中每一个已经插入的人，都满足自己的 $k$ 约束。
+
+### 初始情况
+
+第一个人一定是排序后身高最高、并且在同身高中 $k$ 最小的人。
+
+把他插入下标 $k$ 后满足条件。
+
+因此不变式成立。
+
+### 归纳步骤
+
+假设处理前 $i-1$ 个人后，不变式成立。
+
+现在处理：
+
+```text
+[h_i, k_i]
+```
+
+由于之前处理的人身高都满足：
+
+$$
+h \ge h_i
+$$
+
+所以把当前人插入下标 $k_i$ 后，他前面恰好有 $k_i$ 个已经处理的人，而这些人的身高全部不低于 $h_i$。
+
+因此当前人满足约束。
+
+同时，当前人的身高不会高于任何之前的人。
+
+对于之前某个人 $j$：
+
+- 如果 $h_i<h_j$，当前人根本不会被计入 $j$ 的 $k_j$；
+- 如果 $h_i=h_j$，由于同身高按 $k$ 升序处理，插入顺序与约束兼容。
+
+所以旧元素仍然满足原有约束。
+
+不变式继续成立。
+
+最终所有人都处理完成，因此整个队列合法。
+
+---
+
+## 7. 从贪心角度理解：我们到底“贪”了什么？
+
+本题不像「分发饼干」那样表现为直接取最大或最小值。
+
+它的贪心体现在：
+
+> 每次优先处理当前剩余人中身高最高的人。
+
+为什么？
+
+因为高个子的约束受低个子的影响最小。
+
+一个身高为 $h$ 的人只关心：
+
+$$
+\text{前面身高} \ge h
+$$
+
+的人。
+
+所以越高的人，被“未来元素”干扰的可能性越低。
+
+于是可以先把他们的位置确定下来。
+
+这是一种很重要的贪心思想：
+
+$$
+\boxed{\text{先处理受未来影响最小的对象}}
+$$
+
+与许多区间题中“先处理结束时间最早的区间”本质上非常接近：都是为了让已经做出的决策尽量不被后续元素推翻。
+
+---
+
+## 8. 为什么是“插入到下标 k”，而不是“寻找第 k 个高个子之后的位置”？
+
+这是因为在处理当前 `[h,k]` 时，当前队列中的所有人都满足：
+
+$$
+\text{height} \ge h
+$$
+
+因此：
+
+```text
+当前队列中的第 0 个、第 1 个、...、第 k-1 个人
+```
+
+全部都会被当前人的 $k$ 统计进去。
+
+所以：
+
+```text
+插入位置 = k
+```
+
+就等价于：
+
+```text
+前面恰好有 k 个身高 >= 自己的人
+```
+
+没有必要再逐个检查身高。
+
+这也是前面先排序的价值：它把一个“带条件计数”的问题，简化成了普通的数组下标问题。
+
+---
+
+## 9. C++ 实现
+
+### 9.1 使用 `vector`
+
+```cpp
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b) {
+        if (a[0] == b[0]) {
+            return a[1] < b[1];
+        }
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        vector<vector<int>> queue;
+
+        for (const auto& person : people) {
+            queue.insert(queue.begin() + person[1], person);
+        }
+
+        return queue;
+    }
+};
+```
+
+### 复杂度
+
+排序：
+
+$$
+O(n\log n)
+$$
+
+每次向 `vector` 中间插入，最坏需要移动 $O(n)$ 个元素，一共 $n$ 次：
+
+$$
+O(n^2)
+$$
+
+因此总时间复杂度为：
+
+$$
+\boxed{O(n^2)}
+$$
+
+更准确写法是：
+
+$$
+O(n\log n+n^2)=O(n^2)
+$$
+
+额外空间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+## 10. `vector` 和 `list`：链表真的一定更快吗？
+
+原始题解还给出了链表写法：
+
+```cpp
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b) {
+        if (a[0] == b[0]) {
+            return a[1] < b[1];
+        }
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        list<vector<int>> queue;
+
+        for (const auto& person : people) {
+            int position = person[1];
+            auto it = queue.begin();
+            advance(it, position);
+            queue.insert(it, person);
+        }
+
+        return vector<vector<int>>(queue.begin(), queue.end());
+    }
+};
+```
+
+表面上看：
+
+- `vector` 中间插入：需要搬移元素；
+- `list` 插入：已知迭代器后是 $O(1)$。
+
+但这里有一个容易忽略的问题：
+
+> `list` 必须先走到第 `k` 个位置。
+
+`advance(it, k)` 本身需要：
+
+$$
+O(k)
+$$
+
+因此整体仍然是：
+
+$$
+O(n^2)
+$$
+
+并不是换成链表就把算法变成了 $O(n\log n)$。
+
+<Callout type="info" title="复杂度要看完整操作链">
+不要只看“插入”这一行。链表插入本身可以是 $O(1)$，但如果为了找到插入位置需要线性遍历，那么一次完整操作仍然是 $O(n)$。
+</Callout>
+
+### 实际性能也不一定是链表占优
+
+现代机器上，`vector` 有很好的连续内存局部性；`list` 节点分散、指针跳转多、缓存命中率差。
+
+因此即使渐进复杂度相同，实际运行时间不能仅凭“链表插入快”直接判断。
+
+对于本题 $n\le 2000$，最重要的仍然是算法思想，而不是容器微优化。
+
+---
+
+## 11. 能不能做到比 O(n²) 更快？
+
+标准解法通常就是：
+
+$$
+O(n^2)
+$$
+
+但从理论上，可以通过更复杂的数据结构优化“插入第 $k$ 个空位”或“顺序统计”操作，例如：
+
+- 树状数组；
+- 线段树；
+- order-statistics tree。
+
+不过这通常需要换一种构造顺序，例如按身高升序，从空位中寻找第 $k+1$ 个可用位置。
+
+此时可把位置选择降到：
+
+$$
+O(\log n)
+$$
+
+总复杂度可以做到：
+
+$$
+O(n\log n)
+$$
+
+但实现复杂度明显更高，并不是这道题学习贪心时的重点。
+
+---
+
+## 12. 一个很容易写错的替代思路：身高升序
+
+有人会想：
+
+```text
+如果身高从小到大排序呢？
+```
+
+问题在于，当处理一个矮个子时，未来还有大量更高的人尚未插入。
+
+这些未来的人一旦插到他前面，就会改变他的 $k$。
+
+也就是说：
+
+> 当前决策不是稳定的。
+
+而贪心算法最喜欢的状态恰恰是：
+
+> 当前做完之后，以后不会被破坏。
+
+身高降序正好具备这个性质。
+
+---
+
+## 13. 常见错误
+
+### 错误一：身高升序
+
+```cpp
+return a[0] < b[0];
+```
+
+这样先处理的矮个子会受到未来高个子的影响，无法直接按 $k$ 插入。
+
+### 错误二：同身高时 k 降序
+
+```cpp
+if (a[0] == b[0]) {
+    return a[1] > b[1];
+}
+```
+
+例如：
+
+```text
+[7,0], [7,1]
+```
+
+如果 `[7,1]` 先处理，就破坏了构造逻辑。
+
+正确的是：
+
+```text
+h 降序，k 升序
+```
+
+### 错误三：排序后直接返回
+
+排序后的数组：
+
+```text
+[[7,0],[7,1],[6,1],[5,0],[5,2],[4,4]]
+```
+
+本身并不是最终答案。
+
+排序只是第一阶段：
+
+$$
+\text{稳定身高维度}
+$$
+
+第二阶段必须：
+
+$$
+\text{按 }k\text{ 插入}
+$$
+
+### 错误四：把 k 理解为“前面总人数”
+
+$k$ 的定义不是：
+
+```text
+前面有 k 个人
+```
+
+而是：
+
+```text
+前面有 k 个身高 >= 自己的人
+```
+
+本题之所以能直接使用下标 $k$，是因为排序以后当前队列中的人恰好全部满足这个身高条件。
+
+---
+
+## 14. 和「分发糖果」的联系
+
+「分发糖果」和本题表面完全不同，但背后的方法非常相似。
+
+### 分发糖果
+
+有两个方向约束：
+
+```text
+左邻居
+右邻居
+```
+
+做法是：
+
+```text
+先处理一个方向
+再处理另一个方向
+```
+
+### 根据身高重建队列
+
+有两个维度：
+
+```text
+h
+k
+```
+
+做法是：
+
+```text
+先用 h 排序稳定一个维度
+再根据 k 插入
+```
+
+二者共同原则是：
+
+$$
+\boxed{\text{多重约束不要同时硬解，而要拆开处理}}
+$$
+
+---
+
+## 15. 如何识别这一类“双维贪心题”
+
+以后看到元素形如：
+
+```text
+[a_i, b_i]
+```
+
+并且两个维度共同决定合法性时，可以按下面思路排查。
+
+### 第一步：找哪个维度更像“主约束”
+
+问自己：
+
+> 如果先把某个维度排序，另一个维度是否会变得容易解释？
+
+本题中，身高排序后，$k$ 直接变成插入位置。
+
+### 第二步：寻找“以后不会破坏”的排序方向
+
+问：
+
+> 当前对象处理完成后，未来对象会不会改变它已经满足的条件？
+
+身高降序时，未来更矮的人不会影响当前高个子的 $k$。
+
+### 第三步：检查相同主关键字时的次排序
+
+主关键字相同时，彼此可能仍然影响。
+
+因此必须再设计第二关键字。
+
+本题就是：
+
+```text
+h 相同 -> k 升序
+```
+
+### 第四步：寻找构造动作
+
+排序之后，剩下的维度通常会变成：
+
+- 插入位置；
+- 选择边界；
+- 区间结束点；
+- 剩余容量；
+- 局部最大/最小值。
+
+本题恰好变成了“插入到下标 $k$”。
+
+---
+
+## 16. 一句话记忆
+
+这道题最值得记住的不是代码，而是：
+
+$$
+\boxed{\text{先高后矮，同高先小 }k\text{，然后按 }k\text{ 插入}}
+$$
+
+更抽象地说：
+
+$$
+\boxed{\text{先固定一个维度，使后续决策不再破坏它，再贪心处理另一个维度}}
+$$
+
+---
+
+## 17. 其他语言版本
+
+
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people, (a, b) -> {
+            if (a[0] == b[0]) {
+                return Integer.compare(a[1], b[1]);
+            }
+            return Integer.compare(b[0], a[0]);
+        });
+
+        List<int[]> queue = new ArrayList<>();
+        for (int[] person : people) {
+            queue.add(person[1], person);
+        }
+
+        return queue.toArray(new int[people.length][]);
+    }
+}
+```
+
+
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+        people.sort(key=lambda p: (-p[0], p[1]))
+
+        queue = []
+        for person in people:
+            queue.insert(person[1], person)
+
+        return queue
+```
+
+
+
+```go tab="Go"
+import "sort"
+
+func reconstructQueue(people [][]int) [][]int {
+    sort.Slice(people, func(i, j int) bool {
+        if people[i][0] == people[j][0] {
+            return people[i][1] < people[j][1]
+        }
+        return people[i][0] > people[j][0]
+    })
+
+    queue := make([][]int, 0, len(people))
+
+    for _, person := range people {
+        k := person[1]
+        queue = append(queue, nil)
+        copy(queue[k+1:], queue[k:])
+        queue[k] = person
+    }
+
+    return queue
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn reconstruct_queue(mut people: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        people.sort_by(|a, b| {
+            if a[0] == b[0] {
+                a[1].cmp(&b[1])
+            } else {
+                b[0].cmp(&a[0])
+            }
+        });
+
+        let mut queue: Vec<Vec<i32>> = Vec::new();
+
+        for person in people {
+            queue.insert(person[1] as usize, person);
+        }
+
+        queue
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var reconstructQueue = function (people) {
+  people.sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return b[0] - a[0];
+    }
+    return a[1] - b[1];
+  });
+
+  const queue = [];
+
+  for (const person of people) {
+    queue.splice(person[1], 0, person);
+  }
+
+  return queue;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function reconstructQueue(people: number[][]): number[][] {
+  people.sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return b[0] - a[0];
+    }
+    return a[1] - b[1];
+  });
+
+  const queue: number[][] = [];
+
+  for (const person of people) {
+    queue.splice(person[1], 0, person);
+  }
+
+  return queue;
+}
+```
+
+
+
+```c tab="C"
+#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    int* p1 = *(int**)a;
+    int* p2 = *(int**)b;
+
+    if (p1[0] == p2[0]) {
+        return p1[1] - p2[1];
+    }
+    return p2[0] - p1[0];
+}
+
+int** reconstructQueue(
+    int** people,
+    int peopleSize,
+    int* peopleColSize,
+    int* returnSize,
+    int** returnColumnSizes
+) {
+    qsort(people, peopleSize, sizeof(int*), cmp);
+
+    for (int i = 0; i < peopleSize; ++i) {
+        int position = people[i][1];
+        int* current = people[i];
+
+        for (int j = i; j > position; --j) {
+            people[j] = people[j - 1];
+        }
+
+        people[position] = current;
+    }
+
+    *returnSize = peopleSize;
+    *returnColumnSizes = (int*)malloc(sizeof(int) * peopleSize);
+
+    for (int i = 0; i < peopleSize; ++i) {
+        (*returnColumnSizes)[i] = 2;
+    }
+
+    return people;
+}
+```
+
+### Scala
+
+```scala
+import scala.collection.mutable.ArrayBuffer
+
+object Solution {
+  def reconstructQueue(people: Array[Array[Int]]): Array[Array[Int]] = {
+    val sorted = people.sortWith { (a, b) =>
+      if (a(0) == b(0)) a(1) < b(1)
+      else a(0) > b(0)
+    }
+
+    val queue = ArrayBuffer[Array[Int]]()
+
+    for (person <- sorted) {
+      queue.insert(person(1), person)
+    }
+
+    queue.toArray
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public int[][] ReconstructQueue(int[][] people)
+    {
+        Array.Sort(people, (a, b) =>
+        {
+            if (a[0] == b[0])
+            {
+                return a[1].CompareTo(b[1]);
+            }
+            return b[0].CompareTo(a[0]);
+        });
+
+        var queue = new List<int[]>();
+
+        foreach (var person in people)
+        {
+            queue.Insert(person[1], person);
+        }
+
+        return queue.ToArray();
+    }
+}
+```

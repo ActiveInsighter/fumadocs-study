@@ -1,0 +1,739 @@
+---
+title: 最长回文子序列
+sidebarTitle: 最长回文子序列
+summary: 系统讲解 LeetCode 516 最长回文子序列，从区间 DP 状态、两端字符的取舍、遍历顺序到与 LCS 的等价视角，彻底区分回文子串与回文子序列。
+---
+
+# 516. 最长回文子序列
+
+[LeetCode 516：最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)
+
+给定字符串 `s`，求其中**最长回文子序列**的长度。
+
+例如：
+
+```text
+s = "bbbab"
+```
+
+可以选择：
+
+```text
+b b b b
+```
+
+得到长度为：
+
+$$
+4
+$$
+
+注意这些字符不要求连续，只需要保持原字符串中的相对顺序。
+
+<Callout type="warning" title="先区分：子串 vs 子序列">
+**子串必须连续，子序列可以删除任意字符。** 这一个条件差异，会让上一题“回文子串”的布尔状态转移，变成本题“区间最优值”的动态规划。
+</Callout>
+
+## 一、为什么仍然使用区间 DP
+
+回文结构天然由左右两端决定。
+
+对于区间：
+
+$$
+[i,j]
+$$
+
+我们首先关心：
+
+$$
+s[i]\quad\text{和}\quad s[j]
+$$
+
+是否相同。
+
+- 如果相同，两端可以一起加入某个回文子序列；
+- 如果不同，就不可能让这两个字符同时作为同一个回文序列的两端，需要舍弃至少一个。
+
+这正好形成区间递推。
+
+## 二、状态定义
+
+定义：
+
+$$
+\boxed{
+dp[i][j]
+=
+\text{字符串 }s[i\ldots j]\text{ 中最长回文子序列的长度}
+}
+$$
+
+最终答案为：
+
+$$
+\boxed{dp[0][n-1]}
+$$
+
+与上一题不同，本题的状态不是 `bool`，而是一个**最优长度**。
+
+## 三、两端字符相同：可以一起加入答案
+
+若：
+
+$$
+s[i]=s[j]
+$$
+
+那么这两个相同字符可以分别放在回文子序列的左右两端。
+
+内部只需要继续寻找：
+
+$$
+[i+1,j-1]
+$$
+
+中的最长回文子序列。
+
+因此：
+
+$$
+\boxed{
+dp[i][j]=dp[i+1][j-1]+2
+}
+$$
+
+![两端相同时的区间转移](https://file1.kamacoder.com/i/algo/20210127151350563.jpg)
+
+例如：
+
+```text
+b a c b
+^     ^
+```
+
+两端都是 `b`。
+
+如果内部：
+
+```text
+ac
+```
+
+的最长回文子序列长度为 1，那么整个区间至少可以形成：
+
+```text
+b ? b
+```
+
+长度为：
+
+$$
+1+2=3
+$$
+
+### 为什么不用和其他方案再取 max？
+
+这是一个容易产生疑问的地方。
+
+当：
+
+$$
+s[i]=s[j]
+$$
+
+可以证明一定存在某个最长回文子序列同时使用这两个端点，因此：
+
+$$
+dp[i+1][j-1]+2
+$$
+
+已经能够达到最优。
+
+直观理解是：相同的两端不会破坏内部任意回文子序列，把它们包在外面就会稳定增加 2 个字符。
+
+## 四、两端字符不同：至少舍弃一个
+
+若：
+
+$$
+s[i]\ne s[j]
+$$
+
+这两个字符不能同时充当同一个回文子序列的左右端点。
+
+因此最长答案一定来自以下两种情况之一。
+
+### 舍弃左端 `s[i]`
+
+考虑区间：
+
+$$
+[i+1,j]
+$$
+
+其答案为：
+
+$$
+dp[i+1][j]
+$$
+
+### 舍弃右端 `s[j]`
+
+考虑区间：
+
+$$
+[i,j-1]
+$$
+
+其答案为：
+
+$$
+dp[i][j-1]
+$$
+
+取较大者：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max(dp[i+1][j],dp[i][j-1])
+}
+$$
+
+![两端不同时的区间转移](https://file1.kamacoder.com/i/algo/20210127151420476.jpg)
+
+<Callout type="tip" title="本题最重要的思维变化">
+上一题“回文子串”要求整个区间连续成立，所以两端不同就直接判 `false`。本题允许删除字符，因此两端不同并不代表区间无解，而是转化为“删左还是删右，哪个更优”。
+</Callout>
+
+## 五、完整状态转移方程
+
+因此：
+
+$$
+\boxed{
+dp[i][j]
+=
+\begin{cases}
+dp[i+1][j-1]+2, & s[i]=s[j]\\
+\max(dp[i+1][j],dp[i][j-1]), & s[i]\ne s[j]
+\end{cases}
+}
+$$
+
+这也是典型的区间最优值 DP 模板。
+
+## 六、初始化
+
+当：
+
+$$
+i=j
+$$
+
+区间中只有一个字符。
+
+单个字符本身一定是长度为 1 的回文序列，所以：
+
+$$
+\boxed{dp[i][i]=1}
+$$
+
+代码：
+
+```cpp
+vector<vector<int>> dp(n, vector<int>(n, 0));
+
+for (int i = 0; i < n; ++i) {
+    dp[i][i] = 1;
+}
+```
+
+其他状态先初始化为 0 即可。
+
+## 七、遍历顺序为什么还是“从下往上”
+
+当前状态依赖：
+
+$$
+dp[i+1][j-1]
+$$
+
+$$
+dp[i+1][j]
+$$
+
+$$
+dp[i][j-1]
+$$
+
+依赖关系如下：
+
+![最长回文子序列的状态依赖](https://file1.kamacoder.com/i/algo/20230102172155.png)
+
+因此：
+
+- `i` 必须从大到小；
+- 对固定的 `i`，`j` 从小到大。
+
+代码框架：
+
+```cpp
+for (int i = n - 1; i >= 0; --i) {
+    for (int j = i + 1; j < n; ++j) {
+        ...
+    }
+}
+```
+
+这样可以保证所有依赖状态都已经计算完成。
+
+## 八、以 `cbbd` 手推一次
+
+字符串：
+
+```text
+c b b d
+0 1 2 3
+```
+
+初始化：
+
+$$
+dp[0][0]=dp[1][1]=dp[2][2]=dp[3][3]=1
+$$
+
+### 区间 `[1,2]`
+
+```text
+bb
+```
+
+两端相同：
+
+$$
+dp[1][2]=2
+$$
+
+### 区间 `[0,2]`
+
+```text
+cbb
+```
+
+两端：
+
+```text
+c != b
+```
+
+所以：
+
+$$
+dp[0][2]
+=
+\max(dp[1][2],dp[0][1])
+=
+2
+$$
+
+### 整个区间 `[0,3]`
+
+```text
+cbbd
+```
+
+两端：
+
+```text
+c != d
+```
+
+因此：
+
+$$
+dp[0][3]
+=
+\max(dp[1][3],dp[0][2])
+=2
+$$
+
+最终最长回文子序列是：
+
+```text
+bb
+```
+
+![cbbd 的 DP 表](https://file1.kamacoder.com/i/algo/20210127151521432.jpg)
+
+## 九、完整 C++ 实现
+
+```cpp
+class Solution {
+public:
+    int longestPalindromeSubseq(string s) {
+        int n = s.size();
+        vector<vector<int>> dp(n, vector<int>(n, 0));
+
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (s[i] == s[j]) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[0][n - 1];
+    }
+};
+```
+
+### 复杂度
+
+共有：
+
+$$
+O(n^2)
+$$
+
+个区间状态，每个状态只进行常数次运算：
+
+$$
+\boxed{T(n)=O(n^2)}
+$$
+
+二维 DP 表空间为：
+
+$$
+\boxed{S(n)=O(n^2)}
+$$
+
+## 十、与“最长公共子序列”的关系
+
+这道题还有一个非常重要的等价视角。
+
+设原字符串：
+
+$$
+s
+$$
+
+反转后得到：
+
+$$
+r=reverse(s)
+$$
+
+那么：
+
+> `s` 的最长回文子序列长度，等于 `s` 与 `reverse(s)` 的最长公共子序列长度。
+
+即：
+
+$$
+\boxed{
+LPS(s)=LCS(s,reverse(s))
+}
+$$
+
+例如：
+
+```text
+s       = b b b a b
+reverse = b a b b b
+```
+
+两者的一个最长公共子序列可以是：
+
+```text
+bbbb
+```
+
+长度为 4。
+
+### 为什么成立
+
+回文序列正着读和反着读完全相同。
+
+如果一个序列是 `s` 的回文子序列，那么反转后它仍然是自己，因此它也会作为公共子序列出现在：
+
+```text
+s
+reverse(s)
+```
+
+中。
+
+这个视角非常有助于把“回文 DP”与之前学过的“LCS 系列”连接起来。
+
+<Callout type="info" title="两种方法应该掌握哪一种？">
+区间 DP 更直接体现回文结构，也是本题最推荐的写法；LCS 转化法则非常适合建立知识联系。两种都理解，能显著提升对字符串 DP 的整体认识。
+</Callout>
+
+## 十一、回文子串 vs 最长回文子序列
+
+把 647 与 516 放在一起对比非常重要。
+
+| 对比项 | 647 回文子串 | 516 最长回文子序列 |
+|---|---|---|
+| 是否要求连续 | 是 | 否 |
+| `dp[i][j]` 含义 | `[i,j]` 是否回文 | `[i,j]` 内最长回文子序列长度 |
+| 状态类型 | `bool` | `int` |
+| 两端不同 | 直接 `false` | 舍弃一端取最大 |
+| 两端相同 | 看内部是否回文 | 内部最优值 `+2` |
+| 最终目标 | 统计所有 `true` | `dp[0][n-1]` |
+
+二者的共同点则是：
+
+- 都属于区间 DP；
+- 都比较区间两端字符；
+- 都依赖更小区间；
+- `i` 都适合从后向前遍历。
+
+## 十二、为什么“子序列”问题经常出现 max
+
+只要题目允许“跳过字符”，就会频繁出现：
+
+$$
+\max(\text{舍弃左边},\text{舍弃右边})
+$$
+
+本题正是：
+
+$$
+\max(dp[i+1][j],dp[i][j-1])
+$$
+
+这与 LCS 中字符不相同时：
+
+$$
+\max(dp[i-1][j],dp[i][j-1])
+$$
+
+本质完全一致：
+
+> 当前元素无法同时保留时，枚举“舍弃谁”，取更优方案。
+
+## 十三、常见错误
+
+### 错误 1：把“回文子序列”写成“回文子串”
+
+如果两端不同就直接设为 0，会错误地丢失内部仍然存在的优秀子序列。
+
+例如：
+
+```text
+cbbd
+```
+
+首尾 `c`、`d` 不同，但内部仍有：
+
+```text
+bb
+```
+
+长度为 2。
+
+### 错误 2：忘记初始化 `dp[i][i] = 1`
+
+单字符是所有区间递推的基础状态。
+
+### 错误 3：遍历方向错误
+
+如果 `i` 从小到大，就可能在依赖状态还没算出时提前使用。
+
+### 错误 4：误以为相同两端必须连续
+
+本题是子序列问题，中间可以跳过任意字符。
+
+例如：
+
+```text
+b x y b
+```
+
+只要两端都是 `b`，仍可以把它们作为回文序列的两端。
+
+## 十四、区间 DP 的统一思考方式
+
+以后遇到区间问题，可以按以下顺序分析：
+
+### 第一步：定义区间状态
+
+例如：
+
+$$
+dp[i][j]=\text{区间 }[i,j]\text{ 的最优值}
+$$
+
+### 第二步：考虑区间两端
+
+研究：
+
+```text
+s[i]
+s[j]
+```
+
+是否能够一起参与最优解。
+
+### 第三步：缩小区间
+
+常见子问题包括：
+
+$$
+[i+1,j-1]
+$$
+
+$$
+[i+1,j]
+$$
+
+$$
+[i,j-1]
+$$
+
+### 第四步：根据依赖决定遍历顺序
+
+不是死记“从后往前”，而是根据状态图确定：
+
+> 所有依赖必须先于当前状态完成。
+
+本题可以最终浓缩为：
+
+$$
+\boxed{
+\begin{aligned}
+s[i]=s[j]&:\quad \text{两端一起保留}\\
+s[i]\ne s[j]&:\quad \text{舍弃一端，取更优者}
+\end{aligned}
+}
+$$
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int longestPalindromeSubseq(String s) {
+        int n = s.length();
+        int[][] dp = new int[n][n];
+
+        for (int i = 0; i < n; ++i) {
+            dp[i][i] = 1;
+        }
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[0][n - 1];
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        dp = [[0] * n for _ in range(n)]
+
+        for i in range(n):
+            dp[i][i] = 1
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i + 1, n):
+                if s[i] == s[j]:
+                    dp[i][j] = dp[i + 1][j - 1] + 2
+                else:
+                    dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])
+
+        return dp[0][n - 1]
+```
+
+```go tab="Go"
+func longestPalindromeSubseq(s string) int {
+    n := len(s)
+    dp := make([][]int, n)
+    for i := range dp {
+        dp[i] = make([]int, n)
+        dp[i][i] = 1
+    }
+
+    for i := n - 1; i >= 0; i-- {
+        for j := i + 1; j < n; j++ {
+            if s[i] == s[j] {
+                dp[i][j] = dp[i+1][j-1] + 2
+            } else if dp[i+1][j] > dp[i][j-1] {
+                dp[i][j] = dp[i+1][j]
+            } else {
+                dp[i][j] = dp[i][j-1]
+            }
+        }
+    }
+
+    return dp[0][n-1]
+}
+```
+
+```javascript tab="JavaScript"
+var longestPalindromeSubseq = function(s) {
+    const n = s.length;
+    const dp = Array.from({ length: n }, () => Array(n).fill(0));
+
+    for (let i = 0; i < n; ++i) {
+        dp[i][i] = 1;
+    }
+
+    for (let i = n - 1; i >= 0; --i) {
+        for (let j = i + 1; j < n; ++j) {
+            if (s[i] === s[j]) {
+                dp[i][j] = dp[i + 1][j - 1] + 2;
+            } else {
+                dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    return dp[0][n - 1];
+};
+```
+
+```typescript tab="TypeScript"
+function longestPalindromeSubseq(s: string): number {
+    const n = s.length;
+    const dp: number[][] = Array.from(
+        { length: n },
+        () => Array<number>(n).fill(0)
+    );
+
+    for (let i = 0; i < n; ++i) {
+        dp[i][i] = 1;
+    }
+
+    for (let i = n - 1; i >= 0; --i) {
+        for (let j = i + 1; j < n; ++j) {
+            if (s[i] === s[j]) {
+                dp[i][j] = dp[i + 1][j - 1] + 2;
+            } else {
+                dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    return dp[0][n - 1];
+}
+```

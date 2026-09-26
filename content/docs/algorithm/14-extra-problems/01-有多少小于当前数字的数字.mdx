@@ -1,0 +1,563 @@
+---
+title: 有多少小于当前数字的数字
+description: 从暴力枚举到排序映射，再到利用值域约束的计数前缀和，掌握“排名 = 更小元素个数”的核心转化。
+---
+
+# 1365. 有多少小于当前数字的数字
+
+[LeetCode 1365：有多少小于当前数字的数字](https://leetcode.cn/problems/how-many-numbers-are-smaller-than-the-current-number/)
+
+给定数组 `nums`，对于每个位置 `i`，需要统计数组中严格小于 `nums[i]` 的元素数量。
+
+也就是计算：
+
+$$
+ans_i = \left|\{j \mid j \neq i,\ nums[j] < nums[i]\}\right|
+$$
+
+## 题目示例
+
+```text
+输入：nums = [8, 1, 2, 2, 3]
+输出：[4, 0, 1, 1, 3]
+```
+
+其中：
+
+| 当前数字 | 比它小的数字 | 数量 |
+| --- | --- | ---: |
+| `8` | `1, 2, 2, 3` | 4 |
+| `1` | 无 | 0 |
+| `2` | `1` | 1 |
+| `2` | `1` | 1 |
+| `3` | `1, 2, 2` | 3 |
+
+## 核心观察：本质上是在求“严格排名”
+
+如果把数组从小到大排序，那么某个数第一次出现的位置，恰好等于数组中严格小于它的元素个数。
+
+例如：
+
+```text
+原数组： [8, 1, 2, 2, 3]
+排序后： [1, 2, 2, 3, 8]
+下标：    0  1  2  3  4
+```
+
+于是：
+
+- `1` 第一次出现在下标 `0`，所以有 `0` 个元素比它小；
+- `2` 第一次出现在下标 `1`，所以有 `1` 个元素比它小；
+- `3` 第一次出现在下标 `3`，所以有 `3` 个元素比它小；
+- `8` 第一次出现在下标 `4`，所以有 `4` 个元素比它小。
+
+这道题最重要的转化就是：
+
+$$
+\text{比 } x \text{ 小的元素个数}
+=
+\text{排序后 } x \text{ 第一次出现的位置}
+$$
+
+## 方法一：暴力枚举
+
+最直接的做法是：对于每个 `nums[i]`，再遍历整个数组，统计有多少个元素满足 `nums[j] < nums[i]`。
+
+```cpp
+class Solution {
+public:
+    vector<int> smallerNumbersThanCurrent(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n, 0);
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (nums[j] < nums[i]) {
+                    ++ans[i];
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+时间复杂度为：
+
+$$
+O(n^2)
+$$
+
+空间复杂度为：
+
+$$
+O(1)
+$$
+
+这里不计算返回数组所占空间。
+
+这种方法适合作为起点，但没有利用“所有询问都在问排名”这一结构。
+
+## 方法二：排序 + 映射
+
+### 第一步：复制并排序
+
+为了不破坏原数组的顺序，先复制一份：
+
+```cpp
+vector<int> sorted = nums;
+sort(sorted.begin(), sorted.end());
+```
+
+排序之后，一个元素第一次出现的位置就是它前面严格更小元素的数量。
+
+### 第二步：处理重复元素
+
+这里最容易出错。
+
+假设排序结果是：
+
+```text
+[1, 2, 3, 4, 4, 4]
+```
+
+数字 `4` 前面只有 `1, 2, 3` 三个更小的数，因此答案应该是 `3`，而不是 `4` 或 `5`。
+
+所以必须记录 **第一次出现的位置**：
+
+```text
+4 -> 3
+```
+
+可以正向遍历，并且只在第一次遇到某个值时写入：
+
+```cpp
+unordered_map<int, int> firstIndex;
+
+for (int i = 0; i < sorted.size(); ++i) {
+    if (!firstIndex.count(sorted[i])) {
+        firstIndex[sorted[i]] = i;
+    }
+}
+```
+
+也可以像原思路那样从后往前覆盖：
+
+```cpp
+int pos[101] = {};
+for (int i = sorted.size() - 1; i >= 0; --i) {
+    pos[sorted[i]] = i;
+}
+```
+
+由于相同元素不断覆盖，最后留下的正好是最左侧下标。
+
+### 第三步：映射回原数组
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    ans[i] = firstIndex[nums[i]];
+}
+```
+
+完整实现：
+
+```cpp
+class Solution {
+public:
+    vector<int> smallerNumbersThanCurrent(vector<int>& nums) {
+        vector<int> sorted = nums;
+        sort(sorted.begin(), sorted.end());
+
+        unordered_map<int, int> firstIndex;
+        for (int i = 0; i < sorted.size(); ++i) {
+            if (!firstIndex.count(sorted[i])) {
+                firstIndex[sorted[i]] = i;
+            }
+        }
+
+        vector<int> ans(nums.size());
+        for (int i = 0; i < nums.size(); ++i) {
+            ans[i] = firstIndex[nums[i]];
+        }
+
+        return ans;
+    }
+};
+```
+
+复杂度：
+
+$$
+O(n \log n)
+$$
+
+排序占主导；额外空间为：
+
+$$
+O(n)
+$$
+
+流程可以概括为：
+
+```text
+原数组
+  ↓ 复制
+排序数组
+  ↓ 记录每个值第一次出现的下标
+值 -> 更小元素数量
+  ↓ 按原数组顺序查询
+答案数组
+```
+
+原笔记中的示意图保留如下：
+
+![排序后利用下标统计更小元素数量](https://file1.kamacoder.com/i/algo/1365.有多少小于当前数字的数字.png)
+
+## 方法三：计数数组 + 前缀和
+
+本题还有一个非常重要的条件：
+
+```text
+0 <= nums[i] <= 100
+```
+
+也就是说，数值范围只有 `101` 种。
+
+这意味着我们根本不一定需要排序，可以直接统计每个数字出现了多少次。
+
+### 第一步：统计频次
+
+定义：
+
+```cpp
+int count[101] = {};
+```
+
+其中 `count[x]` 表示数字 `x` 出现的次数。
+
+### 第二步：构造“更小元素数量”
+
+对于任意数字 `x`：
+
+$$
+\text{less}(x)
+=
+\sum_{v=0}^{x-1} count[v]
+$$
+
+这正是一个前缀和。
+
+例如频次为：
+
+```text
+数字：  0 1 2 3 4 ...
+次数：  0 1 2 1 0 ...
+```
+
+则：
+
+```text
+less[1] = 0
+less[2] = 1
+less[3] = 3
+less[4] = 4
+```
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    vector<int> smallerNumbersThanCurrent(vector<int>& nums) {
+        const int MAX_VALUE = 100;
+        vector<int> count(MAX_VALUE + 1, 0);
+
+        for (int x : nums) {
+            ++count[x];
+        }
+
+        vector<int> less(MAX_VALUE + 1, 0);
+        for (int x = 1; x <= MAX_VALUE; ++x) {
+            less[x] = less[x - 1] + count[x - 1];
+        }
+
+        vector<int> ans;
+        ans.reserve(nums.size());
+
+        for (int x : nums) {
+            ans.push_back(less[x]);
+        }
+
+        return ans;
+    }
+};
+```
+
+设值域大小为 $K$，本题 $K = 101$。
+
+时间复杂度：
+
+$$
+O(n + K)
+$$
+
+空间复杂度：
+
+$$
+O(K)
+$$
+
+因为本题 $K$ 是常数，所以也可以近似看作：
+
+$$
+O(n)
+$$
+
+这是利用题目值域限制后更优、更稳定的做法。
+
+## 三种方法对比
+
+| 方法 | 核心思想 | 时间复杂度 | 额外空间 | 适用场景 |
+| --- | --- | ---: | ---: | --- |
+| 暴力枚举 | 每个数与所有数比较 | $O(n^2)$ | $O(1)$ | 数据很小、验证思路 |
+| 排序 + 映射 | 第一次出现下标 = 更小元素数量 | $O(n\log n)$ | $O(n)$ | 值域很大、通用性强 |
+| 计数 + 前缀和 | 对值域统计频次 | $O(n+K)$ | $O(K)$ | 值域较小，本题最合适 |
+
+## 为什么重复数字必须取“第一次出现的位置”
+
+这是本题的核心易错点。
+
+排序后：
+
+```text
+[1, 2, 2, 2, 3]
+```
+
+三个 `2` 的下标分别是 `1、2、3`。
+
+但对任何一个 `2` 来说，严格小于它的只有 `1`，所以答案只能是 `1`。
+
+因此：
+
+$$
+\text{答案} \neq \text{任意一个相同元素的下标}
+$$
+
+而应当是：
+
+$$
+\text{答案}
+=
+\text{该值第一次出现的下标}
+$$
+
+可以把它理解成：**我们求的是严格小于，不是小于等于。**
+
+## 常见错误
+
+### 1. 直接使用排序后当前位置
+
+如果对每个重复元素都把当前下标记录下来，就会把“相等元素”也算进答案。
+
+```text
+[1, 2, 2, 2]
+```
+
+第二个 `2` 的下标是 `2`，但答案仍然只能是 `1`。
+
+### 2. 原地排序后丢失原顺序
+
+题目要求答案与原数组位置一一对应。
+
+因此如果直接：
+
+```cpp
+sort(nums.begin(), nums.end());
+```
+
+就必须额外保存原数组，否则无法恢复答案顺序。
+
+更简单的做法是复制：
+
+```cpp
+vector<int> sorted = nums;
+```
+
+### 3. 忽略值域条件
+
+`0 <= nums[i] <= 100` 不是无用信息。
+
+当值域很小时，经常可以考虑：
+
+- 计数数组；
+- 桶；
+- 前缀和；
+- 直接索引映射。
+
+这是数组题中很常见的一类优化信号。
+
+## 一题多解后的通用结论
+
+这道题虽然简单，但包含三个很有代表性的算法思维。
+
+### 排序把“比较问题”变成“位置问题”
+
+原问题需要反复判断：
+
+```text
+谁比我小？
+```
+
+排序后转化为：
+
+```text
+我第一次出现在哪里？
+```
+
+位置本身就携带了排名信息。
+
+### 重复元素通常对应“边界位置”
+
+当问题出现：
+
+- 严格小于；
+- 小于等于；
+- 第一个不小于；
+- 最后一个不大于；
+
+往往都要特别关注重复元素的左边界或右边界。
+
+这和二分查找中的 `lower_bound`、`upper_bound` 是同一类思想。
+
+### 小值域优先考虑计数
+
+如果元素值只落在很小的固定范围内，与其维护哈希表或排序，不如直接把值本身当作数组下标。
+
+本题中：
+
+```text
+0 ~ 100
+```
+
+就是一个非常典型的“可以用计数数组”的信号。
+
+<details>
+<summary>快速复盘</summary>
+
+- 暴力：逐个比较，$O(n^2)$。
+- 通用优化：排序后记录每个值第一次出现的位置，$O(n\log n)$。
+- 本题最佳利用：值域只有 `0 ~ 100`，计数并做前缀和，$O(n+K)$。
+- 重复元素必须取第一次出现的位置，因为题目统计的是“严格小于”。
+
+</details>
+
+## 其他语言版本
+
+以下统一采用“排序 + 首次出现位置”的通用写法，便于在不同语言之间对照。
+
+```java tab="Java"
+class Solution {
+    public int[] smallerNumbersThanCurrent(int[] nums) {
+        int[] sorted = Arrays.copyOf(nums, nums.length);
+        Arrays.sort(sorted);
+
+        Map<Integer, Integer> firstIndex = new HashMap<>();
+        for (int i = 0; i < sorted.length; i++) {
+            firstIndex.putIfAbsent(sorted[i], i);
+        }
+
+        int[] ans = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            ans[i] = firstIndex.get(nums[i]);
+        }
+
+        return ans;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def smallerNumbersThanCurrent(self, nums: List[int]) -> List[int]:
+        sorted_nums = sorted(nums)
+        first_index = {}
+
+        for i, x in enumerate(sorted_nums):
+            if x not in first_index:
+                first_index[x] = i
+
+        return [first_index[x] for x in nums]
+```
+
+```go tab="Go"
+func smallerNumbersThanCurrent(nums []int) []int {
+    sortedNums := append([]int(nil), nums...)
+    sort.Ints(sortedNums)
+
+    firstIndex := make(map[int]int)
+    for i, x := range sortedNums {
+        if _, ok := firstIndex[x]; !ok {
+            firstIndex[x] = i
+        }
+    }
+
+    ans := make([]int, len(nums))
+    for i, x := range nums {
+        ans[i] = firstIndex[x]
+    }
+
+    return ans
+}
+```
+
+```javascript tab="JavaScript"
+var smallerNumbersThanCurrent = function(nums) {
+    const sorted = [...nums].sort((a, b) => a - b);
+    const firstIndex = new Map();
+
+    for (let i = 0; i < sorted.length; i++) {
+        if (!firstIndex.has(sorted[i])) {
+            firstIndex.set(sorted[i], i);
+        }
+    }
+
+    return nums.map(x => firstIndex.get(x));
+};
+```
+
+```typescript tab="TypeScript"
+function smallerNumbersThanCurrent(nums: number[]): number[] {
+    const sorted = [...nums].sort((a, b) => a - b);
+    const firstIndex = new Map<number, number>();
+
+    for (let i = 0; i < sorted.length; i++) {
+        if (!firstIndex.has(sorted[i])) {
+            firstIndex.set(sorted[i], i);
+        }
+    }
+
+    return nums.map(x => firstIndex.get(x)!);
+}
+```
+
+```rust tab="Rust"
+use std::collections::HashMap;
+
+impl Solution {
+    pub fn smaller_numbers_than_current(nums: Vec<i32>) -> Vec<i32> {
+        let mut sorted = nums.clone();
+        sorted.sort_unstable();
+
+        let mut first_index: HashMap<i32, i32> = HashMap::new();
+        for (i, &x) in sorted.iter().enumerate() {
+            first_index.entry(x).or_insert(i as i32);
+        }
+
+        nums.into_iter()
+            .map(|x| *first_index.get(&x).unwrap())
+            .collect()
+    }
+}
+```

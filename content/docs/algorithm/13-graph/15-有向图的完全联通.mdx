@@ -1,0 +1,982 @@
+---
+title: 有向图的完全联通
+subtitle: 从 1 号节点出发做一次 DFS / BFS，判断是否可达全部节点
+summary: 通过卡码网 105 掌握有向图可达性判断，理解“从一个源点可达所有节点”与“强连通”的区别，以及 DFS 中 visited 标记、递归终止和是否需要回溯之间的关系。
+---
+
+# 有向图的完全联通
+
+> **卡码网 105. 有向图的完全联通**
+>
+> 给定一个包含 $N$ 个节点、$K$ 条有向边的图。判断从 `1` 号节点出发，是否能够到达所有节点。若可以输出 `1`，否则输出 `-1`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1177)
+
+这道题看起来很简单：
+
+```text
+从 1 开始搜一遍
+检查是否访问了所有节点
+```
+
+但它非常适合用来厘清图论中几个容易混淆的概念：
+
+- 有向图中的“可达”；
+- 从单个源点可达所有节点；
+- 强连通；
+- DFS 为什么有时需要回溯，有时完全不需要；
+- visited 应该在什么时候标记。
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+4 4
+1 2
+2 1
+1 3
+2 4
+```
+
+输出：
+
+```text
+1
+```
+
+原题示意图：
+
+![从 1 号节点可以到达所有节点](https://file1.kamacoder.com/i/algo/20240522174707.png)
+
+从 `1` 出发：
+
+```text
+1 -> 2
+1 -> 3
+1 -> 2 -> 4
+```
+
+所以 `1、2、3、4` 都可达，答案为 `1`。
+
+---
+
+## 2. 先明确：这是有向图
+
+如果有一条边：
+
+```text
+1 -> 2
+```
+
+只能说明：
+
+```text
+1 可以直接到 2
+```
+
+并不能推出：
+
+```text
+2 可以到 1
+```
+
+原题给出了类似的示意：
+
+![有向图中边只能沿指定方向通过](https://file1.kamacoder.com/i/algo/20240522175451.png)
+
+这正是有向图和无向图在搜索时最重要的区别。
+
+建邻接表时，对于输入：
+
+```text
+s t
+```
+
+只添加：
+
+```cpp
+graph[s].push_back(t);
+```
+
+不能再反向添加：
+
+```cpp
+graph[t].push_back(s); // 错误：这会把有向边变成无向边
+```
+
+---
+
+## 3. “从 1 可达所有点”不等于“强连通”
+
+题目标题中有“完全联通”，很容易让人联想到强连通图。
+
+但本题实际上只要求：
+
+$$
+\forall v\in V,\quad 1\leadsto v
+$$
+
+也就是：
+
+> 从 `1` 号节点存在一条有向路径可以到达任意节点。
+
+而强连通要求任意两个节点 $u,v$ 都满足：
+
+$$
+u\leadsto v
+$$
+
+并且：
+
+$$
+v\leadsto u
+$$
+
+两者完全不同。
+
+例如：
+
+```text
+1 -> 2 -> 3
+```
+
+从 `1` 可以到达所有节点，因此本题答案为 `1`。
+
+但：
+
+```text
+3 无法回到 1
+```
+
+所以这个图并不是强连通图。
+
+<Callout type="warning" title="不要把本题做成强连通分量问题">
+
+本题只需要从 `1` 做一次 DFS 或 BFS。
+
+不需要 Tarjan，也不需要 Kosaraju，更不需要检查任意两点互相可达。
+
+</Callout>
+
+---
+
+## 4. 本质：单源可达性
+
+从 `1` 号节点出发做一次图搜索。
+
+搜索结束后：
+
+```text
+visited[i] = true
+```
+
+表示存在路径：
+
+```text
+1 -> ... -> i
+```
+
+因此最后只需要检查：
+
+```cpp
+for (int i = 1; i <= n; ++i) {
+    if (!visited[i]) {
+        cout << -1;
+        return 0;
+    }
+}
+```
+
+如果所有节点都被访问到，就输出 `1`。
+
+---
+
+# 5. DFS 解法
+
+## 5.1 邻接表
+
+对于有向图，最自然的存储方式是邻接表：
+
+```cpp
+vector<vector<int>> graph(n + 1);
+```
+
+每条有向边：
+
+```text
+s -> t
+```
+
+存储为：
+
+```cpp
+graph[s].push_back(t);
+```
+
+于是：
+
+```cpp
+graph[u]
+```
+
+就表示从 `u` 出发一步能够到达的所有节点。
+
+---
+
+## 5.2 visited 的含义
+
+定义：
+
+```cpp
+vector<bool> visited(n + 1, false);
+```
+
+这里 `visited[u]` 的语义是：
+
+> 节点 `u` 已经从起点 `1` 被发现过，不需要再次搜索。
+
+为什么一定需要 visited？
+
+因为有向图中可能存在环：
+
+```text
+1 -> 2 -> 3
+     ^    |
+     |____|
+```
+
+如果不做标记，DFS 可能不断递归：
+
+```text
+2 -> 3 -> 2 -> 3 -> ...
+```
+
+最终导致无限递归或栈溢出。
+
+---
+
+## 5.3 DFS 写法一：进入函数后标记当前节点
+
+第一种写法是：
+
+```cpp
+void dfs(int u) {
+    if (visited[u]) {
+        return;
+    }
+
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        dfs(v);
+    }
+}
+```
+
+逻辑是：
+
+```text
+进入节点 u
+↓
+如果已经访问过，直接结束
+↓
+否则标记 u
+↓
+递归访问所有出边指向的节点
+```
+
+完整版本：
+
+```cpp
+void dfs(const vector<vector<int>>& graph,
+         int u,
+         vector<bool>& visited) {
+    if (visited[u]) {
+        return;
+    }
+
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        dfs(graph, v, visited);
+    }
+}
+```
+
+这种写法的优点是函数自身比较完整：
+
+> “无论谁调用我，我都会自己判断是否访问过。”
+
+---
+
+## 5.4 DFS 写法二：递归之前判断并标记下一节点
+
+另一种常见写法是：
+
+```cpp
+void dfs(int u) {
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            dfs(v);
+        }
+    }
+}
+```
+
+由于这里是“递归前标记”，所以起点必须先手动标记：
+
+```cpp
+visited[1] = true;
+dfs(1);
+```
+
+完整版本：
+
+```cpp
+void dfs(const vector<vector<int>>& graph,
+         int u,
+         vector<bool>& visited) {
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            dfs(graph, v, visited);
+        }
+    }
+}
+```
+
+这两种写法本质完全相同，只是：
+
+```text
+visited 标记发生在哪一层
+```
+
+不同。
+
+<Callout type="tip" title="建议形成固定习惯">
+
+对于一般图遍历，推荐统一使用：
+
+```cpp
+visited[start] = true;
+dfs(start);
+```
+
+然后在遍历邻居时：
+
+```cpp
+if (!visited[next]) {
+    visited[next] = true;
+    dfs(next);
+}
+```
+
+这样和 BFS 的“发现节点时立即标记”逻辑保持一致，更不容易重复访问。
+
+</Callout>
+
+---
+
+## 6. 为什么这里不需要回溯
+
+前面做“所有可达路径”时，DFS 中会出现：
+
+```cpp
+path.push_back(v);
+dfs(v);
+path.pop_back();
+```
+
+但本题却没有：
+
+```cpp
+visited[u] = false;
+```
+
+这是为什么？
+
+关键不是“DFS 要不要回溯”，而是：
+
+> **这个状态在离开递归后，是否应该恢复。**
+
+### 枚举路径时
+
+`path` 表示的是：
+
+```text
+当前这一条路径
+```
+
+换另一条分支后，旧路径上的选择需要撤销，所以必须回溯。
+
+### 本题中
+
+`visited[u]` 表示的是：
+
+```text
+整个搜索过程中，u 是否已经被访问过
+```
+
+一旦访问过，永远不应该改回 `false`。
+
+因此：
+
+```cpp
+visited[u] = false; // 错误
+```
+
+反而会导致重复搜索，甚至在有环图中陷入循环。
+
+---
+
+## 7. DFS 标准实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void dfs(const vector<vector<int>>& graph,
+         int u,
+         vector<bool>& visited) {
+    for (int v : graph[u]) {
+        if (visited[v]) {
+            continue;
+        }
+
+        visited[v] = true;
+        dfs(graph, v, visited);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n + 1);
+
+    for (int i = 0; i < m; ++i) {
+        int s, t;
+        cin >> s >> t;
+        graph[s].push_back(t);
+    }
+
+    vector<bool> visited(n + 1, false);
+
+    visited[1] = true;
+    dfs(graph, 1, visited);
+
+    for (int i = 1; i <= n; ++i) {
+        if (!visited[i]) {
+            cout << -1 << '\n';
+            return 0;
+        }
+    }
+
+    cout << 1 << '\n';
+    return 0;
+}
+```
+
+---
+
+# 8. BFS 解法
+
+本题只判断“能不能到”，并不要求必须用 DFS。
+
+BFS 完全同样适用。
+
+过程为：
+
+```text
+1 入队
+↓
+不断取出队首节点 u
+↓
+枚举 u 的所有出边 u -> v
+↓
+若 v 没访问过：
+    标记 v
+    v 入队
+↓
+直到队列为空
+```
+
+代码如下：
+
+```cpp
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n + 1);
+
+    for (int i = 0; i < m; ++i) {
+        int s, t;
+        cin >> s >> t;
+        graph[s].push_back(t);
+    }
+
+    vector<bool> visited(n + 1, false);
+    queue<int> q;
+
+    visited[1] = true;
+    q.push(1);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v : graph[u]) {
+            if (visited[v]) {
+                continue;
+            }
+
+            visited[v] = true;
+            q.push(v);
+        }
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        if (!visited[i]) {
+            cout << -1 << '\n';
+            return 0;
+        }
+    }
+
+    cout << 1 << '\n';
+    return 0;
+}
+```
+
+---
+
+## 9. DFS 和 BFS 在本题中有什么区别
+
+对于“是否可达”这个目标：
+
+```text
+DFS 和 BFS 都可以
+```
+
+它们最终访问到的节点集合是一样的。
+
+区别主要在搜索顺序：
+
+| 方法 | 搜索方式 | 额外结构 | 本题是否适用 |
+| --- | --- | --- | --- |
+| DFS | 一条路尽量走深 | 递归栈 / 显式栈 | 是 |
+| BFS | 一层一层扩展 | 队列 | 是 |
+
+本题不要求最短路径，因此没有必要强调 BFS 的“最短路”性质。
+
+如果只是判断可达性：
+
+> **哪种写法更顺手就用哪种。**
+
+---
+
+## 10. 复杂度分析
+
+邻接表中：
+
+- 每个可达节点最多处理一次；
+- 每条从可达节点出发的边最多扫描一次。
+
+因此 DFS 和 BFS 的时间复杂度都是：
+
+$$
+O(N+K)
+$$
+
+其中：
+
+- $N$ 为节点数；
+- $K$ 为有向边数。
+
+邻接表、visited 和 DFS/BFS 辅助结构总空间复杂度也是：
+
+$$
+O(N+K)
+$$
+
+---
+
+## 11. 常见错误
+
+### 11.1 把边存成双向
+
+输入：
+
+```text
+s t
+```
+
+只能表示：
+
+```text
+s -> t
+```
+
+不能额外加入：
+
+```text
+t -> s
+```
+
+否则问题已经被改成无向图。
+
+---
+
+### 11.2 搜索时忘记 visited
+
+只要图中存在环，就可能无限搜索。
+
+例如：
+
+```text
+1 -> 2
+2 -> 1
+```
+
+没有 visited 时：
+
+```text
+1 -> 2 -> 1 -> 2 -> ...
+```
+
+---
+
+### 11.3 DFS 返回后把 visited 恢复成 false
+
+本题的 visited 是全局“是否到达过”的记录，不是当前路径状态。
+
+所以不能回溯：
+
+```cpp
+visited[v] = false;
+```
+
+---
+
+### 11.4 误以为“所有节点连成一块”就一定满足条件
+
+在有向图中，“忽略方向后连通”没有意义。
+
+例如：
+
+```text
+2 -> 1 -> 3
+```
+
+从无向图角度看三个节点连在一起。
+
+但从 `1` 出发无法到达 `2`，所以答案仍然是 `-1`。
+
+---
+
+### 11.5 把题目理解成强连通
+
+本题只要求：
+
+$$
+1\leadsto v
+$$
+
+对所有节点 $v$ 成立。
+
+并不要求：
+
+$$
+v\leadsto 1
+$$
+
+更不要求任意两个节点互相可达。
+
+---
+
+## 12. 一个非常重要的 DFS 判断标准
+
+做 DFS 时，经常会纠结：
+
+```text
+到底要不要回溯？
+```
+
+不要死记“DFS 就要回溯”。
+
+真正应该问的是：
+
+> **当前修改的状态，是“当前路径临时状态”，还是“整个搜索过程的永久状态”？**
+
+如果是：
+
+```text
+path
+选择集合
+当前使用次数
+```
+
+通常离开当前分支后需要恢复。
+
+如果是：
+
+```text
+visited
+已经确认处理过的节点
+已经确定的全局信息
+```
+
+通常不恢复。
+
+这比机械记忆“递归下面写撤销”更重要。
+
+---
+
+## 13. 与前面图搜索题的联系
+
+到这里，可以把几类题统一起来：
+
+### 枚举所有路径
+
+关注：
+
+```text
+当前路径是什么
+```
+
+因此需要：
+
+```text
+path + 回溯
+```
+
+### 判断节点是否可达
+
+关注：
+
+```text
+这个节点是否曾经到达过
+```
+
+因此需要：
+
+```text
+visited，不回溯
+```
+
+### 求无权图最短路
+
+关注：
+
+```text
+第一次到达节点时的层数
+```
+
+因此通常使用：
+
+```text
+BFS + 入队即标记
+```
+
+<Callout type="success" title="一句话总结">
+
+**枚举路径维护“当前分支”，可达性维护“全局访问状态”，无权最短路维护“BFS 层数”。**
+
+</Callout>
+
+---
+
+## 14. 其他语言版本
+
+```java tab="Java"
+import java.util.*;
+
+public class Main {
+    static List<List<Integer>> graph;
+
+    static void dfs(int u, boolean[] visited) {
+        for (int v : graph.get(u)) {
+            if (visited[v]) continue;
+
+            visited[v] = true;
+            dfs(v, visited);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int n = sc.nextInt();
+        int m = sc.nextInt();
+
+        graph = new ArrayList<>();
+        for (int i = 0; i <= n; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < m; i++) {
+            int s = sc.nextInt();
+            int t = sc.nextInt();
+            graph.get(s).add(t);
+        }
+
+        boolean[] visited = new boolean[n + 1];
+        visited[1] = true;
+        dfs(1, visited);
+
+        for (int i = 1; i <= n; i++) {
+            if (!visited[i]) {
+                System.out.println(-1);
+                return;
+            }
+        }
+
+        System.out.println(1);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+
+def dfs(u: int, graph: list[list[int]], visited: list[bool]) -> None:
+    for v in graph[u]:
+        if visited[v]:
+            continue
+
+        visited[v] = True
+        dfs(v, graph, visited)
+
+
+def main() -> None:
+    data = list(map(int, sys.stdin.buffer.read().split()))
+    it = iter(data)
+
+    n = next(it)
+    m = next(it)
+
+    graph = [[] for _ in range(n + 1)]
+
+    for _ in range(m):
+        s = next(it)
+        t = next(it)
+        graph[s].append(t)
+
+    visited = [False] * (n + 1)
+    visited[1] = True
+    dfs(1, graph, visited)
+
+    print(1 if all(visited[1:]) else -1)
+
+
+if __name__ == '__main__':
+    main()
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func dfs(u int, graph [][]int, visited []bool) {
+    for _, v := range graph[u] {
+        if visited[v] {
+            continue
+        }
+
+        visited[v] = true
+        dfs(v, graph, visited)
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    graph := make([][]int, n+1)
+
+    for i := 0; i < m; i++ {
+        var s, t int
+        fmt.Fscan(in, &s, &t)
+        graph[s] = append(graph[s], t)
+    }
+
+    visited := make([]bool, n+1)
+    visited[1] = true
+    dfs(1, graph, visited)
+
+    for i := 1; i <= n; i++ {
+        if !visited[i] {
+            fmt.Fprintln(out, -1)
+            return
+        }
+    }
+
+    fmt.Fprintln(out, 1)
+}
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+
+const graph = Array.from({ length: n + 1 }, () => []);
+
+for (let i = 0; i < m; i++) {
+  const s = data[p++];
+  const t = data[p++];
+  graph[s].push(t);
+}
+
+const visited = new Array(n + 1).fill(false);
+
+function dfs(u) {
+  for (const v of graph[u]) {
+    if (visited[v]) continue;
+
+    visited[v] = true;
+    dfs(v);
+  }
+}
+
+visited[1] = true;
+dfs(1);
+
+for (let i = 1; i <= n; i++) {
+  if (!visited[i]) {
+    console.log(-1);
+    process.exit(0);
+  }
+}
+
+console.log(1);
+```

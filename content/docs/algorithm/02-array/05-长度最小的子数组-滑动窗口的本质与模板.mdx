@@ -1,0 +1,825 @@
+---
+title: 长度最小的子数组：滑动窗口的本质与模板
+description: 以 LeetCode 209 为主线，从 O(n²) 枚举推导 O(n) 滑动窗口，系统理解窗口不变量、左右指针移动条件、复杂度证明，以及“为什么正整数”是本题能这样收缩窗口的关键。
+---
+
+
+# 长度最小的子数组：滑动窗口的本质与模板
+
+题目：LeetCode 209「长度最小的子数组」。
+
+给定一个由 **正整数** 组成的数组 `nums` 和一个正整数 `target`，找出满足元素和大于等于 `target` 的长度最小的**连续子数组**，返回其长度；若不存在则返回 `0`。
+
+例如：
+
+```text
+输入：target = 7
+nums = [2, 3, 1, 2, 4, 3]
+
+输出：2
+```
+
+因为：
+
+```text
+[4, 3]
+```
+
+满足：
+
+$$
+4+3=7
+$$
+
+且长度为 $2$，已经不能再短。
+
+---
+
+## 1. 先抓住题目中的三个关键词
+
+这道题最值得注意的不是“求和”，而是：
+
+1. **连续**子数组；
+2. 求满足条件的**最短长度**；
+3. 数组元素全部是**正整数**。
+
+第三点尤其重要。
+
+因为所有元素都满足：
+
+$$
+nums[i] > 0
+$$
+
+所以当窗口右端继续向右移动时，窗口和只会变大；当左端向右收缩时，窗口和只会变小。
+
+这种明确的单调性正是滑动窗口能够成立的基础。
+
+<Callout title="滑动窗口不是万能模板" type="warning">
+如果数组里允许出现负数，删除左端元素后，窗口和不一定减小；加入右端元素后，窗口和也不一定增大。此时本题这种“达到 target 就不断收缩”的策略可能失效，不能机械套用。
+</Callout>
+
+---
+
+## 2. 暴力枚举：先理解问题的搜索空间
+
+最直接的办法是枚举每一个子数组起点 `i`，然后向右扩展终点 `j`。
+
+对于固定的 `i`：
+
+```text
+nums[i]
+nums[i ... i+1]
+nums[i ... i+2]
+...
+```
+
+不断累加，第一次满足：
+
+$$
+sum \ge target
+$$
+
+时，就得到以 `i` 为起点的最短可行子数组。
+
+```cpp
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int n = nums.size();
+        int ans = n + 1;
+
+        for (int i = 0; i < n; ++i) {
+            int sum = 0;
+            for (int j = i; j < n; ++j) {
+                sum += nums[j];
+
+                if (sum >= target) {
+                    ans = min(ans, j - i + 1);
+                    break;
+                }
+            }
+        }
+
+        return ans == n + 1 ? 0 : ans;
+    }
+};
+```
+
+最坏情况下，每个起点都要扫描到数组末尾：
+
+$$
+(n)+(n-1)+\cdots+1
+$$
+
+因此：
+
+$$
+T(n)=O(n^2)
+$$
+
+空间复杂度为：
+
+$$
+O(1)
+$$
+
+---
+
+## 3. 暴力法为什么有大量重复工作
+
+例如：
+
+```text
+target = 7
+nums = [2, 3, 1, 2, 4, 3]
+```
+
+当起点为 `0` 时，我们可能算过：
+
+$$
+2+3+1+2=8
+$$
+
+下一轮起点变成 `1` 后，暴力法又重新计算：
+
+$$
+3+1+2
+$$
+
+实际上，新区间只是从旧区间中删掉了最左侧的 `2`。
+
+如果我们能维护当前区间和，就不需要每次重新从头相加。
+
+这就是滑动窗口的核心思想：
+
+> 维护一个连续区间，并通过移动左右边界增量更新区间状态。
+
+---
+
+## 4. 滑动窗口的三个核心问题
+
+遇到滑动窗口题目时，可以固定问自己三个问题：
+
+### 窗口表示什么？
+
+本题窗口 `[left, right]` 表示当前正在考虑的连续子数组。
+
+窗口和为：
+
+$$
+sum=nums[left]+\cdots+nums[right]
+$$
+
+### 右端点什么时候移动？
+
+右指针负责不断扩大窗口。
+
+每次令：
+
+```cpp
+sum += nums[right];
+```
+
+也就是把一个新元素加入窗口。
+
+### 左端点什么时候移动？
+
+当：
+
+$$
+sum\ge target
+$$
+
+时，当前窗口已经满足条件。
+
+为了求**最短长度**，应该尝试不断删除最左侧元素：
+
+```cpp
+sum -= nums[left];
+++left;
+```
+
+只要删除后窗口仍然满足条件，就继续缩小。
+
+---
+
+## 5. 为什么收缩必须使用 `while`，而不是 `if`
+
+这是这道题最常见的错误之一。
+
+假设当前窗口为：
+
+```text
+[1, 1, 1, 1, 10]
+```
+
+且：
+
+```text
+target = 10
+```
+
+加入 `10` 后，窗口和已经远大于 `target`。
+
+我们需要连续删除左侧的多个 `1`，最后才能得到最优窗口：
+
+```text
+[10]
+```
+
+长度为：
+
+$$
+1
+$$
+
+如果只写：
+
+```cpp
+if (sum >= target)
+```
+
+那么每个右端点最多收缩一次，可能错过继续缩短窗口的机会。
+
+正确逻辑是：
+
+```cpp
+while (sum >= target) {
+    // 更新答案
+    // 收缩窗口
+}
+```
+
+<Callout title="记忆方法" type="info">
+右指针通常负责“扩大到可行”，左指针通常负责“在保持可行的前提下尽量缩小”。只要一次右移之后可能连续收缩多次，就应该想到 `while`。
+</Callout>
+
+---
+
+## 6. 完整的滑动窗口过程
+
+仍然使用：
+
+```text
+target = 7
+nums = [2, 3, 1, 2, 4, 3]
+```
+
+原文中的动态示意图可以保留：
+
+![长度最小的子数组滑动窗口过程](https://file1.kamacoder.com/i/algo/209.%E9%95%BF%E5%BA%A6%E6%9C%80%E5%B0%8F%E7%9A%84%E5%AD%90%E6%95%B0%E7%BB%84.gif)
+
+关键过程如下：
+
+| `right` | 新加入元素 | 当前窗口 | 窗口和 | 操作 |
+| --- | ---: | --- | ---: | --- |
+| 0 | 2 | `[2]` | 2 | 继续扩张 |
+| 1 | 3 | `[2,3]` | 5 | 继续扩张 |
+| 2 | 1 | `[2,3,1]` | 6 | 继续扩张 |
+| 3 | 2 | `[2,3,1,2]` | 8 | 满足条件，开始收缩 |
+| 3 | - | `[3,1,2]` | 6 | 不满足，停止收缩 |
+| 4 | 4 | `[3,1,2,4]` | 10 | 连续收缩 |
+| 4 | - | `[1,2,4]` | 7 | 继续收缩 |
+| 4 | - | `[2,4]` | 6 | 停止 |
+| 5 | 3 | `[2,4,3]` | 9 | 收缩 |
+| 5 | - | `[4,3]` | 7 | 更新答案为 2 |
+
+原文中的静态示意图：
+
+![滑动窗口收缩示意](https://file1.kamacoder.com/i/algo/20210312160441942.png)
+
+---
+
+## 7. 标准写法
+
+```cpp
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int n = nums.size();
+        int left = 0;
+        int sum = 0;
+        int ans = n + 1;
+
+        for (int right = 0; right < n; ++right) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                ans = min(ans, right - left + 1);
+                sum -= nums[left];
+                ++left;
+            }
+        }
+
+        return ans == n + 1 ? 0 : ans;
+    }
+};
+```
+
+这里可以把模板概括为：
+
+```cpp
+for (int right = 0; right < n; ++right) {
+    // 1. 将 nums[right] 加入窗口
+
+    while (窗口需要收缩) {
+        // 2. 必要时记录答案
+        // 3. 移除 nums[left]
+        ++left;
+    }
+}
+```
+
+---
+
+## 8. 一个非常重要的不变量
+
+理解滑动窗口最稳妥的方法不是背代码，而是看每一轮保持了什么性质。
+
+在本题中：
+
+> 每次处理完 `right` 后，所有以这个 `right` 为右端点、且能够通过不断右移 `left` 得到的可行窗口，都已经被检查过。
+
+在 `while` 退出时：
+
+$$
+sum < target
+$$
+
+也就是说：
+
+> 当前窗口已经被压缩到“再短一点就不满足”的状态。
+
+于是，当下一个 `right` 加入时，我们不需要重新尝试更靠左的起点，因为这些冗余状态已经被前面的收缩过程消除了。
+
+---
+
+## 9. 为什么时间复杂度是 $O(n)$
+
+很多初学者看到：
+
+```cpp
+for (...) {
+    while (...) {
+    }
+}
+```
+
+会直接判断为：
+
+$$
+O(n^2)
+$$
+
+这是错误的。
+
+复杂度不能只看“循环嵌套的层数”，还要看变量总共移动多少次。
+
+### 右指针
+
+`right` 从 `0` 到 `n-1`：
+
+$$
+n
+$$
+
+次移动。
+
+### 左指针
+
+`left` 只会向右移动，绝不会回退。
+
+整个算法中最多移动：
+
+$$
+n
+$$
+
+次。
+
+所以左右指针的总移动次数最多约为：
+
+$$
+2n
+$$
+
+忽略常数：
+
+$$
+T(n)=O(n)
+$$
+
+额外空间只有几个变量：
+
+$$
+S(n)=O(1)
+$$
+
+<Callout title="双指针复杂度判断" type="info">
+当两个指针都只单调向一个方向移动时，即使代码表现为 `for + while`，总移动次数仍常常是线性的。判断复杂度时应跟踪“每个元素被访问多少次”，而不是机械地把循环层数相乘。
+</Callout>
+
+---
+
+## 10. 为什么“正整数”条件如此关键
+
+本题的收缩依据是：
+
+如果：
+
+$$
+sum\ge target
+$$
+
+那么删除左端正整数后：
+
+$$
+sum' = sum-nums[left] < sum
+$$
+
+窗口和一定下降。
+
+因此我们知道：
+
+> 向右移动 `left` 是在有方向地逼近“不再满足条件”的边界。
+
+如果允许负数，例如：
+
+```text
+[5, -100, 100]
+```
+
+删除左端的 `5` 后：
+
+```text
+[-100, 100]
+```
+
+窗口和确实下降；但如果删除的是负数，窗口和反而会上升。
+
+窗口和不再关于 `left` 单调，简单滑动窗口就失去了正确性依据。
+
+这类问题通常需要考虑：
+
+- 前缀和；
+- 单调队列；
+- 哈希表；
+- 二分；
+- 其他更强的数据结构。
+
+---
+
+## 11. 滑动窗口和普通双指针是什么关系
+
+滑动窗口本质上也是双指针。
+
+例如：
+
+```text
+left                 right
+ ↓                     ↓
+[ ... 当前连续窗口 ... ]
+```
+
+但“滑动窗口”这个名字强调的是：
+
+> 两个指针共同维护一个连续区间，并维护这个区间内部的状态。
+
+常见状态包括：
+
+- 区间和；
+- 字符出现次数；
+- 不同元素个数；
+- 最大/最小值；
+- 满足某种限制的计数。
+
+而普通双指针还包括：
+
+- 快慢指针；
+- 相向双指针；
+- 链表双指针；
+- 两个数组上的同步扫描。
+
+所以：
+
+$$
+\text{滑动窗口}\subseteq\text{双指针思想}
+$$
+
+---
+
+## 12. 最短窗口与最长窗口的两个常见模板
+
+滑动窗口题目经常分成两类。
+
+### 模板一：求最短可行窗口
+
+本题属于这一类。
+
+逻辑通常是：
+
+```text
+右端不断扩张
+→ 一旦满足条件
+→ 左端尽可能收缩
+→ 在收缩过程中更新最短答案
+```
+
+模板：
+
+```cpp
+for (int right = 0; right < n; ++right) {
+    add(nums[right]);
+
+    while (windowIsValid()) {
+        ans = min(ans, right - left + 1);
+        remove(nums[left]);
+        ++left;
+    }
+}
+```
+
+### 模板二：求最长合法窗口
+
+例如“至多包含两种字符的最长子串”。
+
+逻辑通常是：
+
+```text
+右端不断扩张
+→ 如果窗口非法
+→ 左端收缩直到重新合法
+→ 在合法状态下更新最长答案
+```
+
+模板：
+
+```cpp
+for (int right = 0; right < n; ++right) {
+    add(nums[right]);
+
+    while (!windowIsValid()) {
+        remove(nums[left]);
+        ++left;
+    }
+
+    ans = max(ans, right - left + 1);
+}
+```
+
+二者最重要的区别是：
+
+> 答案是在“满足条件时收缩前后更新”，还是在“恢复合法后更新”。
+
+---
+
+## 13. 常见错误
+
+### 错误一：把“子数组”当成“子序列”
+
+本题要求元素连续。
+
+```text
+[2, 3, 1, 2, 4, 3]
+```
+
+例如选择 `3,4` 如果它们不连续，就不能构成合法子数组。
+
+---
+
+### 错误二：更新长度时少写 `+1`
+
+闭区间 `[left,right]` 的长度是：
+
+$$
+right-left+1
+$$
+
+不是：
+
+$$
+right-left
+$$
+
+---
+
+### 错误三：先删除再更新答案
+
+正确顺序：
+
+```cpp
+while (sum >= target) {
+    ans = min(ans, right - left + 1);
+    sum -= nums[left++];
+}
+```
+
+因为当前窗口在删除前是确定满足条件的。
+
+---
+
+### 错误四：用 `if` 代替 `while`
+
+一次加入右端元素后，左端可能需要连续移动多次。
+
+---
+
+### 错误五：忽略整数溢出
+
+原题约束下：
+
+$$
+nums.length\le10^5
+$$
+
+且：
+
+$$
+nums[i]\le10^4\text{ 或 }10^5
+$$
+
+具体以题目当前约束为准。
+
+如果题目允许更大的元素值，应考虑把窗口和写成：
+
+```cpp
+long long sum = 0;
+```
+
+竞赛中不要只因为样例小就默认 `int` 永远安全。
+
+---
+
+## 14. 相关题型如何迁移
+
+掌握本题以后，可以继续练习以下典型窗口问题：
+
+| 问题类型 | 维护状态 | 典型动作 |
+| --- | --- | --- |
+| 最短和至少为 `target` | 区间和 | 满足后收缩 |
+| 最长无重复子串 | 字符频次 | 重复时收缩 |
+| 水果成篮 | 元素种类数 | 种类超过限制时收缩 |
+| 最小覆盖子串 | 需求字符计数 | 覆盖完成后收缩 |
+| 固定长度窗口 | 窗口和/计数 | 每次进一个、出一个 |
+
+关键不是背题，而是抽象出：
+
+1. 窗口状态是什么；
+2. 什么情况下窗口合法；
+3. 右端如何加入；
+4. 左端何时移除；
+5. 什么时候更新答案。
+
+---
+
+## 15. 一页总结
+
+<Callout title="核心结论" type="info">
+- 连续区间问题优先想到双指针、滑动窗口或前缀和。
+- 本题能用简单滑动窗口，关键在于所有元素为正，因此窗口和具有单调性。
+- `right` 负责扩张，`left` 在窗口满足条件时尽可能收缩。
+- 求最短窗口时，满足条件后要用 `while` 连续收缩。
+- 左右指针都只前进不后退，因此总复杂度是 $O(n)$，不是 $O(n^2)$。
+</Callout>
+
+---
+
+## 16. 其他语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int left = 0;
+        int sum = 0;
+        int ans = nums.size() + 1;
+
+        for (int right = 0; right < nums.size(); ++right) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                ans = min(ans, right - left + 1);
+                sum -= nums[left++];
+            }
+        }
+
+        return ans == nums.size() + 1 ? 0 : ans;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int left = 0;
+        int sum = 0;
+        int ans = nums.length + 1;
+
+        for (int right = 0; right < nums.length; right++) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                ans = Math.min(ans, right - left + 1);
+                sum -= nums[left++];
+            }
+        }
+
+        return ans == nums.length + 1 ? 0 : ans;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def minSubArrayLen(self, target: int, nums: list[int]) -> int:
+        left = 0
+        window_sum = 0
+        ans = len(nums) + 1
+
+        for right, value in enumerate(nums):
+            window_sum += value
+
+            while window_sum >= target:
+                ans = min(ans, right - left + 1)
+                window_sum -= nums[left]
+                left += 1
+
+        return 0 if ans == len(nums) + 1 else ans
+```
+
+
+
+```go tab="Go"
+func minSubArrayLen(target int, nums []int) int {
+    left := 0
+    sum := 0
+    ans := len(nums) + 1
+
+    for right := 0; right < len(nums); right++ {
+        sum += nums[right]
+
+        for sum >= target {
+            length := right - left + 1
+            if length < ans {
+                ans = length
+            }
+            sum -= nums[left]
+            left++
+        }
+    }
+
+    if ans == len(nums)+1 {
+        return 0
+    }
+    return ans
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var minSubArrayLen = function(target, nums) {
+    let left = 0;
+    let sum = 0;
+    let ans = nums.length + 1;
+
+    for (let right = 0; right < nums.length; right++) {
+        sum += nums[right];
+
+        while (sum >= target) {
+            ans = Math.min(ans, right - left + 1);
+            sum -= nums[left++];
+        }
+    }
+
+    return ans === nums.length + 1 ? 0 : ans;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function minSubArrayLen(target: number, nums: number[]): number {
+    let left = 0;
+    let sum = 0;
+    let ans = nums.length + 1;
+
+    for (let right = 0; right < nums.length; right++) {
+        sum += nums[right];
+
+        while (sum >= target) {
+            ans = Math.min(ans, right - left + 1);
+            sum -= nums[left++];
+        }
+    }
+
+    return ans === nums.length + 1 ? 0 : ans;
+}
+```

@@ -1,0 +1,1118 @@
+---
+title: 用最少数量的箭引爆气球
+summary: 经典区间贪心题：把每个气球看成闭区间，按右端点排序，每次把箭射在当前最早结束的位置；一支箭尽可能覆盖更多后续区间。
+description: LeetCode 452 用最少数量的箭引爆气球。系统讲解区间建模、按右端点排序的贪心策略、交换论证、按左端点维护交集的等价写法、边界条件、常见错误以及多语言实现。
+---
+
+
+# 452. 用最少数量的箭引爆气球
+
+[LeetCode 452. Minimum Number of Arrows to Burst Balloons](https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/)
+
+给定若干气球，每个气球在 $x$ 轴方向上的直径可以表示为一个闭区间：
+
+$$
+[x_{start},x_{end}]
+$$
+
+如果在位置 $x$ 垂直射出一支箭，只要：
+
+$$
+x_{start}\le x\le x_{end}
+$$
+
+这支箭就能引爆该气球。
+
+要求：
+
+> **最少需要多少支箭，才能引爆所有气球？**
+
+例如：
+
+```text
+points = [[10,16],[2,8],[1,6],[7,12]]
+```
+
+答案为：
+
+```text
+2
+```
+
+可以在：
+
+```text
+x = 6
+```
+
+射爆 `[1,6]` 与 `[2,8]`，再在第二组重叠区域内射一箭即可。
+
+---
+
+## 1. 先把“气球”彻底抽象成区间
+
+题目的二维背景其实是干扰信息。
+
+真正需要处理的只有横轴：
+
+```text
+气球 i  ↔  区间 [L_i, R_i]
+```
+
+一支箭对应选择某个点 $x$。
+
+如果多个区间具有公共交集：
+
+$$
+\bigcap_{i=1}^{m}[L_i,R_i]\neq\varnothing
+$$
+
+那么只需要把箭射在这个公共交集中的任意位置，就能一次性引爆这些气球。
+
+因此原问题可以改写成：
+
+> **至少选择多少个点，才能让每个闭区间至少包含一个被选择的点？**
+
+这就是一个非常典型的区间贪心模型。
+
+<Callout type="info" title="区间题的第一步不是写代码，而是换模型">
+看到“气球”“会议”“活动”“射箭”“覆盖”时，先尝试把对象画成数轴区间。很多看似不同的题，本质只是区间之间的重叠、覆盖和分离。
+</Callout>
+
+---
+
+## 2. 最自然的贪心：箭应该射在哪里
+
+假设当前还没有处理的区间中，最早结束的一个是：
+
+$$
+[L,R]
+$$
+
+由于这个气球必须被射爆，所以我们迟早要有一支箭落在：
+
+$$
+[L,R]
+$$
+
+那这一箭选在哪里最划算？
+
+如果选得太靠左，例如：
+
+$$
+x<L'<R
+$$
+
+可能会错过后面那些从更右侧开始的气球。
+
+而如果直接把箭放到：
+
+$$
+\boxed{x=R}
+$$
+
+就把这一箭尽可能向右推，同时仍然保证能射中当前最早结束的气球。
+
+这会给后面的区间留下最大的兼容空间。
+
+因此得到核心策略：
+
+```text
+按照右端点从小到大排序。
+每遇到一个还没有被上一支箭覆盖的区间，
+就在它的右端点射一支新箭。
+```
+
+---
+
+## 3. 为什么必须关注“最早结束”的区间
+
+设所有尚未处理的气球中，右端点最小的是：
+
+$$
+I_1=[L_1,R_1]
+$$
+
+因为它结束得最早，所以后续区间的右端点都有：
+
+$$
+R_i\ge R_1
+$$
+
+现在必须选一个点 $x$ 射中 $I_1$：
+
+$$
+L_1\le x\le R_1
+$$
+
+我们可以把任何这样的一支箭向右移动到：
+
+$$
+x'=R_1
+$$
+
+只要原来的箭还能覆盖某个后续区间 $[L_i,R_i]$，就有：
+
+$$
+L_i\le x\le R_i
+$$
+
+由于：
+
+$$
+x\le R_1\le R_i
+$$
+
+而能被原箭覆盖还意味着：
+
+$$
+L_i\le x\le R_1
+$$
+
+所以：
+
+$$
+L_i\le R_1\le R_i
+$$
+
+也就是说把箭移动到 $R_1$ 后，原来与它共同被覆盖的这些区间仍然会被覆盖。
+
+因此存在一个最优解，其第一支箭一定可以放在：
+
+$$
+R_1
+$$
+
+这就是本题贪心正确性的核心。
+
+<Callout type="info" title="交换论证的本质">
+不是说“我觉得射在右端点最好”，而是证明：任意最优解中的第一支箭，都可以不增加箭数地移动到当前最早结束区间的右端点。于是贪心选择不会损失最优性。
+</Callout>
+
+---
+
+## 4. 算法过程
+
+以：
+
+```text
+[[10,16],[2,8],[1,6],[7,12]]
+```
+
+为例。
+
+按右端点升序排序：
+
+```text
+[1,6], [2,8], [7,12], [10,16]
+```
+
+### 处理 `[1,6]`
+
+这是最早结束的区间。
+
+在：
+
+$$
+x=6
+$$
+
+射第一支箭。
+
+当前：
+
+```text
+arrows = 1
+arrowPos = 6
+```
+
+### 处理 `[2,8]`
+
+因为：
+
+$$
+2\le 6\le 8
+$$
+
+所以第一支箭也能射爆这个气球。
+
+不需要增加箭。
+
+### 处理 `[7,12]`
+
+它的左端点为 $7$，而：
+
+$$
+7>6
+$$
+
+上一支箭已经无法覆盖它。
+
+所以必须开一个新的覆盖组，在当前区间右端点：
+
+$$
+x=12
+$$
+
+射第二支箭。
+
+### 处理 `[10,16]`
+
+因为：
+
+$$
+10\le 12\le 16
+$$
+
+第二支箭可以同时射爆它。
+
+最终答案：
+
+$$
+\boxed{2}
+$$
+
+---
+
+## 5. 原资料中的图怎么理解
+
+原资料使用按左端点排序并维护重叠区间的方式解释：
+
+![452. 用最少数量的箭引爆气球](https://file1.kamacoder.com/i/algo/20201123101929791.png)
+
+图中真正需要关注的是：
+
+> 当前若干气球能被同一支箭射爆，当且仅当它们的公共交集非空。
+
+对于一组正在重叠的区间：
+
+$$
+[L_1,R_1],[L_2,R_2],\ldots,[L_m,R_m]
+$$
+
+公共交集右端点是：
+
+$$
+\min(R_1,R_2,\ldots,R_m)
+$$
+
+如果新的区间左端点已经大于这个值，就说明：
+
+$$
+L_{new}>\min R_i
+$$
+
+原来的公共交集与新气球之间已经断开，必须增加一支箭。
+
+---
+
+## 6. 推荐写法：按右端点升序
+
+代码非常短：
+
+```cpp
+class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>>& points) {
+        if (points.empty()) {
+            return 0;
+        }
+
+        sort(points.begin(), points.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[1] < b[1];
+             });
+
+        int arrows = 1;
+        long long arrowPos = points[0][1];
+
+        for (int i = 1; i < points.size(); ++i) {
+            if (points[i][0] > arrowPos) {
+                ++arrows;
+                arrowPos = points[i][1];
+            }
+        }
+
+        return arrows;
+    }
+};
+```
+
+这段代码中 `arrowPos` 的语义非常明确：
+
+```text
+上一支箭所在的 x 坐标
+```
+
+如果当前气球满足：
+
+$$
+L_i\le arrowPos
+$$
+
+由于已经按右端点升序排序，又有：
+
+$$
+arrowPos\le R_i
+$$
+
+所以：
+
+$$
+L_i\le arrowPos\le R_i
+$$
+
+当前气球一定会被这支箭引爆。
+
+反之，如果：
+
+$$
+L_i>arrowPos
+$$
+
+上一支箭不可能射中当前气球，只能增加新箭。
+
+---
+
+## 7. 为什么条件必须是 `>`，不能是 `>=`
+
+气球区间是**闭区间**。
+
+例如：
+
+```text
+[1,2]
+[2,3]
+```
+
+如果箭射在：
+
+$$
+x=2
+$$
+
+那么：
+
+$$
+1\le2\le2
+$$
+
+并且：
+
+$$
+2\le2\le3
+$$
+
+因此两个气球都能被同一支箭射爆。
+
+所以只有当：
+
+$$
+L_i>arrowPos
+$$
+
+才需要新箭。
+
+代码必须是：
+
+```cpp
+if (points[i][0] > arrowPos)
+```
+
+而不是：
+
+```cpp
+if (points[i][0] >= arrowPos)
+```
+
+<Callout type="warning" title="区间题先问：端点能不能重合？">
+闭区间 `[a,b]` 与 `[b,c]` 有交点 `b`；开区间则可能没有。很多区间贪心题只差一个 `>` / `>=`，本质就是区间端点定义不同。
+</Callout>
+
+---
+
+## 8. 为什么按左端点排序也能做
+
+原资料采用的是另一种完全正确的思路：
+
+```text
+按左端点升序排序
+维护当前这一组重叠气球的最小右端点
+```
+
+令：
+
+```cpp
+right = 当前重叠组的最小右端点
+```
+
+当新气球为：
+
+$$
+[L_i,R_i]
+$$
+
+时：
+
+### 情况一：仍然重叠
+
+如果：
+
+$$
+L_i\le right
+$$
+
+说明新气球仍然和当前公共交集相连。
+
+新的公共交集右端点变成：
+
+$$
+right=\min(right,R_i)
+$$
+
+### 情况二：完全断开
+
+如果：
+
+$$
+L_i>right
+$$
+
+说明前一组区间已经必须使用一支箭，当前气球开始新的重叠组。
+
+于是：
+
+```text
+arrows++
+right = R_i
+```
+
+对应代码：
+
+```cpp
+class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>>& points) {
+        if (points.empty()) {
+            return 0;
+        }
+
+        sort(points.begin(), points.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[0] < b[0];
+             });
+
+        int arrows = 1;
+        long long right = points[0][1];
+
+        for (int i = 1; i < points.size(); ++i) {
+            if (points[i][0] > right) {
+                ++arrows;
+                right = points[i][1];
+            } else {
+                right = min(right, static_cast<long long>(points[i][1]));
+            }
+        }
+
+        return arrows;
+    }
+};
+```
+
+---
+
+## 9. 两种写法到底是什么关系
+
+### 写法 A：按右端点排序
+
+维护的是：
+
+```text
+当前箭的位置
+```
+
+一旦选定最早结束区间的右端点，就不再移动这支箭。
+
+### 写法 B：按左端点排序
+
+维护的是：
+
+```text
+当前重叠区间的公共右边界
+```
+
+随着更多区间进入当前组，这个右边界可能不断向左收缩。
+
+虽然状态定义不同，但都在寻找：
+
+$$
+\boxed{\text{最多能被同一支箭覆盖的一组重叠区间}}
+$$
+
+对于学习和面试，通常更推荐**按右端点排序**，因为：
+
+- 状态更少；
+- 不需要修改原区间；
+- 证明更直接；
+- 和大量“区间调度”问题共享同一套路。
+
+---
+
+## 10. 正确性证明：为什么贪心不会错
+
+这是本题最重要的部分。
+
+设按右端点排序后，第一个区间为：
+
+$$
+I_1=[L_1,R_1]
+$$
+
+由于它右端点最小，任何可行解都必须有一支箭：
+
+$$
+x\in[L_1,R_1]
+$$
+
+才能射爆它。
+
+现在考虑某个最优解，第一支用于覆盖 $I_1$ 的箭在位置 $x$。
+
+因为：
+
+$$
+x\le R_1
+$$
+
+把这支箭移动到：
+
+$$
+R_1
+$$
+
+不会让 $I_1$ 失去覆盖。
+
+对于原本也被这支箭覆盖的任意后续区间：
+
+$$
+I_j=[L_j,R_j]
+$$
+
+已有：
+
+$$
+L_j\le x
+$$
+
+所以：
+
+$$
+L_j\le x\le R_1
+$$
+
+又因为 $R_1$ 是所有剩余区间中最小的右端点：
+
+$$
+R_1\le R_j
+$$
+
+于是：
+
+$$
+L_j\le R_1\le R_j
+$$
+
+说明移动后的箭仍然覆盖 $I_j$。
+
+因此：
+
+> 任意最优解都可以改造成第一支箭位于 $R_1$ 的最优解，而箭数不增加。
+
+删掉所有被这支箭覆盖的气球后，剩下的仍然是同类型子问题。
+
+不断重复即可得到全局最优。
+
+---
+
+## 11. 一个很容易混淆的想法：找“重叠最多的位置”
+
+直觉上可能会想：
+
+> 每次找到能穿过最多气球的位置，射一箭，不就行了吗？
+
+这个思路不仅实现复杂，而且没有必要。
+
+本题真正需要保证的不是“当前瞬间覆盖数量最大”，而是：
+
+> **在必须覆盖当前最早结束区间的前提下，尽量不给后续选择制造限制。**
+
+把箭放在最早结束区间的右端点，正好完成了这件事。
+
+这体现了贪心算法常见的设计原则：
+
+$$
+\boxed{\text{满足当前硬约束，同时给未来留下最大自由度}}
+$$
+
+这比“当前收益看起来最大”更接近贪心的本质。
+
+---
+
+## 12. 与无重叠区间有什么关系
+
+下一类常见问题是：
+
+> 删除最少多少个区间，才能使剩余区间互不重叠？
+
+这两道题背后共享一个关键策略：
+
+```text
+优先保留右端点更小的区间
+```
+
+为什么？
+
+因为右端点越小：
+
+$$
+\text{给后续区间留下的空间越大}
+$$
+
+因此下面这组区间题应该放在一起理解：
+
+```text
+最少箭数
+无重叠区间
+活动选择
+会议安排
+区间调度
+```
+
+它们经常都能归约为：
+
+$$
+\boxed{\text{按结束位置排序，优先选择最早结束者}}
+$$
+
+---
+
+## 13. 常见错误一：按区间长度排序
+
+有人可能认为：
+
+```text
+区间越短越难覆盖，所以先处理短区间
+```
+
+但“短”并不等于“结束得早”。
+
+例如：
+
+```text
+A = [1,100]
+B = [90,91]
+C = [92,93]
+```
+
+`B` 很短，却位于很靠后的位置。
+
+真正决定当前选择是否限制未来的是：
+
+$$
+\text{右端点在哪里}
+$$
+
+而不是区间长度是多少。
+
+---
+
+## 14. 常见错误二：只比较相邻原区间
+
+按左端点排序后，如果写成：
+
+```cpp
+if (points[i][0] <= points[i - 1][1]) {
+    // 认为还在同一组
+}
+```
+
+却没有维护公共交集的最小右边界，就会出错。
+
+例如：
+
+```text
+[1,10]
+[2,3]
+[4,5]
+```
+
+前两个区间重叠：
+
+```text
+[1,10] ∩ [2,3] = [2,3]
+```
+
+但是第三个 `[4,5]` 与这个**公共交集**已经不重叠。
+
+如果只看上一条大区间 `[1,10]`，会误以为三者都能被同一支箭覆盖。
+
+所以必须维护：
+
+$$
+right=\min(right,R_i)
+$$
+
+而不是简单保留某一个原区间的右端点。
+
+---
+
+## 15. 常见错误三：排序比较器直接做减法
+
+题目端点可能接近 32 位整数边界。
+
+Java 中如果写：
+
+```java
+(a, b) -> a[1] - b[1]
+```
+
+理论上可能发生整数溢出。
+
+更稳妥的是：
+
+```java
+(a, b) -> Integer.compare(a[1], b[1])
+```
+
+同样，在 C++ 中写比较器时直接使用关系比较即可：
+
+```cpp
+return a[1] < b[1];
+```
+
+不需要通过差值判断大小。
+
+---
+
+## 16. 复杂度分析
+
+设气球数量为 $n$。
+
+### 排序
+
+$$
+O(n\log n)
+$$
+
+### 线性扫描
+
+$$
+O(n)
+$$
+
+所以总时间复杂度：
+
+$$
+\boxed{O(n\log n)}
+$$
+
+额外工作状态只需要：
+
+```text
+箭数量
+当前箭位置
+```
+
+因此除排序实现自身的辅助空间外，扫描部分额外空间为：
+
+$$
+O(1)
+$$
+
+<Callout type="info" title="复杂度表述要区分“算法额外状态”和“排序实现”">
+`std::sort`、Java `Arrays.sort`、Python `list.sort` 的内部算法和辅助空间并不完全相同。更严谨的表述是：贪心扫描本身只使用 $O(1)$ 额外状态，总辅助空间还取决于所用语言的排序实现。
+</Callout>
+
+---
+
+## 17. 一页记忆模板
+
+看到：
+
+```text
+若干区间
+一个点可以覆盖包含它的所有区间
+求最少点数
+```
+
+优先想到：
+
+```text
+按右端点升序
+```
+
+然后：
+
+```text
+第一个区间必须被覆盖
+→ 把点放在它的右端点
+→ 尽可能顺便覆盖后面的区间
+→ 遇到左端点 > 当前点时，再选一个新点
+```
+
+核心判断：
+
+$$
+L_i>arrowPos
+$$
+
+才需要新箭。
+
+完整模板：
+
+```cpp
+sort(intervals.begin(), intervals.end(), byRightEndpoint);
+
+int answer = 1;
+long long pos = intervals[0][1];
+
+for (int i = 1; i < intervals.size(); ++i) {
+    if (intervals[i][0] > pos) {
+        ++answer;
+        pos = intervals[i][1];
+    }
+}
+```
+
+记忆一句话：
+
+$$
+\boxed{\text{区间覆盖选点：优先钉在最早结束区间的右端点}}
+$$
+
+---
+
+## 18. 其他语言版本
+
+下面统一采用“按右端点升序”的写法。
+
+
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public int findMinArrowShots(int[][] points) {
+        if (points.length == 0) {
+            return 0;
+        }
+
+        Arrays.sort(points, (a, b) -> Integer.compare(a[1], b[1]));
+
+        int arrows = 1;
+        long arrowPos = points[0][1];
+
+        for (int i = 1; i < points.length; i++) {
+            if (points[i][0] > arrowPos) {
+                arrows++;
+                arrowPos = points[i][1];
+            }
+        }
+
+        return arrows;
+    }
+}
+```
+
+
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def findMinArrowShots(self, points: List[List[int]]) -> int:
+        if not points:
+            return 0
+
+        points.sort(key=lambda p: p[1])
+
+        arrows = 1
+        arrow_pos = points[0][1]
+
+        for left, right in points[1:]:
+            if left > arrow_pos:
+                arrows += 1
+                arrow_pos = right
+
+        return arrows
+```
+
+
+
+```go tab="Go"
+import "sort"
+
+func findMinArrowShots(points [][]int) int {
+    if len(points) == 0 {
+        return 0
+    }
+
+    sort.Slice(points, func(i, j int) bool {
+        return points[i][1] < points[j][1]
+    })
+
+    arrows := 1
+    arrowPos := points[0][1]
+
+    for i := 1; i < len(points); i++ {
+        if points[i][0] > arrowPos {
+            arrows++
+            arrowPos = points[i][1]
+        }
+    }
+
+    return arrows
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn find_min_arrow_shots(mut points: Vec<Vec<i32>>) -> i32 {
+        if points.is_empty() {
+            return 0;
+        }
+
+        points.sort_by_key(|p| p[1]);
+
+        let mut arrows = 1;
+        let mut arrow_pos = points[0][1];
+
+        for point in points.iter().skip(1) {
+            if point[0] > arrow_pos {
+                arrows += 1;
+                arrow_pos = point[1];
+            }
+        }
+
+        arrows
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var findMinArrowShots = function (points) {
+  if (points.length === 0) {
+    return 0;
+  }
+
+  points.sort((a, b) => a[1] - b[1]);
+
+  let arrows = 1;
+  let arrowPos = points[0][1];
+
+  for (let i = 1; i < points.length; i++) {
+    if (points[i][0] > arrowPos) {
+      arrows++;
+      arrowPos = points[i][1];
+    }
+  }
+
+  return arrows;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function findMinArrowShots(points: number[][]): number {
+  if (points.length === 0) {
+    return 0;
+  }
+
+  points.sort((a, b) => a[1] - b[1]);
+
+  let arrows = 1;
+  let arrowPos = points[0][1];
+
+  for (let i = 1; i < points.length; i++) {
+    if (points[i][0] > arrowPos) {
+      arrows++;
+      arrowPos = points[i][1];
+    }
+  }
+
+  return arrows;
+}
+```
+
+
+
+```c tab="C"
+#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    const int* p1 = *(const int**)a;
+    const int* p2 = *(const int**)b;
+
+    if (p1[1] < p2[1]) return -1;
+    if (p1[1] > p2[1]) return 1;
+    return 0;
+}
+
+int findMinArrowShots(int** points, int pointsSize, int* pointsColSize) {
+    (void)pointsColSize;
+
+    if (pointsSize == 0) {
+        return 0;
+    }
+
+    qsort(points, pointsSize, sizeof(int*), cmp);
+
+    int arrows = 1;
+    long long arrowPos = points[0][1];
+
+    for (int i = 1; i < pointsSize; ++i) {
+        if ((long long)points[i][0] > arrowPos) {
+            ++arrows;
+            arrowPos = points[i][1];
+        }
+    }
+
+    return arrows;
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public int FindMinArrowShots(int[][] points)
+    {
+        if (points.Length == 0)
+        {
+            return 0;
+        }
+
+        Array.Sort(points, (a, b) => a[1].CompareTo(b[1]));
+
+        int arrows = 1;
+        long arrowPos = points[0][1];
+
+        for (int i = 1; i < points.Length; i++)
+        {
+            if (points[i][0] > arrowPos)
+            {
+                arrows++;
+                arrowPos = points[i][1];
+            }
+        }
+
+        return arrows;
+    }
+}
+```

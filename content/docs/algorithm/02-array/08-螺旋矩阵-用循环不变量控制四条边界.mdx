@@ -1,0 +1,789 @@
+---
+title: 螺旋矩阵：用循环不变量控制四条边界
+description: 以 LeetCode 59 螺旋矩阵 II 为例，系统讲解矩阵模拟中的边界控制、左闭右开与动态四边界两种写法、奇偶规模处理、正确性与复杂度分析。
+---
+
+
+# 螺旋矩阵：用循环不变量控制四条边界
+
+题目：LeetCode 59「螺旋矩阵 II」。
+
+给定正整数 $n$，生成一个 $n\times n$ 矩阵，将：
+
+$$
+1,2,3,\ldots,n^2
+$$
+
+按顺时针螺旋顺序填入矩阵。
+
+当 $n=3$ 时：
+
+```text
+1 2 3
+8 9 4
+7 6 5
+```
+
+这道题几乎没有复杂的数据结构，真正考察的是：
+
+> 能否在多重边界不断收缩时，始终保持一套一致的遍历规则。
+
+---
+
+## 1. 模拟题最危险的不是不会，而是边界规则不统一
+
+顺时针填一圈需要依次经过：
+
+1. 上边：从左到右；
+2. 右边：从上到下；
+3. 下边：从右到左；
+4. 左边：从下到上。
+
+问题出在四个拐角。
+
+如果每条边都把两个端点全部包含，那么右上角、右下角、左下角、左上角都会被重复填写。
+
+于是很多代码开始出现：
+
+```text
++1
+-1
+特殊判断
+再 +1
+再补中心点
+```
+
+越修越乱。
+
+这类问题最稳的解决方式仍然是前面二分查找中强调过的思想：
+
+> 先规定循环不变量，再让所有循环遵守同一规则。
+
+---
+
+## 2. 方法一：每一条边都遵守“左闭右开”
+
+原题常见解法规定：
+
+> 每条边负责自己的起点，但不负责终点；终点交给下一条边。
+
+图示：
+
+![螺旋矩阵每条边的左闭右开规则](https://file1.kamacoder.com/i/algo/20220922102236.png)
+
+以最外层为例：
+
+```text
+(0,0) → (0,n-2)    上边
+(0,n-1) → (n-2,n-1) 右边
+(n-1,n-1) → (n-1,1) 下边
+(n-1,0) → (1,0)      左边
+```
+
+每一个角恰好只会被某一条边写一次。
+
+<Callout title="循环不变量" type="info">
+所谓循环不变量，不只是“循环条件写对”。更重要的是：在整个算法中始终坚持同一种区间语义。这里四条边统一采用“起点包含、终点不包含”，于是拐角归属天然明确。
+</Callout>
+
+---
+
+## 3. 一圈究竟如何收缩
+
+设当前这一圈左上角为：
+
+$$
+(startRow,startCol)
+$$
+
+外侧边界逐圈向中心缩进。
+
+第一圈：
+
+```text
+startRow = 0
+startCol = 0
+```
+
+第二圈：
+
+```text
+startRow = 1
+startCol = 1
+```
+
+第三圈继续加一。
+
+如果使用 `offset` 表示当前右/下边界相对矩阵末端缩进多少，则每完成一圈：
+
+```cpp
+++startRow;
+++startCol;
+++offset;
+```
+
+每层长度自动缩短 $2$。
+
+---
+
+## 4. 为什么完整的“圈数”是 $\lfloor n/2\rfloor$
+
+每画完一圈，矩阵的：
+
+- 上边界下移 1；
+- 下边界上移 1；
+- 左边界右移 1；
+- 右边界左移 1。
+
+相当于边长减少：
+
+$$
+2
+$$
+
+因此完整外圈数量为：
+
+$$
+\left\lfloor\frac n2\right\rfloor
+$$
+
+例如：
+
+| $n$ | 完整圈数 | 是否剩中心点 |
+| ---: | ---: | --- |
+| 1 | 0 | 是 |
+| 2 | 1 | 否 |
+| 3 | 1 | 是 |
+| 4 | 2 | 否 |
+| 5 | 2 | 是 |
+
+所以当 $n$ 为奇数时，最后还会留下一个中心格：
+
+$$
+\left(\left\lfloor\frac n2\right\rfloor,\left\lfloor\frac n2\right\rfloor\right)
+$$
+
+需要单独填入最后一个数字。
+
+---
+
+## 5. 按四条边写出同一套规则
+
+假设：
+
+```cpp
+int row = startRow;
+int col = startCol;
+```
+
+### 上边：左到右
+
+```cpp
+for (; col < n - offset; ++col) {
+    matrix[row][col] = value++;
+}
+```
+
+终点 `(startRow, n-offset)` 不在本循环填写，交给右边。
+
+### 右边：上到下
+
+```cpp
+for (; row < n - offset; ++row) {
+    matrix[row][col] = value++;
+}
+```
+
+右下角交给下边。
+
+### 下边：右到左
+
+```cpp
+for (; col > startCol; --col) {
+    matrix[row][col] = value++;
+}
+```
+
+左下角交给左边。
+
+### 左边：下到上
+
+```cpp
+for (; row > startRow; --row) {
+    matrix[row][col] = value++;
+}
+```
+
+最终停回当前圈左上角附近，而左上角早已由第一条边写过。
+
+整个过程没有任何一个拐角需要额外判断。
+
+---
+
+## 6. $n=4$ 时手动跟一圈
+
+初始：
+
+```text
+start = (0, 0)
+offset = 1
+value = 1
+```
+
+### 上边
+
+填：
+
+```text
+1 2 3 _
+_ _ _ _
+_ _ _ _
+_ _ _ _
+```
+
+### 右边
+
+```text
+1 2 3 4
+_ _ _ 5
+_ _ _ 6
+_ _ _ _
+```
+
+### 下边
+
+```text
+1  2  3 4
+_  _  _ 5
+_  _  _ 6
+10 9  8 7
+```
+
+### 左边
+
+```text
+1  2  3 4
+12 _  _ 5
+11 _  _ 6
+10 9  8 7
+```
+
+第一圈结束后边界整体缩进，再填内部 $2\times2$：
+
+```text
+1  2  3 4
+12 13 14 5
+11 16 15 6
+10 9  8 7
+```
+
+---
+
+## 7. 更直观的另一种写法：动态四边界
+
+除了“左闭右开 + 圈数”方案，还可以直接维护：
+
+```text
+top
+bottom
+left
+right
+```
+
+初始：
+
+```cpp
+top = 0;
+bottom = n - 1;
+left = 0;
+right = n - 1;
+```
+
+每画完一条边，就立刻收缩对应边界：
+
+从 `left` 到 `right` 填顶部，然后：
+
+```cpp
+++top;
+```
+
+从 `top` 到 `bottom` 填右侧，然后：
+
+```cpp
+--right;
+```
+
+从 `right` 到 `left` 填底部，然后：
+
+```cpp
+--bottom;
+```
+
+从 `bottom` 到 `top` 填左侧，然后：
+
+```cpp
+++left;
+```
+
+这种写法不需要单独讨论奇数中心点：边界相遇时，循环自然把中心格填掉。
+
+---
+
+## 8. 两种写法怎么选
+
+### 左闭右开、按圈处理
+
+优点：
+
+- 特别适合训练循环不变量；
+- 每条边的端点归属非常清楚；
+- 对理解“边界一致性”很有帮助。
+
+需要额外处理：
+
+- 奇数阶矩阵中心点。
+
+### 动态四边界
+
+优点：
+
+- 更直观；
+- 不需要提前计算圈数；
+- 很容易迁移到非正方形矩阵的“螺旋遍历”。
+
+因此工程/刷题中，我更推荐把**四边界法**作为通用模板，同时要理解左闭右开版本背后的循环不变量。
+
+---
+
+## 9. 推荐模板：动态四边界
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> matrix(n, vector<int>(n));
+
+        int top = 0;
+        int bottom = n - 1;
+        int left = 0;
+        int right = n - 1;
+        int value = 1;
+
+        while (top <= bottom && left <= right) {
+            // 上边：左 -> 右
+            for (int col = left; col <= right; ++col) {
+                matrix[top][col] = value++;
+            }
+            ++top;
+
+            // 右边：上 -> 下
+            for (int row = top; row <= bottom; ++row) {
+                matrix[row][right] = value++;
+            }
+            --right;
+
+            // 下边：右 -> 左
+            if (top <= bottom) {
+                for (int col = right; col >= left; --col) {
+                    matrix[bottom][col] = value++;
+                }
+                --bottom;
+            }
+
+            // 左边：下 -> 上
+            if (left <= right) {
+                for (int row = bottom; row >= top; --row) {
+                    matrix[row][left] = value++;
+                }
+                ++left;
+            }
+        }
+
+        return matrix;
+    }
+};
+```
+
+这里的两个 `if` 很重要。
+
+在正方形的本题里，即便某些特殊写法可以省掉它们，保留检查可以让模板安全迁移到一般的 $n\times m$ 螺旋遍历问题。
+
+---
+
+## 10. 为什么四边界法不会重不漏
+
+可以把未填区域看成当前闭矩形：
+
+$$
+[top,bottom]\times[left,right]
+$$
+
+每轮循环做四件事：
+
+1. 完整拿走当前最上面一行；
+2. 完整拿走当前最右边一列；
+3. 若仍存在行，再拿走最下面一行；
+4. 若仍存在列，再拿走最左边一列。
+
+每拿走一条边，就立即把边界向内收缩。
+
+因此已填区域永远不会再次属于后续“未填矩形”，自然不会重复。
+
+循环结束条件：
+
+$$
+top>bottom
+$$
+
+或：
+
+$$
+left>right
+$$
+
+此时未填矩形为空，所以也不会遗漏。
+
+---
+
+## 11. 复杂度分析
+
+矩阵共有：
+
+$$
+n^2
+$$
+
+个格子。
+
+每个格子恰好被填写一次，所以时间复杂度是：
+
+$$
+\boxed{O(n^2)}
+$$
+
+返回值矩阵本身必须占：
+
+$$
+O(n^2)
+$$
+
+空间。
+
+如果题目讨论的是“额外辅助空间”，那么除了返回矩阵之外，我们只使用若干边界变量：
+
+$$
+\boxed{O(1)}
+$$
+
+<Callout title="空间复杂度要说明统计口径" type="info">
+“空间复杂度 $O(1)$”指的是不计题目要求返回的结果矩阵时的辅助空间。如果把输出矩阵也算入空间占用，总空间当然是 $O(n^2)$。
+</Callout>
+
+---
+
+## 12. 高频错误总结
+
+### 错误一：四条边使用不同的开闭规则
+
+这是最常见的根源。
+
+不要一条边写 `<`，另一条边凭感觉写 `<=`，除非你明确知道角点由谁负责。
+
+---
+
+### 错误二：边界缩减时机不一致
+
+四边界写法中必须遵守：
+
+```text
+填完 top    -> top++
+填完 right  -> right--
+填完 bottom -> bottom--
+填完 left   -> left++
+```
+
+不要在一轮最后统一修改，否则中间两条边的范围会不同。
+
+---
+
+### 错误三：忘记单行/单列退化情况
+
+当剩余区域退化成一行时，顶部扫描已经把这一行填完。
+
+如果还无条件执行底部扫描，就会重复。
+
+所以需要：
+
+```cpp
+if (top <= bottom)
+```
+
+单列情况同理需要：
+
+```cpp
+if (left <= right)
+```
+
+---
+
+### 错误四：把“辅助空间”与“输出空间”混为一谈
+
+这道题必须创建答案矩阵，答案本身就是 $O(n^2)$。
+
+更严谨的表述应该是：
+
+```text
+辅助空间 O(1)，输出空间 O(n^2)
+```
+
+---
+
+## 13. 与 LeetCode 54「螺旋矩阵」的关系
+
+LeetCode 59 是：
+
+> 按螺旋顺序“写入”矩阵。
+
+LeetCode 54 是：
+
+> 按螺旋顺序“读取”已有矩阵。
+
+二者边界控制完全相同。
+
+只需要把：
+
+```cpp
+matrix[row][col] = value++;
+```
+
+换成：
+
+```cpp
+answer.push_back(matrix[row][col]);
+```
+
+就得到了螺旋遍历的核心框架。
+
+所以真正应该记住的不是某道题代码，而是：
+
+> `top / bottom / left / right` 四边界不断收缩的矩阵遍历模型。
+
+---
+
+## 14. 其他语言版本
+
+
+
+```java tab="Java"
+class Solution {
+    public int[][] generateMatrix(int n) {
+        int[][] matrix = new int[n][n];
+
+        int top = 0, bottom = n - 1;
+        int left = 0, right = n - 1;
+        int value = 1;
+
+        while (top <= bottom && left <= right) {
+            for (int col = left; col <= right; col++) {
+                matrix[top][col] = value++;
+            }
+            top++;
+
+            for (int row = top; row <= bottom; row++) {
+                matrix[row][right] = value++;
+            }
+            right--;
+
+            if (top <= bottom) {
+                for (int col = right; col >= left; col--) {
+                    matrix[bottom][col] = value++;
+                }
+                bottom--;
+            }
+
+            if (left <= right) {
+                for (int row = bottom; row >= top; row--) {
+                    matrix[row][left] = value++;
+                }
+                left++;
+            }
+        }
+
+        return matrix;
+    }
+}
+```
+
+
+
+```python tab="Python"
+from typing import List
+
+
+class Solution:
+    def generateMatrix(self, n: int) -> List[List[int]]:
+        matrix = [[0] * n for _ in range(n)]
+
+        top, bottom = 0, n - 1
+        left, right = 0, n - 1
+        value = 1
+
+        while top <= bottom and left <= right:
+            for col in range(left, right + 1):
+                matrix[top][col] = value
+                value += 1
+            top += 1
+
+            for row in range(top, bottom + 1):
+                matrix[row][right] = value
+                value += 1
+            right -= 1
+
+            if top <= bottom:
+                for col in range(right, left - 1, -1):
+                    matrix[bottom][col] = value
+                    value += 1
+                bottom -= 1
+
+            if left <= right:
+                for row in range(bottom, top - 1, -1):
+                    matrix[row][left] = value
+                    value += 1
+                left += 1
+
+        return matrix
+```
+
+
+
+```go tab="Go"
+func generateMatrix(n int) [][]int {
+    matrix := make([][]int, n)
+    for i := range matrix {
+        matrix[i] = make([]int, n)
+    }
+
+    top, bottom := 0, n-1
+    left, right := 0, n-1
+    value := 1
+
+    for top <= bottom && left <= right {
+        for col := left; col <= right; col++ {
+            matrix[top][col] = value
+            value++
+        }
+        top++
+
+        for row := top; row <= bottom; row++ {
+            matrix[row][right] = value
+            value++
+        }
+        right--
+
+        if top <= bottom {
+            for col := right; col >= left; col-- {
+                matrix[bottom][col] = value
+                value++
+            }
+            bottom--
+        }
+
+        if left <= right {
+            for row := bottom; row >= top; row-- {
+                matrix[row][left] = value
+                value++
+            }
+            left++
+        }
+    }
+
+    return matrix
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var generateMatrix = function (n) {
+    const matrix = Array.from({ length: n }, () => Array(n).fill(0));
+
+    let top = 0;
+    let bottom = n - 1;
+    let left = 0;
+    let right = n - 1;
+    let value = 1;
+
+    while (top <= bottom && left <= right) {
+        for (let col = left; col <= right; col++) {
+            matrix[top][col] = value++;
+        }
+        top++;
+
+        for (let row = top; row <= bottom; row++) {
+            matrix[row][right] = value++;
+        }
+        right--;
+
+        if (top <= bottom) {
+            for (let col = right; col >= left; col--) {
+                matrix[bottom][col] = value++;
+            }
+            bottom--;
+        }
+
+        if (left <= right) {
+            for (let row = bottom; row >= top; row--) {
+                matrix[row][left] = value++;
+            }
+            left++;
+        }
+    }
+
+    return matrix;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function generateMatrix(n: number): number[][] {
+    const matrix: number[][] = Array.from(
+        { length: n },
+        () => new Array<number>(n).fill(0),
+    );
+
+    let top = 0;
+    let bottom = n - 1;
+    let left = 0;
+    let right = n - 1;
+    let value = 1;
+
+    while (top <= bottom && left <= right) {
+        for (let col = left; col <= right; col++) {
+            matrix[top][col] = value++;
+        }
+        top++;
+
+        for (let row = top; row <= bottom; row++) {
+            matrix[row][right] = value++;
+        }
+        right--;
+
+        if (top <= bottom) {
+            for (let col = right; col >= left; col--) {
+                matrix[bottom][col] = value++;
+            }
+            bottom--;
+        }
+
+        if (left <= right) {
+            for (let row = bottom; row >= top; row--) {
+                matrix[row][left] = value++;
+            }
+            left++;
+        }
+    }
+
+    return matrix;
+}
+```

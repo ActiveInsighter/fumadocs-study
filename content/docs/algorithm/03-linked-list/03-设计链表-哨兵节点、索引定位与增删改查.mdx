@@ -1,0 +1,1013 @@
+---
+title: 设计链表：哨兵节点、索引定位与增删改查
+description: 以 LeetCode 707 为主线，从零实现单链表，系统掌握 size、虚拟头结点、按索引定位、头插、尾插、任意位置插入和删除，并分析各操作复杂度。
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# 设计链表：哨兵节点、索引定位与增删改查
+
+> 对应题目：[LeetCode 707. 设计链表](https://leetcode.cn/problems/design-linked-list/)
+
+如果“移除链表元素”是在练习一次删除操作，那么“设计链表”就是把链表所有基本功集中到一道题里。
+
+你需要自己维护：
+
+- 节点结构；
+- 链表长度；
+- 头部插入；
+- 尾部插入；
+- 指定位置插入；
+- 指定位置删除；
+- 指定下标查询。
+
+这道题做透以后，大部分单链表指针操作都会变得很熟悉。
+
+---
+
+## 1. 接口要求
+
+需要实现以下操作：
+
+```text
+get(index)
+addAtHead(val)
+addAtTail(val)
+addAtIndex(index, val)
+deleteAtIndex(index)
+```
+
+题目中的下标从 $0$ 开始。
+
+假设当前链表是：
+
+```text
+10 → 20 → 30
+```
+
+则：
+
+```text
+index:  0    1    2
+value: 10   20   30
+```
+
+原题示意：
+
+![设计链表示例](https://file1.kamacoder.com/i/algo/20200814200558953.png)
+
+---
+
+## 2. 为什么要额外维护 `size`
+
+理论上，链表长度可以每次遍历计算，但那样每个边界判断都会额外花费：
+
+$$
+O(n)
+$$
+
+如果我们维护一个整数：
+
+```cpp
+int size;
+```
+
+那么判断下标是否合法只需要：
+
+$$
+O(1)
+$$
+
+例如查询和删除要求：
+
+$$
+0 \le index < size
+$$
+
+而插入允许：
+
+$$
+0 \le index \le size
+$$
+
+注意二者右边界不同。
+
+<Callout title="非常高频的边界差异" type="warning">
+`get` / `deleteAtIndex` 只能访问已有节点，因此要求 `index < size`；`addAtIndex` 允许在尾部追加，所以允许 `index == size`。
+</Callout>
+
+---
+
+## 3. 继续使用虚拟头结点
+
+推荐结构：
+
+```text
+dummy → node0 → node1 → node2 → null
+```
+
+`dummy` 不计入真实链表长度。
+
+于是：
+
+```text
+真实第 0 个节点 = dummy.next
+```
+
+这带来一个非常重要的统一：
+
+> 在第 `index` 个真实节点之前插入，等价于先找到它的前驱节点。
+
+对于 `index = 0`：
+
+```text
+前驱正好就是 dummy
+```
+
+因此头插不需要再单独处理结构上的边界。
+
+---
+
+## 4. 节点结构
+
+C++ 中可以把节点定义成内部结构体：
+
+```cpp
+struct Node {
+    int val;
+    Node* next;
+
+    Node(int value) : val(value), next(nullptr) {}
+};
+```
+
+链表类本身只需要维护：
+
+```cpp
+Node* dummy;
+int size;
+```
+
+初始化：
+
+```cpp
+MyLinkedList() {
+    dummy = new Node(0);
+    size = 0;
+}
+```
+
+此时空链表是：
+
+```text
+dummy → null
+```
+
+---
+
+## 5. 最核心技巧：找到第 `index` 个节点的前驱
+
+这是整道题最重要的模板。
+
+从 `dummy` 开始：
+
+```cpp
+Node* prev = dummy;
+```
+
+如果要找到真实第 `index` 个节点的前驱，就向后走 `index` 步：
+
+```cpp
+for (int i = 0; i < index; ++i) {
+    prev = prev->next;
+}
+```
+
+为什么？
+
+以：
+
+```text
+dummy → A → B → C
+         0   1   2
+```
+
+为例。
+
+| `index` | 从 `dummy` 前进步数 | 最终位置 | 它是谁的前驱 |
+| ---: | ---: | --- | --- |
+| 0 | 0 | `dummy` | A |
+| 1 | 1 | A | B |
+| 2 | 2 | B | C |
+| 3 | 3 | C | 尾部插入位置 |
+
+这恰好同时支持头插、中间插入和尾插。
+
+---
+
+## 6. `get(index)`：查询第 `index` 个节点
+
+先判断：
+
+```cpp
+if (index < 0 || index >= size) {
+    return -1;
+}
+```
+
+然后可以从真实头结点开始走：
+
+```cpp
+Node* cur = dummy->next;
+
+for (int i = 0; i < index; ++i) {
+    cur = cur->next;
+}
+```
+
+最后：
+
+```cpp
+return cur->val;
+```
+
+时间复杂度：
+
+$$
+O(index)
+$$
+
+最坏为：
+
+$$
+O(n)
+$$
+
+这就是单链表不支持真正随机访问的体现。
+
+---
+
+## 7. `addAtHead(val)`：头部插入
+
+原链表：
+
+```text
+dummy → A → B
+```
+
+插入 `X`：
+
+```text
+dummy → X → A → B
+```
+
+顺序非常重要：
+
+```cpp
+Node* node = new Node(val);
+node->next = dummy->next;
+dummy->next = node;
+++size;
+```
+
+为什么必须先：
+
+```cpp
+node->next = dummy->next;
+```
+
+因为如果先覆盖 `dummy->next`，就可能丢失原头结点的地址。
+
+原文中的插入示意：
+
+![链表添加节点](https://file1.kamacoder.com/i/algo/20200806195134331.png)
+
+时间复杂度：
+
+$$
+O(1)
+$$
+
+---
+
+## 8. `addAtTail(val)`：尾部插入
+
+单链表如果只维护 `dummy`，必须从头走到尾部：
+
+```cpp
+Node* cur = dummy;
+while (cur->next != nullptr) {
+    cur = cur->next;
+}
+```
+
+然后：
+
+```cpp
+cur->next = new Node(val);
+++size;
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+<Callout title="为什么不是 O(1)" type="info">
+链表“尾插是 $O(1)$”的前提，是你已经拥有尾节点指针 `tail`。仅有头指针时，找到尾节点本身就需要遍历整个链表。
+</Callout>
+
+如果额外维护：
+
+```cpp
+Node* tail;
+```
+
+则尾插可以优化为：
+
+$$
+O(1)
+$$
+
+但删除尾节点时，单链表仍然无法直接找到前驱，因此 `tail` 的维护也会引入新的复杂度。
+
+---
+
+## 9. `addAtIndex(index, val)`：指定位置插入
+
+题目规则通常是：
+
+- `index > size`：不插入；
+- `index == size`：插入到尾部；
+- `index <= 0`：插入到头部。
+
+统一处理：
+
+```cpp
+if (index > size) {
+    return;
+}
+
+if (index < 0) {
+    index = 0;
+}
+```
+
+然后从 `dummy` 出发找前驱：
+
+```cpp
+Node* prev = dummy;
+for (int i = 0; i < index; ++i) {
+    prev = prev->next;
+}
+```
+
+插入操作：
+
+```cpp
+Node* node = new Node(val);
+node->next = prev->next;
+prev->next = node;
+++size;
+```
+
+结构变化：
+
+```text
+插入前：prev → next
+
+插入后：prev → node → next
+```
+
+时间复杂度：
+
+$$
+O(index)
+$$
+
+最坏为：
+
+$$
+O(n)
+$$
+
+---
+
+## 10. `deleteAtIndex(index)`：指定位置删除
+
+有效范围：
+
+$$
+0 \le index < size
+$$
+
+所以先判断：
+
+```cpp
+if (index < 0 || index >= size) {
+    return;
+}
+```
+
+仍然先找前驱：
+
+```cpp
+Node* prev = dummy;
+for (int i = 0; i < index; ++i) {
+    prev = prev->next;
+}
+```
+
+此时：
+
+```text
+prev → target → next
+```
+
+删除：
+
+```cpp
+Node* target = prev->next;
+prev->next = target->next;
+delete target;
+--size;
+```
+
+原文中的删除示意：
+
+![链表删除节点](https://file1.kamacoder.com/i/algo/20200806195114541.png)
+
+时间复杂度：
+
+$$
+O(index)
+$$
+
+最坏为：
+
+$$
+O(n)
+$$
+
+---
+
+## 11. 一份完整的单链表实现
+
+```cpp
+class MyLinkedList {
+private:
+    struct Node {
+        int val;
+        Node* next;
+
+        Node(int value, Node* nextNode = nullptr)
+            : val(value), next(nextNode) {}
+    };
+
+    Node* dummy;
+    int size;
+
+public:
+    MyLinkedList() {
+        dummy = new Node(0);
+        size = 0;
+    }
+
+    int get(int index) {
+        if (index < 0 || index >= size) {
+            return -1;
+        }
+
+        Node* cur = dummy->next;
+        for (int i = 0; i < index; ++i) {
+            cur = cur->next;
+        }
+
+        return cur->val;
+    }
+
+    void addAtHead(int val) {
+        Node* node = new Node(val, dummy->next);
+        dummy->next = node;
+        ++size;
+    }
+
+    void addAtTail(int val) {
+        Node* cur = dummy;
+        while (cur->next != nullptr) {
+            cur = cur->next;
+        }
+
+        cur->next = new Node(val);
+        ++size;
+    }
+
+    void addAtIndex(int index, int val) {
+        if (index > size) {
+            return;
+        }
+
+        if (index < 0) {
+            index = 0;
+        }
+
+        Node* prev = dummy;
+        for (int i = 0; i < index; ++i) {
+            prev = prev->next;
+        }
+
+        Node* node = new Node(val, prev->next);
+        prev->next = node;
+        ++size;
+    }
+
+    void deleteAtIndex(int index) {
+        if (index < 0 || index >= size) {
+            return;
+        }
+
+        Node* prev = dummy;
+        for (int i = 0; i < index; ++i) {
+            prev = prev->next;
+        }
+
+        Node* target = prev->next;
+        prev->next = target->next;
+        delete target;
+        --size;
+    }
+
+    ~MyLinkedList() {
+        Node* cur = dummy;
+        while (cur != nullptr) {
+            Node* next = cur->next;
+            delete cur;
+            cur = next;
+        }
+    }
+};
+```
+
+这里额外加入了析构函数，确保链表对象销毁时释放所有节点。
+
+---
+
+## 12. 为什么析构函数也值得掌握
+
+在线算法题常常只关注接口是否正确，平台可能会在进程结束后统一回收内存，因此你即使不写析构函数也可能通过。
+
+但从 C++ 资源管理角度看：
+
+```cpp
+new Node(...)
+```
+
+和：
+
+```cpp
+delete node;
+```
+
+应当形成完整生命周期。
+
+如果链表类自己拥有这些节点，它也应负责释放节点。
+
+<Callout title="算法题之外的工程意识" type="info">
+算法题帮助我们练指针，但真正写 C++ 时还要关心所有权、异常安全和 RAII。这里用裸指针是为了训练链表结构本身，而不是推荐在所有工程代码中都手动 `new/delete`。
+</Callout>
+
+---
+
+## 13. 各操作复杂度
+
+若只维护 `dummy` 和 `size`：
+
+| 操作 | 时间复杂度 | 原因 |
+| --- | ---: | --- |
+| `get(index)` | $O(index)$ | 需要顺序走到目标节点 |
+| `addAtHead` | $O(1)$ | 已知头部位置 |
+| `addAtTail` | $O(n)$ | 需要先找到尾节点 |
+| `addAtIndex(index)` | $O(index)$ | 先找到插入位置前驱 |
+| `deleteAtIndex(index)` | $O(index)$ | 先找到被删节点前驱 |
+
+链表存储 $n$ 个真实节点，因此整体空间为：
+
+$$
+O(n)
+$$
+
+额外的 `dummy`、`size` 只占：
+
+$$
+O(1)
+$$
+
+---
+
+## 14. 一个常见误区：链表插入删除到底是不是 $O(1)$
+
+经常会看到一句话：
+
+> 链表插入、删除是 $O(1)$。
+
+这句话有前提。
+
+如果**已经拿到了操作位置的前驱节点**：
+
+```text
+prev → target
+```
+
+那么修改连接确实只需要常数次指针操作：
+
+$$
+O(1)
+$$
+
+但如果题目只给一个下标 `index`，你必须先遍历找到位置：
+
+$$
+O(index)
+$$
+
+因此完整操作通常仍然是：
+
+$$
+O(n)
+$$
+
+<Callout title="复杂度一定要看完整任务" type="warning">
+不要只分析“改指针”的成本，还要把“找到这个位置”的成本算进去。
+</Callout>
+
+---
+
+## 15. 单链表版的三个不变量
+
+自己实现链表时，最好始终维护这些不变量：
+
+### 不变量 1：`dummy` 永远存在
+
+```text
+dummy.next = 第一个真实节点或 null
+```
+
+### 不变量 2：`size` 等于真实节点数量
+
+每次成功插入：
+
+```cpp
+++size;
+```
+
+每次成功删除：
+
+```cpp
+--size;
+```
+
+无效操作不能修改 `size`。
+
+### 不变量 3：最后一个真实节点的 `next == nullptr`
+
+这保证单链表能够正常终止遍历。
+
+只要这三个不变量始终成立，链表实现通常就不会出现大的结构性错误。
+
+---
+
+## 16. 常见错误
+
+### 16.1 把 `index == size` 当成非法插入
+
+错误：
+
+```cpp
+if (index >= size) return;
+```
+
+对于插入来说，`index == size` 应该表示尾插。
+
+应写成：
+
+```cpp
+if (index > size) return;
+```
+
+### 16.2 查询和删除却允许 `index == size`
+
+对于已有节点访问，合法下标最大只能到：
+
+$$
+size-1
+$$
+
+所以：
+
+```cpp
+index >= size
+```
+
+必须判非法。
+
+### 16.3 插入时先覆盖旧连接
+
+错误顺序可能导致后半段链表丢失。
+
+正确模板：
+
+```cpp
+node->next = prev->next;
+prev->next = node;
+```
+
+### 16.4 删除时忘记保存目标节点
+
+如果 C++ 中要释放内存，应先保存：
+
+```cpp
+Node* target = prev->next;
+prev->next = target->next;
+delete target;
+```
+
+### 16.5 `size` 与真实链表脱节
+
+每个接口除了改指针，还要同步维护 `size`。
+
+---
+
+## 17. 进一步优化：双向循环哨兵链表
+
+如果进一步把结构升级成：
+
+```text
+          ┌──────────────────────┐
+          ↓                      │
+sentinel ⇄ A ⇄ B ⇄ C ⇄ sentinel
+          │                      ↑
+          └──────────────────────┘
+```
+
+并同时维护：
+
+```cpp
+prev
+next
+```
+
+那么可以根据 `index` 更靠近头部还是尾部决定遍历方向。
+
+目标位置距最近一端的步数近似为：
+
+$$
+\min(index,\ n-index)
+$$
+
+所以虽然大 $O$ 最坏仍然是：
+
+$$
+O(n)
+$$
+
+但常数会更小，而且尾插可以直接通过：
+
+```text
+sentinel.prev
+```
+
+完成。
+
+不过对于第一次自己实现链表，更推荐先把**单链表 + dummy + size**完全掌握，再学习双向循环链表。
+
+---
+
+## 18. 一页速记
+
+<Cards>
+  <Card title="核心成员" description="dummy + size；节点维护 val + next。" />
+  <Card title="核心动作" description="先找到前驱，再修改 next。" />
+  <Card title="插入合法范围" description="0 到 size，index == size 表示尾插。" />
+  <Card title="查询/删除范围" description="0 到 size - 1。" />
+</Cards>
+
+可以把绝大多数单链表接口压缩成两个模板。
+
+### 插入模板
+
+```cpp
+Node* prev = ...;
+Node* node = new Node(val);
+node->next = prev->next;
+prev->next = node;
+```
+
+### 删除模板
+
+```cpp
+Node* prev = ...;
+Node* target = prev->next;
+prev->next = target->next;
+delete target;
+```
+
+真正需要思考的往往不是“怎么改指针”，而是：
+
+> **我要如何稳定地找到正确的前驱节点？**
+
+<Callout title="本题最值得带走的结论" type="success">
+虚拟头结点负责统一边界，`size` 负责快速判断合法性，而“找前驱 + 改连接”是单链表插入删除的统一模型。
+</Callout>
+
+---
+
+## 其他语言版本
+
+
+
+```cpp tab="C++"
+class MyLinkedList {
+private:
+    struct Node {
+        int val;
+        Node* next;
+        Node(int val, Node* next = nullptr) : val(val), next(next) {}
+    };
+
+    Node* dummy;
+    int size;
+
+public:
+    MyLinkedList() : dummy(new Node(0)), size(0) {}
+
+    int get(int index) {
+        if (index < 0 || index >= size) return -1;
+
+        Node* cur = dummy->next;
+        while (index-- > 0) cur = cur->next;
+        return cur->val;
+    }
+
+    void addAtHead(int val) {
+        dummy->next = new Node(val, dummy->next);
+        ++size;
+    }
+
+    void addAtTail(int val) {
+        addAtIndex(size, val);
+    }
+
+    void addAtIndex(int index, int val) {
+        if (index > size) return;
+        if (index < 0) index = 0;
+
+        Node* prev = dummy;
+        while (index-- > 0) prev = prev->next;
+
+        prev->next = new Node(val, prev->next);
+        ++size;
+    }
+
+    void deleteAtIndex(int index) {
+        if (index < 0 || index >= size) return;
+
+        Node* prev = dummy;
+        while (index-- > 0) prev = prev->next;
+
+        Node* target = prev->next;
+        prev->next = target->next;
+        delete target;
+        --size;
+    }
+
+    ~MyLinkedList() {
+        while (dummy != nullptr) {
+            Node* next = dummy->next;
+            delete dummy;
+            dummy = next;
+        }
+    }
+};
+```
+
+
+
+```java tab="Java"
+class MyLinkedList {
+    private static class Node {
+        int val;
+        Node next;
+
+        Node(int val) {
+            this.val = val;
+        }
+
+        Node(int val, Node next) {
+            this.val = val;
+            this.next = next;
+        }
+    }
+
+    private final Node dummy = new Node(0);
+    private int size = 0;
+
+    public int get(int index) {
+        if (index < 0 || index >= size) return -1;
+
+        Node cur = dummy.next;
+        for (int i = 0; i < index; ++i) {
+            cur = cur.next;
+        }
+        return cur.val;
+    }
+
+    public void addAtHead(int val) {
+        dummy.next = new Node(val, dummy.next);
+        ++size;
+    }
+
+    public void addAtTail(int val) {
+        addAtIndex(size, val);
+    }
+
+    public void addAtIndex(int index, int val) {
+        if (index > size) return;
+        if (index < 0) index = 0;
+
+        Node prev = dummy;
+        for (int i = 0; i < index; ++i) {
+            prev = prev.next;
+        }
+
+        prev.next = new Node(val, prev.next);
+        ++size;
+    }
+
+    public void deleteAtIndex(int index) {
+        if (index < 0 || index >= size) return;
+
+        Node prev = dummy;
+        for (int i = 0; i < index; ++i) {
+            prev = prev.next;
+        }
+
+        prev.next = prev.next.next;
+        --size;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Node:
+    def __init__(self, val=0, next_node=None):
+        self.val = val
+        self.next = next_node
+
+
+class MyLinkedList:
+    def __init__(self):
+        self.dummy = Node()
+        self.size = 0
+
+    def get(self, index: int) -> int:
+        if index < 0 or index >= self.size:
+            return -1
+
+        cur = self.dummy.next
+        for _ in range(index):
+            cur = cur.next
+        return cur.val
+
+    def addAtHead(self, val: int) -> None:
+        self.dummy.next = Node(val, self.dummy.next)
+        self.size += 1
+
+    def addAtTail(self, val: int) -> None:
+        self.addAtIndex(self.size, val)
+
+    def addAtIndex(self, index: int, val: int) -> None:
+        if index > self.size:
+            return
+        index = max(index, 0)
+
+        prev = self.dummy
+        for _ in range(index):
+            prev = prev.next
+
+        prev.next = Node(val, prev.next)
+        self.size += 1
+
+    def deleteAtIndex(self, index: int) -> None:
+        if index < 0 or index >= self.size:
+            return
+
+        prev = self.dummy
+        for _ in range(index):
+            prev = prev.next
+
+        prev.next = prev.next.next
+        self.size -= 1
+```

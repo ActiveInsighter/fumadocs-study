@@ -1,0 +1,1241 @@
+---
+title: 47. 全排列 II
+summary: 在全排列的 used 模型上叠加“排序 + 同层去重”，彻底分清 used[i] 与 used[i - 1] 的不同职责，并理解两种去重写法为何都能得到正确答案。
+description: LeetCode 47 全排列 II：重复元素排列、排序、树层去重、used 数组、去重条件推导、两种写法比较、复杂度分析与多语言实现。
+---
+
+
+# 47. 全排列 II
+
+[LeetCode 题目链接](https://leetcode.cn/problems/permutations-ii/)
+
+给定一个**可能包含重复数字**的整数数组 `nums`，返回所有**不重复的全排列**。
+
+```text title="示例"
+输入：nums = [1, 1, 2]
+输出：[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+```
+
+上一题 `46. 全排列` 已经解决了“排列必须每层从头枚举，并用 `used[i]` 防止一个下标在同一路径中重复使用”的问题。
+
+本题只增加了一个条件：
+
+```text
+nums 中可以出现相同数值
+```
+
+但这个变化会带来一个新的重复来源：**不同下标上的相同数字，会生成相同的值序列。**
+
+<Callout title="本题可以压缩成一句话">
+
+$$
+\boxed{\text{全排列 II}=\text{全排列的 used 模型}+\text{排序后的树层去重}}
+$$
+
+因此要同时维护两类约束：
+
+- `used[i]`：限制**同一树枝**不能重复使用同一个数组下标；
+- `nums[i] == nums[i-1] && !used[i-1]`：限制**同一树层**不能用相同数值重复开启等价分支。
+
+</Callout>
+
+## 1. 为什么普通全排列会产生重复答案？
+
+设：
+
+```text
+nums = [1a, 1b, 2]
+```
+
+这里故意把两个数值都为 `1` 的元素标成 `1a`、`1b`，方便观察它们来自不同下标。
+
+普通全排列会把它们当作不同元素：
+
+```text
+[1a, 1b, 2]
+[1b, 1a, 2]
+```
+
+如果只看数值，两者都会变成：
+
+```text
+[1, 1, 2]
+```
+
+也就是说：
+
+> **下标排列不同，不代表值排列不同。**
+
+本题要求的是值序列去重，所以必须在搜索过程中主动删除等价分支。
+
+## 2. 为什么仍然必须保留 `used[i]`？
+
+重复元素去重并不能代替排列本身的下标使用限制。
+
+例如当前：
+
+```text
+nums = [1, 1, 2]
+path = [2]
+```
+
+下一层仍然要从整个数组重新枚举：
+
+```text
+1 / 1
+```
+
+但同一个下标不能在当前路径里被再次选择。
+
+所以仍然需要：
+
+```cpp
+if (used[i]) {
+    continue;
+}
+```
+
+这里的 `used[i]` 回答的是：
+
+> **第 `i` 个元素是否已经出现在当前排列路径中？**
+
+它是一个**树枝状态**。
+
+## 3. 为什么去重前必须排序？
+
+先执行：
+
+```cpp
+sort(nums.begin(), nums.end());
+```
+
+例如：
+
+```text
+[1, 2, 1]
+```
+
+排序后变成：
+
+```text
+[1, 1, 2]
+```
+
+只有让相同数值相邻，才能使用：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+判断“当前候选和前一个候选是否属于同一组重复值”。
+
+<Callout type="info" title="为什么排列题可以排序？">
+
+排序会改变原数组顺序，但排列题本来就要枚举所有可能顺序，因此原始相对顺序没有语义约束。
+
+这与 `491. 非递减子序列` 完全不同：子序列必须保持原数组相对顺序，所以那一题不能为了去重排序。
+
+</Callout>
+
+## 4. 搜索树：到底应该删掉哪一类分支？
+
+以：
+
+```text
+nums = [1,1,2]
+```
+
+为例，原资料中的搜索树如下：
+
+![47. 全排列 II 搜索树](https://file1.kamacoder.com/i/algo/20201124201331223.png)
+
+核心不是“看到重复数字就跳过”，而是区分两种重复。
+
+### 4.1 同一树层的重复：必须去掉
+
+在根节点：
+
+```text
+[]
+```
+
+如果已经用第一个 `1` 开启过一棵子树，那么再用第二个 `1` 开启另一棵子树，两棵子树最终生成的**值排列集合完全相同**。
+
+因此同一层：
+
+```text
+第一个 1：保留
+第二个 1：跳过
+```
+
+即：
+
+$$
+\boxed{\text{树层去重}}
+$$
+
+### 4.2 同一树枝的重复：必须允许
+
+路径：
+
+```text
+[] → 第一个 1 → 第二个 1
+```
+
+得到：
+
+```text
+[1,1,...]
+```
+
+这是合法排列的一部分。
+
+所以不能写成：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+否则只要相邻值相同，第二个 `1` 永远不能出现，连合法答案 `[1,1,2]` 都构造不出来。
+
+## 5. 标准去重条件是怎样推导出来的？
+
+推荐写法：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+    continue;
+}
+```
+
+逐项解释。
+
+### 条件一：`i > 0`
+
+保证 `i - 1` 合法。
+
+### 条件二：`nums[i] == nums[i - 1]`
+
+说明当前元素和前一个元素数值相同。
+
+### 条件三：`!used[i - 1]`
+
+这是最关键的部分。
+
+当前递归层中，如果：
+
+```text
+used[i - 1] == false
+```
+
+说明前一个相同元素**没有出现在当前路径里**。
+
+由于数组已经排序，而循环又从左向右遍历，这通常意味着：
+
+```text
+前一个相同值刚刚已经作为“本层候选”搜索完并回溯恢复了
+```
+
+此时再选择 `nums[i]`，就是在**同一树层**重复开启等价分支，所以必须跳过。
+
+因此：
+
+$$
+\boxed{nums[i]=nums[i-1]\ \land\ used[i-1]=false
+\Rightarrow \text{同层重复}}
+$$
+
+## 6. 为什么 `used[i - 1] == true` 反而不能跳过？
+
+假设路径已经选择了第一个 `1`：
+
+```text
+path = [1]
+used = [true, false, false]
+```
+
+此时下一层遍历到第二个 `1`：
+
+```text
+nums[1] == nums[0]
+used[0] == true
+```
+
+这说明前一个 `1` 是**当前树枝祖先路径的一部分**。
+
+现在选择第二个 `1` 会得到：
+
+```text
+[1,1]
+```
+
+这是合法状态，所以必须允许。
+
+这就是标准写法为什么判断：
+
+```cpp
+!used[i - 1]
+```
+
+而不是简单判断相等。
+
+## 7. 用“同层 / 同枝”表格记忆
+
+| 情况 | `nums[i] == nums[i-1]` | `used[i-1]` | 含义 | 标准策略 |
+| --- | --- | --- | --- | --- |
+| 前一个重复值已在当前路径 | 是 | `true` | 同一树枝上的重复值 | 允许 |
+| 前一个重复值不在当前路径 | 是 | `false` | 同一树层重复开分支 | 跳过 |
+| 数值不同 | 否 | 任意 | 新候选 | 正常判断 `used[i]` |
+
+可以把标准条件记成：
+
+```text
+相同值 + 前一个已经回溯掉
+= 本层已经试过这种值
+= 跳过
+```
+
+## 8. 回溯三部曲
+
+### ① 递归参数：`nums + used`
+
+```cpp
+void backtracking(vector<int>& nums, vector<bool>& used)
+```
+
+不需要 `startIndex`，因为排列每层都要从整个数组中寻找未使用元素。
+
+同时维护：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+### ② 终止条件：路径长度等于数组长度
+
+```cpp
+if (path.size() == nums.size()) {
+    result.push_back(path);
+    return;
+}
+```
+
+只有叶子节点才是完整排列。
+
+### ③ 单层搜索：先同层去重，再判断当前下标是否已使用
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+        continue;
+    }
+
+    if (used[i]) {
+        continue;
+    }
+
+    used[i] = true;
+    path.push_back(nums[i]);
+
+    backtracking(nums, used);
+
+    path.pop_back();
+    used[i] = false;
+}
+```
+
+## 9. C++ 标准实现
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, vector<bool>& used) {
+        if (path.size() == nums.size()) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); ++i) {
+            // 同一树层中，相同数值只能选择一次。
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+
+            // 同一树枝中，同一个数组下标不能重复使用。
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push_back(nums[i]);
+
+            backtracking(nums, used);
+
+            path.pop_back();
+            used[i] = false;
+        }
+    }
+
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<bool> used(nums.size(), false);
+        backtracking(nums, used);
+        return result;
+    }
+};
+```
+
+这份代码最好按两道过滤器理解：
+
+```text
+过滤器 1：这个“值”是否已经在当前树层用过？
+过滤器 2：这个“下标”是否已经在当前树枝用过？
+```
+
+两者解决的是完全不同的问题。
+
+## 10. 手动模拟 `[1,1,2]`
+
+排序后仍为：
+
+```text
+[1,1,2]
+```
+
+初始：
+
+```text
+path = []
+used = [F,F,F]
+```
+
+### 根节点选择第一个 `1`
+
+```text
+path = [1]
+used = [T,F,F]
+```
+
+下一层可以继续选择第二个 `1`，因为：
+
+```text
+nums[1] == nums[0]
+used[0] == true
+```
+
+标准树层去重条件不成立。
+
+得到：
+
+```text
+[1,1,2]
+```
+
+也可以先选 `2`：
+
+```text
+[1,2,1]
+```
+
+### 回到根节点
+
+第一个 `1` 的整棵子树搜索完成后：
+
+```text
+used = [F,F,F]
+```
+
+此时循环来到第二个 `1`：
+
+```text
+nums[1] == nums[0]
+used[0] == false
+```
+
+说明本层已经由第一个 `1` 搜索过同类分支，所以：
+
+```cpp
+continue;
+```
+
+最后根节点再选择 `2`，产生：
+
+```text
+[2,1,1]
+```
+
+最终正好得到 3 个不重复排列。
+
+## 11. 为什么另一种 `used[i - 1] == true` 写法也能得到正确答案？
+
+原资料还讨论了一个很有意思的写法：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1] && used[i - 1]) {
+    continue;
+}
+```
+
+它与标准写法的策略不同。
+
+标准写法：
+
+```text
+优先让靠左的重复元素代表这一组相同值
+```
+
+另一种写法则相当于施加一种不同的重复下标使用顺序：
+
+```text
+当前路径中不允许“先用前一个重复下标，再用后一个重复下标”
+```
+
+但允许：
+
+```text
+先使用后一个重复下标，再使用前一个重复下标
+```
+
+对只关心**值排列**的本题来说，这同样可以为每个值排列保留一个下标代表路径，因此结果仍然正确。
+
+<Callout type="warn" title="能正确，不代表两种写法完全等价">
+
+更推荐：
+
+```cpp
+nums[i] == nums[i - 1] && !used[i - 1]
+```
+
+因为它直接在同一树层删除重复候选，不会让多个相同值在浅层重复展开无效搜索，语义也与组合 II、子集 II 的“树层去重”完全统一。
+
+</Callout>
+
+## 12. 两种去重方式的搜索树差异
+
+原资料用 `[1,1,1]` 展示了两种策略的差异。
+
+### 树层去重：`used[i - 1] == false`
+
+![树层去重](https://file1.kamacoder.com/i/algo/20201124201406192.png)
+
+它会尽早删除同一父节点下的等价候选，因此搜索树更紧凑。
+
+### 树枝顺序约束：`used[i - 1] == true`
+
+![树枝去重写法](https://file1.kamacoder.com/i/algo/20201124201431571.png)
+
+也能得到唯一答案，但会保留更多浅层分支，再通过路径内部的顺序限制避免最终重复。
+
+所以工程和面试中都优先记第一种。
+
+## 13. 为什么不能直接只写 `nums[i] == nums[i - 1]`？
+
+错误写法：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+它完全没有区分：
+
+```text
+当前是同一树层？
+还是同一树枝？
+```
+
+于是 `[1,1,2]` 中，第二个 `1` 永远无法被选择。
+
+这会直接丢失合法排列。
+
+因此重复值判断必须和**搜索状态**一起使用。
+
+在本题中就是：
+
+```text
+nums[i] == nums[i-1]
++
+used[i-1] 的状态
+```
+
+## 14. 为什么这里不能用 `startIndex` 做同层判断？
+
+组合与子集题可以写：
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+因为它们每一层的候选区间本身就是：
+
+```text
+[startIndex, n)
+```
+
+而排列没有 `startIndex`：
+
+```text
+每层都从 0 开始
+```
+
+因此不能通过 `i > startIndex` 判断“是不是当前层第一个候选”。
+
+必须借助：
+
+```cpp
+used[i - 1]
+```
+
+判断前一个相同值究竟在当前树枝中，还是已经作为本层候选搜索并回溯了。
+
+这就是排列去重比组合 / 子集去重更容易混淆的根本原因。
+
+## 15. 与三道重复元素题统一比较
+
+| 题目 | 是否可排序 | 基础搜索模型 | 推荐树层去重 |
+| --- | --- | --- | --- |
+| `40. 组合总和 II` | 可以 | `startIndex` | `i > startIndex && nums[i] == nums[i-1]` |
+| `90. 子集 II` | 可以 | `startIndex` | `i > startIndex && nums[i] == nums[i-1]` |
+| `47. 全排列 II` | 可以 | `used` | `nums[i] == nums[i-1] && !used[i-1]` |
+| `491. 非递减子序列` | **不能** | `startIndex` | 每层 `Set` / 值域数组 |
+
+真正应该记住的是：
+
+> **先确定基础搜索模型，再决定树层去重如何表达。**
+
+不要机械背某一行 `if`。
+
+## 16. 答案数量：有重复元素时不再是 $n!$
+
+如果长度为 $n$，其中不同数值的出现次数分别为：
+
+$$
+c_1,c_2,\dots,c_m
+$$
+
+满足：
+
+$$
+c_1+c_2+\cdots+c_m=n
+$$
+
+不重复全排列数量是多重集排列数：
+
+$$
+\boxed{
+\frac{n!}{c_1!c_2!\cdots c_m!}
+}
+$$
+
+例如：
+
+```text
+[1,1,2]
+```
+
+有：
+
+$$
+\frac{3!}{2!}=3
+$$
+
+正好对应：
+
+```text
+[1,1,2]
+[1,2,1]
+[2,1,1]
+```
+
+如果是：
+
+```text
+[1,1,2,2]
+```
+
+则有：
+
+$$
+\frac{4!}{2!2!}=6
+$$
+
+## 17. 复杂度分析
+
+排序需要：
+
+$$
+O(n\log n)
+$$
+
+最坏情况下所有元素都互不相同，本题退化为普通全排列。
+
+完整答案数量为：
+
+$$
+n!
+$$
+
+复制每个长度为 $n$ 的排列需要：
+
+$$
+O(n)
+$$
+
+因此把答案构造成本算进去，最坏时间复杂度为：
+
+$$
+\boxed{O(n\cdot n!)}
+$$
+
+排序成本会被阶乘级搜索淹没。
+
+辅助空间（不计返回结果）包括：
+
+- `path`：$O(n)$；
+- `used`：$O(n)$；
+- 递归栈：$O(n)$。
+
+因此：
+
+$$
+\boxed{O(n)}
+$$
+
+当重复元素很多时，树层去重会显著减少实际搜索节点，但最坏复杂度仍按所有元素不同计算。
+
+## 18. 常见错误清单
+
+<Callout type="warn" title="错误 1：没有排序就比较相邻元素">
+
+相同数值不一定相邻，同层去重会失效。
+
+</Callout>
+
+<Callout type="warn" title="错误 2：看到相等就无条件 continue">
+
+会错误删除同一树枝上的合法重复元素，例如 `[1,1,2]` 中第二个 `1`。
+
+</Callout>
+
+<Callout type="warn" title="错误 3：忘记 used[i] 本身的判断">
+
+树层去重只解决“值排列重复”，不能防止当前路径重复使用同一个数组下标。
+
+</Callout>
+
+<Callout type="warn" title="错误 4：把 !used[i-1] 理解成‘前一个元素从没用过’">
+
+`used` 是随递归进入和回溯动态变化的。`false` 在这里表示：前一个相同元素**当前不在这条路径里**，结合排序和循环顺序后，才得到“本层重复”的语义。
+
+</Callout>
+
+<Callout type="warn" title="错误 5：回溯时只 pop path，不恢复 used">
+
+`path` 与 `used` 是同一次选择的两份状态，必须成对恢复：
+
+```cpp
+path.pop_back();
+used[i] = false;
+```
+
+</Callout>
+
+## 19. 一张图记住排列去重
+
+可以把每个递归节点想成“正在填写排列的下一个槽位”。
+
+对每个候选 `nums[i]`，依次问两个问题：
+
+```text
+1. 这个数值在当前树层已经作为候选尝试过了吗？
+   → 是：跳过
+
+2. 这个具体下标已经被当前排列使用了吗？
+   → 是：跳过
+
+否则：
+   → 选择 → 递归 → 撤销
+```
+
+标准代码恰好就是这两个判断：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) continue;
+if (used[i]) continue;
+```
+
+## 20. 模板总结
+
+```cpp
+sort(nums.begin(), nums.end());
+vector<bool> used(nums.size(), false);
+
+void backtracking() {
+    if (path.size() == nums.size()) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int i = 0; i < nums.size(); ++i) {
+        // 树层：相同值只保留一个代表分支
+        if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+            continue;
+        }
+
+        // 树枝：同一个下标最多使用一次
+        if (used[i]) {
+            continue;
+        }
+
+        used[i] = true;
+        path.push_back(nums[i]);
+
+        backtracking();
+
+        path.pop_back();
+        used[i] = false;
+    }
+}
+```
+
+记忆链条：
+
+$$
+\boxed{
+\text{排序}
+\rightarrow
+\text{同层相邻重复去重}
+\rightarrow
+\text{used 控制树枝}
+\rightarrow
+\text{叶子收集答案}
+}
+$$
+
+## 21. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        Arrays.sort(nums);
+        boolean[] used = new boolean[nums.length];
+        dfs(nums, used);
+        return ans;
+    }
+
+    private void dfs(int[] nums, boolean[] used) {
+        if (path.size() == nums.length) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.add(nums[i]);
+            dfs(nums, used);
+            path.remove(path.size() - 1);
+            used[i] = false;
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def permuteUnique(self, nums: list[int]) -> list[list[int]]:
+        nums.sort()
+        ans: list[list[int]] = []
+        path: list[int] = []
+        used = [False] * len(nums)
+
+        def dfs() -> None:
+            if len(path) == len(nums):
+                ans.append(path[:])
+                return
+
+            for i in range(len(nums)):
+                if i > 0 and nums[i] == nums[i - 1] and not used[i - 1]:
+                    continue
+                if used[i]:
+                    continue
+
+                used[i] = True
+                path.append(nums[i])
+                dfs()
+                path.pop()
+                used[i] = False
+
+        dfs()
+        return ans
+```
+
+
+
+```go tab="Go"
+func permuteUnique(nums []int) [][]int {
+    sort.Ints(nums)
+
+    ans := make([][]int, 0)
+    path := make([]int, 0, len(nums))
+    used := make([]bool, len(nums))
+
+    var dfs func()
+    dfs = func() {
+        if len(path) == len(nums) {
+            tmp := append([]int(nil), path...)
+            ans = append(ans, tmp)
+            return
+        }
+
+        for i := 0; i < len(nums); i++ {
+            if i > 0 && nums[i] == nums[i-1] && !used[i-1] {
+                continue
+            }
+            if used[i] {
+                continue
+            }
+
+            used[i] = true
+            path = append(path, nums[i])
+            dfs()
+            path = path[:len(path)-1]
+            used[i] = false
+        }
+    }
+
+    dfs()
+    return ans
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var permuteUnique = function(nums) {
+    nums.sort((a, b) => a - b);
+
+    const ans = [];
+    const path = [];
+    const used = Array(nums.length).fill(false);
+
+    function dfs() {
+        if (path.length === nums.length) {
+            ans.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push(nums[i]);
+            dfs();
+            path.pop();
+            used[i] = false;
+        }
+    }
+
+    dfs();
+    return ans;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function permuteUnique(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b);
+
+    const ans: number[][] = [];
+    const path: number[] = [];
+    const used: boolean[] = Array(nums.length).fill(false);
+
+    function dfs(): void {
+        if (path.length === nums.length) {
+            ans.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (i > 0 && nums[i] === nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push(nums[i]);
+            dfs();
+            path.pop();
+            used[i] = false;
+        }
+    }
+
+    dfs();
+    return ans;
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn permute_unique(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn dfs(
+            nums: &[i32],
+            used: &mut [bool],
+            path: &mut Vec<i32>,
+            ans: &mut Vec<Vec<i32>>,
+        ) {
+            if path.len() == nums.len() {
+                ans.push(path.clone());
+                return;
+            }
+
+            for i in 0..nums.len() {
+                if i > 0 && nums[i] == nums[i - 1] && !used[i - 1] {
+                    continue;
+                }
+                if used[i] {
+                    continue;
+                }
+
+                used[i] = true;
+                path.push(nums[i]);
+                dfs(nums, used, path, ans);
+                path.pop();
+                used[i] = false;
+            }
+        }
+
+        nums.sort();
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        let mut used = vec![false; nums.len()];
+        dfs(&nums, &mut used, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+
+
+```c tab="C"
+static int cmp(const void* a, const void* b) {
+    int x = *(const int*)a;
+    int y = *(const int*)b;
+    return (x > y) - (x < y);
+}
+
+static void dfs(
+    int* nums,
+    int n,
+    bool* used,
+    int* path,
+    int depth,
+    int*** ans,
+    int* ansSize
+) {
+    if (depth == n) {
+        int* permutation = (int*)malloc(sizeof(int) * n);
+        memcpy(permutation, path, sizeof(int) * n);
+        (*ans)[(*ansSize)++] = permutation;
+        return;
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+            continue;
+        }
+        if (used[i]) {
+            continue;
+        }
+
+        used[i] = true;
+        path[depth] = nums[i];
+        dfs(nums, n, used, path, depth + 1, ans, ansSize);
+        used[i] = false;
+    }
+}
+
+int** permuteUnique(
+    int* nums,
+    int numsSize,
+    int* returnSize,
+    int** returnColumnSizes
+) {
+    qsort(nums, numsSize, sizeof(int), cmp);
+
+    // n <= 8，最多 8! = 40320 个排列。
+    int capacity = 1;
+    for (int i = 2; i <= numsSize; i++) {
+        capacity *= i;
+    }
+
+    int** ans = (int**)malloc(sizeof(int*) * capacity);
+    int* path = (int*)malloc(sizeof(int) * numsSize);
+    bool* used = (bool*)calloc(numsSize, sizeof(bool));
+    int ansSize = 0;
+
+    dfs(nums, numsSize, used, path, 0, &ans, &ansSize);
+
+    int* columnSizes = (int*)malloc(sizeof(int) * ansSize);
+    for (int i = 0; i < ansSize; i++) {
+        columnSizes[i] = numsSize;
+    }
+
+    free(path);
+    free(used);
+
+    *returnSize = ansSize;
+    *returnColumnSizes = columnSizes;
+    return ans;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func permuteUnique(_ nums: [Int]) -> [[Int]] {
+        let nums = nums.sorted()
+        var ans = [[Int]]()
+        var path = [Int]()
+        var used = [Bool](repeating: false, count: nums.count)
+
+        func dfs() {
+            if path.count == nums.count {
+                ans.append(path)
+                return
+            }
+
+            for i in 0..<nums.count {
+                if i > 0 && nums[i] == nums[i - 1] && !used[i - 1] {
+                    continue
+                }
+                if used[i] {
+                    continue
+                }
+
+                used[i] = true
+                path.append(nums[i])
+                dfs()
+                path.removeLast()
+                used[i] = false
+            }
+        }
+
+        dfs()
+        return ans
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def permuteUnique(nums: Array[Int]): List[List[Int]] = {
+    val sorted = nums.sorted
+    val ans = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ArrayBuffer[Int]()
+    val used = Array.fill(sorted.length)(false)
+
+    def dfs(): Unit = {
+      if (path.length == sorted.length) {
+        ans += path.toList
+        return
+      }
+
+      for (i <- sorted.indices) {
+        val sameLevelDuplicate =
+          i > 0 && sorted(i) == sorted(i - 1) && !used(i - 1)
+
+        if (!sameLevelDuplicate && !used(i)) {
+          used(i) = true
+          path += sorted(i)
+          dfs()
+          path.remove(path.length - 1)
+          used(i) = false
+        }
+      }
+    }
+
+    dfs()
+    ans.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    public IList<IList<int>> PermuteUnique(int[] nums) {
+        Array.Sort(nums);
+
+        var ans = new List<IList<int>>();
+        var path = new List<int>();
+        var used = new bool[nums.Length];
+
+        void Dfs() {
+            if (path.Count == nums.Length) {
+                ans.Add(new List<int>(path));
+                return;
+            }
+
+            for (int i = 0; i < nums.Length; i++) {
+                if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                    continue;
+                }
+                if (used[i]) {
+                    continue;
+                }
+
+                used[i] = true;
+                path.Add(nums[i]);
+                Dfs();
+                path.RemoveAt(path.Count - 1);
+                used[i] = false;
+            }
+        }
+
+        Dfs();
+        return ans;
+    }
+}
+```

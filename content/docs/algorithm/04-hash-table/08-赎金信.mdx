@@ -1,0 +1,817 @@
+---
+title: 赎金信
+description: 用定长频次数组解决“资源是否足够”问题，掌握供给-消耗模型与负数判失败技巧。
+---
+
+# 383. 赎金信
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/ransom-note/">
+    LeetCode 383 · Ransom Note
+  </Card>
+</Cards>
+
+给定两个字符串 `ransomNote` 和 `magazine`，判断：
+
+> `ransomNote` 能否由 `magazine` 中的字符构成？
+
+要求：
+
+- `magazine` 中的每个字符最多只能使用一次；
+- 两个字符串均只包含小写英文字母。
+
+例如：
+
+```text
+ransomNote = "a"
+magazine   = "b"
+
+输出：false
+```
+
+```text
+ransomNote = "aa"
+magazine   = "ab"
+
+输出：false
+```
+
+```text
+ransomNote = "aa"
+magazine   = "aab"
+
+输出：true
+```
+
+<Callout type="info" title="本题的本质">
+这不是“两个字符串是否相同”，而是一个**资源供给是否能够覆盖需求**的问题：
+
+```text
+magazine = 可用资源
+ransomNote = 所需资源
+```
+
+只要每种字符的供给数量都不少于需求数量，就能构造成功。
+</Callout>
+
+---
+
+## 1. 和“有效的字母异位词”有什么区别
+
+“有效的字母异位词”要求两个字符串字符频次**完全相同**：
+
+$$
+count_s(c)=count_t(c)
+$$
+
+而本题只要求：
+
+$$
+count_{magazine}(c)\ge count_{ransomNote}(c)
+$$
+
+对于所有字符 $c$ 都成立。
+
+也就是说：
+
+### 字母异位词
+
+是“完全相等”：
+
+$$
+A=B
+$$
+
+### 赎金信
+
+是“资源包含需求”：
+
+$$
+A\supseteq B
+$$
+
+从频次角度看，就是逐字符比较大小。
+
+---
+
+## 2. 暴力思路为什么不够好
+
+一种直观做法是：
+
+1. 遍历 `magazine`；
+2. 在 `ransomNote` 中查找相同字符；
+3. 找到就删除一个。
+
+类似：
+
+```cpp
+for (char c : magazine) {
+    for (...) {
+        if (...) {
+            ransomNote.erase(...);
+            break;
+        }
+    }
+}
+```
+
+这个思路有两个问题。
+
+### 问题一：双重查找
+
+最坏情况下需要：
+
+$$
+O(mn)
+$$
+
+其中：
+
+- $m=|ransomNote|$；
+- $n=|magazine|$。
+
+### 问题二：字符串删除并不是 $O(1)$
+
+`erase` 删除中间字符后，后面的字符通常需要移动。
+
+因此实际成本可能更高。
+
+所以更自然的做法是：
+
+> 不去“寻找并删除字符”，而是直接统计每种字符还有多少可用额度。
+
+---
+
+## 3. 为什么长度为 26 的数组是最优选择
+
+题目明确说明只包含：
+
+```text
+'a' ~ 'z'
+```
+
+总共 26 个字符。
+
+建立映射：
+
+$$
+index=c-'a'
+$$
+
+于是可以用：
+
+```cpp
+int record[26] = {0};
+```
+
+其中：
+
+```text
+record[i]
+```
+
+表示第 $i$ 个字母还剩多少可用数量。
+
+这比 `map` / `unordered_map` 更直接，因为：
+
+- key 范围固定；
+- 不需要哈希函数；
+- 不存在哈希冲突；
+- 存储规模固定为 26；
+- 数组访问常数更小。
+
+<Callout type="tip" title="数组哈希的典型场景">
+如果题目中的 key 是固定的小型字符集，例如小写字母、数字字符、ASCII 字符，优先考虑定长数组。
+</Callout>
+
+---
+
+## 4. 供给-消耗模型
+
+先遍历 `magazine`，把资源加入库存：
+
+```cpp
+for (char c : magazine) {
+    ++record[c - 'a'];
+}
+```
+
+此时：
+
+$$
+record[c]=count_{magazine}(c)
+$$
+
+然后遍历 `ransomNote`，每使用一个字符，就消耗一份资源：
+
+```cpp
+for (char c : ransomNote) {
+    --record[c - 'a'];
+}
+```
+
+于是：
+
+$$
+record[c]
+=
+count_{magazine}(c)-count_{ransomNote}(c)
+$$
+
+如果某个位置小于 0：
+
+$$
+record[c]<0
+$$
+
+就说明：
+
+$$
+count_{ransomNote}(c)>count_{magazine}(c)
+$$
+
+也就是需求超过供给，构造失败。
+
+---
+
+## 5. 为什么可以“减到负数立即失败”
+
+假设：
+
+```text
+magazine = "aab"
+ransomNote = "aaa"
+```
+
+统计资源后：
+
+```text
+a -> 2
+b -> 1
+```
+
+消耗前两个 `a`：
+
+```text
+a -> 1
+a -> 0
+```
+
+第三次消耗：
+
+```text
+a -> -1
+```
+
+负数意味着：
+
+> 第三个 `a` 没有对应的杂志字符可以提供。
+
+因此可以立刻：
+
+```cpp
+return false;
+```
+
+不需要等到循环结束。
+
+---
+
+## 6. 长度剪枝
+
+如果：
+
+```text
+ransomNote.length() > magazine.length()
+```
+
+显然不可能成功。
+
+因为每个杂志字符最多使用一次，所以总资源数不足。
+
+因此可以提前：
+
+```cpp
+if (ransomNote.size() > magazine.size()) {
+    return false;
+}
+```
+
+这是一个简单但很自然的剪枝。
+
+---
+
+## 7. 标准解法
+
+```cpp
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        if (ransomNote.size() > magazine.size()) {
+            return false;
+        }
+
+        int record[26] = {0};
+
+        for (char c : magazine) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : ransomNote) {
+            int index = c - 'a';
+
+            --record[index];
+
+            if (record[index] < 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+---
+
+## 8. 正确性分析
+
+对于任意字符 $c$，算法最终维护：
+
+$$
+record[c]
+=
+count_{magazine}(c)-count_{ransomNote}(c)
+$$
+
+### 如果算法返回 `false`
+
+说明某个字符出现：
+
+$$
+record[c]<0
+$$
+
+即：
+
+$$
+count_{magazine}(c)<count_{ransomNote}(c)
+$$
+
+该字符资源不足，因此无法构造。
+
+### 如果算法完整遍历后没有负数
+
+则对所有字符都有：
+
+$$
+count_{magazine}(c)\ge count_{ransomNote}(c)
+$$
+
+所以 `ransomNote` 中每个字符都能从 `magazine` 中找到足够数量的对应字符。
+
+因此可以构造成功。
+
+---
+
+## 9. 时间复杂度
+
+设：
+
+$$
+m=|ransomNote|,\qquad n=|magazine|
+$$
+
+遍历两个字符串各一次：
+
+$$
+O(m+n)
+$$
+
+数组长度固定为 26，所以额外空间：
+
+$$
+O(1)
+$$
+
+这是相比暴力查找最重要的优化：
+
+$$
+O(mn)\rightarrow O(m+n)
+$$
+
+---
+
+## 10. 两种等价的频次写法
+
+### 写法一：先加供给，再减需求
+
+这是最推荐的：
+
+```text
+magazine: +1
+ransomNote: -1
+```
+
+一旦出现负数立即失败。
+
+---
+
+### 写法二：分别统计两个数组
+
+也可以：
+
+```cpp
+int need[26] = {0};
+int have[26] = {0};
+```
+
+然后判断：
+
+$$
+need[i]\le have[i]
+$$
+
+这种写法更直观，但需要两个数组。
+
+实际上一个数组已经足够。
+
+---
+
+## 11. 为什么不推荐频繁使用 `count`
+
+例如 Python 中可以写：
+
+```python
+for c in set(ransomNote):
+    if ransomNote.count(c) > magazine.count(c):
+        return False
+```
+
+代码看起来很短，但：
+
+```python
+str.count(...)
+```
+
+每调用一次都可能扫描整个字符串。
+
+若不同字符数量较多，会产生重复扫描。
+
+所以从算法思想上，更推荐一次性频次统计。
+
+---
+
+## 12. 这是一类通用“库存模型”
+
+本题可以抽象成：
+
+```text
+先记录库存
+    ↓
+逐个处理需求
+    ↓
+每使用一个资源，库存 -1
+    ↓
+库存 < 0？
+ ├─ 是 → 资源不足
+ └─ 否 → 继续
+```
+
+这种模型并不只适用于字符。
+
+例如：
+
+- 仓库库存是否满足订单；
+- 手里的牌能否组成目标牌型；
+- 零件数量能否组装产品；
+- 单词字符是否足够拼出另一个字符串；
+- 任务资源是否满足执行需求。
+
+数学形式都是：
+
+$$
+supply(x)\ge demand(x)
+$$
+
+---
+
+## 13. 和前几道哈希题串起来
+
+### 有效的字母异位词
+
+目标：
+
+$$
+count_A(c)=count_B(c)
+$$
+
+典型操作：
+
+```text
+一边 +1，一边 -1，最后全部等于 0
+```
+
+### 查找常用字符
+
+目标：
+
+$$
+count_{common}(c)=\min_i count_i(c)
+$$
+
+典型操作：
+
+```text
+逐元素取 min
+```
+
+### 赎金信
+
+目标：
+
+$$
+count_{magazine}(c)\ge count_{ransom}(c)
+$$
+
+典型操作：
+
+```text
+先加资源，再减需求，出现负数立即失败
+```
+
+所以同样是“频次数组”，不同问题对应不同的数学关系。
+
+---
+
+## 14. 高频错误
+
+### 错误一：只判断字符种类是否存在
+
+例如：
+
+```text
+ransomNote = "aa"
+magazine = "ab"
+```
+
+两边都有字符 `a`，但杂志中只有一个 `a`。
+
+所以必须统计次数，而不是只判断存在性。
+
+---
+
+### 错误二：忘记“一个字符只能使用一次”
+
+如果一个 `a` 可以无限使用，那么只判断字符是否存在即可。
+
+但题目明确每个字符只能使用一次，因此必须减少库存。
+
+---
+
+### 错误三：使用 Set
+
+Set 会丢失频次：
+
+```text
+"aab" -> {'a', 'b'}
+```
+
+无法知道有两个 `a`。
+
+---
+
+### 错误四：数组开得太复杂
+
+本题只有 26 个小写字母：
+
+```cpp
+int record[26]
+```
+
+即可。
+
+没有必要使用通用映射。
+
+---
+
+## 15. 一眼识别本题
+
+看到：
+
+```text
+一个字符串能否由另一个字符串构成
+每个字符只能使用一次
+只包含小写字母
+```
+
+应快速想到：
+
+```text
+字符 -> 可用次数
+```
+
+进一步：
+
+```text
+26 个小写字母
+      ↓
+定长数组
+      ↓
+magazine 加库存
+      ↓
+ransomNote 消耗库存
+      ↓
+出现负数 → false
+```
+
+---
+
+## 16. 多语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        if (ransomNote.size() > magazine.size()) {
+            return false;
+        }
+
+        int record[26] = {0};
+
+        for (char c : magazine) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : ransomNote) {
+            int index = c - 'a';
+
+            if (--record[index] < 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public boolean canConstruct(String ransomNote, String magazine) {
+        if (ransomNote.length() > magazine.length()) {
+            return false;
+        }
+
+        int[] record = new int[26];
+
+        for (char c : magazine.toCharArray()) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : ransomNote.toCharArray()) {
+            if (--record[c - 'a'] < 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def canConstruct(self, ransomNote: str, magazine: str) -> bool:
+        if len(ransomNote) > len(magazine):
+            return False
+
+        record = [0] * 26
+
+        for c in magazine:
+            record[ord(c) - ord('a')] += 1
+
+        for c in ransomNote:
+            index = ord(c) - ord('a')
+            record[index] -= 1
+
+            if record[index] < 0:
+                return False
+
+        return True
+```
+
+
+
+```go tab="Go"
+func canConstruct(ransomNote string, magazine string) bool {
+    if len(ransomNote) > len(magazine) {
+        return false
+    }
+
+    record := [26]int{}
+
+    for _, c := range magazine {
+        record[c-'a']++
+    }
+
+    for _, c := range ransomNote {
+        record[c-'a']--
+
+        if record[c-'a'] < 0 {
+            return false
+        }
+    }
+
+    return true
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var canConstruct = function(ransomNote, magazine) {
+    if (ransomNote.length > magazine.length) {
+        return false;
+    }
+
+    const record = new Array(26).fill(0);
+    const base = 'a'.charCodeAt(0);
+
+    for (const c of magazine) {
+        ++record[c.charCodeAt(0) - base];
+    }
+
+    for (const c of ransomNote) {
+        const index = c.charCodeAt(0) - base;
+
+        --record[index];
+
+        if (record[index] < 0) {
+            return false;
+        }
+    }
+
+    return true;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function canConstruct(ransomNote: string, magazine: string): boolean {
+    if (ransomNote.length > magazine.length) {
+        return false;
+    }
+
+    const record: number[] = new Array(26).fill(0);
+    const base = 'a'.charCodeAt(0);
+
+    for (const c of magazine) {
+        ++record[c.charCodeAt(0) - base];
+    }
+
+    for (const c of ransomNote) {
+        const index = c.charCodeAt(0) - base;
+
+        --record[index];
+
+        if (record[index] < 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+```
+
+  ---
+
+## 17. 本题总结
+
+这道题可以浓缩成：
+
+$$
+供给\ge需求
+$$
+
+实现上：
+
+```text
+magazine 提供资源 → +1
+ransomNote 消耗资源 → -1
+出现负数 → 资源不足
+```
+
+需要掌握：
+
+1. 固定小字符集优先使用定长数组。
+2. “是否存在”与“数量是否足够”不是同一个问题。
+3. 频次数组不仅能判断相等，也能表达供给与需求关系。
+4. “加库存、减需求、负数失败”是一个非常通用的计数模型。

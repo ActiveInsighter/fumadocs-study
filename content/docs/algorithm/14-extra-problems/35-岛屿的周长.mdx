@@ -1,0 +1,536 @@
+---
+title: 岛屿的周长
+description: 从“每条暴露边贡献 1”与“每对共享边抵消 2”两个角度推导岛屿周长公式，掌握二维网格边界统计与相邻关系去重技巧。
+---
+
+# 463. 岛屿的周长
+
+[LeetCode 463：岛屿的周长](https://leetcode.cn/problems/island-perimeter/)
+
+给定一个二维网格 `grid`：
+
+- `1` 表示陆地；
+- `0` 表示水域；
+- 陆地只通过上下左右四个方向相连；
+- 整个网格中恰好存在一个连通岛屿；
+- 岛屿内部没有湖。
+
+每个格子都是边长为 $1$ 的正方形，求岛屿的周长。
+
+![](https://file1.kamacoder.com/i/algo/20230829180848.png)
+
+例如：
+
+```text
+0 1 0 0
+1 1 1 0
+0 1 0 0
+1 1 0 0
+```
+
+答案为：
+
+$$
+16
+$$
+
+> [!NOTE]
+> 看到“岛屿”很容易条件反射想到 DFS / BFS，但本题并不要求统计连通块，也不要求搜索路径。**周长本质上只取决于每个陆地格子有多少条边暴露在水域或网格外。**
+
+## 一、解法一：逐个统计暴露边
+
+每一个陆地格子都是一个边长为 $1$ 的正方形。
+
+单独看它时有四条边：
+
+```text
+    上
+  +---+
+左| 1 |右
+  +---+
+    下
+```
+
+对四个方向分别判断：
+
+- 邻居越界：这一条边暴露在网格外，周长 $+1$；
+- 邻居是水：这一条边暴露在水域中，周长 $+1$；
+- 邻居是陆地：这是一条内部共享边，不计入周长。
+
+因此对于任意陆地格子 $(i,j)$：
+
+$$
+贡献 = \sum_{d \in \{上,下,左,右\}} [\text{该方向越界或为水}]
+$$
+
+其中方括号表示条件成立时取 $1$，否则取 $0$。
+
+![](https://file1.kamacoder.com/i/algo/463.岛屿的周长.png)
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        int ans = 0;
+
+        const int dirs[4][2] = {
+            {-1, 0},
+            {1, 0},
+            {0, -1},
+            {0, 1}
+        };
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == 0) continue;
+
+                for (auto& d : dirs) {
+                    int x = i + d[0];
+                    int y = j + d[1];
+
+                    if (x < 0 || x >= m || y < 0 || y >= n || grid[x][y] == 0) {
+                        ++ans;
+                    }
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+### 复杂度
+
+设网格为 $m \times n$。
+
+每个格子最多检查四个方向：
+
+$$
+T(m,n)=O(mn)
+$$
+
+只使用常数个变量：
+
+$$
+S(m,n)=O(1)
+$$
+
+## 二、解法二：总边数减去共享边
+
+这是更值得理解的数学视角。
+
+假设共有 $L$ 个陆地格子。
+
+如果所有陆地都互不相邻，那么每个格子贡献 $4$ 条边，总边数是：
+
+$$
+4L
+$$
+
+但只要两个陆地格子相邻，它们之间会共享一条边：
+
+```text
++---+---+
+| 1 | 1 |
++---+---+
+```
+
+如果一开始把两个格子的四条边都算进去，那么中间这条共享边实际上被计算了两次：
+
+- 左格子的右边；
+- 右格子的左边。
+
+而这条边完全位于岛屿内部，不属于周长。
+
+因此每出现一对相邻陆地，都应减去：
+
+$$
+2
+$$
+
+设相邻陆地对的数量为 $E$，则：
+
+$$
+\boxed{P = 4L - 2E}
+$$
+
+其中：
+
+- $P$：岛屿周长；
+- $L$：陆地格子数；
+- $E$：共享边数量。
+
+![](https://file1.kamacoder.com/i/algo/463.岛屿的周长1.png)
+
+## 三、为什么只统计“上”和“左”
+
+为了求 $E$，最直接的方式是检查四个方向。
+
+但这样一对相邻格子会被统计两次。
+
+例如：
+
+```text
+A B
+```
+
+- 从 `A` 看右边，会发现 `B`；
+- 从 `B` 看左边，又会发现 `A`。
+
+因此更简洁的办法是：扫描到一个陆地格子时，只检查：
+
+- 上方；
+- 左方。
+
+因为：
+
+- 上下相邻关系会在扫描到下方格子时统计一次；
+- 左右相邻关系会在扫描到右方格子时统计一次。
+
+这样每条共享边恰好计数一次。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+
+        int land = 0;
+        int shared = 0;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == 0) continue;
+
+                ++land;
+
+                if (i > 0 && grid[i - 1][j] == 1) {
+                    ++shared;
+                }
+                if (j > 0 && grid[i][j - 1] == 1) {
+                    ++shared;
+                }
+            }
+        }
+
+        return land * 4 - shared * 2;
+    }
+};
+```
+
+## 四、还能进一步写成“一边扫描一边修正”
+
+其实没有必要显式维护 `land` 和 `shared`。
+
+扫描到一个陆地格子时：
+
+1. 先假设它独立存在，周长加 $4$；
+2. 如果上方也是陆地，说明新增加了一条共享边，周长减 $2$；
+3. 如果左方也是陆地，再减 $2$。
+
+于是代码可以非常短：
+
+```cpp
+class Solution {
+public:
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int m = grid.size();
+        int n = grid[0].size();
+        int ans = 0;
+
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (grid[i][j] == 0) continue;
+
+                ans += 4;
+
+                if (i > 0 && grid[i - 1][j] == 1) {
+                    ans -= 2;
+                }
+                if (j > 0 && grid[i][j - 1] == 1) {
+                    ans -= 2;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
+
+> [!TIP]
+> 这种“先加完整贡献，再减去重复 / 冲突贡献”的思路很常见。例如统计网格边数、图中的度数贡献、区间覆盖长度等问题，都可以尝试从“总贡献 - 重复贡献”切入。
+
+## 五、一个小例子手算公式
+
+考虑：
+
+```text
+1 1
+1 0
+```
+
+共有：
+
+$$
+L=3
+$$
+
+相邻陆地对：
+
+- 左上与右上相邻；
+- 左上与左下相邻。
+
+所以：
+
+$$
+E=2
+$$
+
+根据公式：
+
+$$
+P=4L-2E
+$$
+
+得到：
+
+$$
+P=4\times3-2\times2=8
+$$
+
+实际沿着外边界数，也正好是 $8$。
+
+## 六、为什么 DFS / BFS 不是首选
+
+DFS 当然能做。
+
+如果搜索一个陆地格子时遇到：
+
+- 网格边界；
+- 水域；
+
+就说明找到一条边界边，周长加 $1$。
+
+可以写成递归：
+
+```text
+dfs(x, y):
+    如果越界或 grid[x][y] == 0:
+        return 1
+    如果已经访问过:
+        return 0
+
+    标记访问
+    return 四个方向 dfs 的和
+```
+
+这也是正确的，但本题并不需要“连通性搜索”才能计算答案。
+
+相比之下，直接遍历：
+
+- 逻辑更简单；
+- 不需要 `visited`；
+- 不需要递归栈；
+- 不会产生深递归风险。
+
+所以一般优先选择前两种 $O(1)$ 额外空间写法。
+
+> [!NOTE]
+> DFS 版本仍然值得理解，因为它揭示了另一种边界计数模板：**从内部区域向四周扩散，每次撞到外部区域时贡献一条边界。**
+
+## 七、两种主解法如何选择
+
+| 方法 | 核心视角 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- | --- |
+| 暴露边统计 | 每条朝向水域 / 越界的边贡献 $1$ | $O(mn)$ | $O(1)$ | 最直观 |
+| 共享边扣除 | $4L-2E$ | $O(mn)$ | $O(1)$ | 更简洁、更有数学味道 |
+
+如果只是写最短、最稳定的代码，推荐：
+
+```text
+每遇到陆地 +4
+上方是陆地 -2
+左方是陆地 -2
+```
+
+## 八、容易写错的地方
+
+### 1. 共享边为什么减 2，不是减 1
+
+因为一条共享边原本在两个方格中各被算了一次，所以总共多算了两条“外边”。
+
+### 2. 如果检查四个方向，就不要再乘 2
+
+如果你把每个格子的所有陆地邻居都统计进去，那么每条共享边已经被统计两次。
+
+需要保证“统计方式”和“公式”匹配，不能重复扣除。
+
+### 3. 水域不贡献基础边
+
+只有陆地格子才先贡献 $4$。
+
+### 4. 不需要使用“只有一个岛屿”这个条件才能使用公式
+
+事实上，公式
+
+$$
+P=4L-2E
+$$
+
+对多个岛屿也成立，它会得到所有陆地连通块的总周长。
+
+所以这个公式本身比题目条件更一般。
+
+## 九、进一步理解：它其实是图论中的度数统计
+
+把每个陆地格子看成一个顶点。
+
+两个陆地格子上下左右相邻，就连一条边。
+
+假设陆地格子对应的图有：
+
+- $L$ 个顶点；
+- $E$ 条边。
+
+每个独立格子贡献 $4$ 条几何边，而图中的每条相邻关系会消去两条几何边，所以：
+
+$$
+P=4L-2E
+$$
+
+这与图论中常见的“按顶点贡献求和，再扣除边带来的重复”具有完全相同的思想。
+
+## 十、其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int islandPerimeter(int[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int ans = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 0) continue;
+
+                ans += 4;
+
+                if (i > 0 && grid[i - 1][j] == 1) {
+                    ans -= 2;
+                }
+                if (j > 0 && grid[i][j - 1] == 1) {
+                    ans -= 2;
+                }
+            }
+        }
+
+        return ans;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def islandPerimeter(self, grid: List[List[int]]) -> int:
+        m, n = len(grid), len(grid[0])
+        ans = 0
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 0:
+                    continue
+
+                ans += 4
+
+                if i > 0 and grid[i - 1][j] == 1:
+                    ans -= 2
+                if j > 0 and grid[i][j - 1] == 1:
+                    ans -= 2
+
+        return ans
+```
+
+```go tab="Go"
+func islandPerimeter(grid [][]int) int {
+    m, n := len(grid), len(grid[0])
+    ans := 0
+
+    for i := 0; i < m; i++ {
+        for j := 0; j < n; j++ {
+            if grid[i][j] == 0 {
+                continue
+            }
+
+            ans += 4
+
+            if i > 0 && grid[i-1][j] == 1 {
+                ans -= 2
+            }
+            if j > 0 && grid[i][j-1] == 1 {
+                ans -= 2
+            }
+        }
+    }
+
+    return ans
+}
+```
+
+```javascript tab="JavaScript"
+var islandPerimeter = function(grid) {
+    const m = grid.length;
+    const n = grid[0].length;
+    let ans = 0;
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (grid[i][j] === 0) continue;
+
+            ans += 4;
+
+            if (i > 0 && grid[i - 1][j] === 1) {
+                ans -= 2;
+            }
+            if (j > 0 && grid[i][j - 1] === 1) {
+                ans -= 2;
+            }
+        }
+    }
+
+    return ans;
+};
+```
+
+```typescript tab="TypeScript"
+function islandPerimeter(grid: number[][]): number {
+    const m = grid.length;
+    const n = grid[0].length;
+    let ans = 0;
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (grid[i][j] === 0) continue;
+
+            ans += 4;
+
+            if (i > 0 && grid[i - 1][j] === 1) {
+                ans -= 2;
+            }
+            if (j > 0 && grid[i][j - 1] === 1) {
+                ans -= 2;
+            }
+        }
+    }
+
+    return ans;
+}
+```

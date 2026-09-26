@@ -1,0 +1,888 @@
+---
+title: 二叉搜索树中的插入：把新节点接到搜索路径的第一个空位置
+---
+
+# 二叉搜索树中的插入：把新节点接到搜索路径的第一个空位置
+
+> LeetCode 701 · Insert into a Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/insert-into-a-binary-search-tree/)
+
+给定一棵二叉搜索树 `root` 和一个不存在于树中的值 `val`，将 `val` 插入 BST，并返回插入后的根节点。
+
+题目允许存在多种合法结果，但我们完全没有必要重构整棵树。
+
+![二叉搜索树中的插入操作](https://file1.kamacoder.com/i/algo/20201019173259554.png)
+
+<Callout title="先抓住本题唯一真正的难点" type="idea">
+
+BST 插入不是“找到一个合适位置后重新平衡整棵树”。
+
+对于普通二叉搜索树，只需要：
+
+> **按照搜索规则一路向下，第一次遇到空孩子的位置，就是新节点可以插入的位置。**
+
+</Callout>
+
+## 1. 为什么不需要重构树
+
+BST 的约束是：
+
+```text
+左子树节点值 < 当前节点值 < 右子树节点值
+```
+
+若当前节点为 `cur`：
+
+- `val < cur.val`：新节点只能进入左子树；
+- `val > cur.val`：新节点只能进入右子树。
+
+题目保证 `val` 与已有节点值不同，因此不需要处理重复值。
+
+不断重复这个过程，最终一定会走到一个空指针：
+
+```text
+cur == nullptr
+```
+
+只要在这里创建新节点，就不会破坏此前每一层已经满足的 BST 大小关系。
+
+![BST 插入沿搜索路径走到空位置](https://file1.kamacoder.com/i/algo/701.%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E4%B8%AD%E7%9A%84%E6%8F%92%E5%85%A5%E6%93%8D%E4%BD%9C.gif)
+
+## 2. 插入本质上就是“搜索失败的位置”
+
+普通 BST 搜索过程是：
+
+```text
+val < cur.val → 左
+val > cur.val → 右
+val == cur.val → 找到
+```
+
+而本题因为 `val` 不存在，所以搜索一定会以：
+
+```text
+cur == nullptr
+```
+
+结束。
+
+这个“搜索失败的位置”恰好就是应该插入的位置。
+
+<Callout title="一句话记忆" type="success">
+
+**BST 插入 = 沿着查找路径寻找第一个空位置，然后把新节点接上去。**
+
+</Callout>
+
+## 3. 为什么递归特别适合这题
+
+最漂亮的递归写法只有几行：
+
+```cpp
+if (root == nullptr) return new TreeNode(val);
+
+if (val < root->val)
+    root->left = insertIntoBST(root->left, val);
+else
+    root->right = insertIntoBST(root->right, val);
+
+return root;
+```
+
+真正需要理解的不是代码长度，而是这一句：
+
+```cpp
+root->left = insertIntoBST(root->left, val);
+```
+
+它同时完成了两件事：
+
+1. 去左子树里继续寻找插入位置；
+2. 把递归返回的新子树根重新接回 `root->left`。
+
+这就是**用递归返回值重建父子关系**。
+
+## 4. 递归函数的返回语义
+
+定义：
+
+> `insertIntoBST(root, val)` 返回“将 `val` 插入以 `root` 为根的 BST 后，这棵子树的新根节点”。
+
+注意“新根节点”这几个字非常关键。
+
+绝大多数情况下，子树根没有变化，所以最终返回原来的 `root`。
+
+但当递归走到空位置时：
+
+```cpp
+if (root == nullptr) {
+    return new TreeNode(val);
+}
+```
+
+这时原本的“空子树”变成了一个新节点，所以它的新根就是刚创建的节点。
+
+上一层通过：
+
+```cpp
+root->left = ...
+```
+
+或：
+
+```cpp
+root->right = ...
+```
+
+把这个新根接回去。
+
+## 5. 一次完整的递归回接过程
+
+假设有：
+
+```text
+      4
+     / \
+    2   7
+   / \
+  1   3
+```
+
+要插入 `5`。
+
+搜索过程：
+
+```text
+5 > 4 → 去右子树 7
+5 < 7 → 去左子树 null
+```
+
+到达空节点后：
+
+```cpp
+return new TreeNode(5);
+```
+
+然后回到节点 `7`：
+
+```cpp
+root->left = insertIntoBST(root->left, 5);
+```
+
+相当于：
+
+```text
+7.left = 5
+```
+
+再向上回到节点 `4`：
+
+```cpp
+root->right = 7
+```
+
+原有父子关系保持不变。
+
+最终：
+
+```text
+      4
+     / \
+    2   7
+   / \ /
+  1  3 5
+```
+
+<Callout title="递归返回值的通用价值" type="info">
+
+树结构修改题中，递归函数返回“修改后的子树根”通常非常好用。
+
+父节点只需要统一写：
+
+```cpp
+root->left = dfs(root->left, ...);
+root->right = dfs(root->right, ...);
+```
+
+无论子树内部发生了插入、删除还是替换，父节点都不用知道细节。
+
+</Callout>
+
+## 6. 递归三部曲
+
+### 6.1 参数与返回值
+
+参数：
+
+```text
+root：当前子树根
+val：待插入值
+```
+
+返回值：
+
+```text
+插入完成后的当前子树根
+```
+
+因此函数签名：
+
+```cpp
+TreeNode* insertIntoBST(TreeNode* root, int val)
+```
+
+### 6.2 终止条件
+
+当当前子树为空：
+
+```cpp
+if (root == nullptr) {
+    return new TreeNode(val);
+}
+```
+
+这个空位置就是最终插入位置。
+
+### 6.3 单层递归逻辑
+
+若：
+
+```cpp
+val < root->val
+```
+
+则只进入左子树：
+
+```cpp
+root->left = insertIntoBST(root->left, val);
+```
+
+否则只进入右子树：
+
+```cpp
+root->right = insertIntoBST(root->right, val);
+```
+
+最后返回当前根：
+
+```cpp
+return root;
+```
+
+## 7. 推荐递归实现
+
+```cpp title="C++ · 递归"
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if (root == nullptr) {
+            return new TreeNode(val);
+        }
+
+        if (val < root->val) {
+            root->left = insertIntoBST(root->left, val);
+        } else {
+            root->right = insertIntoBST(root->right, val);
+        }
+
+        return root;
+    }
+};
+```
+
+由于题目保证 `val` 不存在，因此可以安全地用 `else` 代表 `val > root->val`。
+
+如果题目允许重复值，就必须先明确重复值策略，例如：
+
+```text
+重复值全部放左边？
+重复值全部放右边？
+记录 count？
+还是禁止插入？
+```
+
+这属于 BST 定义的一部分，不能自行假设。
+
+## 8. 为什么“有返回值递归”比记录 parent 更自然
+
+当然也可以递归时额外维护父节点：
+
+```text
+parent = 当前节点
+cur = 下一层
+```
+
+遇到 `cur == null` 后，再根据大小关系修改：
+
+```text
+parent.left
+或
+parent.right
+```
+
+但这样引入了额外状态 `parent`。
+
+相比之下：
+
+```cpp
+root->left = insertIntoBST(root->left, val);
+```
+
+把“向下递归”和“向上连接”统一在同一条语句里，函数语义也更局部、更容易验证。
+
+<Callout title="不要把这种写法当成魔法" type="idea">
+
+`root->left = dfs(root->left)` 的本质不是技巧，而是：
+
+> **dfs 返回“修改后的左子树根”，当前节点负责把它重新挂回左孩子位置。**
+
+理解了这个语义，后面的 BST 删除、树结构变换都会更容易。
+
+</Callout>
+
+## 9. 迭代法：必须保留父节点
+
+递归版本可以利用“函数返回值”自动完成连接；迭代版本没有这个返回链，因此必须显式记住父节点。
+
+维护：
+
+```text
+cur    当前正在访问的节点
+parent cur 的父节点
+```
+
+循环：
+
+```cpp
+while (cur != nullptr) {
+    parent = cur;
+
+    if (val < cur->val) {
+        cur = cur->left;
+    } else {
+        cur = cur->right;
+    }
+}
+```
+
+退出循环时：
+
+```text
+cur == nullptr
+```
+
+而 `parent` 就是新节点应该连接到的父节点。
+
+最后根据：
+
+```text
+val < parent.val
+```
+
+决定接左还是接右。
+
+## 10. 推荐迭代实现
+
+```cpp title="C++ · 迭代"
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if (root == nullptr) {
+            return new TreeNode(val);
+        }
+
+        TreeNode* cur = root;
+        TreeNode* parent = nullptr;
+
+        while (cur != nullptr) {
+            parent = cur;
+
+            if (val < cur->val) {
+                cur = cur->left;
+            } else {
+                cur = cur->right;
+            }
+        }
+
+        if (val < parent->val) {
+            parent->left = new TreeNode(val);
+        } else {
+            parent->right = new TreeNode(val);
+        }
+
+        return root;
+    }
+};
+```
+
+## 11. 为什么必须单独处理空树
+
+如果一开始：
+
+```text
+root == nullptr
+```
+
+那么整棵树没有任何父节点。
+
+此时新节点不是某个节点的左/右孩子，而是：
+
+```text
+新的根节点
+```
+
+所以要直接：
+
+```cpp
+return new TreeNode(val);
+```
+
+这也是很多树结构修改题必须重点检查的边界：
+
+> **修改操作是否可能改变整棵树的根？**
+
+BST 插入在原树为空时会改变根；后面的 BST 删除甚至在非空树中也可能改变根。
+
+## 12. 为什么最终插入的一定是叶子节点
+
+这里说的是这套最自然的插入方法。
+
+因为我们一直搜索到：
+
+```text
+nullptr
+```
+
+才创建新节点。
+
+新节点刚创建时：
+
+```text
+left == nullptr
+right == nullptr
+```
+
+所以它一定作为叶子节点加入。
+
+这并不意味着“所有保持 BST 性质的合法插入结果都必须这样”。题目确实允许重构并产生其他合法结构。
+
+但在没有额外平衡要求时，直接叶子插入最简单、局部性最好，也最符合普通 BST 的标准插入定义。
+
+## 13. 正确性证明
+
+设插入值为 `val`。
+
+从根开始：
+
+- 若 `val < root.val`，根据 BST 定义，`val` 若存在就只能位于左子树，因此进入左子树；
+- 若 `val > root.val`，同理只能进入右子树。
+
+因此搜索路径上的每一步都不会错过合法插入区域。
+
+最终到达某个空孩子位置。
+
+设它的父节点为 `parent`：
+
+- 如果 `val < parent.val`，把它接到 `parent.left`；
+- 如果 `val > parent.val`，把它接到 `parent.right`。
+
+同时，由于该位置是沿 BST 搜索路径得到的，`val` 也满足路径上所有祖先施加的大小约束。
+
+因此插入后整棵树仍满足 BST 性质。
+
+## 14. 复杂度分析
+
+设 BST 高度为 $h$。
+
+无论递归还是迭代，都只沿一条根到叶的路径向下，因此时间复杂度：
+
+$$
+O(h)
+$$
+
+递归版额外空间：
+
+$$
+O(h)
+$$
+
+来自调用栈。
+
+迭代版只维护常数个指针，因此：
+
+$$
+O(1)
+$$
+
+若树较平衡：
+
+$$
+h=O(\log n)
+$$
+
+最坏退化成链表时：
+
+$$
+h=O(n)
+$$
+
+<Callout title="普通 BST 不保证平衡" type="warning">
+
+连续插入有序数据，例如：
+
+```text
+1, 2, 3, 4, 5
+```
+
+如果不做任何平衡操作，BST 可能退化为：
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+```
+
+此时插入复杂度从理想的 $O(\log n)$ 退化到 $O(n)$。
+
+AVL、红黑树等平衡搜索树正是为解决这一问题而设计的。
+
+</Callout>
+
+## 15. 常见错误
+
+<Accordions type="multiple">
+<Accordion title="错误 1：为了插入一个节点，遍历整棵树">
+
+BST 已经提供方向性。
+
+每次根据大小关系只走一个孩子即可，没有必要 DFS 两边。
+
+</Accordion>
+
+<Accordion title="错误 2：递归调用了子树，却忘记接住返回值">
+
+错误示例：
+
+```cpp
+insertIntoBST(root->left, val);
+```
+
+如果递归到底部创建并返回新节点，而当前层没有：
+
+```cpp
+root->left = ...
+```
+
+那么新节点无法连接回原树。
+
+正确写法：
+
+```cpp
+root->left = insertIntoBST(root->left, val);
+```
+
+</Accordion>
+
+<Accordion title="错误 3：迭代走到 null 后才发现父节点丢了">
+
+`cur` 变成 `nullptr` 后，无法通过 `cur` 找回父节点。
+
+所以循环内要先保存：
+
+```cpp
+parent = cur;
+```
+
+再移动 `cur`。
+
+</Accordion>
+
+<Accordion title="错误 4：忘记空树时新节点就是根">
+
+如果 `root == nullptr`，没有 `parent` 可以连接。
+
+必须直接返回：
+
+```cpp
+return new TreeNode(val);
+```
+
+</Accordion>
+
+<Accordion title="错误 5：默认 BST 永远是 O(log n)">
+
+只有在树高保持 $O(\log n)$ 时才成立。
+
+普通 BST 没有自动平衡保证，最坏树高可以达到 $n$。
+
+</Accordion>
+</Accordions>
+
+## 16. 与“搜索 BST”的关系
+
+两题其实只差最后一步。
+
+### 搜索
+
+```text
+一路按大小关系走
+找到值 → 返回节点
+走到 null → 不存在
+```
+
+### 插入
+
+```text
+一路按大小关系走
+走到 null → 正是插入位置
+```
+
+所以可以把插入理解成：
+
+> **把“查找失败”转化成“结构修改”。**
+
+这是一种非常值得记住的算法设计方式。
+
+## 17. 与下一题“删除 BST 节点”的关系
+
+插入简单，是因为新节点可以直接放在搜索路径末端：
+
+```text
+找到空位置 → 接上
+```
+
+删除困难得多，因为删除一个已有节点可能让原有父子关系断裂，需要根据目标节点的孩子数量分别讨论。
+
+可以提前建立这个对比：
+
+| 操作 | 关键位置 | 结构调整难度 |
+| --- | --- | --- |
+| 搜索 | 找到目标或 `null` | 不修改结构 |
+| 插入 | 搜索结束的 `null` | 只新增一个叶子 |
+| 删除 | 已存在的目标节点 | 可能需要重新连接子树 |
+
+## 18. 递归修改树结构的统一模板
+
+以后遇到“修改一棵树并返回新根”的问题，可以优先思考：
+
+```cpp
+TreeNode* solve(TreeNode* root, ...) {
+    if (root == nullptr) {
+        // 创建 / 删除 / 返回某种新根
+    }
+
+    root->left = solve(root->left, ...);
+    root->right = solve(root->right, ...);
+
+    return root;
+}
+```
+
+当然，BST 题往往可以利用有序性只递归一边：
+
+```cpp
+if (条件) {
+    root->left = solve(root->left, ...);
+} else {
+    root->right = solve(root->right, ...);
+}
+```
+
+<Callout title="本题真正要带走的能力" type="success">
+
+不要只记“BST 插入代码很短”。真正应该掌握两件事：
+
+1. **利用 BST 有序性只搜索一条路径；**
+2. **利用递归返回值把修改后的子树重新接回父节点。**
+
+第二点会直接迁移到下一篇 BST 删除节点。
+
+</Callout>
+
+## 19. 复盘清单
+
+完成本篇后，应能独立解释：
+
+- 为什么 BST 插入不需要遍历整棵树？
+- 为什么搜索到第一个 `nullptr` 就可以插入？
+- 递归函数返回的究竟是什么？
+- `root->left = insertIntoBST(...)` 为什么能完成父子关系连接？
+- 为什么迭代法需要 `parent`，而递归法不需要显式 `parent`？
+- 空树为什么必须单独处理？
+- 为什么新节点在标准插入法中一定是叶子？
+- 时间复杂度为什么是 $O(h)$ 而不是固定的 $O(\log n)$？
+
+## 其他语言实现
+
+下面各语言统一采用“**沿 BST 搜索路径找到空位置并插入**”这一核心思路。
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null) {
+            return new TreeNode(val);
+        }
+
+        if (val < root.val) {
+            root.left = insertIntoBST(root.left, val);
+        } else {
+            root.right = insertIntoBST(root.right, val);
+        }
+
+        return root;
+    }
+}
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def insertIntoBST(self, root, val):
+        if root is None:
+            return TreeNode(val)
+
+        if val < root.val:
+            root.left = self.insertIntoBST(root.left, val)
+        else:
+            root.right = self.insertIntoBST(root.right, val)
+
+        return root
+```
+
+
+
+```go title="Go" tab="Go"
+func insertIntoBST(root *TreeNode, val int) *TreeNode {
+    if root == nil {
+        return &TreeNode{Val: val}
+    }
+
+    if val < root.Val {
+        root.Left = insertIntoBST(root.Left, val)
+    } else {
+        root.Right = insertIntoBST(root.Right, val)
+    }
+
+    return root
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var insertIntoBST = function(root, val) {
+    if (root === null) {
+        return new TreeNode(val);
+    }
+
+    if (val < root.val) {
+        root.left = insertIntoBST(root.left, val);
+    } else {
+        root.right = insertIntoBST(root.right, val);
+    }
+
+    return root;
+};
+```
+
+
+
+```typescript title="TypeScript" tab="TypeScript"
+function insertIntoBST(root: TreeNode | null, val: number): TreeNode | null {
+    if (root === null) {
+        return new TreeNode(val);
+    }
+
+    if (val < root.val) {
+        root.left = insertIntoBST(root.left, val);
+    } else {
+        root.right = insertIntoBST(root.right, val);
+    }
+
+    return root;
+}
+```
+
+### Scala
+
+```scala title="Scala"
+object Solution {
+  def insertIntoBST(root: TreeNode, value: Int): TreeNode = {
+    if (root == null) {
+      return new TreeNode(value)
+    }
+
+    if (value < root.value) {
+      root.left = insertIntoBST(root.left, value)
+    } else {
+      root.right = insertIntoBST(root.right, value)
+    }
+
+    root
+  }
+}
+```
+
+
+
+```rust title="Rust" tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn insert_into_bst(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        val: i32,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        match root {
+            None => Some(Rc::new(RefCell::new(TreeNode::new(val)))),
+            Some(node) => {
+                if val < node.borrow().val {
+                    let left = node.borrow_mut().left.take();
+                    node.borrow_mut().left = Self::insert_into_bst(left, val);
+                } else {
+                    let right = node.borrow_mut().right.take();
+                    node.borrow_mut().right = Self::insert_into_bst(right, val);
+                }
+                Some(node)
+            }
+        }
+    }
+}
+```
+
+
+
+```csharp title="C#" tab="C#"
+public class Solution
+{
+    public TreeNode InsertIntoBST(TreeNode root, int val)
+    {
+        if (root == null)
+        {
+            return new TreeNode(val);
+        }
+
+        if (val < root.val)
+        {
+            root.left = InsertIntoBST(root.left, val);
+        }
+        else
+        {
+            root.right = InsertIntoBST(root.right, val);
+        }
+
+        return root;
+    }
+}
+```

@@ -1,0 +1,1006 @@
+---
+title: 替换数字
+description: 通过“预扩容 + 从后向前双指针填充”解决字符串原地扩张问题，掌握避免整体搬移的通用技巧。
+---
+
+# 替换数字
+
+<Cards>
+  <Card title="题目" href="https://kamacoder.com/problempage.php?pid=1064">
+    卡码网 · 替换数字
+  </Card>
+</Cards>
+
+给定一个只包含小写字母和数字字符的字符串 `s`，要求把每一个数字字符替换为字符串：
+
+```text
+number
+```
+
+例如：
+
+```text
+输入：a1b2c3
+输出：anumberbnumbercnumber
+```
+
+再例如：
+
+```text
+输入：a5b
+输出：anumberb
+```
+
+<Callout type="info" title="这道题真正考什么">
+它不是普通的“字符串替换”题，而是在训练一个非常重要的原地扩张技巧：
+
+> **先统计最终长度，再从后向前填充。**
+
+当一个元素需要扩张成多个元素时，从后往前写可以避免反复搬移尚未处理的数据。
+</Callout>
+
+---
+
+## 1. 为什么从前往后直接插入很低效
+
+假设字符串：
+
+```text
+a5b
+```
+
+遇到字符 `5` 后，需要把它替换成：
+
+```text
+number
+```
+
+最终：
+
+```text
+anumberb
+```
+
+如果从前往后原地插入，那么当 `5` 扩张成 6 个字符时，后面的：
+
+```text
+b
+```
+
+必须整体向右移动。
+
+如果字符串中有很多数字，每次扩张都可能搬动大量后续元素。
+
+最坏情况下会形成：
+
+$$
+O(n^2)
+$$
+
+级别的重复移动。
+
+---
+
+## 2. 第一步：先计算扩张后的总长度
+
+每个普通字母：
+
+```text
+占 1 个位置
+```
+
+每个数字：
+
+```text
+原来占 1 个位置
+替换后 "number" 占 6 个位置
+```
+
+所以每遇到一个数字，总长度额外增加：
+
+$$
+6-1=5
+$$
+
+设原字符串长度为 $n$，数字个数为 $k$。
+
+那么新长度：
+
+$$
+n+5k
+$$
+
+例如：
+
+```text
+s = "a5b"
+```
+
+原长度：
+
+$$
+3
+$$
+
+数字数量：
+
+$$
+1
+$$
+
+新长度：
+
+$$
+3+5=8
+$$
+
+对应：
+
+```text
+anumberb
+```
+
+长度正好为 8。
+
+原资料示意图：
+
+![扩充字符串长度](https://file1.kamacoder.com/i/algo/20231030165201.png)
+
+---
+
+## 3. 第二步：建立两个指针
+
+扩容后定义：
+
+```text
+old = 原字符串最后一个有效字符
+new = 扩容后字符串最后一个位置
+```
+
+例如：
+
+```text
+原字符串：a 5 b
+下标：    0 1 2
+```
+
+扩容后长度为 8：
+
+```text
+new = 7
+old = 2
+```
+
+随后：
+
+```text
+从后向前读取 old
+从后向前写入 new
+```
+
+原资料示意图：
+
+![从后向前双指针填充](https://file1.kamacoder.com/i/algo/20231030173058.png)
+
+---
+
+## 4. 为什么一定要从后往前
+
+这是本题的核心。
+
+假设当前 `old` 指向一个尚未处理的字符。
+
+如果从前往后扩张，写入 `"number"` 会覆盖后面尚未读取的数据，或者迫使我们先把后面的内容整体右移。
+
+而从后往前时：
+
+- 新数组尾部是扩容出来的空闲区域；
+- `new` 始终位于尚未读取区域的右侧；
+- 写入不会破坏前面还没处理的字符。
+
+因此可以一次扫描完成。
+
+<Callout type="tip" title="非常通用的规律">
+当“一个旧元素可能扩张成多个新元素”且目标空间已经扩容时：
+
+```text
+从后往前填充
+```
+
+往往比从前往后插入更高效。
+</Callout>
+
+---
+
+## 5. 两种情况分别怎么写
+
+### 情况一：当前是普通字母
+
+直接复制：
+
+```cpp
+s[newIndex--] = s[oldIndex--];
+```
+
+---
+
+### 情况二：当前是数字
+
+数字需要替换成：
+
+```text
+number
+```
+
+因为我们正在从后向前写，所以要逆序写入：
+
+```text
+r
+e
+b
+m
+u
+n
+```
+
+代码：
+
+```cpp
+s[newIndex--] = 'r';
+s[newIndex--] = 'e';
+s[newIndex--] = 'b';
+s[newIndex--] = 'm';
+s[newIndex--] = 'u';
+s[newIndex--] = 'n';
+
+--oldIndex;
+```
+
+最终正向读取时就会得到：
+
+```text
+number
+```
+
+---
+
+## 6. 完整过程示例
+
+以：
+
+```text
+s = "a5b"
+```
+
+为例。
+
+扩容后：
+
+```text
+长度 = 8
+```
+
+初始：
+
+```text
+old = 2
+new = 7
+```
+
+### 第一步：处理 `b`
+
+`b` 不是数字：
+
+```text
+s[7] = 'b'
+```
+
+然后：
+
+```text
+old = 1
+new = 6
+```
+
+---
+
+### 第二步：处理 `5`
+
+`5` 是数字。
+
+从后往前写：
+
+```text
+s[6] = 'r'
+s[5] = 'e'
+s[4] = 'b'
+s[3] = 'm'
+s[2] = 'u'
+s[1] = 'n'
+```
+
+然后：
+
+```text
+old = 0
+new = 0
+```
+
+---
+
+### 第三步：处理 `a`
+
+```text
+s[0] = 'a'
+```
+
+最终：
+
+```text
+anumberb
+```
+
+---
+
+## 7. C++ 标准解法
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    string s;
+    cin >> s;
+
+    int count = 0;
+
+    for (char c : s) {
+        if (c >= '0' && c <= '9') {
+            ++count;
+        }
+    }
+
+    int oldIndex = static_cast<int>(s.size()) - 1;
+
+    s.resize(s.size() + count * 5);
+
+    int newIndex = static_cast<int>(s.size()) - 1;
+
+    while (oldIndex >= 0) {
+        if (s[oldIndex] >= '0' && s[oldIndex] <= '9') {
+            s[newIndex--] = 'r';
+            s[newIndex--] = 'e';
+            s[newIndex--] = 'b';
+            s[newIndex--] = 'm';
+            s[newIndex--] = 'u';
+            s[newIndex--] = 'n';
+        } else {
+            s[newIndex--] = s[oldIndex];
+        }
+
+        --oldIndex;
+    }
+
+    cout << s << '\n';
+}
+```
+
+---
+
+## 8. 为什么扩容前必须先保存旧末尾位置
+
+这一点非常容易写错。
+
+如果先：
+
+```cpp
+s.resize(...)
+```
+
+再计算：
+
+```cpp
+oldIndex = s.size() - 1;
+```
+
+那么 `oldIndex` 指向的是**扩容后的尾部**，而不是原字符串尾部。
+
+正确顺序：
+
+```cpp
+int oldIndex = s.size() - 1;
+s.resize(...);
+int newIndex = s.size() - 1;
+```
+
+也就是：
+
+```text
+oldIndex → 原始数据末尾
+newIndex → 新空间末尾
+```
+
+---
+
+## 9. 不变量怎么理解
+
+执行过程中，可以维护这样一个不变量：
+
+> 区间 `(newIndex, 新末尾]` 已经是最终答案中正确的后缀。
+
+而：
+
+> 区间 `[0, oldIndex]` 仍然是尚未处理的原始数据。
+
+每处理一个字符：
+
+- 普通字符贡献 1 个位置；
+- 数字贡献 6 个位置。
+
+因此两个指针不断向左移动，直到原数据全部处理完。
+
+---
+
+## 10. 时间复杂度
+
+第一遍统计数字：
+
+$$
+O(n)
+$$
+
+第二遍从后向前填充：
+
+$$
+O(n)
+$$
+
+注意虽然数字会写 6 个字符，但 `6` 是常数。
+
+因此总时间复杂度：
+
+$$
+O(n)
+$$
+
+如果语言允许原字符串扩容并修改，那么额外辅助空间可以看作：
+
+$$
+O(1)
+$$
+
+不计字符串自身扩张后的存储。
+
+---
+
+## 11. Python / Java 为什么通常需要新数组
+
+不同语言字符串的可变性不同。
+
+### C++
+
+`std::string` 支持：
+
+```cpp
+resize
+operator[]
+```
+
+因此可以扩容后原地修改。
+
+### Java
+
+`String` 是不可变对象。
+
+不能直接：
+
+```text
+修改某一个字符
+```
+
+因此通常转换成 `char[]`。
+
+### Python
+
+`str` 也是不可变类型。
+
+因此通常：
+
+```text
+新建字符列表
+```
+
+再：
+
+```python
+''.join(...)
+```
+
+所以这里要区分：
+
+> 算法思想是“从后向前填充”，但具体是否能做到严格 $O(1)$ 辅助空间取决于语言的数据类型。
+
+---
+
+## 12. 这类题为什么适合双指针
+
+这里两个指针的职责是：
+
+### `oldIndex`
+
+```text
+读取旧数据
+```
+
+### `newIndex`
+
+```text
+写入新位置
+```
+
+因此本质上仍然是：
+
+> **读指针 + 写指针**
+
+只不过和“移除元素”不同：
+
+### 移除元素
+
+是：
+
+```text
+压缩
+```
+
+所以通常：
+
+```text
+写指针在读指针左边
+```
+
+### 替换数字
+
+是：
+
+```text
+扩张
+```
+
+所以必须先扩容，再：
+
+```text
+从后向前读写
+```
+
+这是一个非常值得对比的模型。
+
+---
+
+## 13. 压缩与扩张的统一理解
+
+可以总结成：
+
+### 长度缩短
+
+例如删除元素：
+
+```text
+旧长度 > 新长度
+```
+
+适合：
+
+```text
+从前向后
+fast 读
+slow 写
+```
+
+---
+
+### 长度扩大
+
+例如：
+
+```text
+1 个数字 -> 6 个字符
+```
+
+若允许预扩容，适合：
+
+```text
+从后向前
+old 读
+new 写
+```
+
+因为这样不会覆盖尚未处理的数据。
+
+---
+
+## 14. 这和 URL 空格替换完全同类
+
+经典题：
+
+```text
+"Mr John Smith"
+```
+
+把空格替换成：
+
+```text
+"%20"
+```
+
+也可以使用同样方法：
+
+1. 统计空格个数；
+2. 计算最终长度；
+3. 扩容；
+4. 从后往前填充。
+
+因此本题本质上属于：
+
+> **变长字符替换**
+
+模板。
+
+---
+
+## 15. 通用公式
+
+假设：
+
+- 原长度：$n$；
+- 某种字符出现 $k$ 次；
+- 每个目标字符由长度 $1$ 替换成长度 $L$ 的字符串。
+
+那么新长度：
+
+$$
+n+k(L-1)
+$$
+
+本题：
+
+$$
+L=6
+$$
+
+所以：
+
+$$
+n+5k
+$$
+
+这个公式适用于很多字符扩张问题。
+
+---
+
+## 16. 常见错误
+
+### 错误一：把扩张量写成 `count * 6`
+
+原字符本身已经占 1 个位置。
+
+从长度 1 变成长度 6，只增加：
+
+$$
+5
+$$
+
+所以应该：
+
+```cpp
+count * 5
+```
+
+---
+
+### 错误二：从前往后直接插入
+
+会导致：
+
+```text
+大量后续元素反复移动
+```
+
+可能退化成：
+
+$$
+O(n^2)
+$$
+
+---
+
+### 错误三：数字替换顺序写错
+
+从后往前写时，应依次写：
+
+```text
+r e b m u n
+```
+
+才能让最终正向结果是：
+
+```text
+number
+```
+
+---
+
+### 错误四：忘记保存原长度
+
+扩容后：
+
+```text
+s.size()
+```
+
+已经改变。
+
+如果还想知道原末尾，必须提前保存。
+
+---
+
+## 17. 一眼识别这类题
+
+如果题目出现：
+
+```text
+原地修改
+一个元素扩张成多个元素
+允许提前知道最终长度
+```
+
+优先考虑：
+
+```text
+统计最终长度
+      ↓
+扩容
+      ↓
+读指针指向原末尾
+写指针指向新末尾
+      ↓
+从后往前填充
+```
+
+---
+
+## 18. 多语言实现
+
+
+
+```cpp tab="C++"
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    string s;
+    cin >> s;
+
+    int count = 0;
+
+    for (char c : s) {
+        if (c >= '0' && c <= '9') {
+            ++count;
+        }
+    }
+
+    int oldIndex = static_cast<int>(s.size()) - 1;
+
+    s.resize(s.size() + count * 5);
+
+    int newIndex = static_cast<int>(s.size()) - 1;
+
+    while (oldIndex >= 0) {
+        if (s[oldIndex] >= '0' && s[oldIndex] <= '9') {
+            s[newIndex--] = 'r';
+            s[newIndex--] = 'e';
+            s[newIndex--] = 'b';
+            s[newIndex--] = 'm';
+            s[newIndex--] = 'u';
+            s[newIndex--] = 'n';
+        } else {
+            s[newIndex--] = s[oldIndex];
+        }
+
+        --oldIndex;
+    }
+
+    cout << s << '\n';
+}
+```
+
+
+
+```java tab="Java"
+import java.util.Scanner;
+
+public class Main {
+    public static String replaceNumber(String s) {
+        int count = 0;
+
+        for (int i = 0; i < s.length(); ++i) {
+            if (Character.isDigit(s.charAt(i))) {
+                ++count;
+            }
+        }
+
+        char[] result = new char[s.length() + count * 5];
+
+        int oldIndex = s.length() - 1;
+        int newIndex = result.length - 1;
+
+        while (oldIndex >= 0) {
+            char c = s.charAt(oldIndex--);
+
+            if (Character.isDigit(c)) {
+                result[newIndex--] = 'r';
+                result[newIndex--] = 'e';
+                result[newIndex--] = 'b';
+                result[newIndex--] = 'm';
+                result[newIndex--] = 'u';
+                result[newIndex--] = 'n';
+            } else {
+                result[newIndex--] = c;
+            }
+        }
+
+        return new String(result);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String s = scanner.next();
+        System.out.println(replaceNumber(s));
+    }
+}
+```
+
+
+
+```python tab="Python"
+def replace_number(s: str) -> str:
+    count = sum(c.isdigit() for c in s)
+
+    result = [''] * (len(s) + count * 5)
+
+    old = len(s) - 1
+    new = len(result) - 1
+
+    while old >= 0:
+        if s[old].isdigit():
+            result[new - 5:new + 1] = "number"
+            new -= 6
+        else:
+            result[new] = s[old]
+            new -= 1
+
+        old -= 1
+
+    return ''.join(result)
+
+
+s = input().strip()
+print(replace_number(s))
+```
+
+
+
+```go tab="Go"
+package main
+
+import "fmt"
+
+func replaceNumber(s string) string {
+    src := []byte(s)
+
+    count := 0
+    for _, c := range src {
+        if c >= '0' && c <= '9' {
+            count++
+        }
+    }
+
+    result := make(
+        []byte,
+        len(src)+count*5,
+    )
+
+    oldIndex := len(src) - 1
+    newIndex := len(result) - 1
+
+    for oldIndex >= 0 {
+        c := src[oldIndex]
+
+        if c >= '0' && c <= '9' {
+            copy(result[newIndex-5:newIndex+1], "number")
+            newIndex -= 6
+        } else {
+            result[newIndex] = c
+            newIndex--
+        }
+
+        oldIndex--
+    }
+
+    return string(result)
+}
+
+func main() {
+    var s string
+    fmt.Scan(&s)
+
+    fmt.Println(replaceNumber(s))
+}
+```
+
+
+
+```javascript tab="JavaScript"
+function replaceNumber(s) {
+    let count = 0;
+
+    for (const c of s) {
+        if (c >= '0' && c <= '9') {
+            ++count;
+        }
+    }
+
+    const result = new Array(s.length + count * 5);
+
+    let oldIndex = s.length - 1;
+    let newIndex = result.length - 1;
+
+    while (oldIndex >= 0) {
+        const c = s[oldIndex--];
+
+        if (c >= '0' && c <= '9') {
+            const word = "number";
+
+            for (let i = word.length - 1; i >= 0; --i) {
+                result[newIndex--] = word[i];
+            }
+        } else {
+            result[newIndex--] = c;
+        }
+    }
+
+    return result.join('');
+}
+
+const fs = require('fs');
+const s = fs.readFileSync(0, 'utf8').trim();
+
+console.log(replaceNumber(s));
+```
+
+  ---
+
+## 19. 本题总结
+
+这道题最值得掌握的是：
+
+```text
+元素扩张
+   ↓
+先计算新长度
+   ↓
+扩容
+   ↓
+旧指针指向原末尾
+新指针指向新末尾
+   ↓
+从后向前填充
+```
+
+核心结论：
+
+1. 单个字符从长度 1 替换为长度 $L$，每次额外增加 $L-1$。
+2. 原地扩张问题往往适合从后向前写。
+3. 这样可以避免尚未处理的数据被覆盖或反复搬移。
+4. “压缩从前往后，扩张从后往前”是非常实用的双指针经验。

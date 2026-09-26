@@ -1,0 +1,733 @@
+---
+title: 买卖股票的最佳时机含手续费
+sidebarTitle: 买卖股票的最佳时机含手续费
+summary: 使用持股/空仓两状态解决含手续费的无限次股票交易问题，解释手续费为什么只扣一次、放在买入或卖出阶段为何等价，并给出空间压缩与多语言实现。
+---
+
+# 714. 买卖股票的最佳时机含手续费
+
+[LeetCode 714：买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+给定价格数组 `prices` 和手续费 `fee`：
+
+- 可以完成任意多次交易；
+- 同一时刻最多持有一股股票；
+- 每完成一笔交易，需要支付一次手续费。
+
+例如：
+
+```text
+prices = [1, 3, 2, 8, 4, 9]
+fee = 2
+```
+
+一种最优方案：
+
+```text
+1 买入 → 8 卖出
+4 买入 → 9 卖出
+```
+
+总利润：
+
+$$
+(8-1-2)+(9-4-2)=8
+$$
+
+<Callout type="info" title="这道题本质上仍是无限次交易股票 DP">
+与“买卖股票的最佳时机 II”相比，状态结构完全不需要变化。唯一新增的规则是：每完成一笔交易，要额外产生一次固定成本 `fee`。
+</Callout>
+
+## 1. 状态定义
+
+每天结束时只需要区分两种状态：
+
+$$
+dp[i][0]=\text{第 }i\text{ 天结束时持有股票的最大现金}
+$$
+
+$$
+dp[i][1]=\text{第 }i\text{ 天结束时不持有股票的最大现金}
+$$
+
+注意：这里的“持有”与“不持有”是 **状态**，不是说第 $i$ 天一定刚刚完成买入或卖出。
+
+## 2. 持有股票状态如何转移
+
+第 $i$ 天结束时持有股票有两种可能。
+
+### 2.1 昨天已经持有，今天不操作
+
+收益保持：
+
+$$
+dp[i-1][0]
+$$
+
+### 2.2 昨天不持有，今天买入
+
+如果把手续费放在卖出时支付，那么今天买入只需要支付股价：
+
+$$
+dp[i-1][1]-prices[i]
+$$
+
+所以：
+
+$$
+\boxed{
+dp[i][0]
+=
+\max(
+ dp[i-1][0],
+ dp[i-1][1]-prices[i]
+)
+}
+$$
+
+## 3. 不持有股票状态如何转移
+
+第 $i$ 天结束时不持有股票同样有两种可能。
+
+### 3.1 昨天已经不持有，今天不操作
+
+收益保持：
+
+$$
+dp[i-1][1]
+$$
+
+### 3.2 昨天持有，今天卖出
+
+卖出后得到当天价格，但这笔交易需要支付手续费：
+
+$$
+dp[i-1][0]+prices[i]-fee
+$$
+
+所以：
+
+$$
+\boxed{
+dp[i][1]
+=
+\max(
+ dp[i-1][1],
+ dp[i-1][0]+prices[i]-fee
+)
+}
+$$
+
+这就是本题最核心的两条公式。
+
+## 4. 为什么手续费只能扣一次
+
+一笔完整交易为：
+
+```text
+买入 → 持有若干天 → 卖出
+```
+
+它产生的净利润应为：
+
+$$
+\boxed{
+\text{卖价}-\text{买价}-fee
+}
+$$
+
+因此手续费只应该出现在这一笔交易的一个阶段中。
+
+最常见的写法是：
+
+```text
+卖出时扣 fee
+```
+
+即：
+
+$$
+dp[i-1][0]+prices[i]-fee
+$$
+
+如果买入和卖出都扣手续费，就会得到：
+
+$$
+\text{卖价}-\text{买价}-2fee
+$$
+
+显然多扣了一次。
+
+<Callout type="warning" title="手续费按交易收费，不是按操作收费">
+买入和卖出共同组成一笔交易。题目说“每笔交易支付一次手续费”，因此不能在买入和卖出两边都减 `fee`。
+</Callout>
+
+## 5. 手续费放在买入时扣也可以吗？
+
+可以。
+
+如果把手续费放到买入阶段，则定义保持不变，转移改为：
+
+$$
+\boxed{
+dp[i][0]
+=
+\max(
+ dp[i-1][0],
+ dp[i-1][1]-prices[i]-fee
+)
+}
+$$
+
+$$
+\boxed{
+dp[i][1]
+=
+\max(
+ dp[i-1][1],
+ dp[i-1][0]+prices[i]
+)
+}
+$$
+
+初始化相应变为：
+
+$$
+dp[0][0]=-prices[0]-fee
+$$
+
+一笔交易最终仍然只扣一次手续费，所以两种写法等价。
+
+### 卖出时扣
+
+$$
+hold' = \max(hold,cash-price)
+$$
+
+$$
+cash' = \max(cash,hold+price-fee)
+$$
+
+这是最常见、也最直观的写法。
+
+### 买入时扣
+
+$$
+hold' = \max(hold,cash-price-fee)
+$$
+
+$$
+cash' = \max(cash,hold+price)
+$$
+
+效果完全相同，但初始化也必须同步扣除手续费。
+
+## 6. 初始化
+
+采用“卖出时扣手续费”的写法。
+
+第 $0$ 天若持有股票，只可能是当天买入：
+
+$$
+\boxed{dp[0][0]=-prices[0]}
+$$
+
+第 $0$ 天若不持有股票，最优当然是什么也不做：
+
+$$
+\boxed{dp[0][1]=0}
+$$
+
+## 7. 遍历顺序
+
+因为：
+
+$$
+dp[i]
+$$
+
+只依赖：
+
+$$
+dp[i-1]
+$$
+
+所以按天从左到右遍历即可。
+
+```text
+第 0 天 → 第 1 天 → 第 2 天 → ... → 第 n-1 天
+```
+
+时间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+二维写法空间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+进一步压缩后可以达到：
+
+$$
+\boxed{O(1)}
+$$
+
+## 8. 手推示例
+
+以：
+
+```text
+prices = [1, 3, 2, 8, 4, 9]
+fee = 2
+```
+
+为例。
+
+初始化：
+
+$$
+hold=-1,\qquad cash=0
+$$
+
+### 第 1 天，价格为 3
+
+持股：
+
+$$
+hold=\max(-1,0-3)=-1
+$$
+
+空仓：
+
+$$
+cash=\max(0,-1+3-2)=0
+$$
+
+此时不值得卖。
+
+### 第 2 天，价格为 2
+
+$$
+hold=\max(-1,0-2)=-1
+$$
+
+$$
+cash=\max(0,-1+2-2)=0
+$$
+
+仍然继续持有最优。
+
+### 第 3 天，价格为 8
+
+$$
+hold=\max(-1,0-8)=-1
+$$
+
+$$
+cash=\max(0,-1+8-2)=5
+$$
+
+第一笔交易兑现利润：
+
+$$
+8-1-2=5
+$$
+
+### 第 4 天，价格为 4
+
+重新买入：
+
+$$
+hold=\max(-1,5-4)=1
+$$
+
+这里出现 `hold = 1` 完全正常。
+
+它并不是说“持有股票还能凭空有 1 元利润”，而是：
+
+> 已经通过前一笔交易赚了 5，再花 4 买入一股，因此手中的净现金仍为 1。
+
+### 第 5 天，价格为 9
+
+$$
+cash=\max(5,1+9-2)=8
+$$
+
+最终答案为：
+
+$$
+\boxed{8}
+$$
+
+## 9. 为什么最后返回不持股状态
+
+交易结束后，如果仍持有股票，说明这只股票还没有卖出变现。
+
+因此最终最大已实现利润一定来自不持股状态：
+
+$$
+\boxed{dp[n-1][1]}
+$$
+
+虽然部分实现写成：
+
+$$
+\max(dp[n-1][0],dp[n-1][1])
+$$
+
+也不会出错，但在当前状态定义下，直接返回“不持股”更符合语义。
+
+## 10. 空间压缩
+
+二维 DP 中第 $i$ 天只依赖第 $i-1$ 天，因此只需保存两个变量：
+
+```text
+hold = 持股状态最大现金
+cash = 不持股状态最大现金
+```
+
+更新时要特别注意：两个新状态都应该由“上一天”的状态计算。
+
+因此最稳妥的写法是先保存旧值：
+
+```cpp
+int prevHold = hold;
+int prevCash = cash;
+
+hold = max(prevHold, prevCash - price);
+cash = max(prevCash, prevHold + price - fee);
+```
+
+<Callout type="warning" title="空间压缩后最容易写错的地方">
+如果先更新 `hold`，再立即使用新的 `hold` 更新 `cash`，就必须先证明这种“同一天买入又卖出”的隐式转移不会改变答案。学习阶段建议保留 `prevHold` / `prevCash`，让状态来源严格对应前一天。
+</Callout>
+
+## 11. C++ 标准实现
+
+### 11.1 二维 DP
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int n = prices.size();
+        vector<vector<int>> dp(n, vector<int>(2, 0));
+
+        dp[0][0] = -prices[0];
+        dp[0][1] = 0;
+
+        for (int i = 1; i < n; ++i) {
+            dp[i][0] = max(
+                dp[i - 1][0],
+                dp[i - 1][1] - prices[i]
+            );
+
+            dp[i][1] = max(
+                dp[i - 1][1],
+                dp[i - 1][0] + prices[i] - fee
+            );
+        }
+
+        return dp[n - 1][1];
+    }
+};
+```
+
+复杂度：
+
+$$
+\boxed{O(n)\text{ 时间},\quad O(n)\text{ 空间}}
+$$
+
+### 11.2 状态压缩
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int hold = -prices[0];
+        int cash = 0;
+
+        for (int i = 1; i < prices.size(); ++i) {
+            int prevHold = hold;
+            int prevCash = cash;
+
+            hold = max(prevHold, prevCash - prices[i]);
+            cash = max(prevCash, prevHold + prices[i] - fee);
+        }
+
+        return cash;
+    }
+};
+```
+
+复杂度：
+
+$$
+\boxed{O(n)\text{ 时间},\quad O(1)\text{ 空间}}
+$$
+
+## 12. 与股票 II 的对照
+
+没有手续费时：
+
+$$
+cash_i
+=
+\max(cash_{i-1},hold_{i-1}+price_i)
+$$
+
+有手续费时：
+
+$$
+cash_i
+=
+\max(cash_{i-1},hold_{i-1}+price_i-fee)
+$$
+
+因此从 DP 角度看：
+
+$$
+\boxed{
+\text{手续费} = \text{卖出这条状态转移边上的固定成本}
+}
+$$
+
+这是一种非常通用的建模思想。
+
+如果未来题目出现：
+
+- 买入税；
+- 卖出税；
+- 固定交易成本；
+- 每次切换状态的固定代价；
+
+都可以思考：
+
+> 能不能把这项成本直接加到某条状态转移边上？
+
+## 13. 与贪心思路的关系
+
+本题也可以使用贪心求解，但 DP 更容易稳定地处理规则变化。
+
+DP 的优势在于状态定义非常明确：
+
+```text
+持有股票
+不持有股票
+```
+
+手续费只改变一条边：
+
+```text
+持有 → 不持有
+```
+
+因此当题目继续叠加：
+
+```text
+交易次数限制
+冷冻期
+手续费
+```
+
+状态机 DP 通常比单独设计新的贪心策略更容易推广。
+
+## 14. 常见错误
+
+<Cards>
+<Card title="买入和卖出都扣手续费">
+题目是一笔完整交易收一次手续费，两边都扣会重复收费。
+</Card>
+<Card title="买入仍然写成 -prices[i]">
+本题允许多次交易，所以再次买入前可能已经获得历史利润，应从上一天的空仓状态转移。
+</Card>
+<Card title="把 hold 必须小于 0 当成规则">
+完成前面的盈利交易后，重新买入仍可能剩下正现金，因此 `hold` 完全可能大于 0。
+</Card>
+<Card title="空间压缩时混用新旧状态">
+最稳妥的方法是保存前一天的 `hold` 和 `cash`，再同时更新今天的状态。
+</Card>
+</Cards>
+
+## 15. 最终模板
+
+如果题目满足：
+
+- 一只股票；
+- 可以无限次交易；
+- 每笔交易支付一次固定手续费；
+- 同一时刻最多持有一股；
+
+那么可以直接使用：
+
+$$
+\boxed{
+hold_i
+=
+\max(hold_{i-1},cash_{i-1}-price_i)
+}
+$$
+
+$$
+\boxed{
+cash_i
+=
+\max(cash_{i-1},hold_{i-1}+price_i-fee)
+}
+$$
+
+初始化：
+
+$$
+\boxed{hold_0=-price_0,\qquad cash_0=0}
+$$
+
+最终答案：
+
+$$
+\boxed{cash_{n-1}}
+$$
+
+<Callout type="tip" title="一句话记忆">
+把手续费看成“完成一次卖出转移时需要支付的边权成本”，其余状态结构与无限次交易完全相同。
+</Callout>
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int maxProfit(int[] prices, int fee) {
+        int hold = -prices[0];
+        int cash = 0;
+
+        for (int i = 1; i < prices.length; i++) {
+            int prevHold = hold;
+            int prevCash = cash;
+
+            hold = Math.max(prevHold, prevCash - prices[i]);
+            cash = Math.max(prevCash, prevHold + prices[i] - fee);
+        }
+
+        return cash;
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        hold = -prices[0]
+        cash = 0
+
+        for price in prices[1:]:
+            prev_hold = hold
+            prev_cash = cash
+
+            hold = max(prev_hold, prev_cash - price)
+            cash = max(prev_cash, prev_hold + price - fee)
+
+        return cash
+```
+
+```javascript tab="JavaScript"
+var maxProfit = function(prices, fee) {
+    let hold = -prices[0];
+    let cash = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+        const prevHold = hold;
+        const prevCash = cash;
+
+        hold = Math.max(prevHold, prevCash - prices[i]);
+        cash = Math.max(prevCash, prevHold + prices[i] - fee);
+    }
+
+    return cash;
+};
+```
+
+```typescript tab="TypeScript"
+function maxProfit(prices: number[], fee: number): number {
+    let hold: number = -prices[0];
+    let cash: number = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+        const prevHold: number = hold;
+        const prevCash: number = cash;
+
+        hold = Math.max(prevHold, prevCash - prices[i]);
+        cash = Math.max(prevCash, prevHold + prices[i] - fee);
+    }
+
+    return cash;
+}
+```
+
+```go tab="Go"
+func maxProfit(prices []int, fee int) int {
+    hold := -prices[0]
+    cash := 0
+
+    for i := 1; i < len(prices); i++ {
+        prevHold := hold
+        prevCash := cash
+
+        hold = max(prevHold, prevCash-prices[i])
+        cash = max(prevCash, prevHold+prices[i]-fee)
+    }
+
+    return cash
+}
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+```
+
+```c tab="C"
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int maxProfit(int* prices, int pricesSize, int fee) {
+    int hold = -prices[0];
+    int cash = 0;
+
+    for (int i = 1; i < pricesSize; ++i) {
+        int prevHold = hold;
+        int prevCash = cash;
+
+        hold = MAX(prevHold, prevCash - prices[i]);
+        cash = MAX(prevCash, prevHold + prices[i] - fee);
+    }
+
+    return cash;
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn max_profit(prices: Vec<i32>, fee: i32) -> i32 {
+        let mut hold = -prices[0];
+        let mut cash = 0;
+
+        for &price in prices.iter().skip(1) {
+            let prev_hold = hold;
+            let prev_cash = cash;
+
+            hold = prev_hold.max(prev_cash - price);
+            cash = prev_cash.max(prev_hold + price - fee);
+        }
+
+        cash
+    }
+}
+```

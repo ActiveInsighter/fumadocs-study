@@ -1,0 +1,839 @@
+---
+title: 跳跃游戏 II
+summary: 在“最大可达范围”的基础上进一步计算最少跳跃次数，掌握当前层边界、下一层最远边界以及类似 BFS 分层的区间贪心。
+description: LeetCode 45 跳跃游戏 II。系统讲解双边界贪心、为什么到达当前覆盖边界时才增加步数、与 BFS 分层的等价关系、正确性证明、边界条件、常见错误和多语言实现。
+---
+
+
+# 45. 跳跃游戏 II
+
+[LeetCode 45. 跳跃游戏 II](https://leetcode.cn/problems/jump-game-ii/)
+
+给定一个长度为 $n$ 的非负整数数组 `nums`，你最初位于下标 $0$。`nums[i]` 表示从位置 $i$ 出发一次最多能向右跳多少步。
+
+题目保证一定可以到达最后一个位置，要求返回到达下标 $n-1$ 所需的**最少跳跃次数**。
+
+例如：
+
+```text
+nums = [2, 3, 1, 1, 4]
+```
+
+一种最优路径是：
+
+```text
+0 -> 1 -> 4
+```
+
+只需要跳 $2$ 次，因此答案为 `2`。
+
+<Callout type="info" title="与上一题的核心区别">
+55. 跳跃游戏只问“能不能到”，只维护一个最远可达位置即可；本题问“最少跳几次”，因此还必须知道“当前这一步最多覆盖到哪里，以及再跳一步最多覆盖到哪里”。
+</Callout>
+
+## 1. 先回忆：跳跃游戏为什么只看覆盖范围
+
+在 55. 跳跃游戏中，我们定义：
+
+$$
+cover=\text{当前能够到达的最远下标}
+$$
+
+扫描所有已经可达的位置 $i$，不断更新：
+
+$$
+cover=\max(cover,\ i+nums[i])
+$$
+
+这样就能判断终点是否可达。
+
+但如果直接把这个写法搬到本题，会发现少了一个信息：
+
+> **什么时候应该把跳跃次数加一？**
+
+因为“最远能到哪里”只能回答可达性，不能区分这个位置是 $1$ 步到达、$2$ 步到达还是更多步到达。
+
+所以本题需要把覆盖区间进一步分层。
+
+## 2. 两个边界：`currentEnd` 与 `nextEnd`
+
+定义两个变量：
+
+- `currentEnd`：使用当前跳跃次数，最远能够覆盖到的下标；
+- `nextEnd`：在 `currentEnd` 范围内任选一个位置再跳一次，下一层最远能够覆盖到的下标。
+
+再维护：
+
+- `steps`：已经确定必须使用的跳跃次数。
+
+扫描位置 $i$ 时，只做一件事：
+
+$$
+nextEnd=\max(nextEnd,\ i+nums[i])
+$$
+
+当：
+
+$$
+i=currentEnd
+$$
+
+意味着当前这一层所有可选起跳点已经全部考察完。
+
+如果还没有到达终点，那么想继续向右，就**必然必须再跳一次**：
+
+$$
+steps=steps+1
+$$
+
+然后把下一层提升为当前层：
+
+$$
+currentEnd=nextEnd
+$$
+
+这就是整道题最关键的贪心结构。
+
+![跳跃游戏 II 覆盖范围示意图](https://file1.kamacoder.com/i/algo/20201201232309103.png)
+
+<Callout type="info" title="不要把 nextEnd 理解成实际落点">
+`nextEnd` 只是“再跳一步后所有可能位置的最远右边界”，并不表示这一步真的跳到了 `nextEnd`。我们仍然没有固定具体路径，只是在维护最优覆盖能力。
+</Callout>
+
+## 3. 为什么到达 `currentEnd` 时才加一步
+
+这是本题最容易“会写代码但没真正理解”的地方。
+
+假设当前：
+
+$$
+currentEnd=4
+$$
+
+说明使用当前已经统计的跳跃次数，可以到达区间：
+
+$$
+[0,4]
+$$
+
+或者更准确地说，当前这一层所有候选位置都落在某个连续可达区间内，而扫描指针正在依次考察这些候选位置。
+
+在扫描 $0,1,2,3,4$ 的过程中，我们不断计算：
+
+$$
+i+nums[i]
+$$
+
+因此等扫描到 $i=4$ 时，已经完整知道：
+
+> 从当前这一层的所有位置再跳一步，最远究竟能到哪里。
+
+这时如果终点还不在当前覆盖范围内，那么不存在“继续保持当前步数还能向右”的可能性，所以必须增加一次跳跃。
+
+也就是说：
+
+> **不是扫描一个位置就跳一次，而是扫描完整个当前层后，才统一决定是否进入下一层。**
+
+## 4. 逐步模拟：`[2, 3, 1, 1, 4]`
+
+初始：
+
+$$
+currentEnd=0,\qquad nextEnd=0,\qquad steps=0
+$$
+
+### 扫描 $i=0$
+
+从位置 $0$ 最远可到：
+
+$$
+0+2=2
+$$
+
+因此：
+
+$$
+nextEnd=2
+$$
+
+又因为：
+
+$$
+i=currentEnd=0
+$$
+
+说明第 $0$ 层扫描结束，必须进行第 $1$ 次跳跃：
+
+$$
+steps=1
+$$
+
+并把当前层边界更新为：
+
+$$
+currentEnd=2
+$$
+
+也就是说，跳 $1$ 次后能够覆盖：
+
+```text
+[1, 2]
+```
+
+### 扫描 $i=1$
+
+从位置 $1$ 最远可到：
+
+$$
+1+3=4
+$$
+
+于是：
+
+$$
+nextEnd=4
+$$
+
+### 扫描 $i=2$
+
+从位置 $2$ 最远可到：
+
+$$
+2+1=3
+$$
+
+所以：
+
+$$
+nextEnd=\max(4,3)=4
+$$
+
+此时：
+
+$$
+i=currentEnd=2
+$$
+
+说明第 $1$ 层全部扫描完成，若要继续就必须再跳一次：
+
+$$
+steps=2
+$$
+
+并更新：
+
+$$
+currentEnd=4
+$$
+
+已经覆盖最后一个下标，因此答案就是：
+
+$$
+2
+$$
+
+## 5. 本题本质上是“压缩后的 BFS”
+
+如果把数组位置看成图节点，那么从节点 $i$ 可以连向：
+
+$$
+i+1,i+2,\ldots,i+nums[i]
+$$
+
+要求最少跳跃次数，本质上就是求：
+
+> 从节点 $0$ 到节点 $n-1$ 的最短边数。
+
+对于无权图，最短边数通常想到 BFS。
+
+普通 BFS 会维护队列：
+
+```text
+第 0 层：0
+第 1 层：1, 2
+第 2 层：3, 4, ...
+```
+
+而本题有一个特殊结构：每个位置能够到达的是右侧一个**连续区间**。
+
+所以一整层 BFS 的节点不需要逐个入队，只需要记录：
+
+```text
+当前层右边界 currentEnd
+下一层右边界 nextEnd
+```
+
+于是队列被两个整数压缩掉了。
+
+<Callout type="info" title="非常重要的迁移思维">
+看到“最少步数”不一定就必须真的写 BFS。若每一层状态具有连续区间结构，可能可以只维护区间边界，把 BFS 压缩成线性贪心。
+</Callout>
+
+## 6. 为什么这一定是最少跳跃次数
+
+可以按照 BFS 分层来证明。
+
+假设已经使用 $k$ 次跳跃，当前能够覆盖到的最远位置是：
+
+$$
+currentEnd
+$$
+
+扫描当前层所有位置 $i$ 后：
+
+$$
+nextEnd=\max_{i\in\text{当前层}}(i+nums[i])
+$$
+
+这表示使用：
+
+$$
+k+1
+$$
+
+次跳跃所能达到的最远位置。
+
+注意在扫描完当前层之前，我们不能提前确定第 $k+1$ 层的右边界，因为后面某个位置可能跳得更远。
+
+而扫描完整层以后：
+
+- 若终点已经位于当前层，则无需增加步数；
+- 若终点不在当前层，则任何路径想继续前进都至少需要再跳一次；
+- 下一次覆盖选择所有候选位置中最远的那个右边界，不会损失任何更优方案。
+
+因此每次 `steps++` 都是**不可避免的一次跳跃**，并且每层又尽可能扩展到最远。
+
+最终第一次覆盖终点时，得到的就是最少跳跃次数。
+
+## 7. 为什么循环只需要到 `n - 2`
+
+推荐写法是：
+
+```cpp
+for (int i = 0; i < nums.size() - 1; ++i)
+```
+
+也就是不扫描最后一个位置。
+
+原因很简单：
+
+> 一旦已经到达最后一个位置，任务就结束了，不需要再“从终点起跳”。
+
+这样还能自然避免一个边界问题。
+
+例如：
+
+```text
+nums = [2, 3, 1, 1, 4]
+```
+
+当 `currentEnd` 已经覆盖下标 $4$ 时，答案已经确定。
+
+如果继续扫描最后一个位置，并在：
+
+```cpp
+i == currentEnd
+```
+
+时再次 `steps++`，就可能多算一次不存在的跳跃。
+
+因此：
+
+```cpp
+i < n - 1
+```
+
+不是随意的代码技巧，而是与“终点无需再起跳”这一语义完全一致。
+
+![循环只扫描到倒数第二个位置的示意图](https://file1.kamacoder.com/i/algo/20201201232445286.png)
+
+另一种情况是当前边界已经能直接覆盖终点：
+
+![当前覆盖范围已经到达终点](https://file1.kamacoder.com/i/algo/20201201232338693.png)
+
+## 8. 推荐的标准写法
+
+### 初始化两个边界
+
+```cpp
+int currentEnd = 0;
+int nextEnd = 0;
+int steps = 0;
+```
+
+### 扫描到倒数第二个位置
+
+```cpp
+for (int i = 0; i < n - 1; ++i)
+```
+
+终点不需要再作为起跳点处理。
+
+### 计算下一层最远边界
+
+```cpp
+nextEnd = max(nextEnd, i + nums[i]);
+```
+
+### 当前层扫描结束时进入下一层
+
+```cpp
+if (i == currentEnd) {
+    ++steps;
+    currentEnd = nextEnd;
+}
+```
+
+完整实现：
+
+```cpp
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        const int n = static_cast<int>(nums.size());
+        int steps = 0;
+        int currentEnd = 0;
+        int nextEnd = 0;
+
+        for (int i = 0; i < n - 1; ++i) {
+            nextEnd = max(nextEnd, i + nums[i]);
+
+            if (i == currentEnd) {
+                ++steps;
+                currentEnd = nextEnd;
+            }
+        }
+
+        return steps;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+额外空间复杂度：
+
+$$
+O(1)
+$$
+
+## 9. 提前结束版本
+
+如果希望边界一旦覆盖终点就立即返回，可以写成：
+
+```cpp
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        const int n = static_cast<int>(nums.size());
+        if (n == 1) {
+            return 0;
+        }
+
+        int steps = 0;
+        int currentEnd = 0;
+        int nextEnd = 0;
+
+        for (int i = 0; i <= currentEnd; ++i) {
+            nextEnd = max(nextEnd, i + nums[i]);
+
+            if (nextEnd >= n - 1) {
+                return steps + 1;
+            }
+
+            if (i == currentEnd) {
+                ++steps;
+                currentEnd = nextEnd;
+            }
+        }
+
+        return steps;
+    }
+};
+```
+
+这个版本更显式地体现：
+
+```text
+扫描当前层 -> 得到下一层 -> 下一层已经覆盖终点
+```
+
+不过在题目保证终点可达时，上一节的 `i < n - 1` 写法更紧凑。
+
+## 10. 为什么“每一步直接跳当前能跳最远的位置”不严谨
+
+很多人会把贪心误解为：
+
+```text
+当前位置能跳多远，就直接跳多远
+```
+
+这不是本题真正的策略。
+
+考虑：
+
+```text
+[2, 3, 1, 1, 4]
+```
+
+从下标 $0$ 直接跳最远会落到下标 $2$：
+
+```text
+0 -> 2
+```
+
+但更优路径是：
+
+```text
+0 -> 1 -> 4
+```
+
+所以不能只看某个候选位置本身有多远，而要看：
+
+$$
+\max(i+nums[i])
+$$
+
+也就是当前覆盖范围中的每个候选位置对**下一层最远边界**的贡献。
+
+本题贪心的是：
+
+> **下一层覆盖范围尽可能远。**
+
+而不是：
+
+> **这一步的实际落点尽可能远。**
+
+## 11. 两个边界千万不要混用
+
+最常见的错误代码类似：
+
+```cpp
+currentEnd = max(currentEnd, i + nums[i]);
+if (i == currentEnd) {
+    ++steps;
+}
+```
+
+这里一边扫描一边修改 `currentEnd`，会破坏“当前层边界”的含义。
+
+正确做法必须把两个角色分开：
+
+```text
+currentEnd：这一层什么时候结束
+nextEnd：下一层最远能到哪里
+```
+
+对应：
+
+```cpp
+nextEnd = max(nextEnd, i + nums[i]);
+
+if (i == currentEnd) {
+    ++steps;
+    currentEnd = nextEnd;
+}
+```
+
+<Callout type="warning" title="currentEnd 是层边界，不是实时最远位置">
+如果扫描过程中不断修改 `currentEnd`，就相当于把当前层和下一层混在了一起，跳跃次数就失去了明确的层级含义。
+</Callout>
+
+## 12. 与 55. 跳跃游戏放在一起记
+
+这两题共享完全相同的“覆盖范围”思想，但目标不同。
+
+| 问题 | 核心状态 | 何时结束 |
+| --- | --- | --- |
+| 55. 跳跃游戏 | 单个最远边界 `farthest` | `farthest >= n - 1` |
+| 45. 跳跃游戏 II | `currentEnd + nextEnd` 两层边界 | 某一层首次覆盖 `n - 1` |
+
+55 只需要知道：
+
+$$
+\text{能不能覆盖终点}
+$$
+
+45 还需要知道：
+
+$$
+\text{第几层第一次覆盖终点}
+$$
+
+所以可以把本题记成一句话：
+
+> **55 是区间可达性；45 是区间分层后的最短步数。**
+
+## 13. 常见错误
+
+### 错误 1：把 `steps++` 放在每个位置
+
+这相当于认为扫描一个数组元素就是跳了一次，完全不符合题意。
+
+### 错误 2：实际模拟某一条跳跃路径
+
+如果每一步只选择一个具体落点，很容易因为局部选择错误而失去最优解。正确算法保留整个当前可达层。
+
+### 错误 3：扫描到 `n - 1` 后还继续增加步数
+
+终点不需要再起跳，所以推荐循环到：
+
+```cpp
+i < n - 1
+```
+
+### 错误 4：混淆 `currentEnd` 和 `nextEnd`
+
+一个表示当前层边界，一个表示下一层最远边界，二者不能在扫描过程中合并。
+
+### 错误 5：忘记题目保证可达
+
+当前 LeetCode 45 明确保证一定可以到达最后一个位置，因此标准代码不需要额外处理“卡死”情况。
+
+如果把算法迁移到不保证可达的题目中，就应该检测：
+
+$$
+nextEnd=currentEnd
+$$
+
+且还没有到达终点的情况，此时说明覆盖范围无法继续扩张。
+
+## 14. 一页记忆模板
+
+```text
+目标：最少跳几步到终点
+
+currentEnd = 当前步数能够覆盖的最远位置
+nextEnd    = 再多跳一步能够覆盖的最远位置
+
+扫描 i：
+    nextEnd = max(nextEnd, i + nums[i])
+
+    如果 i == currentEnd：
+        steps += 1
+        currentEnd = nextEnd
+```
+
+真正需要记住的是：
+
+$$
+\boxed{\text{扫描完一层，才增加一次跳跃}}
+$$
+
+以及：
+
+$$
+\boxed{\text{下一层边界取当前层所有位置的最大 }i+nums[i]}
+$$
+
+## 15. 其他语言版本
+
+下面均使用与 C++ 主解相同的“当前层边界 + 下一层边界”思路。
+
+
+
+```java tab="Java"
+class Solution {
+    public int jump(int[] nums) {
+        int steps = 0;
+        int currentEnd = 0;
+        int nextEnd = 0;
+
+        for (int i = 0; i < nums.length - 1; i++) {
+            nextEnd = Math.max(nextEnd, i + nums[i]);
+
+            if (i == currentEnd) {
+                steps++;
+                currentEnd = nextEnd;
+            }
+        }
+
+        return steps;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def jump(self, nums: list[int]) -> int:
+        steps = 0
+        current_end = 0
+        next_end = 0
+
+        for i in range(len(nums) - 1):
+            next_end = max(next_end, i + nums[i])
+
+            if i == current_end:
+                steps += 1
+                current_end = next_end
+
+        return steps
+```
+
+
+
+```go tab="Go"
+func jump(nums []int) int {
+    steps := 0
+    currentEnd := 0
+    nextEnd := 0
+
+    for i := 0; i < len(nums)-1; i++ {
+        if i+nums[i] > nextEnd {
+            nextEnd = i + nums[i]
+        }
+
+        if i == currentEnd {
+            steps++
+            currentEnd = nextEnd
+        }
+    }
+
+    return steps
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn jump(nums: Vec<i32>) -> i32 {
+        let mut steps = 0;
+        let mut current_end = 0usize;
+        let mut next_end = 0usize;
+
+        for i in 0..nums.len().saturating_sub(1) {
+            next_end = next_end.max(i + nums[i] as usize);
+
+            if i == current_end {
+                steps += 1;
+                current_end = next_end;
+            }
+        }
+
+        steps
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var jump = function (nums) {
+  let steps = 0;
+  let currentEnd = 0;
+  let nextEnd = 0;
+
+  for (let i = 0; i < nums.length - 1; i++) {
+    nextEnd = Math.max(nextEnd, i + nums[i]);
+
+    if (i === currentEnd) {
+      steps++;
+      currentEnd = nextEnd;
+    }
+  }
+
+  return steps;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function jump(nums: number[]): number {
+  let steps = 0;
+  let currentEnd = 0;
+  let nextEnd = 0;
+
+  for (let i = 0; i < nums.length - 1; i++) {
+    nextEnd = Math.max(nextEnd, i + nums[i]);
+
+    if (i === currentEnd) {
+      steps++;
+      currentEnd = nextEnd;
+    }
+  }
+
+  return steps;
+}
+```
+
+
+
+```c tab="C"
+int jump(int* nums, int numsSize) {
+    int steps = 0;
+    int currentEnd = 0;
+    int nextEnd = 0;
+
+    for (int i = 0; i < numsSize - 1; ++i) {
+        int reach = i + nums[i];
+        if (reach > nextEnd) {
+            nextEnd = reach;
+        }
+
+        if (i == currentEnd) {
+            ++steps;
+            currentEnd = nextEnd;
+        }
+    }
+
+    return steps;
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def jump(nums: Array[Int]): Int = {
+    var steps = 0
+    var currentEnd = 0
+    var nextEnd = 0
+
+    for (i <- 0 until nums.length - 1) {
+      nextEnd = math.max(nextEnd, i + nums(i))
+
+      if (i == currentEnd) {
+        steps += 1
+        currentEnd = nextEnd
+      }
+    }
+
+    steps
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public int Jump(int[] nums)
+    {
+        int steps = 0;
+        int currentEnd = 0;
+        int nextEnd = 0;
+
+        for (int i = 0; i < nums.Length - 1; i++)
+        {
+            nextEnd = Math.Max(nextEnd, i + nums[i]);
+
+            if (i == currentEnd)
+            {
+                steps++;
+                currentEnd = nextEnd;
+            }
+        }
+
+        return steps;
+    }
+}
+```

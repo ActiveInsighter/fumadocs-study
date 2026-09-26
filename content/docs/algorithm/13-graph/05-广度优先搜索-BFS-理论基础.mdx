@@ -1,0 +1,1010 @@
+---
+title: 广度优先搜索 BFS 理论基础
+description: 从分层搜索本质出发理解 BFS，掌握 FIFO 队列、visited 入队标记、无权图最短路、层级遍历、路径还原以及二维网格与邻接表的标准模板。
+---
+
+# 广度优先搜索 BFS 理论基础
+
+广度优先搜索（Breadth-First Search，BFS）是图论中另一种最基础的搜索方式。
+
+如果说 DFS 的直觉是：
+
+> **选一条路尽可能走到底，再回头尝试其他路。**
+
+那么 BFS 的直觉就是：
+
+> **以起点为中心，一层一层向外扩散。**
+
+这种“按距离分层”的性质，使 BFS 成为 **无权图最短路**、网格最少步数、层序遍历等问题的核心算法。
+
+<Callout type="info" title="BFS 最值得掌握的三个关键词">
+
+**分层、队列、最短步数。**
+
+真正理解这三个词之间的关系，就不需要死记 BFS 模板。
+
+</Callout>
+
+## 1. DFS 与 BFS 的本质区别
+
+考虑从起点 `S` 出发搜索一张图。
+
+DFS 更像：
+
+```text
+S → A → C → F → ...
+          ↓
+       走不动再回退
+```
+
+BFS 更像：
+
+```text
+第 0 层：S
+第 1 层：所有一步可达节点
+第 2 层：所有两步可达节点
+第 3 层：所有三步可达节点
+...
+```
+
+因此两者最核心的区别不是“递归和队列”，而是：
+
+| 算法 | 搜索优先级 |
+| --- | --- |
+| DFS | 优先深入当前分支 |
+| BFS | 优先处理距离起点更近的状态 |
+
+<Cards>
+  <Card title="DFS">
+    适合连通性、路径枚举、拓扑结构递归、回溯搜索等场景。
+  </Card>
+  <Card title="BFS">
+    适合无权最短路、最少操作次数、层级搜索、网格最短步数等场景。
+  </Card>
+</Cards>
+
+---
+
+## 2. BFS 为什么是一圈一圈扩散
+
+在二维网格中，假设每次只能向：
+
+```text
+上、下、左、右
+```
+
+移动一步。
+
+从 `start` 开始，第一轮首先访问所有距离为 `1` 的格子：
+
+![图一](https://file1.kamacoder.com/i/algo/20220825104505.png)
+
+接着再访问所有距离为 `2` 的格子，然后是距离为 `3`、`4` ……
+
+如果加入终点 `end`：
+
+![图二](https://file1.kamacoder.com/i/algo/20220825102653.png)
+
+可以把整个搜索过程理解成：
+
+$$
+L_0 \to L_1 \to L_2 \to L_3 \to \cdots
+$$
+
+其中 $L_k$ 表示：
+
+> 从起点恰好经过 $k$ 条边能够首次到达的节点集合。
+
+如果存在障碍，扩散会绕开无法通过的位置：
+
+![图三](https://file1.kamacoder.com/i/algo/20220825103900.png)
+
+障碍只改变哪些节点可以进入下一层，并不会破坏 BFS 的层次顺序。
+
+---
+
+## 3. 为什么 BFS 能求无权最短路
+
+这是 BFS 最重要的性质。
+
+假设每走一条边的代价都相同，统一记为 $1$。
+
+从起点 $s$ 出发：
+
+- 第一层节点距离都是 $1$；
+- 第二层节点距离都是 $2$；
+- 第三层节点距离都是 $3$；
+- ……
+
+BFS 总会先处理距离小的层，再处理距离大的层。
+
+因此一个节点 **第一次被发现** 时，对应的就是从起点到它的最少边数。
+
+可以写成递推：
+
+$$
+dist[v]=dist[u]+1
+$$
+
+其中 `v` 是第一次由 `u` 扩展出来的节点。
+
+<Callout type="warning" title="BFS 最短路有适用前提">
+
+普通 BFS 保证最短路，需要每条边的代价相同，也就是：
+
+- 无权图；或
+- 所有边权都相同。
+
+如果边权不同，例如一条边权重为 `1`、另一条为 `100`，最少边数不一定等于最小权值和，此时应该考虑 Dijkstra、0-1 BFS、Bellman-Ford 等算法。
+
+</Callout>
+
+---
+
+## 4. 为什么标准 BFS 使用 FIFO 队列
+
+BFS 的关键约束是：
+
+> 必须让先发现的、距离更近的节点优先被扩展。
+
+这正好对应 **先进先出队列（FIFO Queue）**。
+
+假设：
+
+```text
+S
+├─ A
+├─ B
+└─ C
+```
+
+先把 `A、B、C` 按顺序加入队列：
+
+```text
+front → A B C ← back
+```
+
+之后一定先处理 `A`，再 `B`，再 `C`，从而完整处理当前层后，再进入下一层。
+
+标准结构是：
+
+```cpp
+queue<int> q;
+q.push(start);
+
+while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+
+    for (int v : graph[u]) {
+        // 尝试把 v 加入下一轮搜索
+    }
+}
+```
+
+<Callout type="warning" title="栈不能直接替代 BFS 的队列">
+
+如果把 FIFO 队列直接换成 LIFO 栈，节点会优先沿最后加入的分支继续深入，搜索顺序将更接近 DFS，而不是按距离分层的 BFS。
+
+因此，**标准 BFS 的层次性质依赖 FIFO 顺序**。
+
+当然，也可以不用 `queue` 这个具体容器，例如使用数组配合头指针模拟队列；但数据结构的行为仍然必须是“先进先出”。
+
+</Callout>
+
+---
+
+## 5. visited 到底什么时候标记
+
+BFS 中有一个非常关键的细节：
+
+> **节点一旦入队，就立刻标记 visited。**
+
+推荐写法：
+
+```cpp
+if (!visited[v]) {
+    visited[v] = true;
+    q.push(v);
+}
+```
+
+而不是等到出队时才标记。
+
+### 为什么？
+
+考虑：
+
+```text
+    A
+   / \
+  B   C
+   \ /
+    D
+```
+
+当 `B` 和 `C` 都能够到达 `D` 时，如果 `D` 直到出队才标记，那么：
+
+```text
+B 发现 D → D 入队
+C 发现 D → D 又入队一次
+```
+
+这样同一个节点会重复进入队列。
+
+如果在第一次入队时立刻标记：
+
+```text
+B 发现 D → 标记 D → D 入队
+C 再看到 D → 已访问，跳过
+```
+
+就能确保普通 BFS 中每个节点最多入队一次。
+
+<Callout type="info" title="一句话记忆">
+
+DFS 常见写法是“进入递归就标记”；BFS 对应的是“进入队列就标记”。
+
+它们本质上都是：**一旦这个状态已经被正式纳入搜索，就阻止重复加入。**
+
+</Callout>
+
+---
+
+## 6. 图上的 BFS 标准模板
+
+假设图使用邻接表：
+
+```cpp
+vector<vector<int>> graph(n + 1);
+```
+
+最标准的可达性 BFS：
+
+```cpp
+void bfs(int start, const vector<vector<int>>& graph) {
+    vector<bool> visited(graph.size(), false);
+    queue<int> q;
+
+    q.push(start);
+    visited[start] = true;
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v : graph[u]) {
+            if (visited[v]) continue;
+
+            visited[v] = true;
+            q.push(v);
+        }
+    }
+}
+```
+
+过程可以拆成四步：
+
+```text
+1. 起点入队并标记
+2. 取出队首节点 u
+3. 枚举 u 的所有邻居 v
+4. 未访问的 v 标记并入队
+```
+
+只要队列不为空，就持续执行。
+
+---
+
+## 7. 求最短距离：dist 数组
+
+如果题目问：
+
+> 从 `start` 到其他节点至少经过多少条边？
+
+就可以维护：
+
+```cpp
+vector<int> dist(n + 1, -1);
+```
+
+其中：
+
+```text
+-1 = 尚未访问
+0  = 起点
+1  = 一步可达
+2  = 两步可达
+...
+```
+
+模板：
+
+```cpp
+vector<int> bfsDistance(
+    int start,
+    const vector<vector<int>>& graph
+) {
+    vector<int> dist(graph.size(), -1);
+    queue<int> q;
+
+    dist[start] = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v : graph[u]) {
+            if (dist[v] != -1) continue;
+
+            dist[v] = dist[u] + 1;
+            q.push(v);
+        }
+    }
+
+    return dist;
+}
+```
+
+这里甚至不需要单独的 `visited`：
+
+```cpp
+dist[v] != -1
+```
+
+本身就表示节点已经被发现。
+
+---
+
+## 8. 为什么第一次到达就是最短距离
+
+假设 BFS 第一次发现节点 `v` 时：
+
+$$
+dist[v]=k
+$$
+
+如果存在一条更短的路径，长度小于 $k$，那么 `v` 应该已经在更早的一层被发现。
+
+但 BFS 是严格按照：
+
+$$
+0,1,2,3,\dots
+$$
+
+的层序向外扩展的，所以这与“第一次到达是第 $k$ 层”矛盾。
+
+因此第一次发现的距离就是最短距离。
+
+这也是为什么我们可以在发现终点时立即确定最短步数。
+
+---
+
+## 9. 网格 BFS 标准模板
+
+二维网格可以看成一张隐式图。
+
+每个格子 `(x,y)` 是一个节点，相邻格子之间存在边。
+
+四方向：
+
+```cpp
+const int dirs[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+```
+
+标准模板：
+
+```cpp
+void bfs(
+    int sx,
+    int sy,
+    const vector<vector<int>>& grid,
+    vector<vector<bool>>& visited
+) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+
+    queue<pair<int, int>> q;
+    q.push({sx, sy});
+    visited[sx][sy] = true;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (auto& d : dirs) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= rows || ny < 0 || ny >= cols) {
+                continue;
+            }
+
+            if (visited[nx][ny]) {
+                continue;
+            }
+
+            visited[nx][ny] = true;
+            q.push({nx, ny});
+        }
+    }
+}
+```
+
+实际题目通常还会加一层“格子是否合法”的判断，例如：
+
+```cpp
+if (grid[nx][ny] == 0) continue; // 0 表示障碍
+```
+
+或：
+
+```cpp
+if (grid[nx][ny] != '1') continue; // 只搜索陆地
+```
+
+因此网格 BFS 的核心判断一般是：
+
+```text
+是否越界？
+是否满足题目属性？
+是否已经访问？
+```
+
+三项都通过才能入队。
+
+---
+
+## 10. 两种“层数”写法
+
+BFS 经常需要知道当前搜索到第几层。
+
+有两种主流写法。
+
+### 方法一：dist 数组
+
+```cpp
+dist[v] = dist[u] + 1;
+```
+
+优点是可以得到 **每个节点的最短距离**。
+
+适合：
+
+- 单源最短步数；
+- 输出每个节点的距离；
+- 后续需要利用距离信息。
+
+---
+
+### 方法二：按队列当前 size 分层
+
+```cpp
+int level = 0;
+
+while (!q.empty()) {
+    int size = q.size();
+
+    while (size--) {
+        int u = q.front();
+        q.pop();
+
+        // 处理当前层节点
+    }
+
+    ++level;
+}
+```
+
+为什么 `q.size()` 恰好等于当前层节点数？
+
+因为进入这一轮 `while` 时，队列里已经排好当前层所有节点；处理它们时新加入的是 **下一层**，不会计入已经保存下来的 `size`。
+
+适合：
+
+- 二叉树层序遍历；
+- 每层单独统计；
+- 最少轮数 / 扩散轮数；
+- 多源 BFS 分层。
+
+---
+
+## 11. 如何还原最短路径
+
+只求距离时，`dist` 足够。
+
+如果题目要求输出具体路径：
+
+```text
+S → ... → T
+```
+
+可以额外维护：
+
+```cpp
+vector<int> parent(n + 1, -1);
+```
+
+第一次发现 `v` 时：
+
+```cpp
+parent[v] = u;
+```
+
+表示 BFS 最短路树中，`v` 是从 `u` 走过来的。
+
+模板：
+
+```cpp
+vector<int> shortestPath(
+    int start,
+    int target,
+    const vector<vector<int>>& graph
+) {
+    vector<int> parent(graph.size(), -1);
+    vector<bool> visited(graph.size(), false);
+    queue<int> q;
+
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        if (u == target) break;
+
+        for (int v : graph[u]) {
+            if (visited[v]) continue;
+
+            visited[v] = true;
+            parent[v] = u;
+            q.push(v);
+        }
+    }
+
+    if (!visited[target]) return {};
+
+    vector<int> path;
+    for (int cur = target; cur != -1; cur = parent[cur]) {
+        path.push_back(cur);
+    }
+
+    reverse(path.begin(), path.end());
+    return path;
+}
+```
+
+还原过程是：
+
+```text
+target → parent[target] → ... → start
+```
+
+得到的是逆序路径，所以最后反转。
+
+---
+
+## 12. 多源 BFS
+
+BFS 不一定只能有一个起点。
+
+如果有多个起始节点，并且它们都视为距离 $0$，可以在开始时全部入队：
+
+```cpp
+for (int s : sources) {
+    q.push(s);
+    dist[s] = 0;
+}
+```
+
+然后正常 BFS。
+
+这相当于给图增加一个虚拟超级源点 `S`：
+
+```text
+        ┌→ source1
+Super S ├→ source2
+        └→ source3
+```
+
+并让超级源点到所有真实源点的边权为 `0`。
+
+多源 BFS 常用于：
+
+- 离最近的 `0` / `1` 的距离；
+- 腐烂橘子；
+- 多个火源同时扩散；
+- 多个边界点同时向内搜索；
+- 最近障碍 / 最近目标距离。
+
+---
+
+## 13. BFS 与 DFS 都能做的题
+
+并不是所有题都必须严格二选一。
+
+例如岛屿问题常常只要求：
+
+> 找出一个连通块，并把其中所有格子标记掉。
+
+只要能完整访问连通块即可：
+
+```text
+DFS 可以
+BFS 也可以
+```
+
+因为题目不关心访问顺序。
+
+典型场景包括：
+
+- 岛屿数量；
+- 连通分量；
+- 染色 / flood fill；
+- 某个区域能否到达；
+- 连通块面积。
+
+如果题目进一步问：
+
+> 至少走多少步？
+
+那么 BFS 的层次性质通常更合适。
+
+<Callout title="选择 DFS 还是 BFS 的快速判断">
+
+如果只问“能不能到、有哪些连通块、把整块遍历完”，DFS/BFS 往往都可以。
+
+如果问“最少几步、最短边数、第几层第一次遇到目标”，优先想到 BFS。
+
+</Callout>
+
+---
+
+## 14. 复杂度分析
+
+### 邻接表图
+
+每个节点最多入队一次，每条边最多被检查常数次。
+
+因此：
+
+$$
+T=O(V+E)
+$$
+
+队列、`visited`、`dist` 等辅助结构：
+
+$$
+S=O(V)
+$$
+
+不计算图本身时，这是标准 BFS 的额外空间复杂度。
+
+### 二维网格
+
+假设网格大小为：
+
+$$
+R\times C
+$$
+
+每个格子最多入队一次，每次检查固定的四个方向，因此：
+
+$$
+T=O(RC)
+$$
+
+最坏情况下队列和访问数组：
+
+$$
+S=O(RC)
+$$
+
+---
+
+## 15. 常见错误
+
+### 错误 1：出队时才 visited
+
+不推荐：
+
+```cpp
+int u = q.front();
+q.pop();
+visited[u] = true;
+```
+
+这会让同一个节点可能在正式出队之前被多个父节点重复入队。
+
+推荐：
+
+```cpp
+visited[v] = true;
+q.push(v);
+```
+
+---
+
+### 错误 2：把栈直接当 BFS 队列
+
+```cpp
+stack<int> st;
+```
+
+直接用 LIFO 扩展，会破坏 BFS 的按距离分层顺序，因此不能依赖它获得普通无权最短路。
+
+---
+
+### 错误 3：以为 BFS 能处理任意正权边最短路
+
+普通 BFS 只考虑“边数”。
+
+若边权为：
+
+```text
+A → B 权重 100
+A → C 权重 1
+C → B 权重 1
+```
+
+从边数看：
+
+```text
+A → B
+```
+
+只有一条边；但总代价是 `100`。
+
+真正最短的是：
+
+```text
+A → C → B
+```
+
+总代价只有 `2`。
+
+这类问题不能使用普通 BFS。
+
+---
+
+### 错误 4：网格忘记边界判断
+
+在访问：
+
+```cpp
+grid[nx][ny]
+```
+
+之前，必须先确保：
+
+```cpp
+0 <= nx < rows
+0 <= ny < cols
+```
+
+否则会越界。
+
+---
+
+### 错误 5：方向数组写错
+
+四方向推荐固定使用：
+
+```cpp
+const int dirs[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+```
+
+这样比在代码中手写四组逻辑更简洁，也更不容易漏方向。
+
+---
+
+## 16. BFS 标准思维模板
+
+以后遇到 BFS，可以固定问自己五个问题：
+
+<Cards>
+  <Card title="1. 状态是什么？">
+    是图节点 `u`，还是网格坐标 `(x,y)`，还是更复杂的 `(位置,钥匙状态)`？
+  </Card>
+  <Card title="2. 起点有哪些？">
+    单源还是多源？起点距离应该初始化为什么？
+  </Card>
+  <Card title="3. 下一步怎么扩展？">
+    邻接表、四方向、八方向，还是通过某种规则生成新状态？
+  </Card>
+  <Card title="4. 如何判重？">
+    用 `visited`，还是直接用 `dist == -1` 表示尚未访问？
+  </Card>
+  <Card title="5. 何时得到答案？">
+    第一次发现目标、第一次出队目标，还是必须遍历完整张图？
+  </Card>
+</Cards>
+
+然后套入：
+
+```cpp
+初始化队列;
+起点入队并标记;
+
+while (队列非空) {
+    取出队首状态;
+
+    for (所有下一状态) {
+        if (非法) continue;
+        if (已经访问) continue;
+
+        标记 / 更新距离;
+        入队;
+    }
+}
+```
+
+---
+
+## 17. DFS 与 BFS 最终对照
+
+| 对比项 | DFS | BFS |
+| --- | --- | --- |
+| 核心顺序 | 一条路深入到底 | 一层一层向外扩散 |
+| 常见实现 | 递归 / 显式栈 | FIFO 队列 |
+| 图可达性 | 可以 | 可以 |
+| 连通块 | 可以 | 可以 |
+| 枚举路径 | 很自然 | 通常更麻烦 |
+| 无权最短路 | 不天然保证 | 天然适合 |
+| 二叉树对应 | 前中后序等深搜 | 层序遍历 |
+| 主要空间风险 | 递归栈过深 | 队列可能很宽 |
+
+### 一句话记忆
+
+> **DFS 关心“先把这一条分支走深”，BFS 关心“先把所有更近的状态处理完”。**
+
+正因为 BFS 保持距离层次，它才拥有无权最短路这一关键性质。
+
+---
+
+## 18. 其他语言版本
+
+下面给出 **邻接表 BFS + 最短边数** 的标准模板。`dist[x] == -1` 同时承担“尚未访问”的判重作用。
+
+```cpp tab="C++"
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+vector<int> bfs(int start, const vector<vector<int>>& graph) {
+    vector<int> dist(graph.size(), -1);
+    queue<int> q;
+
+    dist[start] = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v : graph[u]) {
+            if (dist[v] != -1) continue;
+
+            dist[v] = dist[u] + 1;
+            q.push(v);
+        }
+    }
+
+    return dist;
+}
+```
+
+```java tab="Java"
+import java.util.*;
+
+static int[] bfs(int start, List<List<Integer>> graph) {
+    int[] dist = new int[graph.size()];
+    Arrays.fill(dist, -1);
+
+    Queue<Integer> queue = new ArrayDeque<>();
+    dist[start] = 0;
+    queue.offer(start);
+
+    while (!queue.isEmpty()) {
+        int u = queue.poll();
+
+        for (int v : graph.get(u)) {
+            if (dist[v] != -1) continue;
+
+            dist[v] = dist[u] + 1;
+            queue.offer(v);
+        }
+    }
+
+    return dist;
+}
+```
+
+```python tab="Python"
+from collections import deque
+
+
+def bfs(start: int, graph: list[list[int]]) -> list[int]:
+    dist = [-1] * len(graph)
+    queue = deque([start])
+    dist[start] = 0
+
+    while queue:
+        u = queue.popleft()
+
+        for v in graph[u]:
+            if dist[v] != -1:
+                continue
+
+            dist[v] = dist[u] + 1
+            queue.append(v)
+
+    return dist
+```
+
+```go tab="Go"
+func bfs(start int, graph [][]int) []int {
+    dist := make([]int, len(graph))
+    for i := range dist {
+        dist[i] = -1
+    }
+
+    queue := make([]int, 0)
+    head := 0
+
+    dist[start] = 0
+    queue = append(queue, start)
+
+    for head < len(queue) {
+        u := queue[head]
+        head++
+
+        for _, v := range graph[u] {
+            if dist[v] != -1 {
+                continue
+            }
+
+            dist[v] = dist[u] + 1
+            queue = append(queue, v)
+        }
+    }
+
+    return dist
+}
+```
+
+```javascript tab="JavaScript"
+function bfs(start, graph) {
+  const dist = Array(graph.length).fill(-1);
+  const queue = [start];
+  let head = 0;
+
+  dist[start] = 0;
+
+  while (head < queue.length) {
+    const u = queue[head++];
+
+    for (const v of graph[u]) {
+      if (dist[v] !== -1) continue;
+
+      dist[v] = dist[u] + 1;
+      queue.push(v);
+    }
+  }
+
+  return dist;
+}
+```

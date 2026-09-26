@@ -1,0 +1,769 @@
+---
+title: 冗余连接 II
+description: 从“入度为 2”和“有向环”两个结构异常切入，系统掌握有向树加一条边后的分类讨论与并查集判环方法。
+---
+
+# 685. 冗余连接 II
+
+[LeetCode 685：冗余连接 II](https://leetcode.cn/problems/redundant-connection-ii/)
+
+给定一个由 **有根树再额外加入一条有向边** 得到的有向图。节点编号为 `1` 到 `n`，边 `edges[i] = [u, v]` 表示：
+
+```text
+u -> v
+```
+
+也就是 `u` 是 `v` 的父节点。
+
+现在需要删除一条边，使剩余图重新成为一棵有根树。如果有多个合法答案，返回输入中 **最后出现** 的那一条。
+
+![](https://file1.kamacoder.com/i/algo/20210727151057.png)
+
+![](https://file1.kamacoder.com/i/algo/20210727151118.png)
+
+> [!IMPORTANT]
+> 本题比「684. 冗余连接」难的关键，不是并查集本身，而是 **有向树还要求每个非根节点恰好只有一个父节点**。因此除了“有没有环”，还必须关注节点的 **入度**。
+
+## 一、先明确什么叫“有根树”
+
+对于一棵有 $n$ 个节点的有根树：
+
+- 恰好有一个根节点，入度为 $0$；
+- 其余 $n-1$ 个节点的入度都为 $1$；
+- 从根节点可以到达所有节点；
+- 图中不存在有向环；
+- 总边数为 $n-1$。
+
+原图本来是一棵树，现在额外加入一条边，因此边数变成：
+
+$$
+n
+$$
+
+只需要删除一条边，就可能恢复成树。
+
+这条额外边会破坏树结构的方式非常有限。
+
+## 二、核心分类：只可能出现三种结构
+
+额外加入一条有向边后，真正需要关注的只有两类异常：
+
+1. 某个节点出现 **两个父节点**，即入度变成 $2$；
+2. 图中出现 **有向环**。
+
+它们又可以组合成三种典型情况。
+
+### 情况 A：出现入度为 2，但没有环
+
+某个节点 `v` 原本已经有父节点，又多出一条边指向 `v`：
+
+```text
+p1 ---> v <--- p2
+```
+
+这时只要删除两条入边中的某一条，就能恢复为树。
+
+如果两条边都可以删除，根据题意要返回 **后出现的那一条**。
+
+### 情况 B：出现入度为 2，同时存在环
+
+![](https://file1.kamacoder.com/i/algo/685.冗余连接II1.png)
+
+这时指向入度为 $2$ 节点的两条边中，只有一条是真正应该删除的。
+
+通常可以这样理解：
+
+- 一条是这个节点原本在树中的父边；
+- 另一条是后来加入的额外边；
+- 如果删除错误的一条，图中仍会留下环。
+
+因此需要 **尝试删除候选边，再验证剩余图是不是树**。
+
+### 情况 C：没有入度为 2，只有环
+
+![](https://file1.kamacoder.com/i/algo/685.冗余连接II2.png)
+
+如果所有节点入度都满足树的要求，却仍然不是树，那么唯一可能的问题就是形成了有向环。
+
+这时问题就退化成了「684. 冗余连接」的判环思路：
+
+> 按输入顺序加入边，第一条连接两个已经连通节点的边，就是应该删除的边。
+
+## 三、为什么先统计入度
+
+`edges[i] = [u, v]` 表示：
+
+```text
+u -> v
+```
+
+所以：
+
+- `edges[i][0]` 是边的起点；
+- `edges[i][1]` 是边的终点；
+- 每出现一次 `v` 作为终点，`v` 的入度就加 $1$。
+
+例如：
+
+```text
+edges = [[1,2], [1,3], [2,3]]
+```
+
+对应：
+
+```text
+1 -> 2
+1 -> 3
+2 -> 3
+```
+
+节点 `3` 有两条入边，因此：
+
+$$
+indegree(3)=2
+$$
+
+统计代码非常直接：
+
+```cpp
+vector<int> indegree(n + 1, 0);
+for (const auto& edge : edges) {
+    indegree[edge[1]]++;
+}
+```
+
+> [!TIP]
+> 在有向图中看到 `edges[i] = [u, v]`，可以直接记忆：**统计入度看 `v`，统计出度看 `u`。**
+
+## 四、为什么入度为 2 时只需要检查两条边
+
+原图是一棵树，所以每个非根节点本来只有一个父节点。
+
+额外只加入了 **一条** 边，因此最多只会让一个节点的入度从 $1$ 变成 $2$。
+
+假设节点 `v` 的两条入边分别是：
+
+```text
+u1 -> v
+u2 -> v
+```
+
+要恢复成树，显然至少要删掉其中一条，否则 `v` 仍然有两个父节点。
+
+所以候选答案已经缩小为这两条边，不需要枚举所有边。
+
+## 五、为什么要倒序记录这两条边
+
+题目明确要求：
+
+> 如果有多个答案，返回在 `edges` 中最后出现的答案。
+
+因此寻找指向入度为 $2$ 节点的边时，可以直接从后向前扫描：
+
+```cpp
+vector<int> candidates;
+for (int i = n - 1; i >= 0; --i) {
+    if (indegree[edges[i][1]] == 2) {
+        candidates.push_back(i);
+    }
+}
+```
+
+这样：
+
+- `candidates[0]` 是后出现的候选边；
+- `candidates[1]` 是先出现的候选边。
+
+接下来优先尝试删除 `candidates[0]`。
+
+## 六、删除一条边之后，怎样判断是不是树
+
+这是本题最重要的辅助问题。
+
+我们已经知道：
+
+- 总共有 $n$ 个节点；
+- 删除一条边后恰好剩 $n-1$ 条边。
+
+对于这样的图，如果在不断加入边的过程中从未形成环，那么它就是一棵树。
+
+因此可以用并查集验证。
+
+### 并查集判环原则
+
+对于一条边：
+
+```text
+u -> v
+```
+
+在并查集中暂时不关心方向，只关心两个端点是否已经连通。
+
+如果加入这条边之前：
+
+$$
+find(u)=find(v)
+$$
+
+说明 `u` 和 `v` 已经处在同一个连通块中，此时再加入它们之间的一条边一定会形成环。
+
+> [!NOTE]
+> 并查集本身检测的是底层无向连通关系。这里之所以足够，是因为题目已经保证输入来自“一棵有根树 + 一条额外边”，并且我们又通过入度先处理了“两个父节点”的异常。
+
+## 七、完整决策流程
+
+可以把整道题压缩成下面的流程：
+
+```text
+统计所有节点入度
+        |
+        v
+是否存在入度为 2 的节点？
+   /                 \
+ 是                   否
+ |                    |
+找到它的两条入边       图中一定是环问题
+ |                    |
+优先删除后出现的边      用并查集顺序判环
+ |                    |
+剩余图是否为树？        返回形成环的那条边
+ /        \
+是          否
+|           |
+返回它      返回另一条入边
+```
+
+这个分类比死记代码重要得多。
+
+## 八、C++ 实现
+
+```cpp
+class Solution {
+private:
+    vector<int> parent;
+
+    int find(int x) {
+        if (parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+
+    bool unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a == b) return false;
+        parent[b] = a;
+        return true;
+    }
+
+    void init(int n) {
+        parent.resize(n + 1);
+        for (int i = 1; i <= n; ++i) {
+            parent[i] = i;
+        }
+    }
+
+    // 删除 edges[skip] 后，判断剩余边能否组成树。
+    bool isTreeAfterRemoving(const vector<vector<int>>& edges, int skip) {
+        int n = edges.size();
+        init(n);
+
+        for (int i = 0; i < n; ++i) {
+            if (i == skip) continue;
+
+            int u = edges[i][0];
+            int v = edges[i][1];
+
+            if (!unite(u, v)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // 已知不存在入度为 2 的节点，此时只需找到形成环的边。
+    vector<int> findCycleEdge(const vector<vector<int>>& edges) {
+        int n = edges.size();
+        init(n);
+
+        for (const auto& edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+
+            if (!unite(u, v)) {
+                return edge;
+            }
+        }
+        return {};
+    }
+
+public:
+    vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
+        int n = edges.size();
+        vector<int> indegree(n + 1, 0);
+
+        for (const auto& edge : edges) {
+            indegree[edge[1]]++;
+        }
+
+        vector<int> candidates;
+
+        // 倒序寻找，保证优先考虑后出现的边。
+        for (int i = n - 1; i >= 0; --i) {
+            if (indegree[edges[i][1]] == 2) {
+                candidates.push_back(i);
+            }
+        }
+
+        if (!candidates.empty()) {
+            if (isTreeAfterRemoving(edges, candidates[0])) {
+                return edges[candidates[0]];
+            }
+            return edges[candidates[1]];
+        }
+
+        return findCycleEdge(edges);
+    }
+};
+```
+
+## 九、用典型例子走一遍
+
+### 示例 1：只有入度为 2
+
+```text
+edges = [[1,2], [1,3], [2,3]]
+```
+
+节点 `3` 的入度为 $2$：
+
+```text
+1 -> 3
+2 -> 3
+```
+
+因为 `[2,3]` 在后面，所以先尝试删除 `[2,3]`。
+
+剩余：
+
+```text
+1 -> 2
+1 -> 3
+```
+
+已经是一棵树，因此答案为：
+
+```text
+[2,3]
+```
+
+### 示例 2：入度为 2 且有环
+
+假设结构为：
+
+```text
+1 -> 2
+2 -> 3
+3 -> 1
+4 -> 1
+```
+
+节点 `1` 入度为 $2$：
+
+```text
+3 -> 1
+4 -> 1
+```
+
+如果删掉 `4 -> 1`，仍然存在：
+
+```text
+1 -> 2 -> 3 -> 1
+```
+
+所以删除后出现的那条边不能形成树，必须删除另一条：
+
+```text
+3 -> 1
+```
+
+### 示例 3：没有入度为 2，只有环
+
+```text
+1 -> 2
+2 -> 3
+3 -> 1
+```
+
+每个节点入度都是 $1$，不存在两个父节点。
+
+并查集顺序加入：
+
+```text
+1 - 2   成功
+2 - 3   成功
+3 - 1   1 与 3 已连通 -> 成环
+```
+
+因此返回第三条边。
+
+## 十、复杂度分析
+
+设边数为 $n$。
+
+统计入度需要：
+
+$$
+O(n)
+$$
+
+并查集采用路径压缩后，单次操作均摊复杂度接近常数，更严格地写为：
+
+$$
+O(\alpha(n))
+$$
+
+因此整体时间复杂度为：
+
+$$
+O(n\alpha(n))
+$$
+
+在实际规模下通常近似看成：
+
+$$
+O(n)
+$$
+
+空间复杂度主要来自入度数组与并查集：
+
+$$
+O(n)
+$$
+
+## 十一、常见错误
+
+### 1. 只用并查集，不统计入度
+
+这是最常见的错误。
+
+无向图中只要找到环即可，但有向树还有“一个节点不能有两个父节点”的限制。
+
+例如：
+
+```text
+1 -> 2
+1 -> 3
+2 -> 3
+```
+
+底层无向图虽然也会形成环，但要根据题目的“最后出现”规则和父节点关系正确选择删除哪一条边，必须先识别入度为 $2$ 的节点。
+
+### 2. 把 `edges[i][0]` 当作入度节点
+
+对于：
+
+```text
+[u, v]
+```
+
+方向是：
+
+```text
+u -> v
+```
+
+所以增加的是 `v` 的入度。
+
+### 3. 入度为 2 时直接返回后一条边
+
+不一定。
+
+如果后一条边删除后仍然存在环，那么必须删除前一条边。
+
+因此一定要执行一次“删边后验证”。
+
+### 4. 试图枚举每一条边再判断
+
+当然能做，但没有利用题目结构。
+
+入度分析能够把候选边从 $n$ 条直接缩小到最多 $2$ 条，这正是本题最关键的结构性优化。
+
+## 十二、方法总结
+
+> [!TIP]
+> 遇到“树 + 一条额外有向边”时，可以形成固定思维模板：
+>
+> 1. **先看入度**：有没有节点拥有两个父节点；
+> 2. **再看环**：并查集判断加入某条边时是否已经连通；
+> 3. 入度为 $2$：只检查指向该节点的两条边；
+> 4. 没有入度为 $2$：答案就是形成环的边。
+
+本题真正值得掌握的不是一段模板代码，而是：**先利用有向树的结构约束缩小候选，再用并查集完成验证。**
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    private int[] parent;
+
+    private int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    private void init(int n) {
+        parent = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            parent[i] = i;
+        }
+    }
+
+    private boolean union(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a == b) return false;
+        parent[b] = a;
+        return true;
+    }
+
+    private boolean isTreeAfterRemoving(int[][] edges, int skip) {
+        init(edges.length);
+        for (int i = 0; i < edges.length; i++) {
+            if (i == skip) continue;
+            if (!union(edges[i][0], edges[i][1])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int[] findCycleEdge(int[][] edges) {
+        init(edges.length);
+        for (int[] edge : edges) {
+            if (!union(edge[0], edge[1])) {
+                return edge;
+            }
+        }
+        return new int[0];
+    }
+
+    public int[] findRedundantDirectedConnection(int[][] edges) {
+        int n = edges.length;
+        int[] indegree = new int[n + 1];
+
+        for (int[] edge : edges) {
+            indegree[edge[1]]++;
+        }
+
+        int[] candidates = new int[2];
+        int count = 0;
+
+        for (int i = n - 1; i >= 0; i--) {
+            if (indegree[edges[i][1]] == 2) {
+                candidates[count++] = i;
+            }
+        }
+
+        if (count > 0) {
+            if (isTreeAfterRemoving(edges, candidates[0])) {
+                return edges[candidates[0]];
+            }
+            return edges[candidates[1]];
+        }
+
+        return findCycleEdge(edges);
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+
+class Solution:
+    def findRedundantDirectedConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        indegree = [0] * (n + 1)
+
+        for u, v in edges:
+            indegree[v] += 1
+
+        def is_tree_after_removing(skip: int) -> bool:
+            parent = list(range(n + 1))
+
+            def find(x: int) -> int:
+                if parent[x] != x:
+                    parent[x] = find(parent[x])
+                return parent[x]
+
+            for i, (u, v) in enumerate(edges):
+                if i == skip:
+                    continue
+                ru, rv = find(u), find(v)
+                if ru == rv:
+                    return False
+                parent[rv] = ru
+            return True
+
+        candidates = []
+        for i in range(n - 1, -1, -1):
+            if indegree[edges[i][1]] == 2:
+                candidates.append(i)
+
+        if candidates:
+            if is_tree_after_removing(candidates[0]):
+                return edges[candidates[0]]
+            return edges[candidates[1]]
+
+        parent = list(range(n + 1))
+
+        def find(x: int) -> int:
+            if parent[x] != x:
+                parent[x] = find(parent[x])
+            return parent[x]
+
+        for u, v in edges:
+            ru, rv = find(u), find(v)
+            if ru == rv:
+                return [u, v]
+            parent[rv] = ru
+
+        return []
+```
+
+```go tab="Go"
+func findRedundantDirectedConnection(edges [][]int) []int {
+    n := len(edges)
+    indegree := make([]int, n+1)
+
+    for _, e := range edges {
+        indegree[e[1]]++
+    }
+
+    isTreeAfterRemoving := func(skip int) bool {
+        parent := make([]int, n+1)
+        for i := 1; i <= n; i++ {
+            parent[i] = i
+        }
+
+        var find func(int) int
+        find = func(x int) int {
+            if parent[x] != x {
+                parent[x] = find(parent[x])
+            }
+            return parent[x]
+        }
+
+        for i, e := range edges {
+            if i == skip {
+                continue
+            }
+            ru, rv := find(e[0]), find(e[1])
+            if ru == rv {
+                return false
+            }
+            parent[rv] = ru
+        }
+        return true
+    }
+
+    candidates := make([]int, 0, 2)
+    for i := n - 1; i >= 0; i-- {
+        if indegree[edges[i][1]] == 2 {
+            candidates = append(candidates, i)
+        }
+    }
+
+    if len(candidates) > 0 {
+        if isTreeAfterRemoving(candidates[0]) {
+            return edges[candidates[0]]
+        }
+        return edges[candidates[1]]
+    }
+
+    parent := make([]int, n+1)
+    for i := 1; i <= n; i++ {
+        parent[i] = i
+    }
+
+    var find func(int) int
+    find = func(x int) int {
+        if parent[x] != x {
+            parent[x] = find(parent[x])
+        }
+        return parent[x]
+    }
+
+    for _, e := range edges {
+        ru, rv := find(e[0]), find(e[1])
+        if ru == rv {
+            return e
+        }
+        parent[rv] = ru
+    }
+
+    return nil
+}
+```
+
+```javascript tab="JavaScript"
+var findRedundantDirectedConnection = function (edges) {
+    const n = edges.length;
+    const indegree = new Array(n + 1).fill(0);
+
+    for (const [u, v] of edges) {
+        indegree[v]++;
+    }
+
+    const isTreeAfterRemoving = (skip) => {
+        const parent = Array.from({ length: n + 1 }, (_, i) => i);
+
+        const find = (x) => {
+            if (parent[x] !== x) parent[x] = find(parent[x]);
+            return parent[x];
+        };
+
+        for (let i = 0; i < n; i++) {
+            if (i === skip) continue;
+            const [u, v] = edges[i];
+            const ru = find(u);
+            const rv = find(v);
+            if (ru === rv) return false;
+            parent[rv] = ru;
+        }
+        return true;
+    };
+
+    const candidates = [];
+    for (let i = n - 1; i >= 0; i--) {
+        if (indegree[edges[i][1]] === 2) {
+            candidates.push(i);
+        }
+    }
+
+    if (candidates.length > 0) {
+        if (isTreeAfterRemoving(candidates[0])) {
+            return edges[candidates[0]];
+        }
+        return edges[candidates[1]];
+    }
+
+    const parent = Array.from({ length: n + 1 }, (_, i) => i);
+
+    const find = (x) => {
+        if (parent[x] !== x) parent[x] = find(parent[x]);
+        return parent[x];
+    };
+
+    for (const [u, v] of edges) {
+        const ru = find(u);
+        const rv = find(v);
+        if (ru === rv) return [u, v];
+        parent[rv] = ru;
+    }
+
+    return [];
+};
+```

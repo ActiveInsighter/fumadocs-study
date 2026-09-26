@@ -1,0 +1,1113 @@
+---
+title: Dijkstra（堆优化版）精讲
+subtitle: 邻接表 + 小顶堆解决稀疏图上的非负权单源最短路
+summary: 从朴素 Dijkstra 的性能瓶颈出发，系统理解优先队列优化：为什么堆里可以出现同一节点的多个距离、如何跳过过期状态、为什么应使用邻接表，以及 O((V+E)logV) 复杂度从何而来。
+---
+
+# Dijkstra（堆优化版）精讲
+
+> **卡码网 47. 参加科学大会**
+>
+> 给定一张有向带权图，节点编号为 $1\sim N$，从节点 $1$ 出发到节点 $N$。求最短路径长度；若不可达，输出 `-1`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1047)
+
+在上一篇朴素 Dijkstra 中，我们已经知道算法的核心始终是三步：
+
+1. 找到当前距离源点最近、且尚未最终确定的顶点；
+2. 确定它的最短距离；
+3. 用它去松弛相邻边。
+
+**堆优化并没有改变 Dijkstra 的正确性逻辑。**
+
+它只是在解决一个工程问题：
+
+> 每一轮都线性扫描所有顶点寻找“当前最近点”，太慢了。
+
+因此我们用 **小顶堆（priority queue / min-heap）** 自动维护“当前最小的候选距离”，并配合 **邻接表** 只遍历实际存在的边。
+
+能够到达终点时，示例最短路径如下：
+
+![Dijkstra 示例中的最短路径](https://file1.kamacoder.com/i/algo/20240227101345.png)
+
+若终点不可达，则答案为 `-1`：
+
+![Dijkstra 中终点不可达](https://file1.kamacoder.com/i/algo/20240227101401.png)
+
+<Callout type="warning" title="适用条件没有变化">
+
+堆优化 Dijkstra 仍然要求所有边权满足：
+
+$$
+w(u,v)\ge 0
+$$
+
+“小顶堆”只优化速度，不会让 Dijkstra 突然能够处理负权边。
+
+只要图中可能出现负权边，就应考虑 Bellman-Ford / SPFA 等算法。
+
+</Callout>
+
+---
+
+## 1. 为什么朴素 Dijkstra 会慢
+
+朴素版通常使用邻接矩阵，并执行大约 $V$ 轮。
+
+每轮至少要做两件事：
+
+- 扫描全部顶点，找最小 `dist`；
+- 再扫描一遍所有顶点，检查当前点能否到达它们。
+
+于是时间复杂度为：
+
+$$
+O(V^2)
+$$
+
+当图比较稠密时，这个复杂度其实并不差。
+
+例如：
+
+$$
+E\approx V^2
+$$
+
+本身就有接近平方级别的边需要处理。
+
+真正适合堆优化的情况是：
+
+> **顶点很多，但实际边数远小于 $V^2$，也就是稀疏图。**
+
+例如：
+
+```text
+V = 100000
+E = 200000
+```
+
+若仍使用 $O(V^2)$，显然不可接受；而只围绕实际存在的 $E$ 条边工作，就合理得多。
+
+---
+
+## 2. 邻接矩阵为什么不适合稀疏图
+
+邻接矩阵用二维数组保存边：
+
+```text
+graph[u][v] = w
+```
+
+图示如下：
+
+![邻接矩阵示意图](https://file1.kamacoder.com/i/algo/20240222110025.png)
+
+它的优点很明确：
+
+- 判断任意两点之间是否有边非常快，通常为 $O(1)$；
+- 表达直接；
+- 对稠密图很自然。
+
+但它无论真实边数是多少，都需要：
+
+$$
+O(V^2)
+$$
+
+的存储空间。
+
+并且从某个顶点 `u` 出发寻找所有出边时，也要扫描整行：
+
+$$
+O(V)
+$$
+
+因此当 $E\ll V^2$ 时，大量空间和扫描操作都会浪费在“根本不存在的边”上。
+
+---
+
+## 3. 邻接表：只存真实存在的边
+
+邻接表的思想是：
+
+> 对每个顶点，只保存它真正连出去的边。
+
+结构示意：
+
+![邻接表结构示意图](https://file1.kamacoder.com/i/algo/20240223103713.png)
+
+若是带权图，每一条边至少要保存：
+
+```text
+to     终点
+weight 边权
+```
+
+例如定义：
+
+```cpp
+struct Edge {
+    int to;
+    long long weight;
+};
+
+vector<vector<Edge>> graph(n + 1);
+```
+
+加入有向边：
+
+```cpp
+graph[u].push_back({v, w});
+```
+
+对应的带权邻接关系可以表示成：
+
+![带权邻接表示意图](https://file1.kamacoder.com/i/algo/20240223103904.png)
+
+于是从 `u` 出发遍历所有出边时，只需要：
+
+```cpp
+for (const auto& edge : graph[u]) {
+    // edge.to
+    // edge.weight
+}
+```
+
+遍历整张图的所有邻接表，总工作量与真实边数成正比：
+
+$$
+O(E)
+$$
+
+这正是稀疏图需要的存储方式。
+
+---
+
+## 4. 堆到底优化了哪一步
+
+朴素 Dijkstra 的第一步是：
+
+> 在所有未确定顶点中，寻找 `dist` 最小者。
+
+朴素实现：
+
+```cpp
+for (int v = 1; v <= n; ++v) {
+    if (!visited[v] && dist[v] < minVal) {
+        minVal = dist[v];
+        cur = v;
+    }
+}
+```
+
+这一次选择就要 $O(V)$。
+
+若执行约 $V$ 次：
+
+$$
+O(V^2)
+$$
+
+堆优化则把所有“新的更短候选距离”放进小顶堆：
+
+```text
+(到源点的当前距离, 节点编号)
+```
+
+小顶堆始终保证：
+
+> 堆顶是当前所有候选状态中距离最小的那个。
+
+因此选取最近候选点的操作变为：
+
+$$
+O(\log K)
+$$
+
+其中 $K$ 是堆当前大小。
+
+通常将整体复杂度写为：
+
+$$
+O((V+E)\log V)
+$$
+
+对于连通稀疏图，常简写为：
+
+$$
+O(E\log V)
+$$
+
+<Callout type="info" title="不是“把边放进堆”这么简单">
+
+堆中真正保存的是：
+
+```text
+(当前从源点到某节点的候选距离, 节点)
+```
+
+它不是单独按“某一条边的权值”排序。
+
+例如一条边权只有 `1`，但若到这条边起点已经花了 `100`，那么通过它到终点的候选距离是 `101`，并不会因为边权 `1` 就优先。
+
+</Callout>
+
+---
+
+## 5. 堆中为什么会出现同一个节点很多次
+
+假设最初得到：
+
+$$
+dist[v]=10
+$$
+
+于是把：
+
+```text
+(10, v)
+```
+
+加入堆。
+
+后来又发现一条更短路径：
+
+$$
+dist[v]=6
+$$
+
+于是再加入：
+
+```text
+(6, v)
+```
+
+此时堆中可能同时存在：
+
+```text
+(6, v)
+(10, v)
+```
+
+很多初学者会问：
+
+> 为什么不把旧的 `(10, v)` 从堆里删除？
+
+因为标准优先队列通常不方便高效地删除任意元素。
+
+更简单、也更常见的方式叫 **懒删除（lazy deletion）**：
+
+```cpp
+auto [d, u] = pq.top();
+pq.pop();
+
+if (d != dist[u]) continue;
+```
+
+如果弹出的 `d` 已经不是当前最新的 `dist[u]`，就说明这是一个旧状态，直接忽略。
+
+<Callout type="tip" title="这句判断非常重要">
+
+```cpp
+if (d != dist[u]) continue;
+```
+
+含义不是“这个节点访问过了”。
+
+而是：
+
+> 这条堆记录已经过期，因为 `u` 后来找到了更短的距离。
+
+这类“允许重复入堆、出堆时判断是否过期”的写法，在堆优化最短路中非常常见。
+
+</Callout>
+
+---
+
+## 6. 为什么最小候选距离一旦出堆就可信
+
+这是 Dijkstra 正确性的核心。
+
+设当前从堆中取出的未过期状态是：
+
+$$
+(d,u)
+$$
+
+其中：
+
+$$
+d=dist[u]
+$$
+
+而且它是所有当前候选距离中最小的。
+
+假设还存在一条尚未发现的、更短的路径到 `u`。
+
+那么这条路径在到达 `u` 之前，一定会经过某个尚未处理的顶点 `x`。
+
+因为所有边权都非负：
+
+$$
+w\ge 0
+$$
+
+所以：
+
+$$
+dist[x]\le \text{这条路径到达 }u\text{ 的总长度}<d
+$$
+
+这意味着 `x` 应该比 `u` 更早成为最小候选状态，与“当前 `u` 已经最小”矛盾。
+
+因此：
+
+> **非负权条件保证了最小候选距离被取出时，它已经不可能再被未来路径改小。**
+
+这也是为什么负权边会破坏 Dijkstra。
+
+---
+
+## 7. 算法流程
+
+### 初始化
+
+令源点为 `start`：
+
+$$
+dist[start]=0
+$$
+
+其余顶点：
+
+$$
+dist[v]=+\infty
+$$
+
+并把：
+
+```text
+(0, start)
+```
+
+加入小顶堆。
+
+### 取出当前最小候选状态
+
+```cpp
+auto [d, u] = pq.top();
+pq.pop();
+```
+
+若：
+
+```cpp
+d != dist[u]
+```
+
+说明这是旧状态，跳过。
+
+### 松弛 `u` 的所有出边
+
+对每条：
+
+$$
+u\rightarrow v
+$$
+
+边权为 $w$，若：
+
+$$
+dist[u]+w<dist[v]
+$$
+
+则更新：
+
+$$
+dist[v]=dist[u]+w
+$$
+
+并把新的候选状态：
+
+```text
+(dist[v], v)
+```
+
+放进堆。
+
+### 堆为空时结束
+
+若只求单个终点，还可以在终点以有效最短状态第一次出堆时提前结束。
+
+---
+
+## 8. 邻接表在算法中的实际位置
+
+再次看邻接表：
+
+![邻接表结构回顾](https://file1.kamacoder.com/i/algo/20240223103713.png)
+
+如果当前弹出的是节点 `2`，我们无需遍历全图，只遍历：
+
+```cpp
+graph[2]
+```
+
+其中保存的正是 `2` 的全部出边。
+
+这一步的总成本不是每轮 $O(V)$，而是整个算法中每条真实边被考察若干常数次，因此与 $E$ 成正比。
+
+从这个角度看，堆优化 Dijkstra 的两个关键组件正好对应两个性能问题：
+
+<Cards>
+  <Card title="邻接表">
+    避免扫描不存在的边，让“遍历邻居”围绕 $E$ 工作。
+  </Card>
+  <Card title="小顶堆">
+    避免每轮线性扫描所有顶点，让“找最近候选点”变为对数级堆操作。
+  </Card>
+</Cards>
+
+原资料中多次使用的邻接表示意图如下：
+
+![邻接表数组与链式结构](https://file1.kamacoder.com/i/algo/20240223103713.png)
+
+---
+
+## 9. C++ 推荐模板：使用过期状态判断
+
+这是比赛中更推荐记忆的一版。
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<Edge>> graph(n + 1);
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        graph[u].push_back({v, w});
+    }
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+    vector<long long> dist(n + 1, INF);
+
+    // (distance, vertex)，priority_queue 默认大顶堆，所以使用 greater
+    priority_queue<
+        pair<long long, int>,
+        vector<pair<long long, int>>,
+        greater<pair<long long, int>>
+    > pq;
+
+    int start = 1;
+    int target = n;
+
+    dist[start] = 0;
+    pq.push({0, start});
+
+    while (!pq.empty()) {
+        auto [d, u] = pq.top();
+        pq.pop();
+
+        // 懒删除：跳过已经过期的候选距离
+        if (d != dist[u]) continue;
+
+        // 若只求单个终点，此时可安全提前结束
+        if (u == target) break;
+
+        for (const auto& edge : graph[u]) {
+            int v = edge.to;
+            long long w = edge.weight;
+
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+
+    if (dist[target] == INF) {
+        cout << -1 << '\n';
+    } else {
+        cout << dist[target] << '\n';
+    }
+
+    return 0;
+}
+```
+
+<Callout type="tip" title="为什么这里用 long long">
+
+即使单条边权可以放进 `int`，多条边相加后的最短路也可能超出 $32$ 位整数范围。
+
+因此最短路模板通常优先使用：
+
+```cpp
+long long
+```
+
+并把 `INF` 设为远小于 `LLONG_MAX` 的大数，避免执行：
+
+```text
+INF + weight
+```
+
+时溢出。
+
+</Callout>
+
+---
+
+## 10. `visited` 写法与“过期状态”写法
+
+堆优化 Dijkstra 常见两种模板。
+
+### 写法 A：`visited`
+
+```cpp
+if (visited[u]) continue;
+visited[u] = true;
+```
+
+第一次从小顶堆中有效取出 `u` 时，就把它永久确定。
+
+### 写法 B：判断过期距离
+
+```cpp
+if (d != dist[u]) continue;
+```
+
+只处理与当前 `dist[u]` 完全一致的候选状态。
+
+两种写法在非负权 Dijkstra 中都很常见。
+
+更推荐理解第二种，因为它直接表达了优先队列里为什么允许存在旧记录。
+
+<Callout type="warning" title="不要把两种逻辑和 BFS 的 visited 混在一起">
+
+BFS 中，常常在“入队时”就标记访问，因为无权图中第一次入队即可确定最短层数。
+
+Dijkstra 中，核心依据是“当前候选距离是否已经是全局最小”，不是单纯看某节点有没有被发现过。
+
+</Callout>
+
+---
+
+## 11. 能不能在松弛时只让每个节点入堆一次
+
+不能。
+
+假设：
+
+```text
+1 -> A = 10
+1 -> B = 1
+B -> A = 1
+```
+
+开始时会发现：
+
+$$
+dist[A]=10
+$$
+
+但后来经过 `B` 又得到：
+
+$$
+dist[A]=2
+$$
+
+因此 `A` 必须允许再次以更小距离进入堆。
+
+如果“第一次入堆后就禁止再入堆”，就会得到错误答案。
+
+正确原则是：
+
+> **每当一次松弛真正使 `dist[v]` 变小，就把新的 `(dist[v], v)` 加入堆。**
+
+旧状态以后再弹出时自然跳过。
+
+---
+
+## 12. 为什么负权边仍然不行
+
+考虑：
+
+```text
+1 -> A = 2
+1 -> B = 5
+B -> A = -10
+```
+
+Dijkstra 会先认为：
+
+$$
+dist[A]=2
+$$
+
+并优先处理 `A`。
+
+但实际上：
+
+$$
+1\rightarrow B\rightarrow A
+$$
+
+总权值为：
+
+$$
+5+(-10)=-5
+$$
+
+未来经过 `B` 后，已经处理过的 `A` 还能变得更短。
+
+这直接破坏了 Dijkstra 的关键性质：
+
+> 最小候选点一旦取出，其最短距离就已确定。
+
+因此，**小顶堆不能修复负权边问题。**
+
+---
+
+## 13. 复杂度为什么是 $O((V+E)\log V)$
+
+使用邻接表后：
+
+- 建图：$O(V+E)$；
+- 每条边最多触发一次成功松弛对应的一次新状态入堆；
+- 每次 `push` / `pop` 是对数复杂度。
+
+于是通常写成：
+
+$$
+O((V+E)\log V)
+$$
+
+在常见连通图中 $E\ge V-1$，也常简写为：
+
+$$
+O(E\log V)
+$$
+
+空间复杂度为：
+
+$$
+O(V+E)
+$$
+
+其中包括：
+
+- 邻接表；
+- `dist`；
+- 优先队列中的候选状态。
+
+<Callout type="info" title="为什么有时资料写 O(E log E)">
+
+若实现允许同一个顶点多次入堆，堆中候选状态数量可能达到 $O(E)$，因此严格按堆元素数量估计也可以写成：
+
+$$
+O(E\log E)
+$$
+
+而在简单图中 $E\le V^2$，有：
+
+$$
+\log E=O(\log V)
+$$
+
+所以竞赛资料里常统一写为 $O(E\log V)$。
+
+</Callout>
+
+---
+
+## 14. 朴素版与堆优化版怎么选
+
+| 特征 | 朴素 Dijkstra | 堆优化 Dijkstra |
+| --- | --- | --- |
+| 常用存图 | 邻接矩阵 | 邻接表 |
+| 选最近点 | 扫描所有节点 | 小顶堆 |
+| 时间复杂度 | $O(V^2)$ | $O((V+E)\log V)$ |
+| 更适合 | 稠密图、节点较少 | 稀疏图、节点较多 |
+| 是否允许负权 | 不允许 | 不允许 |
+
+一个实用判断是：
+
+```text
+若 V 不大，且图很稠密：朴素版往往更简单。
+若 V、E 较大且图较稀疏：优先考虑堆优化版。
+```
+
+---
+
+## 15. Dijkstra、BFS、Prim 的相似与区别
+
+这三个算法写起来很像，但“状态含义”完全不同。
+
+### BFS
+
+用于无权图，或者所有边权完全相同的图。
+
+队列按照层次推进：
+
+$$
+dist[v]=dist[u]+1
+$$
+
+### Dijkstra
+
+用于非负权图。
+
+小顶堆按：
+
+$$
+\text{源点到当前节点的累计距离}
+$$
+
+排序。
+
+### Prim
+
+用于最小生成树。
+
+它维护的是：
+
+$$
+\text{节点到当前生成树集合的最小连接边权}
+$$
+
+不是源点到节点的路径距离。
+
+<Callout type="warning" title="最容易混淆 Dijkstra 与 Prim">
+
+Dijkstra 的 `dist[v]`：
+
+$$
+\text{source}\rightarrow v
+$$
+
+整条路径的最短长度。
+
+Prim 的 `minDist[v]`：
+
+$$
+v\rightarrow \text{当前生成树}
+$$
+
+只需要一条最便宜的连接边。
+
+虽然都可以写成“选当前最小值”，但优化目标完全不同。
+
+</Callout>
+
+---
+
+## 16. 高频易错点
+
+### 误区一：优先队列按单条边权排序
+
+错误。
+
+应该按：
+
+$$
+dist[v]
+$$
+
+也就是源点到该节点的 **累计候选距离** 排序。
+
+### 误区二：一个节点只能入堆一次
+
+错误。
+
+只要 `dist[v]` 被进一步缩小，就应把新状态再次加入堆。
+
+### 误区三：一发现终点就结束
+
+错误。
+
+“被松弛到”不代表最短距离已经确定。
+
+若要提前结束，必须等终点以 **有效最小状态从堆顶弹出**。
+
+### 误区四：邻接矩阵 + 堆一定更快
+
+不一定。
+
+如果仍然对每个弹出的节点扫描整行邻接矩阵，那么遍历邻边仍可能接近 $O(V^2)$。
+
+堆优化通常应与邻接表配合。
+
+### 误区五：把 `INF` 直接参与加法
+
+应先保证：
+
+```text
+dist[u] != INF
+```
+
+或者只让真正可达的节点入堆。
+
+同时优先使用 `long long` 保存距离。
+
+---
+
+## 17. 一眼识别题型
+
+看到下面这些条件时，应快速想到堆优化 Dijkstra：
+
+- 单源最短路；
+- 带权图；
+- 所有边权非负；
+- $V$、$E$ 较大；
+- 图比较稀疏；
+- 只需一个起点到一个终点，或一个起点到所有点的最短距离。
+
+若边权只有 `0/1`，还可以进一步考虑 **0-1 BFS**；若存在负权边，则应转向 Bellman-Ford 系列算法。
+
+---
+
+## 18. 最终记忆模板
+
+把整篇压缩成五句话：
+
+1. `dist[v]` 表示源点到 `v` 的当前最短候选距离；
+2. 邻接表只保存真实存在的边；
+3. 小顶堆保存 `(dist[v], v)`；
+4. 弹出过期状态直接跳过；
+5. 松弛成功就更新 `dist` 并重新入堆。
+
+核心松弛式始终是：
+
+$$
+dist[v]=\min\left(dist[v],dist[u]+w(u,v)\right)
+$$
+
+而 Dijkstra 能“定点”的根本原因始终是：
+
+$$
+w(u,v)\ge 0
+$$
+
+---
+
+## 其他语言版本
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class Edge {
+        int to;
+        long weight;
+
+        Edge(int to, long weight) {
+            this.to = to;
+            this.weight = weight;
+        }
+    }
+
+    static class State implements Comparable<State> {
+        int node;
+        long dist;
+
+        State(int node, long dist) {
+            this.node = node;
+            this.dist = dist;
+        }
+
+        @Override
+        public int compareTo(State other) {
+            return Long.compare(this.dist, other.dist);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        List<List<Edge>> graph = new ArrayList<>();
+        for (int i = 0; i <= n; ++i) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            graph.get(u).add(new Edge(v, w));
+        }
+
+        long INF = Long.MAX_VALUE / 4;
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, INF);
+
+        PriorityQueue<State> pq = new PriorityQueue<>();
+        dist[1] = 0;
+        pq.offer(new State(1, 0));
+
+        while (!pq.isEmpty()) {
+            State cur = pq.poll();
+            int u = cur.node;
+
+            if (cur.dist != dist[u]) continue;
+            if (u == n) break;
+
+            for (Edge edge : graph.get(u)) {
+                int v = edge.to;
+                long nd = dist[u] + edge.weight;
+                if (nd < dist[v]) {
+                    dist[v] = nd;
+                    pq.offer(new State(v, nd));
+                }
+            }
+        }
+
+        System.out.println(dist[n] == INF ? -1 : dist[n]);
+    }
+}
+```
+
+```python tab="Python"
+import heapq
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+graph = [[] for _ in range(n + 1)]
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    graph[u].append((v, w))
+
+INF = float("inf")
+dist = [INF] * (n + 1)
+dist[1] = 0
+
+pq = [(0, 1)]
+
+while pq:
+    d, u = heapq.heappop(pq)
+
+    if d != dist[u]:
+        continue
+    if u == n:
+        break
+
+    for v, w in graph[u]:
+        nd = d + w
+        if nd < dist[v]:
+            dist[v] = nd
+            heapq.heappush(pq, (nd, v))
+
+print(-1 if dist[n] == INF else dist[n])
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "container/heap"
+    "fmt"
+    "os"
+)
+
+type Edge struct {
+    to     int
+    weight int64
+}
+
+type State struct {
+    node int
+    dist int64
+}
+
+type MinHeap []State
+
+func (h MinHeap) Len() int            { return len(h) }
+func (h MinHeap) Less(i, j int) bool  { return h[i].dist < h[j].dist }
+func (h MinHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
+func (h *MinHeap) Push(x interface{}) { *h = append(*h, x.(State)) }
+func (h *MinHeap) Pop() interface{} {
+    old := *h
+    n := len(old)
+    x := old[n-1]
+    *h = old[:n-1]
+    return x
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    graph := make([][]Edge, n+1)
+    for i := 0; i < m; i++ {
+        var u, v int
+        var w int64
+        fmt.Fscan(in, &u, &v, &w)
+        graph[u] = append(graph[u], Edge{v, w})
+    }
+
+    const INF int64 = 1 << 60
+    dist := make([]int64, n+1)
+    for i := range dist {
+        dist[i] = INF
+    }
+
+    pq := &MinHeap{}
+    heap.Init(pq)
+
+    dist[1] = 0
+    heap.Push(pq, State{1, 0})
+
+    for pq.Len() > 0 {
+        cur := heap.Pop(pq).(State)
+        u := cur.node
+
+        if cur.dist != dist[u] {
+            continue
+        }
+        if u == n {
+            break
+        }
+
+        for _, e := range graph[u] {
+            nd := dist[u] + e.weight
+            if nd < dist[e.to] {
+                dist[e.to] = nd
+                heap.Push(pq, State{e.to, nd})
+            }
+        }
+    }
+
+    if dist[n] == INF {
+        fmt.Fprintln(out, -1)
+    } else {
+        fmt.Fprintln(out, dist[n])
+    }
+}
+```

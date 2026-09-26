@@ -1,0 +1,1092 @@
+---
+title: 平衡二叉树：一次后序遍历同时求高度与判平衡
+description: 以 LeetCode 110 为主线，彻底区分节点深度与高度，理解为什么平衡判断天然属于后序遍历，并用 -1 哨兵把“高度计算”和“失衡传播”合并到一次 O(n) 递归中。
+---
+
+# 平衡二叉树：一次后序遍历同时求高度与判平衡
+
+> LeetCode 110 · Balanced Binary Tree
+
+[题目链接](https://leetcode.cn/problems/balanced-binary-tree/)
+
+给定一棵二叉树，判断它是否为**高度平衡二叉树**。
+
+一棵二叉树是高度平衡的，当且仅当对树中的**每一个节点**，其左右子树高度差的绝对值都不超过 $1$：
+
+$$
+|H(left)-H(right)|\le 1
+$$
+
+注意关键词是：
+
+```text
+每一个节点
+```
+
+不能只检查根节点。
+
+例如：
+
+![平衡二叉树示例](https://file1.kamacoder.com/i/algo/2021020315542230.png)
+
+这棵树满足要求，返回 `true`。
+
+而下面这棵树：
+
+![非平衡二叉树示例](https://file1.kamacoder.com/i/algo/20210203155447919.png)
+
+存在节点的左右子树高度差超过 $1$，因此返回 `false`。
+
+<Callout title="本题真正的核心" type="idea">
+
+要判断当前节点是否平衡，必须先知道它的左子树高度、右子树高度，以及两棵子树自身是否已经平衡。
+
+也就是说：**孩子的信息必须先返回给父节点。**
+
+这正是后序遍历的典型场景。
+
+</Callout>
+
+## 1. 先彻底分清：深度与高度
+
+“深度”和“高度”经常一起出现，但信息流方向完全不同。
+
+![节点深度与高度](https://file1.kamacoder.com/i/algo/20210203155515650.png)
+
+### 节点深度
+
+节点的深度描述：
+
+```text
+从根节点走到当前节点有多远
+```
+
+如果按节点数计：
+
+- 根节点深度为 $1$；
+- 根的孩子深度为 $2$；
+- 再下一层为 $3$。
+
+它天然是**从上往下**传递的信息。
+
+因此如果显式求某个节点的深度，通常适合前序 DFS：
+
+```text
+父节点先知道自己的 depth
+        ↓
+把 depth + 1 传给孩子
+```
+
+### 节点高度
+
+节点的高度描述：
+
+```text
+从当前节点向下，到最深叶子有多远
+```
+
+按节点数计时：
+
+$$
+H(u)=1+\max(H(u.left),H(u.right))
+$$
+
+且：
+
+$$
+H(\varnothing)=0
+$$
+
+它天然是**从下往上**汇总的信息。
+
+因此求高度非常适合后序遍历：
+
+```text
+先知道左子树高度
+先知道右子树高度
+再算当前节点高度
+```
+
+<Cards>
+  <Card title="深度">从根到当前节点，信息通常自顶向下传递。</Card>
+  <Card title="高度">从当前节点到最深叶子，信息通常自底向上汇总。</Card>
+  <Card title="最大深度">整棵树的最大深度 = 根节点的高度，所以可以通过求根高度得到。</Card>
+</Cards>
+
+## 2. 为什么最大深度题也能用后序递归
+
+在“二叉树最大深度”中，我们常写：
+
+```cpp
+int maxDepth(TreeNode* root) {
+    if (root == nullptr) return 0;
+    return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+}
+```
+
+代码名叫 `maxDepth`，但递归过程中实际算的是：
+
+```text
+每个节点的高度
+```
+
+最后返回根节点高度。
+
+而：
+
+$$
+\text{根节点高度}=\text{整棵树最大深度}
+$$
+
+所以答案仍然正确。
+
+这也是为什么学习平衡二叉树之前，必须把“深度”和“高度”的含义真正分开。
+
+## 3. 平衡判断为什么必须依赖高度
+
+对于任意节点 $u$，设：
+
+$$
+L=H(u.left),\qquad R=H(u.right)
+$$
+
+当前节点满足局部平衡条件，当且仅当：
+
+$$
+|L-R|\le 1
+$$
+
+但“整棵以 $u$ 为根的子树平衡”还要求：
+
+1. 左子树本身平衡；
+2. 右子树本身平衡；
+3. 当前节点左右高度差不超过 $1$。
+
+也就是说：
+
+$$
+Balanced(u)
+=
+Balanced(u.left)
+\land
+Balanced(u.right)
+\land
+|L-R|\le 1
+$$
+
+这个关系非常像树形动态规划：当前状态完全依赖左右孩子的状态。
+
+## 4. 最直观但不够好的做法
+
+一种容易想到的方法是：
+
+```text
+遍历每个节点
+    ↓
+每到一个节点
+    ↓
+重新计算左子树高度
+重新计算右子树高度
+    ↓
+判断高度差
+```
+
+逻辑当然正确，但会产生大量重复计算。
+
+例如一条接近链状的树：
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+```
+
+在根节点计算右子树高度时，会遍历 `2,3,4`；
+
+到节点 `2` 时，又会重新遍历 `3,4`；
+
+到节点 `3` 时，又重新遍历 `4`。
+
+总工作量近似：
+
+$$
+(n-1)+(n-2)+\cdots+1
+$$
+
+因此最坏时间复杂度达到：
+
+$$
+O(n^2)
+$$
+
+<Callout title="优化方向" type="info">
+
+既然递归已经算出了某个子树的高度，就应该把这个高度直接返回给父节点，而不是父节点以后再重新遍历一遍这棵子树。
+
+</Callout>
+
+## 5. 最优递归的关键：返回值承担两种含义
+
+我们希望一次递归同时完成两件事：
+
+```text
+1. 如果当前子树平衡，返回它的真实高度；
+2. 如果当前子树不平衡，立刻把“不平衡”向上传递。
+```
+
+于是可以约定：
+
+```text
+返回 >= 0 ：当前子树平衡，返回值就是高度
+返回 -1   ：当前子树已经失衡
+```
+
+为什么可以用 `-1`？
+
+因为正常二叉树高度不可能是负数，所以 `-1` 不会和合法高度冲突。
+
+这是一种非常常见的设计：**使用哨兵值把状态和数据编码在同一个返回值中。**
+
+## 6. 递归函数应该如何定义
+
+定义：
+
+```cpp
+int getHeight(TreeNode* node)
+```
+
+其语义不是简单的“求高度”，而是：
+
+```text
+如果以 node 为根的子树平衡：返回真实高度
+如果这棵子树不平衡：返回 -1
+```
+
+这个函数契约一旦定义清楚，后续逻辑就很自然。
+
+### 递归三步法
+
+### 1. 参数与返回值
+
+参数是当前节点 `node`。
+
+返回值：
+
+```text
+>= 0 ：平衡，并返回高度
+-1   ：不平衡
+```
+
+### 2. 终止条件
+
+空树高度为 $0$，而且显然是平衡的：
+
+```cpp
+if (node == nullptr) return 0;
+```
+
+### 3. 单层逻辑
+
+先得到左子树结果，再得到右子树结果。
+
+任何一侧已经返回 `-1`，都可以立刻结束。
+
+如果两侧都平衡，再检查：
+
+$$
+|leftHeight-rightHeight|>1
+$$
+
+若成立，则当前节点失衡，返回 `-1`；否则返回当前高度：
+
+$$
+1+\max(leftHeight,rightHeight)
+$$
+
+## 7. 推荐写法：一次后序遍历解决
+
+```cpp title="LeetCode 110 · 推荐递归"
+class Solution {
+private:
+    int getHeight(TreeNode* node) {
+        if (node == nullptr) return 0;
+
+        int leftHeight = getHeight(node->left);
+        if (leftHeight == -1) return -1;
+
+        int rightHeight = getHeight(node->right);
+        if (rightHeight == -1) return -1;
+
+        if (abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        return max(leftHeight, rightHeight) + 1;
+    }
+
+public:
+    bool isBalanced(TreeNode* root) {
+        return getHeight(root) != -1;
+    }
+};
+```
+
+整个处理顺序是：
+
+```text
+左子树 → 右子树 → 当前节点
+```
+
+所以它是标准的后序思想。
+
+## 8. 一次具体的返回过程
+
+考虑：
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+从叶子开始：
+
+```text
+9  -> 高度 1
+15 -> 高度 1
+7  -> 高度 1
+```
+
+然后节点 `20`：
+
+$$
+|1-1|=0\le 1
+$$
+
+所以它平衡，高度为：
+
+$$
+\max(1,1)+1=2
+$$
+
+最后根节点 `3`：
+
+```text
+左高度 = 1
+右高度 = 2
+```
+
+因此：
+
+$$
+|1-2|=1\le 1
+$$
+
+整棵树平衡。
+
+可以看到，父节点根本不需要重新遍历孩子，只需要接收孩子返回的高度。
+
+## 9. `-1` 是如何向上传播的
+
+考虑一棵不平衡的树。
+
+某个较深节点首先发现：
+
+$$
+|leftHeight-rightHeight|>1
+$$
+
+于是返回：
+
+```text
+-1
+```
+
+它的父节点收到 `-1` 后：
+
+```cpp
+if (leftHeight == -1) return -1;
+```
+
+不再继续计算当前高度，而是直接把 `-1` 继续向上返回。
+
+这会形成：
+
+```text
+最底层发现失衡
+      ↓
+-1 向父节点传播
+      ↓
+继续向根传播
+      ↓
+isBalanced 得到 false
+```
+
+<Callout title="这其实也是剪枝" type="success">
+
+一旦某棵子树已经失衡，上层节点就不可能重新把它“变平衡”。因此可以立即停止这条分支后续无意义的高度计算。
+
+</Callout>
+
+## 10. 为什么不能只检查根节点高度差
+
+例如：
+
+```text
+        1
+       / \
+      2   3
+     /     \
+    4       5
+   /
+  6
+```
+
+根节点左右子树整体高度可能看起来相差不大，但某个内部节点可能已经严重失衡。
+
+平衡二叉树的定义要求：
+
+$$
+\forall u,\quad |H(u.left)-H(u.right)|\le 1
+$$
+
+即对**所有节点**都成立。
+
+所以必须递归检查每个子树，而不是只比较整棵树根节点的左右高度。
+
+## 11. 为什么一次后序遍历是 $O(n)$
+
+每个节点只会被真正处理一次。
+
+在节点处所做的工作只有常数级：
+
+- 接收左高度；
+- 接收右高度；
+- 做一次绝对值比较；
+- 做一次 `max`；
+- 返回结果。
+
+所以：
+
+$$
+T(n)=O(n)
+$$
+
+递归空间取决于树高 $h$：
+
+$$
+O(h)
+$$
+
+对于平衡树：
+
+$$
+h=O(\log n)
+$$
+
+对于最坏的链状树：
+
+$$
+h=O(n)
+$$
+
+因此通用空间复杂度写作：
+
+$$
+O(h)
+$$
+
+## 12. 为什么“求高度”天然是后序
+
+当前节点高度公式是：
+
+$$
+H(u)=1+\max(H(u.left),H(u.right))
+$$
+
+在计算 $H(u)$ 之前，必须先得到：
+
+```text
+H(u.left)
+H(u.right)
+```
+
+所以信息依赖关系天然是：
+
+```text
+孩子 → 父节点
+```
+
+而遍历顺序自然就是：
+
+```text
+左 → 右 → 中
+```
+
+这比机械记忆“高度用后序”更重要。
+
+真正应该记的是：
+
+> **父节点的答案依赖孩子返回值时，优先考虑后序递归。**
+
+## 13. 深度为什么更适合前序
+
+如果我们真正在求“从根到当前节点的深度”，通常会让父节点把当前深度传给孩子：
+
+```cpp title="前序 DFS 求整树最大深度"
+class Solution {
+private:
+    int answer = 0;
+
+    void dfs(TreeNode* node, int depth) {
+        if (node == nullptr) return;
+
+        answer = max(answer, depth);
+
+        dfs(node->left, depth + 1);
+        dfs(node->right, depth + 1);
+    }
+
+public:
+    int maxDepth(TreeNode* root) {
+        dfs(root, 1);
+        return answer;
+    }
+};
+```
+
+这里信息方向是：
+
+```text
+父节点 → 孩子
+```
+
+所以“中”的操作发生在递归孩子之前，更接近前序思想。
+
+## 14. 两种递归模型的区别
+
+<Cards>
+  <Card title="自顶向下">父节点携带状态进入孩子，例如路径和、当前深度、当前路径。常见于前序 DFS。</Card>
+  <Card title="自底向上">孩子把结果返回父节点，例如高度、子树节点数、是否包含目标。常见于后序 DFS。</Card>
+  <Card title="本题">父节点需要左右孩子的高度与平衡状态，因此属于典型自底向上模型。</Card>
+</Cards>
+
+## 15. 为什么暴力迭代往往很别扭
+
+理论上递归都能改成显式栈，但“能改”不代表“值得改”。
+
+如果迭代时只是：
+
+```text
+遍历每个节点
+然后对它的左右子树重新求高度
+```
+
+就会重复扫描大量节点，最坏达到 $O(n^2)$。
+
+想写出真正 $O(n)$ 的迭代版，就必须显式模拟后序遍历，并保存每个节点已经计算好的高度。
+
+也就是说，你需要手动维护递归本来替你完成的两件事：
+
+```text
+1. 访问阶段 / 回溯阶段
+2. 子树返回值
+```
+
+因此本题最自然的写法仍然是递归。
+
+## 16. 一个真正 $O(n)$ 的迭代思路
+
+如果必须使用迭代，可以：
+
+1. 用栈模拟后序遍历；
+2. 每个节点在“回溯阶段”计算高度；
+3. 用哈希表保存已经算好的节点高度；
+4. 任一节点高度差超过 $1$ 时立即返回 `false`。
+
+伪代码：
+
+```text
+stack = [(root, false)]
+height[null] = 0
+
+while stack 非空:
+    node, visited = pop()
+
+    if node 为空:
+        continue
+
+    if visited == false:
+        push(node, true)
+        push(node.right, false)
+        push(node.left, false)
+    else:
+        L = height[node.left]
+        R = height[node.right]
+
+        if |L - R| > 1:
+            return false
+
+        height[node] = max(L, R) + 1
+
+return true
+```
+
+这个过程本质上仍然在模拟：
+
+```text
+左 → 右 → 中
+```
+
+只是把系统递归栈换成了自己维护的栈。
+
+## 17. 本题的“返回值设计”非常值得学
+
+普通的高度函数只返回：
+
+```text
+高度
+```
+
+而本题把返回值扩展成：
+
+```text
+合法高度 or 错误状态
+```
+
+也就是：
+
+$$
+Result=
+\begin{cases}
+H(u), & \text{子树平衡} \\
+-1, & \text{子树不平衡}
+\end{cases}
+$$
+
+这种技巧在递归中非常常见，例如：
+
+- 返回某个特殊值表示“目标不存在”；
+- 返回特殊状态表示“已经失败”；
+- 返回空指针表示“不满足条件”；
+- 使用结构体同时携带多个子问题答案。
+
+<Callout title="递归设计能力" type="idea">
+
+很多树题真正难的并不是“递归调用怎么写”，而是**设计一个足够有信息量的返回值，让父节点能够只看孩子返回值就完成自己的计算。**
+
+</Callout>
+
+## 18. 如果不想用 `-1`，也可以返回复合状态
+
+从工程表达上，也可以让递归返回：
+
+```text
+{ 是否平衡, 高度 }
+```
+
+例如：
+
+```cpp title="显式状态版本"
+class Solution {
+private:
+    pair<bool, int> dfs(TreeNode* node) {
+        if (node == nullptr) return {true, 0};
+
+        auto [leftBalanced, leftHeight] = dfs(node->left);
+        if (!leftBalanced) return {false, 0};
+
+        auto [rightBalanced, rightHeight] = dfs(node->right);
+        if (!rightBalanced) return {false, 0};
+
+        if (abs(leftHeight - rightHeight) > 1) {
+            return {false, 0};
+        }
+
+        return {true, max(leftHeight, rightHeight) + 1};
+    }
+
+public:
+    bool isBalanced(TreeNode* root) {
+        return dfs(root).first;
+    }
+};
+```
+
+它与 `-1` 哨兵版本复杂度完全相同。
+
+两种思路的差别只是接口表达：
+
+```text
+哨兵值：更短、更适合算法题
+结构化返回：语义更显式、更适合复杂状态
+```
+
+## 19. 常见错误
+
+### 错误一：只比较根节点左右高度
+
+平衡要求对每个节点都成立，而不是只对根节点成立。
+
+### 错误二：每个节点都重新求高度
+
+逻辑正确，但会产生重复遍历，最坏退化到 $O(n^2)$。
+
+### 错误三：孩子已经返回 `-1`，还继续当作正常高度计算
+
+例如：
+
+```cpp
+max(leftHeight, rightHeight) + 1
+```
+
+如果 `leftHeight == -1`，就已经说明左子树失衡，此时应该直接向上传播 `-1`。
+
+### 错误四：把“深度”和“高度”只当成两个术语，没有理解信息方向
+
+真正重要的是：
+
+```text
+深度：通常从父向子传
+高度：通常从子向父返
+```
+
+## 20. 与前面几道题建立统一框架
+
+### 最大深度
+
+$$
+H(u)=1+\max(H(left),H(right))
+$$
+
+只返回高度即可。
+
+### 最小深度
+
+也从孩子返回深度，但要排除不存在的子树，不能直接机械 `min`。
+
+### 节点个数
+
+$$
+N(u)=1+N(left)+N(right)
+$$
+
+返回子树规模。
+
+### 平衡二叉树
+
+除了高度之外，还要把“是否已经失衡”一起返回。
+
+可以看出这些题目的共同结构都是：
+
+```text
+先向左右子树要信息
+再在当前节点组合
+```
+
+这就是树形后序递归的核心模式。
+
+## 21. 做题决策模板
+
+```text
+题目要求判断平衡
+        ↓
+当前节点需要什么？
+        ↓
+左子树高度 + 右子树高度
+        ↓
+高度必须先由孩子算出
+        ↓
+后序递归
+        ↓
+正常返回高度
+失衡返回 -1
+        ↓
+一次遍历 O(n)
+```
+
+<Callout title="一句话记忆" type="success">
+
+**平衡二叉树 = 后序求高度 + 用 `-1` 把失衡状态一路向上传播；每个节点只算一次。**
+
+</Callout>
+
+## 22. 自测
+
+完成本篇后，尝试不看代码回答：
+
+- 节点深度和节点高度分别从哪个方向定义？
+- 为什么求高度天然适合后序遍历？
+- 为什么最大深度的简洁递归实际上是在求根节点高度？
+- 平衡二叉树为什么不能只检查根节点？
+- `getHeight` 返回 `-1` 的语义是什么？
+- 为什么合法高度不会和 `-1` 冲突？
+- 为什么孩子返回 `-1` 后可以直接剪枝？
+- 暴力“每个节点重新求高度”为什么可能达到 $O(n^2)$？
+- 一次后序递归为什么只有 $O(n)$？
+- 如果不用 `-1`，可以如何设计返回值？
+
+如果这些问题都能清晰回答，那么“深度 / 高度 / 前序 / 后序”之间的关系就已经真正打通了。
+
+## 其他语言实现
+
+下面统一使用“一次后序遍历 + `-1` 哨兵”的最优思路。
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        return getHeight(root) != -1;
+    }
+
+    private int getHeight(TreeNode node) {
+        if (node == null) return 0;
+
+        int leftHeight = getHeight(node.left);
+        if (leftHeight == -1) return -1;
+
+        int rightHeight = getHeight(node.right);
+        if (rightHeight == -1) return -1;
+
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+}
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def isBalanced(self, root):
+        return self.get_height(root) != -1
+
+    def get_height(self, node):
+        if node is None:
+            return 0
+
+        left_height = self.get_height(node.left)
+        if left_height == -1:
+            return -1
+
+        right_height = self.get_height(node.right)
+        if right_height == -1:
+            return -1
+
+        if abs(left_height - right_height) > 1:
+            return -1
+
+        return max(left_height, right_height) + 1
+```
+
+
+
+```go title="Go" tab="Go"
+func isBalanced(root *TreeNode) bool {
+    return getHeight(root) != -1
+}
+
+func getHeight(node *TreeNode) int {
+    if node == nil {
+        return 0
+    }
+
+    leftHeight := getHeight(node.Left)
+    if leftHeight == -1 {
+        return -1
+    }
+
+    rightHeight := getHeight(node.Right)
+    if rightHeight == -1 {
+        return -1
+    }
+
+    diff := leftHeight - rightHeight
+    if diff < 0 {
+        diff = -diff
+    }
+    if diff > 1 {
+        return -1
+    }
+
+    if leftHeight > rightHeight {
+        return leftHeight + 1
+    }
+    return rightHeight + 1
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var isBalanced = function(root) {
+    const getHeight = (node) => {
+        if (node === null) return 0;
+
+        const leftHeight = getHeight(node.left);
+        if (leftHeight === -1) return -1;
+
+        const rightHeight = getHeight(node.right);
+        if (rightHeight === -1) return -1;
+
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        return Math.max(leftHeight, rightHeight) + 1;
+    };
+
+    return getHeight(root) !== -1;
+};
+```
+
+
+
+```typescript title="TypeScript" tab="TypeScript"
+function isBalanced(root: TreeNode | null): boolean {
+    function getHeight(node: TreeNode | null): number {
+        if (node === null) return 0;
+
+        const leftHeight = getHeight(node.left);
+        if (leftHeight === -1) return -1;
+
+        const rightHeight = getHeight(node.right);
+        if (rightHeight === -1) return -1;
+
+        if (Math.abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    return getHeight(root) !== -1;
+}
+```
+
+
+
+```c title="C" tab="C"
+#include <stdlib.h>
+
+static int getHeight(struct TreeNode* node) {
+    if (node == NULL) return 0;
+
+    int leftHeight = getHeight(node->left);
+    if (leftHeight == -1) return -1;
+
+    int rightHeight = getHeight(node->right);
+    if (rightHeight == -1) return -1;
+
+    if (abs(leftHeight - rightHeight) > 1) {
+        return -1;
+    }
+
+    return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
+}
+
+bool isBalanced(struct TreeNode* root) {
+    return getHeight(root) != -1;
+}
+```
+
+### Swift
+
+```swift title="Swift"
+class Solution {
+    func isBalanced(_ root: TreeNode?) -> Bool {
+        return getHeight(root) != -1
+    }
+
+    private func getHeight(_ node: TreeNode?) -> Int {
+        guard let node = node else { return 0 }
+
+        let leftHeight = getHeight(node.left)
+        if leftHeight == -1 { return -1 }
+
+        let rightHeight = getHeight(node.right)
+        if rightHeight == -1 { return -1 }
+
+        if abs(leftHeight - rightHeight) > 1 {
+            return -1
+        }
+
+        return max(leftHeight, rightHeight) + 1
+    }
+}
+```
+
+
+
+```rust title="Rust" tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type Node = Option<Rc<RefCell<TreeNode>>>;
+
+impl Solution {
+    pub fn is_balanced(root: Node) -> bool {
+        fn get_height(node: &Node) -> i32 {
+            let Some(rc) = node else {
+                return 0;
+            };
+
+            let node_ref = rc.borrow();
+
+            let left_height = get_height(&node_ref.left);
+            if left_height == -1 {
+                return -1;
+            }
+
+            let right_height = get_height(&node_ref.right);
+            if right_height == -1 {
+                return -1;
+            }
+
+            if (left_height - right_height).abs() > 1 {
+                return -1;
+            }
+
+            left_height.max(right_height) + 1
+        }
+
+        get_height(&root) != -1
+    }
+}
+```
+
+
+
+```csharp title="C#" tab="C#"
+public class Solution {
+    public bool IsBalanced(TreeNode root) {
+        return GetHeight(root) != -1;
+    }
+
+    private int GetHeight(TreeNode node) {
+        if (node == null) return 0;
+
+        int leftHeight = GetHeight(node.left);
+        if (leftHeight == -1) return -1;
+
+        int rightHeight = GetHeight(node.right);
+        if (rightHeight == -1) return -1;
+
+        if (Math.Abs(leftHeight - rightHeight) > 1) {
+            return -1;
+        }
+
+        return Math.Max(leftHeight, rightHeight) + 1;
+    }
+}
+```

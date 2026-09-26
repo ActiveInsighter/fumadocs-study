@@ -1,0 +1,1090 @@
+---
+title: 环形链表 II
+description: 用 Floyd 快慢指针完成“判环 + 找环入口”，并从路程方程推导为什么相遇后从 head 与相遇点同步出发会在入口重逢。
+---
+
+# 142. 环形链表 II
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/linked-list-cycle-ii/">
+    LeetCode 142 · Linked List Cycle II
+  </Card>
+</Cards>
+
+给定一个单链表：
+
+- 如果链表中没有环，返回 `null`；
+- 如果有环，返回**环开始的第一个节点**；
+- 不允许修改链表结构。
+
+示意图：
+
+![环形链表](https://file1.kamacoder.com/i/algo/20200816110112704.png)
+
+这道题包含两个问题：
+
+1. 如何判断链表是否有环？
+2. 如果有环，如何找到环入口？
+
+<Callout type="info" title="这是快慢指针最经典的数学题">
+第一部分靠“速度差”判断是否有环；第二部分则需要把 fast 与 slow 的路程关系写成方程，才能解释为什么入口能被重新定位。
+</Callout>
+
+---
+
+# 1. 第一问：如何判断有环
+
+定义：
+
+```text
+slow 每次走 1 步
+fast 每次走 2 步
+```
+
+初始：
+
+```cpp
+slow = head;
+fast = head;
+```
+
+循环：
+
+```cpp
+slow = slow->next;
+fast = fast->next->next;
+```
+
+如果：
+
+```cpp
+slow == fast
+```
+
+说明链表有环。
+
+如果：
+
+```cpp
+fast == nullptr
+```
+
+或者：
+
+```cpp
+fast->next == nullptr
+```
+
+说明链表能正常走到末尾，没有环。
+
+---
+
+## 2. 为什么有环时一定会相遇
+
+假设 slow 已经进入环中。
+
+此时 fast 也必然已经在环内，因为 fast 走得更快。
+
+把 slow 看成相对静止。
+
+每轮：
+
+```text
+slow 走 1
+fast 走 2
+```
+
+所以 fast 相对 slow 每轮只前进：
+
+$$
+2-1=1
+$$
+
+个节点。
+
+也就是说，在环上它们之间的距离每轮会改变一个节点。
+
+原始示意图：
+
+![快慢指针在环中追赶](https://file1.kamacoder.com/i/algo/20210318162236720.png)
+
+因此 fast 不可能永远“跳过” slow。
+
+它最终一定会与 slow 重合。
+
+动画：
+
+![Floyd 判环动画](https://file1.kamacoder.com/i/algo/141.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8.gif)
+
+---
+
+## 3. 为什么循环条件必须检查 `fast` 和 `fast->next`
+
+因为 fast 每次要执行：
+
+```cpp
+fast = fast->next->next;
+```
+
+因此在访问：
+
+```cpp
+fast->next->next
+```
+
+前必须保证：
+
+```text
+fast != null
+fast.next != null
+```
+
+标准条件：
+
+```cpp
+while (
+    fast != nullptr &&
+    fast->next != nullptr
+)
+```
+
+如果任一条件失败，就说明链表没有环。
+
+---
+
+# 4. 第二问：如何找到环入口
+
+假设：
+
+- 从链表头到环入口距离为 $x$；
+- 从环入口到第一次相遇点距离为 $y$；
+- 从相遇点继续到环入口距离为 $z$。
+
+则环长：
+
+$$
+y+z
+$$
+
+示意图：
+
+![环入口距离关系](https://file1.kamacoder.com/i/algo/20220925103433.png)
+
+第一次相遇时：
+
+### slow 走过
+
+$$
+x+y
+$$
+
+### fast 走过
+
+fast 可能已经在环里多绕了 $n$ 圈，因此：
+
+$$
+x+y+n(y+z)
+$$
+
+其中：
+
+$$
+n\ge1
+$$
+
+---
+
+## 5. 利用速度关系建立方程
+
+因为 fast 每轮走 2 步，slow 每轮走 1 步。
+
+所以相遇时：
+
+$$
+\text{fast 路程}
+=
+2\times\text{slow 路程}
+$$
+
+代入：
+
+$$
+x+y+n(y+z)=2(x+y)
+$$
+
+整理：
+
+$$
+x+y=n(y+z)
+$$
+
+因此：
+
+$$
+x=n(y+z)-y
+$$
+
+把一个完整环长拆出来：
+
+$$
+x=(n-1)(y+z)+z
+$$
+
+这是整道题最关键的式子。
+
+---
+
+# 6. 这个公式到底说明了什么
+
+得到：
+
+$$
+x=(n-1)(y+z)+z
+$$
+
+右边含义：
+
+```text
+若干完整环长 + 从相遇点到入口的距离 z
+```
+
+也就是说：
+
+> 从相遇点继续走 $x$ 步，一定会到达环入口。
+
+因为多走：
+
+$$
+(n-1)(y+z)
+$$
+
+只是完整绕环若干圈，对最终位置没有影响。
+
+所以：
+
+```text
+从 head 出发走 x 步
+```
+
+和：
+
+```text
+从相遇点出发走 x 步
+```
+
+都会到达环入口。
+
+---
+
+## 7. 为什么相遇后两个指针都改成每次走一步
+
+第一次相遇后：
+
+```text
+pointer1 = head
+pointer2 = meeting
+```
+
+然后：
+
+```text
+pointer1 每次走 1
+pointer2 每次走 1
+```
+
+head 到入口距离：
+
+$$
+x
+$$
+
+相遇点走到入口，考虑整圈之后的等价距离也是：
+
+$$
+x
+$$
+
+因此两者会在入口相遇。
+
+动画：
+
+![找到环入口](https://file1.kamacoder.com/i/algo/142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II%EF%BC%88%E6%B1%82%E5%85%A5%E5%8F%A3%EF%BC%89.gif)
+
+---
+
+# 8. 标准解法
+
+```cpp
+class Solution {
+public:
+    ListNode* detectCycle(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (
+            fast != nullptr &&
+            fast->next != nullptr
+        ) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) {
+                ListNode* p1 = head;
+                ListNode* p2 = slow;
+
+                while (p1 != p2) {
+                    p1 = p1->next;
+                    p2 = p2->next;
+                }
+
+                return p1;
+            }
+        }
+
+        return nullptr;
+    }
+};
+```
+
+---
+
+## 9. 为什么返回 `p1` 或 `p2` 都可以
+
+第二阶段循环结束条件：
+
+```cpp
+p1 == p2
+```
+
+此时它们都指向：
+
+```text
+环入口
+```
+
+所以：
+
+```cpp
+return p1;
+```
+
+或者：
+
+```cpp
+return p2;
+```
+
+完全等价。
+
+---
+
+# 10. 一个具体数字例子
+
+假设：
+
+```text
+头到入口 x = 3
+入口到相遇点 y = 2
+相遇点到入口 z = 4
+```
+
+环长：
+
+$$
+y+z=6
+$$
+
+如果 fast 比 slow 多绕一圈，即：
+
+$$
+n=1
+$$
+
+那么：
+
+$$
+x=(1-1)\times6+4=4
+$$
+
+这个例子数值不满足假设中的 $x=3$，说明它不可能对应第一次相遇关系。
+
+这也说明：
+
+> $x,y,z$ 并不是任意三个数，它们必须满足 Floyd 相遇方程。
+
+换一个满足条件的例子：
+
+$$
+y=2,\qquad z=4,\qquad n=1
+$$
+
+则：
+
+$$
+x=z=4
+$$
+
+于是：
+
+```text
+head 到入口 = 4
+相遇点到入口 = 4
+```
+
+两个指针同步走，恰好在入口相遇。
+
+---
+
+## 11. 为什么很多讲解只说 `x = z`
+
+因为最容易讲的是：
+
+$$
+n=1
+$$
+
+此时：
+
+$$
+x=z
+$$
+
+于是结论非常直观。
+
+但完整关系其实是：
+
+$$
+x=(n-1)(y+z)+z
+$$
+
+当：
+
+$$
+n>1
+$$
+
+从相遇点走 $x$ 步时，会先多绕：
+
+$$
+n-1
+$$
+
+圈，再走 $z$ 到入口。
+
+最终仍然在入口相遇。
+
+所以算法并不依赖：
+
+```text
+fast 只绕一圈
+```
+
+---
+
+## 12. slow 第一次相遇前会不会已经绕过完整一圈
+
+原资料特别补充了这个问题。
+
+结论是：
+
+> 第一次相遇时，slow 不需要先完整绕环多圈。
+
+直观原因是：
+
+- fast 先进入环；
+- slow 刚进入环时，fast 已在环内某处；
+- fast 相对 slow 每轮靠近 1 个节点；
+- 环长有限。
+
+因此在 slow 完成一整圈之前，fast 就会追上 slow。
+
+原始补充图：
+
+![slow 与 fast 的环内位置关系](https://file1.kamacoder.com/i/algo/20210318165123581.png)
+
+![环展开后的追赶关系](https://file1.kamacoder.com/i/algo/2021031816503266.png)
+
+![slow 入环时 fast 已在环中](https://file1.kamacoder.com/i/algo/2021031816515727.png)
+
+这有助于理解为什么可以把 slow 第一次相遇前的路程写成：
+
+$$
+x+y
+$$
+
+而不必额外加若干完整环长。
+
+---
+
+# 13. 用哈希集合也能做
+
+还可以维护：
+
+```text
+visited = 已访问节点集合
+```
+
+每访问一个节点：
+
+- 如果第一次出现，加入集合；
+- 如果已经出现过，那么这个节点就是环入口。
+
+因为：
+
+> 在从头顺序遍历时，第一个被第二次访问的节点就是进入环后的第一个重复节点，也就是环入口。
+
+代码思路：
+
+```cpp
+unordered_set<ListNode*> visited;
+
+while (head != nullptr) {
+    if (visited.count(head)) {
+        return head;
+    }
+
+    visited.insert(head);
+    head = head->next;
+}
+```
+
+时间：
+
+$$
+O(n)
+$$
+
+空间：
+
+$$
+O(n)
+$$
+
+而 Floyd 可以做到：
+
+$$
+O(1)
+$$
+
+额外空间。
+
+---
+
+## 14. Floyd 为什么更优雅
+
+Hash Set 方案的逻辑是：
+
+```text
+保存所有历史节点
+```
+
+Floyd 的逻辑是：
+
+```text
+不保存历史
+只利用速度关系判断重复
+```
+
+所以它把：
+
+```text
+空间换时间
+```
+
+进一步优化成：
+
+```text
+仅靠指针相对运动
+```
+
+仍保持：
+
+$$
+O(n)
+$$
+
+时间。
+
+---
+
+## 15. Floyd 算法可以拆成两个模板
+
+### 模板一：判断是否有环
+
+```cpp
+slow = slow->next;
+fast = fast->next->next;
+
+if (slow == fast) {
+    // 有环
+}
+```
+
+---
+
+### 模板二：寻找入口
+
+```cpp
+p1 = head;
+p2 = meeting;
+
+while (p1 != p2) {
+    p1 = p1->next;
+    p2 = p2->next;
+}
+
+return p1;
+```
+
+先把这两个模板分别理解，再组合会更容易。
+
+---
+
+## 16. 和“快乐数”的关系
+
+快乐数中有状态转移：
+
+$$
+x\rightarrow f(x)
+$$
+
+每个状态也只有一个后继状态。
+
+所以它本质上形成一个“隐式链表”。
+
+因此快乐数同样可以使用：
+
+```text
+slow = f(slow)
+fast = f(f(fast))
+```
+
+进行 Floyd 判环。
+
+这说明 Floyd 并不是“链表专属”。
+
+真正要求是：
+
+> **每个状态都有唯一的下一状态。**
+
+---
+
+## 17. 环长能不能求
+
+可以。
+
+在 slow 与 fast 第一次相遇后，让一个指针固定，另一个继续走一圈。
+
+例如：
+
+```cpp
+int length = 1;
+fast = fast->next;
+
+while (fast != slow) {
+    fast = fast->next;
+    ++length;
+}
+```
+
+最终：
+
+```text
+length
+```
+
+就是环长：
+
+$$
+y+z
+$$
+
+---
+
+## 18. 入环前长度能不能求
+
+找到入口后，从：
+
+```text
+head
+```
+
+走到：
+
+```text
+entry
+```
+
+计数即可。
+
+这个长度就是：
+
+$$
+x
+$$
+
+所以 Floyd 算法还可以扩展得到：
+
+- 是否有环；
+- 环入口；
+- 环长；
+- 入环前链长。
+
+---
+
+## 19. 常见错误
+
+### 错误一：fast 每次只走一步
+
+如果 fast 和 slow 速度相同：
+
+```text
+初始位置相同
+之后始终相同
+```
+
+无法利用速度差判断环。
+
+---
+
+### 错误二：循环中只判断 `fast != null`
+
+还必须保证：
+
+```cpp
+fast->next != nullptr
+```
+
+否则：
+
+```cpp
+fast->next->next
+```
+
+可能非法访问。
+
+---
+
+### 错误三：第一次相遇点就是入口
+
+不一定。
+
+第一次相遇：
+
+```text
+只证明有环
+```
+
+通常并不是入口。
+
+必须进行第二阶段：
+
+```text
+head 与 meeting 同速前进
+```
+
+---
+
+### 错误四：第二阶段 fast 仍然走两步
+
+第二阶段两个指针都必须：
+
+```text
+每次走 1 步
+```
+
+因为推导的是相等路程关系。
+
+---
+
+### 错误五：比较节点值
+
+和链表相交一样，必须比较：
+
+```text
+节点指针 / 节点对象
+```
+
+不是 `val`。
+
+---
+
+## 20. 一眼识别 Floyd 判环
+
+如果题目出现：
+
+```text
+链表是否成环
+循环状态
+每个状态只有一个下一状态
+找到环入口
+```
+
+应考虑：
+
+```text
+slow 每次 1 步
+fast 每次 2 步
+```
+
+若只判断有环：
+
+```text
+相遇即可
+```
+
+若还要找入口：
+
+```text
+相遇后
+一个回 head
+一个留 meeting
+然后同速前进
+```
+
+---
+
+## 21. 多语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    ListNode* detectCycle(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (
+            fast != nullptr &&
+            fast->next != nullptr
+        ) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) {
+                ListNode* p1 = head;
+                ListNode* p2 = slow;
+
+                while (p1 != p2) {
+                    p1 = p1->next;
+                    p2 = p2->next;
+                }
+
+                return p1;
+            }
+        }
+
+        return nullptr;
+    }
+};
+```
+
+
+
+```java tab="Java"
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (
+            fast != null &&
+            fast.next != null
+        ) {
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (slow == fast) {
+                ListNode p1 = head;
+                ListNode p2 = slow;
+
+                while (p1 != p2) {
+                    p1 = p1.next;
+                    p2 = p2.next;
+                }
+
+                return p1;
+            }
+        }
+
+        return null;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def detectCycle(self, head):
+        slow = head
+        fast = head
+
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+
+            if slow is fast:
+                p1 = head
+                p2 = slow
+
+                while p1 is not p2:
+                    p1 = p1.next
+                    p2 = p2.next
+
+                return p1
+
+        return None
+```
+
+
+
+```go tab="Go"
+func detectCycle(head *ListNode) *ListNode {
+    slow := head
+    fast := head
+
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+
+        if slow == fast {
+            p1 := head
+            p2 := slow
+
+            for p1 != p2 {
+                p1 = p1.Next
+                p2 = p2.Next
+            }
+
+            return p1
+        }
+    }
+
+    return nil
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var detectCycle = function(head) {
+    let slow = head;
+    let fast = head;
+
+    while (
+        fast !== null &&
+        fast.next !== null
+    ) {
+        slow = slow.next;
+        fast = fast.next.next;
+
+        if (slow === fast) {
+            let p1 = head;
+            let p2 = slow;
+
+            while (p1 !== p2) {
+                p1 = p1.next;
+                p2 = p2.next;
+            }
+
+            return p1;
+        }
+    }
+
+    return null;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function detectCycle(
+    head: ListNode | null
+): ListNode | null {
+    let slow = head;
+    let fast = head;
+
+    while (
+        fast !== null &&
+        fast.next !== null
+    ) {
+        slow = slow!.next;
+        fast = fast.next.next;
+
+        if (slow === fast) {
+            let p1 = head;
+            let p2 = slow;
+
+            while (p1 !== p2) {
+                p1 = p1!.next;
+                p2 = p2!.next;
+            }
+
+            return p1;
+        }
+    }
+
+    return null;
+}
+```
+
+  ---
+
+## 22. 本题总结
+
+Floyd 环检测可以记成两阶段。
+
+### 第一阶段：证明有环
+
+```text
+slow = 1 步
+fast = 2 步
+        ↓
+相遇 → 有环
+```
+
+### 第二阶段：找入口
+
+设：
+
+- 头到入口：$x$；
+- 入口到相遇点：$y$；
+- 相遇点到入口：$z$。
+
+由：
+
+$$
+2(x+y)=x+y+n(y+z)
+$$
+
+得到：
+
+$$
+x=(n-1)(y+z)+z
+$$
+
+于是：
+
+```text
+一个指针从 head 出发
+一个指针从 meeting 出发
+两者每次都走 1 步
+```
+
+它们第一次相遇的位置就是环入口。
+
+最终模板：
+
+```text
+快慢指针判环
+      ↓
+相遇后一个回头
+      ↓
+两个同速前进
+      ↓
+再次相遇 = 环入口
+```
+
+这不仅是链表题经典模板，也是理解“有限状态确定性转移”的重要工具。

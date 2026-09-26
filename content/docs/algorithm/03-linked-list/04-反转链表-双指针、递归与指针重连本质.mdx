@@ -1,0 +1,849 @@
+---
+title: 反转链表：双指针、递归与指针重连本质
+description: 以 LeetCode 206 为主线，从链表指针方向变化出发，系统掌握迭代双指针、前向递归与后向递归三种反转方法，并理解为什么必须先保存 next。
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# 反转链表：双指针、递归与指针重连本质
+
+> 对应题目：[LeetCode 206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
+
+反转链表是一道非常典型的“代码很短，但真正理解比背模板更重要”的链表题。
+
+原链表：
+
+```text
+1 → 2 → 3 → 4 → 5 → null
+```
+
+反转后：
+
+```text
+5 → 4 → 3 → 2 → 1 → null
+```
+
+注意：**反转链表并不是新建一条链表再复制节点，而是修改原有节点之间的 `next` 指向。**
+
+原题示意：
+
+![反转链表示意](https://file1.kamacoder.com/i/algo/20210218090901207.png)
+
+---
+
+## 1. 真正需要改变的是什么
+
+单链表节点可以抽象成：
+
+```text
+[value | next]
+```
+
+原本：
+
+```text
+A → B
+```
+
+意味着：
+
+```text
+A.next = B
+```
+
+反转以后：
+
+```text
+A ← B
+```
+
+也就是：
+
+```text
+B.next = A
+```
+
+因此整个问题的本质只有一句话：
+
+> **依次把每个节点的 `next` 指针改为指向它的前驱节点。**
+
+这也是为什么反转链表可以做到原地操作，辅助空间只需 $O(1)$。
+
+---
+
+## 2. 为什么只需要两个核心指针
+
+遍历过程中，我们关注两个位置：
+
+```text
+pre   cur
+ ↓     ↓
+... ← A     B → C → ...
+```
+
+其中：
+
+- `pre`：已经反转完成部分的头结点；
+- `cur`：当前准备反转的节点。
+
+初始状态：
+
+```text
+pre = null
+cur = head
+```
+
+例如：
+
+```text
+null    1 → 2 → 3 → 4 → 5 → null
+ ↑      ↑
+pre    cur
+```
+
+每轮只需要让：
+
+```text
+cur.next = pre
+```
+
+然后把两个指针向前推进。
+
+---
+
+## 3. 最关键的一步：先保存 `cur.next`
+
+很多初学者第一次写反转链表时，会直接写：
+
+```cpp
+cur->next = pre;
+```
+
+这一步本身没错，但一旦修改完成，原来的后继节点就找不到了。
+
+例如：
+
+```text
+1 → 2 → 3
+```
+
+当前：
+
+```text
+pre = null
+cur = 1
+```
+
+如果直接：
+
+```cpp
+cur->next = pre;
+```
+
+链表会变成：
+
+```text
+1 → null
+
+2 → 3 → null
+```
+
+此时如果没有提前保存节点 `2`，就无法从 `1` 再访问后续链表。
+
+所以必须先做：
+
+```cpp
+ListNode* next = cur->next;
+```
+
+完整顺序是：
+
+**保存后继节点**
+
+```cpp
+ListNode* next = cur->next;
+```
+
+  **反转当前指针**
+
+```cpp
+cur->next = pre;
+```
+
+  **移动 `pre`**
+
+```cpp
+pre = cur;
+```
+
+  **移动 `cur`**
+
+```cpp
+cur = next;
+```
+
+  <Callout title="指针题最重要的习惯" type="warning">
+凡是准备修改某个指针，而后续流程还需要它原来的指向时，必须先把原指向保存下来。链表中大量“断链”错误都源自忽略了这一点。
+</Callout>
+
+---
+
+## 4. 用一轮循环看懂整个过程
+
+原链表：
+
+```text
+1 → 2 → 3 → null
+```
+
+初始：
+
+```text
+pre = null
+cur = 1
+```
+
+### 第一轮
+
+先保存：
+
+```text
+next = 2
+```
+
+修改：
+
+```text
+1.next = null
+```
+
+然后：
+
+```text
+pre = 1
+cur = 2
+```
+
+得到：
+
+```text
+null ← 1    2 → 3 → null
+       ↑    ↑
+      pre  cur
+```
+
+### 第二轮
+
+保存：
+
+```text
+next = 3
+```
+
+反转：
+
+```text
+2.next = 1
+```
+
+移动：
+
+```text
+pre = 2
+cur = 3
+```
+
+得到：
+
+```text
+null ← 1 ← 2    3 → null
+            ↑    ↑
+           pre  cur
+```
+
+### 第三轮
+
+反转节点 `3` 后：
+
+```text
+null ← 1 ← 2 ← 3
+                 ↑
+                pre
+
+cur = null
+```
+
+循环结束。
+
+此时 `pre` 正好指向新的头结点，所以返回：
+
+```cpp
+return pre;
+```
+
+---
+
+## 5. 迭代双指针模板
+
+这是最推荐掌握的写法：
+
+```cpp
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* pre = nullptr;
+        ListNode* cur = head;
+
+        while (cur != nullptr) {
+            ListNode* next = cur->next;
+            cur->next = pre;
+            pre = cur;
+            cur = next;
+        }
+
+        return pre;
+    }
+};
+```
+
+可以把循环体压缩成四句话：
+
+```text
+保存 next
+反转 next
+pre 前进
+cur 前进
+```
+
+### 循环不变量
+
+在每轮循环开始时：
+
+- `pre` 指向已经反转好的链表；
+- `cur` 指向尚未处理部分的第一个节点；
+- 两部分加起来恰好包含原链表的全部节点。
+
+因此每轮只是把 `cur` 从“未处理部分”移动到“已反转部分”。
+
+---
+
+## 6. 为什么时间复杂度是 $O(n)$
+
+假设链表共有 $n$ 个节点。
+
+每个节点：
+
+- 被 `cur` 访问一次；
+- 进行常数次指针修改。
+
+因此总操作次数满足：
+
+$$
+T(n)=cn
+$$
+
+忽略常数后：
+
+$$
+T(n)=O(n)
+$$
+
+迭代过程中只使用：
+
+```text
+pre
+cur
+next
+```
+
+常数个指针，因此辅助空间：
+
+$$
+S(n)=O(1)
+$$
+
+---
+
+## 7. 递归写法一：把迭代过程直接递归化
+
+迭代版每轮做：
+
+```cpp
+next = cur->next;
+cur->next = pre;
+pre = cur;
+cur = next;
+```
+
+那么完全可以把新的：
+
+```text
+(pre, cur)
+```
+
+作为下一次递归参数。
+
+```cpp
+ListNode* reverse(ListNode* pre, ListNode* cur) {
+    if (cur == nullptr) {
+        return pre;
+    }
+
+    ListNode* next = cur->next;
+    cur->next = pre;
+
+    return reverse(cur, next);
+}
+```
+
+入口：
+
+```cpp
+return reverse(nullptr, head);
+```
+
+完整实现：
+
+```cpp
+class Solution {
+private:
+    ListNode* reverse(ListNode* pre, ListNode* cur) {
+        if (cur == nullptr) {
+            return pre;
+        }
+
+        ListNode* next = cur->next;
+        cur->next = pre;
+        return reverse(cur, next);
+    }
+
+public:
+    ListNode* reverseList(ListNode* head) {
+        return reverse(nullptr, head);
+    }
+};
+```
+
+这其实不是一种新的算法。
+
+它只是把：
+
+```cpp
+while (...) {
+    ...
+}
+```
+
+改成了：
+
+```cpp
+reverse(...)
+```
+
+<Callout title="迭代与递归的关系" type="info">
+这种递归写法和双指针迭代法具有完全相同的状态转移：`(pre, cur) → (cur, next)`。区别只是状态保存在循环变量中，还是保存在函数调用栈中。
+</Callout>
+
+---
+
+## 8. 递归写法二：先反转后半段，再处理当前节点
+
+还有一种更经典、也更抽象的递归方式。
+
+对于：
+
+```text
+1 → 2 → 3 → 4 → null
+```
+
+假设递归已经帮我们把：
+
+```text
+2 → 3 → 4
+```
+
+反转成：
+
+```text
+4 → 3 → 2
+```
+
+此时局部结构可以理解成：
+
+```text
+1 → 2 ← 3 ← 4
+```
+
+为了让 `2` 指回 `1`：
+
+```cpp
+head->next->next = head;
+```
+
+但原本还有：
+
+```text
+1 → 2
+```
+
+如果不切断，会形成环：
+
+```text
+1 ↔ 2
+```
+
+所以还必须：
+
+```cpp
+head->next = nullptr;
+```
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+
+        ListNode* newHead = reverseList(head->next);
+
+        head->next->next = head;
+        head->next = nullptr;
+
+        return newHead;
+    }
+};
+```
+
+---
+
+## 9. 为什么递归写法返回的是 `newHead`
+
+假设：
+
+```text
+1 → 2 → 3 → null
+```
+
+递归最深处：
+
+```text
+head = 3
+```
+
+因为 `3.next == null`，所以直接返回：
+
+```text
+3
+```
+
+之后无论上一层处理 `2`，还是再上一层处理 `1`，真正的新头结点始终是：
+
+```text
+3
+```
+
+所以每一层都继续返回同一个：
+
+```cpp
+newHead
+```
+
+---
+
+## 10. 两种递归的区别
+
+| 写法 | 处理方向 | 核心思想 |
+| --- | --- | --- |
+| 参数递归 | 从前向后 | 每层直接反转当前边 |
+| 后序递归 | 从后向前 | 先反转后半段，再把当前节点接到尾部 |
+
+它们时间复杂度都为：
+
+$$
+O(n)
+$$
+
+但函数调用深度达到：
+
+$$
+n
+$$
+
+因此递归辅助空间：
+
+$$
+O(n)
+$$
+
+而迭代版辅助空间只有：
+
+$$
+O(1)
+$$
+
+所以工程中面对超长链表时，通常优先选择迭代版。
+
+---
+
+## 11. 为什么反转链表不需要虚拟头结点
+
+前面的删除和插入题非常适合使用 `dummy`，因为：
+
+- 真实头结点可能被删除；
+- 需要访问某个节点的前驱。
+
+而反转链表的核心过程是：
+
+```text
+逐个修改当前节点的 next
+```
+
+并不需要统一“前驱节点不存在”的边界。
+
+因此直接从：
+
+```cpp
+cur = head;
+pre = nullptr;
+```
+
+开始即可。
+
+这说明：
+
+> 虚拟头结点是处理链表边界的重要工具，但不是所有链表题都要机械使用它。
+
+---
+
+## 12. 高频错误分析
+
+### 错误 1：先反转，再保存后继
+
+错误：
+
+```cpp
+cur->next = pre;
+cur = cur->next;
+```
+
+由于 `cur->next` 已经指向前驱，后续节点会丢失。
+
+正确：
+
+```cpp
+ListNode* next = cur->next;
+cur->next = pre;
+```
+
+---
+
+### 错误 2：循环结束后返回 `cur`
+
+循环退出条件是：
+
+```cpp
+cur == nullptr
+```
+
+所以返回 `cur` 一定得到空指针。
+
+真正的新头结点是：
+
+```cpp
+pre
+```
+
+---
+
+### 错误 3：递归后忘记断开旧连接
+
+后序递归中只写：
+
+```cpp
+head->next->next = head;
+```
+
+却没有：
+
+```cpp
+head->next = nullptr;
+```
+
+会形成环。
+
+---
+
+### 错误 4：把“递归代码短”误认为“空间更优”
+
+递归虽然代码很短，但调用栈会保存 $n$ 层状态：
+
+$$
+S(n)=O(n)
+$$
+
+而迭代版本为：
+
+$$
+S(n)=O(1)
+$$
+
+---
+
+## 13. 从反转链表提炼出的通用模式
+
+反转链表的核心模板：
+
+```cpp
+ListNode* prev = nullptr;
+ListNode* cur = head;
+
+while (cur != nullptr) {
+    ListNode* next = cur->next;
+    cur->next = prev;
+    prev = cur;
+    cur = next;
+}
+```
+
+这个模式之后会反复出现在：
+
+<Cards>
+  <Card title="反转整个链表">
+    LeetCode 206 的直接应用。
+  </Card>
+  <Card title="反转链表区间">
+    例如反转 `[left, right]` 范围。
+  </Card>
+  <Card title="K 个一组反转">
+    每组局部执行同样的指针重连。
+  </Card>
+  <Card title="回文链表">
+    常见做法是反转后半段再比较。
+  </Card>
+</Cards>
+
+真正应该记住的不是某一道题的代码，而是：
+
+> **保存后继 → 修改当前指向 → 推进两个指针。**
+
+---
+
+## 14. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 反转链表的本质 | 修改节点之间的 `next` 指向 |
+| 为什么先保存 `next` | 修改 `cur.next` 后会失去原后继 |
+| 迭代核心指针 | `pre`、`cur`、`next` |
+| 迭代返回谁 | `pre` |
+| 迭代时间复杂度 | $O(n)$ |
+| 迭代辅助空间 | $O(1)$ |
+| 递归时间复杂度 | $O(n)$ |
+| 递归辅助空间 | $O(n)$ |
+| 最推荐掌握 | 双指针迭代法 |
+
+<Callout title="本题最值得带走的结论" type="success">
+链表反转不是“交换节点值”，也不是“创建新链表”，而是逐条重连指针。只要始终记住“先保存后继，再改 `next`”，这类题就很难写乱。
+</Callout>
+
+---
+
+## 其他语言版本
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+
+        while (cur != nullptr) {
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+
+        return prev;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode cur = head;
+
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = prev;
+            prev = cur;
+            cur = next;
+        }
+
+        return prev;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        prev = None
+        cur = head
+
+        while cur is not None:
+            nxt = cur.next
+            cur.next = prev
+            prev = cur
+            cur = nxt
+
+        return prev
+```
+
+
+
+```go tab="Go"
+func reverseList(head *ListNode) *ListNode {
+    var prev *ListNode
+    cur := head
+
+    for cur != nil {
+        next := cur.Next
+        cur.Next = prev
+        prev = cur
+        cur = next
+    }
+
+    return prev
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var reverseList = function (head) {
+  let prev = null;
+  let cur = head;
+
+  while (cur !== null) {
+    const next = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = next;
+  }
+
+  return prev;
+};
+```

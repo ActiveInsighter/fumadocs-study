@@ -1,0 +1,1413 @@
+---
+title: 并查集理论基础
+subtitle: 用一棵“代表元森林”维护动态连通关系
+summary: 系统掌握并查集（Disjoint Set Union / Union-Find）的集合模型、parent 数组、find 寻根、union 合并、路径压缩、按秩或按大小合并、复杂度与常见错误，并建立与图连通性问题之间的对应关系。
+---
+
+# 并查集理论基础
+
+并查集（Disjoint Set Union，简称 **DSU**，也常叫 **Union-Find**）是一种专门维护“若干个互不相交集合”的数据结构。
+
+它最典型的应用不是求最短路，也不是遍历整张图，而是高效回答两类问题：
+
+1. **合并**：把两个元素所在的集合合并成一个集合；
+2. **查询**：判断两个元素是否属于同一个集合。
+
+<Callout type="info" title="看到什么关键词要想到并查集？">
+
+如果题目反复出现下面这些操作，就应该优先考虑并查集：
+
+- 不断加入无向边；
+- 判断两个点是否连通；
+- 判断新加入的一条边是否形成环；
+- 统计连通分量；
+- 把若干元素不断合并成集合。
+
+它尤其适合**动态合并、静态查询**这一类连通性问题。
+
+</Callout>
+
+---
+
+## 1. 并查集解决的到底是什么问题
+
+假设有 $n$ 个元素：
+
+```text
+1 2 3 4 5 6
+```
+
+开始时，每个元素各自属于一个集合：
+
+```text
+{1} {2} {3} {4} {5} {6}
+```
+
+现在依次执行：
+
+```text
+union(1, 2)
+union(2, 3)
+union(5, 6)
+```
+
+最终得到：
+
+```text
+{1, 2, 3}   {4}   {5, 6}
+```
+
+此时我们希望快速回答：
+
+```text
+1 和 3 是否在同一个集合？ -> 是
+2 和 6 是否在同一个集合？ -> 否
+```
+
+如果每次查询都遍历整个集合，代价很高。
+
+并查集的核心思路是：
+
+> **每个集合只认一个“代表元（根节点）”。两个元素根相同，就属于同一个集合。**
+
+数学上可以写成：
+
+$$
+\operatorname{same}(u,v)
+\iff
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+所以整个问题被转化为两个操作：
+
+```text
+find(x)      找 x 所在集合的根
+union(u, v)  合并 u、v 所在的两个集合
+```
+
+---
+
+## 2. 为什么只需要一个 parent 数组
+
+并查集不会真的为每个集合维护一个 `set`。
+
+它把每一个集合组织成一棵树，并使用一维数组：
+
+```cpp
+parent[x]
+```
+
+表示：
+
+> 节点 `x` 当前指向的父节点。
+
+例如：
+
+```text
+A -> B -> C
+```
+
+可以表示为：
+
+```text
+parent[A] = B
+parent[B] = C
+parent[C] = C
+```
+
+其中：
+
+```text
+parent[C] = C
+```
+
+表示 `C` 是这棵树的根。
+
+于是从 `A` 开始不断沿着 `parent` 向上走：
+
+```text
+A -> B -> C
+```
+
+最终一定会找到根 `C`。
+
+因此 `A、B、C` 属于同一个集合。
+
+原文给出的树形结构如下：
+
+![并查集中的树形结构](https://file1.kamacoder.com/i/algo/20230602102619.png)
+
+<Callout type="warning" title="parent 指向关系不是原图中的有向边">
+
+并查集内部虽然也画成“节点指向父节点”的树，但这些边只是**数据结构内部的组织关系**。
+
+它们并不表示原图中存在对应方向的有向边。
+
+对于无向图中的连通关系，只要两个节点最终拥有同一个根，就说明它们属于同一个连通分量。
+
+</Callout>
+
+---
+
+## 3. 初始化：每个元素先自成一个集合
+
+开始时没有任何合并关系，因此令每个元素都指向自己：
+
+```cpp
+for (int i = 1; i <= n; ++i) {
+    parent[i] = i;
+}
+```
+
+即：
+
+$$
+parent[i]=i
+$$
+
+这意味着：
+
+```text
+1 -> 1
+2 -> 2
+3 -> 3
+...
+```
+
+此时一共有 $n$ 个集合。
+
+### 初始化模板
+
+```cpp
+vector<int> parent(n + 1);
+
+void init() {
+    for (int i = 1; i <= n; ++i) {
+        parent[i] = i;
+    }
+}
+```
+
+如果节点编号从 `0` 开始，就初始化：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    parent[i] = i;
+}
+```
+
+<Callout title="先确认节点编号范围">
+
+并查集数组越界是 ACM 模式下非常常见的低级错误。
+
+看到题目后先确定：
+
+```text
+节点是 0 ~ n-1
+还是 1 ~ n
+```
+
+再决定数组长度与循环边界。
+
+</Callout>
+
+---
+
+## 4. find：寻找一个元素所属集合的根
+
+最朴素的 `find` 就是不断向父节点走：
+
+```cpp
+int find(int x) {
+    if (x == parent[x]) {
+        return x;
+    }
+    return find(parent[x]);
+}
+```
+
+终止条件：
+
+```cpp
+x == parent[x]
+```
+
+说明当前节点就是根。
+
+例如：
+
+```text
+1 -> 3 -> 5 -> 8
+               |
+               v
+               8
+```
+
+那么：
+
+```text
+find(1)
+-> find(3)
+-> find(5)
+-> find(8)
+-> 8
+```
+
+所以集合的代表元是 `8`。
+
+---
+
+# 5. 路径压缩：并查集最核心的优化
+
+如果树很高，每次 `find` 都要沿着很多层父节点向上走。
+
+原始结构可能是：
+
+![路径压缩前的并查集树](https://file1.kamacoder.com/i/algo/20230602102619.png)
+
+但我们真正关心的只是：
+
+```text
+这个节点最终属于哪个根？
+```
+
+中间父子关系并没有特殊意义。
+
+所以在查找根的同时，可以把沿途节点直接挂到根上：
+
+![路径压缩后的并查集树](https://file1.kamacoder.com/i/algo/20230602103040.png)
+
+这就是**路径压缩（Path Compression）**。
+
+---
+
+## 5.1 一行代码完成路径压缩
+
+```cpp
+int find(int x) {
+    if (x == parent[x]) {
+        return x;
+    }
+
+    parent[x] = find(parent[x]);
+    return parent[x];
+}
+```
+
+关键就是：
+
+```cpp
+parent[x] = find(parent[x]);
+```
+
+先递归找到真正的根，再让当前节点直接指向这个根。
+
+也可以写成：
+
+```cpp
+int find(int x) {
+    return x == parent[x] ? x : parent[x] = find(parent[x]);
+}
+```
+
+但学习阶段更推荐展开写，因为更容易理解路径压缩到底发生在哪里。
+
+---
+
+## 5.2 路径压缩到底压缩了什么
+
+假设原来：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+                    ^
+                    |
+                    root
+```
+
+第一次执行：
+
+```text
+find(1)
+```
+
+递归回来的过程中会依次执行：
+
+```text
+parent[4] = 5
+parent[3] = 5
+parent[2] = 5
+parent[1] = 5
+```
+
+于是结构变成：
+
+```text
+1 ─┐
+2 ─┤
+3 ─┼-> 5
+4 ─┘
+```
+
+以后再查询这些节点时，几乎一步就可以到达根。
+
+<Callout type="info" title="理解 find 的最好方式">
+
+`find(x)` 不只是“查根”。
+
+带路径压缩的 `find(x)` 同时做两件事：
+
+1. 找出 `x` 的根；
+2. 顺手把本次搜索路径上的节点直接连接到根。
+
+所以并查集会**越用越快**。
+
+</Callout>
+
+---
+
+# 6. union：合并两个集合
+
+假设要合并 `u` 和 `v` 所在的集合。
+
+正确步骤不是直接：
+
+```cpp
+parent[v] = u;
+```
+
+而是先找两个集合各自的根：
+
+```cpp
+int rootU = find(u);
+int rootV = find(v);
+```
+
+如果：
+
+```cpp
+rootU == rootV
+```
+
+说明它们本来就在同一个集合，不需要任何操作。
+
+否则，把一个根接到另一个根下面：
+
+```cpp
+parent[rootV] = rootU;
+```
+
+完整写法：
+
+```cpp
+void unite(int u, int v) {
+    int rootU = find(u);
+    int rootV = find(v);
+
+    if (rootU == rootV) {
+        return;
+    }
+
+    parent[rootV] = rootU;
+}
+```
+
+---
+
+## 6.1 为什么必须先找根再合并
+
+这是并查集最常见、也最关键的错误之一。
+
+错误写法：
+
+```cpp
+void unite(int u, int v) {
+    if (isSame(u, v)) {
+        return;
+    }
+    parent[v] = u; // 错误：连接的是普通节点，不一定是根
+}
+```
+
+考虑：
+
+```text
+union(1, 2)
+union(3, 2)
+```
+
+如果第二次直接执行：
+
+```text
+parent[2] = 3
+```
+
+就可能破坏原有集合的代表关系。
+
+原文给出了错误连接后的示意：
+
+![直接连接普通节点可能破坏集合关系](https://file1.kamacoder.com/i/algo/20230525111307.png)
+
+正确做法是第二次合并前先找根：
+
+```text
+find(3) = 3
+find(2) = 1
+```
+
+然后合并：
+
+```text
+parent[1] = 3
+```
+
+得到：
+
+![先寻根后再合并](https://file1.kamacoder.com/i/algo/20230525112101.png)
+
+于是 `1、2、3` 仍然属于同一个集合。
+
+<Callout type="warning" title="union 的不变量">
+
+**只让一个集合的根指向另一个集合的根。**
+
+也就是：
+
+```text
+root -> root
+```
+
+而不是随便把两个普通节点连接起来。
+
+这是并查集正确性的核心不变量。
+
+</Callout>
+
+---
+
+# 7. isSame：判断两个元素是否属于同一个集合
+
+有了 `find`，连通性判断非常直接：
+
+```cpp
+bool isSame(int u, int v) {
+    return find(u) == find(v);
+}
+```
+
+本质就是：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+如果根相同，两个节点属于同一集合；否则属于不同集合。
+
+---
+
+# 8. 最小可用并查集模板
+
+如果只为了快速解决基础题，下面这个模板已经足够实用：
+
+```cpp
+class UnionFind {
+private:
+    vector<int> parent;
+
+public:
+    explicit UnionFind(int n) : parent(n + 1) {
+        for (int i = 0; i <= n; ++i) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    void unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return;
+        }
+
+        parent[rootV] = rootU;
+    }
+
+    bool isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+};
+```
+
+这个版本已经具备：
+
+```text
+初始化
+find + 路径压缩
+union
+连通性查询
+```
+
+后续绝大多数并查集题都可以从这个模板出发修改。
+
+---
+
+# 9. 手动模拟一次并查集
+
+并查集非常适合“画图理解”。
+
+原文给出了一组连续操作，我们沿用这组过程。
+
+## 9.1 `union(1, 8)`
+
+![union 1 8](https://file1.kamacoder.com/i/algo/20231122112727.png)
+
+此时 `1` 和 `8` 属于同一集合。
+
+---
+
+## 9.2 `union(3, 8)`
+
+![union 3 8](https://file1.kamacoder.com/i/algo/20231122113857.png)
+
+注意：需要先执行：
+
+```text
+find(3)
+find(8)
+```
+
+再连接两个根，而不是机械连接 `3` 和 `8` 本身。
+
+---
+
+## 9.3 `union(1, 7)`
+
+![union 1 7](https://file1.kamacoder.com/i/algo/20231122114108.png)
+
+因为 `1` 已经属于一个更大的集合，所以 `find(1)` 得到的是该集合当前的根。
+
+---
+
+## 9.4 `union(8, 5)`
+
+![union 8 5](https://file1.kamacoder.com/i/algo/20231122114847.png)
+
+这里可以观察到路径压缩的效果：
+
+执行 `find(8)` 时，`8` 会被直接连接到最终根。
+
+---
+
+## 9.5 `union(2, 9)`
+
+![union 2 9](https://file1.kamacoder.com/i/algo/20231122115000.png)
+
+形成另一个连通集合。
+
+---
+
+## 9.6 `union(6, 9)`
+
+![union 6 9](https://file1.kamacoder.com/i/algo/20231122115404.png)
+
+至此可以通过：
+
+```cpp
+isSame(8, 7);
+isSame(7, 2);
+```
+
+分别判断两对节点是否属于同一个集合。
+
+这类模拟最重要的不是记住图长什么样，而是每一步都坚持：
+
+```text
+先 find 根
+再合并根
+```
+
+---
+
+# 10. 进一步优化：按秩合并 / 按大小合并
+
+路径压缩优化的是：
+
+> **find 时如何把树压扁。**
+
+另一个经典优化方向是：
+
+> **union 时尽量避免树长高。**
+
+原文使用的是**按秩合并（Union by Rank）**。
+
+示意图：
+
+![两棵不同高度的并查集树](https://file1.kamacoder.com/i/algo/20230602172250.png)
+
+如果把更高的树挂到更矮的树下面，整体高度可能进一步增加：
+
+![不同合并方向对树高的影响](https://file1.kamacoder.com/i/algo/20230602172933.png)
+
+因此基本策略是：
+
+> **让较矮的树挂到较高的树下面。**
+
+---
+
+## 10.1 按秩合并
+
+`rank[root]` 可以理解为树高的上界。
+
+```cpp
+vector<int> parent(n + 1);
+vector<int> rank(n + 1, 0);
+
+int find(int x) {
+    if (x != parent[x]) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+
+void unite(int u, int v) {
+    int rootU = find(u);
+    int rootV = find(v);
+
+    if (rootU == rootV) {
+        return;
+    }
+
+    if (rank[rootU] < rank[rootV]) {
+        parent[rootU] = rootV;
+    } else if (rank[rootU] > rank[rootV]) {
+        parent[rootV] = rootU;
+    } else {
+        parent[rootV] = rootU;
+        ++rank[rootU];
+    }
+}
+```
+
+<Callout type="info" title="路径压缩后 rank 还准确吗？">
+
+采用“路径压缩 + 按秩合并”时，`rank` 通常**不再表示当前树的真实高度**。
+
+它保留的是一种用于控制合并方向的秩信息 / 高度上界，因此不需要在每次路径压缩后重新计算。
+
+这正是经典并查集实现的标准做法。
+
+</Callout>
+
+---
+
+## 10.2 按大小合并更容易理解
+
+竞赛中另一个很常见的写法是维护：
+
+```cpp
+size[root]
+```
+
+表示当前集合包含多少元素。
+
+总是让较小集合挂到较大集合下面：
+
+```cpp
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n)
+        : parent(n + 1), size(n + 1, 1) {
+        for (int i = 0; i <= n; ++i) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+
+    bool isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+
+    int componentSize(int x) {
+        return size[find(x)];
+    }
+};
+```
+
+这个版本非常适合后续需要查询：
+
+```text
+某个连通分量有多少节点？
+```
+
+的题目。
+
+---
+
+# 11. 为什么并查集可以判断无向图中的连通性
+
+在无向图中，如果存在边：
+
+```text
+u -- v
+```
+
+那么 `u` 和 `v` 必然属于同一个连通分量。
+
+因此读取每一条边时执行：
+
+```cpp
+unite(u, v);
+```
+
+相当于逐步维护图的连通分量。
+
+全部边处理完后：
+
+```cpp
+isSame(source, destination)
+```
+
+就能判断两点之间是否存在路径。
+
+因为在无向图中：
+
+$$
+source \leftrightsquigarrow destination
+\iff
+source, destination \text{ 属于同一连通分量}
+$$
+
+这也是下一篇「寻找存在的路径」的核心。
+
+---
+
+# 12. 并查集和 DFS / BFS 的区别
+
+三者都可能解决“两个点是否连通”，但思维方式不同。
+
+| 方法 | 核心思路 | 更适合 |
+| --- | --- | --- |
+| DFS | 从起点沿图搜索 | 单次可达性、遍历结构 |
+| BFS | 按层向外搜索 | 单次可达性、无权最短路 |
+| 并查集 | 维护节点属于哪个集合 | 多次合并 + 多次连通性查询 |
+
+例如只有一次查询：
+
+```text
+source 能否到 destination？
+```
+
+DFS / BFS 完全可以解决。
+
+但如果题目不断进行：
+
+```text
+加入一条边
+问 A 与 B 是否连通
+再加入一条边
+问 C 与 D 是否连通
+...
+```
+
+并查集通常更加自然。
+
+<Callout type="warning" title="并查集不是通用图搜索算法">
+
+普通并查集只知道：
+
+```text
+两个节点是否属于同一集合
+```
+
+它通常不能直接回答：
+
+- 两点间最短距离是多少；
+- 具体路径是什么；
+- 从 `u` 到 `v` 是否满足有向可达；
+- 路径经过了哪些节点。
+
+这些问题仍然需要 BFS、DFS、最短路等算法。
+
+</Callout>
+
+---
+
+# 13. 并查集为什么不适合普通有向图可达性
+
+假设有向边：
+
+```text
+1 -> 2
+```
+
+如果执行：
+
+```cpp
+unite(1, 2);
+```
+
+并查集得到的只是：
+
+```text
+1 和 2 属于同一个集合
+```
+
+但集合关系是对称的：
+
+```text
+same(1, 2) == same(2, 1)
+```
+
+而有向图可达性并不对称：
+
+```text
+1 可以到 2
+```
+
+不能推出：
+
+```text
+2 可以到 1
+```
+
+因此：
+
+> **普通 DSU 天生适合无向连通性，不适合表达一般有向图的方向可达关系。**
+
+---
+
+# 14. 并查集判断环的核心套路
+
+在无向图中逐条加入边 `(u, v)`：
+
+```text
+如果 u、v 原本不连通：
+    这条边把两个连通分量合并
+
+如果 u、v 原本已经连通：
+    再加入这条边就会形成环
+```
+
+代码非常简单：
+
+```cpp
+if (uf.isSame(u, v)) {
+    // (u, v) 是一条冗余边 / 会形成环
+} else {
+    uf.unite(u, v);
+}
+```
+
+后面的「冗余连接」就是这个套路。
+
+---
+
+# 15. 连通分量数量怎么维护
+
+开始时有 $n$ 个独立集合：
+
+```cpp
+int components = n;
+```
+
+每次成功合并两个不同集合：
+
+```cpp
+if (uf.unite(u, v)) {
+    --components;
+}
+```
+
+最终：
+
+```text
+components
+```
+
+就是连通分量个数。
+
+因此如果 `unite` 返回 `bool`，会非常方便：
+
+```cpp
+bool unite(int u, int v) {
+    int rootU = find(u);
+    int rootV = find(v);
+
+    if (rootU == rootV) {
+        return false;
+    }
+
+    parent[rootV] = rootU;
+    return true;
+}
+```
+
+---
+
+# 16. 时间复杂度：为什么并查集这么快
+
+设：
+
+- 元素数量为 $n$；
+- 一共有 $m$ 次 `find / union` 操作。
+
+如果使用：
+
+```text
+路径压缩 + 按秩合并
+```
+
+或：
+
+```text
+路径压缩 + 按大小合并
+```
+
+那么并查集的经典均摊时间复杂度为：
+
+$$
+O(m\alpha(n))
+$$
+
+其中 $\alpha(n)$ 是反阿克曼函数（inverse Ackermann function）。
+
+它增长极其缓慢，在任何现实规模的数据中都可以近似看作一个非常小的常数。
+
+因此单次操作通常可以理解为：
+
+$$
+O(\alpha(n))\approx O(1)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+因为主要维护 `parent`，以及可选的 `rank / size` 数组。
+
+<Callout type="info" title="复杂度表述要准确">
+
+“并查集是 $O(1)$”是一种工程上的简化说法。
+
+更严谨的结论是：
+
+> 使用路径压缩并结合按秩 / 按大小合并后，单次操作的**均摊复杂度**为 $O(\alpha(n))$。
+
+考试、面试或正式文档里建议写这个结论。
+
+</Callout>
+
+---
+
+# 17. 高频错误清单
+
+## 错误 1：直接连普通节点
+
+```cpp
+parent[v] = u;
+```
+
+正确：
+
+```cpp
+int rootU = find(u);
+int rootV = find(v);
+parent[rootV] = rootU;
+```
+
+---
+
+## 错误 2：忘记初始化
+
+如果没有：
+
+```cpp
+parent[i] = i;
+```
+
+`find` 的根关系就根本没有建立。
+
+---
+
+## 错误 3：find 只查一层
+
+错误：
+
+```cpp
+int find(int x) {
+    return parent[x];
+}
+```
+
+`parent[x]` 只是父节点，不一定是根。
+
+正确：
+
+```cpp
+int find(int x) {
+    if (x != parent[x]) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+```
+
+---
+
+## 错误 4：把并查集内部树当成原图
+
+`parent[x] = y` 并不意味着原图存在：
+
+```text
+x -> y
+```
+
+它只是并查集内部的代表关系。
+
+---
+
+## 错误 5：用并查集求普通有向可达性
+
+一般不成立。
+
+普通 DSU 丢失边的方向信息。
+
+---
+
+## 错误 6：把 rank 当成路径压缩后的真实高度
+
+经典 `rank` 是用于控制合并方向的辅助信息。
+
+启用路径压缩后，不应再机械理解为“当前树的精确高度”。
+
+---
+
+# 18. 推荐背诵的标准模板
+
+对于大多数竞赛 / 面试题，推荐直接使用“路径压缩 + 按大小合并”：
+
+```cpp
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n)
+        : parent(n + 1), size(n + 1, 1) {
+        for (int i = 0; i <= n; ++i) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+
+    bool isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+
+    int getSize(int x) {
+        return size[find(x)];
+    }
+};
+```
+
+### 记忆主线
+
+```text
+初始化：parent[x] = x
+
+find：
+一直找根
+顺便路径压缩
+
+union：
+先找两个根
+根相同 -> 不用合并
+根不同 -> 小树挂大树
+
+same：
+find(u) == find(v)
+```
+
+---
+
+# 19. 一眼判断能不能用并查集
+
+可以按下面的顺序判断：
+
+```text
+题目是否在维护“集合 / 连通分量”？
+        |
+        +-- 否 --> 大概率不是并查集
+        |
+        +-- 是
+             |
+             v
+是否主要只有“合并”和“判断是否同集合”？
+        |
+        +-- 是 --> 强烈考虑并查集
+        |
+        +-- 否
+             |
+             v
+是否还要求最短路、具体路径、方向可达等信息？
+        |
+        +-- 是 --> 可能需要 DFS / BFS / 最短路等其他算法
+```
+
+---
+
+# 20. 本章小结
+
+并查集的核心其实只有一句话：
+
+> **用每个集合的根作为代表元，通过 `find` 找代表，通过 `union` 合并代表。**
+
+必须真正理解下面四点：
+
+1. `parent[x]` 表示并查集内部的父节点；
+2. `find(x)` 找的是最终根，而不是直接父节点；
+3. 合并时必须先找两个集合的根；
+4. 路径压缩 + 按秩 / 按大小合并让操作几乎达到常数级效率。
+
+后续并查集题目基本都围绕三个问题变化：
+
+```text
+什么时候 union？
+什么时候 same？
+集合还要额外维护什么信息？
+```
+
+掌握这条主线后，「寻找存在的路径」「冗余连接」「Kruskal 最小生成树」都会自然很多。
+
+---
+
+## 其他语言模板
+
+下面统一采用 **路径压缩 + 按大小合并**。
+
+```java tab="Java"
+class UnionFind {
+    private final int[] parent;
+    private final int[] size;
+
+    public UnionFind(int n) {
+        parent = new int[n + 1];
+        size = new int[n + 1];
+
+        for (int i = 0; i <= n; ++i) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+
+    public int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    public boolean union(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            int tmp = rootU;
+            rootU = rootV;
+            rootV = tmp;
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+
+    public boolean isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+
+    public int componentSize(int x) {
+        return size[find(x)];
+    }
+}
+```
+
+```python tab="Python"
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n + 1))
+        self.size = [1] * (n + 1)
+
+    def find(self, x: int) -> int:
+        if x != self.parent[x]:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, u: int, v: int) -> bool:
+        root_u = self.find(u)
+        root_v = self.find(v)
+
+        if root_u == root_v:
+            return False
+
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+        return True
+
+    def is_same(self, u: int, v: int) -> bool:
+        return self.find(u) == self.find(v)
+
+    def component_size(self, x: int) -> int:
+        return self.size[self.find(x)]
+```
+
+```go tab="Go"
+type UnionFind struct {
+    parent []int
+    size   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+
+    for i := 0; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+
+    return &UnionFind{parent: parent, size: size}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if x != uf.parent[x] {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(u, v int) bool {
+    rootU := uf.Find(u)
+    rootV := uf.Find(v)
+
+    if rootU == rootV {
+        return false
+    }
+
+    if uf.size[rootU] < uf.size[rootV] {
+        rootU, rootV = rootV, rootU
+    }
+
+    uf.parent[rootV] = rootU
+    uf.size[rootU] += uf.size[rootV]
+    return true
+}
+
+func (uf *UnionFind) IsSame(u, v int) bool {
+    return uf.Find(u) == uf.Find(v)
+}
+```
+
+```javascript tab="JavaScript"
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n + 1 }, (_, i) => i);
+    this.size = new Array(n + 1).fill(1);
+  }
+
+  find(x) {
+    if (x !== this.parent[x]) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(u, v) {
+    let rootU = this.find(u);
+    let rootV = this.find(v);
+
+    if (rootU === rootV) {
+      return false;
+    }
+
+    if (this.size[rootU] < this.size[rootV]) {
+      [rootU, rootV] = [rootV, rootU];
+    }
+
+    this.parent[rootV] = rootU;
+    this.size[rootU] += this.size[rootV];
+    return true;
+  }
+
+  isSame(u, v) {
+    return this.find(u) === this.find(v);
+  }
+}
+```

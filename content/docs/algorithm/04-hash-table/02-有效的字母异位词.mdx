@@ -1,0 +1,802 @@
+---
+title: 有效的字母异位词
+description: 用定长频次数组理解数组哈希，并掌握“频次差归零”这一类字符串判等模型。
+---
+
+# 242. 有效的字母异位词
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/valid-anagram/">
+    LeetCode 242 · Valid Anagram
+  </Card>
+</Cards>
+
+给定两个字符串 `s` 和 `t`，判断 `t` 是否是 `s` 的**字母异位词**。
+
+所谓字母异位词，是指两个字符串：
+
+- 使用了完全相同的字符；
+- 每种字符出现次数完全相同；
+- 字符顺序可以不同。
+
+例如：
+
+```text
+s = "anagram"
+t = "nagaram"
+
+输出：true
+```
+
+而：
+
+```text
+s = "rat"
+t = "car"
+
+输出：false
+```
+
+题目限定字符串只包含小写英文字母。
+
+<Callout type="info" title="本题真正考什么">
+这道题最重要的不是 `unordered_map`，而是意识到：当 key 的值域只有 26 个小写字母时，**数组就是最合适的哈希表**。
+</Callout>
+
+---
+
+## 1. 从“排序”到“频次统计”
+
+最直接的思路是把两个字符串分别排序，然后比较：
+
+```text
+anagram -> aaagmnr
+nagaram -> aaagmnr
+```
+
+若排序后完全相同，则二者是字母异位词。
+
+若字符串长度为 $n$，排序通常需要：
+
+$$
+O(n\log n)
+$$
+
+但这道题其实不需要关心字符顺序，只需要关心：
+
+> 每个字符出现了多少次。
+
+因此可以直接统计 26 个字母的频次，把复杂度降到线性级别。
+
+---
+
+## 2. 为什么长度为 26 的数组足够
+
+小写英文字母只有：
+
+```text
+a, b, c, ..., z
+```
+
+一共 26 个。
+
+而字符编码是连续的，所以可以建立映射：
+
+$$
+index = c-'a'
+$$
+
+于是：
+
+```text
+'a' -> 0
+'b' -> 1
+'c' -> 2
+...
+'z' -> 25
+```
+
+因此可以定义：
+
+```cpp
+int record[26] = {0};
+```
+
+其中：
+
+```text
+record[i]
+```
+
+表示第 $i$ 个小写字母当前的“频次差”。
+
+<Callout type="tip" title="数组哈希的识别信号">
+当题目给出的 key 范围很小、固定、连续时，例如 26 个字母、128 个 ASCII 字符、0～1000 的整数，通常优先考虑定长数组，而不是通用哈希表。
+</Callout>
+
+---
+
+## 3. 核心思想：一个字符串加，一个字符串减
+
+我们不一定要分别维护两个频次数组。
+
+可以只维护一个 `record`：
+
+1. 遍历 `s`，对应字符频次 `+1`；
+2. 遍历 `t`，对应字符频次 `-1`；
+3. 最终检查所有位置是否都回到 `0`。
+
+即：
+
+$$
+record[c]
+=
+count_s(c)-count_t(c)
+$$
+
+如果 `s` 和 `t` 是字母异位词，那么对于任意字符 $c$：
+
+$$
+count_s(c)=count_t(c)
+$$
+
+所以：
+
+$$
+record[c]=0
+$$
+
+对所有 26 个字符都成立。
+
+---
+
+## 4. 过程演示
+
+以：
+
+```text
+s = "aee"
+t = "eae"
+```
+
+为例。
+
+原始资料中的演示图：
+
+![有效的字母异位词过程演示](https://file1.kamacoder.com/i/algo/242.%E6%9C%89%E6%95%88%E7%9A%84%E5%AD%97%E6%AF%8D%E5%BC%82%E4%BD%8D%E8%AF%8D.gif)
+
+先统计 `s`：
+
+```text
+a : +1
+e : +2
+```
+
+然后统计 `t`：
+
+```text
+e : -1
+a : -1
+e : -1
+```
+
+最终所有频次差都回到 0，因此两个字符串包含完全相同的字符多重集合。
+
+可以把这个过程理解为：
+
+```text
+s 负责“存入”
+t 负责“抵消”
+```
+
+如果最后还有某个位置不为 0，就表示某个字符在两个字符串中的出现次数不同。
+
+---
+
+## 5. 为什么最好先判断长度
+
+虽然即使不提前判断长度，最后检查数组也能得到正确结果，但先写：
+
+```cpp
+if (s.size() != t.size()) return false;
+```
+
+更好。
+
+因为若长度不同，两个字符串一定不可能是字母异位词。
+
+这一步可以提前结束，避免无意义遍历。
+
+---
+
+## 6. 标准解法
+
+```cpp
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        if (s.size() != t.size()) {
+            return false;
+        }
+
+        int record[26] = {0};
+
+        for (char c : s) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : t) {
+            --record[c - 'a'];
+        }
+
+        for (int x : record) {
+            if (x != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+---
+
+## 7. 正确性为什么成立
+
+设第 $i$ 个字母在 `s` 中出现次数为：
+
+$$
+S_i
+$$
+
+在 `t` 中出现次数为：
+
+$$
+T_i
+$$
+
+算法结束后：
+
+$$
+record[i]=S_i-T_i
+$$
+
+### 若两个字符串是字母异位词
+
+则：
+
+$$
+S_i=T_i
+$$
+
+对所有 $i$ 都成立，于是：
+
+$$
+record[i]=0
+$$
+
+### 若所有 `record[i]` 都为 0
+
+则：
+
+$$
+S_i-T_i=0
+$$
+
+因此：
+
+$$
+S_i=T_i
+$$
+
+对所有字符都成立。
+
+所以两边字符频次完全相同，二者一定互为字母异位词。
+
+因此该算法是充分且必要的。
+
+---
+
+## 8. 时间复杂度与空间复杂度
+
+设：
+
+$$
+|s|=m,\qquad |t|=n
+$$
+
+遍历两个字符串的时间为：
+
+$$
+O(m+n)
+$$
+
+由于字母表大小固定为 26，最后检查数组只需要常数次操作。
+
+因此总时间复杂度：
+
+$$
+O(m+n)
+$$
+
+若已经判断两字符串等长，也常简写为：
+
+$$
+O(n)
+$$
+
+辅助数组始终只有 26 个整数，所以额外空间复杂度：
+
+$$
+O(1)
+$$
+
+<Callout type="warning" title="为什么不是 O(26)">
+虽然哈希数组只有 26 个位置，但仍然必须遍历输入字符串，因此总时间由字符串长度决定，而不是由数组大小决定。
+</Callout>
+
+---
+
+## 9. 能不能用 `unordered_map`
+
+当然可以。
+
+例如：
+
+```cpp
+unordered_map<char, int> freq;
+
+for (char c : s) {
+    ++freq[c];
+}
+
+for (char c : t) {
+    --freq[c];
+}
+
+for (auto& [c, count] : freq) {
+    if (count != 0) {
+        return false;
+    }
+}
+```
+
+但这道题不推荐这样写，因为：
+
+- key 的范围固定为 26；
+- 数组访问更直接；
+- 没有哈希冲突；
+- 常数更小；
+- 代码更简单。
+
+所以本题体现的是一个非常重要的刷题原则：
+
+> **能用小型定长数组完成的哈希问题，不必上通用哈希表。**
+
+---
+
+## 10. 另一种写法：边减边判断
+
+如果已经提前确认：
+
+```text
+s.size() == t.size()
+```
+
+那么也可以先统计 `s`，随后遍历 `t` 时直接减少频次。
+
+如果某个字符已经没有剩余次数，却还要继续消耗，就能立即判定失败。
+
+```cpp
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        if (s.size() != t.size()) {
+            return false;
+        }
+
+        int record[26] = {0};
+
+        for (char c : s) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : t) {
+            int index = c - 'a';
+
+            if (record[index] == 0) {
+                return false;
+            }
+
+            --record[index];
+        }
+
+        return true;
+    }
+};
+```
+
+因为两个字符串长度相同，所以如果 `t` 中不存在“多出来”的字符，那么也不会有 `s` 中未被抵消的字符。
+
+---
+
+## 11. 为什么排序法也成立，但不是本题最佳思路
+
+排序法：
+
+```cpp
+sort(s.begin(), s.end());
+sort(t.begin(), t.end());
+
+return s == t;
+```
+
+非常简洁，但时间复杂度通常为：
+
+$$
+O(n\log n)
+$$
+
+频次数组则是：
+
+$$
+O(n)
+$$
+
+两种方法的差别体现了：
+
+```text
+排序：把相同字符聚到一起后比较
+哈希：直接统计每种字符的数量
+```
+
+如果题目只是判断“组成是否相同”，而字符值域又很小，频次统计往往更自然。
+
+---
+
+## 12. 常见错误
+
+### 12.1 只判断字符是否出现，不统计次数
+
+错误思路：
+
+```text
+只要 s 和 t 包含的字符种类相同即可
+```
+
+例如：
+
+```text
+s = "aab"
+t = "abb"
+```
+
+二者都包含：
+
+```text
+a, b
+```
+
+但频次不同，并不是字母异位词。
+
+所以这里需要的是：
+
+```text
+字符 -> 次数
+```
+
+而不是：
+
+```text
+字符 -> 是否出现
+```
+
+---
+
+### 12.2 使用 `set`
+
+`set` 只能很好地回答：
+
+```text
+这个字符是否存在？
+```
+
+却会丢失重复次数。
+
+例如：
+
+```text
+"aab"
+```
+
+放入集合后只剩：
+
+```text
+{'a', 'b'}
+```
+
+因此不能直接解决本题。
+
+---
+
+### 12.3 下标映射写错
+
+正确写法：
+
+```cpp
+record[c - 'a']
+```
+
+不是：
+
+```cpp
+record[c]
+```
+
+因为字符编码值本身并不是 $0\sim25$。
+
+---
+
+## 13. 题型抽象：频次差归零模型
+
+这道题可以抽象成一个很重要的通用模型：
+
+> 判断两个对象的“多重集合”是否完全相同。
+
+所谓多重集合，就是元素允许重复，并且重复次数有意义。
+
+例如：
+
+```text
+s = "aabbc"
+```
+
+对应：
+
+```text
+a -> 2
+b -> 2
+c -> 1
+```
+
+如果要比较两个对象的多重集合，可以统一使用：
+
+$$
+freq_A(x)-freq_B(x)
+$$
+
+最终判断是否全部为 0。
+
+这个思想还可以迁移到：
+
+- 字符串重排；
+- 字符频次匹配；
+- 词频比较；
+- 固定值域数组的计数比较；
+- 滑动窗口中的“欠债/还债”模型。
+
+---
+
+## 14. 进阶：字符范围扩大后怎么办
+
+本题限定为小写字母，因此数组长度 26 足够。
+
+如果改成：
+
+### ASCII 字符
+
+可以考虑：
+
+```cpp
+int record[128] = {0};
+```
+
+或：
+
+```cpp
+int record[256] = {0};
+```
+
+### Unicode 或任意字符
+
+固定数组可能不再合适，应改用哈希映射：
+
+```cpp
+unordered_map<...>
+```
+
+所以数据结构的选择取决于：
+
+> **key 的值域是否已知、是否足够小。**
+
+---
+
+## 15. 一眼识别这类题
+
+看到下面这些关键词时，应快速联想到频次数组：
+
+```text
+小写字母
+字符组成
+出现次数
+重排
+异位词
+频次是否相同
+```
+
+分析步骤可以固定成：
+
+```text
+值域是否固定且很小？
+        ↓
+       是
+        ↓
+建立定长频次数组
+        ↓
+一边 +1，一边 -1
+        ↓
+检查是否全部归零
+```
+
+---
+
+## 16. 多语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        if (s.size() != t.size()) {
+            return false;
+        }
+
+        int record[26] = {0};
+
+        for (char c : s) {
+            ++record[c - 'a'];
+        }
+
+        for (char c : t) {
+            --record[c - 'a'];
+        }
+
+        for (int x : record) {
+            if (x != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) {
+            return false;
+        }
+
+        int[] record = new int[26];
+
+        for (int i = 0; i < s.length(); ++i) {
+            ++record[s.charAt(i) - 'a'];
+        }
+
+        for (int i = 0; i < t.length(); ++i) {
+            --record[t.charAt(i) - 'a'];
+        }
+
+        for (int count : record) {
+            if (count != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def isAnagram(self, s: str, t: str) -> bool:
+        if len(s) != len(t):
+            return False
+
+        record = [0] * 26
+
+        for c in s:
+            record[ord(c) - ord('a')] += 1
+
+        for c in t:
+            record[ord(c) - ord('a')] -= 1
+
+        return all(count == 0 for count in record)
+```
+
+
+
+```go tab="Go"
+func isAnagram(s string, t string) bool {
+    if len(s) != len(t) {
+        return false
+    }
+
+    record := [26]int{}
+
+    for i := 0; i < len(s); i++ {
+        record[s[i]-'a']++
+    }
+
+    for i := 0; i < len(t); i++ {
+        record[t[i]-'a']--
+    }
+
+    for _, count := range record {
+        if count != 0 {
+            return false
+        }
+    }
+
+    return true
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var isAnagram = function(s, t) {
+    if (s.length !== t.length) {
+        return false;
+    }
+
+    const record = new Array(26).fill(0);
+    const base = 'a'.charCodeAt(0);
+
+    for (const c of s) {
+        ++record[c.charCodeAt(0) - base];
+    }
+
+    for (const c of t) {
+        --record[c.charCodeAt(0) - base];
+    }
+
+    return record.every(count => count === 0);
+};
+```
+
+  ---
+
+## 17. 本题总结
+
+本题的关键不是记住 26，而是掌握这个判断链：
+
+```text
+只比较字符组成，不关心顺序
+        ↓
+需要统计字符频次
+        ↓
+字符值域只有 26
+        ↓
+数组就是最优哈希表
+        ↓
+s 加频次，t 减频次
+        ↓
+最终全部为 0
+```
+
+需要牢记：
+
+1. **数组也可以是哈希表。**
+2. 值域固定且很小时，数组通常优于通用 `unordered_map`。
+3. “是否出现”和“出现几次”是两种不同问题。
+4. 两个多重集合是否相等，可以用“频次差归零”来判断。

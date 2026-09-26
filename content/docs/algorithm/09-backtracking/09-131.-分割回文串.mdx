@@ -1,0 +1,1088 @@
+---
+title: 131. 分割回文串
+summary: 把字符串切割问题转化为组合型搜索，理解 startIndex 如何表示切割线，并掌握回文判断与动态规划预处理两种实现。
+description: LeetCode 131 分割回文串：切割问题搜索树、startIndex、回文判定、回溯模板、动态规划预处理、复杂度与多语言实现。
+---
+
+
+# 131. 分割回文串
+
+给定一个字符串 `s`，把它分割成若干子串，要求**每一段都是回文串**，返回所有可能的分割方案。
+
+例如：
+
+```text
+输入：s = "aab"
+输出：[["a", "a", "b"], ["aa", "b"]]
+```
+
+<Callout title="本题最重要的建模：切割问题也是组合问题">
+
+对于字符串：
+
+```text
+abcdef
+```
+
+组合问题是在选出 `a` 以后，再去后面的 `bcdef` 中继续选；
+
+切割问题则是在切出第一段以后，再去**剩余后缀**中继续确定下一段。
+
+因此“下一刀切在哪里”本质上就是“这一层选择哪个候选”。
+
+</Callout>
+
+## 1. 先理解“切割线”到底是什么
+
+假设当前还没有处理的字符串从下标 `startIndex` 开始。
+
+这一层枚举：
+
+```cpp
+for (int i = startIndex; i < s.size(); ++i)
+```
+
+其中 `i` 表示当前这一段的结束位置，所以当前尝试的子串就是：
+
+$$
+s[startIndex\ldots i]
+$$
+
+如果这段是回文串，就把它加入路径，然后下一层从：
+
+$$
+i+1
+$$
+
+继续。
+
+也就是说：
+
+- `startIndex`：上一刀切完后，剩余字符串的起点；
+- `i`：当前正在尝试的新切割位置；
+- `[startIndex, i]`：这一层准备切出来的一段。
+
+所以代码中的 `startIndex`，就是一个非常自然的**切割线状态**。
+
+## 2. 搜索树如何展开？
+
+以：
+
+```text
+s = "aab"
+```
+
+为例。
+
+![131.分割回文串](https://file1.kamacoder.com/i/algo/131.%E5%88%86%E5%89%B2%E5%9B%9E%E6%96%87%E4%B8%B2.jpg)
+
+根节点：
+
+```text
+path = []
+startIndex = 0
+```
+
+第一层可以尝试：
+
+```text
+"a"   → 回文
+"aa"  → 回文
+"aab" → 不是回文
+```
+
+于是产生两条有效主分支。
+
+### 分支一：先切出 `"a"`
+
+剩余：
+
+```text
+"ab"
+```
+
+继续切：
+
+```text
+"a" → "a" → "b"
+```
+
+得到：
+
+```text
+["a", "a", "b"]
+```
+
+### 分支二：先切出 `"aa"`
+
+剩余：
+
+```text
+"b"
+```
+
+得到：
+
+```text
+["aa", "b"]
+```
+
+这正是所有合法分割方案。
+
+## 3. 为什么它和组合问题如此相似？
+
+在普通组合问题里：
+
+```text
+选一个元素 → 后面继续选
+```
+
+在切割问题里：
+
+```text
+切一段子串 → 后面的后缀继续切
+```
+
+二者都具有同一种单调结构：
+
+$$
+\text{已经处理过的前缀不会再回头处理}
+$$
+
+因此都需要一个“下一层从哪里开始”的状态。
+
+组合里通常叫：
+
+```text
+startIndex
+```
+
+本题仍然可以沿用这个名字，只是它的语义从“候选集合的起点”变成了“下一段子串的起点”。
+
+## 4. 回溯三部曲
+
+### ① 递归参数
+
+只需要传入：
+
+```cpp
+void backtracking(const string& s, int startIndex)
+```
+
+同时维护：
+
+- `path`：已经切出的回文子串；
+- `result`：所有完整分割方案。
+
+当前节点的核心状态可表示为：
+
+$$
+(path,startIndex)
+$$
+
+因为原字符串不变，`startIndex` 已经唯一确定了“还有哪部分没有处理”。
+
+### ② 终止条件
+
+当：
+
+$$
+startIndex = |s|
+$$
+
+说明最后一段也已经切完，整个字符串被完整覆盖。
+
+因此：
+
+```cpp
+if (startIndex == s.size()) {
+    result.push_back(path);
+    return;
+}
+```
+
+注意这里不是“找到一个回文串就结束”，而是：
+
+> **所有字符都已经被若干个回文段完整覆盖**，才是一组答案。
+
+### ③ 单层搜索
+
+本层枚举当前段的结束位置 `i`：
+
+```cpp
+for (int i = startIndex; i < s.size(); ++i) {
+    if (!isPalindrome(s, startIndex, i)) {
+        continue;
+    }
+
+    path.push_back(s.substr(startIndex, i - startIndex + 1));
+    backtracking(s, i + 1);
+    path.pop_back();
+}
+```
+
+这里：
+
+```cpp
+backtracking(s, i + 1);
+```
+
+表示当前段 `[startIndex, i]` 已经切走，下一层从紧接着的位置开始。
+
+## 5. 为什么本题没有“重复组合”问题？
+
+假设一个具体答案是：
+
+```text
+["aa", "b"]
+```
+
+它对应的切割位置是唯一的：
+
+```text
+aa | b
+```
+
+我们不会再从字符串后面倒回来切前面的字符，因为 `startIndex` 始终单调增加：
+
+$$
+0 < i_1+1 < i_2+1 < \cdots \le n
+$$
+
+因此同一组切割线不会因为顺序不同而被重复枚举。
+
+这也是为什么本题不需要像 `40. 组合总和 II` 那样做树层去重。
+
+## 6. 如何判断 `[left, right]` 是否为回文串？
+
+最直接的方法是双指针。
+
+左指针从 `left` 向右，右指针从 `right` 向左：
+
+```cpp
+bool isPalindrome(const string& s, int left, int right) {
+    while (left < right) {
+        if (s[left] != s[right]) {
+            return false;
+        }
+        ++left;
+        --right;
+    }
+    return true;
+}
+```
+
+判断条件本质上是：
+
+$$
+s[left]=s[right]
+$$
+
+然后继续比较内部字符。
+
+单次判断长度为 $L$ 的子串，时间复杂度为：
+
+$$
+O(L)
+$$
+
+最坏不超过：
+
+$$
+O(n)
+$$
+
+## 7. 完整 C++：双指针判回文
+
+```cpp title="C++ · 双指针版"
+class Solution {
+private:
+    vector<vector<string>> result;
+    vector<string> path;
+
+    bool isPalindrome(const string& s, int left, int right) {
+        while (left < right) {
+            if (s[left] != s[right]) {
+                return false;
+            }
+            ++left;
+            --right;
+        }
+        return true;
+    }
+
+    void backtracking(const string& s, int startIndex) {
+        if (startIndex == static_cast<int>(s.size())) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int end = startIndex; end < static_cast<int>(s.size()); ++end) {
+            if (!isPalindrome(s, startIndex, end)) {
+                continue;
+            }
+
+            path.push_back(s.substr(startIndex, end - startIndex + 1));
+            backtracking(s, end + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<string>> partition(string s) {
+        result.clear();
+        path.clear();
+        backtracking(s, 0);
+        return result;
+    }
+};
+```
+
+## 8. 为什么回文判断会产生重复计算？
+
+回溯过程中，不同路径会多次询问：
+
+```text
+s[i ... j] 是否为回文？
+```
+
+例如某些较长子串的判断会反复比较它内部的字符，而这些内部区间此前可能已经判断过。
+
+回文串有天然的递推结构：
+
+对于区间 `[i, j]`，若 `i < j`，它是回文串当且仅当：
+
+$$
+s[i]=s[j]
+$$
+
+并且内部区间 `[i+1,j-1]` 也是回文串。
+
+也就是：
+
+$$
+dp[i][j]
+=
+(s[i]=s[j])\land dp[i+1][j-1]
+$$
+
+对于长度为 $1$ 或 $2$ 的区间，可以统一写成：
+
+$$
+dp[i][j]=(s[i]=s[j])\land(j-i\le1\ \lor\ dp[i+1][j-1])
+$$
+
+这就可以预处理出所有子串的回文状态。
+
+## 9. 为什么 DP 必须让 `i` 倒序？
+
+因为：
+
+$$
+dp[i][j]
+$$
+
+依赖：
+
+$$
+dp[i+1][j-1]
+$$
+
+所以计算第 `i` 行时，第 `i+1` 行必须已经存在。
+
+因此遍历顺序可以写成：
+
+```cpp
+for (int i = n - 1; i >= 0; --i) {
+    for (int j = i; j < n; ++j) {
+        ...
+    }
+}
+```
+
+这样依赖关系始终从“已计算状态”指向“当前状态”。
+
+## 10. 完整 C++：预处理回文表
+
+```cpp title="C++ · DP 预处理版"
+class Solution {
+private:
+    vector<vector<string>> result;
+    vector<string> path;
+    vector<vector<bool>> palindrome;
+
+    void buildPalindromeTable(const string& s) {
+        int n = s.size();
+        palindrome.assign(n, vector<bool>(n, false));
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i; j < n; ++j) {
+                if (s[i] == s[j] && (j - i <= 1 || palindrome[i + 1][j - 1])) {
+                    palindrome[i][j] = true;
+                }
+            }
+        }
+    }
+
+    void backtracking(const string& s, int startIndex) {
+        if (startIndex == static_cast<int>(s.size())) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int end = startIndex; end < static_cast<int>(s.size()); ++end) {
+            if (!palindrome[startIndex][end]) {
+                continue;
+            }
+
+            path.push_back(s.substr(startIndex, end - startIndex + 1));
+            backtracking(s, end + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<string>> partition(string s) {
+        result.clear();
+        path.clear();
+        buildPalindromeTable(s);
+        backtracking(s, 0);
+        return result;
+    }
+};
+```
+
+<Callout type="info" title="DP 优化的对象不是搜索树">
+
+动态规划预处理并没有减少合法切割方案的数量，也没有改变回溯树结构。
+
+它优化的是每个节点上反复执行的：
+
+```text
+“这一段是不是回文？”
+```
+
+从最坏 $O(n)$ 的双指针检查，变成 $O(1)$ 查表。
+
+</Callout>
+
+## 11. 一个更深的理解：本题是在枚举“切或不切”
+
+长度为 $n$ 的字符串共有：
+
+$$
+n-1
+$$
+
+个字符间隙。
+
+每个间隙理论上都可以：
+
+```text
+切 / 不切
+```
+
+所以忽略回文限制时，分割方案总数为：
+
+$$
+2^{n-1}
+$$
+
+这解释了为什么本题天然具有指数级搜索空间。
+
+回溯做的事情并不是让问题从指数级突然变成多项式，而是：
+
+1. 系统地枚举所有可能切割；
+2. 一旦某一段不是回文，立刻停止沿这条选择向下扩展；
+3. 只保留每一段都合法的完整路径。
+
+## 12. 复杂度分析
+
+### 双指针判回文版
+
+切割方案数量上界为：
+
+$$
+2^{n-1}
+$$
+
+每条路径需要构造、复制若干子串，并且回文判断本身最坏为 $O(n)$。
+
+因此常见的粗略上界可写成：
+
+$$
+O(n\cdot 2^n)
+$$
+
+若把频繁的子串拷贝和重复回文检查都计入更严格的实现开销，常数和额外因子会更大。
+
+### DP 预处理版
+
+预处理回文表需要：
+
+$$
+O(n^2)
+$$
+
+时间和：
+
+$$
+O(n^2)
+$$
+
+空间。
+
+之后每次回文判断降为 $O(1)$，但答案本身仍可能指数级增长，因此总体瓶颈仍然是枚举所有合法分割。
+
+### 递归栈
+
+最极端情况下每个字符单独成段：
+
+```text
+a | a | a | a | ...
+```
+
+递归深度最多为：
+
+$$
+O(n)
+$$
+
+`path` 最多也保存 $n$ 段。
+
+## 13. 高频错误
+
+### 错误一：把 `i` 当成下一层起点
+
+当前已经切出：
+
+$$
+s[startIndex\ldots i]
+$$
+
+下一段必须从：
+
+$$
+i+1
+$$
+
+开始，而不是 `i`。
+
+否则字符 `s[i]` 会被重复覆盖。
+
+### 错误二：只判断最后一段是不是回文
+
+本题要求的是：
+
+$$
+\forall segment\in path,\quad segment\text{ 都是回文}
+$$
+
+因此应该在**每一次选择子串之前**检查当前段。
+
+### 错误三：到字符串末尾却忘记收集答案
+
+真正的完成条件不是：
+
+```text
+找到了某个回文子串
+```
+
+而是：
+
+```text
+startIndex == s.size()
+```
+
+即所有字符都已经被完整分割。
+
+### 错误四：误以为 DP 能消除指数复杂度
+
+DP 只能缓存“某个区间是不是回文”，不能减少题目要求输出的分割方案数量。
+
+如果字符串本身存在指数级答案，任何需要返回全部答案的算法都不可能绕开这些输出成本。
+
+## 14. 组合题与切割题的统一模板
+
+| 模型 | 当前层选择什么 | 状态下标表示什么 | 下一层 |
+| --- | --- | --- | --- |
+| 普通组合 | 一个候选元素 | 下一层候选起点 | `i + 1` |
+| 组合总和 | 一个候选元素 | 下一层候选起点 | `i` 或 `i + 1` |
+| 字符串切割 | 当前段的结束位置 | 下一段起点 | `end + 1` |
+
+可以看到，本题只是把：
+
+```text
+“选择一个元素”
+```
+
+改成：
+
+```text
+“选择这一段在哪里结束”
+```
+
+搜索树思想完全一致。
+
+## 15. 解题检查表
+
+遇到新的字符串切割回溯题，可以依次问：
+
+1. 当前递归起点表示哪条切割线？
+2. 当前层枚举的是“下一刀的位置”还是“下一段的长度”？
+3. `[start, end]` 这一段满足什么局部条件？
+4. 当前段合法以后，下一层应该从哪里开始？
+5. 什么时候说明整个字符串已经被完整覆盖？
+6. 局部合法性判断是否存在大量重复计算？
+7. 能否预处理、记忆化或使用 DP 降低单次判断成本？
+
+只要这七个问题清晰，切割类回溯基本就能稳定写出。
+
+## 16. 其他语言实现
+
+下面统一采用“预处理回文表 + 回溯”的版本，使不同语言之间的状态设计保持一致。
+
+
+
+```java tab="Java"
+class Solution {
+    private final List<List<String>> result = new ArrayList<>();
+    private final List<String> path = new ArrayList<>();
+    private boolean[][] palindrome;
+
+    public List<List<String>> partition(String s) {
+        int n = s.length();
+        palindrome = new boolean[n][n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i; j < n; j++) {
+                palindrome[i][j] = s.charAt(i) == s.charAt(j)
+                    && (j - i <= 1 || palindrome[i + 1][j - 1]);
+            }
+        }
+
+        backtracking(s, 0);
+        return result;
+    }
+
+    private void backtracking(String s, int start) {
+        if (start == s.length()) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int end = start; end < s.length(); end++) {
+            if (!palindrome[start][end]) continue;
+
+            path.add(s.substring(start, end + 1));
+            backtracking(s, end + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        n = len(s)
+        palindrome = [[False] * n for _ in range(n)]
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i, n):
+                palindrome[i][j] = (
+                    s[i] == s[j]
+                    and (j - i <= 1 or palindrome[i + 1][j - 1])
+                )
+
+        result = []
+        path = []
+
+        def backtracking(start: int) -> None:
+            if start == n:
+                result.append(path[:])
+                return
+
+            for end in range(start, n):
+                if not palindrome[start][end]:
+                    continue
+
+                path.append(s[start:end + 1])
+                backtracking(end + 1)
+                path.pop()
+
+        backtracking(0)
+        return result
+```
+
+
+
+```go tab="Go"
+func partition(s string) [][]string {
+    n := len(s)
+    palindrome := make([][]bool, n)
+    for i := range palindrome {
+        palindrome[i] = make([]bool, n)
+    }
+
+    for i := n - 1; i >= 0; i-- {
+        for j := i; j < n; j++ {
+            palindrome[i][j] = s[i] == s[j] &&
+                (j-i <= 1 || palindrome[i+1][j-1])
+        }
+    }
+
+    result := make([][]string, 0)
+    path := make([]string, 0)
+
+    var backtracking func(start int)
+    backtracking = func(start int) {
+        if start == n {
+            temp := append([]string(nil), path...)
+            result = append(result, temp)
+            return
+        }
+
+        for end := start; end < n; end++ {
+            if !palindrome[start][end] {
+                continue
+            }
+
+            path = append(path, s[start:end+1])
+            backtracking(end + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    backtracking(0)
+    return result
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var partition = function(s) {
+    const n = s.length;
+    const palindrome = Array.from({ length: n }, () => Array(n).fill(false));
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let j = i; j < n; j++) {
+            palindrome[i][j] = s[i] === s[j]
+                && (j - i <= 1 || palindrome[i + 1][j - 1]);
+        }
+    }
+
+    const result = [];
+    const path = [];
+
+    function backtracking(start) {
+        if (start === n) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let end = start; end < n; end++) {
+            if (!palindrome[start][end]) continue;
+
+            path.push(s.slice(start, end + 1));
+            backtracking(end + 1);
+            path.pop();
+        }
+    }
+
+    backtracking(0);
+    return result;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function partition(s: string): string[][] {
+    const n = s.length;
+    const palindrome: boolean[][] = Array.from(
+        { length: n },
+        () => Array<boolean>(n).fill(false),
+    );
+
+    for (let i = n - 1; i >= 0; i--) {
+        for (let j = i; j < n; j++) {
+            palindrome[i][j] = s[i] === s[j]
+                && (j - i <= 1 || palindrome[i + 1][j - 1]);
+        }
+    }
+
+    const result: string[][] = [];
+    const path: string[] = [];
+
+    function backtracking(start: number): void {
+        if (start === n) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let end = start; end < n; end++) {
+            if (!palindrome[start][end]) continue;
+
+            path.push(s.slice(start, end + 1));
+            backtracking(end + 1);
+            path.pop();
+        }
+    }
+
+    backtracking(0);
+    return result;
+}
+```
+
+
+
+```c tab="C"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+
+static char ***result;
+static int resultSize;
+static int resultCapacity;
+static char **path;
+static int pathSize;
+static bool **palindrome;
+static int n;
+
+static char *copyRange(const char *s, int left, int right) {
+    int len = right - left + 1;
+    char *part = (char *)malloc((len + 1) * sizeof(char));
+    memcpy(part, s + left, len);
+    part[len] = '\0';
+    return part;
+}
+
+static void dfs(const char *s, int start, int **returnColumnSizes) {
+    if (start == n) {
+        char **row = (char **)malloc(pathSize * sizeof(char *));
+        for (int i = 0; i < pathSize; ++i) {
+            row[i] = strdup(path[i]);
+        }
+        result[resultSize] = row;
+        (*returnColumnSizes)[resultSize] = pathSize;
+        resultSize++;
+        return;
+    }
+
+    for (int end = start; end < n; ++end) {
+        if (!palindrome[start][end]) continue;
+
+        path[pathSize++] = copyRange(s, start, end);
+        dfs(s, end + 1, returnColumnSizes);
+        free(path[--pathSize]);
+    }
+}
+
+char ***partition(char *s, int *returnSize, int **returnColumnSizes) {
+    n = strlen(s);
+    resultCapacity = 1 << n;
+    result = (char ***)malloc(resultCapacity * sizeof(char **));
+    *returnColumnSizes = (int *)malloc(resultCapacity * sizeof(int));
+    path = (char **)malloc((n + 1) * sizeof(char *));
+    resultSize = 0;
+    pathSize = 0;
+
+    palindrome = (bool **)malloc(n * sizeof(bool *));
+    for (int i = 0; i < n; ++i) {
+        palindrome[i] = (bool *)calloc(n, sizeof(bool));
+    }
+
+    for (int i = n - 1; i >= 0; --i) {
+        for (int j = i; j < n; ++j) {
+            palindrome[i][j] = s[i] == s[j]
+                && (j - i <= 1 || palindrome[i + 1][j - 1]);
+        }
+    }
+
+    dfs(s, 0, returnColumnSizes);
+    *returnSize = resultSize;
+    return result;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func partition(_ s: String) -> [[String]] {
+        let chars = Array(s)
+        let n = chars.count
+        var palindrome = Array(
+            repeating: Array(repeating: false, count: n),
+            count: n
+        )
+
+        if n > 0 {
+            for i in stride(from: n - 1, through: 0, by: -1) {
+                for j in i..<n {
+                    palindrome[i][j] = chars[i] == chars[j]
+                        && (j - i <= 1 || palindrome[i + 1][j - 1])
+                }
+            }
+        }
+
+        var result = [[String]]()
+        var path = [String]()
+
+        func backtracking(_ start: Int) {
+            if start == n {
+                result.append(path)
+                return
+            }
+
+            for end in start..<n {
+                if !palindrome[start][end] { continue }
+
+                path.append(String(chars[start...end]))
+                backtracking(end + 1)
+                path.removeLast()
+            }
+        }
+
+        backtracking(0)
+        return result
+    }
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn partition(s: String) -> Vec<Vec<String>> {
+        let chars: Vec<char> = s.chars().collect();
+        let n = chars.len();
+        let mut palindrome = vec![vec![false; n]; n];
+
+        for i in (0..n).rev() {
+            for j in i..n {
+                palindrome[i][j] = chars[i] == chars[j]
+                    && (j - i <= 1 || palindrome[i + 1][j - 1]);
+            }
+        }
+
+        let mut result = Vec::new();
+        let mut path = Vec::new();
+        Self::backtracking(&chars, &palindrome, 0, &mut path, &mut result);
+        result
+    }
+
+    fn backtracking(
+        chars: &[char],
+        palindrome: &[Vec<bool>],
+        start: usize,
+        path: &mut Vec<String>,
+        result: &mut Vec<Vec<String>>,
+    ) {
+        if start == chars.len() {
+            result.push(path.clone());
+            return;
+        }
+
+        for end in start..chars.len() {
+            if !palindrome[start][end] {
+                continue;
+            }
+
+            path.push(chars[start..=end].iter().collect());
+            Self::backtracking(chars, palindrome, end + 1, path, result);
+            path.pop();
+        }
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def partition(s: String): List[List[String]] = {
+    val n = s.length
+    val palindrome = Array.fill(n, n)(false)
+
+    for (i <- (0 until n).reverse) {
+      for (j <- i until n) {
+        palindrome(i)(j) = s(i) == s(j) &&
+          (j - i <= 1 || palindrome(i + 1)(j - 1))
+      }
+    }
+
+    val result = scala.collection.mutable.ListBuffer[List[String]]()
+    val path = scala.collection.mutable.ListBuffer[String]()
+
+    def backtracking(start: Int): Unit = {
+      if (start == n) {
+        result += path.toList
+        return
+      }
+
+      for (end <- start until n) {
+        if (palindrome(start)(end)) {
+          path += s.substring(start, end + 1)
+          backtracking(end + 1)
+          path.remove(path.length - 1)
+        }
+      }
+    }
+
+    backtracking(0)
+    result.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    private readonly IList<IList<string>> result = new List<IList<string>>();
+    private readonly List<string> path = new List<string>();
+    private bool[,] palindrome = null!;
+
+    public IList<IList<string>> Partition(string s)
+    {
+        int n = s.Length;
+        palindrome = new bool[n, n];
+
+        for (int i = n - 1; i >= 0; i--)
+        {
+            for (int j = i; j < n; j++)
+            {
+                palindrome[i, j] = s[i] == s[j]
+                    && (j - i <= 1 || palindrome[i + 1, j - 1]);
+            }
+        }
+
+        Backtracking(s, 0);
+        return result;
+    }
+
+    private void Backtracking(string s, int start)
+    {
+        if (start == s.Length)
+        {
+            result.Add(new List<string>(path));
+            return;
+        }
+
+        for (int end = start; end < s.Length; end++)
+        {
+            if (!palindrome[start, end]) continue;
+
+            path.Add(s.Substring(start, end - start + 1));
+            Backtracking(s, end + 1);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```

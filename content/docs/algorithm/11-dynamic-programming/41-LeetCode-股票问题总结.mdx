@@ -1,0 +1,761 @@
+---
+title: LeetCode 股票问题总结
+sidebarTitle: 股票问题总结
+summary: 将 LeetCode 股票系列统一为状态机动态规划，系统比较单次、无限次、至多 k 次、冷冻期与手续费模型，给出状态设计、转移模板、复杂度与选型方法。
+---
+
+# LeetCode 股票问题总结
+
+股票系列看起来题型很多，但它们真正变化的只有三件事：
+
+1. **最多允许完成多少笔交易**；
+2. **买卖之间有没有附加限制**，例如冷冻期；
+3. **完成交易是否有额外成本**，例如手续费。
+
+一旦把这三件事抽离出来，整个系列就可以统一成一个“有限状态机 + 动态规划”模型。
+
+![股票问题总结](https://file1.kamacoder.com/i/algo/%E8%82%A1%E7%A5%A8%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93.jpg)
+
+<Callout type="info" title="这一章的目标">
+不要再把 121、122、123、188、309、714 当成六道互不相关的题。真正需要掌握的是：如何根据交易次数、冷冻期和手续费，把状态机增删改成对应模型。
+</Callout>
+
+## 1. 股票 DP 的统一视角
+
+对于第 $i$ 天，最核心的问题始终是：
+
+> 今天结束时，我处于什么交易状态？
+
+最基础的两个状态是：
+
+$$
+hold_i=\text{第 }i\text{ 天结束时持有股票的最大现金}
+$$
+
+$$
+cash_i=\text{第 }i\text{ 天结束时不持有股票的最大现金}
+$$
+
+如果允许无限次交易，并且没有任何附加限制，那么状态转移就是：
+
+$$
+\boxed{hold_i=\max(hold_{i-1},cash_{i-1}-price_i)}
+$$
+
+$$
+\boxed{cash_i=\max(cash_{i-1},hold_{i-1}+price_i)}
+$$
+
+这两条公式就是整个股票系列最基本的“母公式”。
+
+其中：
+
+- `hold` 表示持仓状态；
+- `cash` 表示空仓状态；
+- 买入是一条 `cash -> hold` 的边；
+- 卖出是一条 `hold -> cash` 的边。
+
+把规则看成对这些边的约束，就很容易理解后续变化。
+
+## 2. 六类股票题的差异一览
+
+| 题目 | 交易次数 | 额外规则 | 核心状态 |
+| --- | --- | --- | --- |
+| 121. 买卖股票的最佳时机 | 最多 1 次 | 无 | 持有 / 不持有 |
+| 122. 买卖股票的最佳时机 II | 无限次 | 无 | 持有 / 不持有 |
+| 123. 买卖股票的最佳时机 III | 最多 2 次 | 无 | 第 1 次买/卖、第 2 次买/卖 |
+| 188. 买卖股票的最佳时机 IV | 最多 $k$ 次 | 无 | $2k+1$ 个阶段状态 |
+| 309. 含冷冻期 | 无限次 | 卖出后下一天不能买 | 持有 / 卖出 / 冷冻 / 普通空仓 |
+| 714. 含手续费 | 无限次 | 每笔交易扣 `fee` | 持有 / 不持有，转移边扣费 |
+
+<Callout type="tip" title="判断题型的三个问题">
+看到股票题，先问：最多几笔交易？卖出后能不能立刻买？买卖是否产生固定成本？这三个问题基本就决定了状态设计。
+</Callout>
+
+## 3. 121：最多只允许一笔交易
+
+[LeetCode 121：买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)
+
+只能完成一次买入和一次卖出。
+
+### 3.1 状态定义
+
+$$
+dp[i][0]=\text{第 }i\text{ 天结束时持股的最大现金}
+$$
+
+$$
+dp[i][1]=\text{第 }i\text{ 天结束时空仓的最大现金}
+$$
+
+最关键的区别出现在“买入”这一条转移。
+
+因为最多只能交易一次，所以如果第 $i$ 天买入，那么此前一定没有完成过任何交易利润：
+
+$$
+\boxed{dp[i][0]=\max(dp[i-1][0],-prices[i])}
+$$
+
+卖出状态：
+
+$$
+\boxed{dp[i][1]=\max(dp[i-1][1],dp[i-1][0]+prices[i])}
+$$
+
+### 3.2 为什么买入写成 $-prices[i]$
+
+这是单次交易与无限次交易最容易混淆的地方。
+
+单次交易中：
+
+$$
+\text{买入之前不能已经赚过一笔交易利润}
+$$
+
+所以买入后的现金只能是：
+
+$$
+-prices[i]
+$$
+
+而不能是：
+
+$$
+cash_{i-1}-prices[i]
+$$
+
+后者已经隐含“之前可以卖出过再重新买入”，那就变成多次交易了。
+
+## 4. 122：无限次交易
+
+[LeetCode 122：买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
+
+允许卖出后重新买入，因此买入时可以携带以前已经实现的利润：
+
+$$
+\boxed{hold_i=\max(hold_{i-1},cash_{i-1}-price_i)}
+$$
+
+$$
+\boxed{cash_i=\max(cash_{i-1},hold_{i-1}+price_i)}
+$$
+
+与 121 唯一真正本质的区别就是：
+
+$$
+\boxed{-price_i \longrightarrow cash_{i-1}-price_i}
+$$
+
+这意味着“之前已经卖出过，今天还能再次买入”。
+
+## 5. 123：最多两笔交易
+
+[LeetCode 123：买卖股票的最佳时机 III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/)
+
+当交易次数受限时，仅仅用“持有 / 不持有”已经无法区分：
+
+> 当前到底是第几次买入或第几次卖出？
+
+因此需要把“交易阶段”加入状态。
+
+定义五个状态：
+
+```text
+0：没有任何操作
+1：第一次买入后
+2：第一次卖出后
+3：第二次买入后
+4：第二次卖出后
+```
+
+于是：
+
+$$
+dp[i][1]=\max(dp[i-1][1],dp[i-1][0]-price_i)
+$$
+
+$$
+dp[i][2]=\max(dp[i-1][2],dp[i-1][1]+price_i)
+$$
+
+$$
+dp[i][3]=\max(dp[i-1][3],dp[i-1][2]-price_i)
+$$
+
+$$
+dp[i][4]=\max(dp[i-1][4],dp[i-1][3]+price_i)
+$$
+
+可以把它画成一条状态链：
+
+```text
+未操作
+  ↓ 买入
+第一次持股
+  ↓ 卖出
+第一次空仓
+  ↓ 买入
+第二次持股
+  ↓ 卖出
+第二次空仓
+```
+
+每个状态还都有一条“今天不操作，保持原状态”的自环。
+
+## 6. 188：最多 $k$ 笔交易
+
+[LeetCode 188：买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
+
+123 只是 $k=2$ 的特例。
+
+如果最多完成 $k$ 笔交易，则可以定义：
+
+```text
+0           ：未操作
+1           ：第 1 次买入
+2           ：第 1 次卖出
+3           ：第 2 次买入
+4           ：第 2 次卖出
+...
+2k - 1      ：第 k 次买入
+2k          ：第 k 次卖出
+```
+
+一共需要：
+
+$$
+\boxed{2k+1}
+$$
+
+个状态。
+
+对于奇数状态 $j$，表示买入：
+
+$$
+\boxed{dp[i][j]=\max(dp[i-1][j],dp[i-1][j-1]-price_i)}
+$$
+
+对于偶数状态 $j$，表示卖出：
+
+$$
+\boxed{dp[i][j]=\max(dp[i-1][j],dp[i-1][j-1]+price_i)}
+$$
+
+因此 123 和 188 并不是两套算法，而是：
+
+$$
+\boxed{123=188\text{ 在 }k=2\text{ 时的特例}}
+$$
+
+## 7. 为什么交易次数很大时可以退化为无限次交易
+
+如果有 $n$ 天，最多能完成的有效交易数不会超过：
+
+$$
+\left\lfloor\frac{n}{2}\right\rfloor
+$$
+
+因为一笔交易至少需要：
+
+```text
+买入一天 + 卖出一天
+```
+
+所以当：
+
+$$
+k\ge \left\lfloor\frac{n}{2}\right\rfloor
+$$
+
+交易次数上限已经不会真正限制答案。
+
+此时 188 可以直接退化为 122：
+
+$$
+\boxed{O(nk)\rightarrow O(n)}
+$$
+
+这也是一个常见的复杂度优化点。
+
+## 8. 309：增加冷冻期
+
+[LeetCode 309：最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+规则：卖出股票后的第二天不能立即买入。
+
+这意味着“空仓”不能再只用一个状态表示，因为：
+
+- 有的空仓状态允许明天买入；
+- 有的空仓状态处于冷冻限制中。
+
+一种清晰的状态划分是：
+
+```text
+0：持有股票
+1：今天刚卖出
+2：处于冷冻期
+3：普通空仓，可买入
+```
+
+核心不是死记四个编号，而是理解：
+
+> 当同一个“是否持股”状态对应不同的未来操作权限时，就必须继续拆状态。
+
+<Callout type="warning" title="状态拆分的真正原因">
+冷冻期之所以需要更多状态，不是因为题目变复杂了，而是因为两个看起来都“不持股”的状态，其下一步合法操作集合不同，因此不能合并。
+</Callout>
+
+## 9. 714：增加手续费
+
+[LeetCode 714：买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
+
+手续费并不会改变合法状态集合，只是改变某条转移边的收益。
+
+如果在卖出时支付手续费：
+
+$$
+\boxed{hold_i=\max(hold_{i-1},cash_{i-1}-price_i)}
+$$
+
+$$
+\boxed{cash_i=\max(cash_{i-1},hold_{i-1}+price_i-fee)}
+$$
+
+也可以在买入时扣：
+
+$$
+hold_i=\max(hold_{i-1},cash_{i-1}-price_i-fee)
+$$
+
+$$
+cash_i=\max(cash_{i-1},hold_{i-1}+price_i)
+$$
+
+只要一笔完整交易总共扣一次即可。
+
+所以手续费问题的本质是：
+
+$$
+\boxed{\text{给某条状态转移边增加固定成本}}
+$$
+
+## 10. 统一状态机：所有变化都发生在哪里
+
+股票问题可以统一看成下面这张抽象状态机：
+
+```text
+        买入 -price
+空仓  ------------>  持仓
+  ^                   |
+  |                   |
+  +-------------------+
+        卖出 +price
+```
+
+题目变化只是在修改它：
+
+### 单次交易
+
+禁止第二次从空仓重新买入。
+
+### 最多 $k$ 次交易
+
+复制出 $k$ 组“买入 / 卖出”阶段。
+
+### 冷冻期
+
+在“卖出 -> 再买入”之间插入一个不能买入的中间状态。
+
+### 手续费
+
+在买入或卖出边上减去 `fee`。
+
+因此应当把注意力放在：
+
+> 状态、合法转移、转移收益。
+
+而不是记忆每一道题的代码。
+
+## 11. 一个更统一的 $k$ 次交易模板
+
+定义：
+
+$$
+buy[t]=\text{已经执行第 }t\text{ 次买入后的最大现金}
+$$
+
+$$
+sell[t]=\text{已经执行第 }t\text{ 次卖出后的最大现金}
+$$
+
+其中 $1\le t\le k$。
+
+则：
+
+$$
+\boxed{buy[t]=\max(buy[t],sell[t-1]-price)}
+$$
+
+$$
+\boxed{sell[t]=\max(sell[t],buy[t]+price)}
+$$
+
+为了保持“上一时刻状态”的语义，学习阶段更推荐使用临时副本或二维数组。
+
+## 12. 初始化为什么是股票 DP 的高频坑
+
+初始化一定要和状态定义完全一致。
+
+### 单次或无限次交易
+
+第 0 天：
+
+$$
+hold_0=-prices[0]
+$$
+
+$$
+cash_0=0
+$$
+
+### 最多 $k$ 次交易
+
+所有买入状态都可以初始化为：
+
+$$
+-prices[0]
+$$
+
+所有卖出状态初始化为：
+
+$$
+0
+$$
+
+例如 $k=2$：
+
+```text
+dp[0][0] = 0
+dp[0][1] = -prices[0]
+dp[0][2] = 0
+dp[0][3] = -prices[0]
+dp[0][4] = 0
+```
+
+为什么“第二次买入”第一天也能初始化为 $-prices[0]$？
+
+因为这些状态表示的是“**最多**进行到某个阶段时的最优现金”，允许前面的某些交易以零收益形式退化，不代表第一天真的完成了两次交易。
+
+## 13. 为什么最终一般返回空仓状态
+
+题目求的是最大**已实现利润**。
+
+如果最后仍持股，这部分资产还没有卖出变现，因此通常应返回某个卖出/空仓状态。
+
+例如无限次交易：
+
+$$
+\boxed{cash_{n-1}}
+$$
+
+最多 $k$ 次交易：
+
+$$
+\boxed{sell[k]}
+$$
+
+在“最多 $k$ 次”模型中，后续卖出状态通常不会比前面的合法最优状态差，因此直接返回最后一个卖出状态即可。
+
+## 14. 贪心与 DP 的关系
+
+121 和 122 都有非常简洁的贪心解法。
+
+### 121：维护历史最低价格
+
+$$
+ans=\max(ans,price_i-minPrice)
+$$
+
+### 122：累加所有正相邻差值
+
+$$
+ans=\sum_{i=1}^{n-1}\max(0,prices[i]-prices[i-1])
+$$
+
+但当规则加入：
+
+- 交易次数上限；
+- 冷冻期；
+- 手续费；
+- 其他持仓限制；
+
+DP 的扩展性通常更强。
+
+<Callout type="tip" title="学习顺序建议">
+先用动态规划把状态机彻底吃透，再理解为什么 121、122 能被压缩成贪心。这样面对规则变化时不会只会套某一个技巧。
+</Callout>
+
+## 15. 高频错误总结
+
+### 错误一：121 的买入转移写成 `cash - price`
+
+这会偷偷允许多次交易。
+
+正确的是：
+
+$$
+\boxed{hold_i=\max(hold_{i-1},-price_i)}
+$$
+
+### 错误二：把“持有”理解成“今天买入”
+
+`hold` 表示今天结束时处于持股状态，可能是以前就买了，今天什么都没做。
+
+### 错误三：手续费扣两次
+
+一笔交易只应支付一次手续费。
+
+### 错误四：冷冻期仍只用两个状态
+
+两个空仓状态如果未来操作权限不同，就必须拆开。
+
+### 错误五：空间压缩时使用了已经更新的新状态
+
+如果转移定义依赖“上一天”，最好先保存旧值：
+
+```cpp
+int oldHold = hold;
+int oldCash = cash;
+```
+
+再更新新状态。
+
+## 16. 做题决策树
+
+看到股票题，可以按下面顺序判断：
+
+```text
+是否限制交易次数？
+├─ 最多 1 次
+│  └─ 121 模型
+├─ 最多 k 次
+│  └─ 2k + 1 个阶段状态
+└─ 不限制
+   ├─ 是否有冷冻期？
+   │  └─ 拆分空仓状态
+   ├─ 是否有手续费？
+   │  └─ 在买入或卖出转移边扣费
+   └─ 都没有
+      └─ 122 两状态模型
+```
+
+## 17. 复杂度总览
+
+| 模型 | 时间复杂度 | 空间复杂度（可优化后） |
+| --- | ---: | ---: |
+| 最多 1 次 | $O(n)$ | $O(1)$ |
+| 无限次 | $O(n)$ | $O(1)$ |
+| 最多 2 次 | $O(n)$ | $O(1)$ |
+| 最多 $k$ 次 | $O(nk)$ | $O(k)$ |
+| 冷冻期 | $O(n)$ | $O(1)$ |
+| 手续费 | $O(n)$ | $O(1)$ |
+
+## 18. 通用 $k$ 次交易 C++ 模板
+
+```cpp
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0 || k == 0) return 0;
+
+        if (k >= n / 2) {
+            int hold = -prices[0];
+            int cash = 0;
+            for (int i = 1; i < n; ++i) {
+                int oldHold = hold;
+                int oldCash = cash;
+                hold = max(oldHold, oldCash - prices[i]);
+                cash = max(oldCash, oldHold + prices[i]);
+            }
+            return cash;
+        }
+
+        vector<vector<int>> dp(n, vector<int>(2 * k + 1, 0));
+        for (int j = 1; j <= 2 * k; j += 2) {
+            dp[0][j] = -prices[0];
+        }
+
+        for (int i = 1; i < n; ++i) {
+            dp[i][0] = 0;
+            for (int j = 1; j <= 2 * k; ++j) {
+                if (j % 2 == 1) {
+                    dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - 1] - prices[i]);
+                } else {
+                    dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - 1] + prices[i]);
+                }
+            }
+        }
+
+        return dp[n - 1][2 * k];
+    }
+};
+```
+
+<Callout type="info" title="统一记忆">
+股票 DP 的本质不是“价格数组”，而是一个带收益的状态机：买入使现金减少，卖出使现金增加；交易次数、冷冻期、手续费都只是对状态或转移边增加限制。
+</Callout>
+
+## 其他语言版本
+
+下面给出“最多 $k$ 次交易”的统一模板，便于把 123 与 188 放在同一框架下理解。
+
+```java tab="Java"
+class Solution {
+    public int maxProfit(int k, int[] prices) {
+        int n = prices.length;
+        if (n == 0 || k == 0) return 0;
+
+        int[] dp = new int[2 * k + 1];
+        for (int j = 1; j <= 2 * k; j += 2) {
+            dp[j] = -prices[0];
+        }
+
+        for (int i = 1; i < n; i++) {
+            int[] prev = dp.clone();
+            for (int j = 1; j <= 2 * k; j++) {
+                if ((j & 1) == 1) {
+                    dp[j] = Math.max(prev[j], prev[j - 1] - prices[i]);
+                } else {
+                    dp[j] = Math.max(prev[j], prev[j - 1] + prices[i]);
+                }
+            }
+        }
+        return dp[2 * k];
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        if not prices or k == 0:
+            return 0
+
+        dp = [0] * (2 * k + 1)
+        for j in range(1, 2 * k + 1, 2):
+            dp[j] = -prices[0]
+
+        for price in prices[1:]:
+            prev = dp[:]
+            for j in range(1, 2 * k + 1):
+                if j % 2 == 1:
+                    dp[j] = max(prev[j], prev[j - 1] - price)
+                else:
+                    dp[j] = max(prev[j], prev[j - 1] + price)
+
+        return dp[2 * k]
+```
+
+```javascript tab="JavaScript"
+var maxProfit = function(k, prices) {
+    if (prices.length === 0 || k === 0) return 0;
+
+    const dp = new Array(2 * k + 1).fill(0);
+    for (let j = 1; j <= 2 * k; j += 2) {
+        dp[j] = -prices[0];
+    }
+
+    for (let i = 1; i < prices.length; i++) {
+        const prev = [...dp];
+        for (let j = 1; j <= 2 * k; j++) {
+            dp[j] = j % 2 === 1
+                ? Math.max(prev[j], prev[j - 1] - prices[i])
+                : Math.max(prev[j], prev[j - 1] + prices[i]);
+        }
+    }
+
+    return dp[2 * k];
+};
+```
+
+```typescript tab="TypeScript"
+function maxProfit(k: number, prices: number[]): number {
+    if (prices.length === 0 || k === 0) return 0;
+
+    const dp: number[] = new Array(2 * k + 1).fill(0);
+    for (let j = 1; j <= 2 * k; j += 2) {
+        dp[j] = -prices[0];
+    }
+
+    for (let i = 1; i < prices.length; i++) {
+        const prev = [...dp];
+        for (let j = 1; j <= 2 * k; j++) {
+            dp[j] = j % 2 === 1
+                ? Math.max(prev[j], prev[j - 1] - prices[i])
+                : Math.max(prev[j], prev[j - 1] + prices[i]);
+        }
+    }
+
+    return dp[2 * k];
+}
+```
+
+```go tab="Go"
+func maxProfit(k int, prices []int) int {
+    if len(prices) == 0 || k == 0 {
+        return 0
+    }
+
+    dp := make([]int, 2*k+1)
+    for j := 1; j <= 2*k; j += 2 {
+        dp[j] = -prices[0]
+    }
+
+    for i := 1; i < len(prices); i++ {
+        prev := append([]int(nil), dp...)
+        for j := 1; j <= 2*k; j++ {
+            if j%2 == 1 {
+                dp[j] = max(prev[j], prev[j-1]-prices[i])
+            } else {
+                dp[j] = max(prev[j], prev[j-1]+prices[i])
+            }
+        }
+    }
+    return dp[2*k]
+}
+
+func max(a, b int) int {
+    if a > b { return a }
+    return b
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn max_profit(k: i32, prices: Vec<i32>) -> i32 {
+        if prices.is_empty() || k == 0 {
+            return 0;
+        }
+        let k = k as usize;
+        let mut dp = vec![0; 2 * k + 1];
+        for j in (1..=2 * k).step_by(2) {
+            dp[j] = -prices[0];
+        }
+
+        for &price in prices.iter().skip(1) {
+            let prev = dp.clone();
+            for j in 1..=2 * k {
+                dp[j] = if j % 2 == 1 {
+                    prev[j].max(prev[j - 1] - price)
+                } else {
+                    prev[j].max(prev[j - 1] + price)
+                };
+            }
+        }
+        dp[2 * k]
+    }
+}
+```

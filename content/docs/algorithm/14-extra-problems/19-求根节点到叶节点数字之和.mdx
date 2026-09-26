@@ -1,0 +1,664 @@
+---
+title: 求根节点到叶节点数字之和
+description: 用 DFS 在二叉树路径上滚动构造十进制数字，理解 current = current * 10 + val 为什么天然完成“路径记录 + 回溯”，并掌握根到叶路径类题目的递归模板。
+---
+
+# 129. 求根节点到叶节点数字之和
+
+[LeetCode 129：求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
+
+给定一棵二叉树，每个节点的值都是 $0$ 到 $9$ 的数字。
+
+从根节点到叶子节点的一条路径可以组成一个十进制整数。
+
+例如路径：
+
+```text
+1 -> 2 -> 3
+```
+
+表示数字：
+
+$123$
+
+要求计算所有 **根节点到叶子节点** 所表示数字的总和。
+
+例如：
+
+```text
+    1
+   / \
+  2   3
+```
+
+两条根到叶路径分别为：
+
+```text
+1 -> 2  => 12
+1 -> 3  => 13
+```
+
+因此答案为：
+
+$12+13=25$
+
+## 一、先抓住“根到叶”三个字
+
+这类题最容易出现的错误，是把所有节点都当成一条答案。
+
+题目要求的是：
+
+> 从 **根节点出发**，一直走到 **叶子节点** 才形成一个完整数字。
+
+叶子节点定义为：
+
+```cpp
+node->left == nullptr && node->right == nullptr
+```
+
+所以：
+
+- 根节点不是天然的一条答案；
+- 中间节点也不是答案；
+- 只有到达叶子节点时，当前路径对应的数字才能加入总和。
+
+## 二、路径数字如何构造
+
+假设当前已经得到数字：
+
+$12$
+
+接下来访问节点 `3`，新数字就是：
+
+$12\times10+3=123$
+
+因此每向下走一层，都可以使用同一个递推关系：
+
+$current=current\times10+node.val$
+
+这就是整道题最重要的公式。
+
+例如路径：
+
+```text
+4 -> 9 -> 5
+```
+
+构造过程为：
+
+```text
+0
+↓
+0 * 10 + 4 = 4
+↓
+4 * 10 + 9 = 49
+↓
+49 * 10 + 5 = 495
+```
+
+所以到叶子节点 `5` 时，当前值恰好就是路径数字 `495`。
+
+> [!IMPORTANT]
+> 不需要把路径先转换成字符串，也不需要保存每一个节点再统一计算。十进制“左移一位”的本质就是乘以 $10$。
+
+## 三、最自然的 DFS 定义
+
+可以把递归函数定义成：
+
+```text
+dfs(node, current)
+```
+
+含义是：
+
+> 当前正在访问 `node`，`current` 表示从根节点走到 `node` 之前已经构造出的数值。
+
+进入节点后先更新：
+
+```cpp
+current = current * 10 + node->val;
+```
+
+之后：
+
+- 如果是叶子节点：返回 `current`；
+- 否则：递归计算左右子树的结果并相加。
+
+这会得到一个非常干净的递归式：
+
+$F(node,current)=\begin{cases}
+0, & node=null\\
+10\cdot current+node.val, & node\text{ 是叶子节点}\\
+F(node.left,next)+F(node.right,next), & \text{其他情况}
+\end{cases}$
+
+其中：
+
+$next=10\cdot current+node.val$
+
+## 四、推荐解法：递归返回子树贡献
+
+```cpp
+class Solution {
+private:
+    int dfs(TreeNode* node, int current) {
+        if (node == nullptr) {
+            return 0;
+        }
+
+        current = current * 10 + node->val;
+
+        if (node->left == nullptr && node->right == nullptr) {
+            return current;
+        }
+
+        return dfs(node->left, current)
+             + dfs(node->right, current);
+    }
+
+public:
+    int sumNumbers(TreeNode* root) {
+        return dfs(root, 0);
+    }
+};
+```
+
+这版代码非常值得记住，因为递归函数语义清晰：
+
+> `dfs(node, current)` 返回以当前节点为入口，所有根到叶路径数字对最终答案的贡献之和。
+
+## 五、为什么这版代码甚至不用显式“回溯”
+
+原文采用 `path` 数组保存路径，因此递归返回时需要：
+
+```cpp
+path.pop_back();
+```
+
+这属于显式回溯。
+
+但在上面的写法中：
+
+```cpp
+int current
+```
+
+是按值传递的。
+
+假设当前：
+
+```text
+current = 12
+```
+
+递归进入左孩子后，左分支中的 `current` 即使变成 `125`，也不会修改父调用中的 `12`。
+
+当左子树递归结束、开始进入右子树时，父调用仍然保留原来的值。
+
+因此变量状态天然随着函数调用栈恢复，相当于：
+
+> **递归栈替我们完成了回溯。**
+
+这也是树上 DFS 非常重要的一种写法。
+
+## 六、用示例完整走一遍
+
+考虑：
+
+```text
+      4
+     / \
+    9   0
+   / \
+  5   1
+```
+
+三条根到叶路径是：
+
+```text
+4 -> 9 -> 5  => 495
+4 -> 9 -> 1  => 491
+4 -> 0       => 40
+```
+
+因此：
+
+$495+491+40=1026$
+
+原文示意图：
+
+![求根节点到叶节点数字之和](https://file1.kamacoder.com/i/algo/129.%E6%B1%82%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E6%95%B0%E5%AD%97%E4%B9%8B%E5%92%8C.png)
+
+### 递归过程
+
+根节点 `4`：
+
+```text
+current = 0 * 10 + 4 = 4
+```
+
+进入左孩子 `9`：
+
+```text
+current = 4 * 10 + 9 = 49
+```
+
+进入 `5`：
+
+```text
+current = 49 * 10 + 5 = 495
+```
+
+`5` 是叶子节点，所以返回 `495`。
+
+回到 `9` 后进入 `1`：
+
+```text
+current = 49 * 10 + 1 = 491
+```
+
+返回 `491`。
+
+因此 `9` 这棵子树的贡献为：
+
+$495+491=986$
+
+右侧节点 `0` 的路径数字为：
+
+$4\times10+0=40$
+
+最终：
+
+$986+40=1026$
+
+## 七、为什么空节点返回 0
+
+代码中：
+
+```cpp
+if (node == nullptr) {
+    return 0;
+}
+```
+
+这是因为空节点不会产生任何合法的根到叶路径，所以它对总和的贡献为 $0$。
+
+因此可以自然地写：
+
+```cpp
+return dfs(node->left, current)
+     + dfs(node->right, current);
+```
+
+不用专门判断某个孩子是否存在。
+
+## 八、另一种写法：保存路径数组
+
+如果正在练习“路径 + 回溯”，也可以显式保存路径：
+
+```cpp
+class Solution {
+private:
+    int result = 0;
+    vector<int> path;
+
+    int pathToNumber() {
+        int value = 0;
+        for (int digit : path) {
+            value = value * 10 + digit;
+        }
+        return value;
+    }
+
+    void dfs(TreeNode* node) {
+        if (node == nullptr) {
+            return;
+        }
+
+        path.push_back(node->val);
+
+        if (node->left == nullptr && node->right == nullptr) {
+            result += pathToNumber();
+        } else {
+            dfs(node->left);
+            dfs(node->right);
+        }
+
+        path.pop_back();
+    }
+
+public:
+    int sumNumbers(TreeNode* root) {
+        dfs(root);
+        return result;
+    }
+};
+```
+
+这个写法更直观地体现了：
+
+```text
+选择当前节点
+    ↓
+递归进入下一层
+    ↓
+撤销当前选择
+```
+
+也就是标准回溯结构。
+
+但它有一个不足：每到一个叶子节点都要遍历整条 `path` 再转换一次数字，因此不如“滚动构造 `current`”简洁高效。
+
+> [!TIP]
+> 如果路径信息可以用一个整数、和、异或值、最大值等少量状态增量维护，通常没有必要保存整条路径。
+
+## 九、两种 DFS 写法的区别
+
+| 写法 | 路径状态 | 是否显式回溯 | 额外处理 |
+| --- | --- | --- | --- |
+| `vector<int> path` | 保存完整路径 | 需要 `pop_back()` | 叶子处再转数字 |
+| `int current` | 保存路径对应数值 | 不需要 | 每层直接滚动更新 |
+
+本题更推荐第二种。
+
+## 十、复杂度分析
+
+设二叉树共有 $n$ 个节点，高度为 $h$。
+
+每个节点只访问一次，因此：
+
+- 时间复杂度：$O(n)$；
+- 递归栈空间复杂度：$O(h)$。
+
+最坏情况下，树退化成链表：
+
+$h=n$
+
+所以最坏空间复杂度为：
+
+$O(n)$
+
+如果是一棵平衡二叉树，则：
+
+$h=O(\log n)$
+
+## 十一、常见错误
+
+### 1. 把非叶子节点也加入答案
+
+错误思路：
+
+```cpp
+result += current;
+```
+
+如果在每个节点都这样做，就会把根到中间节点的数字也计算进去。
+
+必须只在：
+
+```cpp
+!node->left && !node->right
+```
+
+时计入答案。
+
+### 2. 十进制拼接写错
+
+加入下一位数字 `x` 时应该是：
+
+$current=current\times10+x$
+
+不是：
+
+```text
+current + x
+```
+
+也不是：
+
+```text
+current * x
+```
+
+### 3. 忘记路径中的 0
+
+例如：
+
+```text
+4 -> 0
+```
+
+表示的是：
+
+$40$
+
+不是 $4$。
+
+公式：
+
+$4\times10+0=40$
+
+天然处理了这个问题。
+
+### 4. 空树处理
+
+推荐写法中：
+
+```cpp
+return dfs(root, 0);
+```
+
+而 `dfs(nullptr, 0)` 会直接返回 `0`，所以无需额外特判。
+
+## 十二、这道题与“路径总和”类问题的联系
+
+本题与很多二叉树路径题具有完全相同的骨架：
+
+```text
+携带一个路径状态
+    ↓
+访问当前节点时更新状态
+    ↓
+到叶子节点时处理答案
+    ↓
+递归左右子树
+```
+
+区别只在于“路径状态”是什么：
+
+| 题型 | 路径状态 |
+| --- | --- |
+| 路径总和 | 当前路径元素之和 |
+| 根到叶数字 | 当前十进制数字 |
+| 最大路径信息 | 当前最大值 / 最小值 |
+| 路径字符串 | 当前拼接结果 |
+
+因此可以把本题当成一个非常典型的 **树上携带状态 DFS** 模板。
+
+## 十三、进一步理解：递归参数就是“路径压缩”
+
+完整路径可能是：
+
+```text
+[4, 9, 5]
+```
+
+但对这道题而言，我们后续只关心它对应的数字：
+
+```text
+495
+```
+
+因此可以把整条路径压缩成一个状态 `current`。
+
+从信息角度看：
+
+```text
+[4, 9, 5]
+    ↓
+495
+```
+
+这正是很多 DFS 优化的共同思想：
+
+> 如果后续计算不需要恢复路径中的每一个细节，就只携带足够完成后续决策的最小状态。
+
+## 十四、总结
+
+本题最核心的递推公式只有一个：
+
+$current=current\times10+node.val$
+
+配合叶子节点判断：
+
+```cpp
+if (!node->left && !node->right) {
+    return current;
+}
+```
+
+就可以得到非常简洁的 DFS。
+
+推荐记住下面这个模板：
+
+```cpp
+int dfs(TreeNode* node, int state) {
+    if (!node) return 0;
+
+    state = update(state, node);
+
+    if (isLeaf(node)) {
+        return state;
+    }
+
+    return dfs(node->left, state)
+         + dfs(node->right, state);
+}
+```
+
+它不仅适用于本题，也适用于大量“根到叶路径 + 状态累计”的二叉树题目。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int sumNumbers(TreeNode root) {
+        return dfs(root, 0);
+    }
+
+    private int dfs(TreeNode node, int current) {
+        if (node == null) {
+            return 0;
+        }
+
+        current = current * 10 + node.val;
+
+        if (node.left == null && node.right == null) {
+            return current;
+        }
+
+        return dfs(node.left, current)
+             + dfs(node.right, current);
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+        def dfs(node: Optional[TreeNode], current: int) -> int:
+            if node is None:
+                return 0
+
+            current = current * 10 + node.val
+
+            if node.left is None and node.right is None:
+                return current
+
+            return dfs(node.left, current) + dfs(node.right, current)
+
+        return dfs(root, 0)
+```
+
+```go tab="Go"
+func sumNumbers(root *TreeNode) int {
+    var dfs func(*TreeNode, int) int
+
+    dfs = func(node *TreeNode, current int) int {
+        if node == nil {
+            return 0
+        }
+
+        current = current*10 + node.Val
+
+        if node.Left == nil && node.Right == nil {
+            return current
+        }
+
+        return dfs(node.Left, current) + dfs(node.Right, current)
+    }
+
+    return dfs(root, 0)
+}
+```
+
+```javascript tab="JavaScript"
+var sumNumbers = function(root) {
+    const dfs = (node, current) => {
+        if (node === null) {
+            return 0;
+        }
+
+        current = current * 10 + node.val;
+
+        if (node.left === null && node.right === null) {
+            return current;
+        }
+
+        return dfs(node.left, current) + dfs(node.right, current);
+    };
+
+    return dfs(root, 0);
+};
+```
+
+```typescript tab="TypeScript"
+function sumNumbers(root: TreeNode | null): number {
+    function dfs(node: TreeNode | null, current: number): number {
+        if (node === null) {
+            return 0;
+        }
+
+        current = current * 10 + node.val;
+
+        if (node.left === null && node.right === null) {
+            return current;
+        }
+
+        return dfs(node.left, current) + dfs(node.right, current);
+    }
+
+    return dfs(root, 0);
+}
+```
+
+```c tab="C"
+int dfs(struct TreeNode* node, int current) {
+    if (node == NULL) {
+        return 0;
+    }
+
+    current = current * 10 + node->val;
+
+    if (node->left == NULL && node->right == NULL) {
+        return current;
+    }
+
+    return dfs(node->left, current)
+         + dfs(node->right, current);
+}
+
+int sumNumbers(struct TreeNode* root) {
+    return dfs(root, 0);
+}
+```

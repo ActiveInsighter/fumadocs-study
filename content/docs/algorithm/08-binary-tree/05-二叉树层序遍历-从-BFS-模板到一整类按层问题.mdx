@@ -1,0 +1,895 @@
+---
+title: 二叉树层序遍历：从 BFS 模板到一整类按层问题
+description: 系统掌握二叉树层序遍历的队列模型、按层分组技巧与复杂度，并用统一 BFS 模板解决右视图、层平均值、每层最大值、最大与最小深度等典型问题。
+---
+
+# 二叉树层序遍历：从 BFS 模板到一整类按层问题
+
+前序、中序、后序都属于**深度优先搜索（DFS）**：沿着一条分支尽可能深入，再回到分叉点继续搜索。
+
+层序遍历则完全不同。它要求：
+
+```text
+第 1 层 → 第 2 层 → 第 3 层 → ...
+```
+
+同一层内部通常从左到右访问，这正是**广度优先搜索（BFS）**在二叉树上的标准形式。
+
+![二叉树层序遍历](https://file1.kamacoder.com/i/algo/20210203144842988.png)
+
+<Callout title="这一篇只抓住一个核心" type="idea">
+
+层序遍历最关键的不是“会使用队列”，而是理解：
+
+> **每轮开始时队列里已有的节点，恰好就是当前这一层的全部节点。**
+
+因此，先固定 `size = queue.size()`，再只处理这 `size` 个节点，就能严格把不同层分开。
+
+</Callout>
+
+## 1. 为什么 BFS 使用队列
+
+假设当前访问节点 `A`，发现它的孩子 `B`、`C`。层序遍历希望：
+
+1. 当前层剩余节点先处理；
+2. 新发现的下一层节点稍后处理；
+3. 同一层保持从左到右顺序。
+
+这与队列的先进先出（FIFO）完全一致。
+
+```text
+队头                           队尾
+ ↓                              ↓
+[ 当前层剩余节点 | 下一层新加入节点 ]
+```
+
+而栈是后进先出，更适合沿一条分支继续深入，因此通常对应 DFS。
+
+<Cards>
+  <Card title="DFS · 深度优先">常用递归或栈。先深入，再回溯。</Card>
+  <Card title="BFS · 广度优先">常用队列。先处理同一层，再进入下一层。</Card>
+</Cards>
+
+## 2. LeetCode 102：标准层序遍历模板
+
+题目要求按层返回节点值，例如：
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+结果为：
+
+```text
+[
+  [3],
+  [9, 20],
+  [15, 7]
+]
+```
+
+### 核心模板
+
+```cpp title="LeetCode 102 · 层序遍历"
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        if (root == nullptr) return result;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            int size = q.size();
+            vector<int> level;
+            level.reserve(size);
+
+            for (int i = 0; i < size; ++i) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                level.push_back(node->val);
+
+                if (node->left != nullptr) {
+                    q.push(node->left);
+                }
+                if (node->right != nullptr) {
+                    q.push(node->right);
+                }
+            }
+
+            result.push_back(move(level));
+        }
+
+        return result;
+    }
+};
+```
+
+![层序遍历队列过程](https://file1.kamacoder.com/i/algo/102%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86.gif)
+
+## 3. 为什么一定要提前固定 `size`
+
+最容易犯的错误是直接写：
+
+```cpp
+for (int i = 0; i < q.size(); ++i) {
+    ...
+}
+```
+
+问题在于循环过程中不断把左右孩子加入队列，`q.size()` 会动态变化。
+
+这样就会把下一层节点混进当前层，破坏“按层分组”。
+
+正确写法必须是：
+
+```cpp
+int size = q.size();
+for (int i = 0; i < size; ++i) {
+    ...
+}
+```
+
+其中 `size` 是本轮开始瞬间的队列长度，代表**当前层节点总数**。
+
+<Callout title="层序遍历模板的灵魂" type="success">
+
+```cpp
+int size = q.size();
+```
+
+这一行把普通 BFS 变成了“可以识别层边界的 BFS”。后面大量题目，都只是利用 `i`、`size` 和 `level` 对当前层做统计。
+
+</Callout>
+
+## 4. 用队列状态理解层边界
+
+仍然考虑：
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+开始时：
+
+```text
+q = [3]
+size = 1
+```
+
+处理 `3` 时，把 `9`、`20` 加入队尾：
+
+```text
+q = [9, 20]
+```
+
+这一轮已经固定只处理 `1` 个节点，所以不会继续处理 `9`。
+
+下一轮：
+
+```text
+size = 2
+```
+
+此时才处理 `9` 和 `20`。在处理 `20` 时，新加入 `15`、`7`，但因为本轮 `size` 已固定为 `2`，它们仍然属于下一轮。
+
+这就是层序遍历的全部结构。
+
+## 5. 复杂度分析
+
+每个节点：
+
+- 入队一次；
+- 出队一次；
+- 被处理一次。
+
+因此时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度取决于队列中同时存在的最大节点数，也就是树的最大宽度 $w$：
+
+$$
+O(w)
+$$
+
+最坏情况下，某一层可能含有约一半的全部节点，因此最坏空间复杂度为：
+
+$$
+O(n)
+$$
+
+## 6. 层序遍历也可以用递归实现吗？
+
+可以。
+
+递归 DFS 时额外携带 `depth`，把节点放进对应层的数组即可：
+
+```cpp title="按深度分组的递归写法"
+class Solution {
+public:
+    void dfs(TreeNode* node, int depth, vector<vector<int>>& result) {
+        if (node == nullptr) return;
+
+        if (depth == result.size()) {
+            result.push_back({});
+        }
+
+        result[depth].push_back(node->val);
+        dfs(node->left, depth + 1, result);
+        dfs(node->right, depth + 1, result);
+    }
+
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        dfs(root, 0, result);
+        return result;
+    }
+};
+```
+
+这段代码最终也能得到按层结果，但它的**搜索过程仍然是 DFS**，只是利用 `depth` 把结果重新分组。
+
+因此：
+
+- 如果题目只是要求得到按层结果，两种方式都能做；
+- 如果题目依赖 BFS 的“逐层扩展”“第一次到达即最短”等性质，应该使用真正的队列 BFS。
+
+## 7. 一套模板解决一整类题
+
+标准模板中最值得抽象的是：
+
+```cpp
+while (!q.empty()) {
+    int size = q.size();
+
+    for (int i = 0; i < size; ++i) {
+        TreeNode* node = q.front();
+        q.pop();
+
+        // 对当前层节点做题目要求的统计
+
+        if (node->left) q.push(node->left);
+        if (node->right) q.push(node->right);
+    }
+
+    // 当前层处理结束
+}
+```
+
+变化通常只发生在两处：
+
+1. **层内处理**：统计和、最大值、最后一个节点等；
+2. **层结束处理**：把当前层统计结果加入答案。
+
+下面看几个典型变形。
+
+## 8. LeetCode 107：自底向上的层序遍历
+
+题目和 102 唯一的区别是结果顺序变成：
+
+```text
+最底层 → ... → 根节点层
+```
+
+![二叉树层序遍历 II](https://file1.kamacoder.com/i/algo/20210203151058308.png)
+
+最直接的做法是：
+
+1. 正常 BFS；
+2. 最后反转 `result`。
+
+```cpp title="LeetCode 107 · 自底向上"
+vector<vector<int>> levelOrderBottom(TreeNode* root) {
+    vector<vector<int>> result;
+    if (root == nullptr) return result;
+
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();
+        vector<int> level;
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            level.push_back(node->val);
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        result.push_back(move(level));
+    }
+
+    reverse(result.begin(), result.end());
+    return result;
+}
+```
+
+这里没有必要为了“自底向上”改变 BFS 搜索方向。**遍历逻辑不变，只改变结果组织方式。**
+
+## 9. LeetCode 199：二叉树的右视图
+
+从右侧看一棵树，每一层能看到的就是该层最右侧节点。
+
+![二叉树的右视图](https://file1.kamacoder.com/i/algo/20210203151307377.png)
+
+在从左到右的标准层序遍历中，当前层最后一个节点满足：
+
+```cpp
+i == size - 1
+```
+
+所以只需要收集它：
+
+```cpp title="LeetCode 199 · 右视图"
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> result;
+    if (root == nullptr) return result;
+
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            if (i == size - 1) {
+                result.push_back(node->val);
+            }
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+    }
+
+    return result;
+}
+```
+
+这类题的关键不是“从右边开始遍历”，而是**准确识别每层的边界位置**。
+
+## 10. LeetCode 637：每层平均值
+
+如果题目要求每一层的平均值，只需要在当前层维护总和：
+
+$$
+\text{average} = \frac{\text{sum}}{\text{size}}
+$$
+
+```cpp title="LeetCode 637 · 层平均值"
+vector<double> averageOfLevels(TreeNode* root) {
+    vector<double> result;
+    if (root == nullptr) return result;
+
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();
+        long long sum = 0;
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            sum += node->val;
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        result.push_back(static_cast<double>(sum) / size);
+    }
+
+    return result;
+}
+```
+
+<Callout title="为什么 sum 建议使用 long long？" type="warn">
+
+节点值和节点数都可能较大。即使最终结果是 `double`，求和阶段仍可能发生整数溢出，因此先使用更宽的整数类型累加更稳妥。
+
+</Callout>
+
+## 11. LeetCode 515：每层最大值
+
+只需要把“求和”换成“维护最大值”：
+
+```cpp title="LeetCode 515 · 每层最大值"
+vector<int> largestValues(TreeNode* root) {
+    vector<int> result;
+    if (root == nullptr) return result;
+
+    queue<TreeNode*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();
+        int maximum = INT_MIN;
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            maximum = max(maximum, node->val);
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        result.push_back(maximum);
+    }
+
+    return result;
+}
+```
+
+这说明很多“每一层求某个统计量”的题，本质就是：
+
+```text
+BFS 框架 + 单层聚合
+```
+
+## 12. N 叉树层序遍历
+
+二叉树每个节点最多有两个孩子，所以扩展下一层写成：
+
+```cpp
+if (node->left) q.push(node->left);
+if (node->right) q.push(node->right);
+```
+
+N 叉树只是把这一部分换成循环：
+
+```cpp
+for (Node* child : node->children) {
+    if (child != nullptr) {
+        q.push(child);
+    }
+}
+```
+
+BFS 框架完全不变。
+
+这说明层序遍历并不是“二叉树专属技巧”，而是广度优先搜索的一种具体应用。
+
+## 13. LeetCode 116 / 117：连接每层相邻节点
+
+这类题要求把同一层中的相邻节点连接起来：
+
+```text
+A -> B -> C -> nullptr
+```
+
+既然层序遍历已经知道一层有哪些节点，那么只需记录前一个节点：
+
+```cpp title="逐层连接 next 指针的通用 BFS 思路"
+Node* connect(Node* root) {
+    if (root == nullptr) return root;
+
+    queue<Node*> q;
+    q.push(root);
+
+    while (!q.empty()) {
+        int size = q.size();
+        Node* prev = nullptr;
+
+        for (int i = 0; i < size; ++i) {
+            Node* node = q.front();
+            q.pop();
+
+            if (prev != nullptr) {
+                prev->next = node;
+            }
+            prev = node;
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        // 最右侧节点的 next 应为 nullptr
+        prev->next = nullptr;
+    }
+
+    return root;
+}
+```
+
+对于 116 的完美二叉树还存在 $O(1)$ 额外空间解法，但 BFS 是更通用、也更容易迁移到 117 的版本。
+
+## 14. 用 BFS 求最大深度
+
+如果根节点是第 $1$ 层，那么 BFS 每完整处理一层，就让深度加一：
+
+```cpp title="LeetCode 104 · BFS 求最大深度"
+int maxDepth(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    queue<TreeNode*> q;
+    q.push(root);
+    int depth = 0;
+
+    while (!q.empty()) {
+        int size = q.size();
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        ++depth;
+    }
+
+    return depth;
+}
+```
+
+最后一轮处理结束时，`depth` 就等于树的层数。
+
+## 15. 用 BFS 求最小深度：第一次遇到叶子就结束
+
+最小深度定义为：从根节点到最近叶子节点的节点数。
+
+BFS 的优势非常明显：它按照深度从小到大搜索。因此**第一次遇到叶子节点时，对应深度一定就是最小深度。**
+
+```cpp title="LeetCode 111 · BFS 求最小深度"
+int minDepth(TreeNode* root) {
+    if (root == nullptr) return 0;
+
+    queue<TreeNode*> q;
+    q.push(root);
+    int depth = 0;
+
+    while (!q.empty()) {
+        int size = q.size();
+        ++depth;
+
+        for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front();
+            q.pop();
+
+            if (node->left == nullptr && node->right == nullptr) {
+                return depth;
+            }
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+    }
+
+    return depth;
+}
+```
+
+这里必须判断真正的**叶子节点**：
+
+```cpp
+node->left == nullptr && node->right == nullptr
+```
+
+不能只要某一个孩子为空就返回。
+
+例如：
+
+```text
+1
+ \
+  2
+```
+
+根节点 `1` 的左孩子为空，但它并不是叶子节点，最小深度仍然是 `2`。
+
+<Callout title="BFS 求最短层数问题的关键" type="success">
+
+只要每条边代价相同，BFS 按层扩展就天然具有“第一次到达最浅”的性质。
+
+在树中，这常表现为：第一次遇到满足条件的节点即可返回当前层数。
+
+</Callout>
+
+## 16. 层序遍历常见题型归纳
+
+| 题型 | 当前层需要做什么 |
+| --- | --- |
+| 102 层序遍历 | 收集当前层所有节点 |
+| 107 自底向上 | 正常收集，最后反转 |
+| 199 右视图 | 收集 `i == size - 1` 的节点 |
+| 637 层平均值 | 维护当前层 `sum` |
+| 515 每层最大值 | 维护当前层 `max` |
+| 429 N 叉树层序 | 扩展所有 `children` |
+| 116 / 117 填充 next | 连接当前层相邻节点 |
+| 104 最大深度 | 每处理完一层 `depth++` |
+| 111 最小深度 | 第一次遇到叶子立即返回 |
+
+看到“每层、最浅、逐层、同层、右视图、层平均值”这类关键词，都应该优先联想到 BFS。
+
+## 17. 工程细节：不同语言的队列实现要注意什么
+
+### C++
+
+直接使用：
+
+```cpp
+queue<TreeNode*> q;
+```
+
+`push / front / pop` 都是标准队列操作。
+
+### Python
+
+优先使用 `collections.deque`，因为：
+
+```python
+popleft()
+```
+
+是 $O(1)$。
+
+不要用普通 `list.pop(0)` 实现大量出队操作，因为删除首元素需要整体移动后续元素，单次可能达到 $O(n)$。
+
+### Java
+
+通常使用：
+
+```java
+Deque<TreeNode> queue = new ArrayDeque<>();
+```
+
+通过 `offerLast` / `pollFirst` 模拟队列。
+
+### JavaScript / TypeScript
+
+直接 `array.shift()` 写起来简单，但标准数组头删通常需要移动后续元素。数据量大时，更好的方式是维护一个头指针：
+
+```javascript
+let head = 0;
+while (head < queue.length) {
+    const node = queue[head++];
+}
+```
+
+这样避免频繁搬移数组元素。
+
+## 18. 常见错误
+
+### 错误 1：循环里直接使用变化中的 `q.size()`
+
+必须在每层开始前固定：
+
+```cpp
+int size = q.size();
+```
+
+### 错误 2：忘记空树
+
+空树通常应该直接返回空结果或深度 `0`。
+
+### 错误 3：把下一层节点当成本层节点
+
+根因仍然是没有固定当前层大小。
+
+### 错误 4：最小深度把“单侧为空”误判为叶子
+
+叶子必须满足左右孩子都为空。
+
+### 错误 5：用错误的数据结构模拟队列
+
+BFS 的逻辑建立在 FIFO 上。如果换成栈，遍历顺序就变成 DFS。
+
+## 19. 一页速记模板
+
+```cpp title="二叉树按层 BFS 通用模板"
+if (root == nullptr) return ...;
+
+queue<TreeNode*> q;
+q.push(root);
+
+while (!q.empty()) {
+    int size = q.size();
+
+    // 初始化当前层统计量
+
+    for (int i = 0; i < size; ++i) {
+        TreeNode* node = q.front();
+        q.pop();
+
+        // 处理当前节点
+
+        if (node->left) q.push(node->left);
+        if (node->right) q.push(node->right);
+    }
+
+    // 当前层结束后的处理
+}
+```
+
+真正需要记住的不是整段代码，而是下面四步：
+
+```text
+1. 队列保存待访问节点
+2. 每轮先固定 size
+3. 恰好处理 size 个节点
+4. 处理过程中把下一层加入队尾
+```
+
+## 其他语言实现
+
+下面都以 LeetCode 102 的标准层序遍历为例。不同语言只是在“队列”这个数据结构的具体写法上不同。
+
+
+
+```cpp title="C++" tab="C++"
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        if (root == nullptr) return result;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            int size = q.size();
+            vector<int> level;
+
+            for (int i = 0; i < size; ++i) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                level.push_back(node->val);
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+            }
+
+            result.push_back(move(level));
+        }
+
+        return result;
+    }
+};
+```
+
+
+
+```python title="Python" tab="Python"
+from collections import deque
+
+class Solution:
+    def levelOrder(self, root):
+        if not root:
+            return []
+
+        result = []
+        queue = deque([root])
+
+        while queue:
+            level = []
+
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                level.append(node.val)
+
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+            result.append(level)
+
+        return result
+```
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+
+        Deque<TreeNode> queue = new ArrayDeque<>();
+        queue.offerLast(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new ArrayList<>(size);
+
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.pollFirst();
+                level.add(node.val);
+
+                if (node.left != null) queue.offerLast(node.left);
+                if (node.right != null) queue.offerLast(node.right);
+            }
+
+            result.add(level);
+        }
+
+        return result;
+    }
+}
+```
+
+
+
+```go title="Go" tab="Go"
+func levelOrder(root *TreeNode) [][]int {
+    if root == nil {
+        return [][]int{}
+    }
+
+    result := [][]int{}
+    queue := []*TreeNode{root}
+    head := 0
+
+    for head < len(queue) {
+        size := len(queue) - head
+        level := make([]int, 0, size)
+
+        for i := 0; i < size; i++ {
+            node := queue[head]
+            head++
+
+            level = append(level, node.Val)
+            if node.Left != nil {
+                queue = append(queue, node.Left)
+            }
+            if node.Right != nil {
+                queue = append(queue, node.Right)
+            }
+        }
+
+        result = append(result, level)
+    }
+
+    return result
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var levelOrder = function(root) {
+    if (root === null) return [];
+
+    const result = [];
+    const queue = [root];
+    let head = 0;
+
+    while (head < queue.length) {
+        const size = queue.length - head;
+        const level = [];
+
+        for (let i = 0; i < size; i++) {
+            const node = queue[head++];
+            level.push(node.val);
+
+            if (node.left) queue.push(node.left);
+            if (node.right) queue.push(node.right);
+        }
+
+        result.push(level);
+    }
+
+    return result;
+};
+```

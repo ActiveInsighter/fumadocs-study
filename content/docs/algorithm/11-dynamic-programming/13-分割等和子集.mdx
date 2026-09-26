@@ -1,0 +1,692 @@
+---
+title: 分割等和子集
+description: 将“能否把数组分成两个和相等的子集”转化为 01 背包，系统讲清目标容量、状态定义、倒序遍历、可达性判断以及布尔 DP 与最大价值 DP 两种写法。
+icon: SplitSquareVertical
+---
+
+# 分割等和子集
+
+> LeetCode 416 · Partition Equal Subset Sum
+
+给定一个只包含正整数的数组 `nums`，判断能否将它划分成两个子集，使两个子集的元素和相等。
+
+例如：
+
+```text
+nums = [1, 5, 11, 5]
+```
+
+总和为：
+
+$$
+1+5+11+5=22
+$$
+
+如果能够划分成两个等和子集，那么每个子集的和都必须为：
+
+$$
+\frac{22}{2}=11
+$$
+
+其中可以选出：
+
+$$
+1+5+5=11
+$$
+
+因此答案为 `true`。
+
+<Callout type="info" title="真正的问题是什么">
+这道题表面上是“把数组分成两组”，实际上只需要回答一个更简单的问题：**能否从数组中选出若干个数，使它们的和恰好等于总和的一半？**
+</Callout>
+
+## 1. 第一步：先做必要条件判断
+
+设所有元素总和为：
+
+$$
+S=\sum_{i=0}^{n-1} nums[i]
+$$
+
+如果两个子集的和相等，那么每一边都必须等于：
+
+$$
+\frac{S}{2}
+$$
+
+因此如果 $S$ 为奇数，显然无法平分：
+
+$$
+\boxed{S\bmod 2=1\Rightarrow \text{false}}
+$$
+
+只有当 $S$ 为偶数时，才需要继续求：
+
+$$
+\boxed{target=\frac{S}{2}}
+$$
+
+接下来问题就变成：
+
+> 每个数最多使用一次，能否选出若干个数，使其总和恰好为 `target`？
+
+这正是 01 背包模型。
+
+## 2. 为什么这是 01 背包
+
+把数组中的每一个数字看作一件物品。
+
+对于数字：
+
+$$
+nums[i]
+$$
+
+我们可以令：
+
+$$
+weight[i]=nums[i]
+$$
+
+同时令：
+
+$$
+value[i]=nums[i]
+$$
+
+背包容量则是：
+
+$$
+target=\frac{S}{2}
+$$
+
+每个数组元素只能选一次，因此是标准的 **01 背包**，而不是完全背包。
+
+| 原题元素 | 背包模型 |
+| --- | --- |
+| `nums[i]` | 第 $i$ 件物品 |
+| 元素值 `nums[i]` | 物品重量 |
+| 元素值 `nums[i]` | 物品价值 |
+| `sum / 2` | 背包容量 |
+| 每个元素只能选一次 | 01 背包 |
+| 是否存在和为 `target` 的子集 | 背包能否恰好填到 `target` |
+
+<Callout type="tip" title="为什么重量和价值可以相同">
+这里真正关心的是“选中的数字之和”。所以把一个数字同时看成重量和价值后，`dp[j]` 取得的最大价值恰好也就是能够装入的最大数字和。
+</Callout>
+
+## 3. 写法一：最大价值型 01 背包
+
+定义：
+
+$$
+\boxed{dp[j]=\text{容量不超过 }j\text{ 时，能够装入的最大数字和}}
+$$
+
+因为每件“物品”的重量和价值都等于 `nums[i]`，所以一定有：
+
+$$
+dp[j]\le j
+$$
+
+于是，当：
+
+$$
+\boxed{dp[target]=target}
+$$
+
+就说明确实存在一个子集，其元素和恰好等于 `target`。
+
+### 3.1 状态转移
+
+对于当前数字 `nums[i]`，有两种选择。
+
+#### 不选当前数字
+
+继续保持原来的：
+
+$$
+dp[j]
+$$
+
+#### 选择当前数字
+
+需要先腾出：
+
+$$
+nums[i]
+$$
+
+的容量，因此：
+
+$$
+dp[j-nums[i]]+nums[i]
+$$
+
+取最大值：
+
+$$
+\boxed{
+dp[j]=\max\left(dp[j],\ dp[j-nums[i]]+nums[i]\right)
+}
+$$
+
+这与标准一维 01 背包完全一致。
+
+## 4. 为什么容量必须倒序
+
+代码形式为：
+
+```cpp
+for (int num : nums) {
+    for (int j = target; j >= num; --j) {
+        dp[j] = max(dp[j], dp[j - num] + num);
+    }
+}
+```
+
+内层容量必须从大到小。
+
+如果从小到大更新，刚刚用当前元素更新出来的较小容量状态，会立刻再次参与后续转移，相当于同一个元素被重复使用。
+
+例如当前数字为：
+
+$$
+num=5
+$$
+
+如果正序更新：
+
+$$
+dp[5]=5
+$$
+
+随后计算 `dp[10]` 时可能直接使用刚刚更新的 `dp[5]`：
+
+$$
+dp[10]=dp[5]+5=10
+$$
+
+这相当于把同一个 `5` 用了两次。
+
+而原题中的每个数组元素只能使用一次，所以必须倒序。
+
+<Callout type="warning" title="看到“每个元素只能用一次”就要警觉">
+一维背包中，**01 背包容量倒序，完全背包容量正序**。遍历方向实际上编码了“当前物品能否在同一轮被再次使用”。
+</Callout>
+
+## 5. 初始化
+
+初始时还没有处理任何数字，因此：
+
+$$
+\boxed{dp[j]=0}
+$$
+
+其中：
+
+$$
+dp[0]=0
+$$
+
+表示容量为 $0$ 时最大可装入数字和为 $0$。
+
+因为所有数字均为正数，所以其他位置初始化为 $0$ 也不会产生非法的更优状态。
+
+代码：
+
+```cpp
+vector<int> dp(target + 1, 0);
+```
+
+## 6. 用 `[1,5,11,5]` 手推一次
+
+总和：
+
+$$
+S=22
+$$
+
+目标：
+
+$$
+target=11
+$$
+
+原始状态：
+
+$$
+dp=[0,0,0,\dots,0]
+$$
+
+### 处理数字 1
+
+可达的最大和开始出现：
+
+$$
+dp[1]=1
+$$
+
+并且对于所有容量 $j\ge1$：
+
+$$
+dp[j]\ge1
+$$
+
+### 再处理数字 5
+
+此时可以组合出：
+
+$$
+1+5=6
+$$
+
+所以：
+
+$$
+dp[6]=6
+$$
+
+### 处理数字 11
+
+因为 `11` 本身就等于目标容量，所以直接有：
+
+$$
+dp[11]=11
+$$
+
+这已经说明存在一个和为 $11$ 的子集。
+
+原始资料中的状态推导图：
+
+![分割等和子集 DP 状态](https://file1.kamacoder.com/i/algo/20210110104240545.png)
+
+最终只需判断：
+
+$$
+\boxed{dp[11]=11}
+$$
+
+因此答案为 `true`。
+
+## 7. 完整 C++ 实现
+
+```cpp
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+
+        if (sum % 2 != 0) {
+            return false;
+        }
+
+        int target = sum / 2;
+        vector<int> dp(target + 1, 0);
+
+        for (int num : nums) {
+            for (int j = target; j >= num; --j) {
+                dp[j] = max(dp[j], dp[j - num] + num);
+            }
+
+            if (dp[target] == target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+```
+
+这里加入了一个简单的提前结束：一旦发现：
+
+$$
+dp[target]=target
+$$
+
+后续无论再处理什么元素，答案都已经确定为 `true`。
+
+## 8. 写法二：直接定义“能否凑出”
+
+其实这道题还可以用更加贴近题意的布尔状态。
+
+定义：
+
+$$
+\boxed{dp[j]=\text{是否能够从已经处理的数字中选出若干个，使总和恰好为 }j}
+$$
+
+此时：
+
+$$
+dp[0]=true
+$$
+
+因为什么都不选就能组成总和 $0$。
+
+对于当前数字 `num`：
+
+$$
+\boxed{dp[j]=dp[j]\lor dp[j-num]}
+$$
+
+含义是：
+
+- 原本就能够凑出 $j$；
+- 或者原本能够凑出 $j-num$，再加入当前数字 `num`。
+
+同样必须倒序：
+
+```cpp
+vector<bool> dp(target + 1, false);
+dp[0] = true;
+
+for (int num : nums) {
+    for (int j = target; j >= num; --j) {
+        dp[j] = dp[j] || dp[j - num];
+    }
+}
+
+return dp[target];
+```
+
+## 9. 两种状态定义怎么选
+
+两种写法都正确，但思维方式不同。
+
+### 最大价值型
+
+定义：
+
+$$
+dp[j]=\text{容量 }j\text{ 内能装入的最大数字和}
+$$
+
+最后判断：
+
+$$
+dp[target]=target
+$$
+
+优点是可以直接套用 01 背包最大价值模板。
+
+### 可达性型
+
+定义：
+
+$$
+dp[j]=\text{是否能够恰好凑出 }j
+$$
+
+最后直接返回：
+
+$$
+dp[target]
+$$
+
+这种状态更加贴近“存在性”问题。
+
+<Callout type="info" title="状态设计的一般规律">
+同一道题往往可以有不同 DP 定义。选择哪一种，关键看你希望状态回答什么问题：求最值就用数值型状态，判断存在性则布尔状态往往更自然。
+</Callout>
+
+## 10. 为什么“找到一半”就等价于成功划分
+
+设总和为：
+
+$$
+S
+$$
+
+如果存在某个子集 $A$ 满足：
+
+$$
+\sum A=\frac{S}{2}
+$$
+
+那么剩余元素组成的补集 $B$ 的和自然为：
+
+$$
+\sum B=S-\frac{S}{2}=\frac{S}{2}
+$$
+
+所以根本不需要同时构造两个集合。
+
+这类问题中，常见技巧就是：
+
+> 当需要把整体分成两部分时，先思考能否只求其中一部分；另一部分往往由总量自动确定。
+
+## 11. 常见错误
+
+### 错误 1：忘记先判断总和奇偶性
+
+如果：
+
+$$
+S\text{ 为奇数}
+$$
+
+那么两个整数子集不可能拥有相等的和，可以立刻返回 `false`。
+
+### 错误 2：容量正序遍历
+
+这会导致一个元素在一轮里被多次使用，把问题错误地变成完全背包。
+
+### 错误 3：误以为 `dp[j] == j` 对所有背包题都成立
+
+这里只有因为：
+
+$$
+weight[i]=value[i]=nums[i]
+$$
+
+才有：
+
+$$
+dp[j]\le j
+$$
+
+并可以用 `dp[target] == target` 判断是否恰好装满。
+
+对于普通 01 背包，物品价值和重量通常不是同一个量，不能这样判断。
+
+### 错误 4：把“容量为 j”理解成必须恰好装满 j
+
+最大价值型状态表示的是：
+
+$$
+\text{总重量不超过 }j
+$$
+
+是否恰好达到 $j$，需要通过最终值是否等于 $j$ 进一步判断。
+
+## 12. 复杂度
+
+设：
+
+$$
+n=nums.length
+$$
+
+且：
+
+$$
+target=\frac{S}{2}
+$$
+
+时间复杂度：
+
+$$
+\boxed{O(n\cdot target)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{O(target)}
+$$
+
+由于：
+
+$$
+target\le\frac{S}{2}
+$$
+
+也可以写成伪多项式复杂度：
+
+$$
+O(nS)
+$$
+
+数量级上相同，但严格地说该算法依赖数字总和，而不仅仅依赖输入元素个数。
+
+## 13. 这道题真正训练什么
+
+这道题不是为了再背一遍 01 背包模板，而是训练三层转化能力：
+
+1. **等和划分** $ightarrow$ **寻找和为总和一半的子集**；
+2. **寻找子集** $ightarrow$ **每个元素只能使用一次的 01 背包**；
+3. **是否恰好达到目标** $ightarrow$ 最大价值状态或布尔可达状态。
+
+可以把核心模型压缩为：
+
+$$
+\boxed{
+\text{等和划分}
+\Longrightarrow
+\text{子集和 }=\frac{S}{2}
+\Longrightarrow
+\text{01 背包}
+}
+$$
+
+一旦完成这一步建模，代码本身反而非常简单。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+
+        if ((sum & 1) == 1) {
+            return false;
+        }
+
+        int target = sum / 2;
+        int[] dp = new int[target + 1];
+
+        for (int num : nums) {
+            for (int j = target; j >= num; --j) {
+                dp[j] = Math.max(dp[j], dp[j - num] + num);
+            }
+            if (dp[target] == target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def canPartition(self, nums: list[int]) -> bool:
+        total = sum(nums)
+
+        if total % 2 == 1:
+            return False
+
+        target = total // 2
+        dp = [0] * (target + 1)
+
+        for num in nums:
+            for j in range(target, num - 1, -1):
+                dp[j] = max(dp[j], dp[j - num] + num)
+            if dp[target] == target:
+                return True
+
+        return False
+```
+
+```go tab="Go"
+func canPartition(nums []int) bool {
+    sum := 0
+    for _, num := range nums {
+        sum += num
+    }
+
+    if sum%2 == 1 {
+        return false
+    }
+
+    target := sum / 2
+    dp := make([]int, target+1)
+
+    for _, num := range nums {
+        for j := target; j >= num; j-- {
+            if dp[j-num]+num > dp[j] {
+                dp[j] = dp[j-num] + num
+            }
+        }
+        if dp[target] == target {
+            return true
+        }
+    }
+
+    return false
+}
+```
+
+```javascript tab="JavaScript"
+var canPartition = function(nums) {
+  const sum = nums.reduce((acc, x) => acc + x, 0);
+
+  if (sum % 2 !== 0) {
+    return false;
+  }
+
+  const target = sum / 2;
+  const dp = new Array(target + 1).fill(0);
+
+  for (const num of nums) {
+    for (let j = target; j >= num; --j) {
+      dp[j] = Math.max(dp[j], dp[j - num] + num);
+    }
+    if (dp[target] === target) {
+      return true;
+    }
+  }
+
+  return false;
+};
+```
+
+```typescript tab="TypeScript"
+function canPartition(nums: number[]): boolean {
+  const sum = nums.reduce((acc, x) => acc + x, 0);
+
+  if (sum % 2 !== 0) {
+    return false;
+  }
+
+  const target = sum / 2;
+  const dp: number[] = new Array(target + 1).fill(0);
+
+  for (const num of nums) {
+    for (let j = target; j >= num; --j) {
+      dp[j] = Math.max(dp[j], dp[j - num] + num);
+    }
+    if (dp[target] === target) {
+      return true;
+    }
+  }
+
+  return false;
+}
+```

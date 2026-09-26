@@ -1,0 +1,868 @@
+---
+title: 加油站
+summary: 把每个站点压缩为净油量 gas[i] - cost[i]，先用总和判断是否存在解，再用“失败区间整体淘汰”在线性时间内定位唯一可行起点。
+description: LeetCode 134 加油站。系统讲解暴力模拟、前缀和视角、区间淘汰贪心、正确性证明、与最大子序和的联系、常见错误以及多语言实现。
+---
+
+
+# 134. 加油站
+
+[LeetCode 134. 加油站](https://leetcode.cn/problems/gas-station/)
+
+环形公路上有 $n$ 个加油站：
+
+- 到达第 $i$ 个站点可以获得 `gas[i]` 单位汽油；
+- 从第 $i$ 个站点开到第 $(i+1)\bmod n$ 个站点需要消耗 `cost[i]` 单位汽油；
+- 初始油箱为空，容量无限。
+
+要求找到一个起点，使汽车能够沿环路完整行驶一周；若不存在，返回 `-1`。
+
+题目保证：如果存在答案，则答案唯一。
+
+## 1. 先把题目压缩成“净收益数组”
+
+对每个站点定义：
+
+$$
+diff[i]=gas[i]-cost[i]
+$$
+
+它表示从第 $i$ 个站点出发并驶向下一站以后，油箱净变化量。
+
+于是整道题可以完全改写为：
+
+> 在环形数组 `diff` 中找一个起点，使得从这个起点开始累加一整圈时，任意前缀和都不小于 $0$。
+
+例如：
+
+```text
+gas  = [1, 2, 3, 4, 5]
+cost = [3, 4, 5, 1, 2]
+```
+
+得到：
+
+```text
+diff = [-2, -2, -2, 3, 3]
+```
+
+若从下标 $3$ 开始：
+
+```text
+3 -> 3 -> -2 -> -2 -> -2
+```
+
+累计油量变化为：
+
+```text
+3, 6, 4, 2, 0
+```
+
+始终没有跌到负数，因此下标 $3$ 是合法起点。
+
+<Callout type="info" title="第一步抽象非常关键">
+原题的 `gas` 和 `cost` 看起来有两组数据，但真正影响可行性的只有差值 `gas[i] - cost[i]`。很多贪心题都需要先把“收入”和“支出”压成净贡献。
+</Callout>
+
+## 2. 整体是否有解，只看总净油量
+
+绕完整个环路以后，油箱总变化量一定是：
+
+$$
+\sum_{i=0}^{n-1}(gas[i]-cost[i])
+$$
+
+也就是：
+
+$$
+total=\sum gas[i]-\sum cost[i]
+$$
+
+如果：
+
+$$
+total<0
+$$
+
+说明全程总汽油都不够支付总消耗，无论从哪里出发都不可能完成一圈。
+
+因此：
+
+$$
+\boxed{total<0\Rightarrow \text{无解}}
+$$
+
+反过来，如果：
+
+$$
+total\ge 0
+$$
+
+本题一定存在至少一个可行起点。
+
+所以问题被拆成两个部分：
+
+1. **总量条件**：判断是否存在解；
+2. **局部条件**：找到哪个位置可以作为起点。
+
+## 3. 暴力解法：枚举每一个起点
+
+最直接的方法是把每个站点都当作起点模拟一圈。
+
+对于起点 `start`：
+
+```cpp
+fuel += gas[i] - cost[i];
+```
+
+只要中途出现：
+
+```cpp
+fuel < 0
+```
+
+这个起点就失败。
+
+若一圈都没有失败，则返回该起点。
+
+完整写法：
+
+```cpp
+class Solution {
+public:
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+        const int n = static_cast<int>(gas.size());
+
+        for (int start = 0; start < n; ++start) {
+            int fuel = 0;
+            bool ok = true;
+
+            for (int step = 0; step < n; ++step) {
+                int i = (start + step) % n;
+                fuel += gas[i] - cost[i];
+
+                if (fuel < 0) {
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok) {
+                return start;
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n^2)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+暴力法的问题不是“模拟环形”本身，而是大量区间被重复检查。
+
+真正的贪心优化来自一个问题：
+
+> 如果从某个起点出发，在位置 $i$ 失败了，那么能不能一次淘汰一整段起点？
+
+答案是可以。
+
+## 4. 贪心核心：一次失败可以淘汰整个区间
+
+假设当前尝试的起点是 `start`。
+
+从 `start` 一直累加到位置 $i$：
+
+$$
+curSum=\sum_{k=start}^{i}diff[k]
+$$
+
+如果第一次出现：
+
+$$
+curSum<0
+$$
+
+说明从 `start` 出发一定无法到达 $i+1$。
+
+此时最重要的结论是：
+
+> **不仅 `start` 不行，区间 $[start,i]$ 中的任何位置都不可能成为新的合法起点。**
+
+所以可以直接令：
+
+```cpp
+start = i + 1;
+curSum = 0;
+```
+
+而不需要逐个尝试：
+
+```text
+start + 1
+start + 2
+...
+i
+```
+
+![加油站：当前累计油量为负后直接淘汰一整个起点区间](https://file1.kamacoder.com/i/algo/20230117165628.png)
+
+这就是本题从 $O(n^2)$ 降到 $O(n)$ 的关键。
+
+## 5. 为什么区间 `[start, i]` 中的其他位置也一定不行
+
+这是本题最应该真正理解的证明。
+
+设当前起点为 $s$，并且第一次在 $i$ 处失败：
+
+$$
+\sum_{k=s}^{i}diff[k]<0
+$$
+
+因为 $i$ 是第一次失败的位置，所以对于任意：
+
+$$
+j\in[s,i]
+$$
+
+在到达 $j$ 之前，从 $s$ 累积的油量都没有变成负数：
+
+$$
+\sum_{k=s}^{j-1}diff[k]\ge 0
+$$
+
+现在把总区间拆开：
+
+$$
+\sum_{k=s}^{i}diff[k]
+=
+\sum_{k=s}^{j-1}diff[k]
++
+\sum_{k=j}^{i}diff[k]
+$$
+
+左边小于 $0$，第一部分大于等于 $0$。
+
+因此必有：
+
+$$
+\sum_{k=j}^{i}diff[k]<0
+$$
+
+这意味着：
+
+> 如果直接从 $j$ 出发，初始油量仍然是 $0$，那么走到 $i$ 时照样会断油。
+
+于是所有：
+
+$$
+j\in[s,i]
+$$
+
+都不可能成为答案。
+
+所以失败后直接跳到：
+
+$$
+i+1
+$$
+
+不会错过任何可行解。
+
+![从区间内部重新出发仍然会在当前失败点之前耗尽油量](https://file1.kamacoder.com/i/algo/20230117170703.png)
+
+<Callout type="warning" title="证明里有一个容易忽略的前提">
+“区间内部任意起点都失败”的证明依赖于 $i$ 是当前候选起点第一次使 `curSum < 0` 的位置。也正因为代码一旦失败就立即重置，才始终满足这个条件。
+</Callout>
+
+## 6. 贪心策略完整推导
+
+现在可以把算法写成三句话。
+
+### 累加当前候选起点的净油量
+
+```cpp
+curSum += gas[i] - cost[i];
+```
+
+同时累加全局总净油量：
+
+```cpp
+totalSum += gas[i] - cost[i];
+```
+
+### 当前区间失败时整体淘汰
+
+如果：
+
+```cpp
+curSum < 0
+```
+
+则：
+
+```cpp
+start = i + 1;
+curSum = 0;
+```
+
+因为区间 `[start, i]` 中所有位置都已经被证明不可能成为答案。
+
+### 最后用总净油量判断是否存在解
+
+若：
+
+```cpp
+totalSum < 0
+```
+
+返回 `-1`。
+
+否则返回最终留下的 `start`。
+
+## 7. 标准线性解法
+
+```cpp
+class Solution {
+public:
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+        int start = 0;
+        int curSum = 0;
+        int totalSum = 0;
+
+        for (int i = 0; i < static_cast<int>(gas.size()); ++i) {
+            const int diff = gas[i] - cost[i];
+
+            curSum += diff;
+            totalSum += diff;
+
+            if (curSum < 0) {
+                start = i + 1;
+                curSum = 0;
+            }
+        }
+
+        if (totalSum < 0) {
+            return -1;
+        }
+
+        return start;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+## 8. 用一个完整例子走一遍
+
+仍然考虑：
+
+```text
+gas  = [1, 2, 3, 4, 5]
+cost = [3, 4, 5, 1, 2]
+diff = [-2, -2, -2, 3, 3]
+```
+
+初始化：
+
+```text
+start = 0
+curSum = 0
+totalSum = 0
+```
+
+### 扫描下标 0
+
+$$
+curSum=0+(-2)=-2<0
+$$
+
+所以：
+
+```text
+start = 1
+curSum = 0
+```
+
+下标 $0$ 被淘汰。
+
+### 扫描下标 1
+
+$$
+curSum=-2<0
+$$
+
+所以：
+
+```text
+start = 2
+curSum = 0
+```
+
+### 扫描下标 2
+
+再次失败：
+
+```text
+start = 3
+curSum = 0
+```
+
+### 扫描下标 3、4
+
+$$
+curSum=3+3=6
+$$
+
+没有再失败。
+
+同时：
+
+$$
+totalSum=-2-2-2+3+3=0
+$$
+
+总净油量不小于 $0$，所以存在解。
+
+最终：
+
+```text
+start = 3
+```
+
+## 9. 为什么最后不用真的从 `start` 再模拟一圈
+
+很多人会担心：
+
+> 扫描只走了数组从左到右的一遍，最终 `start` 后面的区间可行，但从数组末尾绕回前面以后会不会又断油？
+
+不需要重新模拟。
+
+设最终候选起点为 $s$。
+
+算法已经保证从 $s$ 到数组末尾时，所有途中累计和都不小于 $0$。
+
+并且全局：
+
+$$
+totalSum\ge0
+$$
+
+前面被淘汰的部分虽然整体可能为负，但最终从 $s$ 到末尾积累下来的油量，结合全局总和，足以补上绕回后的亏空。
+
+从另一种角度看：
+
+- 若 `totalSum < 0`，任何起点都无解；
+- 若 `totalSum >= 0`，线性扫描过程中每次失败都严格淘汰不可能的起点；
+- 最终没有被淘汰的候选起点，就是可行起点。
+
+因此无需第二遍验证。
+
+## 10. 前缀和视角：答案其实在“最低谷”之后
+
+定义从下标 $0$ 开始的前缀和：
+
+$$
+prefix[i]=\sum_{k=0}^{i}diff[k]
+$$
+
+如果总和：
+
+$$
+prefix[n-1]\ge0
+$$
+
+那么一个合法起点可以理解为：
+
+> 选择全局前缀和最低点之后的位置作为起点。
+
+因为从最低谷后重新把油箱视作 $0$，之后所有相对前缀和都不会跌破起点水平。
+
+这与线性贪心中的：
+
+```cpp
+if (curSum < 0) {
+    start = i + 1;
+    curSum = 0;
+}
+```
+
+本质一致。
+
+一个是在显式维护前缀最低点，另一个是在每次局部累计跌破 $0$ 时直接把起点移动到失败区间之后。
+
+## 11. 与最大子序和的联系
+
+本题的这段代码：
+
+```cpp
+if (curSum < 0) {
+    start = i + 1;
+    curSum = 0;
+}
+```
+
+和最大子序和中的：
+
+```cpp
+if (sum < 0) {
+    sum = 0;
+}
+```
+
+非常相似。
+
+共同逻辑是：
+
+> **一个已经产生负贡献的前缀，不值得继续带到未来。**
+
+但两题目标不同：
+
+- 最大子序和是在寻找收益最大的连续区间；
+- 加油站是在寻找一个环形起点，并且额外依赖全局总和判断整圈是否可行。
+
+所以代码形态相似，证明对象却不完全相同。
+
+## 12. “另一种全局思路”为什么也能做
+
+还可以先计算从 $0$ 出发时的所有前缀和，记录最低值：
+
+$$
+minPrefix
+$$
+
+若总净油量小于 $0$，直接无解。
+
+若最低前缀和非负，则从 $0$ 出发即可。
+
+否则可以从数组末尾向前累加，找到能够把最低亏空补平的位置。
+
+这种方法也是 $O(n)$，但它更像直接利用前缀和整体性质构造答案。
+
+相比之下，学习贪心时更推荐“失败区间整体淘汰”的写法，因为局部决策和正确性证明更清晰。
+
+## 13. 常见错误
+
+### 错误 1：只判断总油量够不够
+
+$$
+\sum gas[i]\ge\sum cost[i]
+$$
+
+只能说明存在某个起点，不代表任意起点都可以。
+
+例如：
+
+```text
+diff = [-2, -2, -2, 3, 3]
+```
+
+总和为 $0$，但从下标 $0$ 开始立即失败。
+
+### 错误 2：`curSum < 0` 时只淘汰当前位置
+
+真正可以淘汰的是当前候选区间：
+
+$$
+[start,i]
+$$
+
+因此下一个候选起点应直接是：
+
+$$
+i+1
+$$
+
+### 错误 3：把 `curSum` 和 `totalSum` 混在一起
+
+两者职责完全不同：
+
+- `curSum`：当前候选起点是否还能继续；
+- `totalSum`：整个环路是否存在解。
+
+`curSum` 可以被重置，`totalSum` 绝不能重置。
+
+### 错误 4：失败后忘记把 `curSum` 清零
+
+起点已经换成 $i+1$，新的候选区间必须重新从 $0$ 开始累计。
+
+### 错误 5：试图维护真正的油箱过程，却没有先做差值
+
+使用：
+
+$$
+diff[i]=gas[i]-cost[i]
+$$
+
+之后，所有逻辑都会变成简单的一维前缀和问题。
+
+## 14. 一页记忆模板
+
+```text
+1. diff[i] = gas[i] - cost[i]
+2. totalSum += diff[i]       // 整体是否有解
+3. curSum += diff[i]         // 当前候选起点是否可行
+4. 如果 curSum < 0：
+      start = i + 1
+      curSum = 0
+5. totalSum < 0 -> -1
+6. 否则返回 start
+```
+
+对应的两个核心结论：
+
+$$
+\boxed{\sum diff[i]<0\Rightarrow\text{无解}}
+$$
+
+$$
+\boxed{\sum_{k=start}^{i}diff[k]<0\Rightarrow[start,i]\text{ 全部不能做起点}}
+$$
+
+<Callout type="info" title="这道题真正的贪心点">
+不是“选油最多的站”或“选净收益最大的站”，而是每次出现失败时，利用数学关系一次性排除一整段不可能的候选起点。
+</Callout>
+
+## 15. 其他语言版本
+
+下面均采用推荐的 $O(n)$ 区间淘汰贪心。
+
+
+
+```java tab="Java"
+class Solution {
+    public int canCompleteCircuit(int[] gas, int[] cost) {
+        int start = 0;
+        int curSum = 0;
+        int totalSum = 0;
+
+        for (int i = 0; i < gas.length; i++) {
+            int diff = gas[i] - cost[i];
+            curSum += diff;
+            totalSum += diff;
+
+            if (curSum < 0) {
+                start = i + 1;
+                curSum = 0;
+            }
+        }
+
+        return totalSum < 0 ? -1 : start;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def canCompleteCircuit(self, gas: list[int], cost: list[int]) -> int:
+        start = 0
+        cur_sum = 0
+        total_sum = 0
+
+        for i in range(len(gas)):
+            diff = gas[i] - cost[i]
+            cur_sum += diff
+            total_sum += diff
+
+            if cur_sum < 0:
+                start = i + 1
+                cur_sum = 0
+
+        return -1 if total_sum < 0 else start
+```
+
+
+
+```go tab="Go"
+func canCompleteCircuit(gas []int, cost []int) int {
+    start := 0
+    curSum := 0
+    totalSum := 0
+
+    for i := 0; i < len(gas); i++ {
+        diff := gas[i] - cost[i]
+        curSum += diff
+        totalSum += diff
+
+        if curSum < 0 {
+            start = i + 1
+            curSum = 0
+        }
+    }
+
+    if totalSum < 0 {
+        return -1
+    }
+    return start
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn can_complete_circuit(gas: Vec<i32>, cost: Vec<i32>) -> i32 {
+        let mut start = 0usize;
+        let mut cur_sum = 0;
+        let mut total_sum = 0;
+
+        for i in 0..gas.len() {
+            let diff = gas[i] - cost[i];
+            cur_sum += diff;
+            total_sum += diff;
+
+            if cur_sum < 0 {
+                start = i + 1;
+                cur_sum = 0;
+            }
+        }
+
+        if total_sum < 0 {
+            -1
+        } else {
+            start as i32
+        }
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var canCompleteCircuit = function(gas, cost) {
+    let start = 0;
+    let curSum = 0;
+    let totalSum = 0;
+
+    for (let i = 0; i < gas.length; i++) {
+        const diff = gas[i] - cost[i];
+        curSum += diff;
+        totalSum += diff;
+
+        if (curSum < 0) {
+            start = i + 1;
+            curSum = 0;
+        }
+    }
+
+    return totalSum < 0 ? -1 : start;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function canCompleteCircuit(gas: number[], cost: number[]): number {
+    let start = 0;
+    let curSum = 0;
+    let totalSum = 0;
+
+    for (let i = 0; i < gas.length; i++) {
+        const diff = gas[i] - cost[i];
+        curSum += diff;
+        totalSum += diff;
+
+        if (curSum < 0) {
+            start = i + 1;
+            curSum = 0;
+        }
+    }
+
+    return totalSum < 0 ? -1 : start;
+}
+```
+
+
+
+```c tab="C"
+int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
+    int start = 0;
+    int curSum = 0;
+    int totalSum = 0;
+
+    for (int i = 0; i < gasSize; ++i) {
+        int diff = gas[i] - cost[i];
+        curSum += diff;
+        totalSum += diff;
+
+        if (curSum < 0) {
+            start = i + 1;
+            curSum = 0;
+        }
+    }
+
+    return totalSum < 0 ? -1 : start;
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def canCompleteCircuit(gas: Array[Int], cost: Array[Int]): Int = {
+    var start = 0
+    var curSum = 0
+    var totalSum = 0
+
+    for (i <- gas.indices) {
+      val diff = gas(i) - cost(i)
+      curSum += diff
+      totalSum += diff
+
+      if (curSum < 0) {
+        start = i + 1
+        curSum = 0
+      }
+    }
+
+    if (totalSum < 0) -1 else start
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    public int CanCompleteCircuit(int[] gas, int[] cost) {
+        int start = 0;
+        int curSum = 0;
+        int totalSum = 0;
+
+        for (int i = 0; i < gas.Length; i++) {
+            int diff = gas[i] - cost[i];
+            curSum += diff;
+            totalSum += diff;
+
+            if (curSum < 0) {
+                start = i + 1;
+                curSum = 0;
+            }
+        }
+
+        return totalSum < 0 ? -1 : start;
+    }
+}
+```

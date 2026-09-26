@@ -1,0 +1,827 @@
+---
+title: 最大二叉树：从区间构造到笛卡尔树
+---
+
+# 最大二叉树：从区间构造到笛卡尔树
+
+> LeetCode 654 · Maximum Binary Tree
+
+[题目链接](https://leetcode.cn/problems/maximum-binary-tree/)
+
+给定一个不含重复元素的整数数组 `nums`，按下面的规则构造一棵二叉树：
+
+1. 当前区间中的最大值作为根节点；
+2. 最大值左边的子数组递归构造左子树；
+3. 最大值右边的子数组递归构造右子树。
+
+![最大二叉树示例](https://file1.kamacoder.com/i/algo/20210204154534796.png)
+
+这道题表面上是“找最大值”，真正值得学习的却是一个非常典型的**区间构树模型**。
+
+## 1. 先观察构造规则
+
+假设：
+
+```text
+nums = [3, 2, 1, 6, 0, 5]
+```
+
+整个数组的最大值是 `6`，因此根节点一定是：
+
+```text
+6
+```
+
+数组被 `6` 分成：
+
+```text
+左区间：[3, 2, 1]
+右区间：[0, 5]
+```
+
+所以：
+
+```text
+            6
+          /   \
+ [3,2,1]       [0,5]
+```
+
+接下来对左右区间重复完全相同的规则。
+
+![最大二叉树构造过程](https://file1.kamacoder.com/i/algo/654.%E6%9C%80%E5%A4%A7%E4%BA%8C%E5%8F%89%E6%A0%91.gif)
+
+<Callout title="构造二叉树通常天然对应前序过程" type="info">
+
+每个递归层次都按照：
+
+```text
+先创建当前根
+再构造左子树
+最后构造右子树
+```
+
+执行。
+
+这与“根 → 左 → 右”的前序遍历顺序天然一致。
+
+</Callout>
+
+## 2. 递归函数应该表示什么
+
+如果直接传整个子数组，代码虽然直观，但每层都可能创建新的数组。
+
+更推荐定义：
+
+```cpp
+TreeNode* build(const vector<int>& nums, int left, int right)
+```
+
+其语义是：
+
+> 使用原数组的左闭右开区间 `nums[left, right)` 构造最大二叉树，并返回根节点。
+
+于是空区间非常自然：
+
+```cpp
+if (left >= right) return nullptr;
+```
+
+这比“提前判断左区间是否存在，再决定是否递归”更统一。
+
+## 3. 单层递归到底做什么
+
+对当前区间 `[left, right)`：
+
+### 1. 找最大值的位置
+
+```cpp
+int maxIndex = left;
+for (int i = left + 1; i < right; ++i) {
+    if (nums[i] > nums[maxIndex]) {
+        maxIndex = i;
+    }
+}
+```
+
+### 2. 创建当前根节点
+
+```cpp
+TreeNode* root = new TreeNode(nums[maxIndex]);
+```
+
+### 3. 最大值左侧构造左子树
+
+```cpp
+root->left = build(nums, left, maxIndex);
+```
+
+### 4. 最大值右侧构造右子树
+
+```cpp
+root->right = build(nums, maxIndex + 1, right);
+```
+
+### 5. 返回根节点
+
+```cpp
+return root;
+```
+
+完整逻辑几乎就是题目定义的直接翻译。
+
+## 4. 推荐的递归写法
+
+```cpp
+class Solution {
+private:
+    TreeNode* build(const vector<int>& nums, int left, int right) {
+        if (left >= right) return nullptr;
+
+        int maxIndex = left;
+        for (int i = left + 1; i < right; ++i) {
+            if (nums[i] > nums[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+
+        TreeNode* root = new TreeNode(nums[maxIndex]);
+        root->left = build(nums, left, maxIndex);
+        root->right = build(nums, maxIndex + 1, right);
+
+        return root;
+    }
+
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        return build(nums, 0, nums.size());
+    }
+};
+```
+
+这里没有创建任何新的 `vector`，只是不断改变左右边界。
+
+<Callout title="为什么允许空区间进入递归反而更好写" type="idea">
+
+如果不允许空区间进入递归，就要在每次调用前写：
+
+```cpp
+if (maxIndex > left) ...
+if (maxIndex + 1 < right) ...
+```
+
+如果允许空区间进入，只需要统一的终止条件：
+
+```cpp
+if (left >= right) return nullptr;
+```
+
+递归调用本身就可以无条件写出。
+
+这是一种很常用的递归代码简化技巧。
+
+</Callout>
+
+## 5. 为什么不要反复切出新数组
+
+一个直观版本可能写成：
+
+```cpp
+vector<int> leftNums(nums.begin(), nums.begin() + maxIndex);
+vector<int> rightNums(nums.begin() + maxIndex + 1, nums.end());
+```
+
+然后对子数组递归。
+
+逻辑没有问题，但会产生额外的数组复制。
+
+而使用下标区间：
+
+```text
+[left, maxIndex)
+[maxIndex + 1, right)
+```
+
+既不改变原数组，也不产生新的数组容器。
+
+这和上一节“从遍历序列构造二叉树”的优化思想完全一样：
+
+```text
+构造类递归 + 连续数组
+→ 优先考虑传区间，而不是复制子数组
+```
+
+## 6. 手动走一遍递归
+
+数组：
+
+```text
+[3, 2, 1, 6, 0, 5]
+```
+
+第一层：
+
+```text
+区间 [0, 6)
+最大值 6，下标 3
+```
+
+得到：
+
+```text
+root = 6
+left  = [0, 3) = [3,2,1]
+right = [4, 6) = [0,5]
+```
+
+处理左区间 `[3,2,1]`：
+
+```text
+最大值 = 3
+```
+
+`3` 左边为空，右边是 `[2,1]`。
+
+继续：
+
+```text
+[2,1] → 根为 2 → 右边为 [1]
+```
+
+处理右区间 `[0,5]`：
+
+```text
+最大值 = 5
+```
+
+`5` 左边是 `[0]`，右边为空。
+
+最终结构：
+
+```text
+        6
+      /   \
+     3     5
+      \   /
+       2 0
+        \
+         1
+```
+
+## 7. 时间复杂度为什么不是固定 $O(n\log n)$
+
+每个递归区间都需要线性扫描以寻找最大值。
+
+如果最大值总在区间中间附近，递归类似二分：
+
+$$
+T(n)=2T(n/2)+O(n)
+$$
+
+整体约为：
+
+$$
+O(n\log n)
+$$
+
+但最坏情况非常重要。
+
+例如输入严格递增：
+
+```text
+[1, 2, 3, 4, 5]
+```
+
+每一次最大值都在最右端：
+
+```text
+第一次扫描 5 个
+第二次扫描 4 个
+第三次扫描 3 个
+……
+```
+
+总工作量：
+
+$$
+n+(n-1)+\cdots+1=O(n^2)
+$$
+
+因此这个递归实现的最坏时间复杂度是：
+
+$$
+O(n^2)
+$$
+
+递归栈深度为树高 $h$：
+
+$$
+O(h)
+$$
+
+最坏退化树中：
+
+$$
+h=n
+$$
+
+所以最坏递归栈空间也是 $O(n)$。
+
+## 8. 这其实是一棵笛卡尔树
+
+最大二叉树本质上属于 **Cartesian Tree（笛卡尔树）**。
+
+它同时满足两个性质：
+
+1. **中序遍历顺序与原数组顺序一致**；
+2. 父节点值大于子节点值，即满足最大堆式的大小关系。
+
+对于：
+
+```text
+nums = [3, 2, 1, 6, 0, 5]
+```
+
+构造出的树中序遍历仍然是：
+
+```text
+3, 2, 1, 6, 0, 5
+```
+
+而每个父节点又都比自己的孩子大。
+
+这也是为什么这道题可以进一步用**单调栈**优化到 $O(n)$。
+
+## 9. 进阶：为什么单调栈能做到 $O(n)$
+
+递归做法慢的地方只有一个：
+
+```text
+每个区间都重新扫描一遍最大值
+```
+
+如果从左到右扫描数组，并维护一个**严格递减的节点栈**，就能在每个元素到来时确定局部父子关系。
+
+对当前值 `x`：
+
+```text
+1. 只要栈顶值 < x，就不断弹出
+2. 最后一个被弹出的节点成为 x 的左孩子
+3. 如果栈仍不空，当前 x 成为栈顶节点的右孩子
+4. x 入栈
+```
+
+为什么？
+
+- 被 `x` 弹出的节点都比 `x` 小；
+- 其中最后弹出的那个节点，是离 `x` 最近、同时应该被 `x` 支配的左侧区间根；
+- 弹栈结束后留下的栈顶，是 `x` 左侧第一个比 `x` 大的节点，因此它应当成为 `x` 的父辈，并让 `x` 挂到自己的右侧。
+
+### C++ 单调栈实现
+
+```cpp
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        vector<TreeNode*> st;
+
+        for (int value : nums) {
+            TreeNode* current = new TreeNode(value);
+
+            while (!st.empty() && st.back()->val < value) {
+                current->left = st.back();
+                st.pop_back();
+            }
+
+            if (!st.empty()) {
+                st.back()->right = current;
+            }
+
+            st.push_back(current);
+        }
+
+        return st.front();
+    }
+};
+```
+
+每个节点最多：
+
+```text
+入栈一次
+出栈一次
+```
+
+因此总时间复杂度为：
+
+$$
+O(n)
+$$
+
+额外空间为：
+
+$$
+O(n)
+$$
+
+<Callout title="学习优先级" type="warning">
+
+第一次学习本题时，先把**递归区间构造**掌握牢固。
+
+单调栈属于进阶优化。它很有价值，但不应该代替你理解：
+
+```text
+最大值作为根
+左区间递归构左子树
+右区间递归构右子树
+```
+
+这个最核心的树构造模型。
+
+</Callout>
+
+## 10. 本题与“遍历序列构造二叉树”的联系
+
+两类题看起来不一样，实际上共享同一个骨架：
+
+### 遍历序列构树
+
+```text
+确定根：前序首元素 / 后序末元素
+确定分割点：根在中序中的位置
+左区间 → 左子树
+右区间 → 右子树
+```
+
+### 最大二叉树
+
+```text
+确定根：当前区间最大值
+确定分割点：最大值的下标
+左区间 → 左子树
+右区间 → 右子树
+```
+
+统一抽象就是：
+
+$$
+Tree(L,R)=Root(k)+Tree(L,k)+Tree(k+1,R)
+$$
+
+其中 `k` 是当前区间里由题目规则确定的分割位置。
+
+## 11. 常见错误
+
+<Accordions type="multiple">
+<Accordion title="错误 1：maxValue 初始化为 0">
+
+如果题目允许负数，写：
+
+```cpp
+int maxValue = 0;
+```
+
+会出错。
+
+更稳妥的方式是直接令：
+
+```cpp
+int maxIndex = left;
+```
+
+后续始终比较 `nums[i]` 与 `nums[maxIndex]`。
+
+</Accordion>
+<Accordion title="错误 2：左右区间把最大值重复包含进去">
+
+若使用左闭右开区间 `[left, right)`，正确递归是：
+
+```text
+左：[left, maxIndex)
+右：[maxIndex + 1, right)
+```
+
+`maxIndex` 对应节点已经成为当前根，不能再进入子树。
+
+</Accordion>
+<Accordion title="错误 3：为避免空子树写大量 if">
+
+完全可以允许空区间进入递归：
+
+```cpp
+if (left >= right) return nullptr;
+```
+
+这样主逻辑更统一，也更不容易遗漏边界。
+
+</Accordion>
+<Accordion title="错误 4：误判复杂度为 O(n)">
+
+虽然每个节点只创建一次，但“寻找区间最大值”会重复扫描数组。
+
+递归扫描版本最坏是 $O(n^2)$；只有借助单调栈等方式才能保证 $O(n)$。
+
+</Accordion>
+</Accordions>
+
+## 12. 一句话模板
+
+遇到这类“给定数组规则，构造二叉树”的题，可以先写出下面这个骨架：
+
+```cpp
+TreeNode* build(int left, int right) {
+    if (left >= right) return nullptr;
+
+    int k = 找到当前区间的根位置;
+    TreeNode* root = new TreeNode(nums[k]);
+
+    root->left = build(left, k);
+    root->right = build(k + 1, right);
+
+    return root;
+}
+```
+
+真正变化的只是：
+
+```text
+“如何确定 k”
+```
+
+一旦这一点清楚，构树递归往往就已经完成了一大半。
+
+## 其他语言版本
+
+以下版本统一采用“原数组 + 左闭右开区间”的递归写法，避免复制子数组。
+
+
+
+```java tab="Java"
+class Solution {
+    public TreeNode constructMaximumBinaryTree(int[] nums) {
+        return build(nums, 0, nums.length);
+    }
+
+    private TreeNode build(int[] nums, int left, int right) {
+        if (left >= right) return null;
+
+        int maxIndex = left;
+        for (int i = left + 1; i < right; i++) {
+            if (nums[i] > nums[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+
+        TreeNode root = new TreeNode(nums[maxIndex]);
+        root.left = build(nums, left, maxIndex);
+        root.right = build(nums, maxIndex + 1, right);
+        return root;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
+        def build(left: int, right: int) -> Optional[TreeNode]:
+            if left >= right:
+                return None
+
+            max_index = left
+            for i in range(left + 1, right):
+                if nums[i] > nums[max_index]:
+                    max_index = i
+
+            root = TreeNode(nums[max_index])
+            root.left = build(left, max_index)
+            root.right = build(max_index + 1, right)
+            return root
+
+        return build(0, len(nums))
+```
+
+
+
+```go tab="Go"
+func constructMaximumBinaryTree(nums []int) *TreeNode {
+    var build func(int, int) *TreeNode
+
+    build = func(left, right int) *TreeNode {
+        if left >= right {
+            return nil
+        }
+
+        maxIndex := left
+        for i := left + 1; i < right; i++ {
+            if nums[i] > nums[maxIndex] {
+                maxIndex = i
+            }
+        }
+
+        root := &TreeNode{Val: nums[maxIndex]}
+        root.Left = build(left, maxIndex)
+        root.Right = build(maxIndex+1, right)
+        return root
+    }
+
+    return build(0, len(nums))
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var constructMaximumBinaryTree = function(nums) {
+  const build = (left, right) => {
+    if (left >= right) return null;
+
+    let maxIndex = left;
+    for (let i = left + 1; i < right; i++) {
+      if (nums[i] > nums[maxIndex]) {
+        maxIndex = i;
+      }
+    }
+
+    const root = new TreeNode(nums[maxIndex]);
+    root.left = build(left, maxIndex);
+    root.right = build(maxIndex + 1, right);
+    return root;
+  };
+
+  return build(0, nums.length);
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
+  function build(left: number, right: number): TreeNode | null {
+    if (left >= right) return null;
+
+    let maxIndex = left;
+    for (let i = left + 1; i < right; i++) {
+      if (nums[i] > nums[maxIndex]) {
+        maxIndex = i;
+      }
+    }
+
+    const root = new TreeNode(nums[maxIndex]);
+    root.left = build(left, maxIndex);
+    root.right = build(maxIndex + 1, right);
+    return root;
+  }
+
+  return build(0, nums.length);
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    private var nums: [Int] = []
+
+    func constructMaximumBinaryTree(_ nums: [Int]) -> TreeNode? {
+        self.nums = nums
+        return build(0, nums.count)
+    }
+
+    private func build(_ left: Int, _ right: Int) -> TreeNode? {
+        if left >= right { return nil }
+
+        var maxIndex = left
+        if left + 1 < right {
+            for i in (left + 1)..<right {
+                if nums[i] > nums[maxIndex] {
+                    maxIndex = i
+                }
+            }
+        }
+
+        let root = TreeNode(nums[maxIndex])
+        root.left = build(left, maxIndex)
+        root.right = build(maxIndex + 1, right)
+        return root
+    }
+}
+```
+
+
+
+```c tab="C"
+static struct TreeNode* build(int* nums, int left, int right) {
+    if (left >= right) return NULL;
+
+    int maxIndex = left;
+    for (int i = left + 1; i < right; ++i) {
+        if (nums[i] > nums[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+
+    struct TreeNode* root = malloc(sizeof(struct TreeNode));
+    root->val = nums[maxIndex];
+    root->left = build(nums, left, maxIndex);
+    root->right = build(nums, maxIndex + 1, right);
+    return root;
+}
+
+struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize) {
+    return build(nums, 0, numsSize);
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def constructMaximumBinaryTree(nums: Array[Int]): TreeNode = {
+    def build(left: Int, right: Int): TreeNode = {
+      if (left >= right) return null
+
+      var maxIndex = left
+      var i = left + 1
+      while (i < right) {
+        if (nums(i) > nums(maxIndex)) {
+          maxIndex = i
+        }
+        i += 1
+      }
+
+      val root = new TreeNode(nums(maxIndex))
+      root.left = build(left, maxIndex)
+      root.right = build(maxIndex + 1, right)
+      root
+    }
+
+    build(0, nums.length)
+  }
+}
+```
+
+
+
+```rust tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn construct_maximum_binary_tree(
+        nums: Vec<i32>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        fn build(
+            nums: &[i32],
+            left: usize,
+            right: usize,
+        ) -> Option<Rc<RefCell<TreeNode>>> {
+            if left >= right {
+                return None;
+            }
+
+            let mut max_index = left;
+            for i in left + 1..right {
+                if nums[i] > nums[max_index] {
+                    max_index = i;
+                }
+            }
+
+            let mut root = TreeNode::new(nums[max_index]);
+            root.left = build(nums, left, max_index);
+            root.right = build(nums, max_index + 1, right);
+
+            Some(Rc::new(RefCell::new(root)))
+        }
+
+        build(&nums, 0, nums.len())
+    }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    public TreeNode ConstructMaximumBinaryTree(int[] nums) {
+        return Build(nums, 0, nums.Length);
+    }
+
+    private TreeNode Build(int[] nums, int left, int right) {
+        if (left >= right) return null;
+
+        int maxIndex = left;
+        for (int i = left + 1; i < right; i++) {
+            if (nums[i] > nums[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+
+        TreeNode root = new TreeNode(nums[maxIndex]);
+        root.left = Build(nums, left, maxIndex);
+        root.right = Build(nums, maxIndex + 1, right);
+        return root;
+    }
+}
+```

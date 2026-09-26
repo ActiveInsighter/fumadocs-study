@@ -1,0 +1,1327 @@
+---
+title: 三数之和
+description: 通过排序与双指针解决去重型三数求和问题，重点理解去重边界、指针移动依据以及它与两数之和哈希解法的差异。
+---
+
+# 15. 三数之和
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/3sum/">
+    LeetCode 15 · 3Sum
+  </Card>
+</Cards>
+
+给定整数数组 `nums`，找出所有满足：
+
+$$
+a+b+c=0
+$$
+
+且下标互不相同的三元组。
+
+要求：
+
+> 答案中不能包含重复三元组。
+
+例如：
+
+```text
+nums = [-1, 0, 1, 2, -1, -4]
+```
+
+排序后：
+
+```text
+[-4, -1, -1, 0, 1, 2]
+```
+
+答案：
+
+```text
+[
+  [-1, -1, 2],
+  [-1, 0, 1]
+]
+```
+
+<Callout type="info" title="本题为什么不优先使用哈希">
+虽然它被放在哈希表章节中，但本题真正更自然的解法是：
+
+```text
+排序 + 双指针
+```
+
+因为核心难点不只是“找到三个数”，更重要的是**稳定、清晰地去掉重复三元组**。
+</Callout>
+
+---
+
+## 1. 暴力枚举
+
+最直接的方法是三层循环：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = i + 1; j < n; ++j) {
+        for (int k = j + 1; k < n; ++k) {
+            if (nums[i] + nums[j] + nums[k] == 0) {
+                ...
+            }
+        }
+    }
+}
+```
+
+时间复杂度：
+
+$$
+O(n^3)
+$$
+
+而且即使找到了答案，还需要处理重复三元组。
+
+因此不够理想。
+
+---
+
+## 2. 如何把三数之和降维成两数问题
+
+如果固定第一个数：
+
+$$
+a=nums[i]
+$$
+
+那么问题就变成寻找：
+
+$$
+b+c=-a
+$$
+
+这已经是一个“两数之和”问题。
+
+如果数组有序，就可以使用左右双指针在线性时间内完成这一轮搜索。
+
+于是整体结构为：
+
+```text
+排序
+  ↓
+枚举 a
+  ↓
+在右侧区间中用双指针寻找 b + c = -a
+```
+
+枚举 `a` 是 $O(n)$，每次双指针也是 $O(n)$。
+
+所以总时间：
+
+$$
+O(n^2)
+$$
+
+---
+
+## 3. 为什么排序是关键
+
+排序后：
+
+```text
+nums[left] <= nums[right]
+```
+
+对于固定：
+
+```text
+a = nums[i]
+```
+
+定义：
+
+$$
+sum=nums[i]+nums[left]+nums[right]
+$$
+
+### 如果：
+
+$$
+sum<0
+$$
+
+说明总和太小。
+
+要让和变大，应该：
+
+```text
+left++
+```
+
+因为右移左指针可以取得更大的数。
+
+### 如果：
+
+$$
+sum>0
+$$
+
+说明总和太大。
+
+要让和变小，应该：
+
+```text
+right--
+```
+
+### 如果：
+
+$$
+sum=0
+$$
+
+找到一个答案。
+
+记录后：
+
+```text
+left++
+right--
+```
+
+并跳过重复值。
+
+---
+
+## 4. 双指针过程
+
+核心结构：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    int left = i + 1;
+    int right = nums.size() - 1;
+
+    while (left < right) {
+        int sum = nums[i] + nums[left] + nums[right];
+
+        if (sum < 0) {
+            ++left;
+        } else if (sum > 0) {
+            --right;
+        } else {
+            // 找到三元组
+        }
+    }
+}
+```
+
+整个搜索不需要回退指针。
+
+对于固定的 `i`：
+
+- `left` 只向右；
+- `right` 只向左。
+
+所以每轮是线性的。
+
+---
+
+## 5. 为什么可以在 `nums[i] > 0` 时提前结束
+
+数组已经升序排列。
+
+如果：
+
+```cpp
+nums[i] > 0
+```
+
+那么：
+
+```text
+nums[i] > 0
+nums[left] >= nums[i] > 0
+nums[right] > 0
+```
+
+因此：
+
+$$
+nums[i]+nums[left]+nums[right]>0
+$$
+
+后面再也不可能凑出 0。
+
+所以可以直接：
+
+```cpp
+break;
+```
+
+或：
+
+```cpp
+return result;
+```
+
+这是排序之后才能使用的剪枝。
+
+---
+
+## 6. 去重才是本题真正的难点
+
+题目不是要求：
+
+```text
+找到所有下标组合
+```
+
+而是：
+
+```text
+找到所有不重复的数值三元组
+```
+
+比如：
+
+```text
+[-1, -1, 0, 1, 2]
+```
+
+三元组：
+
+```text
+[-1, 0, 1]
+```
+
+只能出现一次。
+
+因此要分别处理：
+
+- 第一个数 `a` 的去重；
+- 第二个数 `b` 的去重；
+- 第三个数 `c` 的去重。
+
+---
+
+## 7. `a` 应该怎样去重
+
+固定：
+
+```cpp
+a = nums[i]
+```
+
+如果当前 `a` 和上一次使用的 `a` 相同，那么这一轮产生的答案集合也会重复。
+
+所以正确写法：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+这里特别重要的是：
+
+> 比较的是前一个元素，而不是后一个元素。
+
+---
+
+## 8. 为什么不能写 `nums[i] == nums[i + 1]`
+
+假设：
+
+```text
+[-1, -1, 2]
+```
+
+正确答案：
+
+```text
+[-1, -1, 2]
+```
+
+如果你写：
+
+```cpp
+if (nums[i] == nums[i + 1]) {
+    continue;
+}
+```
+
+当 `i` 指向第一个 `-1` 时：
+
+```text
+nums[i] == nums[i + 1]
+```
+
+成立。
+
+于是直接跳过。
+
+那么：
+
+```text
+[-1, -1, 2]
+```
+
+这个合法答案就永远找不到了。
+
+所以一定要区分两种“重复”：
+
+### 三元组内部允许值重复
+
+例如：
+
+```text
+[-1, -1, 2]
+[0, 0, 0]
+```
+
+都是合法的。
+
+### 答案集合中不允许三元组重复
+
+例如：
+
+```text
+[-1, 0, 1]
+[-1, 0, 1]
+```
+
+不能出现两遍。
+
+这就是为什么 `a` 去重要比较：
+
+```text
+当前 a 是否和“上一轮固定的 a”相同
+```
+
+而不是判断三元组内部是否有相同数字。
+
+---
+
+## 9. 找到答案后怎样去重 `b` 和 `c`
+
+当：
+
+$$
+a+b+c=0
+$$
+
+记录：
+
+```cpp
+result.push_back({nums[i], nums[left], nums[right]});
+```
+
+随后应跳过与当前 `b` 相同的值：
+
+```cpp
+while (left < right && nums[left] == nums[left + 1]) {
+    ++left;
+}
+```
+
+同时跳过与当前 `c` 相同的值：
+
+```cpp
+while (left < right && nums[right] == nums[right - 1]) {
+    --right;
+}
+```
+
+最后：
+
+```cpp
+++left;
+--right;
+```
+
+这样下一次尝试一定会使用新的 `b` 和 `c`。
+
+---
+
+## 10. 为什么去重要放在“找到答案后”
+
+考虑：
+
+```text
+nums = [-2, 0, 0, 2, 2]
+```
+
+正确答案：
+
+```text
+[-2, 0, 2]
+```
+
+如果过早因为左侧有重复 `0` 就随意跳过，虽然很多情况下仍能得到答案，但逻辑容易变得复杂且出错。
+
+最稳定的规则是：
+
+> 当当前 `(a,b,c)` 已经形成合法答案后，再跳过所有与当前 `b`、`c` 相同的值，避免生成同一个三元组。
+
+这样去重的语义最清晰。
+
+---
+
+## 11. 标准解法
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> result;
+
+        sort(nums.begin(), nums.end());
+
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] > 0) {
+                break;
+            }
+
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+
+            int left = i + 1;
+            int right = nums.size() - 1;
+
+            while (left < right) {
+                long long sum =
+                    static_cast<long long>(nums[i]) +
+                    nums[left] +
+                    nums[right];
+
+                if (sum < 0) {
+                    ++left;
+                } else if (sum > 0) {
+                    --right;
+                } else {
+                    result.push_back({
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    });
+
+                    while (
+                        left < right &&
+                        nums[left] == nums[left + 1]
+                    ) {
+                        ++left;
+                    }
+
+                    while (
+                        left < right &&
+                        nums[right] == nums[right - 1]
+                    ) {
+                        --right;
+                    }
+
+                    ++left;
+                    --right;
+                }
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+## 12. 为什么用 `long long` 计算 sum 更稳妥
+
+如果输入整数接近 `int` 边界，那么：
+
+```cpp
+nums[i] + nums[left] + nums[right]
+```
+
+可能发生整数溢出。
+
+因此可以把其中一个值转换成：
+
+```cpp
+long long
+```
+
+例如：
+
+```cpp
+long long sum =
+    1LL * nums[i] + nums[left] + nums[right];
+```
+
+虽然某些题目数据范围未必需要，但这是更健壮的实现习惯。
+
+---
+
+## 13. 时间复杂度
+
+排序：
+
+$$
+O(n\log n)
+$$
+
+外层枚举：
+
+$$
+O(n)
+$$
+
+每次双指针：
+
+$$
+O(n)
+$$
+
+所以主体：
+
+$$
+O(n^2)
+$$
+
+由于：
+
+$$
+O(n^2)>O(n\log n)
+$$
+
+因此总时间复杂度：
+
+$$
+O(n^2)
+$$
+
+---
+
+## 14. 空间复杂度
+
+若不计排序算法内部栈空间和最终答案：
+
+$$
+O(1)
+$$
+
+双指针只需要常数个变量。
+
+若语言的排序实现需要额外递归栈，则可能有：
+
+$$
+O(\log n)
+$$
+
+级别的辅助空间。
+
+---
+
+## 15. 为什么哈希解法反而更难写
+
+理论上也可以固定：
+
+```text
+a = nums[i]
+```
+
+再在剩余部分做“两数之和式哈希”。
+
+但本题有大量重复元素。
+
+哈希写法需要同时处理：
+
+- `a` 去重；
+- `b` 去重；
+- `c` 去重；
+- 防止重复答案；
+- 合理维护 Set 的插入和删除时机。
+
+因此代码更复杂。
+
+而排序后：
+
+```text
+相同数字自然聚在一起
+```
+
+于是去重变得非常清晰。
+
+所以本题是一个很重要的经验：
+
+> **哈希能做，不代表哈希就是最佳方案。**
+
+---
+
+## 16. 和“两数之和”为什么选择不同
+
+### 两数之和
+
+题目要求：
+
+```text
+返回原数组下标
+```
+
+如果排序，会破坏原始位置。
+
+因此哈希表非常自然：
+
+```text
+值 -> 下标
+```
+
+### 三数之和
+
+题目要求：
+
+```text
+返回不重复的数值三元组
+```
+
+并不关心原始下标。
+
+排序不仅没有副作用，反而可以：
+
+- 支持双指针；
+- 支持剪枝；
+- 大幅简化去重。
+
+所以使用：
+
+```text
+排序 + 双指针
+```
+
+更合理。
+
+---
+
+## 17. 为什么不能只固定 `a` 后再暴力两层
+
+如果固定 `a` 后，仍然枚举：
+
+```text
+b
+c
+```
+
+那么整体还是：
+
+$$
+O(n^3)
+$$
+
+双指针的意义就在于：
+
+> 利用排序后的单调性，让 `b`、`c` 不再组合枚举，而是通过和的大小决定哪一侧移动。
+
+---
+
+## 18. 双指针为什么不会漏解
+
+固定 `a` 后：
+
+```text
+left = i + 1
+right = n - 1
+```
+
+若：
+
+$$
+a+b+c<0
+$$
+
+说明和太小。
+
+由于数组有序，如果保持 `left` 不动而让 `right` 左移：
+
+```text
+c 会变小
+```
+
+和只会更小，更不可能达到 0。
+
+因此唯一合理方向是：
+
+```text
+left++
+```
+
+同理：
+
+若：
+
+$$
+a+b+c>0
+$$
+
+就必须：
+
+```text
+right--
+```
+
+所以每一次指针移动都会排除一整批不可能答案，而不是随意猜测。
+
+---
+
+## 19. 边界与剪枝优化
+
+至少要有 3 个元素：
+
+```cpp
+if (nums.size() < 3) {
+    return {};
+}
+```
+
+排序后还可以进一步判断：
+
+### 最小三个数之和已经大于 0
+
+如果：
+
+$$
+nums[i]+nums[i+1]+nums[i+2]>0
+$$
+
+后续只会更大，可以提前结束。
+
+### 当前 `a` 加最大的两个数仍小于 0
+
+如果：
+
+$$
+nums[i]+nums[n-2]+nums[n-1]<0
+$$
+
+说明当前 `a` 太小，本轮必然无解，可以：
+
+```cpp
+continue;
+```
+
+这类剪枝不是必须，但有助于减少无效搜索。
+
+---
+
+## 20. 常见错误
+
+### 错误一：`a` 去重比较后一个元素
+
+错误：
+
+```cpp
+nums[i] == nums[i + 1]
+```
+
+会误删：
+
+```text
+[-1, -1, 2]
+```
+
+这类合法答案。
+
+---
+
+### 错误二：找到答案后只移动一个指针
+
+当：
+
+$$
+sum=0
+$$
+
+如果只移动 `left` 或只移动 `right`，容易重复处理同一组值。
+
+应在完成去重后：
+
+```cpp
+++left;
+--right;
+```
+
+---
+
+### 错误三：忘记先排序
+
+没有排序就没有：
+
+```text
+sum < 0 → left++
+sum > 0 → right--
+```
+
+这种单调性依据。
+
+---
+
+### 错误四：把“不重复三元组”理解为“三个数不能相同”
+
+错误。
+
+例如：
+
+```text
+[0, 0, 0]
+```
+
+是完全合法的答案。
+
+“不重复”指的是：
+
+> 同一个三元组不能在结果中出现多次。
+
+---
+
+## 21. 通用 nSum 思维
+
+三数之和可以理解为：
+
+```text
+3Sum
+  ↓ 固定一个数
+2Sum
+```
+
+四数之和也可以：
+
+```text
+4Sum
+  ↓ 固定一个数
+3Sum
+  ↓ 固定一个数
+2Sum
+```
+
+最终问题都可以降到：
+
+> **有序数组上的两数之和**
+
+而两数之和的双指针模板是：
+
+```text
+left < right
+    ↓
+sum = nums[left] + nums[right]
+
+sum < target → left++
+sum > target → right--
+sum = target → 记录答案并去重
+```
+
+这就是通用 `nSum` 的核心基础。
+
+---
+
+## 22. 多语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> result;
+
+        sort(nums.begin(), nums.end());
+
+        for (int i = 0; i < nums.size(); ++i) {
+            if (nums[i] > 0) {
+                break;
+            }
+
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+
+            int left = i + 1;
+            int right = nums.size() - 1;
+
+            while (left < right) {
+                long long sum =
+                    1LL * nums[i] +
+                    nums[left] +
+                    nums[right];
+
+                if (sum < 0) {
+                    ++left;
+                } else if (sum > 0) {
+                    --right;
+                } else {
+                    result.push_back({
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    });
+
+                    while (
+                        left < right &&
+                        nums[left] == nums[left + 1]
+                    ) {
+                        ++left;
+                    }
+
+                    while (
+                        left < right &&
+                        nums[right] == nums[right - 1]
+                    ) {
+                        --right;
+                    }
+
+                    ++left;
+                    --right;
+                }
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+
+        Arrays.sort(nums);
+
+        for (int i = 0; i < nums.length; ++i) {
+            if (nums[i] > 0) {
+                break;
+            }
+
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+
+            int left = i + 1;
+            int right = nums.length - 1;
+
+            while (left < right) {
+                long sum =
+                    (long) nums[i] +
+                    nums[left] +
+                    nums[right];
+
+                if (sum < 0) {
+                    ++left;
+                } else if (sum > 0) {
+                    --right;
+                } else {
+                    result.add(Arrays.asList(
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    ));
+
+                    while (
+                        left < right &&
+                        nums[left] == nums[left + 1]
+                    ) {
+                        ++left;
+                    }
+
+                    while (
+                        left < right &&
+                        nums[right] == nums[right - 1]
+                    ) {
+                        --right;
+                    }
+
+                    ++left;
+                    --right;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        nums.sort()
+        result = []
+
+        for i in range(len(nums)):
+            if nums[i] > 0:
+                break
+
+            if i > 0 and nums[i] == nums[i - 1]:
+                continue
+
+            left = i + 1
+            right = len(nums) - 1
+
+            while left < right:
+                total = nums[i] + nums[left] + nums[right]
+
+                if total < 0:
+                    left += 1
+                elif total > 0:
+                    right -= 1
+                else:
+                    result.append([
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    ])
+
+                    while (
+                        left < right and
+                        nums[left] == nums[left + 1]
+                    ):
+                        left += 1
+
+                    while (
+                        left < right and
+                        nums[right] == nums[right - 1]
+                    ):
+                        right -= 1
+
+                    left += 1
+                    right -= 1
+
+        return result
+```
+
+
+
+```go tab="Go"
+func threeSum(nums []int) [][]int {
+    sort.Ints(nums)
+
+    result := make([][]int, 0)
+
+    for i := 0; i < len(nums); i++ {
+        if nums[i] > 0 {
+            break
+        }
+
+        if i > 0 && nums[i] == nums[i-1] {
+            continue
+        }
+
+        left := i + 1
+        right := len(nums) - 1
+
+        for left < right {
+            sum := nums[i] + nums[left] + nums[right]
+
+            if sum < 0 {
+                left++
+            } else if sum > 0 {
+                right--
+            } else {
+                result = append(
+                    result,
+                    []int{nums[i], nums[left], nums[right]},
+                )
+
+                for left < right &&
+                    nums[left] == nums[left+1] {
+                    left++
+                }
+
+                for left < right &&
+                    nums[right] == nums[right-1] {
+                    right--
+                }
+
+                left++
+                right--
+            }
+        }
+    }
+
+    return result
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var threeSum = function(nums) {
+    nums.sort((a, b) => a - b);
+
+    const result = [];
+
+    for (let i = 0; i < nums.length; ++i) {
+        if (nums[i] > 0) {
+            break;
+        }
+
+        if (i > 0 && nums[i] === nums[i - 1]) {
+            continue;
+        }
+
+        let left = i + 1;
+        let right = nums.length - 1;
+
+        while (left < right) {
+            const sum = nums[i] + nums[left] + nums[right];
+
+            if (sum < 0) {
+                ++left;
+            } else if (sum > 0) {
+                --right;
+            } else {
+                result.push([
+                    nums[i],
+                    nums[left],
+                    nums[right]
+                ]);
+
+                while (
+                    left < right &&
+                    nums[left] === nums[left + 1]
+                ) {
+                    ++left;
+                }
+
+                while (
+                    left < right &&
+                    nums[right] === nums[right - 1]
+                ) {
+                    --right;
+                }
+
+                ++left;
+                --right;
+            }
+        }
+    }
+
+    return result;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function threeSum(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b);
+
+    const result: number[][] = [];
+
+    for (let i = 0; i < nums.length; ++i) {
+        if (nums[i] > 0) {
+            break;
+        }
+
+        if (i > 0 && nums[i] === nums[i - 1]) {
+            continue;
+        }
+
+        let left = i + 1;
+        let right = nums.length - 1;
+
+        while (left < right) {
+            const sum =
+                nums[i] + nums[left] + nums[right];
+
+            if (sum < 0) {
+                ++left;
+            } else if (sum > 0) {
+                --right;
+            } else {
+                result.push([
+                    nums[i],
+                    nums[left],
+                    nums[right]
+                ]);
+
+                while (
+                    left < right &&
+                    nums[left] === nums[left + 1]
+                ) {
+                    ++left;
+                }
+
+                while (
+                    left < right &&
+                    nums[right] === nums[right - 1]
+                ) {
+                    --right;
+                }
+
+                ++left;
+                --right;
+            }
+        }
+    }
+
+    return result;
+}
+```
+
+  ---
+
+## 23. 本题总结
+
+本题需要真正掌握的是：
+
+### 1. 降维
+
+$$
+a+b+c=0
+$$
+
+固定 `a` 后变成：
+
+$$
+b+c=-a
+$$
+
+### 2. 排序后的单调性
+
+```text
+sum < 0 → left++
+sum > 0 → right--
+```
+
+### 3. 去重
+
+- `a`：和前一个固定值比较；
+- `b`、`c`：找到答案后跳过重复值；
+- 三元组内部允许出现相同数字。
+
+### 4. 方法选择
+
+```text
+返回下标 → 两数之和更适合哈希
+返回不重复数值组合 → 三数之和更适合排序 + 双指针
+```
+
+最终模板：
+
+```text
+排序
+ ↓
+枚举 a
+ ↓
+left / right
+ ↓
+根据三数和移动指针
+ ↓
+命中后记录 + 去重
+```
+
+这是后续“四数之和”和更一般 `nSum` 问题的基础。

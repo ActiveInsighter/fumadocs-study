@@ -1,0 +1,567 @@
+---
+title: 单词拆分
+sidebarTitle: 单词拆分
+summary: 将 LeetCode 139 建模为前缀可达性动态规划，系统讲解状态定义、状态转移、遍历顺序、与完全背包的联系，以及记忆化搜索与常见优化。
+---
+
+# 139. 单词拆分
+
+[LeetCode 139：单词拆分](https://leetcode.cn/problems/word-break/)
+
+给定字符串 `s` 和单词字典 `wordDict`，判断能否使用字典中的一个或多个单词拼接出整个字符串。字典中的单词可以重复使用。
+
+例如：
+
+```text
+s = "leetcode"
+wordDict = ["leet", "code"]
+```
+
+可以拆成：
+
+```text
+leet | code
+```
+
+因此答案为 `true`。
+
+<Callout type="info" title="核心不是切字符串，而是判断前缀是否可达">
+这道题最稳定的建模方式是：`dp[i]` 表示前 `i` 个字符能否被合法拆分。每次状态转移都在问：是否存在一个切分点 `j`，使前缀 `s[0:j]` 已经可达，并且 `s[j:i]` 是字典单词。
+</Callout>
+
+## 1. 从暴力搜索看出重复子问题
+
+最直接的思路是枚举每一个切分位置：
+
+```text
+leetcode
+├─ l | ...
+├─ le | ...
+├─ lee | ...
+└─ leet | code
+```
+
+如果当前切出的子串在字典里，就递归判断剩余后缀。
+
+但不同切分路径可能反复进入同一个位置。例如多条路径都可能询问：
+
+```text
+从下标 i 开始的后缀能否完成拆分？
+```
+
+因此递归状态其实只由一个下标决定，这正是记忆化搜索和动态规划的信号。
+
+## 2. 状态定义
+
+定义：
+
+$$
+\boxed{dp[i]=\text{字符串 }s[0,i)\text{ 能否由字典中的单词拼接得到}}
+$$
+
+于是：
+
+- `dp[0]`：空前缀是否可达；
+- `dp[i]`：前 `i` 个字符是否可达；
+- `dp[n]`：整个字符串是否可拆分。
+
+最终答案是：
+
+$$
+\boxed{dp[n]}
+$$
+
+## 3. 为什么 `dp[0] = true`
+
+初始化：
+
+$$
+\boxed{dp[0]=true}
+$$
+
+其余位置先设为 `false`。
+
+`dp[0] = true` 并不是说“空字符串在字典中”，而是表示：长度为 0 的目标已经构造完成，它是所有合法拼接的起点。
+
+例如当 `"leet"` 本身是字典单词时：
+
+$$
+dp[4]=dp[0]\land [s[0,4)=\text{"leet"}]
+$$
+
+若 `dp[0]` 为 `false`，第一个单词就永远无法开始转移。
+
+## 4. 状态转移：枚举最后一个单词
+
+假设正在计算 `dp[i]`。
+
+如果存在某个 `j<i`，满足：
+
+1. `dp[j] = true`；
+2. `s[j:i]` 在字典中；
+
+那么：
+
+$$
+\boxed{dp[i]=true}
+$$
+
+完整表达式：
+
+$$
+dp[i]
+=
+\bigvee_{0\le j<i}
+\left(dp[j]\land[s[j,i)\in wordDict]\right)
+$$
+
+也就是：只要存在一种合法切分，就可以让 `dp[i]` 成立。
+
+对应代码：
+
+```cpp
+for (int i = 1; i <= n; ++i) {
+    for (int j = 0; j < i; ++j) {
+        if (dp[j] && wordSet.count(s.substr(j, i - j))) {
+            dp[i] = true;
+            break;
+        }
+    }
+}
+```
+
+## 5. 手推 `leetcode`
+
+输入：
+
+```text
+s = "leetcode"
+wordDict = ["leet", "code"]
+```
+
+初始：
+
+```text
+i   0 1 2 3 4 5 6 7 8
+dp  T F F F F F F F F
+```
+
+当 `i = 4` 时：
+
+```text
+s[0:4] = "leet"
+```
+
+因为 `dp[0] = true` 且 `"leet"` 在字典中，所以：
+
+$$
+dp[4]=true
+$$
+
+当 `i = 8` 时：
+
+```text
+s[4:8] = "code"
+```
+
+又因为 `dp[4] = true`，所以：
+
+$$
+dp[8]=true
+$$
+
+原资料中的 DP 状态图：
+
+![单词拆分 DP 状态示意图](https://file1.kamacoder.com/i/algo/20210202162652727.jpg)
+
+最终：
+
+$$
+\boxed{dp[8]=true}
+$$
+
+## 6. 与完全背包有什么关系
+
+可以做如下类比：
+
+| 单词拆分 | 背包模型 |
+| --- | --- |
+| 字典单词 | 物品 |
+| 单词长度 | 物品重量 |
+| 字符串长度 | 背包容量 |
+| 单词可重复使用 | 完全背包 |
+
+但本题比普通背包多了一层重要约束：不仅长度要匹配，**内容也必须匹配**。
+
+例如单词长度为 4，并不意味着任意位置都能使用它，还必须满足：
+
+```text
+s[i-4:i] == word
+```
+
+因此，把本题理解成“前缀可达性”通常比机械套完全背包模板更稳。
+
+### 图论视角
+
+如果 `s[j:i]` 是字典单词，就建立一条边：
+
+```text
+j → i
+```
+
+那么问题就变成：
+
+> 从节点 `0` 能否到达节点 `n`？
+
+于是 `dp[i]` 恰好就是“位置 `i` 是否可达”。
+
+## 7. 为什么外层应该按字符串位置推进
+
+推荐顺序：
+
+```text
+外层：前缀终点 i
+内层：枚举切分点或最后一个单词
+```
+
+因为 `dp[i]` 只依赖更小的前缀状态：
+
+$$
+dp[j],\quad j<i
+$$
+
+这些状态在计算 `i` 时已经确定。
+
+### 为什么只按字典顺序处理一次会出错
+
+例如：
+
+```text
+s = "applepenapple"
+wordDict = ["apple", "pen"]
+```
+
+合法拆分：
+
+```text
+apple | pen | apple
+```
+
+若外层按字典顺序只处理一次：
+
+```text
+先 apple
+再 pen
+```
+
+第一次处理 `apple` 时只能得到：
+
+```text
+0 → 5
+```
+
+此时 `dp[8]` 还没有被 `pen` 更新，因此不能继续得到：
+
+```text
+8 → 13
+```
+
+之后 `pen` 虽然能更新 `dp[8]`，却不会重新回来再处理 `apple`。
+
+原资料中的状态变化图：
+
+![先遍历单词导致状态无法继续传播](https://file1.kamacoder.com/i/algo/20240809155103.png)
+
+<Callout type="warning" title="不要简单记成“本题求排列数”">
+本题返回的是布尔值，并没有统计排列方案数。循环顺序之所以重要，是因为单词必须严格对应字符串从左到右的位置关系。本质上是前缀状态的拓扑推进。
+</Callout>
+
+## 8. 推荐实现一：枚举切分点
+
+```cpp
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> words(wordDict.begin(), wordDict.end());
+        int n = static_cast<int>(s.size());
+
+        vector<bool> dp(n + 1, false);
+        dp[0] = true;
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (!dp[j]) continue;
+
+                if (words.count(s.substr(j, i - j))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+```
+
+如果把 `substr` 的复制成本也算进去，最坏时间复杂度可达到：
+
+$$
+O(n^3)
+$$
+
+DP 数组空间复杂度：
+
+$$
+O(n)
+$$
+
+## 9. 推荐实现二：枚举最后一个单词
+
+也可以直接枚举字典单词，根据单词长度反推切分点：
+
+$$
+j=i-|word|
+$$
+
+代码：
+
+```cpp
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        int n = static_cast<int>(s.size());
+        vector<bool> dp(n + 1, false);
+        dp[0] = true;
+
+        for (int i = 1; i <= n; ++i) {
+            for (const string& word : wordDict) {
+                int len = static_cast<int>(word.size());
+                if (i < len || !dp[i - len]) continue;
+
+                if (s.compare(i - len, len, word) == 0) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return dp[n];
+    }
+};
+```
+
+若字典大小为 $m$，最大单词长度为 $L$，粗略复杂度为：
+
+$$
+O(nmL)
+$$
+
+## 10. 实用优化：限制枚举长度
+
+设字典中最长单词长度为：
+
+$$
+L_{\max}=\max_{word\in wordDict}|word|
+$$
+
+计算 `dp[i]` 时，如果：
+
+$$
+i-j>L_{\max}
+$$
+
+那么 `s[j:i]` 不可能是字典单词。
+
+所以只需要从：
+
+$$
+\max(0,i-L_{\max})
+$$
+
+开始枚举切分点。
+
+```cpp
+int maxLen = 0;
+for (const string& word : wordDict) {
+    maxLen = max(maxLen, (int)word.size());
+}
+
+for (int i = 1; i <= n; ++i) {
+    for (int j = max(0, i - maxLen); j < i; ++j) {
+        if (dp[j] && words.count(s.substr(j, i - j))) {
+            dp[i] = true;
+            break;
+        }
+    }
+}
+```
+
+## 11. 记忆化搜索与 DP 是同一个状态空间
+
+记忆化搜索可以定义：
+
+```text
+memo[i] = 从位置 i 开始能否完成拆分
+```
+
+然后从 `i` 枚举所有可能的结尾位置。
+
+只要一个位置被证明“无论怎么切都失败”，以后再次到达这个位置就直接返回失败。
+
+因此：
+
+```text
+暴力递归 → 加 memo → 记忆化搜索
+记忆化搜索 → 改变计算方向 → 自底向上 DP
+```
+
+二者只是求值顺序不同。
+
+## 12. 常见错误
+
+### `dp[0]` 初始化错误
+
+若 `dp[0] = false`，第一段单词永远无法开始转移。
+
+### 只比较长度，不比较内容
+
+不能只看字典里有没有相同长度的单词，必须判断实际子串是否相等。
+
+### 把“可重复使用”误解成无条件完全背包正序更新
+
+同一个单词确实可以重复出现，但每次都必须和当前位置的字符串内容完全匹配。
+
+### 找到可行切法后仍继续枚举
+
+本题只求布尔值，一旦 `dp[i] = true` 就可以 `break`。
+
+## 13. 一张表记住本题
+
+| 项目 | 结论 |
+| --- | --- |
+| 状态 | `dp[i]`：前 `i` 个字符能否合法拆分 |
+| 初始化 | `dp[0] = true` |
+| 转移条件 | `dp[j] && s[j:i] ∈ wordDict` |
+| 转移结果 | `dp[i] = true` |
+| 遍历方向 | `i` 从小到大 |
+| 最终答案 | `dp[n]` |
+| 本质 | 前缀可达性 / DAG 可达性 |
+
+## 14. 迁移思维
+
+以后看到下面这类描述，都可以考虑同样的模型：
+
+```text
+能否把字符串拆成若干合法片段？
+能否用若干 token 完整解析输入？
+能否从位置 0 通过合法跳转走到位置 n？
+```
+
+统一状态：
+
+$$
+\boxed{dp[i]=\text{前 }i\text{ 个元素是否可达}}
+$$
+
+然后枚举“最后一步从哪里来”。
+
+## 其他语言版本
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        Set<String> words = new HashSet<>(wordDict);
+        boolean[] dp = new boolean[s.length() + 1];
+        dp[0] = true;
+
+        for (int i = 1; i <= s.length(); i++) {
+            for (int j = 0; j < i; j++) {
+                if (dp[j] && words.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    break;
+                }
+            }
+        }
+        return dp[s.length()];
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def wordBreak(self, s: str, wordDict: list[str]) -> bool:
+        words = set(wordDict)
+        n = len(s)
+        dp = [False] * (n + 1)
+        dp[0] = True
+
+        for i in range(1, n + 1):
+            for j in range(i):
+                if dp[j] and s[j:i] in words:
+                    dp[i] = True
+                    break
+
+        return dp[n]
+```
+
+```go tab="Go"
+func wordBreak(s string, wordDict []string) bool {
+    words := make(map[string]bool, len(wordDict))
+    for _, word := range wordDict {
+        words[word] = true
+    }
+
+    dp := make([]bool, len(s)+1)
+    dp[0] = true
+
+    for i := 1; i <= len(s); i++ {
+        for j := 0; j < i; j++ {
+            if dp[j] && words[s[j:i]] {
+                dp[i] = true
+                break
+            }
+        }
+    }
+    return dp[len(s)]
+}
+```
+
+```javascript tab="JavaScript"
+function wordBreak(s, wordDict) {
+  const words = new Set(wordDict);
+  const dp = new Array(s.length + 1).fill(false);
+  dp[0] = true;
+
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && words.has(s.slice(j, i))) {
+        dp[i] = true;
+        break;
+      }
+    }
+  }
+
+  return dp[s.length];
+}
+```
+
+```typescript tab="TypeScript"
+function wordBreak(s: string, wordDict: string[]): boolean {
+  const words = new Set<string>(wordDict);
+  const dp: boolean[] = new Array(s.length + 1).fill(false);
+  dp[0] = true;
+
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && words.has(s.slice(j, i))) {
+        dp[i] = true;
+        break;
+      }
+    }
+  }
+  return dp[s.length];
+}
+```

@@ -1,0 +1,598 @@
+---
+title: 最大子序和
+sidebarTitle: 最大子序和
+summary: 系统讲解 LeetCode 53 最大子数组和，从“以当前位置结尾”的状态设计出发，推导 Kadane 动态规划、空间压缩与贪心视角，并辨析局部状态与全局答案的区别。
+---
+
+# 53. 最大子序和
+
+[LeetCode 53：最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
+
+给定整数数组 `nums`，找出一个和最大的**非空连续子数组**，返回该子数组的最大和。
+
+例如：
+
+```text
+nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+```
+
+最优连续子数组是：
+
+```text
+[4, -1, 2, 1]
+```
+
+其和为：
+
+$$
+4-1+2+1=6
+$$
+
+因此答案为：
+
+$$
+\boxed{6}
+$$
+
+<Callout type="warning" title="关键词是连续">
+本题求的是“连续子数组”，不是任意子序列。也就是说，一旦选择了起点和终点，中间所有元素都必须保留。
+</Callout>
+
+## 1. 真正困难的地方：状态到底怎么定义
+
+如果直接定义：
+
+> `dp[i]` 表示前 `i` 个元素中的最大子数组和。
+
+那么状态转移并不好写，因为最优子数组可能：
+
+- 以 `i` 结尾；
+- 也可能早就在前面结束。
+
+这会把“当前是否接上前面的连续段”和“历史全局最优”混在一个状态里。
+
+更自然的做法是给状态增加一个明确约束：
+
+$$
+\boxed{dp[i]=\text{必须以 }nums[i]\text{ 结尾的最大连续子数组和}}
+$$
+
+注意“必须以 `nums[i]` 结尾”这几个字非常重要。
+
+这样一来，到了位置 `i` 时，只有两种合法选择：
+
+1. 把 `nums[i]` 接到以前的最优连续段后面；
+2. 放弃之前的所有元素，从 `nums[i]` 自己重新开始。
+
+这就是本题的全部核心。
+
+## 2. 状态转移推导
+
+假设已经知道：
+
+$$
+dp[i-1]
+$$
+
+表示必须以 `nums[i-1]` 结尾的最大连续子数组和。
+
+对于 `nums[i]`，有两种情况。
+
+### 2.1 延续前面的连续子数组
+
+如果保留前面的结果，则：
+
+$$
+dp[i-1]+nums[i]
+$$
+
+### 2.2 从当前位置重新开始
+
+如果前面的累积和反而拖后腿，就直接丢掉它：
+
+$$
+nums[i]
+$$
+
+于是：
+
+$$
+\boxed{dp[i]=\max(dp[i-1]+nums[i],\ nums[i])}
+$$
+
+也可以写成更能体现本质的形式：
+
+$$
+\boxed{dp[i]=nums[i]+\max(dp[i-1],0)}
+$$
+
+这个写法非常值得记忆。
+
+它说明：
+
+- 如果 `dp[i-1] > 0`，前面的连续段对当前有正贡献，应当接上；
+- 如果 `dp[i-1] \le 0`，继续携带它只会让结果更差，应当从当前重新开始。
+
+<Callout type="info" title="这就是 Kadane 算法的核心">
+所谓 Kadane 算法，本质上就是维护“以当前位置结尾的最佳连续和”，并在前缀贡献变为非正时重新起段。
+</Callout>
+
+## 3. 初始化
+
+因为子数组必须非空，所以：
+
+$$
+\boxed{dp[0]=nums[0]}
+$$
+
+不能初始化为 `0`。
+
+例如：
+
+```text
+nums = [-5]
+```
+
+正确答案是：
+
+$$
+-5
+$$
+
+若错误地把初始值设为 `0`，就会相当于允许“空子数组”，违反题意。
+
+## 4. 为什么答案不是 `dp[n-1]`
+
+这是本题最容易犯的错误之一。
+
+回顾定义：
+
+$$
+dp[i]=\text{必须以 }i\text{ 结尾的最大连续子数组和}
+$$
+
+因此：
+
+$$
+dp[n-1]
+$$
+
+只代表“必须以最后一个元素结尾”的最优值，并不保证它就是全局最优。
+
+以示例为例：
+
+```text
+[-2, 1, -3, 4, -1, 2, 1, -5, 4]
+```
+
+最优子数组在下标 `6` 就已经结束：
+
+```text
+[4, -1, 2, 1]
+```
+
+原题状态示意图：
+
+![最大子序和动态规划状态变化](https://file1.kamacoder.com/i/algo/20210303104129101.png)
+
+因此最终答案必须在所有状态中取最大值：
+
+$$
+\boxed{\max_{0\le i<n}dp[i]}
+$$
+
+这体现了一个很重要的 DP 判断技巧：
+
+> 如果状态定义中带有“必须以某位置结尾”这样的局部限制，最终答案往往需要在全部状态中再次取最优。
+
+## 5. 动态规划五步法
+
+### 第一步：定义状态
+
+$$
+dp[i]=\text{以 }nums[i]\text{ 结尾的最大连续子数组和}
+$$
+
+### 第二步：写出转移
+
+$$
+\boxed{dp[i]=\max(dp[i-1]+nums[i],\ nums[i])}
+$$
+
+### 第三步：初始化
+
+$$
+dp[0]=nums[0]
+$$
+
+### 第四步：确定遍历方向
+
+因为：
+
+$$
+dp[i]\leftarrow dp[i-1]
+$$
+
+所以从左向右遍历。
+
+### 第五步：确定最终答案
+
+$$
+\boxed{answer=\max_i dp[i]}
+$$
+
+## 6. 示例完整推导
+
+对于：
+
+```text
+nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+```
+
+逐步得到：
+
+| `i` | `nums[i]` | `dp[i]` | 解释 |
+| ---: | ---: | ---: | --- |
+| 0 | -2 | -2 | 只能选 `-2` |
+| 1 | 1 | 1 | `-2 + 1 < 1`，重新开始 |
+| 2 | -3 | -2 | 接在 `1` 后面更好 |
+| 3 | 4 | 4 | 前面为负，重新开始 |
+| 4 | -1 | 3 | 接到 `4` 后面 |
+| 5 | 2 | 5 | 继续累加 |
+| 6 | 1 | 6 | 继续累加 |
+| 7 | -5 | 1 | 仍然保留前面更优 |
+| 8 | 4 | 5 | 接到当前连续段后面 |
+
+全局最大值为：
+
+$$
+\boxed{6}
+$$
+
+## 7. 标准二维思想的一维写法
+
+这里实际只需要一维 `dp` 数组：
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n);
+
+        dp[0] = nums[0];
+        int ans = dp[0];
+
+        for (int i = 1; i < n; ++i) {
+            dp[i] = max(dp[i - 1] + nums[i], nums[i]);
+            ans = max(ans, dp[i]);
+        }
+
+        return ans;
+    }
+};
+```
+
+复杂度：
+
+$$
+T(n)=O(n)
+$$
+
+$$
+S(n)=O(n)
+$$
+
+## 8. 空间压缩：为什么只用一个变量就够了
+
+由于：
+
+$$
+dp[i]
+$$
+
+只依赖：
+
+$$
+dp[i-1]
+$$
+
+所以不需要保存整个数组。
+
+只维护：
+
+```text
+current = 以当前位置结尾的最大和
+answer  = 到目前为止的全局最大和
+```
+
+代码：
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int current = nums[0];
+        int answer = nums[0];
+
+        for (int i = 1; i < nums.size(); ++i) {
+            current = max(current + nums[i], nums[i]);
+            answer = max(answer, current);
+        }
+
+        return answer;
+    }
+};
+```
+
+复杂度变为：
+
+$$
+T(n)=O(n)
+$$
+
+$$
+S(n)=O(1)
+$$
+
+## 9. 动态规划与贪心其实是同一个判断
+
+贪心写法通常会维护一个当前和 `sum`：
+
+- 如果当前和变成负数，就丢弃它；
+- 从下一位置重新开始。
+
+DP 的转移：
+
+$$
+dp[i]=nums[i]+\max(dp[i-1],0)
+$$
+
+表达的正是同一件事。
+
+因此本题是一个非常典型的例子：
+
+> 不同算法视角可能在代码层面几乎一致，区别主要在于证明方式和状态解释。
+
+### DP 视角
+
+关注：
+
+```text
+以 i 结尾的最优解是什么？
+```
+
+### 贪心视角
+
+关注：
+
+```text
+此前累计和是否还值得继续保留？
+```
+
+二者最终得到相同的线性算法。
+
+## 10. 常见错误
+
+### 错误一：答案直接返回最后一个状态
+
+错误写法：
+
+```cpp
+return dp[n - 1];
+```
+
+它只表示必须以最后一个位置结尾的答案。
+
+应当额外维护：
+
+```cpp
+ans = max(ans, dp[i]);
+```
+
+### 错误二：把初始答案设为 `0`
+
+```cpp
+int ans = 0;
+```
+
+当数组全部为负数时会出错。
+
+例如：
+
+```text
+[-4, -2, -7]
+```
+
+答案应为：
+
+$$
+-2
+$$
+
+而不是 $0$。
+
+### 错误三：把“子数组”和“子序列”混淆
+
+连续子数组：
+
+```text
+必须连续
+```
+
+子序列：
+
+```text
+可以跳过元素，但相对顺序不变
+```
+
+本题之所以只有“继续接上”和“重新开始”两种选择，就是因为要求连续。
+
+## 11. 如何恢复具体的最大子数组
+
+如果题目不只要求最大和，还要求输出区间，可以维护当前候选区间的起点。
+
+当：
+
+$$
+nums[i] > current + nums[i]
+$$
+
+说明应该从 `i` 重新开始。
+
+例如：
+
+```cpp
+int current = nums[0];
+int answer = nums[0];
+int currentLeft = 0;
+int bestLeft = 0, bestRight = 0;
+
+for (int i = 1; i < nums.size(); ++i) {
+    if (current + nums[i] < nums[i]) {
+        current = nums[i];
+        currentLeft = i;
+    } else {
+        current += nums[i];
+    }
+
+    if (current > answer) {
+        answer = current;
+        bestLeft = currentLeft;
+        bestRight = i;
+    }
+}
+```
+
+这样最终区间就是：
+
+```text
+[bestLeft, bestRight]
+```
+
+## 12. 这一题真正应该掌握什么
+
+### 状态设计
+
+不要一上来定义“前 i 个元素的全局最优”。对于连续结构，常常应该定义成“必须以 i 结尾的最优解”。
+### 转移本质
+
+每个位置只有两种决策：延续旧区间，或者从当前位置重新开始。
+### 答案位置
+
+局部受限状态不一定直接等于最终答案，因此需要在全部 `dp[i]` 中取最大值。
+### 空间优化
+
+如果状态只依赖上一项，就可以把数组压缩成一个变量。
+## 13. 其他语言版本
+
+```cpp tab="C++"
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int current = nums[0];
+        int answer = nums[0];
+
+        for (int i = 1; i < nums.size(); ++i) {
+            current = max(current + nums[i], nums[i]);
+            answer = max(answer, current);
+        }
+
+        return answer;
+    }
+};
+```
+
+```java tab="Java"
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int current = nums[0];
+        int answer = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            current = Math.max(current + nums[i], nums[i]);
+            answer = Math.max(answer, current);
+        }
+
+        return answer;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        current = nums[0]
+        answer = nums[0]
+
+        for x in nums[1:]:
+            current = max(current + x, x)
+            answer = max(answer, current)
+
+        return answer
+```
+
+```javascript tab="JavaScript"
+var maxSubArray = function(nums) {
+    let current = nums[0];
+    let answer = nums[0];
+
+    for (let i = 1; i < nums.length; i++) {
+        current = Math.max(current + nums[i], nums[i]);
+        answer = Math.max(answer, current);
+    }
+
+    return answer;
+};
+```
+
+```typescript tab="TypeScript"
+function maxSubArray(nums: number[]): number {
+    let current = nums[0];
+    let answer = nums[0];
+
+    for (let i = 1; i < nums.length; i++) {
+        current = Math.max(current + nums[i], nums[i]);
+        answer = Math.max(answer, current);
+    }
+
+    return answer;
+}
+```
+
+```go tab="Go"
+func maxSubArray(nums []int) int {
+    current := nums[0]
+    answer := nums[0]
+
+    for i := 1; i < len(nums); i++ {
+        if current+nums[i] > nums[i] {
+            current = current + nums[i]
+        } else {
+            current = nums[i]
+        }
+
+        if current > answer {
+            answer = current
+        }
+    }
+
+    return answer
+}
+```
+
+## 14. 一句话总结
+
+最大子序和的核心不是“枚举所有区间”，而是设计状态：
+
+$$
+\boxed{dp[i]=\text{以 }i\text{ 结尾的最大连续子数组和}}
+$$
+
+于是每一步只需要判断：
+
+$$
+\boxed{\text{继续接上前面的区间，还是从当前位置重新开始}}
+$$
+
+这类“以当前位置结尾”的 DP 状态，是后续很多序列问题中非常重要的建模方式。

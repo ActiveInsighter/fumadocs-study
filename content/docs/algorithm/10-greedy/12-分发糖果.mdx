@@ -1,0 +1,964 @@
+---
+title: 分发糖果
+summary: 用两次单向贪心分别处理“右边评分更高”和“左边评分更高”两个约束，再用 max 合并两侧要求，得到满足所有相邻关系的最小糖果数。
+description: LeetCode 135 分发糖果。系统讲解双向贪心、为何不能一次同时处理两侧、正确性证明、山峰视角、常见错误以及多语言实现。
+---
+
+
+# 135. 分发糖果
+
+[LeetCode 135. 分发糖果](https://leetcode.cn/problems/candy/)
+
+有 $n$ 个孩子站成一排，第 $i$ 个孩子的评分为 `ratings[i]`。需要分配糖果并满足：
+
+1. 每个孩子至少得到 $1$ 颗糖果；
+2. 如果某个孩子的评分比相邻孩子高，那么他的糖果也必须更多。
+
+目标是让糖果总数尽可能少。
+
+例如：
+
+```text
+ratings = [1, 0, 2]
+```
+
+一种最优分配是：
+
+```text
+candies = [2, 1, 2]
+```
+
+总糖果数为：
+
+$$
+2+1+2=5
+$$
+
+## 1. 这道题真正难在哪里
+
+表面上只有一句约束：
+
+> 评分高的孩子必须比相邻评分低的孩子拿更多糖果。
+
+但一个孩子最多同时受左右两个邻居约束。
+
+例如：
+
+```text
+ratings = [1, 3, 2]
+```
+
+中间的 `3` 同时需要满足：
+
+```text
+candies[1] > candies[0]
+candies[1] > candies[2]
+```
+
+也就是说，当前位置的最终糖果数量可能同时受到：
+
+- 左侧递增关系；
+- 右侧递减关系；
+
+共同影响。
+
+如果试图在一次从左到右扫描中同时处理左右两边，就会遇到一个根本问题：
+
+> 当你处理 `ratings[i]` 时，右边的信息还没有完整出现。
+
+因此，本题最重要的思想不是“某个地方加一”，而是：
+
+$$
+\boxed{\text{把双向约束拆成两个单向约束，分别解决，再合并}}
+$$
+
+<Callout type="info" title="一个很典型的贪心套路">
+当一个元素同时受两个方向的局部关系约束时，可以尝试“先只保证一个方向，再反向扫描保证另一个方向”。分发糖果是双向扫描贪心最经典的题目之一。
+</Callout>
+
+## 2. 第一次扫描：只处理左邻居约束
+
+先给每个孩子 $1$ 颗糖果：
+
+```text
+candies = [1, 1, 1, ..., 1]
+```
+
+接下来从左向右扫描。
+
+如果：
+
+$$
+ratings[i]>ratings[i-1]
+$$
+
+那么第 $i$ 个孩子必须比左边多。
+
+为了让新增糖果尽可能少，最小合法选择就是：
+
+$$
+candies[i]=candies[i-1]+1
+$$
+
+代码：
+
+```cpp
+for (int i = 1; i < n; ++i) {
+    if (ratings[i] > ratings[i - 1]) {
+        candies[i] = candies[i - 1] + 1;
+    }
+}
+```
+
+![分发糖果：从左向右处理右孩子评分更高的情况](https://file1.kamacoder.com/i/algo/20201117114916878.png)
+
+这一轮结束后，我们保证了：
+
+$$
+ratings[i]>ratings[i-1]
+\Rightarrow
+candies[i]>candies[i-1]
+$$
+
+也就是所有“右边评分更高”的关系已经满足。
+
+### 为什么这里恰好加 $1$
+
+因为我们追求糖果总量最小。
+
+如果左边孩子有 $x$ 颗糖果，那么右边评分更高时，只需要满足：
+
+$$
+candies[i]>x
+$$
+
+最小整数就是：
+
+$$
+x+1
+$$
+
+因此这里的贪心选择具有很清晰的“最小增量”性质。
+
+## 3. 第二次扫描：只处理右邻居约束
+
+第一轮并不能处理这种情况：
+
+```text
+ratings = [3, 2, 1]
+```
+
+从左向右扫描以后仍然是：
+
+```text
+candies = [1, 1, 1]
+```
+
+显然不合法。
+
+所以还必须从右向左扫描。
+
+如果：
+
+$$
+ratings[i]>ratings[i+1]
+$$
+
+那么第 $i$ 个孩子必须比右边孩子多至少 $1$ 颗：
+
+$$
+candies[i]\ge candies[i+1]+1
+$$
+
+但是此时 `candies[i]` 可能已经在第一次扫描中为了满足左侧关系而取得更大的值。
+
+所以不能直接覆盖成：
+
+```cpp
+candies[i] = candies[i + 1] + 1;
+```
+
+而应该取两种要求中的较大值：
+
+$$
+\boxed{
+candies[i]=\max(candies[i],\ candies[i+1]+1)
+}
+$$
+
+代码：
+
+```cpp
+for (int i = n - 2; i >= 0; --i) {
+    if (ratings[i] > ratings[i + 1]) {
+        candies[i] = max(candies[i], candies[i + 1] + 1);
+    }
+}
+```
+
+![分发糖果：第二次扫描必须从右向左](https://file1.kamacoder.com/i/algo/20230202102044.png)
+
+![分发糖果：用 max 同时保留左右两侧约束](https://file1.kamacoder.com/i/algo/20201117115658791.png)
+
+## 4. 为什么第二次一定要从右向左
+
+这是本题最容易“看懂代码但没真正理解”的地方。
+
+假设有连续下降序列：
+
+```text
+ratings = [5, 4, 3, 2, 1]
+```
+
+要得到最小合法糖果数，应该是：
+
+```text
+candies = [5, 4, 3, 2, 1]
+```
+
+注意最左边孩子应该拿多少糖果，取决于它右边孩子的最终结果；右边孩子又依赖更右边孩子。
+
+也就是说信息传播方向是：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+     从右向左传播
+```
+
+数学上，第 $i$ 个孩子满足右侧约束时需要：
+
+$$
+candies[i]=candies[i+1]+1
+$$
+
+因此必须先知道：
+
+$$
+candies[i+1]
+$$
+
+的最终值。
+
+这自然要求遍历顺序是：
+
+$$
+n-2,n-3,\ldots,0
+$$
+
+<Callout type="warning" title="遍历方向不是写法偏好，而是状态依赖关系决定的">
+如果一个状态依赖它右边已经计算完成的状态，就必须从右向左；如果依赖左边，就应该从左向右。判断遍历方向时，应先画出“谁依赖谁”。
+</Callout>
+
+## 5. 为什么必须用 `max`，不能直接覆盖
+
+看一个关键例子：
+
+```text
+ratings = [1, 2, 3, 2, 1]
+```
+
+第一次从左向右后：
+
+```text
+ratings = [1, 2, 3, 2, 1]
+candies = [1, 2, 3, 1, 1]
+```
+
+第二次从右向左处理下降部分：
+
+```text
+位置 3：max(1, 1 + 1) = 2
+位置 2：max(3, 2 + 1) = 3
+```
+
+最终：
+
+```text
+candies = [1, 2, 3, 2, 1]
+```
+
+如果在位置 $2$ 直接写成：
+
+```cpp
+candies[2] = candies[3] + 1;
+```
+
+这个例子恰好仍然得到 $3$，但换成：
+
+```text
+ratings = [1, 2, 3, 4, 2, 1]
+```
+
+第一轮会让评分 `4` 的位置拿到 $4$ 颗。
+
+第二轮根据右边只要求它至少拿 $3$ 颗。
+
+如果直接覆盖，就会把：
+
+$$
+4
+$$
+
+错误降为：
+
+$$
+3
+$$
+
+从而破坏左侧已经满足的关系。
+
+所以第二轮必须保留第一轮的结果：
+
+$$
+\boxed{\max(\text{左侧要求},\text{右侧要求})}
+$$
+
+## 6. 用“左右最小需求”重新理解
+
+我们还可以把本题理解得更形式化一些。
+
+定义：
+
+- $L[i]$：只考虑左邻居约束时，第 $i$ 个孩子至少需要多少糖果；
+- $R[i]$：只考虑右邻居约束时，第 $i$ 个孩子至少需要多少糖果。
+
+那么：
+
+$$
+L[i]=
+\begin{cases}
+L[i-1]+1,&ratings[i]>ratings[i-1]\\
+1,&\text{otherwise}
+\end{cases}
+$$
+
+以及：
+
+$$
+R[i]=
+\begin{cases}
+R[i+1]+1,&ratings[i]>ratings[i+1]\\
+1,&\text{otherwise}
+\end{cases}
+$$
+
+要同时满足两侧要求，就必须：
+
+$$
+candies[i]\ge L[i]
+$$
+
+并且：
+
+$$
+candies[i]\ge R[i]
+$$
+
+因此最小合法值就是：
+
+$$
+\boxed{candies[i]=\max(L[i],R[i])}
+$$
+
+这正是“两次扫描 + `max`”的本质。
+
+我们实际写代码时不必真的维护两个数组，可以直接让第一次扫描的 `candies` 表示 $L$，第二次再原地合并 $R$。
+
+## 7. 完整过程演示
+
+考虑：
+
+```text
+ratings = [1, 3, 4, 5, 2]
+```
+
+### 初始状态
+
+每个孩子至少一颗：
+
+```text
+candies = [1, 1, 1, 1, 1]
+```
+
+### 第一次：从左向右
+
+依次比较：
+
+```text
+1 < 3  => 2
+3 < 4  => 3
+4 < 5  => 4
+5 > 2  => 保持 1
+```
+
+得到：
+
+```text
+candies = [1, 2, 3, 4, 1]
+```
+
+### 第二次：从右向左
+
+只有：
+
+```text
+5 > 2
+```
+
+所以位置 $3$ 至少需要：
+
+$$
+1+1=2
+$$
+
+但第一次扫描已经给了它 $4$ 颗，因此：
+
+$$
+\max(4,2)=4
+$$
+
+最终仍然是：
+
+```text
+candies = [1, 2, 3, 4, 1]
+```
+
+总数：
+
+$$
+1+2+3+4+1=11
+$$
+
+## 8. 正确性证明
+
+本题可以从“两个独立下界”角度证明。
+
+### 8.1 第一次扫描得到满足左侧关系的最小值
+
+从左向右扫描时：
+
+- 若 `ratings[i] <= ratings[i - 1]`，左侧关系不要求 `candies[i]` 增大，所以取最小值 $1$；
+- 若 `ratings[i] > ratings[i - 1]`，必须满足：
+
+$$
+candies[i]>candies[i-1]
+$$
+
+最小整数解就是：
+
+$$
+candies[i]=candies[i-1]+1
+$$
+
+所以第一轮得到的是所有左侧约束下的逐点最小解。
+
+### 8.2 第二次扫描补齐右侧关系
+
+从右向左时，如果：
+
+$$
+ratings[i]>ratings[i+1]
+$$
+
+必须有：
+
+$$
+candies[i]\ge candies[i+1]+1
+$$
+
+与此同时，第一轮已经给出了满足左侧关系所需的下界。
+
+因此最终最小值只能是：
+
+$$
+\max(candies[i],candies[i+1]+1)
+$$
+
+它既不会破坏左侧已经成立的约束，也不会多发不必要的糖果。
+
+### 8.3 最终解为什么是全局最小
+
+对于每个位置 $i$，任何合法方案都必须至少满足：
+
+$$
+candies[i]\ge L[i]
+$$
+
+和：
+
+$$
+candies[i]\ge R[i]
+$$
+
+所以任何合法方案都必有：
+
+$$
+candies[i]\ge\max(L[i],R[i])
+$$
+
+我们的算法恰好令：
+
+$$
+candies[i]=\max(L[i],R[i])
+$$
+
+因此每一个位置都已经取到了合法的最小值，糖果总和自然也是全局最小。
+
+## 9. C++ 标准实现
+
+```cpp
+class Solution {
+public:
+    int candy(vector<int>& ratings) {
+        const int n = static_cast<int>(ratings.size());
+        vector<int> candies(n, 1);
+
+        // 第一轮：只保证“右边评分更高 -> 右边糖果更多”。
+        for (int i = 1; i < n; ++i) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        // 第二轮：只保证“左边评分更高 -> 左边糖果更多”。
+        // 用 max 保留第一轮已经建立的左侧约束。
+        for (int i = n - 2; i >= 0; --i) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = max(candies[i], candies[i + 1] + 1);
+            }
+        }
+
+        int answer = 0;
+        for (int x : candies) {
+            answer += x;
+        }
+        return answer;
+    }
+};
+```
+
+### 复杂度
+
+两次线性扫描，再求一次总和：
+
+$$
+T(n)=O(n)
+$$
+
+额外使用一个长度为 $n$ 的数组：
+
+$$
+S(n)=O(n)
+$$
+
+## 10. 为什么这是一道贪心题
+
+本题每一步其实都在做“只增加到刚好合法”的选择。
+
+第一轮：
+
+$$
+ratings[i]>ratings[i-1]
+$$
+
+时，只让当前孩子比左边多 $1$ 颗。
+
+第二轮：
+
+$$
+ratings[i]>ratings[i+1]
+$$
+
+时，只把当前值提高到：
+
+$$
+candies[i+1]+1
+$$
+
+且如果本身已经更大，就完全不增加。
+
+因此每一次修改都是当前约束下的最小必要增量。
+
+最终所有局部最小增量组合起来，就得到全局最小糖果总数。
+
+## 11. 山峰视角：为什么峰顶取两侧最大值
+
+很多测试数据可以看成若干个“上坡 + 下坡”。
+
+例如：
+
+```text
+ratings = [1, 2, 4, 3, 2, 1]
+```
+
+评分结构：
+
+```text
+       4
+     /   \
+    2     3
+   /       \
+  1         2
+             \
+              1
+```
+
+左侧递增要求峰顶至少为：
+
+$$
+3
+$$
+
+右侧递减长度又可能要求峰顶至少为：
+
+$$
+4
+$$
+
+峰顶最终必须同时满足两边，因此只能取：
+
+$$
+\max(3,4)=4
+$$
+
+这就是 `max` 的几何直觉。
+
+## 12. 常见错误
+
+### 错误一：只扫描一次
+
+只从左向右只能解决：
+
+```text
+ratings[i] > ratings[i - 1]
+```
+
+无法处理长下降序列。
+
+### 错误二：第二轮仍然从左向右
+
+右侧约束依赖 `candies[i + 1]` 的最终值，因此必须先算右边，再算左边。
+
+### 错误三：第二轮直接覆盖
+
+错误：
+
+```cpp
+candies[i] = candies[i + 1] + 1;
+```
+
+正确：
+
+```cpp
+candies[i] = max(candies[i], candies[i + 1] + 1);
+```
+
+直接覆盖可能破坏第一轮已经满足的左侧关系。
+
+### 错误四：评分相等也增加糖果
+
+题目只要求“评分更高”时糖果更多。
+
+若：
+
+$$
+ratings[i]=ratings[i-1]
+$$
+
+两人的糖果数量没有大小关系要求。
+
+例如：
+
+```text
+ratings = [1, 2, 2]
+```
+
+最优分配是：
+
+```text
+candies = [1, 2, 1]
+```
+
+而不是：
+
+```text
+[1, 2, 2]
+```
+
+## 13. 一眼识别这类题
+
+如果题目同时出现：
+
+- 相邻元素约束；
+- 左右两个方向都可能影响当前位置；
+- 目标是最小化或最大化某种分配；
+
+可以优先思考：
+
+### 把双向关系拆成两个单向关系
+
+先暂时只处理左侧影响，再处理右侧影响。
+
+### 根据依赖方向决定扫描方向
+
+依赖左边，就从左向右；依赖右边，就从右向左。
+
+### 合并两边的约束下界
+
+若两个方向都要求当前位置至少达到某个值，通常取：
+
+$$
+\max(\text{左侧要求},\text{右侧要求})
+$$
+
+<Callout type="success" title="本题最值得记住的模板">
+先确定一边，再确定另一边；第二遍不能破坏第一遍已经建立的合法性，所以使用 `max` 合并两个方向的最低要求。
+</Callout>
+
+## 14. 其他语言版本
+
+以下实现都遵循同一个核心模板：**初始化为 1 → 左到右 → 右到左取最大值 → 求和**。
+
+
+
+```java tab="Java"
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        java.util.Arrays.fill(candies, 1);
+
+        for (int i = 1; i < n; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        for (int i = n - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+            }
+        }
+
+        int answer = 0;
+        for (int x : candies) {
+            answer += x;
+        }
+        return answer;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def candy(self, ratings: list[int]) -> int:
+        n = len(ratings)
+        candies = [1] * n
+
+        for i in range(1, n):
+            if ratings[i] > ratings[i - 1]:
+                candies[i] = candies[i - 1] + 1
+
+        for i in range(n - 2, -1, -1):
+            if ratings[i] > ratings[i + 1]:
+                candies[i] = max(candies[i], candies[i + 1] + 1)
+
+        return sum(candies)
+```
+
+
+
+```go tab="Go"
+func candy(ratings []int) int {
+    n := len(ratings)
+    candies := make([]int, n)
+    for i := range candies {
+        candies[i] = 1
+    }
+
+    for i := 1; i < n; i++ {
+        if ratings[i] > ratings[i-1] {
+            candies[i] = candies[i-1] + 1
+        }
+    }
+
+    for i := n - 2; i >= 0; i-- {
+        if ratings[i] > ratings[i+1] && candies[i] < candies[i+1]+1 {
+            candies[i] = candies[i+1] + 1
+        }
+    }
+
+    answer := 0
+    for _, x := range candies {
+        answer += x
+    }
+    return answer
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn candy(ratings: Vec<i32>) -> i32 {
+        let n = ratings.len();
+        let mut candies = vec![1; n];
+
+        for i in 1..n {
+            if ratings[i] > ratings[i - 1] {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        for i in (0..n - 1).rev() {
+            if ratings[i] > ratings[i + 1] {
+                candies[i] = candies[i].max(candies[i + 1] + 1);
+            }
+        }
+
+        candies.iter().sum()
+    }
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var candy = function (ratings) {
+  const n = ratings.length;
+  const candies = new Array(n).fill(1);
+
+  for (let i = 1; i < n; i++) {
+    if (ratings[i] > ratings[i - 1]) {
+      candies[i] = candies[i - 1] + 1;
+    }
+  }
+
+  for (let i = n - 2; i >= 0; i--) {
+    if (ratings[i] > ratings[i + 1]) {
+      candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+    }
+  }
+
+  return candies.reduce((sum, x) => sum + x, 0);
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function candy(ratings: number[]): number {
+  const n = ratings.length;
+  const candies: number[] = new Array(n).fill(1);
+
+  for (let i = 1; i < n; i++) {
+    if (ratings[i] > ratings[i - 1]) {
+      candies[i] = candies[i - 1] + 1;
+    }
+  }
+
+  for (let i = n - 2; i >= 0; i--) {
+    if (ratings[i] > ratings[i + 1]) {
+      candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+    }
+  }
+
+  return candies.reduce((sum, x) => sum + x, 0);
+}
+```
+
+
+
+```c tab="C"
+#include <stdlib.h>
+
+static int maxInt(int a, int b) {
+    return a > b ? a : b;
+}
+
+int candy(int* ratings, int ratingsSize) {
+    int* candies = (int*)malloc(sizeof(int) * ratingsSize);
+
+    for (int i = 0; i < ratingsSize; ++i) {
+        candies[i] = 1;
+    }
+
+    for (int i = 1; i < ratingsSize; ++i) {
+        if (ratings[i] > ratings[i - 1]) {
+            candies[i] = candies[i - 1] + 1;
+        }
+    }
+
+    for (int i = ratingsSize - 2; i >= 0; --i) {
+        if (ratings[i] > ratings[i + 1]) {
+            candies[i] = maxInt(candies[i], candies[i + 1] + 1);
+        }
+    }
+
+    int answer = 0;
+    for (int i = 0; i < ratingsSize; ++i) {
+        answer += candies[i];
+    }
+
+    free(candies);
+    return answer;
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def candy(ratings: Array[Int]): Int = {
+    val n = ratings.length
+    val candies = Array.fill(n)(1)
+
+    for (i <- 1 until n) {
+      if (ratings(i) > ratings(i - 1)) {
+        candies(i) = candies(i - 1) + 1
+      }
+    }
+
+    for (i <- (n - 2) to 0 by -1) {
+      if (ratings(i) > ratings(i + 1)) {
+        candies(i) = math.max(candies(i), candies(i + 1) + 1)
+      }
+    }
+
+    candies.sum
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public int Candy(int[] ratings)
+    {
+        int n = ratings.Length;
+        int[] candies = Enumerable.Repeat(1, n).ToArray();
+
+        for (int i = 1; i < n; i++)
+        {
+            if (ratings[i] > ratings[i - 1])
+            {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        for (int i = n - 2; i >= 0; i--)
+        {
+            if (ratings[i] > ratings[i + 1])
+            {
+                candies[i] = Math.Max(candies[i], candies[i + 1] + 1);
+            }
+        }
+
+        return candies.Sum();
+    }
+}
+```

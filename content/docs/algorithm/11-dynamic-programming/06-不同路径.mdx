@@ -1,0 +1,687 @@
+---
+title: 不同路径
+description: 用二维动态规划、滚动数组与组合数学解决网格路径计数，并理解二维状态压缩的本质。
+icon: Grid3X3
+---
+
+# 不同路径
+
+> LeetCode 62：Unique Paths
+
+一个机器人位于 $m\times n$ 网格左上角，只能**向右**或**向下**移动一步，目标是到达右下角。求一共有多少条不同路径。
+
+示意图：
+
+![](https://file1.kamacoder.com/i/algo/20210110174033215.png)
+
+例如：
+
+```text
+m = 3, n = 7
+```
+
+答案为：
+
+$$
+28
+$$
+
+如果：
+
+```text
+m = 2, n = 3
+```
+
+共有三条路径：
+
+```text
+右 -> 右 -> 下
+右 -> 下 -> 右
+下 -> 右 -> 右
+```
+
+<Callout type="info" title="这是一道非常标准的二维 DP 入门题">
+前面的题目只有一个下标 `dp[i]`。从这道题开始，状态需要同时描述“行”和“列”，因此自然升级为 `dp[i][j]`。
+</Callout>
+
+## 1. 从暴力搜索看为什么需要 DP
+
+最直观的想法是从左上角开始搜索：
+
+```cpp
+int dfs(int i, int j, int m, int n) {
+    if (i >= m || j >= n) return 0;
+    if (i == m - 1 && j == n - 1) return 1;
+
+    return dfs(i + 1, j, m, n)
+         + dfs(i, j + 1, m, n);
+}
+```
+
+每个位置最多分裂为两个分支：向下与向右。
+
+搜索结构可以近似看成一棵二叉树：
+
+![](https://file1.kamacoder.com/i/algo/20201209113602700.png)
+
+问题在于：大量位置会被重复访问。
+
+例如到达某个中间格子 $(i,j)$ 之后，从该格子到终点的后续结果与之前如何到达它无关。于是同一个子问题会被一遍又一遍重新计算。
+
+这正符合动态规划的典型特征：
+
+> **不同路径会汇聚到同一个状态，而同一个状态的答案可以被重复利用。**
+
+## 2. 动态规划五步分析
+
+### 2.1 状态定义
+
+定义：
+
+$$
+dp[i][j]
+$$
+
+表示：
+
+> 从左上角 $(0,0)$ 出发，到达格子 $(i,j)$ 的不同路径数量。
+
+最终答案为：
+
+$$
+dp[m-1][n-1]
+$$
+
+### 2.2 状态转移
+
+因为机器人只能向右或向下移动，所以进入 $(i,j)$ 的最后一步只可能来自：
+
+- 上方 $(i-1,j)$；
+- 左方 $(i,j-1)$。
+
+来自这两个位置的路径集合互不重叠，因此直接相加：
+
+$$
+\boxed{
+ dp[i][j]=dp[i-1][j]+dp[i][j-1]
+}
+$$
+
+这是整道题最核心的关系。
+
+<Callout type="tip" title="二维 DP 的通用推导方法">
+不要急着背二维公式。先站在当前格子 $(i,j)$，问一句：“最后一步可能从哪里来？”把所有合法前驱列出来，再根据题意决定是求和、取最小值还是取最大值。
+</Callout>
+
+### 2.3 初始化
+
+第一列中的所有格子都只能一直向下到达：
+
+$$
+dp[i][0]=1
+$$
+
+第一行中的所有格子都只能一直向右到达：
+
+$$
+dp[0][j]=1
+$$
+
+因此边界为：
+
+$$
+\boxed{
+ dp[i][0]=1,\qquad dp[0][j]=1
+}
+$$
+
+### 2.4 遍历顺序
+
+计算：
+
+$$
+dp[i][j]
+$$
+
+之前，需要保证：
+
+$$
+dp[i-1][j]
+$$
+
+与：
+
+$$
+dp[i][j-1]
+$$
+
+已经求出。
+
+因此可以按“从上到下、每一行从左到右”的顺序遍历：
+
+```text
+(0,0) -> (0,1) -> ...
+  |
+  v
+(1,0) -> (1,1) -> ...
+  |
+  v
+...
+```
+
+### 2.5 手工推导 DP 表
+
+例如：
+
+```text
+m = 3, n = 7
+```
+
+DP 表为：
+
+|   | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| 1 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+| 2 | 1 | 3 | 6 | 10 | 15 | 21 | 28 |
+
+原资料中的推导示意图：
+
+![](https://file1.kamacoder.com/i/algo/20201209113631392.png)
+
+可以看到，每个格子都等于“上方 + 左方”。
+
+## 3. 二维 DP 标准实现
+
+```cpp
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; ++i) {
+            dp[i][0] = 1;
+        }
+        for (int j = 0; j < n; ++j) {
+            dp[0][j] = 1;
+        }
+
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+            }
+        }
+
+        return dp[m - 1][n - 1];
+    }
+};
+```
+
+### 复杂度
+
+一共有 $m\times n$ 个状态，每个状态只计算一次：
+
+$$
+O(mn)
+$$
+
+二维数组占用：
+
+$$
+O(mn)
+$$
+
+## 4. 为什么可以压缩成一维数组
+
+观察状态转移：
+
+$$
+dp[i][j]=dp[i-1][j]+dp[i][j-1]
+$$
+
+计算当前行时，我们真正需要的只有：
+
+- 当前格子正上方的旧值；
+- 当前格子左边刚刚更新后的新值。
+
+因此不必保存所有历史行。
+
+使用一维数组 `dp[j]` 时：
+
+- 更新前的 `dp[j]` 表示二维数组中的 $dp[i-1][j]$；
+- 更新后的 `dp[j-1]` 表示二维数组中的 $dp[i][j-1]$。
+
+于是原公式直接变成：
+
+$$
+\boxed{
+ dp[j]=dp[j]+dp[j-1]
+}
+$$
+
+代码：
+
+```cpp
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<int> dp(n, 1);
+
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[j] += dp[j - 1];
+            }
+        }
+
+        return dp[n - 1];
+    }
+};
+```
+
+空间复杂度降低为：
+
+$$
+O(n)
+$$
+
+如果希望进一步节省空间，可以让较短的一边作为一维数组长度，因此空间复杂度可写为：
+
+$$
+O(\min(m,n))
+$$
+
+<Callout type="warning" title="一维 DP 的更新顺序不能随意改变">
+这里必须从左向右更新。因为 `dp[j - 1]` 必须代表“当前行左侧”的最新结果。如果从右向左更新，它仍然是上一行的数据，状态语义就变了。
+</Callout>
+
+## 5. 用一个具体过程理解滚动数组
+
+以 $3\times 4$ 网格为例。
+
+初始化第一行：
+
+```text
+[1, 1, 1, 1]
+```
+
+处理第二行：
+
+```text
+j = 1: [1, 2, 1, 1]
+j = 2: [1, 2, 3, 1]
+j = 3: [1, 2, 3, 4]
+```
+
+处理第三行：
+
+```text
+j = 1: [1, 3, 3, 4]
+j = 2: [1, 3, 6, 4]
+j = 3: [1, 3, 6, 10]
+```
+
+最终：
+
+$$
+10
+$$
+
+这就是二维数组“逐行覆盖”的过程。
+
+## 6. 组合数学视角
+
+这道题还有一个非常漂亮的数学解法。
+
+从左上角走到右下角，无论怎样选择路径，总步数一定是：
+
+$$
+(m-1)+(n-1)=m+n-2
+$$
+
+其中：
+
+- 必须向下走 $m-1$ 次；
+- 必须向右走 $n-1$ 次。
+
+因此问题等价于：
+
+> 在 $m+n-2$ 个位置中，选择其中 $m-1$ 个位置放“向下”，剩下的位置自然都是“向右”。
+
+所以：
+
+$$
+\boxed{
+\text{ans}=\binom{m+n-2}{m-1}
+}
+$$
+
+也可以写成：
+
+$$
+\boxed{
+\text{ans}=\binom{m+n-2}{n-1}
+}
+$$
+
+原资料中的组合数示意：
+
+![](https://file1.kamacoder.com/i/algo/20201209113602700-20230310120944078.png)
+
+![](https://file1.kamacoder.com/i/algo/20201209113725324.png)
+
+## 7. 组合数实现：怎样避免中间结果溢出
+
+如果直接先计算阶乘：
+
+$$
+\binom{N}{K}=\frac{N!}{K!(N-K)!}
+$$
+
+中间的阶乘会远远大于最终答案，很容易溢出。
+
+更稳妥的方式是逐项乘除。
+
+令：
+
+$$
+N=m+n-2
+$$
+
+并利用对称性：
+
+$$
+K=\min(m-1,n-1)
+$$
+
+则：
+
+$$
+\binom{N}{K}
+=
+\prod_{i=1}^{K}\frac{N-K+i}{i}
+$$
+
+代码：
+
+```cpp
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        long long ans = 1;
+        int N = m + n - 2;
+        int K = min(m - 1, n - 1);
+
+        for (int i = 1; i <= K; ++i) {
+            ans = ans * (N - K + i) / i;
+        }
+
+        return static_cast<int>(ans);
+    }
+};
+```
+
+在本题的数据范围内，最终答案保证不超过 $2\times10^9$，使用 `long long` 保存中间结果更加稳妥。
+
+### 复杂度
+
+时间复杂度：
+
+$$
+O(\min(m,n))
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+## 8. 三种方法如何选择
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+| --- | ---: | ---: | --- |
+| 朴素 DFS | 指数级 | 递归栈 | 直观，但大量重复计算 |
+| 二维 DP | $O(mn)$ | $O(mn)$ | 最容易理解状态关系 |
+| 一维 DP | $O(mn)$ | $O(n)$ | 推荐的通用实现 |
+| 组合数学 | $O(\min(m,n))$ | $O(1)$ | 利用题目特殊结构，效率最高 |
+
+学习动态规划时，建议优先掌握二维 DP，再理解一维压缩；组合数学属于对题目结构的进一步观察。
+
+## 9. 这道题真正值得迁移的能力
+
+### 9.1 从“最后一步”找转移
+
+当前格子 $(i,j)$ 只能来自：
+
+$$
+(i-1,j),\qquad(i,j-1)
+$$
+
+所以自然形成二维状态转移。
+
+### 9.2 边界初始化来自“只有一种走法”
+
+第一行和第一列没有选择，只能沿唯一方向前进，所以全部初始化为 $1$。
+
+### 9.3 一维压缩本质是覆盖旧状态
+
+空间压缩不是背模板：
+
+```cpp
+dp[j] += dp[j - 1];
+```
+
+而是要理解：
+
+```text
+dp[j]     = 上方旧值
+dp[j - 1] = 左侧新值
+```
+
+### 9.4 DP 与组合数学可能描述同一个结构
+
+动态规划按局部状态逐步累加路径数量；组合数学一次性统计所有“向下/向右”的排列。
+
+两者答案相同，只是观察问题的尺度不同。
+
+## 10. 易错点
+
+### 错误一：数组大小写成 `m + 1`、`n + 1` 后仍使用原下标逻辑
+
+当然可以扩大数组，但必须同步修改状态定义和初始化。最简单的写法就是严格使用：
+
+```cpp
+vector<vector<int>> dp(m, vector<int>(n));
+```
+
+### 错误二：忘记初始化第一行和第一列
+
+如果默认都是 $0$，后续所有状态都会被推成 $0$。
+
+### 错误三：一维压缩时从右向左遍历
+
+本题从右向左会破坏：
+
+$$
+dp[j-1]=\text{当前行左侧状态}
+$$
+
+这一语义。
+
+### 错误四：直接计算大阶乘
+
+即使最终组合数不大，中间的：
+
+$$
+N!
+$$
+
+也可能非常大。
+
+## 11. 一句话总结
+
+不同路径的核心可以浓缩为：
+
+$$
+\boxed{
+ dp[i][j]=dp[i-1][j]+dp[i][j-1]
+}
+$$
+
+它第一次完整展示了二维动态规划中的四个关键点：
+
+1. 用两个维度定义状态；
+2. 从合法前驱推导转移；
+3. 根据边界含义初始化；
+4. 根据依赖关系进行空间压缩。
+
+下一题“不同路径 II”会加入**障碍物**。状态转移公式本身变化不大，但“不可达状态如何处理”会成为新的重点。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int uniquePaths(int m, int n) {
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1);
+
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[j] += dp[j - 1];
+            }
+        }
+
+        return dp[n - 1];
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def uniquePaths(self, m: int, n: int) -> int:
+        dp = [1] * n
+
+        for _ in range(1, m):
+            for j in range(1, n):
+                dp[j] += dp[j - 1]
+
+        return dp[-1]
+```
+
+```go tab="Go"
+func uniquePaths(m int, n int) int {
+    dp := make([]int, n)
+    for i := range dp {
+        dp[i] = 1
+    }
+
+    for i := 1; i < m; i++ {
+        for j := 1; j < n; j++ {
+            dp[j] += dp[j-1]
+        }
+    }
+
+    return dp[n-1]
+}
+```
+
+```javascript tab="JavaScript"
+var uniquePaths = function(m, n) {
+    const dp = new Array(n).fill(1);
+
+    for (let i = 1; i < m; ++i) {
+        for (let j = 1; j < n; ++j) {
+            dp[j] += dp[j - 1];
+        }
+    }
+
+    return dp[n - 1];
+};
+```
+
+```typescript tab="TypeScript"
+function uniquePaths(m: number, n: number): number {
+    const dp: number[] = new Array(n).fill(1);
+
+    for (let i = 1; i < m; ++i) {
+        for (let j = 1; j < n; ++j) {
+            dp[j] += dp[j - 1];
+        }
+    }
+
+    return dp[n - 1];
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn unique_paths(m: i32, n: i32) -> i32 {
+        let (m, n) = (m as usize, n as usize);
+        let mut dp = vec![1; n];
+
+        for _ in 1..m {
+            for j in 1..n {
+                dp[j] += dp[j - 1];
+            }
+        }
+
+        dp[n - 1]
+    }
+}
+```
+
+```c tab="C"
+int uniquePaths(int m, int n) {
+    int *dp = (int *)malloc(sizeof(int) * n);
+    for (int j = 0; j < n; ++j) {
+        dp[j] = 1;
+    }
+
+    for (int i = 1; i < m; ++i) {
+        for (int j = 1; j < n; ++j) {
+            dp[j] += dp[j - 1];
+        }
+    }
+
+    int ans = dp[n - 1];
+    free(dp);
+    return ans;
+}
+```
+
+```scala label="Scala"
+object Solution {
+  def uniquePaths(m: Int, n: Int): Int = {
+    val dp = Array.fill(n)(1)
+
+    for (_ <- 1 until m) {
+      for (j <- 1 until n) {
+        dp(j) += dp(j - 1)
+      }
+    }
+
+    dp(n - 1)
+  }
+}
+```
+
+```csharp tab="C#"
+public class Solution
+{
+    public int UniquePaths(int m, int n)
+    {
+        int[] dp = new int[n];
+        Array.Fill(dp, 1);
+
+        for (int i = 1; i < m; ++i)
+        {
+            for (int j = 1; j < n; ++j)
+            {
+                dp[j] += dp[j - 1];
+            }
+        }
+
+        return dp[n - 1];
+    }
+}
+```

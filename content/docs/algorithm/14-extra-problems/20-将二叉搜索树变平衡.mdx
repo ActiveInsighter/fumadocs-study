@@ -1,0 +1,552 @@
+---
+title: 将二叉搜索树变平衡
+description: 利用二叉搜索树中序遍历有序的性质，把问题拆成“BST 转有序序列”和“有序序列重建平衡 BST”两步，掌握分治建树与高度平衡的核心逻辑。
+---
+
+# 1382. 将二叉搜索树变平衡
+
+[LeetCode 1382：将二叉搜索树变平衡](https://leetcode.cn/problems/balance-a-binary-search-tree/)
+
+给定一棵二叉搜索树，要求重新构造一棵 **平衡二叉搜索树**，并且新树必须包含与原树完全相同的节点值。
+
+所谓平衡二叉树，是指任意节点的左右子树高度差都不超过 $1$。
+
+![将二叉搜索树变平衡](https://file1.kamacoder.com/i/algo/20210726154512.png)
+
+例如原树可能退化成一条链：
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+```
+
+它虽然仍然满足二叉搜索树性质，但高度达到 $4$，查找性能已经退化。
+
+我们希望把它重新组织成类似：
+
+```text
+    2
+   / \
+  1   3
+       \
+        4
+```
+
+或者其他满足平衡条件的 BST。
+
+## 一、这道题为什么可以拆成两步
+
+本题同时要求：
+
+1. 仍然是二叉搜索树；
+2. 节点值完全不变；
+3. 树要尽可能平衡。
+
+二叉搜索树有一个极其重要的性质：
+
+> **对 BST 做中序遍历，得到的节点值序列一定是严格递增的。**
+
+题目又保证节点值互不相同，因此中序遍历会得到一个有序数组：
+
+```text
+原 BST
+   ↓ 中序遍历
+[1, 2, 3, 4, 5, 6, 7]
+```
+
+然后问题立刻转化为一个经典问题：
+
+> 给定一个严格递增数组，如何构造一棵高度平衡的二叉搜索树？
+
+答案也很自然：每次选择区间中点作为根节点。
+
+因此整题可以拆成：
+
+```text
+BST
+ ↓ 中序遍历
+有序数组
+ ↓ 取中点分治建树
+平衡 BST
+```
+
+> [!IMPORTANT]
+> 这是一类非常值得记住的“性质转换”套路：当树结构本身难以直接调整时，可以先利用遍历结果把结构问题转成数组问题，再重新构造。
+
+## 二、第一步：中序遍历得到有序数组
+
+对于二叉搜索树：
+
+```text
+左子树 < 根节点 < 右子树
+```
+
+中序遍历顺序正好是：
+
+```text
+左 -> 根 -> 右
+```
+
+所以访问顺序天然递增。
+
+```cpp
+void inorder(TreeNode* node, vector<int>& nums) {
+    if (node == nullptr) {
+        return;
+    }
+
+    inorder(node->left, nums);
+    nums.push_back(node->val);
+    inorder(node->right, nums);
+}
+```
+
+假设原树为：
+
+```text
+    4
+   / \
+  2   6
+ / \ / \
+1  3 5  7
+```
+
+中序遍历结果为：
+
+```text
+[1, 2, 3, 4, 5, 6, 7]
+```
+
+此时已经完全不需要关心原树长什么样了。
+
+## 三、第二步：用区间中点构造平衡 BST
+
+对于有序数组：
+
+```text
+[1, 2, 3, 4, 5, 6, 7]
+```
+
+选择中间元素 `4` 作为根节点：
+
+```text
+左半部分: [1, 2, 3]
+根节点:   4
+右半部分: [5, 6, 7]
+```
+
+显然：
+
+- 左边所有元素都小于 `4`；
+- 右边所有元素都大于 `4`；
+
+因此 BST 性质自动满足。
+
+然后对左右区间继续执行同样操作：
+
+```text
+[1,2,3] -> 2 为根
+[5,6,7] -> 6 为根
+```
+
+最后得到：
+
+```text
+        4
+      /   \
+     2     6
+    / \   / \
+   1   3 5   7
+```
+
+这棵树高度非常均衡。
+
+## 四、为什么“取中点”一定能保证平衡
+
+设当前处理区间长度为 $n$。
+
+取中点后，左右两部分的节点数最多只差 $1$。
+
+也就是说：
+
+$|n_L-n_R|\le 1$
+
+对左右区间继续递归使用同样策略，因此每一层都会尽可能平均地划分节点。
+
+最终得到的树高约为：
+
+$O(\log n)$
+
+而不是最坏情况下退化 BST 的：
+
+$O(n)$
+
+这也是“有序数组转平衡 BST”的本质。
+
+## 五、推荐写法：两阶段分治
+
+```cpp
+class Solution {
+private:
+    void inorder(TreeNode* node, vector<int>& nums) {
+        if (node == nullptr) {
+            return;
+        }
+
+        inorder(node->left, nums);
+        nums.push_back(node->val);
+        inorder(node->right, nums);
+    }
+
+    TreeNode* build(const vector<int>& nums, int left, int right) {
+        if (left > right) {
+            return nullptr;
+        }
+
+        int mid = left + (right - left) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+
+        root->left = build(nums, left, mid - 1);
+        root->right = build(nums, mid + 1, right);
+
+        return root;
+    }
+
+public:
+    TreeNode* balanceBST(TreeNode* root) {
+        vector<int> nums;
+        inorder(root, nums);
+        return build(nums, 0, static_cast<int>(nums.size()) - 1);
+    }
+};
+```
+
+## 六、递归函数应该怎样理解
+
+`build(nums, left, right)` 的语义非常重要：
+
+> 使用有序数组区间 `[left, right]` 中的所有元素，构造一棵平衡二叉搜索树，并返回根节点。
+
+于是单层逻辑就固定成三步：
+
+```text
+1. 取中点 mid
+2. nums[mid] 作为根
+3. 左区间构造左子树，右区间构造右子树
+```
+
+即：
+
+```cpp
+root->left = build(nums, left, mid - 1);
+root->right = build(nums, mid + 1, right);
+```
+
+这其实就是标准的分治思想。
+
+## 七、为什么不能简单“旋转几下”就结束
+
+看到“平衡二叉搜索树”，很容易联想到 AVL 树旋转。
+
+理论上当然可以通过旋转不断恢复平衡，但那会让实现明显复杂化：
+
+- 需要计算高度；
+- 判断失衡类型；
+- 执行单旋或双旋；
+- 还要不断更新树结构。
+
+而本题只要求最终返回任意一棵平衡 BST，并不要求原地调整，也不要求维护动态插入过程。
+
+因此最简洁稳定的办法就是：
+
+> **先拍平成有序数组，再重建。**
+
+这也是面试和刷题中更推荐的解法。
+
+## 八、能不能复用原来的节点
+
+可以。
+
+上面的代码创建了新节点，但题目只要求节点值相同，并没有要求必须新建节点。
+
+也可以在中序遍历时直接保存：
+
+```cpp
+vector<TreeNode*> nodes;
+```
+
+然后建树时重新连接这些节点的 `left` 和 `right`。
+
+这样就不需要重新分配节点。
+
+思路完全相同：
+
+```text
+BST -> 中序节点序列 -> 中点分治重新连边
+```
+
+不过从代码可读性上看，保存值后重新创建节点通常更加直观。
+
+## 九、复杂度分析
+
+设节点数为 $n$。
+
+### 时间复杂度
+
+中序遍历访问每个节点一次：
+
+$O(n)$
+
+构造新树同样访问每个数组元素一次：
+
+$O(n)$
+
+总时间复杂度：
+
+$O(n)$
+
+### 空间复杂度
+
+有序数组需要保存 $n$ 个元素：
+
+$O(n)$
+
+重建后的递归深度约为：
+
+$O(\log n)$
+
+但中序遍历原树时，如果原 BST 已经退化成链，递归栈最坏可能达到：
+
+$O(n)$
+
+因此整体额外空间复杂度按最坏情况记为：
+
+$O(n)$
+
+## 十、常见错误
+
+### 1. 忘记 BST 的中序遍历有序
+
+如果没有先想到这个性质，本题会显得很难。
+
+看到“二叉搜索树 + 重新构造”，应优先想到：
+
+```text
+中序遍历 -> 有序序列
+```
+
+### 2. 建树时区间写错
+
+中点已经作为根节点使用，所以左右区间必须分别是：
+
+```text
+[left, mid - 1]
+[mid + 1, right]
+```
+
+不能再次包含 `mid`，否则会无限递归。
+
+### 3. 中点计算不规范
+
+推荐：
+
+```cpp
+int mid = left + (right - left) / 2;
+```
+
+而不是：
+
+```cpp
+int mid = (left + right) / 2;
+```
+
+前者能避免某些语言或大范围整数下的溢出风险。
+
+### 4. 把“平衡”误解成左右节点数必须完全相等
+
+平衡二叉树要求的是：
+
+> 任意节点左右子树的高度差不超过 $1$。
+
+并不要求左右子树节点数完全相同。
+
+## 十一、模板总结
+
+遇到：
+
+> 把一棵 BST 重新构造成更平衡的 BST
+
+可以直接套：
+
+```text
+第一步：中序遍历
+BST -> 有序数组
+
+第二步：分治建树
+有序数组 -> 取中点 -> 平衡 BST
+```
+
+核心代码只有两个模板：
+
+```cpp
+inorder(node->left);
+visit(node);
+inorder(node->right);
+```
+
+以及：
+
+```cpp
+mid = left + (right - left) / 2;
+root = nums[mid];
+root->left = build(left, mid - 1);
+root->right = build(mid + 1, right);
+```
+
+> [!TIP]
+> 这道题与“验证二叉搜索树”“有序数组转二叉搜索树”高度相关。把这三个问题串起来理解，比单独记代码更有价值。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    private final List<Integer> nums = new ArrayList<>();
+
+    private void inorder(TreeNode node) {
+        if (node == null) return;
+        inorder(node.left);
+        nums.add(node.val);
+        inorder(node.right);
+    }
+
+    private TreeNode build(int left, int right) {
+        if (left > right) return null;
+
+        int mid = left + (right - left) / 2;
+        TreeNode root = new TreeNode(nums.get(mid));
+        root.left = build(left, mid - 1);
+        root.right = build(mid + 1, right);
+        return root;
+    }
+
+    public TreeNode balanceBST(TreeNode root) {
+        inorder(root);
+        return build(0, nums.size() - 1);
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def balanceBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        nums = []
+
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.left)
+            nums.append(node.val)
+            inorder(node.right)
+
+        def build(left, right):
+            if left > right:
+                return None
+
+            mid = left + (right - left) // 2
+            node = TreeNode(nums[mid])
+            node.left = build(left, mid - 1)
+            node.right = build(mid + 1, right)
+            return node
+
+        inorder(root)
+        return build(0, len(nums) - 1)
+```
+
+```go tab="Go"
+func balanceBST(root *TreeNode) *TreeNode {
+    nums := make([]int, 0)
+
+    var inorder func(*TreeNode)
+    inorder = func(node *TreeNode) {
+        if node == nil {
+            return
+        }
+        inorder(node.Left)
+        nums = append(nums, node.Val)
+        inorder(node.Right)
+    }
+
+    var build func(int, int) *TreeNode
+    build = func(left, right int) *TreeNode {
+        if left > right {
+            return nil
+        }
+
+        mid := left + (right-left)/2
+        node := &TreeNode{Val: nums[mid]}
+        node.Left = build(left, mid-1)
+        node.Right = build(mid+1, right)
+        return node
+    }
+
+    inorder(root)
+    return build(0, len(nums)-1)
+}
+```
+
+```javascript tab="JavaScript"
+var balanceBST = function(root) {
+    const nums = [];
+
+    const inorder = (node) => {
+        if (node === null) return;
+        inorder(node.left);
+        nums.push(node.val);
+        inorder(node.right);
+    };
+
+    const build = (left, right) => {
+        if (left > right) return null;
+
+        const mid = left + Math.floor((right - left) / 2);
+        const node = new TreeNode(nums[mid]);
+        node.left = build(left, mid - 1);
+        node.right = build(mid + 1, right);
+        return node;
+    };
+
+    inorder(root);
+    return build(0, nums.length - 1);
+};
+```
+
+```typescript tab="TypeScript"
+function balanceBST(root: TreeNode | null): TreeNode | null {
+    const nums: number[] = [];
+
+    const inorder = (node: TreeNode | null): void => {
+        if (node === null) return;
+        inorder(node.left);
+        nums.push(node.val);
+        inorder(node.right);
+    };
+
+    const build = (left: number, right: number): TreeNode | null => {
+        if (left > right) return null;
+
+        const mid = left + Math.floor((right - left) / 2);
+        const node = new TreeNode(nums[mid]);
+        node.left = build(left, mid - 1);
+        node.right = build(mid + 1, right);
+        return node;
+    };
+
+    inorder(root);
+    return build(0, nums.length - 1);
+}
+```

@@ -1,0 +1,820 @@
+---
+title: 回文链表
+description: 从数组双指针过渡到 O(1) 额外空间解法，系统掌握快慢指针找中点、反转后半链表、逐节点比较与链表恢复。
+---
+
+# 234. 回文链表
+
+[LeetCode 234：回文链表](https://leetcode.cn/problems/palindrome-linked-list/)
+
+给定一个单链表，判断它从前往后与从后往前读取时是否完全相同。
+
+例如：
+
+```text
+1 -> 2
+```
+
+不是回文链表。
+
+而：
+
+```text
+1 -> 2 -> 2 -> 1
+```
+
+是回文链表。
+
+> [!NOTE]
+> 数组可以通过下标从两端同时访问，但单链表只有 `next` 指针，不能直接从尾部向前走。这正是本题的核心困难。
+
+## 一、最直接方法：复制到数组
+
+既然链表不支持随机访问，可以先把所有节点值保存到数组：
+
+```text
+链表：1 -> 2 -> 3 -> 2 -> 1
+数组：[1, 2, 3, 2, 1]
+```
+
+然后使用左右双指针：
+
+```text
+left  -> 1 2 3 2 1 <- right
+```
+
+逐步比较：
+
+```text
+nums[left] == nums[right]
+```
+
+若全部相等，则是回文序列。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        vector<int> values;
+
+        for (ListNode* cur = head; cur != nullptr; cur = cur->next) {
+            values.push_back(cur->val);
+        }
+
+        int left = 0;
+        int right = static_cast<int>(values.size()) - 1;
+
+        while (left < right) {
+            if (values[left] != values[right]) {
+                return false;
+            }
+            ++left;
+            --right;
+        }
+
+        return true;
+    }
+};
+```
+
+### 复杂度
+
+遍历链表需要：
+
+$$
+O(n)
+$$
+
+额外数组保存 $n$ 个元素：
+
+$$
+O(n)
+$$
+
+这是最容易想到、也最稳定的解法。
+
+## 二、如何做到 $O(1)$ 额外空间
+
+要避免数组，就必须解决一个问题：
+
+> 如何让链表的后半部分可以“从后往前”读取？
+
+答案是：
+
+1. 快慢指针找到中点；
+2. 反转后半部分；
+3. 前半部分与反转后的后半部分同步比较。
+
+例如：
+
+```text
+原链表：
+1 -> 2 -> 3 -> 2 -> 1
+```
+
+找到中点后，将后半部分反转：
+
+```text
+前侧：1 -> 2 -> 3
+后侧反转：1 -> 2
+```
+
+此时只需要比较两条链表的前两个节点：
+
+```text
+1 == 1
+2 == 2
+```
+
+即可判断回文。
+
+![回文链表快慢指针与反转后半部分](https://file1.kamacoder.com/i/algo/234.回文链表.png)
+
+## 三、第一步：快慢指针找中点
+
+定义：
+
+```cpp
+ListNode* slow = head;
+ListNode* fast = head;
+```
+
+每轮：
+
+```cpp
+slow = slow->next;
+fast = fast->next->next;
+```
+
+也就是说：
+
+- `slow` 每次走一步；
+- `fast` 每次走两步。
+
+当 `fast` 到达链表末尾时，`slow` 正好走到中间附近。
+
+### 偶数长度
+
+例如：
+
+```text
+1 -> 2 -> 2 -> 1
+```
+
+快慢指针移动：
+
+```text
+初始：
+slow = 1(第1个)
+fast = 1(第1个)
+
+第1轮：
+slow = 2(第2个)
+fast = 2(第3个)
+
+第2轮：
+slow = 2(第3个)
+fast = null
+```
+
+所以 `slow` 指向后半部分的第一个节点。
+
+### 奇数长度
+
+例如：
+
+```text
+1 -> 2 -> 3 -> 2 -> 1
+```
+
+循环结束时：
+
+```text
+slow -> 3
+```
+
+中间节点本身不影响回文判断，因此后续比较时可以让中点属于任意一侧，只要两侧真正需要比较的节点能正确对应即可。
+
+## 四、更稳妥的中点定义
+
+为了让后续逻辑更加清楚，可以寻找“前半部分的末尾节点”。
+
+使用：
+
+```cpp
+while (fast->next != nullptr && fast->next->next != nullptr) {
+    slow = slow->next;
+    fast = fast->next->next;
+}
+```
+
+此时 `slow` 始终停在：
+
+> 前半部分的最后一个节点。
+
+### 偶数长度
+
+```text
+1 -> 2 -> 2 -> 1
+     ^
+    slow
+```
+
+### 奇数长度
+
+```text
+1 -> 2 -> 3 -> 2 -> 1
+          ^
+         slow
+```
+
+于是后半部分统一从：
+
+```cpp
+slow->next
+```
+
+开始。
+
+这个版本尤其适合“反转后半部分 + 恢复链表”的写法。
+
+## 五、第二步：反转后半部分
+
+假设有：
+
+```text
+2 -> 3 -> 4 -> null
+```
+
+反转后：
+
+```text
+4 -> 3 -> 2 -> null
+```
+
+标准模板：
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* cur = head;
+
+    while (cur != nullptr) {
+        ListNode* next = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+    }
+
+    return prev;
+}
+```
+
+这个过程的关键仍然是：
+
+```cpp
+ListNode* next = cur->next;
+```
+
+必须在覆盖 `cur->next` 之前保存原来的后继。
+
+## 六、第三步：从两端向中间比较
+
+对于：
+
+```text
+1 -> 2 -> 3 -> 2 -> 1
+```
+
+前半部分从头开始：
+
+```text
+p1 -> 1 -> 2 -> 3 -> ...
+```
+
+后半部分反转后：
+
+```text
+p2 -> 1 -> 2
+```
+
+每次比较：
+
+```cpp
+p1->val == p2->val
+```
+
+然后：
+
+```cpp
+p1 = p1->next;
+p2 = p2->next;
+```
+
+只需要遍历反转后的后半部分，因为它的长度不会超过前半部分。
+
+## 七、推荐写法：比较后恢复原链表
+
+很多只要求返回布尔值的题目，即使不恢复链表也能通过。
+
+但从工程习惯和函数副作用来看，更推荐：
+
+> 判断结束后把后半部分重新反转回来。
+
+这样调用函数前后，输入链表结构保持不变。
+
+```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) {
+            return true;
+        }
+
+        // 1. 找到前半部分的最后一个节点
+        ListNode* firstHalfEnd = endOfFirstHalf(head);
+
+        // 2. 反转后半部分
+        ListNode* secondHalfStart = reverseList(firstHalfEnd->next);
+
+        // 3. 比较两部分
+        bool result = true;
+        ListNode* p1 = head;
+        ListNode* p2 = secondHalfStart;
+
+        while (result && p2 != nullptr) {
+            if (p1->val != p2->val) {
+                result = false;
+            }
+            p1 = p1->next;
+            p2 = p2->next;
+        }
+
+        // 4. 恢复链表
+        firstHalfEnd->next = reverseList(secondHalfStart);
+
+        return result;
+    }
+
+private:
+    ListNode* endOfFirstHalf(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (fast->next != nullptr && fast->next->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+
+        return slow;
+    }
+
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+
+        while (cur != nullptr) {
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+
+        return prev;
+    }
+};
+```
+
+## 八、奇偶长度为什么都能统一处理
+
+### 偶数长度
+
+```text
+1 -> 2 -> 2 -> 1
+```
+
+`firstHalfEnd` 指向第 2 个节点：
+
+```text
+1 -> 2 | 2 -> 1
+```
+
+后半部分反转：
+
+```text
+1 -> 2
+```
+
+比较：
+
+```text
+前半：1 -> 2
+后半：1 -> 2
+```
+
+刚好两组。
+
+### 奇数长度
+
+```text
+1 -> 2 -> 3 -> 2 -> 1
+```
+
+`firstHalfEnd` 指向中点：
+
+```text
+1 -> 2 -> 3 | 2 -> 1
+```
+
+后半部分反转后：
+
+```text
+1 -> 2
+```
+
+比较：
+
+```text
+前侧：1 -> 2 -> ...
+后侧：1 -> 2
+```
+
+中间的 `3` 不参与比较，恰好符合回文定义。
+
+> [!TIP]
+> 回文序列长度为奇数时，中间元素可以是任意值，因为它与自己对应，不影响结果。
+
+## 九、复杂度分析
+
+整个过程包括：
+
+1. 快慢指针找中点；
+2. 反转后半部分；
+3. 比较；
+4. 再反转一次恢复。
+
+每一步最多遍历 $O(n)$ 个节点，因此总时间复杂度仍然是：
+
+$$
+O(n)
+$$
+
+只使用若干指针变量：
+
+$$
+O(1)
+$$
+
+这是本题更值得掌握的最优空间解法。
+
+## 十、两种方法对比
+
+| 方法 | 时间复杂度 | 空间复杂度 | 难度 | 适用价值 |
+|---|---:|---:|---|---|
+| 数组 + 双指针 | $O(n)$ | $O(n)$ | 低 | 快速完成、思路直接 |
+| 快慢指针 + 反转链表 | $O(n)$ | $O(1)$ | 中 | 链表综合能力训练 |
+
+如果是在面试中，本题通常更希望看到第二种方法，因为它综合考察：
+
+- 快慢指针；
+- 找链表中点；
+- 反转链表；
+- 双链同步遍历；
+- 边界处理。
+
+## 十一、常见错误
+
+### 1. 空链表判断写错
+
+错误写法：
+
+```cpp
+if (head == nullptr && head->next == nullptr)
+```
+
+当 `head == nullptr` 时继续访问 `head->next` 会发生非法访问。
+
+正确写法：
+
+```cpp
+if (head == nullptr || head->next == nullptr)
+```
+
+### 2. 快指针循环条件顺序错误
+
+必须保证访问 `fast->next->next` 前，`fast->next` 已经存在。
+
+### 3. 反转链表时没有保存 `next`
+
+错误地直接：
+
+```cpp
+cur->next = prev;
+cur = cur->next;
+```
+
+此时 `cur->next` 已经指向前一个节点，原来的后继丢失。
+
+### 4. 奇数长度时强行比较中间节点
+
+没有必要。真正需要比较的是中点两侧的镜像部分。
+
+### 5. 判断后忘记链表已被修改
+
+在线评测通常只关心布尔结果，但实际代码中应尽可能恢复输入结构，减少副作用。
+
+## 十二、把本题看成三个经典模板的组合
+
+本题并没有新的复杂数据结构，它实际上组合了三个基础模板：
+
+```text
+模板 1：快慢指针找中点
+模板 2：反转链表
+模板 3：双指针同步比较
+```
+
+掌握以后，很多链表综合题都能自然拆解。
+
+例如：
+
+- 判断链表回文；
+- 重排链表；
+- 链表折叠；
+- 从两端配对处理链表；
+
+通常都会出现类似结构。
+
+## 十三、一句话模板
+
+记忆本题时可以只记下面这一条：
+
+```text
+找中点 -> 反转后半段 -> 两端比较 -> 恢复链表
+```
+
+只要这条主线清楚，具体指针代码都可以现场推出来。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        if (head == null || head.next == null) {
+            return true;
+        }
+
+        ListNode firstHalfEnd = endOfFirstHalf(head);
+        ListNode secondHalfStart = reverseList(firstHalfEnd.next);
+
+        boolean result = true;
+        ListNode p1 = head;
+        ListNode p2 = secondHalfStart;
+
+        while (result && p2 != null) {
+            if (p1.val != p2.val) {
+                result = false;
+            }
+            p1 = p1.next;
+            p2 = p2.next;
+        }
+
+        firstHalfEnd.next = reverseList(secondHalfStart);
+        return result;
+    }
+
+    private ListNode endOfFirstHalf(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
+
+    private ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode cur = head;
+
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def isPalindrome(self, head: Optional[ListNode]) -> bool:
+        if head is None or head.next is None:
+            return True
+
+        first_half_end = self.end_of_first_half(head)
+        second_half_start = self.reverse_list(first_half_end.next)
+
+        result = True
+        p1, p2 = head, second_half_start
+
+        while result and p2:
+            if p1.val != p2.val:
+                result = False
+            p1 = p1.next
+            p2 = p2.next
+
+        first_half_end.next = self.reverse_list(second_half_start)
+        return result
+
+    def end_of_first_half(self, head: ListNode) -> ListNode:
+        slow = fast = head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        return slow
+
+    def reverse_list(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        prev = None
+        cur = head
+
+        while cur:
+            nxt = cur.next
+            cur.next = prev
+            prev = cur
+            cur = nxt
+
+        return prev
+```
+
+```go tab="Go"
+func isPalindrome(head *ListNode) bool {
+    if head == nil || head.Next == nil {
+        return true
+    }
+
+    firstHalfEnd := endOfFirstHalf(head)
+    secondHalfStart := reverseList(firstHalfEnd.Next)
+
+    result := true
+    p1, p2 := head, secondHalfStart
+
+    for result && p2 != nil {
+        if p1.Val != p2.Val {
+            result = false
+        }
+        p1 = p1.Next
+        p2 = p2.Next
+    }
+
+    firstHalfEnd.Next = reverseList(secondHalfStart)
+    return result
+}
+
+func endOfFirstHalf(head *ListNode) *ListNode {
+    slow, fast := head, head
+    for fast.Next != nil && fast.Next.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+    }
+    return slow
+}
+
+func reverseList(head *ListNode) *ListNode {
+    var prev *ListNode
+    cur := head
+
+    for cur != nil {
+        next := cur.Next
+        cur.Next = prev
+        prev = cur
+        cur = next
+    }
+    return prev
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn is_palindrome(head: Option<Box<ListNode>>) -> bool {
+        let mut values = Vec::new();
+        let mut cur = head.as_ref();
+
+        while let Some(node) = cur {
+            values.push(node.val);
+            cur = node.next.as_ref();
+        }
+
+        let mut left = 0usize;
+        let mut right = values.len().saturating_sub(1);
+
+        while left < right {
+            if values[left] != values[right] {
+                return false;
+            }
+            left += 1;
+            right -= 1;
+        }
+
+        true
+    }
+}
+```
+
+```javascript tab="JavaScript"
+var isPalindrome = function(head) {
+    if (head === null || head.next === null) {
+        return true;
+    }
+
+    const endOfFirstHalf = (node) => {
+        let slow = node;
+        let fast = node;
+        while (fast.next !== null && fast.next.next !== null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    };
+
+    const reverseList = (node) => {
+        let prev = null;
+        let cur = node;
+        while (cur !== null) {
+            const next = cur.next;
+            cur.next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    };
+
+    const firstHalfEnd = endOfFirstHalf(head);
+    const secondHalfStart = reverseList(firstHalfEnd.next);
+
+    let result = true;
+    let p1 = head;
+    let p2 = secondHalfStart;
+
+    while (result && p2 !== null) {
+        if (p1.val !== p2.val) result = false;
+        p1 = p1.next;
+        p2 = p2.next;
+    }
+
+    firstHalfEnd.next = reverseList(secondHalfStart);
+    return result;
+};
+```
+
+```typescript tab="TypeScript"
+function isPalindrome(head: ListNode | null): boolean {
+    if (head === null || head.next === null) {
+        return true;
+    }
+
+    const endOfFirstHalf = (node: ListNode): ListNode => {
+        let slow: ListNode = node;
+        let fast: ListNode = node;
+
+        while (fast.next !== null && fast.next.next !== null) {
+            slow = slow.next!;
+            fast = fast.next.next;
+        }
+        return slow;
+    };
+
+    const reverseList = (node: ListNode | null): ListNode | null => {
+        let prev: ListNode | null = null;
+        let cur: ListNode | null = node;
+
+        while (cur !== null) {
+            const next = cur.next;
+            cur.next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    };
+
+    const firstHalfEnd = endOfFirstHalf(head);
+    const secondHalfStart = reverseList(firstHalfEnd.next);
+
+    let result = true;
+    let p1: ListNode | null = head;
+    let p2: ListNode | null = secondHalfStart;
+
+    while (result && p2 !== null) {
+        if (p1!.val !== p2.val) result = false;
+        p1 = p1!.next;
+        p2 = p2.next;
+    }
+
+    firstHalfEnd.next = reverseList(secondHalfStart);
+    return result;
+}
+```

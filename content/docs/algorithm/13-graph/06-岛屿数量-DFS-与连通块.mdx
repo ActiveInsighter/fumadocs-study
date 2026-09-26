@@ -1,0 +1,771 @@
+---
+title: 岛屿数量：DFS 与连通块
+subtitle: 用一次深搜“淹掉”一个连通分量
+summary: 从连通块视角理解岛屿数量，掌握二维网格 DFS、四方向建图、visited 标记时机、两种递归写法与复杂度分析。
+---
+
+# 岛屿数量：DFS 与连通块
+
+> **卡码网 99. 岛屿数量**
+>
+> 给定一个由 `0`（水）和 `1`（陆地）组成的 $N\times M$ 网格。陆地只通过 **上、下、左、右** 四个方向相连，求网格中岛屿的数量。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1171)
+
+<Callout type="info" title="这道题真正训练什么？">
+
+表面上它是一道二维数组题，实质上是在做：
+
+> **统计图中的连通分量数量。**
+
+把每个陆地格子看成一个节点，相邻陆地之间连一条边，那么每一座岛屿就是一个独立的连通块。
+
+</Callout>
+
+## 1. 题目示例
+
+输入：
+
+```text
+4 5
+1 1 0 0 0
+1 1 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+```
+
+输出：
+
+```text
+3
+```
+
+对应示意图：
+
+![岛屿数量示意图](https://file1.kamacoder.com/i/algo/20240516111613.png)
+
+另一个常见示意如下：
+
+![四方向相连才属于同一岛屿](https://file1.kamacoder.com/i/algo/20220726094200.png)
+
+这里最容易忽略的一点是：**对角线接触不算连通。**
+
+例如：
+
+```text
+1 0
+0 1
+```
+
+左上角与右下角仅对角相邻，所以答案是 `2`，而不是 `1`。
+
+---
+
+## 2. 把网格看成一张图
+
+设一个陆地格子坐标为 $(x,y)$。
+
+它最多可以连接四个相邻位置：
+
+$$
+(x,y+1),\quad (x+1,y),\quad (x-1,y),\quad (x,y-1)
+$$
+
+因此可以统一写成方向数组：
+
+```cpp
+const int dir[4][2] = {
+    {0, 1},
+    {1, 0},
+    {0, -1},
+    {-1, 0}
+};
+```
+
+从图论角度看：
+
+- 每个值为 `1` 的格子是一个节点；
+- 上下左右相邻的两个陆地节点之间存在边；
+- 每座岛屿就是一个连通分量。
+
+所以问题可以重新表述为：
+
+> **一共有多少个尚未访问过的连通分量？**
+
+---
+
+## 3. 核心思路：发现一个新岛屿，就把整座岛屿访问完
+
+遍历整个网格。
+
+如果当前格子满足：
+
+```text
+grid[i][j] == 1
+并且
+visited[i][j] == false
+```
+
+说明这块陆地还没有归属于之前发现的任何岛屿。
+
+于是：
+
+1. 答案加一；
+2. 从这里执行一次 DFS；
+3. 将与它四方向连通的所有陆地全部标记为已访问。
+
+之后再次扫描到同一岛屿上的其他格子时，它们已经被 `visited` 标记，因此不会重复计数。
+
+### 扫描网格
+
+逐行逐列查看每个格子。
+
+### 发现未访问陆地
+
+说明发现了一座新的岛屿，执行 `answer++`。
+
+### DFS 扩散
+
+从当前陆地开始沿四个方向搜索，把整座岛屿全部标记。
+
+### 继续扫描
+
+直到所有格子都检查完毕。
+
+可以把逻辑浓缩成一句话：
+
+> **外层循环负责“发现新岛”，DFS 负责“消化整座岛”。**
+
+---
+
+## 4. 为什么答案加一发生在 DFS 之前
+
+考虑：
+
+```text
+1 1 0
+1 0 0
+0 0 1
+```
+
+扫描到左上角 `(0,0)` 时，它是第一块未访问陆地，所以：
+
+```text
+answer = 1
+```
+
+随后 DFS 会访问：
+
+```text
+(0,0) → (0,1)
+   ↓
+(1,0)
+```
+
+这三个格子属于同一座岛。
+
+之后外层循环再遇到 `(0,1)`、`(1,0)` 时，都已经访问过，不再增加答案。
+
+直到扫描到右下角 `(2,2)`：
+
+```text
+answer = 2
+```
+
+所以：
+
+> **DFS 调用次数，恰好等于岛屿数量。**
+
+---
+
+## 5. DFS 写法一：只递归进入“合法陆地”
+
+这是更推荐的写法。
+
+在递归调用之前就完成：
+
+- 是否越界；
+- 是否是陆地；
+- 是否访问过；
+
+三个判断。
+
+```cpp
+void dfs(
+    const vector<vector<int>>& grid,
+    vector<vector<bool>>& visited,
+    int x,
+    int y
+) {
+    for (int i = 0; i < 4; ++i) {
+        int nx = x + dir[i][0];
+        int ny = y + dir[i][1];
+
+        if (nx < 0 || nx >= grid.size() ||
+            ny < 0 || ny >= grid[0].size()) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1 && !visited[nx][ny]) {
+            visited[nx][ny] = true;
+            dfs(grid, visited, nx, ny);
+        }
+    }
+}
+```
+
+这里看起来没有显式的：
+
+```cpp
+if (...) return;
+```
+
+但并不是“没有终止条件”。
+
+真正的终止机制是：
+
+> **只有合法且未访问的陆地，才会产生下一层递归。**
+
+当四个方向都无法继续时，当前函数自然结束并返回上一层。
+
+<Callout type="info" title="递归终止条件不一定必须写在函数第一行">
+
+DFS 是否终止，取决于递归调用链能否继续产生新的合法状态。
+
+本写法把“能不能递归”的判断放在 **调用之前**，因此不需要在函数开头重复判断。
+
+</Callout>
+
+---
+
+## 6. DFS 写法二：先进入函数，再统一判断
+
+另一种常见写法是：
+
+```cpp
+void dfs(
+    const vector<vector<int>>& grid,
+    vector<vector<bool>>& visited,
+    int x,
+    int y
+) {
+    if (visited[x][y] || grid[x][y] == 0) {
+        return;
+    }
+
+    visited[x][y] = true;
+
+    for (int i = 0; i < 4; ++i) {
+        int nx = x + dir[i][0];
+        int ny = y + dir[i][1];
+
+        if (nx < 0 || nx >= grid.size() ||
+            ny < 0 || ny >= grid[0].size()) {
+            continue;
+        }
+
+        dfs(grid, visited, nx, ny);
+    }
+}
+```
+
+这种写法的特点是：
+
+> 只要坐标不越界，就先调用 DFS，再由函数内部决定当前格子是否合法。
+
+两种写法本质相同。
+
+| 对比项 | 写法一 | 写法二 |
+| --- | --- | --- |
+| 判断位置 | 递归调用之前 | 进入函数之后 |
+| 无效递归 | 更少 | 会进入水域 / 已访问节点后立即返回 |
+| 逻辑 | 稍紧凑 | 终止条件更直观 |
+| 推荐程度 | **更推荐** | 适合理解递归结构 |
+
+---
+
+## 7. `visited` 为什么要在进入下一层 DFS 前标记
+
+推荐逻辑：
+
+```cpp
+if (grid[nx][ny] == 1 && !visited[nx][ny]) {
+    visited[nx][ny] = true;
+    dfs(grid, visited, nx, ny);
+}
+```
+
+假设陆地形成一个环：
+
+```text
+1 1
+1 1
+```
+
+如果一直递归，却不及时记录“这个格子已经进入搜索”，那么搜索可能在相邻节点之间反复绕圈。
+
+因此 `visited` 的意义不是“这个节点已经彻底处理完”，而是：
+
+> **这个节点已经被纳入当前搜索，不允许再次重复进入。**
+
+这和图上的 DFS 完全一致。
+
+---
+
+## 8. 完整 C++ 推荐实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int dir[4][2] = {
+    {0, 1},
+    {1, 0},
+    {0, -1},
+    {-1, 0}
+};
+
+void dfs(
+    const vector<vector<int>>& grid,
+    vector<vector<bool>>& visited,
+    int x,
+    int y
+) {
+    int n = grid.size();
+    int m = grid[0].size();
+
+    for (int i = 0; i < 4; ++i) {
+        int nx = x + dir[i][0];
+        int ny = y + dir[i][1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1 && !visited[nx][ny]) {
+            visited[nx][ny] = true;
+            dfs(grid, visited, nx, ny);
+        }
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> grid(n, vector<int>(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    vector<vector<bool>> visited(n, vector<bool>(m, false));
+
+    int answer = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 1 && !visited[i][j]) {
+                ++answer;
+                visited[i][j] = true;
+                dfs(grid, visited, i, j);
+            }
+        }
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+---
+
+## 9. 正确性为什么成立
+
+可以从两个方向证明。
+
+### 9.1 每座真实岛屿至少会被计数一次
+
+任意一座岛屿都至少包含一个陆地格子。
+
+外层双循环最终一定会扫描到其中某个格子。
+
+如果此前还没有访问这座岛，那么这个格子就是未访问陆地，答案会加一。
+
+所以不会漏掉岛屿。
+
+### 9.2 同一座岛屿不会被重复计数
+
+当某座岛第一次被发现后，从起点进行 DFS。
+
+由于岛内任意两块陆地之间都存在一条四方向路径，因此 DFS 可以访问该岛所有陆地。
+
+这些格子都会被标记为 `visited = true`。
+
+之后外层循环再次遇到它们时，不会再增加答案。
+
+所以不会重复计数。
+
+结合两点可知：
+
+> 最终 `answer` 恰好等于岛屿数量。
+
+---
+
+## 10. 时间复杂度与空间复杂度
+
+设网格大小为 $N\times M$。
+
+### 时间复杂度
+
+每个格子最多被正式访问一次，每次检查四个方向，因此：
+
+$$
+T(N,M)=O(NM)
+$$
+
+虽然代码中有外层双循环和 DFS，但不要误认为复杂度是 $O((NM)^2)$。
+
+原因在于：
+
+> 所有 DFS 加起来，不会重复完整遍历同一批节点。
+
+### 空间复杂度
+
+`visited` 数组需要：
+
+$$
+O(NM)
+$$
+
+最坏情况下所有格子都是陆地，递归调用栈深度也可能达到：
+
+$$
+O(NM)
+$$
+
+所以总辅助空间仍为：
+
+$$
+O(NM)
+$$
+
+<Callout type="warning" title="递归 DFS 的工程风险">
+
+本题 $N,M\le 50$，最多只有 $2500$ 个格子，递归 DFS 通常可以直接使用。
+
+但在更大的网格上，如果存在很长的“蛇形”连通区域，递归深度可能非常大。此时可以改成：
+
+- 手写栈的迭代 DFS；或
+- BFS。
+
+</Callout>
+
+---
+
+## 11. 最常见的四个错误
+
+<Cards>
+  <Card title="错误一：把对角线也算相连">
+    本题只有四方向相邻，不能使用八方向搜索。
+  </Card>
+  <Card title="错误二：忘记 visited">
+    图中存在环时会重复搜索，递归 DFS 甚至可能无限往返。
+  </Card>
+  <Card title="错误三：每遇到陆地都 answer++">
+    必须是“未访问过的陆地”才代表发现新岛屿。
+  </Card>
+  <Card title="错误四：行列边界写反">
+    `x` 对应 `[0,n)`，`y` 对应 `[0,m)`，长方形网格尤其容易暴露问题。
+  </Card>
+</Cards>
+
+---
+
+## 12. 为什么这类题是“连通块模板”
+
+只要题目出现下面这些表达，就要敏感地想到连通块：
+
+- 有多少个区域；
+- 有多少片陆地；
+- 有多少个省份；
+- 有多少个连通分量；
+- 把相邻相同元素看成一组；
+- 某一类节点能否相互到达。
+
+统一框架通常是：
+
+```text
+for 每个节点 u:
+    if u 满足条件 && u 未访问:
+        答案 += 1
+        DFS/BFS(u) 标记整个连通块
+```
+
+这比记住“岛屿数量”一道题本身更重要。
+
+---
+
+## 13. 是否可以直接修改原网格
+
+如果题目允许修改输入，也可以不用 `visited`，直接把访问过的陆地改成水：
+
+```cpp
+grid[x][y] = 0;
+```
+
+这样：
+
+```text
+1 = 尚未访问陆地
+0 = 水域或已访问陆地
+```
+
+可以节省独立的 `visited` 数组。
+
+不过学习阶段更推荐先写 `visited`：
+
+- 图论含义更清楚；
+- 输入数据保持不变；
+- 更容易迁移到普通图、带权图和复杂状态搜索。
+
+---
+
+## 14. DFS 与后续岛屿题的关系
+
+“岛屿数量”是整个网格连通性专题的母题。
+
+之后很多题只是在一次 DFS 中增加统计量：
+
+| 问题 | DFS 过程中额外维护什么 |
+| --- | --- |
+| 岛屿数量 | 连通块个数 |
+| 最大岛屿面积 | 当前连通块节点数 |
+| 孤岛面积 | 是否接触边界 + 面积 |
+| 岛屿周长 | 陆地与水/边界的接触边数 |
+| 沉没孤岛 | 从边界先标记可保留区域 |
+
+所以务必掌握这个最基本的框架：
+
+> **找到一个未访问起点 → 搜完整个连通块 → 再找下一个起点。**
+
+---
+
+## 15. 其他语言版本
+
+以下版本均采用与正文相同的 **四方向 DFS + visited** 思路。
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {0, 1}, {1, 0}, {0, -1}, {-1, 0}
+    };
+
+    static int n, m;
+    static int[][] grid;
+    static boolean[][] visited;
+
+    static void dfs(int x, int y) {
+        for (int[] d : DIR) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                continue;
+            }
+
+            if (grid[nx][ny] == 1 && !visited[nx][ny]) {
+                visited[nx][ny] = true;
+                dfs(nx, ny);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        grid = new int[n][m];
+        visited = new boolean[n][m];
+
+        for (int i = 0; i < n; ++i) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; ++j) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        int answer = 0;
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] == 1 && !visited[i][j]) {
+                    ++answer;
+                    visited[i][j] = true;
+                    dfs(i, j);
+                }
+            }
+        }
+
+        System.out.println(answer);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+
+DIR = ((0, 1), (1, 0), (0, -1), (-1, 0))
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+visited = [[False] * m for _ in range(n)]
+
+
+def dfs(x: int, y: int) -> None:
+    for dx, dy in DIR:
+        nx = x + dx
+        ny = y + dy
+
+        if not (0 <= nx < n and 0 <= ny < m):
+            continue
+
+        if grid[nx][ny] == 1 and not visited[nx][ny]:
+            visited[nx][ny] = True
+            dfs(nx, ny)
+
+
+answer = 0
+
+for i in range(n):
+    for j in range(m):
+        if grid[i][j] == 1 and not visited[i][j]:
+            answer += 1
+            visited[i][j] = True
+            dfs(i, j)
+
+print(answer)
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n, m    int
+    grid    [][]int
+    visited [][]bool
+    dir     = [4][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+)
+
+func dfs(x, y int) {
+    for _, d := range dir {
+        nx := x + d[0]
+        ny := y + d[1]
+
+        if nx < 0 || nx >= n || ny < 0 || ny >= m {
+            continue
+        }
+
+        if grid[nx][ny] == 1 && !visited[nx][ny] {
+            visited[nx][ny] = true
+            dfs(nx, ny)
+        }
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    fmt.Fscan(in, &n, &m)
+
+    grid = make([][]int, n)
+    visited = make([][]bool, n)
+
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        visited[i] = make([]bool, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    answer := 0
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] == 1 && !visited[i][j] {
+                answer++
+                visited[i][j] = true
+                dfs(i, j)
+            }
+        }
+    }
+
+    fmt.Fprintln(out, answer)
+}
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+
+const n = data[p++];
+const m = data[p++];
+
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => data[p++])
+);
+
+const visited = Array.from({ length: n }, () => Array(m).fill(false));
+const dir = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+
+function dfs(x, y) {
+  for (const [dx, dy] of dir) {
+    const nx = x + dx;
+    const ny = y + dy;
+
+    if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+
+    if (grid[nx][ny] === 1 && !visited[nx][ny]) {
+      visited[nx][ny] = true;
+      dfs(nx, ny);
+    }
+  }
+}
+
+let answer = 0;
+
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] === 1 && !visited[i][j]) {
+      answer++;
+      visited[i][j] = true;
+      dfs(i, j);
+    }
+  }
+}
+
+console.log(answer);
+```

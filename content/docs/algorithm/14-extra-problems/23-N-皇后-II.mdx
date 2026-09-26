@@ -1,0 +1,649 @@
+---
+title: N 皇后 II
+description: 从 N 皇后的约束建模出发，掌握按行回溯、列与两条对角线的 O(1) 冲突判断，并进一步理解位运算压缩状态的高效解法。
+---
+
+# 52. N 皇后 II
+
+[LeetCode 52：N 皇后 II](https://leetcode.cn/problems/n-queens-ii/)
+
+在一个 $n \times n$ 棋盘上放置 $n$ 个皇后，使任意两个皇后都不能互相攻击，返回不同合法方案的数量。
+
+皇后能够攻击：
+
+- 同一行；
+- 同一列；
+- 两条对角线方向。
+
+![N 皇后棋盘示意图](https://file1.kamacoder.com/i/algo/20200821152118456.png)
+
+例如 $n=4$ 时一共有 $2$ 种合法方案。
+
+## 一、和 N 皇后 I 有什么区别
+
+经典的 N 皇后 I 通常要求返回所有棋盘方案，而 N 皇后 II 只要求：
+
+```text
+方案数量
+```
+
+因此我们不必保存每一个完整棋盘。
+
+当成功放完第 $n$ 行皇后时，只需要：
+
+```cpp
+answer++;
+```
+
+这使得状态可以进一步压缩。
+
+## 二、为什么天然适合回溯
+
+每一行必须恰好放一个皇后。
+
+所以可以按行做决策：
+
+```text
+第 0 行选一列
+    ↓
+第 1 行选一列
+    ↓
+第 2 行选一列
+    ↓
+...
+```
+
+如果某一列与之前已经放置的皇后冲突，就跳过。
+
+当：
+
+```text
+row == n
+```
+
+说明 $n$ 行都已经合法放置，得到一种完整方案。
+
+回溯树可以理解为：
+
+```text
+                row 0
+        /         |         \
+      col0      col1       col2 ...
+       ↓           ↓          ↓
+                row 1
+                    ...
+```
+
+每个节点代表“这一行选择哪一列”。
+
+## 三、最关键的问题：如何快速判断冲突
+
+对于位置：
+
+```text
+(row, col)
+```
+
+需要判断三类冲突。
+
+### 1. 同一列
+
+如果之前某个皇后也在 `col` 列，则冲突。
+
+可以使用：
+
+```text
+columns[col]
+```
+
+记录这一列是否已被占用。
+
+### 2. 主对角线方向 `\`
+
+同一条主对角线上的位置满足：
+
+$row-col=\text{常数}$
+
+例如：
+
+```text
+(0, 1) -> -1
+(1, 2) -> -1
+(2, 3) -> -1
+```
+
+为了把下标变成非负数，可以整体加上 $n-1$：
+
+```text
+diag1 = row - col + n - 1
+```
+
+它的范围是：
+
+$0 \le diag1 \le 2n-2$
+
+因此只需要一个长度约为 $2n-1$ 的数组。
+
+### 3. 副对角线方向 `/`
+
+同一条副对角线上的位置满足：
+
+$row+col=\text{常数}$
+
+例如：
+
+```text
+(0, 2) -> 2
+(1, 1) -> 2
+(2, 0) -> 2
+```
+
+直接使用：
+
+```text
+diag2 = row + col
+```
+
+范围同样是：
+
+$0 \le diag2 \le 2n-2$
+
+> [!IMPORTANT]
+> N 皇后中两个最值得记忆的对角线编号是：
+>
+> - `row - col + n - 1`
+> - `row + col`
+
+## 四、推荐解法：三个布尔数组 + 回溯
+
+我们维护：
+
+```text
+columns[col]     当前列是否已有皇后
+mainDiag[id]     主对角线是否已有皇后
+antiDiag[id]     副对角线是否已有皇后
+```
+
+于是冲突判断可以从扫描棋盘的 $O(n)$，降为 $O(1)$。
+
+### C++ 实现
+
+```cpp
+class Solution {
+private:
+    int answer = 0;
+    vector<bool> columns;
+    vector<bool> mainDiag;
+    vector<bool> antiDiag;
+
+    void backtrack(int n, int row) {
+        if (row == n) {
+            ++answer;
+            return;
+        }
+
+        for (int col = 0; col < n; ++col) {
+            int d1 = row - col + n - 1;
+            int d2 = row + col;
+
+            if (columns[col] || mainDiag[d1] || antiDiag[d2]) {
+                continue;
+            }
+
+            // 做选择
+            columns[col] = true;
+            mainDiag[d1] = true;
+            antiDiag[d2] = true;
+
+            backtrack(n, row + 1);
+
+            // 撤销选择
+            columns[col] = false;
+            mainDiag[d1] = false;
+            antiDiag[d2] = false;
+        }
+    }
+
+public:
+    int totalNQueens(int n) {
+        columns.assign(n, false);
+        mainDiag.assign(2 * n - 1, false);
+        antiDiag.assign(2 * n - 1, false);
+
+        backtrack(n, 0);
+        return answer;
+    }
+};
+```
+
+## 五、为什么不需要检查“同行冲突”
+
+因为递归函数的定义就是：
+
+> `backtrack(row)`：为第 `row` 行选择一个皇后位置。
+
+每次递归只在这一行选择一个 `col`，选完后立即进入：
+
+```text
+row + 1
+```
+
+所以同一行永远不会放两个皇后。
+
+这类技巧非常常见：
+
+> 如果搜索顺序本身已经保证某个约束，就不需要额外维护该约束。
+
+## 六、为什么三个标记数组比扫描棋盘更好
+
+原始写法通常会每次尝试一个位置后扫描：
+
+- 当前列；
+- 左上对角线；
+- 右上对角线。
+
+一次合法性判断需要 $O(n)$。
+
+使用布尔数组后：
+
+```cpp
+columns[col]
+mainDiag[d1]
+antiDiag[d2]
+```
+
+全部都是 $O(1)$ 查询。
+
+回溯仍然是指数级搜索，但每个搜索节点的常数开销明显降低。
+
+## 七、回溯三件套：做选择、递归、撤销选择
+
+N 皇后是理解回溯模板的典型题。
+
+```cpp
+// 做选择
+columns[col] = true;
+mainDiag[d1] = true;
+antiDiag[d2] = true;
+
+// 进入下一层
+backtrack(n, row + 1);
+
+// 撤销选择
+columns[col] = false;
+mainDiag[d1] = false;
+antiDiag[d2] = false;
+```
+
+如果忘记撤销，就会把当前分支的状态污染到其他分支。
+
+> [!TIP]
+> 可以把回溯理解为“DFS + 可恢复状态”。状态修改与恢复必须严格成对出现。
+
+## 八、复杂度怎么理解
+
+最粗略地看，每一行都有最多 $n$ 种选择，因此搜索树上界可以写成：
+
+$O(n^n)$
+
+但实际上：
+
+- 同一列不能重复；
+- 对角线会进一步大量剪枝。
+
+仅考虑“每列只能使用一次”这一约束，排列规模已经下降到约：
+
+$O(n!)$
+
+因此一般将 N 皇后的回溯复杂度理解为指数级，常用近似上界为 $O(n!)$。
+
+额外空间主要来自：
+
+- 三个标记数组：$O(n)$；
+- 递归栈深度：$O(n)$。
+
+所以额外空间为：
+
+$O(n)$
+
+## 九、进一步优化：位运算状态压缩
+
+当 $n$ 较小时，可以把列和对角线占用状态压缩到整数的二进制位中。
+
+例如：
+
+```text
+cols
+```
+
+的第 `i` 位为 `1`，表示第 `i` 列已被使用。
+
+在某一行中，所有被禁止的位置由：
+
+```text
+cols | diagonals1 | diagonals2
+```
+
+给出。
+
+如果低 $n$ 位全部对应棋盘列，那么可用位置为：
+
+```cpp
+available = mask & ~(cols | diag1 | diag2);
+```
+
+其中：
+
+```cpp
+mask = (1 << n) - 1;
+```
+
+### 如何一次取出最低位可用位置
+
+对于一个二进制数 `available`，最低位的 `1` 可以用：
+
+```cpp
+bit = available & -available;
+```
+
+例如：
+
+```text
+available = 00101000
+bit       = 00001000
+```
+
+然后删除这一位：
+
+```cpp
+available &= available - 1;
+```
+
+这两个位运算是非常经典的技巧。
+
+## 十、位运算高效实现
+
+```cpp
+class Solution {
+private:
+    int dfs(int mask, int cols, int diag1, int diag2) {
+        if (cols == mask) {
+            return 1;
+        }
+
+        int available = mask & ~(cols | diag1 | diag2);
+        int count = 0;
+
+        while (available != 0) {
+            int bit = available & -available;
+            available &= available - 1;
+
+            count += dfs(
+                mask,
+                cols | bit,
+                ((diag1 | bit) << 1) & mask,
+                (diag2 | bit) >> 1
+            );
+        }
+
+        return count;
+    }
+
+public:
+    int totalNQueens(int n) {
+        int mask = (1 << n) - 1;
+        return dfs(mask, 0, 0, 0);
+    }
+};
+```
+
+### 为什么对角线要左移和右移
+
+假设这一行在某列放置了皇后。
+
+进入下一行时：
+
+- 一条对角线的攻击位置相对移动一列；
+- 另一条对角线向相反方向移动一列。
+
+所以可以分别通过：
+
+```text
+<< 1
+>> 1
+```
+
+把“当前行的对角线威胁”转换成“下一行的对角线威胁”。
+
+> [!NOTE]
+> 位运算版本非常高效，但学习顺序建议是：先彻底理解普通回溯，再掌握状态压缩。否则代码容易变成只会背模板而不理解含义。
+
+## 十一、两种实现的对比
+
+| 方法 | 冲突判断 | 状态表示 | 可读性 | 性能 |
+| --- | --- | --- | --- | --- |
+| 棋盘扫描 | $O(n)$ | 二维棋盘 | 高 | 较慢 |
+| 三个布尔数组 | $O(1)$ | 列 + 两类对角线 | 很高 | 快 |
+| 位运算 | 位操作 | 整数位集 | 较低 | 最快 |
+
+日常刷题推荐优先写 **三个布尔数组** 的版本，它已经兼顾可读性和效率。
+
+## 十二、常见错误
+
+### 错误 1：对角线编号写反
+
+建议固定记忆：
+
+```text
+\ 方向：row - col + n - 1
+/ 方向：row + col
+```
+
+即使把两个数组名字互换，只要编号内部保持一致也能正确，但不要同一个数组前后使用不同公式。
+
+### 错误 2：忘记撤销状态
+
+```cpp
+columns[col] = true;
+backtrack(...);
+// 忘了 columns[col] = false
+```
+
+这样后续分支会错误地认为这一列始终被占用。
+
+### 错误 3：把终止条件写成 `row == n - 1`
+
+正确语义是：
+
+```text
+row == n
+```
+
+表示已经成功放完 `0 ... n-1` 共 $n$ 行。
+
+### 错误 4：N 皇后 II 仍然保存所有棋盘
+
+题目只要求数量，因此保存每个棋盘会带来不必要的空间开销。
+
+## 十三、回溯模板总结
+
+```text
+backtrack(row):
+    if row == n:
+        answer += 1
+        return
+
+    for col in [0, n):
+        if 当前列或对角线冲突:
+            continue
+
+        标记占用
+        backtrack(row + 1)
+        撤销占用
+```
+
+本题最核心的两个知识点是：
+
+1. **按行搜索后，不需要再检查同行冲突**；
+2. **用 `row-col` 与 `row+col` 唯一标识两类对角线**。
+
+掌握这两个关系后，N 皇后类问题就会从“复杂棋盘模拟”变成非常标准的回溯题。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    private int answer = 0;
+    private boolean[] columns;
+    private boolean[] mainDiag;
+    private boolean[] antiDiag;
+
+    public int totalNQueens(int n) {
+        columns = new boolean[n];
+        mainDiag = new boolean[2 * n - 1];
+        antiDiag = new boolean[2 * n - 1];
+
+        backtrack(n, 0);
+        return answer;
+    }
+
+    private void backtrack(int n, int row) {
+        if (row == n) {
+            answer++;
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            int d1 = row - col + n - 1;
+            int d2 = row + col;
+
+            if (columns[col] || mainDiag[d1] || antiDiag[d2]) {
+                continue;
+            }
+
+            columns[col] = true;
+            mainDiag[d1] = true;
+            antiDiag[d2] = true;
+
+            backtrack(n, row + 1);
+
+            columns[col] = false;
+            mainDiag[d1] = false;
+            antiDiag[d2] = false;
+        }
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        columns = [False] * n
+        main_diag = [False] * (2 * n - 1)
+        anti_diag = [False] * (2 * n - 1)
+        answer = 0
+
+        def backtrack(row: int) -> None:
+            nonlocal answer
+
+            if row == n:
+                answer += 1
+                return
+
+            for col in range(n):
+                d1 = row - col + n - 1
+                d2 = row + col
+
+                if columns[col] or main_diag[d1] or anti_diag[d2]:
+                    continue
+
+                columns[col] = True
+                main_diag[d1] = True
+                anti_diag[d2] = True
+
+                backtrack(row + 1)
+
+                columns[col] = False
+                main_diag[d1] = False
+                anti_diag[d2] = False
+
+        backtrack(0)
+        return answer
+```
+
+```go tab="Go"
+func totalNQueens(n int) int {
+    columns := make([]bool, n)
+    mainDiag := make([]bool, 2*n-1)
+    antiDiag := make([]bool, 2*n-1)
+    answer := 0
+
+    var backtrack func(row int)
+    backtrack = func(row int) {
+        if row == n {
+            answer++
+            return
+        }
+
+        for col := 0; col < n; col++ {
+            d1 := row - col + n - 1
+            d2 := row + col
+
+            if columns[col] || mainDiag[d1] || antiDiag[d2] {
+                continue
+            }
+
+            columns[col] = true
+            mainDiag[d1] = true
+            antiDiag[d2] = true
+
+            backtrack(row + 1)
+
+            columns[col] = false
+            mainDiag[d1] = false
+            antiDiag[d2] = false
+        }
+    }
+
+    backtrack(0)
+    return answer
+}
+```
+
+```javascript tab="JavaScript"
+var totalNQueens = function(n) {
+    const columns = new Array(n).fill(false);
+    const mainDiag = new Array(2 * n - 1).fill(false);
+    const antiDiag = new Array(2 * n - 1).fill(false);
+    let answer = 0;
+
+    const backtrack = (row) => {
+        if (row === n) {
+            answer++;
+            return;
+        }
+
+        for (let col = 0; col < n; col++) {
+            const d1 = row - col + n - 1;
+            const d2 = row + col;
+
+            if (columns[col] || mainDiag[d1] || antiDiag[d2]) {
+                continue;
+            }
+
+            columns[col] = true;
+            mainDiag[d1] = true;
+            antiDiag[d2] = true;
+
+            backtrack(row + 1);
+
+            columns[col] = false;
+            mainDiag[d1] = false;
+            antiDiag[d2] = false;
+        }
+    };
+
+    backtrack(0);
+    return answer;
+};
+```

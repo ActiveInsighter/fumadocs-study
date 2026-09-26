@@ -1,0 +1,1405 @@
+---
+title: 四数之和
+description: 在三数之和基础上继续固定一个维度，用排序、双指针、剪枝与分层去重解决不重复四元组问题，并理解通用 nSum 框架。
+---
+
+# 18. 四数之和
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/4sum/">
+    LeetCode 18 · 4Sum
+  </Card>
+</Cards>
+
+给定一个包含 $n$ 个整数的数组 `nums` 和目标值 `target`，找出所有满足：
+
+$$
+a+b+c+d=target
+$$
+
+的不重复四元组。
+
+例如：
+
+```text
+nums = [1, 0, -1, 0, -2, 2]
+target = 0
+```
+
+可以得到：
+
+```text
+[
+  [-2, -1, 1, 2],
+  [-2, 0, 0, 2],
+  [-1, 0, 0, 1]
+]
+```
+
+题目最关键的要求仍然是：
+
+> **答案中的四元组不能重复。**
+
+<Callout type="info" title="和四数相加 II 不一样">
+`四数相加 II` 来自四个独立数组，只统计下标组合数量，因此很适合“分组 + 哈希计数”。
+
+本题则是在**同一个数组**中寻找不重复四元组，去重是核心，因此排序 + 双指针更加自然。
+</Callout>
+
+---
+
+## 1. 暴力解法为什么是 $O(n^4)$
+
+最直接的做法是四层循环：
+
+```cpp
+for (int a = 0; a < n; ++a)
+    for (int b = a + 1; b < n; ++b)
+        for (int c = b + 1; c < n; ++c)
+            for (int d = c + 1; d < n; ++d)
+                ...
+```
+
+一共需要枚举：
+
+$$
+O(n^4)
+$$
+
+个组合。
+
+当数组稍大时，这个复杂度不可接受。
+
+所以需要继续利用“三数之和”中的降维思想。
+
+---
+
+## 2. 从四数之和降维到两数之和
+
+原式：
+
+$$
+a+b+c+d=target
+$$
+
+如果先固定：
+
+$$
+a=nums[k]
+$$
+
+再固定：
+
+$$
+b=nums[i]
+$$
+
+那么问题就变成：
+
+$$
+c+d=target-a-b
+$$
+
+这就回到了：
+
+> **有序数组上的两数之和。**
+
+因此整体框架是：
+
+```text
+排序
+ ↓
+第一层枚举 a
+ ↓
+第二层枚举 b
+ ↓
+left / right 双指针寻找 c、d
+```
+
+于是：
+
+- 第一层 $O(n)$；
+- 第二层 $O(n)$；
+- 双指针 $O(n)$。
+
+总时间复杂度：
+
+$$
+O(n^3)
+$$
+
+相比暴力：
+
+$$
+O(n^4)
+$$
+
+降低了一个数量级。
+
+---
+
+## 3. 为什么排序仍然是核心
+
+排序之后：
+
+```text
+nums[left] <= nums[right]
+```
+
+对于固定：
+
+```text
+a = nums[k]
+b = nums[i]
+```
+
+定义：
+
+$$
+sum=nums[k]+nums[i]+nums[left]+nums[right]
+$$
+
+如果：
+
+$$
+sum<target
+$$
+
+说明总和太小，需要让和变大：
+
+```cpp
+++left;
+```
+
+如果：
+
+$$
+sum>target
+$$
+
+说明总和太大，需要让和变小：
+
+```cpp
+--right;
+```
+
+如果：
+
+$$
+sum=target
+$$
+
+就找到了一个合法四元组。
+
+---
+
+## 4. 标准双指针框架
+
+```cpp
+for (int k = 0; k < n; ++k) {
+    for (int i = k + 1; i < n; ++i) {
+        int left = i + 1;
+        int right = n - 1;
+
+        while (left < right) {
+            long long sum =
+                1LL * nums[k] +
+                nums[i] +
+                nums[left] +
+                nums[right];
+
+            if (sum < target) {
+                ++left;
+            } else if (sum > target) {
+                --right;
+            } else {
+                // 找到答案
+            }
+        }
+    }
+}
+```
+
+真正需要认真处理的是：
+
+- 第一层去重；
+- 第二层去重；
+- 左右指针去重；
+- 剪枝；
+- 整数溢出。
+
+---
+
+## 5. 第一层 `k` 如何去重
+
+若：
+
+```cpp
+k > 0 && nums[k] == nums[k - 1]
+```
+
+说明当前固定的第一个数与上一轮相同。
+
+由于后续搜索区间也会高度重叠，再继续搜索只会产生重复四元组。
+
+所以：
+
+```cpp
+if (k > 0 && nums[k] == nums[k - 1]) {
+    continue;
+}
+```
+
+这是第一层去重。
+
+---
+
+## 6. 第二层 `i` 如何去重
+
+第二层不能简单写：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1])
+```
+
+因为 `i` 的有效起点是：
+
+```text
+k + 1
+```
+
+如果当前 `i` 正好是这一层的第一个位置，即：
+
+```text
+i = k + 1
+```
+
+即使：
+
+```text
+nums[i] == nums[i - 1]
+```
+
+也可能是合法答案的一部分。
+
+所以正确条件是：
+
+```cpp
+if (i > k + 1 && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+它的含义是：
+
+> 只有当当前 `i` 不是本轮第一个候选，并且和上一轮 `i` 值相同时，才去重。
+
+---
+
+## 7. 为什么不能像三数之和那样简单写 `nums[k] > target` 就结束
+
+三数之和中，目标固定为：
+
+$$
+0
+$$
+
+排序后如果：
+
+```cpp
+nums[i] > 0
+```
+
+则后续所有数都更大，总和一定大于 0。
+
+所以可以直接结束。
+
+但四数之和中的 `target` 是任意整数。
+
+例如：
+
+```text
+nums = [-4, -3, -2, -1]
+target = -10
+```
+
+虽然：
+
+```text
+nums[0] = -4 > -10
+```
+
+但：
+
+$$
+-4+(-3)+(-2)+(-1)=-10
+$$
+
+仍然存在合法答案。
+
+因此：
+
+```text
+nums[k] > target
+```
+
+本身并不能作为安全剪枝条件。
+
+<Callout type="warning" title="剪枝必须建立在单调性与边界上">
+三数之和里的 `nums[i] > 0` 是因为目标值固定为 0。
+一旦目标变成任意 `target`，必须重新推导剪枝条件，不能机械套模板。
+</Callout>
+
+---
+
+## 8. 更稳妥的剪枝：使用最小和与最大和
+
+相比“看符号”的经验型剪枝，更推荐直接用有序数组的上下界。
+
+### 8.1 第一层最小和剪枝
+
+固定 `k` 后，最小可能四元组是：
+
+$$
+nums[k]+nums[k+1]+nums[k+2]+nums[k+3]
+$$
+
+如果：
+
+$$
+nums[k]+nums[k+1]+nums[k+2]+nums[k+3]>target
+$$
+
+那么之后的 `k` 只会更大。
+
+因此可以：
+
+```cpp
+break;
+```
+
+---
+
+### 8.2 第一层最大和剪枝
+
+固定 `k` 后，最大可能四元组是：
+
+$$
+nums[k]+nums[n-1]+nums[n-2]+nums[n-3]
+$$
+
+如果：
+
+$$
+nums[k]+nums[n-1]+nums[n-2]+nums[n-3]<target
+$$
+
+说明即使取后三个最大值也不够。
+
+当前 `k` 不可能产生答案，所以：
+
+```cpp
+continue;
+```
+
+---
+
+## 9. 第二层也可以做类似剪枝
+
+固定：
+
+```text
+k, i
+```
+
+之后，最小可能和为：
+
+$$
+nums[k]+nums[i]+nums[i+1]+nums[i+2]
+$$
+
+若：
+
+$$
+nums[k]+nums[i]+nums[i+1]+nums[i+2]>target
+$$
+
+则：
+
+```cpp
+break;
+```
+
+因为后续 `i` 只会更大。
+
+最大可能和为：
+
+$$
+nums[k]+nums[i]+nums[n-1]+nums[n-2]
+$$
+
+若：
+
+$$
+nums[k]+nums[i]+nums[n-1]+nums[n-2]<target
+$$
+
+则：
+
+```cpp
+continue;
+```
+
+这类剪枝逻辑比“正负判断”更通用，也更容易证明正确。
+
+---
+
+## 10. 命中答案后如何去重 `left` 和 `right`
+
+当：
+
+$$
+sum=target
+$$
+
+先记录：
+
+```cpp
+result.push_back({
+    nums[k],
+    nums[i],
+    nums[left],
+    nums[right]
+});
+```
+
+然后跳过左侧重复值：
+
+```cpp
+while (
+    left < right &&
+    nums[left] == nums[left + 1]
+) {
+    ++left;
+}
+```
+
+跳过右侧重复值：
+
+```cpp
+while (
+    left < right &&
+    nums[right] == nums[right - 1]
+) {
+    --right;
+}
+```
+
+最后：
+
+```cpp
+++left;
+--right;
+```
+
+这样下一次搜索一定会使用新的第三个数和第四个数。
+
+---
+
+## 11. 为什么内部允许出现相同数字
+
+题目要求的是：
+
+> 四元组不能重复。
+
+并不是：
+
+> 四个数字必须互不相同。
+
+例如：
+
+```text
+nums = [0, 0, 0, 0]
+target = 0
+```
+
+合法答案就是：
+
+```text
+[0, 0, 0, 0]
+```
+
+所以去重的目标是：
+
+```text
+避免同一个四元组重复进入答案
+```
+
+而不是禁止同值元素参与同一个答案。
+
+---
+
+## 12. 标准高质量解法
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> fourSum(
+        vector<int>& nums,
+        int target
+    ) {
+        vector<vector<int>> result;
+        int n = nums.size();
+
+        if (n < 4) {
+            return result;
+        }
+
+        sort(nums.begin(), nums.end());
+
+        for (int k = 0; k < n - 3; ++k) {
+            if (k > 0 && nums[k] == nums[k - 1]) {
+                continue;
+            }
+
+            long long minSum =
+                1LL * nums[k] +
+                nums[k + 1] +
+                nums[k + 2] +
+                nums[k + 3];
+
+            if (minSum > target) {
+                break;
+            }
+
+            long long maxSum =
+                1LL * nums[k] +
+                nums[n - 1] +
+                nums[n - 2] +
+                nums[n - 3];
+
+            if (maxSum < target) {
+                continue;
+            }
+
+            for (int i = k + 1; i < n - 2; ++i) {
+                if (
+                    i > k + 1 &&
+                    nums[i] == nums[i - 1]
+                ) {
+                    continue;
+                }
+
+                long long minPairSum =
+                    1LL * nums[k] +
+                    nums[i] +
+                    nums[i + 1] +
+                    nums[i + 2];
+
+                if (minPairSum > target) {
+                    break;
+                }
+
+                long long maxPairSum =
+                    1LL * nums[k] +
+                    nums[i] +
+                    nums[n - 1] +
+                    nums[n - 2];
+
+                if (maxPairSum < target) {
+                    continue;
+                }
+
+                int left = i + 1;
+                int right = n - 1;
+
+                while (left < right) {
+                    long long sum =
+                        1LL * nums[k] +
+                        nums[i] +
+                        nums[left] +
+                        nums[right];
+
+                    if (sum < target) {
+                        ++left;
+                    } else if (sum > target) {
+                        --right;
+                    } else {
+                        result.push_back({
+                            nums[k],
+                            nums[i],
+                            nums[left],
+                            nums[right]
+                        });
+
+                        while (
+                            left < right &&
+                            nums[left] == nums[left + 1]
+                        ) {
+                            ++left;
+                        }
+
+                        while (
+                            left < right &&
+                            nums[right] == nums[right - 1]
+                        ) {
+                            --right;
+                        }
+
+                        ++left;
+                        --right;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+## 13. 为什么要用 `long long`
+
+即使每个输入值都在 `int` 范围内：
+
+$$
+a+b+c+d
+$$
+
+也可能超过 32 位有符号整数范围。
+
+因此如果直接写：
+
+```cpp
+int sum =
+    nums[k] +
+    nums[i] +
+    nums[left] +
+    nums[right];
+```
+
+可能出现溢出。
+
+更安全：
+
+```cpp
+long long sum =
+    1LL * nums[k] +
+    nums[i] +
+    nums[left] +
+    nums[right];
+```
+
+同理，剪枝中的四数加法也应该使用 `long long`。
+
+---
+
+## 14. 时间复杂度
+
+排序：
+
+$$
+O(n\log n)
+$$
+
+主体：
+
+- 第一层枚举 $O(n)$；
+- 第二层枚举 $O(n)$；
+- 双指针 $O(n)$。
+
+所以：
+
+$$
+O(n^3)
+$$
+
+总体：
+
+$$
+O(n^3)
+$$
+
+因为：
+
+$$
+O(n^3)>O(n\log n)
+$$
+
+---
+
+## 15. 空间复杂度
+
+如果不计算结果集和排序实现内部空间，额外只使用若干变量：
+
+$$
+O(1)
+$$
+
+若排序底层使用递归，则可能有：
+
+$$
+O(\log n)
+$$
+
+级别的调用栈。
+
+---
+
+## 16. 为什么本题不直接用哈希表
+
+理论上可以使用哈希结构保存两数和。
+
+但问题会迅速变复杂：
+
+- 同一数组中的下标不能重复；
+- 四元组要去重；
+- 相同两数和可能来自很多下标对；
+- 合并两组下标对时还要检查四个下标互异；
+- 最终还要对四元组值去重。
+
+因此虽然“哈希”不是完全不能做，但实现复杂度和去重成本都很高。
+
+而排序 + 双指针把重复值聚在一起，可以非常自然地去重。
+
+所以本题体现一个重要原则：
+
+> **不要因为某题属于哈希章节，就机械使用哈希表。应根据问题结构选择更合适的方法。**
+
+---
+
+## 17. 和四数相加 II 的关键区别
+
+| 对比项 | 四数之和 | 四数相加 II |
+| --- | --- | --- |
+| 数据来源 | 同一个数组 | 四个独立数组 |
+| 目标 | 返回不重复四元组 | 统计下标四元组数量 |
+| 是否需要去重 | 是 | 否 |
+| 是否关心原始下标互异 | 是 | 四数组天然独立 |
+| 推荐方法 | 排序 + 双指针 | 分组 + 哈希计数 |
+| 典型复杂度 | $O(n^3)$ | $O(n^2)$ |
+
+这两题名称相似，但算法结构完全不同。
+
+---
+
+## 18. 从三数之和到四数之和
+
+三数之和：
+
+```text
+固定 1 个数
+   ↓
+双指针解决剩余 2 个数
+```
+
+复杂度：
+
+$$
+O(n^2)
+$$
+
+四数之和：
+
+```text
+固定 2 个数
+   ↓
+双指针解决剩余 2 个数
+```
+
+复杂度：
+
+$$
+O(n^3)
+$$
+
+可以继续推广。
+
+---
+
+## 19. 通用 nSum 框架
+
+对于：
+
+$$
+x_1+x_2+\cdots+x_k=target
+$$
+
+若数组已排序，可以不断固定前面的元素，把问题降维：
+
+```text
+kSum
+ ↓ 固定一个数
+(k-1)Sum
+ ↓
+...
+ ↓
+2Sum
+```
+
+真正的基础仍然是：
+
+> **有序数组上的双指针两数之和。**
+
+对于固定目标 `target`：
+
+```text
+left < right
+
+sum < target → left++
+sum > target → right--
+sum = target → 记录 + 去重
+```
+
+---
+
+## 20. 通用递归 nSum 的思路
+
+如果以后要系统写一个通用版本，可以定义：
+
+```text
+nSum(start, n, target)
+```
+
+表示：
+
+> 在 `nums[start:]` 中寻找 $n$ 个数，使其和为 `target`。
+
+当：
+
+$$
+n=2
+$$
+
+使用双指针。
+
+当：
+
+$$
+n>2
+$$
+
+枚举一个数：
+
+```text
+nums[i]
+```
+
+然后递归求：
+
+$$
+(n-1)\text{Sum}(i+1,\ target-nums[i])
+$$
+
+这就是 nSum 的统一结构。
+
+---
+
+## 21. 常见错误
+
+### 错误一：把三数之和的 `nums[k] > 0` 剪枝机械搬过来
+
+本题目标值不是固定 0。
+
+必须根据 `target` 和可取的最小/最大组合重新判断。
+
+---
+
+### 错误二：第二层去重条件写错
+
+错误：
+
+```cpp
+i > 0 && nums[i] == nums[i - 1]
+```
+
+正确：
+
+```cpp
+i > k + 1 && nums[i] == nums[i - 1]
+```
+
+因为每个 `k` 都对应一组新的第二层搜索区间。
+
+---
+
+### 错误三：忘记四数求和可能溢出
+
+使用：
+
+```cpp
+long long
+```
+
+而不是直接 `int` 相加。
+
+---
+
+### 错误四：找到答案后没有同时去重左右指针
+
+会产生重复四元组。
+
+---
+
+### 错误五：认为四元组中的值必须互不相同
+
+错误。
+
+允许：
+
+```text
+[0, 0, 0, 0]
+```
+
+只要数组中有四个不同下标即可。
+
+---
+
+## 22. 一眼识别本题
+
+看到：
+
+```text
+同一个数组
+四个数
+和为 target
+返回所有不重复四元组
+```
+
+应该想到：
+
+```text
+排序
+  ↓
+固定第 1 个数
+  ↓
+固定第 2 个数
+  ↓
+剩余区间双指针
+  ↓
+分层去重
+```
+
+而不是优先构造复杂哈希表。
+
+---
+
+## 23. 多语言实现
+
+
+
+```cpp tab="C++"
+class Solution {
+public:
+    vector<vector<int>> fourSum(
+        vector<int>& nums,
+        int target
+    ) {
+        vector<vector<int>> result;
+        int n = nums.size();
+
+        sort(nums.begin(), nums.end());
+
+        for (int k = 0; k < n - 3; ++k) {
+            if (k > 0 && nums[k] == nums[k - 1]) {
+                continue;
+            }
+
+            long long minSum =
+                1LL * nums[k] +
+                nums[k + 1] +
+                nums[k + 2] +
+                nums[k + 3];
+
+            if (minSum > target) {
+                break;
+            }
+
+            long long maxSum =
+                1LL * nums[k] +
+                nums[n - 1] +
+                nums[n - 2] +
+                nums[n - 3];
+
+            if (maxSum < target) {
+                continue;
+            }
+
+            for (int i = k + 1; i < n - 2; ++i) {
+                if (
+                    i > k + 1 &&
+                    nums[i] == nums[i - 1]
+                ) {
+                    continue;
+                }
+
+                int left = i + 1;
+                int right = n - 1;
+
+                while (left < right) {
+                    long long sum =
+                        1LL * nums[k] +
+                        nums[i] +
+                        nums[left] +
+                        nums[right];
+
+                    if (sum < target) {
+                        ++left;
+                    } else if (sum > target) {
+                        --right;
+                    } else {
+                        result.push_back({
+                            nums[k],
+                            nums[i],
+                            nums[left],
+                            nums[right]
+                        });
+
+                        while (
+                            left < right &&
+                            nums[left] == nums[left + 1]
+                        ) {
+                            ++left;
+                        }
+
+                        while (
+                            left < right &&
+                            nums[right] == nums[right - 1]
+                        ) {
+                            --right;
+                        }
+
+                        ++left;
+                        --right;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public List<List<Integer>> fourSum(
+        int[] nums,
+        int target
+    ) {
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(nums);
+
+        int n = nums.length;
+
+        for (int k = 0; k < n - 3; ++k) {
+            if (k > 0 && nums[k] == nums[k - 1]) {
+                continue;
+            }
+
+            for (int i = k + 1; i < n - 2; ++i) {
+                if (
+                    i > k + 1 &&
+                    nums[i] == nums[i - 1]
+                ) {
+                    continue;
+                }
+
+                int left = i + 1;
+                int right = n - 1;
+
+                while (left < right) {
+                    long sum =
+                        (long) nums[k] +
+                        nums[i] +
+                        nums[left] +
+                        nums[right];
+
+                    if (sum < target) {
+                        ++left;
+                    } else if (sum > target) {
+                        --right;
+                    } else {
+                        result.add(Arrays.asList(
+                            nums[k],
+                            nums[i],
+                            nums[left],
+                            nums[right]
+                        ));
+
+                        while (
+                            left < right &&
+                            nums[left] == nums[left + 1]
+                        ) {
+                            ++left;
+                        }
+
+                        while (
+                            left < right &&
+                            nums[right] == nums[right - 1]
+                        ) {
+                            --right;
+                        }
+
+                        ++left;
+                        --right;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+
+
+```python tab="Python"
+from typing import List
+
+class Solution:
+    def fourSum(
+        self,
+        nums: List[int],
+        target: int
+    ) -> List[List[int]]:
+        nums.sort()
+        result = []
+        n = len(nums)
+
+        for k in range(n - 3):
+            if k > 0 and nums[k] == nums[k - 1]:
+                continue
+
+            min_sum = (
+                nums[k]
+                + nums[k + 1]
+                + nums[k + 2]
+                + nums[k + 3]
+            )
+
+            if min_sum > target:
+                break
+
+            max_sum = (
+                nums[k]
+                + nums[n - 1]
+                + nums[n - 2]
+                + nums[n - 3]
+            )
+
+            if max_sum < target:
+                continue
+
+            for i in range(k + 1, n - 2):
+                if (
+                    i > k + 1 and
+                    nums[i] == nums[i - 1]
+                ):
+                    continue
+
+                left = i + 1
+                right = n - 1
+
+                while left < right:
+                    total = (
+                        nums[k]
+                        + nums[i]
+                        + nums[left]
+                        + nums[right]
+                    )
+
+                    if total < target:
+                        left += 1
+                    elif total > target:
+                        right -= 1
+                    else:
+                        result.append([
+                            nums[k],
+                            nums[i],
+                            nums[left],
+                            nums[right]
+                        ])
+
+                        while (
+                            left < right and
+                            nums[left] == nums[left + 1]
+                        ):
+                            left += 1
+
+                        while (
+                            left < right and
+                            nums[right] == nums[right - 1]
+                        ):
+                            right -= 1
+
+                        left += 1
+                        right -= 1
+
+        return result
+```
+
+
+
+```go tab="Go"
+func fourSum(nums []int, target int) [][]int {
+    sort.Ints(nums)
+
+    result := make([][]int, 0)
+    n := len(nums)
+
+    for k := 0; k < n-3; k++ {
+        if k > 0 && nums[k] == nums[k-1] {
+            continue
+        }
+
+        for i := k + 1; i < n-2; i++ {
+            if i > k+1 && nums[i] == nums[i-1] {
+                continue
+            }
+
+            left := i + 1
+            right := n - 1
+
+            for left < right {
+                sum := int64(nums[k]) +
+                    int64(nums[i]) +
+                    int64(nums[left]) +
+                    int64(nums[right])
+
+                if sum < int64(target) {
+                    left++
+                } else if sum > int64(target) {
+                    right--
+                } else {
+                    result = append(
+                        result,
+                        []int{
+                            nums[k],
+                            nums[i],
+                            nums[left],
+                            nums[right],
+                        },
+                    )
+
+                    for left < right &&
+                        nums[left] == nums[left+1] {
+                        left++
+                    }
+
+                    for left < right &&
+                        nums[right] == nums[right-1] {
+                        right--
+                    }
+
+                    left++
+                    right--
+                }
+            }
+        }
+    }
+
+    return result
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var fourSum = function(nums, target) {
+    nums.sort((a, b) => a - b);
+
+    const result = [];
+    const n = nums.length;
+
+    for (let k = 0; k < n - 3; ++k) {
+        if (k > 0 && nums[k] === nums[k - 1]) {
+            continue;
+        }
+
+        for (let i = k + 1; i < n - 2; ++i) {
+            if (
+                i > k + 1 &&
+                nums[i] === nums[i - 1]
+            ) {
+                continue;
+            }
+
+            let left = i + 1;
+            let right = n - 1;
+
+            while (left < right) {
+                const sum =
+                    nums[k] +
+                    nums[i] +
+                    nums[left] +
+                    nums[right];
+
+                if (sum < target) {
+                    ++left;
+                } else if (sum > target) {
+                    --right;
+                } else {
+                    result.push([
+                        nums[k],
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    ]);
+
+                    while (
+                        left < right &&
+                        nums[left] === nums[left + 1]
+                    ) {
+                        ++left;
+                    }
+
+                    while (
+                        left < right &&
+                        nums[right] === nums[right - 1]
+                    ) {
+                        --right;
+                    }
+
+                    ++left;
+                    --right;
+                }
+            }
+        }
+    }
+
+    return result;
+};
+```
+
+  ---
+
+## 24. 本题总结
+
+四数之和的核心不是“四层循环”，而是：
+
+```text
+4Sum
+  ↓ 固定一个数
+3Sum
+  ↓ 固定一个数
+2Sum
+  ↓ 双指针
+```
+
+需要掌握：
+
+1. 排序提供单调性和去重基础。
+2. 两层固定 + 一层双指针，把 $O(n^4)$ 降到 $O(n^3)$。
+3. `k`、`i`、`left`、`right` 都要在正确层级去重。
+4. `target` 任意时，不能机械套用三数之和的正数剪枝。
+5. 使用最小和 / 最大和做边界剪枝更通用。
+6. 四数相加可能溢出，使用 `long long`。
+7. 本题是通用 nSum 框架的重要一环。

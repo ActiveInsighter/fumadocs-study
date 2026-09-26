@@ -1,0 +1,689 @@
+---
+title: 寻找数组的中心下标
+description: 从总和关系推导中心下标判定式，掌握前缀和思想、单次扫描写法，以及左右贡献类问题的通用建模方法。
+---
+
+# 724. 寻找数组的中心下标
+
+[LeetCode 724：寻找数组的中心下标](https://leetcode.cn/problems/find-pivot-index/)
+
+给定整数数组 `nums`，寻找一个下标 `i`，使得：
+
+- `i` 左侧所有元素之和；
+- `i` 右侧所有元素之和；
+
+二者恰好相等。
+
+如果存在多个满足条件的下标，返回**最左边**的一个；如果不存在，返回 `-1`。
+
+例如：
+
+```text
+nums = [1, 7, 3, 6, 5, 6]
+```
+
+当 `i = 3` 时：
+
+```text
+左侧：[1, 7, 3]   -> 11
+当前：6
+右侧：[5, 6]      -> 11
+```
+
+所以答案是：
+
+```text
+3
+```
+
+> [!TIP]
+> 这道题看起来是在“分别求左右两边”，但真正关键的是：**右边和不需要重新计算，可以由总和直接推出来。**
+
+## 一、最直接的思路为什么不够好
+
+如果枚举每个位置 `i`，然后每次都重新计算：
+
+```text
+nums[0 ... i-1] 的和
+nums[i+1 ... n-1] 的和
+```
+
+那么一个位置最坏需要扫描 $O(n)$ 个元素，一共有 $n$ 个位置，因此总复杂度会达到：
+
+$$
+O(n^2)
+$$
+
+显然重复计算很多。
+
+例如：
+
+```text
+i = 3 时已经算过 nums[0] + nums[1] + nums[2]
+i = 4 时又重新计算 nums[0] + nums[1] + nums[2] + nums[3]
+```
+
+这些前缀部分完全可以复用。
+
+因此这道题的本质就是：
+
+> **维护一个不断增长的左侧前缀和，再利用总和推导右侧和。**
+
+## 二、建立等式
+
+设：
+
+- 数组总和为 `total`；
+- 当前下标为 `i`；
+- `i` 左侧元素之和为 `leftSum`；
+- `i` 右侧元素之和为 `rightSum`。
+
+整个数组可以拆成：
+
+$$
+\text{leftSum}+nums[i]+\text{rightSum}=\text{total}
+$$
+
+因此：
+
+$$
+\text{rightSum}=\text{total}-\text{leftSum}-nums[i]
+$$
+
+中心下标要求：
+
+$$
+\text{leftSum}=\text{rightSum}
+$$
+
+代入得：
+
+$$
+\text{leftSum}=\text{total}-\text{leftSum}-nums[i]
+$$
+
+整理：
+
+$$
+2\times \text{leftSum}+nums[i]=\text{total}
+$$
+
+所以每次扫描只需要判断：
+
+```cpp
+leftSum == total - leftSum - nums[i]
+```
+
+即可。
+
+## 三、正确的扫描顺序
+
+这里最容易犯错的是：
+
+> `leftSum` 到底应不应该包含当前的 `nums[i]`？
+
+按题目定义，中心下标左侧不包括当前位置本身，所以在判断时：
+
+```text
+leftSum 必须只表示 nums[0 ... i-1]
+```
+
+因此循环顺序应该是：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    int rightSum = total - leftSum - nums[i];
+
+    if (leftSum == rightSum) {
+        return i;
+    }
+
+    leftSum += nums[i];
+}
+```
+
+也就是：
+
+1. 先根据当前 `leftSum` 判断；
+2. 再把 `nums[i]` 加入 `leftSum`；
+3. 进入下一个位置。
+
+> [!IMPORTANT]
+> 前缀和类题目一定要先明确“当前维护的和到底包含到哪里”。很多错误并不是公式错，而是状态定义和更新顺序不一致。
+
+## 四、完整推演
+
+考虑：
+
+```text
+nums = [1, 7, 3, 6, 5, 6]
+```
+
+总和：
+
+$$
+1+7+3+6+5+6=28
+$$
+
+初始：
+
+```text
+leftSum = 0
+```
+
+### `i = 0`
+
+当前元素：
+
+```text
+nums[0] = 1
+```
+
+右侧和：
+
+$$
+28-0-1=27
+$$
+
+比较：
+
+```text
+0 != 27
+```
+
+然后更新：
+
+```text
+leftSum = 1
+```
+
+### `i = 1`
+
+右侧和：
+
+$$
+28-1-7=20
+$$
+
+比较：
+
+```text
+1 != 20
+```
+
+更新：
+
+```text
+leftSum = 8
+```
+
+### `i = 2`
+
+右侧和：
+
+$$
+28-8-3=17
+$$
+
+不相等。
+
+更新：
+
+```text
+leftSum = 11
+```
+
+### `i = 3`
+
+右侧和：
+
+$$
+28-11-6=11
+$$
+
+此时：
+
+$$
+\text{leftSum}=\text{rightSum}=11
+$$
+
+所以直接返回：
+
+```text
+3
+```
+
+由于我们从左向右扫描，因此第一次找到的答案天然就是最左中心下标。
+
+## 五、边界情况
+
+### 情况 1：中心下标在最左边
+
+例如：
+
+```text
+nums = [2, 1, -1]
+```
+
+当：
+
+```text
+i = 0
+```
+
+左侧没有元素，所以：
+
+$$
+leftSum=0
+$$
+
+右侧：
+
+$$
+1+(-1)=0
+$$
+
+因此下标 `0` 合法。
+
+公式同样自然成立：
+
+$$
+3-0-2=1
+$$
+
+等等，这里数组总和其实是：
+
+$$
+2+1-1=2
+$$
+
+所以：
+
+$$
+2-0-2=0
+$$
+
+恰好等于左侧和。
+
+### 情况 2：中心下标在最右边
+
+例如：
+
+```text
+nums = [-1, 1, 0]
+```
+
+当 `i = 2` 时：
+
+```text
+左侧和 = 0
+右侧和 = 0
+```
+
+仍然满足条件。
+
+### 情况 3：存在负数
+
+这道题**不要求数组元素非负**。
+
+例如：
+
+```text
+[2, -2, 0]
+```
+
+前缀和可能增大，也可能减小。
+
+但我们并没有使用“前缀和单调”这一性质，所以完全不受影响。
+
+> [!NOTE]
+> “前缀和”只是表示区间累加关系，并不意味着数组必须全是正数。只有涉及二分前缀和、滑动窗口单调性时，正负性才可能成为关键条件。
+
+## 六、推荐写法
+
+### C++
+
+```cpp
+class Solution {
+public:
+    int pivotIndex(vector<int>& nums) {
+        int total = 0;
+        for (int x : nums) {
+            total += x;
+        }
+
+        int leftSum = 0;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            int rightSum = total - leftSum - nums[i];
+
+            if (leftSum == rightSum) {
+                return i;
+            }
+
+            leftSum += nums[i];
+        }
+
+        return -1;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+第一遍求总和，第二遍寻找中心位置。
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+只维护若干整数变量。
+
+## 七、另一种等价写法：先更新再比较
+
+原资料中也给出了一种写法：
+
+```cpp
+leftSum += nums[i];
+rightSum = total - leftSum + nums[i];
+```
+
+此时 `leftSum` 已经包含了当前元素，所以真正的“左边和”其实是：
+
+$$
+leftSum-nums[i]
+$$
+
+而：
+
+```cpp
+rightSum = total - leftSum + nums[i];
+```
+
+相当于：
+
+$$
+rightSum=total-(leftSum-nums[i])-nums[i]
+$$
+
+最终当然也是正确的。
+
+但从状态语义上看，更推荐前面的写法：
+
+```cpp
+rightSum = total - leftSum - nums[i];
+if (leftSum == rightSum) ...
+leftSum += nums[i];
+```
+
+因为这样 `leftSum` 始终严格表示：
+
+> 当前下标左侧所有元素的和。
+
+代码与数学定义完全一致，可读性更高。
+
+## 八、前缀和数组能不能做
+
+当然可以。
+
+定义：
+
+$$
+prefix[i]=nums[0]+nums[1]+\cdots+nums[i-1]
+$$
+
+则下标 `i` 左边的和为：
+
+$$
+prefix[i]
+$$
+
+右边的和为：
+
+$$
+prefix[n]-prefix[i+1]
+$$
+
+判断：
+
+$$
+prefix[i]=prefix[n]-prefix[i+1]
+$$
+
+但如果只解决这一题，完整前缀和数组会占用：
+
+$$
+O(n)
+$$
+
+额外空间，而实际上只需要一个滚动的 `leftSum`。
+
+所以本题是一个很典型的例子：
+
+> **前缀和思想不一定非要创建前缀和数组。**
+
+如果只需要“当前前缀”，一个变量就够了。
+
+## 九、这类题的通用模型
+
+以后看到类似问题：
+
+- 左边元素和与右边元素和；
+- 左侧贡献与右侧贡献；
+- 某个位置把数组分成两部分；
+- 要求两部分满足某种关系；
+
+可以优先考虑：
+
+```text
+总量 = 左边 + 当前 + 右边
+```
+
+然后把未知的一侧表示为：
+
+$$
+右边=总量-左边-当前
+$$
+
+这样往往可以把“两个方向分别计算”变成一次线性扫描。
+
+## 十、常见错误
+
+### 错误 1：右侧和忘记减去当前元素
+
+错误写法：
+
+```cpp
+int rightSum = total - leftSum;
+```
+
+这里把当前元素也算进右边了。
+
+正确的是：
+
+```cpp
+int rightSum = total - leftSum - nums[i];
+```
+
+### 错误 2：先更新 `leftSum`，却还按旧公式判断
+
+错误：
+
+```cpp
+leftSum += nums[i];
+int rightSum = total - leftSum - nums[i];
+```
+
+此时 `nums[i]` 被减了两次，状态定义已经错乱。
+
+### 错误 3：找到答案后还继续扫描
+
+题目要求返回最左中心下标。
+
+因为遍历顺序是从左向右，所以一旦满足条件：
+
+```cpp
+return i;
+```
+
+即可。
+
+## 十一、一句话模板
+
+遇到中心下标问题，记住：
+
+$$
+leftSum = total-leftSum-nums[i]
+$$
+
+代码模板：
+
+```cpp
+int total = accumulate(nums.begin(), nums.end(), 0);
+int leftSum = 0;
+
+for (int i = 0; i < nums.size(); ++i) {
+    if (leftSum == total - leftSum - nums[i]) {
+        return i;
+    }
+    leftSum += nums[i];
+}
+
+return -1;
+```
+
+核心不是背代码，而是记住这个拆分关系：
+
+> **总和 = 左边 + 当前 + 右边。**
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int pivotIndex(int[] nums) {
+        int total = 0;
+        for (int x : nums) {
+            total += x;
+        }
+
+        int leftSum = 0;
+
+        for (int i = 0; i < nums.length; ++i) {
+            int rightSum = total - leftSum - nums[i];
+
+            if (leftSum == rightSum) {
+                return i;
+            }
+
+            leftSum += nums[i];
+        }
+
+        return -1;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def pivotIndex(self, nums: List[int]) -> int:
+        total = sum(nums)
+        left_sum = 0
+
+        for i, x in enumerate(nums):
+            right_sum = total - left_sum - x
+
+            if left_sum == right_sum:
+                return i
+
+            left_sum += x
+
+        return -1
+```
+
+```go tab="Go"
+func pivotIndex(nums []int) int {
+    total := 0
+    for _, x := range nums {
+        total += x
+    }
+
+    leftSum := 0
+
+    for i, x := range nums {
+        rightSum := total - leftSum - x
+
+        if leftSum == rightSum {
+            return i
+        }
+
+        leftSum += x
+    }
+
+    return -1
+}
+```
+
+```javascript tab="JavaScript"
+var pivotIndex = function(nums) {
+    const total = nums.reduce((sum, x) => sum + x, 0);
+    let leftSum = 0;
+
+    for (let i = 0; i < nums.length; ++i) {
+        const rightSum = total - leftSum - nums[i];
+
+        if (leftSum === rightSum) {
+            return i;
+        }
+
+        leftSum += nums[i];
+    }
+
+    return -1;
+};
+```
+
+```typescript tab="TypeScript"
+function pivotIndex(nums: number[]): number {
+    const total = nums.reduce((sum, x) => sum + x, 0);
+    let leftSum = 0;
+
+    for (let i = 0; i < nums.length; ++i) {
+        const rightSum = total - leftSum - nums[i];
+
+        if (leftSum === rightSum) {
+            return i;
+        }
+
+        leftSum += nums[i];
+    }
+
+    return -1;
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn pivot_index(nums: Vec<i32>) -> i32 {
+        let total: i32 = nums.iter().sum();
+        let mut left_sum = 0;
+
+        for (i, &x) in nums.iter().enumerate() {
+            let right_sum = total - left_sum - x;
+
+            if left_sum == right_sum {
+                return i as i32;
+            }
+
+            left_sum += x;
+        }
+
+        -1
+    }
+}
+```

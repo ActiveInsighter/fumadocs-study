@@ -1,0 +1,1145 @@
+---
+title: 39. 组合总和
+summary: 掌握“同一集合、元素可重复使用”的组合型回溯，理解递归为什么传 i 而不是 i + 1，以及排序后如何进行单调剪枝。
+description: LeetCode 39 组合总和：搜索树建模、startIndex、元素重复选取、剩余目标值、排序剪枝、复杂度与多语言实现。
+---
+
+
+# 39. 组合总和
+
+给定一个**无重复元素**的正整数数组 `candidates` 和目标值 `target`，找出所有元素和等于 `target` 的不同组合。
+
+每个候选数字可以被**无限次重复选取**。
+
+例如：
+
+```text
+输入：candidates = [2, 3, 6, 7], target = 7
+输出：[[2, 2, 3], [7]]
+```
+
+```text
+输入：candidates = [2, 3, 5], target = 8
+输出：[[2, 2, 2, 2], [2, 3, 3], [3, 5]]
+```
+
+<Callout title="本题最关键的一行">
+
+与 `77. 组合` 最大的区别不是“多了一个 target”，而是：
+
+> 当前元素在下一层仍然可以继续选择。
+
+因此递归时传入的是：
+
+```cpp
+backtracking(i, ...);
+```
+
+而不是：
+
+```cpp
+backtracking(i + 1, ...);
+```
+
+这一处参数变化，就把搜索空间从“每个元素最多使用一次”改成了“当前元素可以无限复用”。
+
+</Callout>
+
+## 1. 先和前面的组合题做对比
+
+### 77. 组合
+
+候选元素一旦被选择，下一层不能再选它：
+
+```cpp
+backtracking(i + 1);
+```
+
+因为我们是在集合中选不同元素。
+
+### 216. 组合总和 III
+
+同样每个数字只能使用一次，所以仍然是：
+
+```cpp
+backtracking(i + 1);
+```
+
+只不过额外维护：
+
+$$
+|path|=k
+$$
+
+和：
+
+$$
+\sum path=n
+$$
+
+### 39. 组合总和
+
+当前候选值可以再次使用，因此下一层仍允许从 `i` 开始：
+
+```cpp
+backtracking(i);
+```
+
+这三个题可以统一成：
+
+| 题目 | 当前元素下一层还能选吗 | 递归起点 |
+| --- | --- | --- |
+| 77. 组合 | 不能 | `i + 1` |
+| 216. 组合总和 III | 不能 | `i + 1` |
+| 39. 组合总和 | **能** | **`i`** |
+
+## 2. 搜索树如何展开？
+
+以：
+
+```text
+candidates = [2, 3, 6, 7]
+target = 7
+```
+
+为例：
+
+![39.组合总和](https://file1.kamacoder.com/i/algo/20201223170730367.png)
+
+根节点表示：
+
+```text
+path = []
+sum = 0
+```
+
+如果第一步选择 `2`，下一层仍然可以再次选择 `2`：
+
+```text
+[]
+└── 2
+    ├── 2
+    │   ├── 2
+    │   ├── 3  → [2,2,3]
+    │   ├── 6
+    │   └── 7
+    ├── 3
+    ├── 6
+    └── 7
+```
+
+但当第一步选择 `3` 后，下一层不再回头选择 `2`。
+
+为什么？
+
+因为：
+
+```text
+[2, 3, 2]
+```
+
+与：
+
+```text
+[2, 2, 3]
+```
+
+在组合意义下完全相同。
+
+因此本题同时需要满足两个规则：
+
+1. **允许重复使用当前元素**；
+2. **不能回头选择更早的元素**。
+
+这两个要求恰好由：
+
+```cpp
+backtracking(..., i);
+```
+
+同时完成。
+
+## 3. 为什么仍然需要 `startIndex`？
+
+有人会认为：既然元素可以无限重复选取，那每层都从 `0` 开始不就行了吗？
+
+不行。
+
+如果每层都从 `0` 开始，那么 `target = 7` 时可能同时产生：
+
+```text
+[2, 2, 3]
+[2, 3, 2]
+[3, 2, 2]
+```
+
+这三个序列只是同一个组合的不同排列。
+
+因此我们仍然规定：
+
+$$
+\text{下一层只能从当前下标 }i\text{ 及其后面继续选}
+$$
+
+即：
+
+```cpp
+for (int i = startIndex; i < candidates.size(); ++i) {
+    ...
+    backtracking(..., i);
+}
+```
+
+<Callout type="info" title="一句话区分">
+
+- `startIndex`：防止组合顺序不同造成重复；
+- 递归传 `i`：允许当前元素再次使用；
+- 递归传 `i + 1`：禁止当前元素再次使用。
+
+</Callout>
+
+## 4. 本题为什么没有固定递归层数？
+
+前面的 `77. 组合` 和 `216. 组合总和 III` 都明确要求选 $k$ 个元素，因此最多递归 $k$ 层。
+
+本题没有规定元素个数。
+
+例如 `target = 8` 时：
+
+```text
+[2,2,2,2] → 4 个元素
+[2,3,3]   → 3 个元素
+[3,5]     → 2 个元素
+```
+
+所以不能通过：
+
+```cpp
+path.size() == k
+```
+
+来判断结束。
+
+真正控制递归深度的是“当前和”或者“剩余目标值”。
+
+由于题目保证所有候选数都是正整数，每次选择都会使当前和严格增加，因此搜索不会无限递归。
+
+如果最小候选值为：
+
+$$
+m=\min(candidates)
+$$
+
+那么任意路径的最大深度最多约为：
+
+$$
+\left\lfloor\frac{target}{m}\right\rfloor
+$$
+
+这也是“候选值必须为正”在算法上非常重要的原因。
+
+<Callout type="warn" title="如果候选中允许 0 会怎样？">
+
+若允许选择 `0`，递归传 `i` 时可以不断重复选择 `0`，目标值却不发生变化，于是可能出现无限递归。
+
+如果允许负数，当前和也不再单调增加，很多基于 `sum > target` 的剪枝都会失效。
+
+本题的正整数条件是正确性和剪枝的重要前提。
+
+</Callout>
+
+## 5. 回溯三部曲
+
+### ① 递归参数
+
+需要维护：
+
+```text
+当前路径 path
+当前和 sum（或剩余目标 remain）
+当前层允许开始选择的位置 startIndex
+```
+
+若采用 `sum` 写法：
+
+```cpp
+void backtracking(
+    const vector<int>& candidates,
+    int target,
+    int sum,
+    int startIndex
+)
+```
+
+其中：
+
+$$
+sum=\sum_{x\in path}x
+$$
+
+### ② 终止条件
+
+当：
+
+$$
+sum=target
+$$
+
+说明当前路径正好构成一个合法组合：
+
+```cpp
+if (sum == target) {
+    result.push_back(path);
+    return;
+}
+```
+
+若使用最基础版本，还可以写：
+
+```cpp
+if (sum > target) {
+    return;
+}
+```
+
+但后面排序剪枝后，可以让这种超界分支根本不进入递归。
+
+### ③ 单层搜索
+
+当前层从 `startIndex` 开始枚举：
+
+```cpp
+for (int i = startIndex; i < candidates.size(); ++i) {
+    path.push_back(candidates[i]);
+    backtracking(candidates, target,
+                 sum + candidates[i], i);
+    path.pop_back();
+}
+```
+
+注意下一层传的是：
+
+```cpp
+i
+```
+
+而不是：
+
+```cpp
+i + 1
+```
+
+因为 `candidates[i]` 允许继续使用。
+
+## 6. 基础版本：先写对搜索空间
+
+![39.组合总和](https://file1.kamacoder.com/i/algo/20201223170730367-20230310135337214.png)
+
+最容易理解的版本是维护 `sum`：
+
+```cpp title="C++：基础回溯"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& candidates,
+                      int target,
+                      int sum,
+                      int startIndex) {
+        if (sum > target) {
+            return;
+        }
+
+        if (sum == target) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.size(); ++i) {
+            path.push_back(candidates[i]);
+            backtracking(candidates, target,
+                         sum + candidates[i], i);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates,
+                                       int target) {
+        backtracking(candidates, target, 0, 0);
+        return result;
+    }
+};
+```
+
+这个版本的搜索逻辑已经正确，但存在一个明显浪费：
+
+> 明明本层已经能判断“加入这个数一定超过 target”，却仍然进入下一层递归，再由下一层返回。
+
+这就是剪枝优化的切入点。
+
+## 7. 排序后为什么可以剪枝？
+
+先对数组升序排序：
+
+```cpp
+sort(candidates.begin(), candidates.end());
+```
+
+于是有：
+
+$$
+candidates[i]\le candidates[i+1]\le\cdots
+$$
+
+如果当前和为 `sum`，发现：
+
+$$
+sum+candidates[i]>target
+$$
+
+那么由于后面的候选值只会更大：
+
+$$
+sum+candidates[j]>target,\qquad j>i
+$$
+
+所以本层后面的候选都不需要继续尝试，可以直接：
+
+```cpp
+break;
+```
+
+而不只是 `continue`。
+
+![39.组合总和](https://file1.kamacoder.com/i/algo/20201223170730367-20230310135342472.png)
+
+进一步看剪枝后的搜索范围：
+
+![39.组合总和1](https://file1.kamacoder.com/i/algo/20201223170809182.png)
+
+代码可以写成：
+
+```cpp
+for (int i = startIndex;
+     i < candidates.size() && sum + candidates[i] <= target;
+     ++i) {
+    // ...
+}
+```
+
+或者更易读地写：
+
+```cpp
+for (int i = startIndex; i < candidates.size(); ++i) {
+    if (sum + candidates[i] > target) {
+        break;
+    }
+
+    // ...
+}
+```
+
+<Callout type="warn" title="break 成立依赖排序">
+
+如果 `candidates` 没有排序，当前元素太大，并不能说明后面不存在更小的元素。
+
+因此：
+
+```cpp
+if (sum + candidates[i] > target) break;
+```
+
+必须建立在**升序排序**的前提上。
+
+</Callout>
+
+## 8. 推荐写法：维护剩余目标值
+
+相比一直维护 `sum`，本题还有一种更自然的状态定义：
+
+$$
+remain=target-\sum path
+$$
+
+每选择一个值 `x`：
+
+$$
+remain\leftarrow remain-x
+$$
+
+当：
+
+$$
+remain=0
+$$
+
+就得到一个答案。
+
+这样代码里不需要同时保留 `target` 和 `sum`：
+
+```cpp title="C++：剩余目标值写法（推荐）"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& candidates,
+                      int remain,
+                      int startIndex) {
+        if (remain == 0) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.size(); ++i) {
+            if (candidates[i] > remain) {
+                break;
+            }
+
+            path.push_back(candidates[i]);
+            backtracking(candidates,
+                         remain - candidates[i],
+                         i);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates,
+                                       int target) {
+        sort(candidates.begin(), candidates.end());
+        backtracking(candidates, target, 0);
+        return result;
+    }
+};
+```
+
+这种写法的状态转移尤其直观：
+
+$$
+remain' = remain - candidates[i]
+$$
+
+而剪枝条件就是：
+
+$$
+candidates[i]>remain
+$$
+
+## 9. 为什么 `i` 不变仍然不会出现无限重复答案？
+
+递归传 `i` 只表示：
+
+```text
+当前元素下一层仍然允许选择
+```
+
+但下一层仍然从 `i` 开始，而不是回到 `0`。
+
+因此一条路径上的下标始终满足：
+
+$$
+i_1\le i_2\le i_3\le\cdots
+$$
+
+也就是说，路径中的候选元素按数组索引保持非递减顺序。
+
+于是：
+
+```text
+[2,2,3]
+```
+
+可能被生成，而：
+
+```text
+[2,3,2]
+[3,2,2]
+```
+
+不会被生成。
+
+这就是组合去重的核心：
+
+> 不在结果生成后再去重，而是在搜索空间构造阶段就规定唯一顺序。
+
+## 10. `i`、`i + 1`、`0` 到底分别代表什么？
+
+这是回溯中非常值得形成条件反射的一组规则。
+
+### 下一层传 `i`
+
+```cpp
+backtracking(..., i);
+```
+
+表示：
+
+> 当前元素还可以再次选。
+
+典型题：`39. 组合总和`。
+
+### 下一层传 `i + 1`
+
+```cpp
+backtracking(..., i + 1);
+```
+
+表示：
+
+> 当前元素已经用过，下一层必须向后选。
+
+典型题：`77. 组合`、`216. 组合总和 III`。
+
+### 下一层重新从 `0` 枚举
+
+如果同一集合每层都允许重新选择任意未使用元素，通常进入的是**排列问题**，此时往往需要 `used` 数组，而不是 `startIndex`。
+
+因此递归起点本质上是在编码题目的“可选择关系”。
+
+## 11. 用状态图理解 `remain`
+
+假设：
+
+```text
+candidates = [2, 3, 6, 7]
+remain = 7
+```
+
+选择 `2` 后：
+
+$$
+remain=7-2=5
+$$
+
+再次选择 `2`：
+
+$$
+remain=5-2=3
+$$
+
+此时选择 `3`：
+
+$$
+remain=3-3=0
+$$
+
+得到：
+
+```text
+[2, 2, 3]
+```
+
+因此一条成功路径可以直接看成：
+
+$$
+7\rightarrow5\rightarrow3\rightarrow0
+$$
+
+这种“不断消耗剩余目标”的思维，在后面的切割、背包和动态规划问题中也非常常见。
+
+## 12. 复杂度应该怎样理解？
+
+本题比普通组合题更难给出只依赖 $n$ 的简单复杂度，因为递归深度还受到：
+
+- `target`；
+- 最小候选值；
+- 候选值分布；
+- 剪枝效果；
+- 实际答案数量。
+
+若：
+
+$$
+m=\min(candidates)
+$$
+
+则最大递归深度满足：
+
+$$
+d\le\left\lfloor\frac{target}{m}\right\rfloor
+$$
+
+一个粗略的搜索树上界可以写成指数级：
+
+$$
+O(n^d)
+$$
+
+但由于 `startIndex` 限制了候选范围且排序后存在大量剪枝，实际搜索远小于完整 $n$ 叉树。
+
+更重要的是：输出所有答案本身就具有输出规模下界，因此不能期待一个与答案数量无关的多项式算法。
+
+### 空间复杂度
+
+不计输出结果，递归栈和 `path` 的最大长度约为：
+
+$$
+O\left(\frac{target}{m}\right)
+$$
+
+其中 $m$ 是最小候选值。
+
+## 13. 常见错误
+
+### 错误一：递归传 `i + 1`
+
+```cpp
+backtracking(..., i + 1);
+```
+
+这样会禁止重复使用当前元素，导致：
+
+```text
+[2,2,3]
+```
+
+这类答案无法生成。
+
+### 错误二：每层从 `0` 开始
+
+```cpp
+for (int i = 0; i < candidates.size(); ++i)
+```
+
+这样会把组合当成排列，产生大量顺序不同但本质相同的结果。
+
+### 错误三：未排序却使用 `break`
+
+```cpp
+if (candidates[i] > remain) break;
+```
+
+若数组无序，后面可能还有更小的候选值，因此会错误剪掉合法答案。
+
+### 错误四：把“元素可重复选”理解成“答案可以重复”
+
+题目允许的是：
+
+```text
+同一个候选值在同一个组合中使用多次
+```
+
+不是允许：
+
+```text
+同一个组合以不同排列形式重复出现
+```
+
+### 错误五：共享 `sum` 后忘记回溯
+
+如果写：
+
+```cpp
+sum += candidates[i];
+backtracking(...);
+```
+
+返回后必须：
+
+```cpp
+sum -= candidates[i];
+```
+
+更稳妥的做法是直接传：
+
+```cpp
+sum + candidates[i]
+```
+
+或者改用 `remain - candidates[i]`。
+
+## 14. 与前面题目的统一模型
+
+可以把目前学到的组合问题放到同一个决策表里：
+
+| 模型 | 同一集合？ | 同一元素可重复？ | 是否固定选取数量？ | 下一层起点 |
+| --- | --- | --- | --- | --- |
+| 77. 组合 | 是 | 否 | 是 | `i + 1` |
+| 216. 组合总和 III | 是 | 否 | 是 | `i + 1` |
+| 17. 电话号码字母组合 | 否，多集合 | 不适用 | 每个集合选一个 | `index + 1` |
+| 39. 组合总和 | 是 | **是** | 否 | **`i`** |
+
+<Callout title="本题核心结论">
+
+本题真正需要掌握的是下面三个约束如何同时体现在代码中：
+
+$$
+\boxed{\text{不回头} \Rightarrow startIndex}
+$$
+
+$$
+\boxed{\text{可重复使用当前元素} \Rightarrow \text{递归传 }i}
+$$
+
+$$
+\boxed{\text{正整数 + 排序} \Rightarrow \text{超过剩余目标后可 }break}
+$$
+
+理解这三点后，`39. 组合总和` 就不再是一套需要单独背诵的模板。
+
+</Callout>
+
+## 15. 其他语言实现
+
+下面统一采用“排序 + 剩余目标值/等价剪枝”的思路。
+
+
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    private final List<List<Integer>> result = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        backtracking(candidates, target, 0);
+        return result;
+    }
+
+    private void backtracking(int[] candidates, int remain, int startIndex) {
+        if (remain == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+
+            path.add(candidates[i]);
+            backtracking(candidates, remain - candidates[i], i);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def combinationSum(self, candidates, target):
+        candidates.sort()
+        result = []
+        path = []
+
+        def backtracking(remain, start_index):
+            if remain == 0:
+                result.append(path[:])
+                return
+
+            for i in range(start_index, len(candidates)):
+                if candidates[i] > remain:
+                    break
+
+                path.append(candidates[i])
+                backtracking(remain - candidates[i], i)
+                path.pop()
+
+        backtracking(target, 0)
+        return result
+```
+
+
+
+```go tab="Go"
+import "sort"
+
+func combinationSum(candidates []int, target int) [][]int {
+    sort.Ints(candidates)
+
+    result := make([][]int, 0)
+    path := make([]int, 0)
+
+    var dfs func(remain, start int)
+    dfs = func(remain, start int) {
+        if remain == 0 {
+            temp := append([]int(nil), path...)
+            result = append(result, temp)
+            return
+        }
+
+        for i := start; i < len(candidates); i++ {
+            if candidates[i] > remain {
+                break
+            }
+
+            path = append(path, candidates[i])
+            dfs(remain-candidates[i], i)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(target, 0)
+    return result
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var combinationSum = function(candidates, target) {
+    candidates.sort((a, b) => a - b);
+
+    const result = [];
+    const path = [];
+
+    function backtracking(remain, startIndex) {
+        if (remain === 0) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = startIndex; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+
+            path.push(candidates[i]);
+            backtracking(remain - candidates[i], i);
+            path.pop();
+        }
+    }
+
+    backtracking(target, 0);
+    return result;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function combinationSum(candidates: number[], target: number): number[][] {
+    candidates.sort((a, b) => a - b);
+
+    const result: number[][] = [];
+    const path: number[] = [];
+
+    function backtracking(remain: number, startIndex: number): void {
+        if (remain === 0) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = startIndex; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+
+            path.push(candidates[i]);
+            backtracking(remain - candidates[i], i);
+            path.pop();
+        }
+    }
+
+    backtracking(target, 0);
+    return result;
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn combination_sum(mut candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
+        candidates.sort_unstable();
+
+        let mut result = Vec::new();
+        let mut path = Vec::new();
+
+        Self::backtracking(
+            &candidates,
+            target,
+            0,
+            &mut path,
+            &mut result,
+        );
+
+        result
+    }
+
+    fn backtracking(
+        candidates: &[i32],
+        remain: i32,
+        start: usize,
+        path: &mut Vec<i32>,
+        result: &mut Vec<Vec<i32>>,
+    ) {
+        if remain == 0 {
+            result.push(path.clone());
+            return;
+        }
+
+        for i in start..candidates.len() {
+            if candidates[i] > remain {
+                break;
+            }
+
+            path.push(candidates[i]);
+            Self::backtracking(
+                candidates,
+                remain - candidates[i],
+                i,
+                path,
+                result,
+            );
+            path.pop();
+        }
+    }
+}
+```
+
+
+
+```c tab="C"
+#include <stdlib.h>
+
+static int *path;
+static int pathSize;
+static int **result;
+static int resultSize;
+static int *columnSizes;
+
+static int cmp(const void *a, const void *b) {
+    return (*(const int *)a) - (*(const int *)b);
+}
+
+static void dfs(int *candidates, int candidatesSize,
+                int remain, int startIndex) {
+    if (remain == 0) {
+        int *row = (int *)malloc(sizeof(int) * pathSize);
+        for (int i = 0; i < pathSize; ++i) {
+            row[i] = path[i];
+        }
+        result[resultSize] = row;
+        columnSizes[resultSize] = pathSize;
+        ++resultSize;
+        return;
+    }
+
+    for (int i = startIndex; i < candidatesSize; ++i) {
+        if (candidates[i] > remain) break;
+
+        path[pathSize++] = candidates[i];
+        dfs(candidates, candidatesSize,
+            remain - candidates[i], i);
+        --pathSize;
+    }
+}
+
+int **combinationSum(int *candidates, int candidatesSize,
+                     int target, int *returnSize,
+                     int **returnColumnSizes) {
+    qsort(candidates, candidatesSize, sizeof(int), cmp);
+
+    path = (int *)malloc(sizeof(int) * (target + 1));
+    result = (int **)malloc(sizeof(int *) * 10000);
+    columnSizes = (int *)malloc(sizeof(int) * 10000);
+    pathSize = 0;
+    resultSize = 0;
+
+    dfs(candidates, candidatesSize, target, 0);
+
+    *returnSize = resultSize;
+    *returnColumnSizes = columnSizes;
+    free(path);
+    return result;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+        let candidates = candidates.sorted()
+        var result = [[Int]]()
+        var path = [Int]()
+
+        func backtracking(_ remain: Int, _ startIndex: Int) {
+            if remain == 0 {
+                result.append(path)
+                return
+            }
+
+            for i in startIndex..<candidates.count {
+                if candidates[i] > remain {
+                    break
+                }
+
+                path.append(candidates[i])
+                backtracking(remain - candidates[i], i)
+                path.removeLast()
+            }
+        }
+
+        backtracking(target, 0)
+        return result
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def combinationSum(candidates: Array[Int], target: Int): List[List[Int]] = {
+    val nums = candidates.sorted
+    val result = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ListBuffer[Int]()
+
+    def backtracking(remain: Int, startIndex: Int): Unit = {
+      if (remain == 0) {
+        result += path.toList
+        return
+      }
+
+      var i = startIndex
+      while (i < nums.length && nums(i) <= remain) {
+        path += nums(i)
+        backtracking(remain - nums(i), i)
+        path.remove(path.length - 1)
+        i += 1
+      }
+    }
+
+    backtracking(target, 0)
+    result.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    private readonly IList<IList<int>> result = new List<IList<int>>();
+    private readonly List<int> path = new List<int>();
+
+    public IList<IList<int>> CombinationSum(int[] candidates, int target)
+    {
+        Array.Sort(candidates);
+        Backtracking(candidates, target, 0);
+        return result;
+    }
+
+    private void Backtracking(int[] candidates, int remain, int startIndex)
+    {
+        if (remain == 0)
+        {
+            result.Add(new List<int>(path));
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.Length; i++)
+        {
+            if (candidates[i] > remain) break;
+
+            path.Add(candidates[i]);
+            Backtracking(candidates, remain - candidates[i], i);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```

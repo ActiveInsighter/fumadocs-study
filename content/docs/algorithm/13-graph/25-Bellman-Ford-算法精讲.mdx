@@ -1,0 +1,1037 @@
+---
+title: Bellman-Ford 算法精讲
+subtitle: 用 n-1 轮全边松弛处理含负权边的单源最短路
+summary: 以卡码网 94「城市间货物运输 I」为主线，从松弛操作、路径边数上界与动态规划视角理解 Bellman-Ford，掌握负权边、提前结束、边序影响、路径恢复，以及与 Dijkstra 的适用范围差异。
+---
+
+# Bellman-Ford 算法精讲
+
+> **卡码网 94. 城市间货物运输 I**
+>
+> 给定一张有向带权图，边权可能为负，但保证不存在负权回路。求城市 $1$ 到城市 $n$ 的最低运输成本；若不可达，输出 `unconnected`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1152)
+
+题目中的边权定义为：
+
+$$
+\text{运输成本}-\text{政府补贴}
+$$
+
+因此边权可能小于 $0$。
+
+示例图如下：
+
+![Bellman-Ford 题目示例图](https://file1.kamacoder.com/i/algo/20240509200224.png)
+
+这正是 Bellman-Ford 与 Dijkstra 的分界点：
+
+<Cards>
+  <Card title="Dijkstra">
+    适合边权全部非负的单源最短路，通常速度更快。
+  </Card>
+  <Card title="Bellman-Ford">
+    允许负权边，并且还能进一步判断从源点可达的负权回路。
+  </Card>
+</Cards>
+
+这篇题目保证没有负权回路，因此我们的目标是：
+
+> **在允许负权边的情况下，求源点到各点的最短距离。**
+
+---
+
+## 1. Bellman-Ford 的核心只有一句话
+
+对于一条有向边：
+
+$$
+u\rightarrow v
+$$
+
+边权为：
+
+$$
+w
+$$
+
+如果已经知道源点到 $u$ 的距离 `dist[u]`，那么经过这条边到达 $v$ 的候选距离就是：
+
+$$
+dist[u]+w
+$$
+
+因此执行：
+
+$$
+dist[v]=\min\left(dist[v],dist[u]+w\right)
+$$
+
+这就是 **松弛（relaxation）**。
+
+原资料给出的单边松弛示意图：
+
+![Bellman-Ford 单边松弛示意](https://file1.kamacoder.com/i/algo/20240327102620.png)
+
+代码只有：
+
+```cpp
+if (dist[u] != INF && dist[u] + w < dist[v]) {
+    dist[v] = dist[u] + w;
+}
+```
+
+<Callout type="info" title="最短路算法的共同语言就是松弛">
+
+Dijkstra、Bellman-Ford、SPFA 都会使用同一个核心不等式：
+
+$$
+dist[u]+w<dist[v]
+$$
+
+它们真正不同的是：
+
+> **哪些边在什么时候被松弛，以及需要重复多少次。**
+
+</Callout>
+
+---
+
+## 2. 为什么 Dijkstra 遇到负权边会失效
+
+Dijkstra 依赖下面这个性质：
+
+> 当前最小的未确定距离一旦被取出，就不可能再被未来路径改小。
+
+这个性质建立在：
+
+$$
+w\ge 0
+$$
+
+之上。
+
+如果存在负权边，则一个当前看起来较远的节点，未来可能通过负权边把一个已经处理过的点大幅拉低。
+
+例如：
+
+```text
+1 -> A = 2
+1 -> B = 5
+B -> A = -10
+```
+
+Dijkstra 可能先确定：
+
+$$
+dist[A]=2
+$$
+
+但真正最短路是：
+
+$$
+1\rightarrow B\rightarrow A
+$$
+
+距离：
+
+$$
+5-10=-5
+$$
+
+因此含负权边时，我们不能再依靠“贪心定点”，而要允许距离在后续轮次中不断被改小。
+
+Bellman-Ford 正是这样做的。
+
+---
+
+## 3. 为什么要把“所有边”都松弛
+
+Bellman-Ford 最直接的存图方式不是邻接矩阵，也不是一定需要邻接表，而是直接保存一张 **边表**：
+
+```cpp
+struct Edge {
+    int from;
+    int to;
+    long long weight;
+};
+
+vector<Edge> edges;
+```
+
+每一轮：
+
+```cpp
+for (const auto& e : edges) {
+    // 尝试松弛 e.from -> e.to
+}
+```
+
+也就是说：
+
+> 每轮尝试把当前已经知道的最短路信息，沿所有边继续传播。
+
+这种写法尤其适合 Bellman-Ford，因为算法本身就是“反复扫描全部边”。
+
+---
+
+## 4. 初始化
+
+源点设为 `1`。
+
+初始时：
+
+$$
+dist[1]=0
+$$
+
+其余点尚不可达：
+
+$$
+dist[v]=+\infty
+$$
+
+原资料中的初始化状态如下：
+
+![Bellman-Ford 初始化](https://file1.kamacoder.com/i/algo/20240328104119.png)
+
+这里 `INF` 的语义不是“距离真的无限大”，而是：
+
+```text
+目前还没有发现从源点到这个点的路径。
+```
+
+因此松弛前必须判断：
+
+```cpp
+if (dist[u] != INF)
+```
+
+否则从一个根本不可达的 `u` 出发更新 `v` 没有意义，而且还可能造成整数溢出。
+
+---
+
+## 5. 第一轮松弛：看信息怎样沿边传播
+
+示例边依次为：
+
+```text
+5 6 -2
+1 2 1
+5 3 1
+2 5 2
+2 4 -3
+4 6 4
+1 3 5
+```
+
+### 边 `5 -> 6, -2`
+
+此时 `5` 还不可达，所以不能松弛：
+
+![第一轮：5 到 6 暂时无法松弛](https://file1.kamacoder.com/i/algo/20240329113537.png)
+
+### 边 `1 -> 2, 1`
+
+有：
+
+$$
+dist[2]>dist[1]+1
+$$
+
+所以：
+
+$$
+dist[2]=1
+$$
+
+![第一轮：更新节点 2](https://file1.kamacoder.com/i/algo/20240329113703.png)
+
+### 边 `5 -> 3, 1`
+
+当前处理到这条边时，`5` 仍然不可达，因此不能更新：
+
+![第一轮：5 到 3 暂时无法松弛](https://file1.kamacoder.com/i/algo/20240329113827.png)
+
+### 边 `2 -> 5, 2`
+
+刚才已经得到：
+
+$$
+dist[2]=1
+$$
+
+所以：
+
+$$
+dist[5]=1+2=3
+$$
+
+![第一轮：更新节点 5](https://file1.kamacoder.com/i/algo/20240329113927.png)
+
+### 边 `2 -> 4, -3`
+
+继续得到：
+
+$$
+dist[4]=1-3=-2
+$$
+
+![第一轮：通过负权边更新节点 4](https://file1.kamacoder.com/i/algo/20240329114036.png)
+
+### 边 `4 -> 6, 4`
+
+于是：
+
+$$
+dist[6]=-2+4=2
+$$
+
+![第一轮：更新节点 6](https://file1.kamacoder.com/i/algo/20240329114120.png)
+
+### 边 `1 -> 3, 5`
+
+得到：
+
+$$
+dist[3]=5
+$$
+
+![第一轮：更新节点 3](https://file1.kamacoder.com/i/algo/20240329114324.png)
+
+这一轮已经传播得相当远，但不要因此误以为“一轮一定能求出最终答案”。
+
+原因是：
+
+> **同一轮里能传播多远，取决于边在输入中的排列顺序。**
+
+---
+
+## 6. 一个非常关键的细节：边序会影响“每轮传播多远”
+
+很多资料会把 Bellman-Ford 简化成：
+
+> 第 $k$ 轮后，一定得到“恰好经过不超过 $k$ 条边”的最短路。
+
+这句话要区分具体实现。
+
+如果我们直接 **原地更新** `dist`：
+
+```cpp
+dist[v] = min(dist[v], dist[u] + w);
+```
+
+那么同一轮前面刚更新出来的 `dist[u]`，后面的边可以立刻继续使用。
+
+所以一轮中可能传播超过一条边。
+
+例如边按：
+
+```text
+1 -> 2
+2 -> 3
+3 -> 4
+```
+
+排列时，一轮就可能从 `1` 传播到 `4`。
+
+反过来若边序是：
+
+```text
+3 -> 4
+2 -> 3
+1 -> 2
+```
+
+第一轮只能确定 `2`。
+
+<Callout type="warning" title="因此 n-1 轮是最坏情况保证，不是说每轮只能走一条边">
+
+Bellman-Ford 的标准原地实现中：
+
+- 一轮可能推进很多条边；
+- 但最坏情况下，每轮至少保证能把正确最短路信息再向前推进一层；
+- 所以最多 $n-1$ 轮足够。
+
+如果要严格构造“第 $k$ 轮只允许使用上一轮结果”的动态规划，则应使用 `dist_copy`。
+
+</Callout>
+
+这是理解 Bellman-Ford 时非常重要的一处细节。
+
+---
+
+## 7. 为什么最多只需要 n-1 轮
+
+这是 Bellman-Ford 最核心的证明之一。
+
+若图中不存在负权回路，那么任意一条最短路径都可以取成 **简单路径**：
+
+```text
+路径中不重复经过同一个顶点。
+```
+
+为什么？
+
+如果一条最短路径重复经过某个顶点，就说明中间包含一个环。
+
+- 若环权值为正，删掉它会更短；
+- 若环权值为 $0$，删掉它不影响距离；
+- 若环权值为负，则形成负权回路，与题设矛盾。
+
+因此存在一条最短简单路径。
+
+一个有 $n$ 个顶点的简单路径最多经过：
+
+$$
+n-1
+$$
+
+条边。
+
+于是：
+
+> 最多执行 $n-1$ 轮全边松弛，就足以让任意最短路径的信息从源点传播到终点。
+
+这就是 `n - 1` 的本质来源。
+
+---
+
+## 8. 用最坏边序理解 n-1 轮
+
+考虑链：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+```
+
+但把边按完全相反的顺序存储：
+
+```text
+5 -> 6
+4 -> 5
+3 -> 4
+2 -> 3
+1 -> 2
+```
+
+第一轮扫描时：
+
+- 处理 `5 -> 6` 时，`5` 不可达；
+- 处理 `4 -> 5` 时，`4` 不可达；
+- ……
+- 最后才通过 `1 -> 2` 得到 `dist[2]`。
+
+因此第一轮只能向前推进一步。
+
+第二轮才能得到 `3`，依此类推。
+
+直到第：
+
+$$
+n-1
+$$
+
+轮才把信息传到最后一个节点。
+
+这说明 $n-1$ 轮并不是随意规定，而是存在确实需要这么多轮的输入。
+
+---
+
+## 9. 标准 C++ 模板
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int from;
+    int to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<Edge> edges;
+    edges.reserve(m);
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        edges.push_back({u, v, w});
+    }
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+    vector<long long> dist(n + 1, INF);
+    dist[1] = 0;
+
+    for (int round = 1; round <= n - 1; ++round) {
+        bool updated = false;
+
+        for (const auto& e : edges) {
+            if (dist[e.from] == INF) continue;
+
+            long long candidate = dist[e.from] + e.weight;
+            if (candidate < dist[e.to]) {
+                dist[e.to] = candidate;
+                updated = true;
+            }
+        }
+
+        // 一整轮没有任何更新，后续也不可能再变化
+        if (!updated) break;
+    }
+
+    if (dist[n] == INF) {
+        cout << "unconnected\n";
+    } else {
+        cout << dist[n] << '\n';
+    }
+
+    return 0;
+}
+```
+
+---
+
+## 10. 为什么可以提前结束
+
+若某一整轮扫描完所有边以后：
+
+```cpp
+updated == false
+```
+
+意味着没有任何：
+
+$$
+dist[v]
+$$
+
+发生变化。
+
+下一轮还能变化吗？
+
+不能。
+
+因为所有潜在松弛的左侧状态 `dist[u]` 都没有变化，而所有边也完全相同。
+
+所以这一轮已经到达稳定状态，继续扫描只会重复相同结果。
+
+因此可以：
+
+```cpp
+if (!updated) break;
+```
+
+这不会改变最坏复杂度，但在很多实际输入上能明显减少轮数。
+
+---
+
+## 11. 动态规划视角：为什么 Bellman-Ford 很像 DP
+
+如果希望严格从 DP 角度理解，可以定义：
+
+$$
+dp[k][v]
+$$
+
+表示：
+
+> 从源点出发，使用 **至多 $k$ 条边** 到达 $v$ 的最短距离。
+
+转移为：
+
+$$
+dp[k][v]
+=
+\min\left(
+  dp[k-1][v],
+  \min_{(u,v,w)\in E}\{dp[k-1][u]+w\}
+\right)
+$$
+
+这里：
+
+- `dp[k-1][v]`：不使用第 $k$ 条边的机会；
+- `dp[k-1][u] + w`：通过边 $u\rightarrow v$ 转移过来。
+
+因为最短简单路径最多只有 $n-1$ 条边，所以最终只需要：
+
+$$
+dp[n-1][v]
+$$
+
+完整二维数组空间是：
+
+$$
+O(n^2)
+$$
+
+但由于每一层只依赖上一层，可以滚动数组降为：
+
+$$
+O(n)
+$$
+
+<Callout type="info" title="这也解释了“有限边数最短路”为什么要拷贝数组">
+
+若题目明确限制：
+
+```text
+最多只能经过 k 条边
+```
+
+就不能让同一轮中新更新的值继续向后传播，否则一轮可能实际使用多条边。
+
+此时必须使用上一轮快照：
+
+```cpp
+vector<long long> prev = dist;
+```
+
+再用 `prev[from]` 去更新本轮的 `dist[to]`。
+
+这会在后面的“Bellman-Ford 之单源有限最短路”中专门使用。
+
+</Callout>
+
+---
+
+## 12. Bellman-Ford 为什么能处理负权边
+
+Bellman-Ford 从不做“某个节点的最短距离已经永久确定”的假设。
+
+它允许：
+
+```text
+dist[v]
+```
+
+在后续轮次继续下降。
+
+所以即使某条负权边在很后面才把一条路径变得更短，新的结果仍可在之后继续传播。
+
+这与 Dijkstra 的区别可以总结为：
+
+| 算法 | 是否贪心定点 | 允许负权边 | 主要更新方式 |
+| --- | --- | --- | --- |
+| Dijkstra | 是 | 否 | 每次处理当前最近点 |
+| Bellman-Ford | 否 | 是 | 反复扫描并松弛所有边 |
+
+---
+
+## 13. 负权边不等于负权回路
+
+这两个概念一定要分清。
+
+### 负权边
+
+只是一条边：
+
+$$
+w<0
+$$
+
+例如：
+
+```text
+A -> B = -3
+```
+
+完全可以存在有限最短路。
+
+### 负权回路
+
+是一个可以绕一圈回到原点的有向环，并且环上权值总和：
+
+$$
+W_{cycle}<0
+$$
+
+例如：
+
+```text
+A -> B = 1
+B -> C = -4
+C -> A = 1
+```
+
+一圈总权值：
+
+$$
+1-4+1=-2
+$$
+
+如果从源点能够到达这个环，并且还关心环之后的节点，那么可以无限绕环：
+
+$$
+-2,-4,-6,-8,\ldots
+$$
+
+距离会无限下降。
+
+此时就不存在有限意义上的最短路。
+
+当前题目保证没有这种情况，因此只需要正常执行最多 $n-1$ 轮即可。
+
+---
+
+## 14. 如何从 n-1 轮进一步判断负权回路
+
+虽然本题不要求，但 Bellman-Ford 最经典的扩展就是负环检测。
+
+已经完成 $n-1$ 轮后，再扫描一次所有边。
+
+若仍然存在：
+
+$$
+dist[u]+w<dist[v]
+$$
+
+说明某条最短路还能继续变短。
+
+而在不存在重复顶点的情况下，一条路径最多只有 $n-1$ 条边。
+
+第 $n$ 次仍能变短，意味着必须借助重复顶点，也就是经过某个环。
+
+而这个环能够让距离继续下降，因此是负权回路。
+
+<Callout type="warning" title="只能检测与源点可达部分相关的负环">
+
+若：
+
+```cpp
+dist[u] == INF
+```
+
+说明源点根本到不了这条边的起点。
+
+一个与源点完全不连通的负环，不会影响源点最短路，也不会通过上述松弛被发现。
+
+这通常正是单源最短路语境下想要的行为。
+
+</Callout>
+
+---
+
+## 15. 如何恢复具体最短路径
+
+除了 `dist`，再维护：
+
+```cpp
+vector<int> parent(n + 1, -1);
+```
+
+每次成功松弛：
+
+```cpp
+if (candidate < dist[v]) {
+    dist[v] = candidate;
+    parent[v] = u;
+}
+```
+
+最终从终点反向追踪：
+
+```text
+n -> parent[n] -> parent[parent[n]] -> ... -> 1
+```
+
+再反转即可得到一条最短路径。
+
+注意：
+
+> 如果存在多条同长度最短路，普通模板只会保留其中一条，具体是哪一条取决于边的扫描顺序与更新条件。
+
+---
+
+## 16. 时间与空间复杂度
+
+最多执行：
+
+$$
+V-1
+$$
+
+轮。
+
+每轮扫描：
+
+$$
+E
+$$
+
+条边。
+
+所以时间复杂度：
+
+$$
+O(VE)
+$$
+
+辅助空间主要是：
+
+$$
+O(V)
+$$
+
+的 `dist`，若计算存图本身，则边表需要：
+
+$$
+O(E)
+$$
+
+总存储为：
+
+$$
+O(V+E)
+$$
+
+这也是 Bellman-Ford 的主要缺点：
+
+> 相比非负权图上的堆优化 Dijkstra，$O(VE)$ 往往要慢很多。
+
+因此不要看到“最短路”就无脑使用 Bellman-Ford；应先检查边权条件。
+
+---
+
+## 17. 高频易错点
+
+### 误区一：`INF + w` 直接参与比较
+
+错误写法：
+
+```cpp
+if (dist[u] + w < dist[v])
+```
+
+若 `dist[u]` 是哨兵值 `INF`，可能溢出或制造不存在的路径。
+
+应先判断：
+
+```cpp
+if (dist[u] != INF && dist[u] + w < dist[v])
+```
+
+### 误区二：认为负权边就一定没有最短路
+
+错误。
+
+真正导致“可以无限变短”的是 **源点可达的负权回路**，而不是单独的负权边。
+
+### 误区三：认为每轮严格只增加一条边
+
+对原地更新的标准实现并不严格成立。
+
+一轮可以沿着有利的边序传播多步。
+
+`n-1` 轮是最坏情况保证。
+
+### 误区四：对无向负权边直接使用 Bellman-Ford
+
+无向边权若为负，相当于存在：
+
+```text
+u -> v = w
+v -> u = w
+```
+
+当 $w<0$ 时，两条边就形成总权值：
+
+$$
+2w<0
+$$
+
+的负权回路。
+
+因此普通无向图中只要存在可达负权边，就会产生负环。
+
+### 误区五：为了“保险”松弛很多轮
+
+没有负环时，超过 $n-1$ 轮不会带来新答案；有负环时，距离反而会继续下降。
+
+标准算法应明确理解为何是 $n-1$，而不是靠多循环几遍碰运气。
+
+---
+
+## 18. Dijkstra 与 Bellman-Ford 的选择
+
+做题时先问两个问题。
+
+### 问题一：有没有负权边
+
+如果没有：
+
+- 稠密图、$V$ 较小：朴素 Dijkstra；
+- 稀疏图、规模大：堆优化 Dijkstra。
+
+如果有：
+
+- 考虑 Bellman-Ford / SPFA；
+- 若还要判断负环，Bellman-Ford 尤其经典。
+
+### 问题二：有没有“最多经过 k 条边”的限制
+
+如果有，就要转向 Bellman-Ford 的分层 / 快照写法，而不能直接用原地更新的普通模板。
+
+---
+
+## 19. 最终记忆框架
+
+Bellman-Ford 可以记成四句话：
+
+1. `dist[source] = 0`，其他点为 `INF`；
+2. 对所有边做松弛：$dist[v]=\min(dist[v],dist[u]+w)$；
+3. 最多重复 $n-1$ 轮，因为最短简单路径最多有 $n-1$ 条边；
+4. 若第 $n$ 轮仍可松弛，则存在源点可达的负权回路。
+
+真正要理解的不是循环代码，而是这条逻辑链：
+
+$$
+\text{松弛}
+\rightarrow
+\text{信息沿路径传播}
+\rightarrow
+\text{简单路径最多 }n-1\text{ 条边}
+\rightarrow
+\text{最多 }n-1\text{ 轮}
+$$
+
+---
+
+## 其他语言版本
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class Edge {
+        int from;
+        int to;
+        long weight;
+
+        Edge(int from, int to, long weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            edges.add(new Edge(u, v, w));
+        }
+
+        long INF = Long.MAX_VALUE / 4;
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, INF);
+        dist[1] = 0;
+
+        for (int round = 1; round <= n - 1; ++round) {
+            boolean updated = false;
+
+            for (Edge e : edges) {
+                if (dist[e.from] == INF) continue;
+
+                long candidate = dist[e.from] + e.weight;
+                if (candidate < dist[e.to]) {
+                    dist[e.to] = candidate;
+                    updated = true;
+                }
+            }
+
+            if (!updated) break;
+        }
+
+        if (dist[n] == INF) {
+            System.out.println("unconnected");
+        } else {
+            System.out.println(dist[n]);
+        }
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+edges = []
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    edges.append((u, v, w))
+
+INF = float("inf")
+dist = [INF] * (n + 1)
+dist[1] = 0
+
+for _ in range(n - 1):
+    updated = False
+
+    for u, v, w in edges:
+        if dist[u] != INF and dist[u] + w < dist[v]:
+            dist[v] = dist[u] + w
+            updated = True
+
+    if not updated:
+        break
+
+print("unconnected" if dist[n] == INF else dist[n])
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let idx = 0;
+const n = input[idx++];
+const m = input[idx++];
+const edges = [];
+
+for (let i = 0; i < m; i++) {
+    const u = input[idx++];
+    const v = input[idx++];
+    const w = input[idx++];
+    edges.push([u, v, w]);
+}
+
+const INF = Number.POSITIVE_INFINITY;
+const dist = Array(n + 1).fill(INF);
+dist[1] = 0;
+
+for (let round = 1; round <= n - 1; round++) {
+    let updated = false;
+
+    for (const [u, v, w] of edges) {
+        if (dist[u] !== INF && dist[u] + w < dist[v]) {
+            dist[v] = dist[u] + w;
+            updated = true;
+        }
+    }
+
+    if (!updated) break;
+}
+
+console.log(dist[n] === INF ? 'unconnected' : dist[n]);
+```

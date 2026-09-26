@@ -1,0 +1,980 @@
+---
+title: KMP 字符串匹配：前缀函数、失配回退与线性复杂度
+description: 以 LeetCode 28 为主线，从最长相等前后缀推导 KMP，解释前缀表为什么能回退、如何构造 prefix/next 数组，以及为什么整体复杂度是 O(n+m)。
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# KMP 字符串匹配：前缀函数、失配回退与线性复杂度
+
+> 对应题目：[LeetCode 28. 找出字符串中第一个匹配项的下标](https://leetcode.cn/problems/find-the-index-of-the-first-occurrence-in-a-string/)
+
+给定：
+
+- 文本串 `haystack`，长度记为 $n$；
+- 模式串 `needle`，长度记为 $m$。
+
+要求找到 `needle` 第一次出现在 `haystack` 中的起始下标，不存在则返回 `-1`。
+
+例如：
+
+```text
+haystack = "sadbutsad"
+needle   = "sad"
+```
+
+返回：
+
+```text
+0
+```
+
+暴力匹配很容易写，但最坏复杂度可能达到：
+
+$$
+O(nm)
+$$
+
+KMP 的价值在于：
+
+> 失配时不让文本指针回退，而是利用模式串自身已经匹配过的信息，直接调整模式串的位置。
+
+最终时间复杂度为：
+
+$$
+\boxed{O(n+m)}
+$$
+
+---
+
+## 1. KMP 到底优化了什么
+
+朴素匹配在失配后通常会这样做：
+
+1. 文本串起点向右移动一位；
+2. 模式串重新从第 0 位开始匹配；
+3. 刚刚已经比较过的大量字符被再次比较。
+
+KMP 的关键观察是：
+
+> 既然失配前已经知道一段字符匹配成功，那么其中某些后缀，可能恰好与模式串开头的前缀相同。
+
+这些字符无需重新验证。
+
+原资料使用：
+
+```text
+文本串：aabaabaafa
+模式串：aabaaf
+```
+
+来展示这一过程：
+
+![KMP 匹配过程](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B21.gif)
+
+当模式串最后的 `f` 与文本字符失配时，前面已经匹配成功的内容并不是全部作废。
+
+---
+
+## 2. 先彻底弄清“前缀”和“后缀”
+
+对于字符串：
+
+```text
+abcab
+```
+
+它的非空真前缀有：
+
+```text
+a
+ab
+abc
+abca
+```
+
+它的非空真后缀有：
+
+```text
+b
+ab
+cab
+bcab
+```
+
+其中最长的相等前后缀为：
+
+```text
+ab
+```
+
+长度为：
+
+$$
+2
+$$
+
+这里必须强调“真前缀 / 真后缀”：
+
+- 前缀不能等于整个字符串；
+- 后缀也不能等于整个字符串。
+
+否则任何字符串与自己都相等，前缀表就失去意义。
+
+---
+
+## 3. 前缀表记录什么
+
+对于模式串 `pattern`，定义：
+
+$$
+\pi[i]
+$$
+
+表示子串：
+
+$$
+pattern[0\ldots i]
+$$
+
+的最长相等真前缀和真后缀的长度。
+
+例如模式串：
+
+```text
+aabaaf
+```
+
+对应前缀表为：
+
+```text
+下标 i : 0 1 2 3 4 5
+字符   : a a b a a f
+pi[i]  : 0 1 0 1 2 0
+```
+
+原资料中的逐步示意：
+
+![长度 1 的前缀](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B25.png)
+
+![长度 2 的前缀](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B26.png)
+
+![长度 3 的前缀](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B27.png)
+
+![完整前缀表](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B28.png)
+
+---
+
+## 4. 为什么最长相等前后缀可以帮助回退
+
+这是 KMP 最核心、也最容易被“背模板”掩盖的地方。
+
+假设模式串已经匹配了前 $j$ 个字符：
+
+```text
+pattern[0 ... j-1]
+```
+
+随后第 $j$ 个字符失配。
+
+此时已匹配部分的最长相等前后缀长度假设为 $k$：
+
+$$
+\pi[j-1]=k
+$$
+
+那么已匹配部分的末尾 $k$ 个字符：
+
+$$
+pattern[j-k\ldots j-1]
+$$
+
+等于模式串开头的 $k$ 个字符：
+
+$$
+pattern[0\ldots k-1]
+$$
+
+而已匹配部分的后缀刚刚已经与文本串匹配成功。
+
+所以这意味着：
+
+> 模式串开头的 $k$ 个字符也必然已经与当前位置前面的文本字符匹配，无需再次比较。
+
+因此下一次只需要从：
+
+$$
+pattern[k]
+$$
+
+继续。
+
+原资料中的失配与回退示意：
+
+![失配位置](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B21.png)
+
+![利用相等前后缀回退](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B22.png)
+
+<Callout title="一句话理解 KMP" type="success">
+失配后不是问“文本串应该退回哪里”，而是问：
+
+**已经匹配成功的后缀，和模式串开头最多有多少字符相同？**
+
+这个长度就是下一次可以继续保留的匹配长度。
+</Callout>
+
+---
+
+## 5. 不要混淆 `prefix / pi / next`
+
+不同教材和代码对数组命名不统一。
+
+最常见有两套写法。
+
+### 写法 A：直接记录长度
+
+例如：
+
+```text
+pattern = aabaaf
+pi      = 0 1 0 1 2 0
+```
+
+这里：
+
+$$
+\pi[i]=\text{最长相等前后缀长度}
+$$
+
+失配时：
+
+```cpp
+j = pi[j - 1];
+```
+
+这是本文主推写法，因为语义最直观。
+
+### 写法 B：统一减一的 `next`
+
+一些传统代码把前缀表统一减一，令：
+
+```text
+next[0] = -1
+```
+
+此时通常写成：
+
+```cpp
+j = next[j];
+```
+
+两种写法的算法本质完全一样，只是下标语义不同。
+
+<Callout title="学习建议" type="info">
+不要同时混用两套模板。
+
+如果采用“前缀长度”写法，就始终让 `j` 表示：
+
+> 当前已经匹配成功的模式串长度。
+
+这样最容易推导，也最不容易出现 `j + 1`、`j - 1` 混乱。
+</Callout>
+
+---
+
+## 6. 如何线性构造前缀表
+
+现在只研究模式串本身。
+
+设：
+
+```cpp
+int j = 0;
+```
+
+表示当前最长相等前后缀长度。
+
+从 `i = 1` 开始扫描。
+
+### 情况一：当前字符相等
+
+如果：
+
+```cpp
+pattern[i] == pattern[j]
+```
+
+那么已有相等前后缀可以继续扩展：
+
+```cpp
+++j;
+pi[i] = j;
+```
+
+### 情况二：当前字符不相等
+
+如果：
+
+```cpp
+pattern[i] != pattern[j]
+```
+
+不能直接令 `j = 0`。
+
+因为较长的候选前后缀失败后，可能仍存在更短的候选。
+
+于是回退：
+
+```cpp
+j = pi[j - 1];
+```
+
+并继续比较。
+
+因此写成：
+
+```cpp
+while (j > 0 && pattern[i] != pattern[j]) {
+    j = pi[j - 1];
+}
+```
+
+如果回退后字符相同，再扩展：
+
+```cpp
+if (pattern[i] == pattern[j]) {
+    ++j;
+}
+```
+
+最终：
+
+```cpp
+pi[i] = j;
+```
+
+完整实现：
+
+```cpp
+vector<int> buildPrefix(const string& pattern) {
+    vector<int> pi(pattern.size());
+    int j = 0;
+
+    for (int i = 1; i < static_cast<int>(pattern.size()); ++i) {
+        while (j > 0 && pattern[i] != pattern[j]) {
+            j = pi[j - 1];
+        }
+
+        if (pattern[i] == pattern[j]) {
+            ++j;
+        }
+
+        pi[i] = j;
+    }
+
+    return pi;
+}
+```
+
+原资料也给出了构造过程动画：
+
+![KMP 前缀表构造过程](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B23.gif)
+
+---
+
+## 7. 手算一次前缀表
+
+以：
+
+```text
+pattern = "ababaca"
+```
+
+为例。
+
+### `i = 1`
+
+```text
+a b
+```
+
+`b != a`：
+
+$$
+\pi[1]=0
+$$
+
+### `i = 2`
+
+```text
+a b a
+```
+
+`a == a`：
+
+$$
+\pi[2]=1
+$$
+
+### `i = 3`
+
+已有长度：
+
+$$
+j=1
+$$
+
+比较：
+
+```text
+pattern[3] = b
+pattern[1] = b
+```
+
+相等：
+
+$$
+\pi[3]=2
+$$
+
+### `i = 4`
+
+比较：
+
+```text
+pattern[4] = a
+pattern[2] = a
+```
+
+相等：
+
+$$
+\pi[4]=3
+$$
+
+### `i = 5`
+
+比较：
+
+```text
+pattern[5] = c
+pattern[3] = b
+```
+
+失配。
+
+回退：
+
+$$
+j=\pi[2]=1
+$$
+
+继续比较：
+
+```text
+c != b
+```
+
+再次回退：
+
+$$
+j=\pi[0]=0
+$$
+
+仍不相等，因此：
+
+$$
+\pi[5]=0
+$$
+
+### `i = 6`
+
+```text
+a == a
+```
+
+于是：
+
+$$
+\pi[6]=1
+$$
+
+最终：
+
+```text
+pattern: a b a b a c a
+pi:      0 0 1 2 3 0 1
+```
+
+这个例子最能说明：
+
+> 一次失配可能需要连续回退多次，但每次都跳到“更短但仍有可能”的前后缀，而不是从头盲目重来。
+
+---
+
+## 8. 使用前缀表匹配文本串
+
+构造好 `pi` 后，扫描文本串。
+
+令 `j` 表示：
+
+> 当前已经匹配成功的模式串字符数量。
+
+对每个 `text[i]`：
+
+### 失配时回退
+
+```cpp
+while (j > 0 && text[i] != pattern[j]) {
+    j = pi[j - 1];
+}
+```
+
+### 匹配成功时扩展
+
+```cpp
+if (text[i] == pattern[j]) {
+    ++j;
+}
+```
+
+### 完整匹配
+
+当：
+
+```cpp
+j == pattern.size()
+```
+
+说明以 `i` 为结尾成功匹配了整个模式串。
+
+起始位置为：
+
+$$
+i-m+1
+$$
+
+原资料中的完整匹配动画：
+
+![KMP 利用前缀表进行匹配](https://file1.kamacoder.com/i/algo/KMP%E7%B2%BE%E8%AE%B24.gif)
+
+---
+
+## 9. 完整 C++ 解法
+
+```cpp
+class Solution {
+public:
+    vector<int> buildPrefix(const string& pattern) {
+        vector<int> pi(pattern.size());
+        int j = 0;
+
+        for (int i = 1; i < static_cast<int>(pattern.size()); ++i) {
+            while (j > 0 && pattern[i] != pattern[j]) {
+                j = pi[j - 1];
+            }
+
+            if (pattern[i] == pattern[j]) {
+                ++j;
+            }
+
+            pi[i] = j;
+        }
+
+        return pi;
+    }
+
+    int strStr(string haystack, string needle) {
+        if (needle.empty()) {
+            return 0;
+        }
+
+        vector<int> pi = buildPrefix(needle);
+        int j = 0;
+
+        for (int i = 0; i < static_cast<int>(haystack.size()); ++i) {
+            while (j > 0 && haystack[i] != needle[j]) {
+                j = pi[j - 1];
+            }
+
+            if (haystack[i] == needle[j]) {
+                ++j;
+            }
+
+            if (j == static_cast<int>(needle.size())) {
+                return i - static_cast<int>(needle.size()) + 1;
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+---
+
+## 10. 为什么 KMP 是 $O(n+m)$，而不是“while 套 for 就是平方”
+
+这是非常重要的复杂度分析点。
+
+表面上看：
+
+```cpp
+for (...) {
+    while (...) {
+        ...
+    }
+}
+```
+
+似乎像 $O(nm)$。
+
+但不能只看代码嵌套层数。
+
+### 构造前缀表
+
+指针 `i` 只会从左到右走一遍，共 $m-1$ 次。
+
+`j` 虽然可能回退，但：
+
+- `j` 每增加一次，最多只增加 1；
+- 所有回退的总次数不会超过此前增加的总次数太多；
+- 因而所有 `while` 的累计工作量仍为 $O(m)$。
+
+所以构造前缀表：
+
+$$
+O(m)
+$$
+
+### 文本匹配
+
+同理，文本指针 `i` 从不回退，只扫描 $n$ 个字符。
+
+模式指针 `j` 的累计前进和回退也是线性的。
+
+因此匹配阶段：
+
+$$
+O(n)
+$$
+
+总复杂度：
+
+$$
+\boxed{O(n+m)}
+$$
+
+空间复杂度来自前缀表：
+
+$$
+O(m)
+$$
+
+<Callout title="复杂度分析原则" type="warning">
+“出现嵌套循环”并不自动意味着平方复杂度。
+
+应分析循环变量在整个执行过程中的**累计移动次数**。KMP、滑动窗口、单调队列、并查集等算法都经常出现这种情况。
+</Callout>
+
+---
+
+## 11. 与暴力匹配的本质区别
+
+| 方法 | 文本指针是否回退 | 是否利用模式串结构 | 最坏时间复杂度 |
+| --- | --- | --- | --- |
+| 暴力匹配 | 会重新尝试起点 | 否 | $O(nm)$ |
+| KMP | 不回退 | 是 | $O(n+m)$ |
+
+KMP 的真正优势不是“比较次数永远少”，而是：
+
+> 它保证不会因为重复模式导致大量重复比较。
+
+例如模式串具有大量重复结构时：
+
+```text
+aaaaaaaaaab
+```
+
+暴力算法可能不断重复比较前面的 `a`，而 KMP 能利用前缀信息快速跳转。
+
+---
+
+## 12. 最常见的五个错误
+
+### ① 把 `pi[i]` 理解成“应该跳到的下标”
+
+本文这套写法里：
+
+$$
+\pi[i]
+$$
+
+表示的是**长度**，不是下标。
+
+因此失配回退写：
+
+```cpp
+j = pi[j - 1];
+```
+
+而不是：
+
+```cpp
+j = pi[j];
+```
+
+### ② `while` 错写成 `if`
+
+一次回退后仍然可能失配，因此必须持续寻找更短候选：
+
+```cpp
+while (j > 0 && ...)
+```
+
+不是：
+
+```cpp
+if (j > 0 && ...)
+```
+
+### ③ 构造前缀表时从 `i = 0` 开始
+
+`pi[0]` 必然是 0。
+
+真正需要计算的是：
+
+```cpp
+for (int i = 1; ...)
+```
+
+### ④ 匹配完成后的起点计算错误
+
+当前文本位置是 `i`，模式串长度是 `m`。
+
+匹配区间为：
+
+$$
+[i-m+1,i]
+$$
+
+因此起点：
+
+$$
+i-m+1
+$$
+
+### ⑤ 同时混用 `next = -1` 模板与 `pi = 长度` 模板
+
+这是最常见的 KMP 下标错误来源。
+
+学习阶段建议只熟练掌握其中一套。
+
+---
+
+## 13. KMP 不只用来做 `strStr`
+
+前缀函数本质是在研究：
+
+> 一个字符串的前缀，与其后缀之间存在怎样的重复结构。
+
+因此它还能用于：
+
+<Cards>
+<Card title="判断重复子串" description="利用整个字符串的最长相等前后缀判断周期。" />
+<Card title="字符串周期" description="由 n - pi[n-1] 推导最小候选周期。" />
+<Card title="统计模式出现" description="匹配成功后继续按照前缀表回退，可寻找所有出现位置。" />
+<Card title="边界 / Border 问题" description="枚举字符串所有既是前缀又是后缀的子串。" />
+</Cards>
+
+下一篇“重复的子字符串”就会直接复用这里的前缀表结论。
+
+---
+
+## 14. 一套不靠背代码的推导方式
+
+写 KMP 时，可以始终记住变量语义：
+
+```text
+i = 当前扫描到的位置
+j = 当前已经匹配成功的模式串长度
+```
+
+那么三个动作自然得到：
+
+### 失配
+
+当前 `pattern[j]` 不匹配，需要保留更短的相等前后缀：
+
+```cpp
+j = pi[j - 1];
+```
+
+### 相等
+
+又成功匹配一个字符：
+
+```cpp
+++j;
+```
+
+### 完整匹配
+
+成功字符数达到模式串长度：
+
+```cpp
+j == pattern.size()
+```
+
+只要变量语义不丢，代码几乎可以现场推出来。
+
+---
+
+## 15. 其他语言实现
+
+
+
+```cpp tab="C++"
+#include <string>
+#include <vector>
+using namespace std;
+
+class Solution {
+public:
+    int strStr(string text, string pattern) {
+        if (pattern.empty()) return 0;
+
+        vector<int> pi(pattern.size());
+
+        for (int i = 1, j = 0; i < pattern.size(); ++i) {
+            while (j > 0 && pattern[i] != pattern[j]) {
+                j = pi[j - 1];
+            }
+            if (pattern[i] == pattern[j]) {
+                ++j;
+            }
+            pi[i] = j;
+        }
+
+        for (int i = 0, j = 0; i < text.size(); ++i) {
+            while (j > 0 && text[i] != pattern[j]) {
+                j = pi[j - 1];
+            }
+            if (text[i] == pattern[j]) {
+                ++j;
+            }
+            if (j == pattern.size()) {
+                return i - pattern.size() + 1;
+            }
+        }
+
+        return -1;
+    }
+};
+```
+
+
+
+```java tab="Java"
+class Solution {
+    public int strStr(String text, String pattern) {
+        if (pattern.isEmpty()) return 0;
+
+        int[] pi = new int[pattern.length()];
+
+        for (int i = 1, j = 0; i < pattern.length(); i++) {
+            while (j > 0 && pattern.charAt(i) != pattern.charAt(j)) {
+                j = pi[j - 1];
+            }
+            if (pattern.charAt(i) == pattern.charAt(j)) {
+                j++;
+            }
+            pi[i] = j;
+        }
+
+        for (int i = 0, j = 0; i < text.length(); i++) {
+            while (j > 0 && text.charAt(i) != pattern.charAt(j)) {
+                j = pi[j - 1];
+            }
+            if (text.charAt(i) == pattern.charAt(j)) {
+                j++;
+            }
+            if (j == pattern.length()) {
+                return i - pattern.length() + 1;
+            }
+        }
+
+        return -1;
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def strStr(self, text: str, pattern: str) -> int:
+        if not pattern:
+            return 0
+
+        pi = [0] * len(pattern)
+        j = 0
+
+        for i in range(1, len(pattern)):
+            while j > 0 and pattern[i] != pattern[j]:
+                j = pi[j - 1]
+
+            if pattern[i] == pattern[j]:
+                j += 1
+
+            pi[i] = j
+
+        j = 0
+        for i, ch in enumerate(text):
+            while j > 0 and ch != pattern[j]:
+                j = pi[j - 1]
+
+            if ch == pattern[j]:
+                j += 1
+
+            if j == len(pattern):
+                return i - len(pattern) + 1
+
+        return -1
+```
+
+
+
+```go tab="Go"
+func strStr(text string, pattern string) int {
+    if len(pattern) == 0 {
+        return 0
+    }
+
+    pi := make([]int, len(pattern))
+
+    for i, j := 1, 0; i < len(pattern); i++ {
+        for j > 0 && pattern[i] != pattern[j] {
+            j = pi[j-1]
+        }
+        if pattern[i] == pattern[j] {
+            j++
+        }
+        pi[i] = j
+    }
+
+    for i, j := 0, 0; i < len(text); i++ {
+        for j > 0 && text[i] != pattern[j] {
+            j = pi[j-1]
+        }
+        if text[i] == pattern[j] {
+            j++
+        }
+        if j == len(pattern) {
+            return i - len(pattern) + 1
+        }
+    }
+
+    return -1
+}
+```

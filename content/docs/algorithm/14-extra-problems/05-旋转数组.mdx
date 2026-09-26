@@ -1,0 +1,631 @@
+---
+title: 旋转数组
+description: 从下标映射到三次反转，系统理解数组右旋的多种实现方式，掌握 k 取模、原地算法与循环置换的本质。
+---
+
+# 189. 旋转数组
+
+[LeetCode 189：旋转数组](https://leetcode.cn/problems/rotate-array/)
+
+给定整数数组 `nums` 和非负整数 `k`，要求把数组中的元素整体向右移动 `k` 个位置。
+
+例如：
+
+```text
+nums = [1, 2, 3, 4, 5, 6, 7]
+k = 3
+```
+
+右旋后：
+
+```text
+[5, 6, 7, 1, 2, 3, 4]
+```
+
+这道题值得掌握三种思考方式：
+
+1. 使用额外数组直接按照新下标放置；
+2. 使用“三次反转”实现 $O(1)$ 额外空间；
+3. 使用循环置换直接完成下标搬运。
+
+其中最推荐掌握的是**三次反转法**。
+
+## 一、先处理最容易遗漏的细节：`k` 必须取模
+
+长度为 `n` 的数组右旋 `n` 次后会回到原状态。
+
+因此：
+
+$$
+k \equiv k \bmod n
+$$
+
+例如：
+
+```text
+n = 7
+k = 15
+```
+
+因为：
+
+$$
+15 \bmod 7 = 1
+$$
+
+所以右旋 `15` 次和右旋 `1` 次完全等价。
+
+因此实现中应该首先写：
+
+```cpp
+k %= nums.size();
+```
+
+> [!IMPORTANT]
+> “旋转”“环形数组”“周期移动”类问题，只要操作具有长度为 `n` 的周期性，就要优先考虑 `% n`。
+
+## 二、方法一：额外数组 + 下标映射
+
+先从最直观的方法理解“右旋”到底改变了什么。
+
+原来位于下标 `i` 的元素，右移 `k` 个位置后，新下标为：
+
+$$
+(i+k) \bmod n
+$$
+
+例如：
+
+```text
+nums = [1, 2, 3, 4, 5, 6, 7]
+k = 3
+```
+
+元素 `1` 原来在下标 `0`：
+
+$$
+(0+3)\bmod 7=3
+$$
+
+所以 `1` 应该放到下标 `3`。
+
+元素 `6` 原来在下标 `5`：
+
+$$
+(5+3)\bmod 7=1
+$$
+
+所以 `6` 应该放到下标 `1`。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        int n = nums.size();
+        k %= n;
+
+        vector<int> temp(n);
+
+        for (int i = 0; i < n; ++i) {
+            temp[(i + k) % n] = nums[i];
+        }
+
+        nums = temp;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+这种方法最容易理解，但没有满足进阶要求中的 $O(1)$ 额外空间。
+
+## 三、方法二：三次反转——最推荐的原地解法
+
+这是本题最重要的方法。
+
+还是考虑：
+
+```text
+[1, 2, 3, 4, 5, 6, 7]
+k = 3
+```
+
+最终希望得到：
+
+```text
+[5, 6, 7, 1, 2, 3, 4]
+```
+
+可以把原数组分成两段：
+
+```text
+A = [1, 2, 3, 4]
+B = [5, 6, 7]
+```
+
+原数组是：
+
+```text
+A + B
+```
+
+右旋 `k` 位后就是：
+
+```text
+B + A
+```
+
+问题因此转化为：
+
+> 如何在 $O(1)$ 额外空间内把 `A + B` 变成 `B + A`？
+
+答案就是反转。
+
+### 第一步：反转整个数组
+
+```text
+原数组：  [1, 2, 3, 4, 5, 6, 7]
+全部反转：[7, 6, 5, 4, 3, 2, 1]
+```
+
+此时结构相当于：
+
+```text
+reverse(B) + reverse(A)
+```
+
+### 第二步：反转前 `k` 个元素
+
+```text
+[7, 6, 5] -> [5, 6, 7]
+```
+
+得到：
+
+```text
+[5, 6, 7, 4, 3, 2, 1]
+```
+
+### 第三步：反转剩余元素
+
+```text
+[4, 3, 2, 1] -> [1, 2, 3, 4]
+```
+
+最终：
+
+```text
+[5, 6, 7, 1, 2, 3, 4]
+```
+
+恰好就是答案。
+
+## 四、为什么三次反转一定正确
+
+设原数组由两部分组成：
+
+```text
+A B
+```
+
+其中：
+
+- `B` 是最后 `k` 个元素；
+- `A` 是前 `n-k` 个元素。
+
+右旋后的目标是：
+
+```text
+B A
+```
+
+对整个数组反转：
+
+$$
+reverse(AB)=reverse(B)reverse(A)
+$$
+
+再分别反转两段：
+
+$$
+reverse(reverse(B))=B
+$$
+
+$$
+reverse(reverse(A))=A
+$$
+
+所以最终得到：
+
+$$
+BA
+$$
+
+这就是三次反转法成立的本质。
+
+## 五、C++ 原地实现
+
+```cpp
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        int n = nums.size();
+        k %= n;
+
+        reverse(nums.begin(), nums.end());
+        reverse(nums.begin(), nums.begin() + k);
+        reverse(nums.begin() + k, nums.end());
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+因为每个元素只参与常数次交换。
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+因此这是非常理想的解法。
+
+## 六、`k = 0` 时为什么也没问题
+
+当：
+
+```text
+k % n = 0
+```
+
+三次反转变成：
+
+```text
+reverse(整个数组)
+reverse(空区间)
+reverse(整个数组)
+```
+
+整体反转两次后恢复原状，因此仍然正确。
+
+在 C++ 中：
+
+```cpp
+reverse(nums.begin(), nums.begin());
+```
+
+是合法的空区间操作。
+
+## 七、方法三：循环置换
+
+除了三次反转，还可以直接按照：
+
+$$
+next=(current+k)\bmod n
+$$
+
+把每个元素移动到最终位置。
+
+问题是：如果直接写：
+
+```cpp
+nums[next] = nums[current];
+```
+
+原来 `nums[next]` 的值就会被覆盖。
+
+因此需要用一个临时变量保存即将被覆盖的元素，然后不断沿着环移动。
+
+### 为什么会形成“环”
+
+下标变化规则为：
+
+$$
+i \rightarrow (i+k)\bmod n
+$$
+
+不断应用这个映射，最终一定会回到起点。
+
+例如：
+
+```text
+n = 7, k = 3
+```
+
+从 `0` 开始：
+
+```text
+0 -> 3 -> 6 -> 2 -> 5 -> 1 -> 4 -> 0
+```
+
+这一个环就覆盖了全部 `7` 个位置。
+
+但如果 `n` 和 `k` 有公因数，就可能形成多个环。
+
+例如：
+
+```text
+n = 6, k = 2
+```
+
+会形成：
+
+```text
+0 -> 2 -> 4 -> 0
+1 -> 3 -> 5 -> 1
+```
+
+所以循环置换实现中，不能默认从下标 `0` 出发就能覆盖全部元素，而要统计已经移动了多少个元素。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        int n = nums.size();
+        k %= n;
+
+        int moved = 0;
+
+        for (int start = 0; moved < n; ++start) {
+            int current = start;
+            int prev = nums[current];
+
+            do {
+                int next = (current + k) % n;
+                swap(prev, nums[next]);
+                current = next;
+                ++moved;
+            } while (current != start);
+        }
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+循环置换更加贴近“下标映射”的数学本质，但代码复杂度明显高于三次反转。
+
+## 八、三种方法对比
+
+| 方法 | 时间复杂度 | 额外空间 | 难度 | 推荐程度 |
+| --- | ---: | ---: | --- | --- |
+| 额外数组 | $O(n)$ | $O(n)$ | 低 | 用于理解下标映射 |
+| 三次反转 | $O(n)$ | $O(1)$ | 低 | **最推荐** |
+| 循环置换 | $O(n)$ | $O(1)$ | 中 | 理解环形映射 |
+
+## 九、右旋与左旋的统一理解
+
+右旋 `k` 位：
+
+```text
+A B -> B A
+```
+
+其中 `B` 的长度为 `k`。
+
+左旋 `k` 位则可以理解为：
+
+```text
+A B -> B A
+```
+
+只不过此时 `A` 的长度为 `k`。
+
+所以右旋和左旋本质上是同一个“交换两个连续区间”的问题，只是切分点不同。
+
+右旋 `k` 位还等价于左旋：
+
+$$
+n-k
+$$
+
+位。
+
+更严谨地写是：
+
+$$
+(n-k\bmod n)\bmod n
+$$
+
+## 十、常见错误
+
+### 错误 1：忘记 `k %= n`
+
+如果直接写：
+
+```cpp
+reverse(nums.begin(), nums.begin() + k);
+```
+
+当 `k > n` 时会发生越界。
+
+所以一定要先：
+
+```cpp
+k %= n;
+```
+
+### 错误 2：三次反转的顺序写错
+
+右旋的标准顺序是：
+
+```text
+1. 反转整个数组
+2. 反转前 k 个
+3. 反转后 n-k 个
+```
+
+不要和左旋模板混淆。
+
+### 错误 3：把题目理解成逐步模拟
+
+如果真的执行 `k` 次：
+
+```text
+取出最后一个 -> 整体右移 -> 放到最前面
+```
+
+每次操作都可能需要 $O(n)$，总复杂度可能达到：
+
+$$
+O(nk)
+$$
+
+没有必要。
+
+## 十一、记忆模板
+
+右旋数组只需要记住一句：
+
+> **整体反转，再分别反转前 `k` 个和后 `n-k` 个。**
+
+即：
+
+```cpp
+k %= n;
+reverse(nums.begin(), nums.end());
+reverse(nums.begin(), nums.begin() + k);
+reverse(nums.begin() + k, nums.end());
+```
+
+这套技巧还经常出现在字符串旋转、区间交换等问题中。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    private void reverse(int[] nums, int left, int right) {
+        while (left < right) {
+            int temp = nums[left];
+            nums[left] = nums[right];
+            nums[right] = temp;
+            left++;
+            right--;
+        }
+    }
+
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        k %= n;
+
+        reverse(nums, 0, n - 1);
+        reverse(nums, 0, k - 1);
+        reverse(nums, k, n - 1);
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def rotate(self, nums: List[int], k: int) -> None:
+        n = len(nums)
+        k %= n
+
+        def reverse(left: int, right: int) -> None:
+            while left < right:
+                nums[left], nums[right] = nums[right], nums[left]
+                left += 1
+                right -= 1
+
+        reverse(0, n - 1)
+        reverse(0, k - 1)
+        reverse(k, n - 1)
+```
+
+```go tab="Go"
+func rotate(nums []int, k int) {
+    n := len(nums)
+    k %= n
+
+    reverse := func(left, right int) {
+        for left < right {
+            nums[left], nums[right] = nums[right], nums[left]
+            left++
+            right--
+        }
+    }
+
+    reverse(0, n-1)
+    reverse(0, k-1)
+    reverse(k, n-1)
+}
+```
+
+```javascript tab="JavaScript"
+var rotate = function(nums, k) {
+    const n = nums.length;
+    k %= n;
+
+    const reverse = (left, right) => {
+        while (left < right) {
+            [nums[left], nums[right]] = [nums[right], nums[left]];
+            left++;
+            right--;
+        }
+    };
+
+    reverse(0, n - 1);
+    reverse(0, k - 1);
+    reverse(k, n - 1);
+};
+```
+
+```typescript tab="TypeScript"
+function rotate(nums: number[], k: number): void {
+    const n = nums.length;
+    k %= n;
+
+    const reverse = (left: number, right: number): void => {
+        while (left < right) {
+            [nums[left], nums[right]] = [nums[right], nums[left]];
+            left++;
+            right--;
+        }
+    };
+
+    reverse(0, n - 1);
+    reverse(0, k - 1);
+    reverse(k, n - 1);
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn rotate(nums: &mut Vec<i32>, k: i32) {
+        let k = k as usize % nums.len();
+
+        nums.reverse();
+        nums[..k].reverse();
+        nums[k..].reverse();
+    }
+}
+```

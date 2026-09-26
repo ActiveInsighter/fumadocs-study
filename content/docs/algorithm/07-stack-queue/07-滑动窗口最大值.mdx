@@ -1,0 +1,1169 @@
+---
+title: 滑动窗口最大值
+description: 用单调队列把每个窗口的最大值查询降到均摊 O(1)，系统理解“队头最大、过期出队、较小元素永久淘汰”的核心不变量。
+---
+
+# 239. 滑动窗口最大值
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/sliding-window-maximum/">
+    LeetCode 239 · Sliding Window Maximum
+  </Card>
+</Cards>
+
+给定整数数组 `nums` 和滑动窗口大小 `k`。
+
+窗口从数组最左侧开始，每次向右移动一格。
+
+要求返回每个窗口中的最大值。
+
+例如：
+
+```text
+nums = [1, 3, -1, -3, 5, 3, 6, 7]
+k = 3
+```
+
+窗口变化：
+
+```text
+[1, 3, -1] -3  5  3  6  7   -> 3
+ 1 [3, -1, -3] 5  3  6  7   -> 3
+ 1  3 [-1, -3, 5] 3  6  7   -> 5
+ 1  3  -1 [-3, 5, 3] 6  7   -> 5
+ 1  3  -1  -3 [5, 3, 6] 7   -> 6
+ 1  3  -1  -3  5 [3, 6, 7]  -> 7
+```
+
+答案：
+
+```text
+[3, 3, 5, 5, 6, 7]
+```
+
+<Callout type="info" title="本题的关键不是“队列”，而是“单调队列”">
+普通队列只能知道谁最早进入。
+
+而本题还需要随时知道：
+
+```text
+当前窗口最大值是谁
+```
+
+所以要维护一个特殊队列，使队头始终是当前窗口最大值。
+</Callout>
+
+---
+
+# 1. 暴力解法
+
+最直接的方法：
+
+每形成一个窗口，就遍历窗口中的 $k$ 个元素找最大值。
+
+一共有：
+
+$$
+n-k+1
+$$
+
+个窗口。
+
+每个窗口扫描：
+
+$$
+O(k)
+$$
+
+因此总时间复杂度：
+
+$$
+O((n-k+1)k)
+$$
+
+最坏情况下：
+
+$$
+O(nk)
+$$
+
+如果：
+
+$$
+k\approx n
+$$
+
+会接近：
+
+$$
+O(n^2)
+$$
+
+---
+
+# 2. 为什么优先队列也不是最理想
+
+可以使用大根堆：
+
+```text
+窗口内所有元素放入 heap
+```
+
+最大值查询：
+
+$$
+O(1)
+$$
+
+或取堆顶。
+
+但窗口每右移一次，需要：
+
+- 新元素入堆；
+- 过期元素删除或延迟删除。
+
+整体通常可以做到：
+
+$$
+O(n\log k)
+$$
+
+已经很好。
+
+但本题还有更优：
+
+$$
+O(n)
+$$
+
+这就是单调队列。
+
+---
+
+# 3. 单调队列维护什么
+
+维护一个双端队列 `deque`，其中保存：
+
+> **仍然有资格成为未来窗口最大值的元素下标。**
+
+并保持：
+
+```text
+nums[dq[0]] >= nums[dq[1]] >= nums[dq[2]] >= ...
+```
+
+也就是按值单调递减。
+
+因此：
+
+```text
+dq.front()
+```
+
+对应的值永远最大。
+
+---
+
+# 4. 为什么保存下标而不是值
+
+因为滑动窗口会不断右移。
+
+我们必须知道队头元素是否已经离开窗口。
+
+如果只保存：
+
+```text
+值
+```
+
+无法判断它来自哪个位置。
+
+保存下标后：
+
+```cpp
+dq.front() <= i - k
+```
+
+就说明它已经过期。
+
+所以本题最推荐：
+
+```text
+Deque 中存下标
+```
+
+而不是直接存值。
+
+---
+
+# 5. 为什么较小元素可以永久淘汰
+
+假设当前队尾对应值：
+
+```text
+3
+```
+
+现在新元素：
+
+```text
+5
+```
+
+而 `5`：
+
+- 比 `3` 更大；
+- 又比 `3` 更晚进入窗口。
+
+那么以后只要 `3` 还在窗口中，`5` 一定也还在窗口中。
+
+并且：
+
+$$
+5>3
+$$
+
+所以 `3` 再也不可能成为窗口最大值。
+
+因此可以直接永久删除。
+
+这就是：
+
+```cpp
+while (
+    !dq.empty() &&
+    nums[dq.back()] <= nums[i]
+) {
+    dq.pop_back();
+}
+```
+
+<Callout type="tip" title="单调队列的本质">
+被新元素从队尾淘汰的旧元素，不只是“现在没用”，而是：
+
+> **未来也永远不可能成为最大值。**
+
+正因为这种淘汰是永久的，每个元素才只会进出队一次。
+</Callout>
+
+---
+
+# 6. 每处理一个新元素，需要做三件事
+
+对于当前下标：
+
+```text
+i
+```
+
+按固定顺序处理。
+
+---
+
+## 第一步：移除已经离开窗口的队头
+
+当前窗口：
+
+$$
+[i-k+1,\ i]
+$$
+
+如果：
+
+```cpp
+dq.front() < i - k + 1
+```
+
+说明队头已经不属于当前窗口。
+
+等价写法：
+
+```cpp
+dq.front() <= i - k
+```
+
+需要：
+
+```cpp
+dq.pop_front();
+```
+
+---
+
+## 第二步：从队尾淘汰更小或相等元素
+
+```cpp
+while (
+    !dq.empty() &&
+    nums[dq.back()] <= nums[i]
+) {
+    dq.pop_back();
+}
+```
+
+然后：
+
+```cpp
+dq.push_back(i);
+```
+
+这样队列仍保持：
+
+```text
+从前到后单调递减
+```
+
+---
+
+## 第三步：窗口形成后记录队头
+
+当：
+
+```text
+i >= k - 1
+```
+
+说明已经形成第一个完整窗口。
+
+此时：
+
+```cpp
+nums[dq.front()]
+```
+
+就是当前窗口最大值。
+
+---
+
+# 7. 完整过程：前几个元素
+
+数组：
+
+```text
+[1, 3, -1, -3, 5, ...]
+k = 3
+```
+
+### i = 0，值 1
+
+队列：
+
+```text
+[0]
+```
+
+对应值：
+
+```text
+[1]
+```
+
+---
+
+### i = 1，值 3
+
+由于：
+
+$$
+3>1
+$$
+
+淘汰下标 0。
+
+队列：
+
+```text
+[1]
+```
+
+对应值：
+
+```text
+[3]
+```
+
+---
+
+### i = 2，值 -1
+
+不能淘汰 3。
+
+队列：
+
+```text
+[1, 2]
+```
+
+对应：
+
+```text
+[3, -1]
+```
+
+第一个窗口形成。
+
+最大值：
+
+```text
+nums[1] = 3
+```
+
+---
+
+### i = 3，值 -3
+
+窗口：
+
+```text
+[1, 3]
+```
+
+下标 1 仍然有效。
+
+队列：
+
+```text
+[1, 2, 3]
+```
+
+对应：
+
+```text
+[3, -1, -3]
+```
+
+最大值仍是：
+
+```text
+3
+```
+
+---
+
+### i = 4，值 5
+
+首先下标 1 已经过期：
+
+```text
+当前窗口是 [2, 4]
+```
+
+删除 1。
+
+然后新值 5 会连续淘汰：
+
+```text
+-3
+-1
+```
+
+队列最终：
+
+```text
+[4]
+```
+
+最大值：
+
+```text
+5
+```
+
+---
+
+# 8. 标准解法
+
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(
+        vector<int>& nums,
+        int k
+    ) {
+        deque<int> dq;
+        vector<int> result;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            while (
+                !dq.empty() &&
+                dq.front() <= i - k
+            ) {
+                dq.pop_front();
+            }
+
+            while (
+                !dq.empty() &&
+                nums[dq.back()] <= nums[i]
+            ) {
+                dq.pop_back();
+            }
+
+            dq.push_back(i);
+
+            if (i >= k - 1) {
+                result.push_back(
+                    nums[dq.front()]
+                );
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+# 9. 为什么队列是“单调递减”
+
+假设队列下标为：
+
+```text
+i1, i2, i3
+```
+
+满足：
+
+$$
+nums[i_1]\ge nums[i_2]\ge nums[i_3]
+$$
+
+那么最大值一定在：
+
+```text
+front
+```
+
+窗口右移后：
+
+- 若 front 没过期，它仍然最大；
+- 若 front 过期，就删除；
+- 新 front 自动成为剩余候选中的最大值。
+
+所以查询最大值始终：
+
+$$
+O(1)
+$$
+
+---
+
+# 10. 为什么相等元素也可以淘汰旧的
+
+代码通常写：
+
+```cpp
+nums[dq.back()] <= nums[i]
+```
+
+而不是：
+
+```cpp
+<
+```
+
+如果旧值和新值相等：
+
+```text
+旧 5
+新 5
+```
+
+新 5 更晚过期。
+
+所以旧 5 没有保留价值。
+
+可以把旧的弹掉，只保留新的。
+
+这样队列更短，逻辑也更干净。
+
+---
+
+# 11. 时间复杂度为什么是 O(n)
+
+虽然代码中有两个 `while`，但不能直接认为是：
+
+$$
+O(n^2)
+$$
+
+因为每个下标：
+
+### 最多入队一次
+
+```cpp
+dq.push_back(i);
+```
+
+### 最多从队尾淘汰一次
+
+或：
+
+### 最多从队头过期删除一次
+
+一旦离开 deque，就不会回来。
+
+所以所有 `push`、`pop` 总次数都是：
+
+$$
+O(n)
+$$
+
+因此总时间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+# 12. 空间复杂度
+
+deque 最多保存当前窗口中的若干候选下标。
+
+最坏情况下，例如严格递减数组：
+
+```text
+9, 8, 7, 6, 5
+```
+
+没有元素会从队尾被淘汰。
+
+队列大小可达到：
+
+$$
+k
+$$
+
+所以空间复杂度：
+
+$$
+O(k)
+$$
+
+---
+
+# 13. 为什么严格递减数组是最坏队列长度
+
+例如：
+
+```text
+[9, 8, 7, 6]
+```
+
+新元素永远比队尾小。
+
+所以：
+
+```text
+没有任何队尾元素被淘汰
+```
+
+所有窗口元素都可能在前面的更大元素过期后成为最大值。
+
+因此必须保留。
+
+---
+
+# 14. 单调队列不是普通 Queue
+
+普通队列只做：
+
+```text
+队尾入
+队头出
+```
+
+单调队列还会：
+
+```text
+从队尾主动删除失去竞争力的元素
+```
+
+所以通常使用：
+
+```cpp
+deque
+```
+
+而不是：
+
+```cpp
+queue
+```
+
+因为需要：
+
+```text
+pop_front
+pop_back
+push_back
+front
+back
+```
+
+---
+
+# 15. 自定义 MonotonicQueue
+
+也可以封装成一个类。
+
+例如保存值：
+
+```cpp
+class MyQueue {
+public:
+    deque<int> que;
+
+    void pop(int value) {
+        if (
+            !que.empty() &&
+            value == que.front()
+        ) {
+            que.pop_front();
+        }
+    }
+
+    void push(int value) {
+        while (
+            !que.empty() &&
+            value > que.back()
+        ) {
+            que.pop_back();
+        }
+
+        que.push_back(value);
+    }
+
+    int front() {
+        return que.front();
+    }
+};
+```
+
+这种写法也可以通过。
+
+不过保存下标更通用，因为：
+
+> 下标能直接判断是否过期。
+
+---
+
+# 16. 单调队列和优先队列怎么选
+
+### 单调队列
+
+适合：
+
+```text
+滑动窗口
+元素按时间顺序进入和离开
+只关心 max / min
+```
+
+时间：
+
+$$
+O(n)
+$$
+
+### 优先队列
+
+更通用：
+
+```text
+需要动态维护全局极值
+删除顺序不一定严格按窗口左端
+```
+
+时间通常：
+
+$$
+O(n\log k)
+$$
+
+本题因为窗口严格按顺序滑动，所以单调队列更优。
+
+---
+
+# 17. 如果要求滑动窗口最小值
+
+完全对称。
+
+最大值维护：
+
+```text
+单调递减
+```
+
+最小值维护：
+
+```text
+单调递增
+```
+
+代码把：
+
+```cpp
+nums[dq.back()] <= nums[i]
+```
+
+改成：
+
+```cpp
+nums[dq.back()] >= nums[i]
+```
+
+即可。
+
+---
+
+# 18. 单调队列的核心问题
+
+遇到新元素时问：
+
+> 队尾哪些旧元素以后再也没有机会成为答案？
+
+如果新元素比它们更优，并且又更晚离开窗口，那么它们可以永久删除。
+
+这是单调队列的真正思想。
+
+---
+
+# 19. 常见错误
+
+### 错误一：deque 只存值
+
+可能无法准确判断窗口过期。
+
+---
+
+### 错误二：只维护单调性，不删除过期队头
+
+队头可能已经离开窗口。
+
+---
+
+### 错误三：只删除一个较小队尾
+
+应该：
+
+```cpp
+while (...)
+```
+
+连续删除所有不可能成为最大值的候选。
+
+---
+
+### 错误四：窗口形成条件写错
+
+第一个长度为 `k` 的窗口右端下标是：
+
+$$
+k-1
+$$
+
+所以：
+
+```cpp
+i >= k - 1
+```
+
+才开始记录答案。
+
+---
+
+# 20. 一眼识别单调队列
+
+看到：
+
+```text
+滑动窗口
+每个窗口最大值 / 最小值
+窗口按顺序右移
+```
+
+优先想到：
+
+```text
+Deque + 单调性
+```
+
+最大值模板：
+
+```text
+1. 队头过期 → pop_front
+2. 队尾 <= 新值 → pop_back
+3. 新下标 push_back
+4. front = 当前最大值
+```
+
+---
+
+# 21. 多语言实现
+
+### C++
+
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(
+        vector<int>& nums,
+        int k
+    ) {
+        deque<int> dq;
+        vector<int> result;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            while (
+                !dq.empty() &&
+                dq.front() <= i - k
+            ) {
+                dq.pop_front();
+            }
+
+            while (
+                !dq.empty() &&
+                nums[dq.back()] <= nums[i]
+            ) {
+                dq.pop_back();
+            }
+
+            dq.push_back(i);
+
+            if (i >= k - 1) {
+                result.push_back(
+                    nums[dq.front()]
+                );
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+  ### Java
+
+```java
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+class Solution {
+    public int[] maxSlidingWindow(
+        int[] nums,
+        int k
+    ) {
+        Deque<Integer> dq = new ArrayDeque<>();
+        int[] result = new int[nums.length - k + 1];
+
+        int index = 0;
+
+        for (int i = 0; i < nums.length; ++i) {
+            while (
+                !dq.isEmpty() &&
+                dq.peekFirst() <= i - k
+            ) {
+                dq.pollFirst();
+            }
+
+            while (
+                !dq.isEmpty() &&
+                nums[dq.peekLast()] <= nums[i]
+            ) {
+                dq.pollLast();
+            }
+
+            dq.offerLast(i);
+
+            if (i >= k - 1) {
+                result[index++] =
+                    nums[dq.peekFirst()];
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+  ### Python
+
+```python
+from collections import deque
+from typing import List
+
+class Solution:
+    def maxSlidingWindow(
+        self,
+        nums: List[int],
+        k: int
+    ) -> List[int]:
+        dq = deque()
+        result = []
+
+        for i, x in enumerate(nums):
+            while dq and dq[0] <= i - k:
+                dq.popleft()
+
+            while dq and nums[dq[-1]] <= x:
+                dq.pop()
+
+            dq.append(i)
+
+            if i >= k - 1:
+                result.append(nums[dq[0]])
+
+        return result
+```
+
+  ### Go
+
+```go
+func maxSlidingWindow(nums []int, k int) []int {
+    dq := make([]int, 0)
+    result := make([]int, 0, len(nums)-k+1)
+
+    for i := 0; i < len(nums); i++ {
+        for len(dq) > 0 && dq[0] <= i-k {
+            dq = dq[1:]
+        }
+
+        for (
+            len(dq) > 0 &&
+            nums[dq[len(dq)-1]] <= nums[i]
+        ) {
+            dq = dq[:len(dq)-1]
+        }
+
+        dq = append(dq, i)
+
+        if i >= k-1 {
+            result = append(
+                result,
+                nums[dq[0]],
+            )
+        }
+    }
+
+    return result
+}
+```
+
+  ### JavaScript
+
+```javascript
+var maxSlidingWindow = function(nums, k) {
+    const dq = [];
+    let head = 0;
+
+    const result = [];
+
+    for (let i = 0; i < nums.length; ++i) {
+        while (
+            head < dq.length &&
+            dq[head] <= i - k
+        ) {
+            ++head;
+        }
+
+        while (
+            dq.length > head &&
+            nums[dq[dq.length - 1]] <= nums[i]
+        ) {
+            dq.pop();
+        }
+
+        dq.push(i);
+
+        if (i >= k - 1) {
+            result.push(nums[dq[head]]);
+        }
+    }
+
+    return result;
+};
+```
+
+  ### TypeScript
+
+```typescript
+function maxSlidingWindow(
+    nums: number[],
+    k: number
+): number[] {
+    const dq: number[] = [];
+    let head = 0;
+
+    const result: number[] = [];
+
+    for (let i = 0; i < nums.length; ++i) {
+        while (
+            head < dq.length &&
+            dq[head] <= i - k
+        ) {
+            ++head;
+        }
+
+        while (
+            dq.length > head &&
+            nums[dq[dq.length - 1]] <= nums[i]
+        ) {
+            dq.pop();
+        }
+
+        dq.push(i);
+
+        if (i >= k - 1) {
+            result.push(nums[dq[head]]);
+        }
+    }
+
+    return result;
+}
+```
+
+  ---
+
+# 22. 本题总结
+
+滑动窗口最大值的核心不是“把窗口放进队列”，而是：
+
+> **只保留仍有资格成为未来最大值的候选。**
+
+单调队列维护：
+
+```text
+下标有效
++
+对应值单调递减
+```
+
+每个新元素到来：
+
+```text
+过期队头删掉
+较小队尾删掉
+新元素入队
+```
+
+于是：
+
+```text
+队头永远是当前最大值
+```
+
+每个元素最多进出一次，所以最终把暴力：
+
+$$
+O(nk)
+$$
+
+优化为：
+
+$$
+O(n)
+$$
+
+这是单调队列最经典、最重要的题目。

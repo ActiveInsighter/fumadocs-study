@@ -93,18 +93,18 @@ async function BlogPost({ slug }: { slug: string[] }) {
 
 export default async function Page({ params }: PageParameters) {
   const { slug } = await params;
-  return slug ? <BlogPost slug={slug} /> : <BlogIndex />;
+  return slug && slug.length > 0 ? <BlogPost slug={slug} /> : <BlogIndex />;
 }
 
 export function generateStaticParams() {
-  return blogSource.generateParams();
+  return [{ slug: [] }, ...blogSource.generateParams()];
 }
 
 export async function generateMetadata({
   params,
 }: PageParameters): Promise<Metadata> {
   const { slug } = await params;
-  if (!slug) return { title: 'Blog' };
+  if (!slug || slug.length === 0) return { title: 'Blog' };
 
   const page = blogSource.getPage(slug);
   if (!page) notFound();

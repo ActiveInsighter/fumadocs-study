@@ -1,0 +1,1360 @@
+---
+title: 冗余连接 II
+subtitle: 入度约束与并查集联合分类，修复“有向树 + 一条额外边”
+summary: 通过卡码网 109 系统掌握有向冗余连接的三种结构：入度为 2 且无关键环、入度为 2 且与环耦合、纯环；学会先用入度锁定候选边，再用并查集验证删边后的树结构，并理解为什么并查集在这里可以工作。
+---
+
+# 冗余连接 II
+
+> **卡码网 109. 冗余连接 II**
+>
+> 一棵有 $n$ 个节点、$n-1$ 条有向边的根树中额外加入了一条有向边。现在共有 $n$ 条边，要求删除一条边，使图重新成为合法的有向树；如果有多条答案，输出输入中最后出现的那条。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1182)
+
+上一题“冗余连接”只有无向环这一件事需要处理。
+
+本题变成有向图之后，难点突然多了一层：
+
+> 一棵合法的有向树，不仅不能出现环，还要求每个非根节点**恰好只有一个父节点**。
+
+因此我们必须同时考虑：
+
+```text
+入度约束
++
+环结构
+```
+
+这正是本题的核心。
+
+<Callout type="info" title="先记住整个解题框架">
+
+本题不要一上来就用并查集扫边。
+
+先统计每个节点的**入度**：
+
+1. 如果存在入度为 `2` 的节点，答案一定是指向它的两条边之一；优先尝试删除输入中靠后的那条，再判断剩余图是不是树。
+2. 如果不存在入度为 `2` 的节点，那么多出来的边只能造成环；此时再使用并查集找出闭环边。
+
+</Callout>
+
+---
+
+## 1. 什么叫合法的有向树
+
+题目中的“有向树”可以理解为一棵所有边都从父节点指向子节点的根树。
+
+原题示意：
+
+![合法的有向树](https://file1.kamacoder.com/i/algo/20240827152106.png)
+
+假设根为 `r`，那么必须满足：
+
+### 根节点
+
+$$
+\operatorname{indegree}(r)=0
+$$
+
+### 其他每个节点
+
+$$
+\operatorname{indegree}(v)=1
+$$
+
+并且整张图：
+
+- 所有节点都能由根到达；
+- 不存在环；
+- 一共有 $n-1$ 条边。
+
+加入一条额外有向边后，就可能破坏这些性质：
+
+![加入额外有向边后的图](https://file1.kamacoder.com/i/algo/20240827152134.png)
+
+---
+
+## 2. 为什么有向图比上一题复杂
+
+无向树中加入一条边，唯一可能的问题就是：
+
+```text
+形成一个环
+```
+
+但有向树中多加入一条边，可能出现：
+
+```text
+某个节点有两个父节点
+```
+
+也可能出现：
+
+```text
+形成有向环
+```
+
+甚至这两个问题会同时出现。
+
+例如：
+
+```text
+1 -> 2
+1 -> 3
+2 -> 3
+```
+
+节点 `3` 有两条入边：
+
+```text
+1 -> 3
+2 -> 3
+```
+
+所以：
+
+$$
+\operatorname{indegree}(3)=2
+$$
+
+原题示意：
+
+![入度为 2 的节点](https://file1.kamacoder.com/i/algo/20240527115807.png)
+
+这时删除两条入边中的某一条，就有机会恢复成树。
+
+---
+
+## 3. 为什么入度最多只会出现一个 2
+
+原图是一棵有向树。
+
+加入额外边：
+
+```text
+u -> v
+```
+
+只会让终点 `v` 的入度增加 $1$。
+
+因此：
+
+- 原来 `v` 若是非根节点，入度从 `1` 变成 `2`；
+- 原来 `v` 若是根节点，入度从 `0` 变成 `1`；
+- 其他所有节点的入度完全不变。
+
+所以最终图里：
+
+> **最多只可能有一个入度为 2 的节点。**
+
+而且如果它存在，指向它的两条边一定是最直接的候选答案。
+
+---
+
+## 4. 三种结构必须分开讨论
+
+本题可以严格分成三类。
+
+<Cards>
+  <Card title="情况 A：入度为 2，可删后来的边">
+    某个节点有两个父节点，删除两条入边中输入靠后的那条后，剩余结构已经是一棵合法有向树。
+  </Card>
+  <Card title="情况 B：入度为 2，但只能删前一条">
+    两条入边中，后来的那条其实不在导致错误的关键结构上；若删它，原图仍然有环，因此必须删除另一条。
+  </Card>
+  <Card title="情况 C：不存在入度为 2，只存在环">
+    所有节点入度仍符合“根为 0、其余为 1”的表面条件，但额外边把结构闭合成了环，需要删除环中的最后一条候选边。
+  </Card>
+</Cards>
+
+下面逐个理解。
+
+---
+
+## 5. 情况 A：入度为 2，优先删除靠后的入边
+
+示例：
+
+```text
+1 -> 2
+1 -> 3
+2 -> 3
+```
+
+节点 `3` 的入度为 `2`。
+
+两条候选边是：
+
+```text
+1 -> 3
+2 -> 3
+```
+
+如果删除后出现的：
+
+```text
+2 -> 3
+```
+
+剩余：
+
+```text
+1 -> 2
+1 -> 3
+```
+
+是一棵合法有向树。
+
+因此根据题目“有多解时取最后出现”的要求，答案就是：
+
+```text
+2 3
+```
+
+这也是题目示例。
+
+---
+
+## 6. 情况 B：入度为 2，但不能机械删除后来的边
+
+这是本题真正难的地方。
+
+原题给出的结构如下：
+
+![入度为 2 且与环耦合的情况](https://file1.kamacoder.com/i/algo/20240527151456.png)
+
+某个节点虽然入度为 `2`，但两条入边并不是“删哪一条都行”。
+
+可能存在：
+
+```text
+候选边 1：删掉后 -> 成为树
+候选边 2：删掉后 -> 环仍然存在
+```
+
+因此正确策略不能只是：
+
+```text
+找到入度为 2 的节点
+直接删除最后一条入边
+```
+
+而应该是：
+
+```text
+先尝试删除最后出现的候选边
+        |
+        v
+剩下的 n-1 条边能否构成树？
+        |
+   +----+----+
+   |         |
+  能         不能
+   |         |
+删它       删另一条
+```
+
+这一步就是整个算法的关键分支。
+
+---
+
+## 7. 情况 C：没有入度为 2，那么一定是环的问题
+
+如果所有节点的入度都没有达到 `2`，说明额外加入的边没有让某个非根节点产生第二个父节点。
+
+在“有向树 + 一条额外边”的前提下，此时问题只能表现为：
+
+> 新边从某个节点指回了它的祖先方向，从而把原树闭合成环。
+
+原题示意：
+
+![没有入度 2 时形成的环](https://file1.kamacoder.com/i/algo/20240527120531.png)
+
+这时可以像上一题一样按输入顺序使用并查集：
+
+```text
+如果一条边的两个端点已经属于同一无向连通分量
+那么当前边会闭合唯一环
+```
+
+返回这条边即可。
+
+---
+
+## 8. 一个非常重要的问题：并查集不是不能判断有向环吗？
+
+是的。
+
+<Callout type="warning" title="不要形成错误结论：并查集可以通用判断有向环">
+
+在**任意有向图**中，普通并查集不能判断有向环。
+
+例如：
+
+```text
+1 -> 2
+1 -> 3
+```
+
+从无向连通性看，`2` 和 `3` 已经连通；但如果再加入：
+
+```text
+2 -> 3
+```
+
+并不会产生有向环。
+
+所以不能对一般有向图写：
+
+```text
+find(u) == find(v) -> 存在有向环
+```
+
+这是错误的。
+
+</Callout>
+
+那为什么本题仍然能用并查集？
+
+因为我们不是在解决一般有向图。
+
+本题给出了非常强的结构约束：
+
+```text
+原图 = 一棵有向树
+最终图 = 有向树 + 恰好一条额外边
+```
+
+而我们的并查集主要做的是：
+
+> 判断删除某条候选边以后，剩下的 $n-1$ 条边在**忽略方向**后是否形成一棵无向树。
+
+结合入度约束，就足以判断它是不是题目要求的有向树。
+
+---
+
+## 9. 为什么“删掉候选边后无无向环”就足够
+
+假设我们已经锁定了入度为 `2` 的节点，并删去它的一条入边。
+
+删边后总边数变为：
+
+$$
+n-1
+$$
+
+如果剩下这些边在忽略方向后没有环，那么对于 $n$ 个节点、$n-1$ 条无环边：
+
+> 它们必然组成一棵无向树，也就是连通的。
+
+同时，由于我们已经消除了唯一可能的入度 `2` 问题，所有节点入度都满足：
+
+```text
+一个节点入度为 0
+其余节点入度为 1
+```
+
+于是这棵无向树加上原来的边方向，就构成了一棵合法的根向有向树。
+
+所以 `isTreeAfterRemoveEdge` 中并查集只需要检查：
+
+```text
+是否出现无向环
+```
+
+在本题的特殊约束下就已经足够。
+
+---
+
+## 10. 如何找入度为 2 的两条候选边
+
+读入时统计：
+
+```cpp
+inDegree[v]++;
+```
+
+然后倒序扫描所有边：
+
+```cpp
+for (int i = n - 1; i >= 0; --i) {
+    if (inDegree[edges[i].second] == 2) {
+        candidates.push_back(i);
+    }
+}
+```
+
+为什么倒序？
+
+因为题目要求：
+
+> 如果两条边都可以删除，优先输出输入中后出现的边。
+
+倒序后：
+
+```text
+candidates[0] = 后出现的那条入边
+candidates[1] = 前出现的那条入边
+```
+
+于是先尝试删除：
+
+```cpp
+candidates[0]
+```
+
+即可自然处理题目的优先级。
+
+---
+
+## 11. 删除一条候选边后，怎样判断剩余图是不是树
+
+定义：
+
+```cpp
+bool isTreeAfterRemoveEdge(int skip)
+```
+
+含义是：
+
+> 暂时忽略第 `skip` 条边，把其他 $n-1$ 条边依次加入并查集。
+
+如果任何时候发现：
+
+```cpp
+find(u) == find(v)
+```
+
+说明忽略方向后出现环，因此不可能是一棵树：
+
+```cpp
+return false;
+```
+
+如果所有剩余边都能成功合并：
+
+```cpp
+return true;
+```
+
+伪代码：
+
+```text
+重新初始化并查集
+
+for 每一条边 i:
+    if i == skip:
+        continue
+
+    if endpoints 已经同集合:
+        return false
+
+    union(u, v)
+
+return true
+```
+
+---
+
+## 12. 完整决策树
+
+可以把本题整个逻辑记成下面这棵树：
+
+```text
+统计入度
+   |
+   v
+有没有入度为 2 的节点？
+   |
++--+--------------------+
+|                       |
+有                      没有
+|                       |
+v                       v
+得到两条候选入边         直接扫描所有边
+后边 candidate2         用并查集判环
+前边 candidate1         |
+|                       v
+v                    第一次闭环边
+先删 candidate2         就是答案
+检查剩余是否为树
+|
++-----------+
+|           |
+是          否
+|           |
+v           v
+输出后边    输出前边
+```
+
+这张决策树比死记代码更重要。
+
+---
+
+## 13. C++ 标准实现
+
+为了让代码逻辑更清晰，我们把“判断删边后是否为树”单独封装。
+
+```cpp
+#include <iostream>
+#include <numeric>
+#include <utility>
+#include <vector>
+using namespace std;
+
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n) : parent(n + 1), size(n + 1, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+};
+
+bool isTreeAfterRemoveEdge(
+    const vector<pair<int, int>>& edges,
+    int n,
+    int skip
+) {
+    UnionFind uf(n);
+
+    for (int i = 0; i < n; ++i) {
+        if (i == skip) {
+            continue;
+        }
+
+        auto [u, v] = edges[i];
+
+        // 忽略方向后成环，则剩余结构一定不是树。
+        if (!uf.unite(u, v)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int findCycleEdge(
+    const vector<pair<int, int>>& edges,
+    int n
+) {
+    UnionFind uf(n);
+
+    for (int i = 0; i < n; ++i) {
+        auto [u, v] = edges[i];
+
+        if (!uf.unite(u, v)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+
+    vector<pair<int, int>> edges(n);
+    vector<int> inDegree(n + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        int u, v;
+        cin >> u >> v;
+        edges[i] = {u, v};
+        ++inDegree[v];
+    }
+
+    // 倒序收集指向入度为 2 节点的边。
+    vector<int> candidates;
+
+    for (int i = n - 1; i >= 0; --i) {
+        if (inDegree[edges[i].second] == 2) {
+            candidates.push_back(i);
+        }
+    }
+
+    // 情况 A / B：存在入度为 2 的节点。
+    if (!candidates.empty()) {
+        int later = candidates[0];
+        int earlier = candidates[1];
+
+        if (isTreeAfterRemoveEdge(edges, n, later)) {
+            cout << edges[later].first << ' '
+                 << edges[later].second << '\n';
+        } else {
+            cout << edges[earlier].first << ' '
+                 << edges[earlier].second << '\n';
+        }
+
+        return 0;
+    }
+
+    // 情况 C：没有入度为 2，只剩唯一环。
+    int answer = findCycleEdge(edges, n);
+    cout << edges[answer].first << ' '
+         << edges[answer].second << '\n';
+
+    return 0;
+}
+```
+
+---
+
+## 14. 为什么 `candidates` 一定恰好有两条边
+
+如果某个节点 `v` 的最终入度为 `2`，因为原来它在树中最多只有一个父节点，而只额外加入了一条边，所以指向 `v` 的边总共恰好两条。
+
+因此倒序扫描以后：
+
+```cpp
+candidates.size() == 2
+```
+
+在题目合法输入前提下成立。
+
+这也是为什么代码可以直接取：
+
+```cpp
+candidates[0]
+candidates[1]
+```
+
+而不需要处理更多候选边。
+
+---
+
+## 15. 三种情况分别模拟
+
+### 例 1：两个父节点，删后边即可
+
+```text
+3
+1 2
+1 3
+2 3
+```
+
+入度：
+
+```text
+indegree(1) = 0
+indegree(2) = 1
+indegree(3) = 2
+```
+
+候选边：
+
+```text
+1 -> 3
+2 -> 3
+```
+
+后出现：
+
+```text
+2 -> 3
+```
+
+尝试跳过它后：
+
+```text
+1 -> 2
+1 -> 3
+```
+
+没有环，是树。
+
+答案：
+
+```text
+2 3
+```
+
+### 例 2：两个父节点，但后边不能删
+
+考虑：
+
+```text
+4
+2 1
+3 1
+4 2
+1 4
+```
+
+节点 `1` 入度为 `2`：
+
+```text
+2 -> 1
+3 -> 1
+```
+
+如果先尝试删除后出现的：
+
+```text
+3 -> 1
+```
+
+剩余：
+
+```text
+2 -> 1
+4 -> 2
+1 -> 4
+```
+
+忽略方向后形成：
+
+```text
+1 - 2 - 4 - 1
+```
+
+仍然有环，因此不能删 `3 -> 1`。
+
+必须删除另一条：
+
+```text
+2 -> 1
+```
+
+### 例 3：没有入度 2，纯环
+
+```text
+3
+1 2
+2 3
+3 1
+```
+
+每个节点入度都为 `1`，不存在入度 `2`。
+
+并查集依次处理：
+
+```text
+1 - 2  成功
+2 - 3  成功
+3 - 1  两端已连通
+```
+
+所以答案：
+
+```text
+3 1
+```
+
+---
+
+## 16. 为什么“没有入度 2”时不需要额外检查根
+
+这点很值得推导。
+
+最终一共有：
+
+$$
+n
+$$
+
+条有向边。
+
+如果不存在入度为 `2`，并且每个节点入度最多为 `1`，那么所有节点入度之和为：
+
+$$
+\sum_{v=1}^{n}\operatorname{indegree}(v)=n
+$$
+
+由于有 $n$ 个节点且每个入度都不超过 $1$，只能得到：
+
+$$
+\operatorname{indegree}(v)=1
+$$
+
+对所有节点都成立。
+
+也就是说此时根节点已经“消失”了——原来的根也获得了一条入边。
+
+因此图中必然包含一个有向环。
+
+删除那条额外的闭环边后，总边数回到 $n-1$，根节点重新出现，恢复成原来的有向树。
+
+这就是“没有入度 2 $ightarrow$ 一定走纯环分支”的结构性原因。
+
+---
+
+## 17. 正确性证明
+
+### 情况一：存在入度为 2 的节点
+
+设该节点为 `v`，它只有两条入边：
+
+```text
+e1 -> v
+e2 -> v
+```
+
+若要恢复成有向树，`v` 的入度必须从 `2` 变成 `1`。
+
+所以答案必定是这两条边之一。
+
+先测试输入靠后的候选边：
+
+- 若删除后剩余 $n-1$ 条边无环，则剩余图是一棵树；它同时满足入度条件，所以该后边是合法答案，并且符合“最后出现优先”；
+- 若删除后仍有环，则该后边不可能是答案，只能删除另一条候选边。
+
+因此此分支正确。
+
+### 情况二：不存在入度为 2 的节点
+
+由前面的入度和分析，所有节点入度都为 `1`，因此图不可能是一棵根树，并且一定含环。
+
+本题只比原树多一条边，所以忽略方向后也只有一个独立环。
+
+按输入顺序使用并查集，第一次 `union` 失败的边恰好是该唯一环中最后出现的边；删除它后恢复原来的树结构。
+
+因此该分支也正确。
+
+---
+
+## 18. 复杂度分析
+
+统计入度需要：
+
+$$
+O(n)
+$$
+
+寻找候选边需要：
+
+$$
+O(n)
+$$
+
+并查集最多扫描常数次全部 $n$ 条边，每次操作均摊：
+
+$$
+O(\alpha(n))
+$$
+
+所以总时间复杂度：
+
+$$
+O(n\alpha(n))
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+需要保存：
+
+- `edges`；
+- `inDegree`；
+- 并查集的 `parent`、`size`。
+
+---
+
+## 19. 高频错误
+
+<Cards>
+  <Card title="看到有向图就直接用并查集判有向环">
+    普通并查集不能通用检测有向环。本题能使用，是因为“原图是一棵有向树，只增加一条边”这个强约束，加上入度分类后把问题缩小成了树结构验证。
+  </Card>
+  <Card title="发现入度 2 就直接删最后一条">
+    还必须验证删掉后边以后是否仍然有环；如果仍成环，就必须删除前一条候选边。
+  </Card>
+  <Card title="只判断入度，不判断环">
+    两个父节点问题与环问题可以同时存在，单纯恢复入度并不保证剩余图是一棵树。
+  </Card>
+  <Card title="候选边没有按倒序处理">
+    当两条都能删时，题目要求返回输入中最后出现的边，因此要优先测试后出现的候选边。
+  </Card>
+</Cards>
+
+---
+
+## 20. 与上一题“冗余连接”的区别
+
+| 对比项 | 冗余连接 | 冗余连接 II |
+| --- | --- | --- |
+| 图类型 | 无向图 | 有向图 |
+| 原始结构 | 无向树 | 根向有向树 |
+| 额外边可能造成的问题 | 环 | 入度 2、环，或二者耦合 |
+| 是否先统计入度 | 不需要 | 必须 |
+| 并查集作用 | 直接在线判环 | 验证候选删边、处理纯环分支 |
+| 核心难点 | 连通性判环 | 入度条件 + 环结构分类 |
+
+这两题连起来学习，最重要的是理解：
+
+```text
+无向图：连通性本身就足以描述加边是否成环
+
+有向图：方向带来额外约束，不能只看连通性
+```
+
+---
+
+## 21. 做题时的固定思考顺序
+
+以后遇到类似“有向树中多了一条边”的题，可以按下面的顺序思考：
+
+### 先写出合法结构的度数约束
+
+根入度为 `0`，其他节点入度为 `1`。
+
+### 找结构异常
+
+如果出现入度 `2`，答案必然在指向该节点的两条边中。
+
+### 按题目优先级测试候选
+
+优先尝试输入中靠后的候选边。
+
+### 用并查集验证删边后是否仍有环
+
+若无环，则它就是答案；否则删除另一条。
+
+### 若没有入度 2
+
+问题只能落在唯一环上，按输入顺序用并查集找到闭环边。
+
+<Callout type="success" title="一句话总结">
+
+**冗余连接 II 的关键不是“并查集更复杂了”，而是先用入度把有向结构分成几种情况，再让并查集只负责它真正擅长的无向连通与成环判断。**
+
+</Callout>
+
+---
+
+## 其他语言版本
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class UnionFind {
+        int[] parent;
+        int[] size;
+
+        UnionFind(int n) {
+            parent = new int[n + 1];
+            size = new int[n + 1];
+            for (int i = 1; i <= n; ++i) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        int find(int x) {
+            if (parent[x] != x) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        boolean union(int u, int v) {
+            int rootU = find(u);
+            int rootV = find(v);
+
+            if (rootU == rootV) {
+                return false;
+            }
+
+            if (size[rootU] < size[rootV]) {
+                int temp = rootU;
+                rootU = rootV;
+                rootV = temp;
+            }
+
+            parent[rootV] = rootU;
+            size[rootU] += size[rootV];
+            return true;
+        }
+    }
+
+    static boolean isTreeAfterRemoveEdge(int[][] edges, int n, int skip) {
+        UnionFind uf = new UnionFind(n);
+
+        for (int i = 0; i < n; ++i) {
+            if (i == skip) continue;
+
+            if (!uf.union(edges[i][0], edges[i][1])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static int findCycleEdge(int[][] edges, int n) {
+        UnionFind uf = new UnionFind(n);
+
+        for (int i = 0; i < n; ++i) {
+            if (!uf.union(edges[i][0], edges[i][1])) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine().trim());
+
+        int[][] edges = new int[n][2];
+        int[] inDegree = new int[n + 1];
+
+        for (int i = 0; i < n; ++i) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            edges[i][0] = u;
+            edges[i][1] = v;
+            ++inDegree[v];
+        }
+
+        List<Integer> candidates = new ArrayList<>();
+        for (int i = n - 1; i >= 0; --i) {
+            if (inDegree[edges[i][1]] == 2) {
+                candidates.add(i);
+            }
+        }
+
+        int answer;
+
+        if (!candidates.isEmpty()) {
+            int later = candidates.get(0);
+            int earlier = candidates.get(1);
+            answer = isTreeAfterRemoveEdge(edges, n, later) ? later : earlier;
+        } else {
+            answer = findCycleEdge(edges, n);
+        }
+
+        System.out.println(edges[answer][0] + " " + edges[answer][1]);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+input = sys.stdin.readline
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n + 1))
+        self.size = [1] * (n + 1)
+
+    def find(self, x: int) -> int:
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, u: int, v: int) -> bool:
+        root_u = self.find(u)
+        root_v = self.find(v)
+
+        if root_u == root_v:
+            return False
+
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+        return True
+
+
+def is_tree_after_remove_edge(edges, n, skip):
+    uf = UnionFind(n)
+
+    for i, (u, v) in enumerate(edges):
+        if i == skip:
+            continue
+        if not uf.union(u, v):
+            return False
+
+    return True
+
+
+def find_cycle_edge(edges, n):
+    uf = UnionFind(n)
+
+    for i, (u, v) in enumerate(edges):
+        if not uf.union(u, v):
+            return i
+
+    return -1
+
+
+n = int(input())
+edges = []
+in_degree = [0] * (n + 1)
+
+for _ in range(n):
+    u, v = map(int, input().split())
+    edges.append((u, v))
+    in_degree[v] += 1
+
+candidates = []
+for i in range(n - 1, -1, -1):
+    if in_degree[edges[i][1]] == 2:
+        candidates.append(i)
+
+if candidates:
+    later, earlier = candidates[0], candidates[1]
+    answer = later if is_tree_after_remove_edge(edges, n, later) else earlier
+else:
+    answer = find_cycle_edge(edges, n)
+
+print(*edges[answer])
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+type Edge struct {
+    u int
+    v int
+}
+
+type UnionFind struct {
+    parent []int
+    size   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+
+    for i := 1; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+
+    return &UnionFind{parent: parent, size: size}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if uf.parent[x] != x {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(u, v int) bool {
+    rootU := uf.Find(u)
+    rootV := uf.Find(v)
+
+    if rootU == rootV {
+        return false
+    }
+
+    if uf.size[rootU] < uf.size[rootV] {
+        rootU, rootV = rootV, rootU
+    }
+
+    uf.parent[rootV] = rootU
+    uf.size[rootU] += uf.size[rootV]
+    return true
+}
+
+func isTreeAfterRemoveEdge(edges []Edge, n, skip int) bool {
+    uf := NewUnionFind(n)
+
+    for i, e := range edges {
+        if i == skip {
+            continue
+        }
+        if !uf.Union(e.u, e.v) {
+            return false
+        }
+    }
+
+    return true
+}
+
+func findCycleEdge(edges []Edge, n int) int {
+    uf := NewUnionFind(n)
+
+    for i, e := range edges {
+        if !uf.Union(e.u, e.v) {
+            return i
+        }
+    }
+
+    return -1
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n int
+    fmt.Fscan(in, &n)
+
+    edges := make([]Edge, n)
+    inDegree := make([]int, n+1)
+
+    for i := 0; i < n; i++ {
+        fmt.Fscan(in, &edges[i].u, &edges[i].v)
+        inDegree[edges[i].v]++
+    }
+
+    candidates := make([]int, 0, 2)
+    for i := n - 1; i >= 0; i-- {
+        if inDegree[edges[i].v] == 2 {
+            candidates = append(candidates, i)
+        }
+    }
+
+    var answer int
+
+    if len(candidates) > 0 {
+        later := candidates[0]
+        earlier := candidates[1]
+
+        if isTreeAfterRemoveEdge(edges, n, later) {
+            answer = later
+        } else {
+            answer = earlier
+        }
+    } else {
+        answer = findCycleEdge(edges, n)
+    }
+
+    fmt.Fprintln(out, edges[answer].u, edges[answer].v)
+}
+```
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+const edges = [];
+const inDegree = new Array(n + 1).fill(0);
+
+for (let i = 0; i < n; ++i) {
+  const u = data[idx++];
+  const v = data[idx++];
+  edges.push([u, v]);
+  inDegree[v]++;
+}
+
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n + 1 }, (_, i) => i);
+    this.size = new Array(n + 1).fill(1);
+  }
+
+  find(x) {
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(u, v) {
+    let rootU = this.find(u);
+    let rootV = this.find(v);
+
+    if (rootU === rootV) return false;
+
+    if (this.size[rootU] < this.size[rootV]) {
+      [rootU, rootV] = [rootV, rootU];
+    }
+
+    this.parent[rootV] = rootU;
+    this.size[rootU] += this.size[rootV];
+    return true;
+  }
+}
+
+function isTreeAfterRemoveEdge(skip) {
+  const uf = new UnionFind(n);
+
+  for (let i = 0; i < n; ++i) {
+    if (i === skip) continue;
+
+    const [u, v] = edges[i];
+    if (!uf.union(u, v)) return false;
+  }
+
+  return true;
+}
+
+function findCycleEdge() {
+  const uf = new UnionFind(n);
+
+  for (let i = 0; i < n; ++i) {
+    const [u, v] = edges[i];
+    if (!uf.union(u, v)) return i;
+  }
+
+  return -1;
+}
+
+const candidates = [];
+
+for (let i = n - 1; i >= 0; --i) {
+  if (inDegree[edges[i][1]] === 2) {
+    candidates.push(i);
+  }
+}
+
+let answer;
+
+if (candidates.length > 0) {
+  const later = candidates[0];
+  const earlier = candidates[1];
+  answer = isTreeAfterRemoveEdge(later) ? later : earlier;
+} else {
+  answer = findCycleEdge();
+}
+
+console.log(`${edges[answer][0]} ${edges[answer][1]}`);
+```

@@ -1,0 +1,645 @@
+---
+title: 77. 组合：从 k 层循环到回溯
+summary: 用状态空间树理解组合问题，掌握 startIndex 的本质、回溯三部曲、路径不变量与复杂度分析。
+description: LeetCode 77 组合的系统讲解：从多层循环抽象到回溯搜索树，重点理解 startIndex、选择范围、终止条件与状态恢复。
+---
+
+
+# 77. 组合：从 $k$ 层循环到回溯
+
+[LeetCode 77. 组合](https://leetcode.cn/problems/combinations/)
+
+给定两个整数 $n$ 和 $k$，从集合
+
+$$
+\{1,2,\dots,n\}
+$$
+
+中选出恰好 $k$ 个不同的数，返回所有可能的组合。
+
+例如 $n=4,k=2$ 时，答案共有
+
+$$
+\binom{4}{2}=6
+$$
+
+个：
+
+```text title="示例"
+[1,2] [1,3] [1,4]
+[2,3] [2,4]
+[3,4]
+```
+
+<Callout title="这道题真正要学什么">
+
+本题的价值不在于“求组合”本身，而在于第一次完整建立一个回溯模型：
+
+**递归负责模拟未知层数的循环，`for` 负责枚举当前层的选择，`startIndex` 负责保证组合只生成一次。**
+
+</Callout>
+
+## 1. 为什么普通多层循环不够用？
+
+当 $k=2$ 时，可以写两层循环：
+
+```cpp title="k = 2"
+for (int i = 1; i <= n; ++i) {
+    for (int j = i + 1; j <= n; ++j) {
+        cout << i << ' ' << j << '\n';
+    }
+}
+```
+
+当 $k=3$ 时，再增加一层循环也能完成。
+
+问题在于：**$k$ 是输入，而不是写代码时就确定的常量。**
+
+如果 $k=50$，我们不可能手写 50 层 `for`。这时递归的意义就非常直观了：
+
+> 一次递归调用，相当于“进入下一层循环”。
+
+于是，原本无法静态写出的 $k$ 层循环，被统一成了：
+
+```text title="递归模拟多层循环"
+第 1 层：for 枚举第 1 个数
+  └─ 第 2 层：for 枚举第 2 个数
+      └─ 第 3 层：for 枚举第 3 个数
+          ...
+              └─ 第 k 层：得到一个完整组合
+```
+
+![77.组合](https://file1.kamacoder.com/i/algo/20201123195223940.png)
+
+## 2. 把组合问题画成一棵搜索树
+
+以 $n=4,k=2$ 为例。
+
+最开始可选集合为：
+
+$$
+\{1,2,3,4\}
+$$
+
+如果第一步选择了 $1$，下一步只能从 $\{2,3,4\}$ 中继续选；如果第一步选择了 $2$，下一步只能从 $\{3,4\}$ 中继续选。
+
+这说明每向下一层，**候选范围都会向右收缩**。
+
+![77.组合2](https://file1.kamacoder.com/i/algo/20201123195328976.png)
+
+搜索树中：
+
+| 概念 | 在本题中的含义 |
+| --- | --- |
+| 节点 | 当前已经选择的数字集合 `path` |
+| 树的深度 | 已选择多少个数，最大为 $k$ |
+| 同一层的不同分支 | 当前这一位选择哪个数字 |
+| 叶子节点 | `path.size() == k`，得到一个完整组合 |
+| 树枝 | “选择一个数”这次决策 |
+
+<Callout type="info" title="组合问题的核心不变量">
+
+路径中的数字始终严格递增：
+
+$$
+a_1<a_2<\cdots<a_k
+$$
+
+只要始终保持这个不变量，`[1,2]` 与 `[2,1]` 就不会同时出现，因此天然消除了顺序不同造成的重复。
+
+</Callout>
+
+## 3. 为什么必须有 `startIndex`？
+
+假设当前已经选择了 $1$。
+
+下一层如果仍从 $1$ 开始枚举，就可能产生：
+
+```text
+[1,1]  [1,2]  [1,3]  [1,4]
+```
+
+不仅重复使用元素，而且之后还可能得到 `[2,1]` 这种与 `[1,2]` 等价的重复组合。
+
+因此，选择数字 $i$ 后，下一层必须从 $i+1$ 开始：
+
+```cpp
+backtracking(n, k, i + 1);
+```
+
+`startIndex` 的真正含义不是“递归层数”，而是：
+
+> **当前这一层允许选择的第一个候选位置。**
+
+![77.组合3](https://file1.kamacoder.com/i/algo/20201123195407907.png)
+
+如果当前 `startIndex = 3`，说明 $1,2$ 已经不可能再出现在后续选择中，本层只能考虑：
+
+$$
+\{3,4,\dots,n\}
+$$
+
+因此，`startIndex` 同时完成了两件事：
+
+1. 每个数字最多使用一次；
+2. 固定组合的生成顺序，避免排列型重复。
+
+## 4. 回溯三部曲
+
+### ① 定义路径与递归参数
+
+`path` 保存当前组合，`result` 保存所有完整组合。
+
+递归函数至少要知道：
+
+- $n$：候选数字上界；
+- $k$：目标组合长度；
+- `startIndex`：本层枚举起点。
+
+```cpp
+vector<vector<int>> result;
+vector<int> path;
+
+void backtracking(int n, int k, int startIndex);
+```
+
+### ② 确定终止条件
+
+当路径长度已经达到 $k$ 时，当前路径就是一个完整组合：
+
+```cpp
+if (path.size() == k) {
+    result.push_back(path);
+    return;
+}
+```
+
+这里保存的是 `path` 的一个副本。之后即使继续 `pop_back()`，已经加入结果集的组合也不会被改变。
+
+### ③ 横向枚举，纵向递归，返回后撤销
+
+```cpp
+for (int i = startIndex; i <= n; ++i) {
+    path.push_back(i);              // 做选择
+    backtracking(n, k, i + 1);     // 进入下一层
+    path.pop_back();                // 撤销选择
+}
+```
+
+![77.组合1](https://file1.kamacoder.com/i/algo/20201123195242899.png)
+
+`for` 循环负责同一层不同候选之间的**横向遍历**；递归调用负责搜索树的**纵向深入**。
+
+## 5. 用一次完整搜索理解“选择—递归—撤销”
+
+仍以 $n=4,k=2$ 为例。
+
+第一次进入递归：
+
+```text
+path = []
+startIndex = 1
+```
+
+选择 $1$：
+
+```text
+path = [1]
+```
+
+下一层从 $2$ 开始，依次得到：
+
+```text
+[1,2] → 收集 → 回退到 [1]
+[1,3] → 收集 → 回退到 [1]
+[1,4] → 收集 → 回退到 [1]
+```
+
+当以 $1$ 开头的分支全部结束后，再撤销 $1$：
+
+```text
+path = []
+```
+
+然后第一层继续选择 $2$，搜索 `[2,3]`、`[2,4]`。
+
+<Callout type="warn" title="为什么 pop_back() 不能省？">
+
+`path` 是整棵递归树共享的可变状态。
+
+如果递归返回后不执行 `path.pop_back()`，上一条分支留下的选择会污染下一条兄弟分支。例如本应从 `[1]` 切换到 `[2]`，却可能错误地保留成 `[1,2]`。
+
+回溯必须维持一个重要不变量：**处理每个兄弟分支前，状态都恢复到该层开始搜索时的状态。**
+
+</Callout>
+
+## 6. 基础版 C++ 实现
+
+```cpp title="C++：基础回溯"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(int n, int k, int startIndex) {
+        if (path.size() == k) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = startIndex; i <= n; ++i) {
+            path.push_back(i);
+            backtracking(n, k, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combine(int n, int k) {
+        result.clear();
+        path.clear();
+        backtracking(n, k, 1);
+        return result;
+    }
+};
+```
+
+## 7. 为什么这段代码不会漏解，也不会重复？
+
+正确性可以从“唯一生成路径”理解。
+
+任意一个合法组合都可以写成：
+
+$$
+\{a_1,a_2,\dots,a_k\},\qquad 1\le a_1<a_2<\cdots<a_k\le n
+$$
+
+搜索树恰好存在一条路径：
+
+$$
+a_1\rightarrow a_2\rightarrow\cdots\rightarrow a_k
+$$
+
+能生成它，因此不会漏解。
+
+又因为下一层只能从 `i + 1` 开始，所以路径严格递增，同一组数字不可能以其他顺序再次生成，因此不会重复。
+
+## 8. 复杂度应该怎样分析？
+
+这道题有
+
+$$
+\binom{n}{k}
+$$
+
+个答案，而每个答案包含 $k$ 个整数，所以仅仅把所有答案复制到结果集中，就需要至少：
+
+$$
+\Omega\left(k\binom{n}{k}\right)
+$$
+
+的输出时间与结果存储空间。
+
+基础版代码还会访问大量长度不足 $k$、最终无法扩展成答案的前缀。深度为 $d$ 的路径最多有 $\binom{n}{d}$ 个，因此搜索节点规模可写为：
+
+$$
+\sum_{d=0}^{k}\binom{n}{d}
+$$
+
+当 $k$ 接近 $n$ 时，这个量可以达到 $O(2^n)$ 级别。
+
+若不计算最终答案本身占用的空间，递归栈和当前路径的额外空间为：
+
+$$
+O(k)
+$$
+
+很多题解写成 $O(n)$，因为 $k\le n$，但写成 $O(k)$ 更能体现本题真实的递归深度。
+
+## 9. 基础版还浪费在哪里？
+
+看下面这棵树。当剩余数字的数量已经不足以把 `path` 补到 $k$ 个时，继续进入该分支没有任何意义。
+
+![77.组合4](https://file1.kamacoder.com/i/algo/20210130194335207-20230310134409532.png)
+
+例如 $n=4,k=4$：
+
+- 第一层如果从 $2$ 开始，后面最多只有 $2,3,4$ 三个数，不可能选满 4 个；
+- 已经选了一个数以后，如果剩余候选不足 $3$ 个，同样不可能得到答案。
+
+这类分支可以在进入递归前直接剪掉。
+
+下一篇将专门推导剪枝边界：
+
+$$
+i\le n-(k-|path|)+1
+$$
+
+以及这个 `+1` 为什么必不可少。
+
+## 其他语言版本
+
+
+
+```java tab="Java"
+class Solution {
+    private final List<List<Integer>> result = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> combine(int n, int k) {
+        result.clear();
+        path.clear();
+        backtracking(n, k, 1);
+        return result;
+    }
+
+    private void backtracking(int n, int k, int startIndex) {
+        if (path.size() == k) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+        for (int i = startIndex; i <= n; i++) {
+            path.add(i);
+            backtracking(n, k, i + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def combine(self, n: int, k: int) -> list[list[int]]:
+        ans: list[list[int]] = []
+        path: list[int] = []
+
+        def backtrack(start: int) -> None:
+            if len(path) == k:
+                ans.append(path.copy())
+                return
+
+            for x in range(start, n + 1):
+                path.append(x)
+                backtrack(x + 1)
+                path.pop()
+
+        backtrack(1)
+        return ans
+```
+
+
+
+```go tab="Go"
+func combine(n int, k int) [][]int {
+    ans := make([][]int, 0)
+    path := make([]int, 0, k)
+
+    var dfs func(int)
+    dfs = func(start int) {
+        if len(path) == k {
+            cur := append([]int(nil), path...)
+            ans = append(ans, cur)
+            return
+        }
+
+        for x := start; x <= n; x++ {
+            path = append(path, x)
+            dfs(x + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(1)
+    return ans
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var combine = function (n, k) {
+  const ans = [];
+  const path = [];
+
+  function backtrack(start) {
+    if (path.length === k) {
+      ans.push([...path]);
+      return;
+    }
+
+    for (let x = start; x <= n; x++) {
+      path.push(x);
+      backtrack(x + 1);
+      path.pop();
+    }
+  }
+
+  backtrack(1);
+  return ans;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function combine(n: number, k: number): number[][] {
+  const ans: number[][] = [];
+  const path: number[] = [];
+
+  function backtrack(start: number): void {
+    if (path.length === k) {
+      ans.push([...path]);
+      return;
+    }
+
+    for (let x = start; x <= n; x++) {
+      path.push(x);
+      backtrack(x + 1);
+      path.pop();
+    }
+  }
+
+  backtrack(1);
+  return ans;
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    fn dfs(n: i32, k: usize, start: i32, path: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
+        if path.len() == k {
+            ans.push(path.clone());
+            return;
+        }
+
+        for x in start..=n {
+            path.push(x);
+            Self::dfs(n, k, x + 1, path, ans);
+            path.pop();
+        }
+    }
+
+    pub fn combine(n: i32, k: i32) -> Vec<Vec<i32>> {
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        Self::dfs(n, k as usize, 1, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+
+
+```c tab="C"
+static int *path;
+static int pathSize;
+static int **ans;
+static int ansSize;
+static int targetK;
+
+static void backtrack(int n, int start) {
+    if (pathSize == targetK) {
+        int *row = malloc(sizeof(int) * targetK);
+        memcpy(row, path, sizeof(int) * targetK);
+        ans[ansSize++] = row;
+        return;
+    }
+
+    for (int x = start; x <= n; ++x) {
+        path[pathSize++] = x;
+        backtrack(n, x + 1);
+        --pathSize;
+    }
+}
+
+int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
+    targetK = k;
+    pathSize = ansSize = 0;
+    path = malloc(sizeof(int) * k);
+
+    /* LeetCode 约束下可按组合数上界预留；工程代码应使用动态扩容。 */
+    ans = malloc(sizeof(int *) * 10000);
+    backtrack(n, 1);
+
+    *returnSize = ansSize;
+    *returnColumnSizes = malloc(sizeof(int) * ansSize);
+    for (int i = 0; i < ansSize; ++i) {
+        (*returnColumnSizes)[i] = k;
+    }
+    free(path);
+    return ans;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func combine(_ n: Int, _ k: Int) -> [[Int]] {
+        var ans = [[Int]]()
+        var path = [Int]()
+
+        func backtrack(_ start: Int) {
+            if path.count == k {
+                ans.append(path)
+                return
+            }
+
+            guard start <= n else { return }
+            for x in start...n {
+                path.append(x)
+                backtrack(x + 1)
+                path.removeLast()
+            }
+        }
+
+        backtrack(1)
+        return ans
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def combine(n: Int, k: Int): List[List[Int]] = {
+    val ans = scala.collection.mutable.ListBuffer.empty[List[Int]]
+    val path = scala.collection.mutable.ListBuffer.empty[Int]
+
+    def backtrack(start: Int): Unit = {
+      if (path.size == k) {
+        ans += path.toList
+        return
+      }
+
+      for (x <- start to n) {
+        path += x
+        backtrack(x + 1)
+        path.remove(path.size - 1)
+      }
+    }
+
+    backtrack(1)
+    ans.toList
+  }
+}
+```
+
+### Ruby
+
+```ruby
+def combine(n, k)
+  ans = []
+  path = []
+
+  backtrack = lambda do |start|
+    if path.length == k
+      ans << path.dup
+      next
+    end
+
+    (start..n).each do |x|
+      path << x
+      backtrack.call(x + 1)
+      path.pop
+    end
+  end
+
+  backtrack.call(1)
+  ans
+end
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    private readonly IList<IList<int>> ans = new List<IList<int>>();
+    private readonly List<int> path = new List<int>();
+
+    public IList<IList<int>> Combine(int n, int k) {
+        ans.Clear();
+        path.Clear();
+        Backtrack(n, k, 1);
+        return ans;
+    }
+
+    private void Backtrack(int n, int k, int start) {
+        if (path.Count == k) {
+            ans.Add(new List<int>(path));
+            return;
+        }
+
+        for (int x = start; x <= n; x++) {
+            path.Add(x);
+            Backtrack(n, k, x + 1);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```

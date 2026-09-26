@@ -1,0 +1,1338 @@
+---
+title: 37. 解数独
+author: 算法学习笔记
+summary: 把数独求解重新建模为“每层给一个空格选择一个候选数字”的约束搜索，讲清 bool 返回值、失败回溯、行列宫状态、为什么某个空格 1~9 都失败就必须立刻返回，以及如何用占用表和 MRV 思想进一步剪枝。
+description: LeetCode 37 解数独：回溯、DFS、约束满足问题、行列宫剪枝、候选数字、提前返回、MRV、位运算优化与多语言实现。
+---
+
+
+# 37. 解数独
+
+[LeetCode 题目链接](https://leetcode.cn/problems/sudoku-solver/)
+
+给定一个 $9 \times 9$ 数独棋盘，用数字 `1` 到 `9` 填满所有 `.`，并满足：
+
+1. 每一行中 `1 ~ 9` 不能重复；
+2. 每一列中 `1 ~ 9` 不能重复；
+3. 每个 $3 \times 3$ 宫中 `1 ~ 9` 不能重复。
+
+空白格使用 `.` 表示。
+
+![待求解的数独](https://file1.kamacoder.com/i/algo/202011171912586.png)
+
+求解后：
+
+![数独求解结果](https://file1.kamacoder.com/i/algo/20201117191340669.png)
+
+题目保证给定棋盘存在唯一解。
+
+<Callout title="先纠正一个容易形成的误解">
+
+有些讲法把本题称作“二维递归”，因为代码里常见两层循环寻找空格。
+
+但从搜索树角度，更准确的理解是：
+
+$$
+\boxed{\text{每一层递归负责填一个空格}}
+$$
+
+两层 `for` 只是用来在二维棋盘上**定位下一个空格**，并不意味着递归本身有两个维度。
+
+如果预先把所有空格坐标存进数组，那么递归甚至可以直接写成 `dfs(index)`，结构会非常清楚。
+
+</Callout>
+
+## 1. 数独为什么是典型的约束满足问题？
+
+对每个空格而言，它理论上有 9 个候选值：
+
+$$
+\{1,2,3,4,5,6,7,8,9\}
+$$
+
+但真正可选的数字要同时满足三组约束：
+
+$$
+\text{候选数字}
+=
+\{1,\dots,9\}
+-
+\text{同行已用}
+-
+\text{同列已用}
+-
+\text{同宫已用}
+$$
+
+所以这道题可以看成：
+
+> 不断选择一个尚未填写的变量（空格），给它尝试一个合法值；如果后续产生矛盾，就撤销该值，换另一个值继续。
+
+这正是回溯最典型的应用场景。
+
+## 2. 搜索树长什么样？
+
+原资料截取了一部分搜索树：
+
+![数独搜索树的一部分](https://file1.kamacoder.com/i/algo/2020111720451790-20230310131816104.png)
+
+假设当前第一个空格只能填：
+
+```text
+2、4、7
+```
+
+那么这一层最多只有 3 个真正有效的分支，而不是 9 个。
+
+进入某个分支后，再处理下一个空格：
+
+```text
+空格 A 选择 2
+    ↓
+空格 B 选择 5
+    ↓
+空格 C 选择 1
+    ↓
+...
+```
+
+一旦某个空格一个候选数字都没有，这条路径就立即失败并回溯。
+
+因此整个过程可以抽象为：
+
+$$
+\boxed{
+\text{选择空格}
+\rightarrow
+\text{枚举合法数字}
+\rightarrow
+\text{递归}
+\rightarrow
+\text{冲突则撤销}
+}
+$$
+
+## 3. 和 N 皇后最大的区别
+
+N 皇后中，一层递归只需给当前一行选择一个列位置。
+
+但数独里：
+
+- 一行可能有多个空格；
+- 每个空格都必须填数字；
+- 每个数字受到行、列、宫三类约束。
+
+因此递归深度不再固定为 9，而是等于原棋盘中的空格数。
+
+若空格数为 $m$，最大递归深度就是：
+
+$$
+m
+$$
+
+这也是为什么数独搜索树通常比 N 皇后更大。
+
+## 4. 为什么递归函数最好返回 `bool`？
+
+这道题只需要找到**一个完整解**，并且题目保证解唯一。
+
+所以递归函数最适合定义为：
+
+```cpp
+bool dfs(...)
+```
+
+含义是：
+
+```text
+true  = 从当前状态继续搜索，已经成功得到完整解
+false = 当前状态走不通，需要上层换一个选择
+```
+
+于是成功后可以一路向上传播：
+
+```cpp
+if (dfs(next)) {
+    return true;
+}
+```
+
+无需继续枚举其他分支。
+
+这和“收集所有组合”的题非常不同。
+
+组合题通常是：
+
+```text
+找到一个答案 → 保存 → 继续找
+```
+
+数独是：
+
+```text
+找到完整答案 → 立刻结束整个搜索
+```
+
+## 5. 最清晰的状态设计：先收集所有空格
+
+为了避免“二维递归”的认知负担，可以先扫描一遍棋盘，把所有空格记录下来：
+
+```cpp
+vector<pair<int, int>> spaces;
+```
+
+例如：
+
+```text
+spaces[0] = (0, 2)
+spaces[1] = (0, 3)
+spaces[2] = (0, 5)
+...
+```
+
+然后定义：
+
+```cpp
+dfs(index)
+```
+
+表示：
+
+> `spaces[0 ... index-1]` 已经填好，现在要处理 `spaces[index]`。
+
+于是终止条件非常自然：
+
+```cpp
+if (index == spaces.size()) {
+    return true;
+}
+```
+
+这比“没有显式终止条件，扫描不到空格就返回 true”更容易理解，也更适合作为学习模板。
+
+## 6. 如何 $O(1)$ 判断一个数字是否合法？
+
+原始写法每放一个数，都可以扫描：
+
+- 当前整行；
+- 当前整列；
+- 当前 $3 \times 3$ 宫。
+
+因为棋盘固定为 $9 \times 9$，这样本身已经足够通过。
+
+但更系统的写法是维护三组占用状态：
+
+```cpp
+rowUsed[9][10]
+colUsed[9][10]
+boxUsed[9][10]
+```
+
+含义分别是：
+
+```text
+rowUsed[r][d] = 第 r 行是否已经出现数字 d
+colUsed[c][d] = 第 c 列是否已经出现数字 d
+boxUsed[b][d] = 第 b 个 3×3 宫是否已经出现数字 d
+```
+
+于是数字 `d` 能否放在 `(row, col)` 只需判断：
+
+```cpp
+!rowUsed[row][d]
+&& !colUsed[col][d]
+&& !boxUsed[box][d]
+```
+
+每次合法性判断为 $O(1)$。
+
+## 7. 九宫格编号公式
+
+对于坐标：
+
+$$
+(row,col)
+$$
+
+所在的 $3 \times 3$ 宫编号可以写成：
+
+$$
+\boxed{
+box=\left\lfloor \frac{row}{3}\right\rfloor\times 3
++\left\lfloor \frac{col}{3}\right\rfloor
+}
+$$
+
+代码就是：
+
+```cpp
+int box = (row / 3) * 3 + col / 3;
+```
+
+九宫格编号如下：
+
+```text
+0 0 0 | 1 1 1 | 2 2 2
+0 0 0 | 1 1 1 | 2 2 2
+0 0 0 | 1 1 1 | 2 2 2
+------+-------+------
+3 3 3 | 4 4 4 | 5 5 5
+3 3 3 | 4 4 4 | 5 5 5
+3 3 3 | 4 4 4 | 5 5 5
+------+-------+------
+6 6 6 | 7 7 7 | 8 8 8
+6 6 6 | 7 7 7 | 8 8 8
+6 6 6 | 7 7 7 | 8 8 8
+```
+
+这个公式是数独类问题的基础技巧，建议直接掌握。
+
+## 8. 回溯三部曲
+
+### 当前层处理哪个空格？
+
+```cpp
+auto [row, col] = spaces[index];
+```
+
+每层只负责一个空格。
+
+### 当前空格有哪些选择？
+
+依次尝试数字：
+
+```cpp
+for (int d = 1; d <= 9; ++d)
+```
+
+如果行、列、宫任意一处已经出现 `d`，就直接剪枝。
+
+### 做选择、递归、撤销
+
+选择数字 `d` 后：
+
+```text
+写入棋盘
+→ 标记 row / col / box
+→ 递归下一个空格
+```
+
+如果后续失败：
+
+```text
+棋盘恢复为 '.'
+→ 清除 row / col / box 标记
+→ 尝试下一个数字
+```
+
+如果后续成功，则直接 `return true`，无需撤销，因为最终答案就应该保留在棋盘中。
+
+原资料另一幅图强调的也是这个过程：
+
+![数独中一个空格枚举候选数字并继续递归](https://file1.kamacoder.com/i/algo/2020111720451790-20230310131822254.png)
+
+## 9. 推荐实现：空格列表 + 三组占用表
+
+```cpp
+class Solution {
+private:
+    bool rowUsed[9][10]{};
+    bool colUsed[9][10]{};
+    bool boxUsed[9][10]{};
+    vector<pair<int, int>> spaces;
+
+    bool dfs(vector<vector<char>>& board, int index) {
+        if (index == static_cast<int>(spaces.size())) {
+            return true;
+        }
+
+        auto [row, col] = spaces[index];
+        int box = (row / 3) * 3 + col / 3;
+
+        for (int d = 1; d <= 9; ++d) {
+            if (rowUsed[row][d] || colUsed[col][d] || boxUsed[box][d]) {
+                continue;
+            }
+
+            board[row][col] = static_cast<char>('0' + d);
+            rowUsed[row][d] = true;
+            colUsed[col][d] = true;
+            boxUsed[box][d] = true;
+
+            if (dfs(board, index + 1)) {
+                return true;
+            }
+
+            board[row][col] = '.';
+            rowUsed[row][d] = false;
+            colUsed[col][d] = false;
+            boxUsed[box][d] = false;
+        }
+
+        return false;
+    }
+
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        spaces.clear();
+
+        for (int row = 0; row < 9; ++row) {
+            for (int col = 0; col < 9; ++col) {
+                if (board[row][col] == '.') {
+                    spaces.push_back({row, col});
+                    continue;
+                }
+
+                int d = board[row][col] - '0';
+                int box = (row / 3) * 3 + col / 3;
+                rowUsed[row][d] = true;
+                colUsed[col][d] = true;
+                boxUsed[box][d] = true;
+            }
+        }
+
+        dfs(board, 0);
+    }
+};
+```
+
+### 代码为什么能直接修改原棋盘？
+
+题目函数没有要求返回新棋盘，而是要求原地修改 `board`。
+
+当某条路径最终成功时：
+
+```cpp
+if (dfs(board, index + 1)) {
+    return true;
+}
+```
+
+成功路径上的数字不会再被撤销，所以最终棋盘自然保留完整答案。
+
+## 10. 原始“扫描第一个空格”写法为什么也正确？
+
+另一种常见写法是在每层递归里重新扫描棋盘：
+
+```cpp
+for (int row = 0; row < 9; ++row) {
+    for (int col = 0; col < 9; ++col) {
+        if (board[row][col] != '.') {
+            continue;
+        }
+
+        // 只处理遇到的第一个空格
+        ...
+    }
+}
+```
+
+它的关键是：**找到第一个空格后，这一层递归就只负责这个空格。**
+
+如果它尝试 `1 ~ 9` 后全部失败，就必须立刻：
+
+```cpp
+return false;
+```
+
+不能继续去扫描后面的空格。
+
+为什么？
+
+因为当前这个空格都无法填入任何合法数字，那么当前棋盘状态已经不可能完成：
+
+$$
+\boxed{\text{当前空格无候选值} \Rightarrow \text{当前分支必失败}}
+$$
+
+后面的空格再怎么填也没有意义。
+
+这就是原写法中那句 `return false` 最容易被忽略、却最关键的地方。
+
+## 11. 为什么填满棋盘时可以直接返回 `true`？
+
+如果递归扫描整个棋盘后再也找不到 `.`，说明：
+
+- 所有原空格都已经被填入；
+- 每次填入前都通过了行、列、宫合法性检查。
+
+因此整个棋盘一定是合法解。
+
+在“预存空格列表”的版本中，这件事变成更显式的：
+
+```cpp
+if (index == spaces.size()) {
+    return true;
+}
+```
+
+本质完全相同。
+
+## 12. 更强剪枝：优先处理候选数字最少的空格
+
+固定顺序处理空格已经可以通过，但数独求解中有一个非常经典的优化：
+
+> 每次优先选择“合法候选数字最少”的那个空格。
+
+这通常叫 **MRV（Minimum Remaining Values，最少剩余值）**。
+
+例如：
+
+```text
+空格 A 有候选 {1, 3, 5, 8}
+空格 B 有候选 {2}
+空格 C 有候选 {4, 7}
+```
+
+优先处理 B 最好，因为：
+
+- 如果 `2` 成功，相当于立即确定一个位置；
+- 如果 `2` 失败，可以立刻判定当前分支无解。
+
+而若先处理 A，会制造最多 4 个分支。
+
+所以 MRV 的本质是尽量降低搜索树前部的分支数。
+
+<Callout title="回溯优化的通用原则">
+
+如果每个变量的候选数量不同，优先处理候选最少的变量，往往能更早暴露冲突。
+
+这不仅适用于数独，也适用于很多约束满足问题。
+
+</Callout>
+
+## 13. 位运算版本为什么常见？
+
+由于数字只有 `1 ~ 9`，可以用 9 个二进制位表示某行、某列、某宫已经使用的数字。
+
+例如：
+
+```text
+第 0 位 → 数字 1
+第 1 位 → 数字 2
+...
+第 8 位 → 数字 9
+```
+
+若某个位置的已用状态为：
+
+```cpp
+used = rowMask[row] | colMask[col] | boxMask[box];
+```
+
+那么可用数字可以通过：
+
+```cpp
+(~used) & 0x1FF
+```
+
+得到，因为：
+
+$$
+0x1FF=(111111111)_2
+$$
+
+只保留低 9 位。
+
+位运算版本常配合“取最低位 `lowbit`”快速枚举候选，是数独进一步优化的标准方向。
+
+不过学习回溯本质时，先掌握布尔占用表更重要。
+
+## 14. 复杂度为什么不能只写成一个漂亮的常数？
+
+设初始有 $m$ 个空格。
+
+如果完全不考虑约束，每个空格最多尝试 9 个数字，极粗略上界是：
+
+$$
+O(9^m)
+$$
+
+但这只是理论上界。
+
+实际搜索中：
+
+- 行约束会删除很多候选；
+- 列约束会删除很多候选；
+- 宫约束会继续删除候选；
+- 某个空格无候选时会立即回溯；
+- 若采用 MRV，分支数还会进一步显著下降。
+
+因此数独求解性能主要取决于**约束传播和搜索顺序**，不能仅由一个简单指数式准确描述。
+
+空间方面，除棋盘与状态表外，递归深度最多为：
+
+$$
+O(m)
+$$
+
+而标准数独中：
+
+$$
+m \le 81
+$$
+
+## 15. 数独和前面回溯题的统一视角
+
+| 题型 | 每层递归决定什么 | 本层选择 |
+| --- | --- | --- |
+| 组合 | 路径下一个元素 | 剩余可选数字 |
+| 分割 | 下一刀切在哪里 | 后续切割位置 |
+| 子集 | 是否继续选元素 | 后续元素 |
+| 排列 | 下一个位置放谁 | 未使用元素 |
+| N 皇后 | 当前行皇后放哪列 | 合法列 |
+| 数独 | 当前空格填什么 | 合法数字 `1 ~ 9` |
+
+看似题目越来越复杂，但核心框架始终没变：
+
+$$
+\boxed{
+\text{确定状态}
+\rightarrow
+\text{枚举选择}
+\rightarrow
+\text{检查约束}
+\rightarrow
+\text{递归}
+\rightarrow
+\text{撤销选择}
+}
+$$
+
+## 16. 最容易写错的四个地方
+
+### 16.1 成功后还继续回溯
+
+如果：
+
+```cpp
+if (dfs(...))
+```
+
+已经返回 `true`，说明完整数独已经找到。
+
+这时应该直接：
+
+```cpp
+return true;
+```
+
+不能再把当前数字恢复成 `.`。
+
+### 16.2 一个空格 1~9 都失败后还继续扫后面的格子
+
+当前格子无解意味着当前状态整体无解，必须：
+
+```cpp
+return false;
+```
+
+这是扫描式写法的核心。
+
+### 16.3 只修改棋盘，却忘了同步修改状态表
+
+做选择时：
+
+```text
+board
+rowUsed
+colUsed
+boxUsed
+```
+
+四份状态必须同步更新。
+
+撤销时也必须同步恢复。
+
+### 16.4 九宫格编号算错
+
+牢记：
+
+```cpp
+(row / 3) * 3 + col / 3
+```
+
+而不是拿 `row % 3`、`col % 3` 去当宫编号。
+
+## 17. 一句话掌握本题
+
+<Callout title="数独回溯的核心">
+
+不要把它想成“在二维棋盘上乱搜”。
+
+把所有空格排成待决策序列后，本质就是：
+
+$$
+\boxed{
+\text{每层填一个空格}
++\text{行列宫约束剪枝}
++\text{失败撤销}
++\text{成功立即返回}
+}
+$$
+
+一旦把二维棋盘重新抽象成“一个个待决策变量”，数独就重新回到了熟悉的回溯模板中。
+
+</Callout>
+
+## 18. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    public void solveSudoku(char[][] board) {
+        solveSudokuHelper(board);
+    }
+
+    private boolean solveSudokuHelper(char[][] board){
+        //「一个for循环遍历棋盘的行，一个for循环遍历棋盘的列，
+        // 一行一列确定下来之后，递归遍历这个位置放9个数字的可能性！」
+        for (int i = 0; i < 9; i++){ // 遍历行
+            for (int j = 0; j < 9; j++){ // 遍历列
+                if (board[i][j] != '.'){ // 跳过原始数字
+                    continue;
+                }
+                for (char k = '1'; k <= '9'; k++){ // (i, j) 这个位置放k是否合适
+                    if (isValidSudoku(i, j, k, board)){
+                        board[i][j] = k;
+                        if (solveSudokuHelper(board)){ // 如果找到合适一组立刻返回
+                            return true;
+                        }
+                        board[i][j] = '.';
+                    }
+                }
+                // 9个数都试完了，都不行，那么就返回false
+                return false;
+                // 因为如果一行一列确定下来了，这里尝试了9个数都不行，说明这个棋盘找不到解决数独问题的解！
+                // 那么会直接返回， 「这也就是为什么没有终止条件也不会永远填不满棋盘而无限递归下去！」
+            }
+        }
+        // 遍历完没有返回false，说明找到了合适棋盘位置了
+        return true;
+    }
+
+    /**
+     * 判断棋盘是否合法有如下三个维度:
+     *     同行是否重复
+     *     同列是否重复
+     *     9宫格里是否重复
+     */
+    private boolean isValidSudoku(int row, int col, char val, char[][] board){
+        // 同行是否重复
+        for (int i = 0; i < 9; i++){
+            if (board[row][i] == val){
+                return false;
+            }
+        }
+        // 同列是否重复
+        for (int j = 0; j < 9; j++){
+            if (board[j][col] == val){
+                return false;
+            }
+        }
+        // 9宫格里是否重复
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int i = startRow; i < startRow + 3; i++){
+            for (int j = startCol; j < startCol + 3; j++){
+                if (board[i][j] == val){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+class Solution{
+    int[] rowBit = new int[9];
+    int[] colBit = new int[9];
+    int[] square9Bit = new int[9];
+
+    public void solveSudoku(char[][] board) {
+        // 1 10 11
+        for (int y = 0; y < board.length; y++) {
+            for (int x = 0; x < board[y].length; x++) {
+                int numBit = 1 << (board[y][x] - '1');
+                rowBit[y] ^= numBit;
+                colBit[x] ^= numBit;
+                square9Bit[(y / 3) * 3 + x / 3] ^= numBit;
+            }
+        }
+        backtrack(board, 0);
+    }
+
+    public boolean backtrack(char[][] board, int n) {
+        if (n >= 81) {
+            return true;
+        }
+
+        // 快速算出行列编号 n/9 n%9
+        int row = n / 9;
+        int col = n % 9;
+
+        if (board[row][col] != '.') {
+            return backtrack(board, n + 1);
+        }
+
+        for (char c = '1'; c <= '9'; c++) {
+            int numBit = 1 << (c - '1');
+            if (!isValid(numBit, row, col)) continue;
+            {
+                board[row][col] = c;    // 当前的数字放入到数组之中，
+                rowBit[row] ^= numBit; // 第一行rowBit[0],第一个元素eg: 1 , 0^1=1,第一个元素:4, 100^1=101,...
+                colBit[col] ^= numBit;
+                square9Bit[(row / 3) * 3 + col / 3] ^= numBit;
+            }
+            if (backtrack(board, n + 1)) return true;
+            {
+                board[row][col] = '.';    // 不满足条件，回退成'.'
+                rowBit[row] &= ~numBit; // 第一行rowBit[0],第一个元素eg: 1 , 101&=~1==>101&111111110==>100
+                colBit[col] &= ~numBit;
+                square9Bit[(row / 3) * 3 + col / 3] &= ~numBit;
+            }
+        }
+        return false;
+    }
+
+    boolean isValid(int numBit, int row, int col) {
+        // 左右
+        if ((rowBit[row] & numBit) > 0) return false;
+        // 上下
+        if ((colBit[col] & numBit) > 0) return false;
+        // 9宫格: 快速算出第n个九宫格,编号[0,8] , 编号=(row / 3) * 3 + col / 3
+        if ((square9Bit[(row / 3) * 3 + col / 3] & numBit) > 0) return false;
+        return true;
+    }
+
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def solveSudoku(self, board: List[List[str]]) -> None:
+        """
+        Do not return anything, modify board in-place instead.
+        """
+        row_used = [set() for _ in range(9)]
+        col_used = [set() for _ in range(9)]
+        box_used = [set() for _ in range(9)]
+        for row in range(9):
+            for col in range(9):
+                num = board[row][col]
+                if num == ".":
+                    continue
+                row_used[row].add(num)
+                col_used[col].add(num)
+                box_used[(row // 3) * 3 + col // 3].add(num)
+        self.backtracking(0, 0, board, row_used, col_used, box_used)
+
+    def backtracking(
+        self,
+        row: int,
+        col: int,
+        board: List[List[str]],
+        row_used: List[List[int]],
+        col_used: List[List[int]],
+        box_used: List[List[int]],
+    ) -> bool:
+        if row == 9:
+            return True
+
+        next_row, next_col = (row, col + 1) if col < 8 else (row + 1, 0)
+        if board[row][col] != ".":
+            return self.backtracking(
+                next_row, next_col, board, row_used, col_used, box_used
+            )
+
+        for num in map(str, range(1, 10)):
+            if (
+                num not in row_used[row]
+                and num not in col_used[col]
+                and num not in box_used[(row // 3) * 3 + col // 3]
+            ):
+                board[row][col] = num
+                row_used[row].add(num)
+                col_used[col].add(num)
+                box_used[(row // 3) * 3 + col // 3].add(num)
+                if self.backtracking(
+                    next_row, next_col, board, row_used, col_used, box_used
+                ):
+                    return True
+                board[row][col] = "."
+                row_used[row].remove(num)
+                col_used[col].remove(num)
+                box_used[(row // 3) * 3 + col // 3].remove(num)
+        return False
+```
+
+
+
+```go tab="Go"
+func solveSudoku(board [][]byte) {
+	var backtracking func(board [][]byte) bool
+	backtracking = func(board [][]byte) bool {
+		for i := 0; i < 9; i++ {
+			for j := 0; j < 9; j++ {
+				//判断此位置是否适合填数字
+				if board[i][j] != '.' {
+					continue
+				}
+				//尝试填1-9
+				for k := '1'; k <= '9'; k++ {
+					if isvalid(i, j, byte(k), board) == true { //如果满足要求就填
+						board[i][j] = byte(k)
+						if backtracking(board) == true {
+							return true
+						}
+						board[i][j] = '.'
+					}
+				}
+				return false
+			}
+		}
+		return true
+	}
+	backtracking(board)
+}
+
+//判断填入数字是否满足要求
+func isvalid(row, col int, k byte, board [][]byte) bool {
+	for i := 0; i < 9; i++ { //行
+		if board[row][i] == k {
+			return false
+		}
+	}
+	for i := 0; i < 9; i++ { //列
+		if board[i][col] == k {
+			return false
+		}
+	}
+	//方格
+	startrow := (row / 3) * 3
+	startcol := (col / 3) * 3
+	for i := startrow; i < startrow+3; i++ {
+		for j := startcol; j < startcol+3; j++ {
+			if board[i][j] == k {
+				return false
+			}
+		}
+	}
+	return true
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var solveSudoku = function(board) {
+    function isValid(row, col, val, board) {
+        let len = board.length
+        // 行不能重复
+        for(let i = 0; i < len; i++) {
+            if(board[row][i] === val) {
+                return false
+            }
+        }
+        // 列不能重复
+        for(let i = 0; i < len; i++) {
+            if(board[i][col] === val) {
+                return false
+            }
+        }
+        let startRow = Math.floor(row / 3) * 3
+        let startCol = Math.floor(col / 3) * 3
+
+        for(let i = startRow; i < startRow + 3; i++) {
+            for(let j = startCol; j < startCol + 3; j++) {
+                if(board[i][j] === val) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    function backTracking() {
+        for(let i = 0; i < board.length; i++) {
+            for(let j = 0; j < board[0].length; j++) {
+                if(board[i][j] !== '.') continue
+                for(let val = 1; val <= 9; val++) {
+                    if(isValid(i, j, `${val}`, board)) {
+                        board[i][j] = `${val}`
+                        if (backTracking()) {
+                            return true
+                        }
+
+                        board[i][j] = `.`
+                    }
+                }
+                return false
+            }
+        }
+        return true
+    }
+    backTracking(board)
+    return board
+
+};
+```
+
+
+
+```typescript tab="TypeScript"
+/**
+ Do not return anything, modify board in-place instead.
+ */
+function isValid(col: number, row: number, val: string, board: string[][]): boolean {
+    let n: number = board.length;
+    // 列向检查
+    for (let rowIndex = 0; rowIndex < n; rowIndex++) {
+        if (board[rowIndex][col] === val) return false;
+    }
+    // 横向检查
+    for (let colIndex = 0; colIndex < n; colIndex++) {
+        if (board[row][colIndex] === val) return false;
+    }
+    // 九宫格检查
+    const startX = Math.floor(col / 3) * 3;
+    const startY = Math.floor(row / 3) * 3;
+    for (let rowIndex = startY; rowIndex < startY + 3; rowIndex++) {
+        for (let colIndex = startX; colIndex < startX + 3; colIndex++) {
+            if (board[rowIndex][colIndex] === val) return false;
+        }
+    }
+    return true;
+}
+function solveSudoku(board: string[][]): void {
+    let n: number = 9;
+    backTracking(n, board);
+    function backTracking(n: number, board: string[][]): boolean {
+        for (let row = 0; row < n; row++) {
+            for (let col = 0; col < n; col++) {
+                if (board[row][col] === '.') {
+                    for (let i = 1; i <= n; i++) {
+                        if (isValid(col, row, String(i), board)) {
+                            board[row][col] = String(i);
+                            if (backTracking(n, board) === true) return true;
+                            board[row][col] = '.';
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+};
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    fn is_valid(row: usize, col: usize, val: char, board: &mut Vec<Vec<char>>) -> bool{
+        for i in 0..9 {
+            if board[row][i] == val { return false; }
+        }
+        for j in 0..9 {
+            if board[j][col] == val {
+                return false;
+            }
+        }
+        let  start_row = (row / 3) * 3;
+        let  start_col = (col / 3) * 3;
+        for i in start_row..(start_row + 3) {
+            for j in start_col..(start_col + 3) {
+                if board[i][j] == val { return false; }
+            }
+        }
+        return true;
+    }
+
+    fn backtracking(board: &mut Vec<Vec<char>>) -> bool{
+        for i in 0..board.len() {
+            for j in 0..board[0].len() {
+                if board[i][j] != '.' { continue; }
+                for k in '1'..='9' {
+                    if Self::is_valid(i, j, k, board) {
+                        board[i][j] = k;
+                        if Self::backtracking(board) { return true; }
+                        board[i][j] = '.';
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    pub fn solve_sudoku(board: &mut Vec<Vec<char>>) {
+        Self::backtracking(board);
+    }
+}
+```
+
+
+
+```c tab="C"
+bool isValid(char** board, int row, int col, int k) {
+    /* 判断当前行是否有重复元素 */
+    for (int i = 0; i < 9; i++) {
+        if (board[i][col] == k) {
+            return false;
+        }
+    }
+    /* 判断当前列是否有重复元素 */
+    for (int j = 0; j < 9; j++) {
+        if (board[row][j] == k) {
+            return false;
+        }
+    }
+    /* 计算当前9宫格左上角的位置 */
+    int startRow = (row / 3) * 3;
+    int startCol = (col / 3) * 3;
+    /* 判断当前元素所在九宫格是否有重复元素 */
+    for (int i = startRow; i < startRow + 3; i++) {
+        for (int j = startCol; j < startCol + 3; j++) {
+            if (board[i][j] == k) {
+                return false;
+            }
+        }
+    }
+    /* 满足条件，返回true */
+    return true;
+}
+
+bool backtracking(char** board, int boardSize, int* boardColSize) {
+    /* 从上到下、从左到右依次遍历输入数组 */
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < *boardColSize; j++) {
+            /* 遇到数字跳过 */
+            if (board[i][j] != '.') {
+                continue;
+            }
+            /* 依次将数组1到9填入当前位置 */
+            for (int k = '1'; k <= '9'; k++) {
+                /* 判断当前位置是否与满足条件，是则进入下一层 */
+                if (isValid(board, i, j, k)) {
+                    board[i][j] = k;
+                    /* 判断下一层递归之后是否找到一种解法，是则返回true */
+                    if (backtracking(board, boardSize, boardColSize)) {
+                        return true;
+                    }
+                    /* 回溯，将当前位置清零 */
+                    board[i][j] = '.';
+                }
+            }
+            /* 若填入的9个数均不满足条件，返回false，说明此解法无效 */
+            return false;
+        }
+    }
+    /* 遍历完所有的棋盘，没有返回false，说明找到了解法，返回true */
+    return true;
+}
+
+void solveSudoku(char** board, int boardSize, int* boardColSize) {
+    bool res = backtracking(board, boardSize, boardColSize);
+}
+```
+
+### Swift
+
+```swift
+func solveSudoku(_ board: inout [[Character]]) {
+    // 判断对应格子的值是否合法
+    func isValid(row: Int, col: Int, val: Character) -> Bool {
+        // 行中是否重复
+        for i in 0 ..< 9 {
+            if board[row][i] == val { return false }
+        }
+
+        // 列中是否重复
+        for j in 0 ..< 9 {
+            if board[j][col] == val { return false }
+        }
+
+        // 9方格内是否重复
+        let startRow = row / 3 * 3
+        let startCol = col / 3 * 3
+        for i in startRow ..< startRow + 3 {
+            for j in startCol ..< startCol + 3 {
+                if board[i][j] == val { return false }
+            }
+        }
+        return true
+    }
+
+    @discardableResult
+    func backtracking() -> Bool {
+        for i in 0 ..< board.count { // i：行坐标
+            for j in 0 ..< board[0].count { // j：列坐标
+                guard board[i][j] == "." else { continue } // 跳过已填写格子
+                // 填写格子
+                for val in 1 ... 9 {
+                    let charVal = Character("\(val)")
+                    guard isValid(row: i, col: j, val: charVal) else { continue } // 跳过不合法的
+                    board[i][j] = charVal // 填写
+                    if backtracking() { return true }
+                    board[i][j] = "." // 回溯：擦除
+                }
+                return false // 遍历完数字都不行
+            }
+        }
+        return true // 没有不合法的，填写正确
+    }
+    backtracking()
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+
+  def solveSudoku(board: Array[Array[Char]]): Unit = {
+    backtracking(board)
+  }
+
+  def backtracking(board: Array[Array[Char]]): Boolean = {
+    for (i <- 0 until 9) {
+      for (j <- 0 until 9) {
+        if (board(i)(j) == '.') { // 必须是为 . 的数字才放数字
+          for (k <- '1' to '9') { // 这个位置放k是否合适
+            if (isVaild(i, j, k, board)) {
+              board(i)(j) = k
+              if (backtracking(board)) return true // 找到了立刻返回
+              board(i)(j) = '.' // 回溯
+            }
+          }
+          return false // 9个数都试完了，都不行就返回false
+        }
+      }
+    }
+    true // 遍历完所有的都没返回false，说明找到了
+  }
+
+  def isVaild(x: Int, y: Int, value: Char, board: Array[Array[Char]]): Boolean = {
+    // 行
+    for (i <- 0 until 9 ) {
+      if (board(i)(y) == value) {
+        return false
+      }
+    }
+
+    // 列
+    for (j <- 0 until 9) {
+      if (board(x)(j) == value) {
+        return false
+      }
+    }
+
+    // 宫
+    var row = (x / 3) * 3
+    var col = (y / 3) * 3
+    for (i <- row until row + 3) {
+      for (j <- col until col + 3) {
+        if (board(i)(j) == value) {
+          return false
+        }
+      }
+    }
+
+    true
+  }
+}
+
+object Solution {
+
+  def solveSudoku(board: Array[Array[Char]]): Unit = {
+    backtracking(board)
+  }
+
+  def backtracking(board: Array[Array[Char]]): Boolean = {
+    // 双重for循环 + 循环守卫
+    for (i <- 0 until 9; j <- 0 until 9 if board(i)(j) == '.') {
+      // 必须是为 . 的数字才放数字，使用循环守卫判断该位置是否可以放置当前循环的数字
+      for (k <- '1' to '9' if isVaild(i, j, k, board)) { // 这个位置放k是否合适
+        board(i)(j) = k
+        if (backtracking(board)) return true // 找到了立刻返回
+        board(i)(j) = '.' // 回溯
+      }
+      return false // 9个数都试完了，都不行就返回false
+    }
+    true // 遍历完所有的都没返回false，说明找到了
+  }
+
+  def isVaild(x: Int, y: Int, value: Char, board: Array[Array[Char]]): Boolean = {
+    // 行，循环守卫进行判断
+    for (i <- 0 until 9 if board(i)(y) == value) return false
+    // 列，循环守卫进行判断
+    for (j <- 0 until 9 if board(x)(j) == value) return false
+    // 宫，循环守卫进行判断
+    var row = (x / 3) * 3
+    var col = (y / 3) * 3
+    for (i <- row until row + 3; j <- col until col + 3 if board(i)(j) == value) return false
+    true // 最终没有返回false，就说明该位置可以填写true
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    public void SolveSudoku(char[][] board)
+    {
+        BackTracking(board);
+    }
+    public bool BackTracking(char[][] board)
+    {
+        for (int i = 0; i < board.Length; i++)
+        {
+            for (int j = 0; j < board[0].Length; j++)
+            {
+                if (board[i][j] != '.') continue;
+                for (char k = '1'; k <= '9'; k++)
+                {
+                    if (IsValid(board, i, j, k))
+                    {
+                        board[i][j] = k;
+                        if (BackTracking(board)) return true;
+                        board[i][j] = '.';
+                    }
+                }
+                return false;
+            }
+
+        }
+        return true;
+    }
+    public bool IsValid(char[][] board, int row, int col, char val)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            if (board[i][col] == val) return false;
+        }
+        for (int i = 0; i < 9; i++)
+        {
+            if (board[row][i] == val) return false;
+        }
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int i = startRow; i < startRow + 3; i++)
+        {
+            for (int j = startCol; j < startCol + 3; j++)
+            {
+                if (board[i][j] == val) return false;
+            }
+        }
+        return true;
+    }
+}
+```

@@ -1,0 +1,642 @@
+---
+title: 冗余连接
+description: 用并查集在线维护无向图连通性，理解“若两个端点已经连通，再加边就形成环”的判环原理，并掌握路径压缩与按秩合并。
+---
+
+# 684. 冗余连接
+
+[LeetCode 684：冗余连接](https://leetcode.cn/problems/redundant-connection/)
+
+原本有一棵包含 $n$ 个节点的树，节点编号为 `1` 到 `n`。现在额外加入一条无向边，得到 `edges`。
+
+要求找出一条可以删除的边，使剩余图重新变成一棵树；如果存在多个答案，返回 `edges` 中 **最后出现** 的那一条。
+
+![](https://file1.kamacoder.com/i/algo/20210727150215.png)
+
+> [!NOTE]
+> 本题是并查集最经典的应用之一：**在线判断一条新边是否会形成环。**
+
+## 一、从“树”出发理解题目
+
+一棵含有 $n$ 个节点的无向树满足两个核心性质：
+
+1. 连通；
+2. 无环。
+
+同时边数一定为：
+
+$$
+n-1
+$$
+
+现在在树上再加入一条边，因此总边数变为：
+
+$$
+n
+$$
+
+由于原图已经连通，再添加一条边后必然产生且只产生一个环。
+
+因此问题可以转换成：
+
+> 按照 `edges` 的顺序逐条加入边，找出第一条“加入后会形成环”的边。
+
+这条边就是答案。
+
+## 二、为什么并查集特别适合
+
+并查集擅长维护一组不断发生合并的集合，并高效回答：
+
+```text
+两个节点当前是否已经属于同一个连通块？
+```
+
+对于一条新边：
+
+```text
+u -- v
+```
+
+有两种情况。
+
+### 情况 1：`u` 与 `v` 不连通
+
+说明这条边连接了两个不同的连通块。
+
+加入这条边不会形成环，可以执行：
+
+```text
+union(u, v)
+```
+
+![](https://file1.kamacoder.com/i/algo/20230604104720.png)
+
+### 情况 2：`u` 与 `v` 已经连通
+
+这意味着在当前图中已经存在一条从 `u` 到 `v` 的路径。
+
+此时再加入一条直接连接 `u` 与 `v` 的边，就会形成一个环。
+
+![](https://file1.kamacoder.com/i/algo/20230604104330.png)
+
+所以：
+
+```text
+如果 find(u) == find(v)
+那么当前边就是冗余边
+```
+
+## 三、并查集的三个核心操作
+
+### 1. 初始化
+
+开始时，每个节点单独属于一个集合：
+
+$$
+parent[i]=i
+$$
+
+例如：
+
+```text
+1   2   3   4   5
+|   |   |   |   |
+1   2   3   4   5
+```
+
+### 2. `find`：寻找集合代表元
+
+最基础版本：
+
+```cpp
+int find(int x) {
+    if (parent[x] == x) return x;
+    return find(parent[x]);
+}
+```
+
+为了提高效率，可以进行 **路径压缩**：
+
+```cpp
+int find(int x) {
+    if (parent[x] != x) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+```
+
+压缩后，查找路径上的节点会直接指向根节点。
+
+### 3. `unite`：合并两个集合
+
+如果：
+
+$$
+find(u)\neq find(v)
+$$
+
+就把两个根连接起来。
+
+最简单写法：
+
+```cpp
+parent[find(v)] = find(u);
+```
+
+进一步还可以使用按秩合并或按大小合并，减少树高。
+
+## 四、本题为什么从前向后遍历就能满足“最后出现”
+
+这个地方很容易产生疑问。
+
+题目说：
+
+> 如果有多个可删除答案，返回 `edges` 中最后出现的边。
+
+我们却是从前往后扫描，并在第一次发现成环边时直接返回。
+
+为什么仍然正确？
+
+因为输入本质上是：
+
+```text
+一棵树 + 一条额外边
+```
+
+整张图只有一个环。
+
+当我们按照原顺序逐条加入边时，在这个环上的若干边中，**最后被加入的那一条** 会发现自己的两个端点此前已经连通。
+
+因此第一次触发：
+
+```text
+find(u) == find(v)
+```
+
+的边，恰好就是该环中在 `edges` 里最后出现的边。
+
+> [!IMPORTANT]
+> “从前往后第一次成环”与“环上最后出现的边”是同一件事。这个结论依赖于题目保证原图是树再额外增加一条边。
+
+## 五、手动模拟
+
+假设：
+
+```text
+edges = [[1,2], [1,3], [2,3]]
+```
+
+初始：
+
+```text
+{1} {2} {3}
+```
+
+处理 `[1,2]`：
+
+```text
+1 和 2 不连通
+=> 合并
+=> {1,2} {3}
+```
+
+处理 `[1,3]`：
+
+```text
+1 和 3 不连通
+=> 合并
+=> {1,2,3}
+```
+
+处理 `[2,3]`：
+
+```text
+find(2) == find(3)
+```
+
+说明 `2` 与 `3` 已经通过其他边连通，再添加 `[2,3]` 必然形成环。
+
+所以答案是：
+
+```text
+[2,3]
+```
+
+## 六、推荐写法：路径压缩 + 按大小合并
+
+虽然本题数据规模不大，但建议直接掌握完整模板。
+
+定义：
+
+```cpp
+parent[x]
+```
+
+表示父节点。
+
+定义：
+
+```cpp
+size[x]
+```
+
+表示以 `x` 为根的集合大小。
+
+合并时让较小的集合挂到较大的集合下面，可以进一步控制树高。
+
+```cpp
+class DSU {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit DSU(int n) : parent(n + 1), size(n + 1, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int a, int b) {
+        int ra = find(a);
+        int rb = find(b);
+
+        if (ra == rb) return false;
+
+        if (size[ra] < size[rb]) {
+            swap(ra, rb);
+        }
+
+        parent[rb] = ra;
+        size[ra] += size[rb];
+        return true;
+    }
+};
+```
+
+这里把 `unite` 设计成返回 `bool`：
+
+```text
+true  -> 本次成功合并两个集合
+false -> 两点原本就在同一集合，本次加边会形成环
+```
+
+这样主逻辑会非常简洁。
+
+## 七、C++ 完整实现
+
+```cpp
+class Solution {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int a, int b) {
+        int ra = find(a);
+        int rb = find(b);
+
+        if (ra == rb) return false;
+
+        if (size[ra] < size[rb]) {
+            swap(ra, rb);
+        }
+
+        parent[rb] = ra;
+        size[ra] += size[rb];
+        return true;
+    }
+
+public:
+    vector<int> findRedundantConnection(vector<vector<int>>& edges) {
+        int n = edges.size();
+        parent.resize(n + 1);
+        size.assign(n + 1, 1);
+        iota(parent.begin(), parent.end(), 0);
+
+        for (const auto& edge : edges) {
+            int u = edge[0];
+            int v = edge[1];
+
+            if (!unite(u, v)) {
+                return edge;
+            }
+        }
+
+        return {};
+    }
+};
+```
+
+## 八、复杂度分析
+
+并查集使用：
+
+- 路径压缩；
+- 按大小合并。
+
+单次 `find` / `union` 的均摊复杂度为：
+
+$$
+O(\alpha(n))
+$$
+
+其中 $\alpha(n)$ 是反阿克曼函数，在实际范围内增长极慢，通常可以近似看成常数。
+
+一共处理 $n$ 条边，因此总时间复杂度为：
+
+$$
+O(n\alpha(n))
+$$
+
+空间复杂度为：
+
+$$
+O(n)
+$$
+
+## 九、为什么 DFS/BFS 也能做，但并查集更自然
+
+也可以维护当前图，然后对每条新边 `(u,v)`：
+
+1. 先判断当前图中 `u` 是否已经能够到达 `v`；
+2. 如果能到达，则新边会形成环；
+3. 否则加入该边。
+
+但是每加入一条边都执行一次 DFS/BFS，会重复遍历大量节点和边。
+
+并查集把问题压缩成：
+
+```text
+find(u) == find(v) ?
+```
+
+因此对于“动态加边 + 判断连通性/判环”的场景非常合适。
+
+## 十、并查集判环的本质
+
+对于无向图，一条新边：
+
+```text
+u -- v
+```
+
+形成环的充要条件是：
+
+> 在加入这条边之前，`u` 与 `v` 已经连通。
+
+可以写成：
+
+$$
+find(u)=find(v)
+\iff
+\text{加入 }(u,v)\text{ 会形成环}
+$$
+
+这句话是本题最重要的结论。
+
+## 十一、常见错误
+
+### 错误 1：先合并，再判断
+
+错误顺序：
+
+```cpp
+unite(u, v);
+if (find(u) == find(v)) ...
+```
+
+执行合并之后，两点当然已经在同一个集合，因此判断失去意义。
+
+正确逻辑是：
+
+```text
+先检查是否同集合
+不是 -> 合并
+是   -> 当前边为冗余边
+```
+
+或者直接让 `unite` 返回是否成功。
+
+### 错误 2：数组大小只开到 `n`
+
+节点编号从 `1` 到 `n`，因此数组通常需要：
+
+```cpp
+vector<int> parent(n + 1);
+```
+
+### 错误 3：把有向图版本也直接套这个模板
+
+本题是无向图。
+
+后面的 **冗余连接 II** 是有向图，会额外涉及：
+
+- 某节点入度为 $2$；
+- 删除哪一条入边；
+- 是否仍然存在有向环。
+
+不能直接把本题结论原封不动套过去。
+
+## 十二、方法总结
+
+看到如下问题特征：
+
+```text
+不断加入边
+判断两个节点是否已经连通
+判断新边是否导致无向环
+维护动态连通块
+```
+
+应优先想到并查集。
+
+本题的核心模板只有一句：
+
+```cpp
+if (!unite(u, v)) return {u, v};
+```
+
+但真正需要掌握的是背后的逻辑：
+
+> **若一条边的两个端点在加入之前已经属于同一个连通块，那么加入它一定形成环。**
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    private int[] parent;
+    private int[] size;
+
+    private int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    private boolean unite(int a, int b) {
+        int ra = find(a);
+        int rb = find(b);
+
+        if (ra == rb) return false;
+
+        if (size[ra] < size[rb]) {
+            int temp = ra;
+            ra = rb;
+            rb = temp;
+        }
+
+        parent[rb] = ra;
+        size[ra] += size[rb];
+        return true;
+    }
+
+    public int[] findRedundantConnection(int[][] edges) {
+        int n = edges.length;
+        parent = new int[n + 1];
+        size = new int[n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+
+        for (int[] edge : edges) {
+            if (!unite(edge[0], edge[1])) {
+                return edge;
+            }
+        }
+
+        return new int[0];
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        n = len(edges)
+        parent = list(range(n + 1))
+        size = [1] * (n + 1)
+
+        def find(x: int) -> int:
+            if parent[x] != x:
+                parent[x] = find(parent[x])
+            return parent[x]
+
+        def unite(a: int, b: int) -> bool:
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                return False
+
+            if size[ra] < size[rb]:
+                ra, rb = rb, ra
+
+            parent[rb] = ra
+            size[ra] += size[rb]
+            return True
+
+        for u, v in edges:
+            if not unite(u, v):
+                return [u, v]
+
+        return []
+```
+
+```go tab="Go"
+func findRedundantConnection(edges [][]int) []int {
+    n := len(edges)
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+
+    for i := 0; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+
+    var find func(int) int
+    find = func(x int) int {
+        if parent[x] != x {
+            parent[x] = find(parent[x])
+        }
+        return parent[x]
+    }
+
+    unite := func(a, b int) bool {
+        ra, rb := find(a), find(b)
+        if ra == rb {
+            return false
+        }
+
+        if size[ra] < size[rb] {
+            ra, rb = rb, ra
+        }
+
+        parent[rb] = ra
+        size[ra] += size[rb]
+        return true
+    }
+
+    for _, edge := range edges {
+        if !unite(edge[0], edge[1]) {
+            return edge
+        }
+    }
+
+    return []int{}
+}
+```
+
+```javascript tab="JavaScript"
+var findRedundantConnection = function(edges) {
+    const n = edges.length;
+    const parent = Array.from({ length: n + 1 }, (_, i) => i);
+    const size = new Array(n + 1).fill(1);
+
+    const find = (x) => {
+        if (parent[x] !== x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    };
+
+    const unite = (a, b) => {
+        let ra = find(a);
+        let rb = find(b);
+
+        if (ra === rb) return false;
+
+        if (size[ra] < size[rb]) {
+            [ra, rb] = [rb, ra];
+        }
+
+        parent[rb] = ra;
+        size[ra] += size[rb];
+        return true;
+    };
+
+    for (const [u, v] of edges) {
+        if (!unite(u, v)) {
+            return [u, v];
+        }
+    }
+
+    return [];
+};
+```

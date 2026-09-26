@@ -1,0 +1,1041 @@
+---
+title: 40. 组合总和 II
+summary: 掌握“候选数组含重复元素、每个下标只能使用一次、答案又不能重复”的经典树层去重模型，彻底区分树层重复与树枝重复。
+description: LeetCode 40 组合总和 II：排序、startIndex、树层去重、树枝重复、i + 1、目标和剪枝、used 数组等价写法与复杂度分析。
+---
+
+
+# 40. 组合总和 II
+
+给定一个正整数数组 `candidates` 和目标值 `target`，找出所有元素和等于 `target` 的组合。
+
+本题同时带来三个约束：
+
+1. `candidates` **可能包含重复值**；
+2. 每个数组下标在一个组合中**最多使用一次**；
+3. 最终答案中**不能出现重复组合**。
+
+例如：
+
+```text title="示例 1"
+输入：candidates = [10, 1, 2, 7, 6, 1, 5], target = 8
+输出：[[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]
+```
+
+```text title="示例 2"
+输入：candidates = [2, 5, 2, 1, 2], target = 5
+输出：[[1, 2, 2], [5]]
+```
+
+<Callout title="本题真正的难点：不是回溯，而是去重">
+
+`39. 组合总和` 的候选数组没有重复值，因此只需要解决“当前元素能不能再次选”的问题。
+
+本题则必须回答另一个更关键的问题：
+
+> 当候选数组里有多个数值相同的元素时，哪些相同元素应该跳过，哪些又必须允许继续使用？
+
+答案是：**同一树层去重，同一树枝不去重。**
+
+</Callout>
+
+## 1. 先和 39. 组合总和对比
+
+这两道题看起来都在求：
+
+$$
+\sum path = target
+$$
+
+但候选集合规则完全不同。
+
+| 对比项 | 39. 组合总和 | 40. 组合总和 II |
+| --- | --- | --- |
+| 候选数组是否有重复值 | 没有 | **可能有** |
+| 同一个下标能否重复使用 | 可以 | **不可以** |
+| 递归下一层起点 | `i` | **`i + 1`** |
+| 是否需要树层去重 | 不需要 | **需要** |
+| 是否适合排序后剪枝 | 是 | 是 |
+
+因此本题相当于同时处理两个问题：
+
+$$
+\boxed{\text{每个下标只用一次}} + \boxed{\text{同值元素不能产生重复组合}}
+$$
+
+前者由 `i + 1` 解决；后者由**排序 + 树层去重**解决。
+
+## 2. 为什么一定要先排序？
+
+先把：
+
+```text
+[10, 1, 2, 7, 6, 1, 5]
+```
+
+排序成：
+
+```text
+[1, 1, 2, 5, 6, 7, 10]
+```
+
+排序有两个作用。
+
+### 作用一：把相同值放到一起
+
+只有相同值相邻，我们才能通过：
+
+```cpp
+candidates[i] == candidates[i - 1]
+```
+
+判断“当前值和前一个值相同”。
+
+### 作用二：支持单调剪枝
+
+所有数字都是正数，排序后如果：
+
+```cpp
+candidates[i] > remain
+```
+
+那么后面的候选值只会更大，当前层可以直接 `break`。
+
+<Callout type="info" title="排序不是为了让答案有序">
+
+本题排序的核心意义是**让重复值形成连续区间，从而能够在搜索过程中去重**。
+
+答案是否有序只是附带结果。
+
+</Callout>
+
+## 3. 搜索树：重复到底发生在哪里？
+
+以：
+
+```text
+candidates = [1, 1, 2]
+target = 3
+```
+
+为例。
+
+![40.组合总和II](https://file1.kamacoder.com/i/algo/20230310000918.png)
+
+数组里两个 `1` 的数值相同，但它们是**两个不同下标**。
+
+如果根节点先选择第一个 `1`，可以继续向下选择第二个 `1`；因为这表示在同一个组合中使用两个不同位置的元素：
+
+```text
+[1(下标0), 1(下标1)]
+```
+
+这是完全合法的。
+
+但是回到根节点以后，如果再以第二个 `1` 作为第一步，就会产生与“以第一个 `1` 开头”完全相同的一批组合。
+
+因此：
+
+- **树枝上的两个 `1`**：代表两个不同下标共同进入一个组合，允许；
+- **同一树层的两个 `1`**：代表用不同下标启动同一种选择，结果会重复，必须跳过。
+
+这就是“树枝重复”和“树层重复”的根本区别。
+
+## 4. 最重要的去重条件
+
+排序以后，同一层循环写成：
+
+```cpp
+for (int i = startIndex; i < candidates.size(); ++i) {
+    if (i > startIndex && candidates[i] == candidates[i - 1]) {
+        continue;
+    }
+    // ...
+}
+```
+
+判断条件：
+
+```cpp
+i > startIndex
+```
+
+非常重要。
+
+它表示：**当前这个相同值不是本层遇到的第一个候选。**
+
+于是：
+
+```cpp
+candidates[i] == candidates[i - 1]
+```
+
+就说明同一树层已经用前一个相同值搜索过一次。
+
+两者合起来就是：
+
+```cpp
+if (i > startIndex && candidates[i] == candidates[i - 1]) {
+    continue;
+}
+```
+
+### 为什么不能写成 `i > 0`？
+
+如果写成：
+
+```cpp
+if (i > 0 && candidates[i] == candidates[i - 1]) {
+    continue;
+}
+```
+
+那么不仅同层重复会被跳过，**树枝上合法的重复值也会被误删**。
+
+例如 `[1, 1, 6]` 中第二个 `1` 本来应该允许使用，却可能被直接跳过。
+
+<Callout type="warn" title="去重条件要记语义，不要死记代码">
+
+正确语义是：
+
+> 只有当“前一个相同值已经在当前层作为起点搜索过”时，才跳过当前值。
+
+`i > startIndex` 恰好表达了“不是本层第一个候选”。
+
+</Callout>
+
+## 5. 图解 `used`：为什么 `false` 反而代表树层重复？
+
+另一种经典写法会维护：
+
+```cpp
+vector<bool> used(candidates.size(), false);
+```
+
+原始搜索树如下：
+
+![40.组合总和II1](https://file1.kamacoder.com/i/algo/20230310000954.png)
+
+以及 `used` 在树枝、树层之间的变化：
+
+![树层与树枝上的 used 状态](https://file1.kamacoder.com/i/algo/20221021163812.png)
+
+对于相邻的相同元素，如果：
+
+```cpp
+candidates[i] == candidates[i - 1]
+```
+
+再看 `used[i - 1]`：
+
+- `used[i - 1] == true`：前一个相同元素仍在当前路径里，说明处于**同一树枝**；
+- `used[i - 1] == false`：前一个相同元素已经完成搜索并回溯撤销，说明现在是在**同一树层**尝试另一个相同值。
+
+因此树层去重可以写成：
+
+```cpp
+if (i > 0 &&
+    candidates[i] == candidates[i - 1] &&
+    !used[i - 1]) {
+    continue;
+}
+```
+
+不过对于本题，`startIndex` 已经足以判断层边界，因此更推荐：
+
+```cpp
+if (i > startIndex && candidates[i] == candidates[i - 1]) {
+    continue;
+}
+```
+
+代码更短，语义也更直接。
+
+## 6. 为什么递归一定传 `i + 1`？
+
+本题明确规定：
+
+> `candidates` 中的每个数字在每个组合中只能使用一次。
+
+这里更准确地说，是**每个数组下标只能使用一次**。
+
+所以选择 `candidates[i]` 后，下一层只能从：
+
+```cpp
+i + 1
+```
+
+继续搜索：
+
+```cpp
+backtracking(remain - candidates[i], i + 1);
+```
+
+这样当前下标不会再次被选择。
+
+注意这并不妨碍组合中出现两个相同数字，因为它们可能来自不同下标：
+
+```text
+candidates = [1(0), 1(1), 6(2)]
+```
+
+路径可以合法地选择：
+
+```text
+下标 0 → 下标 1 → 下标 2
+```
+
+得到：
+
+```text
+[1, 1, 6]
+```
+
+所以：
+
+> “数值相同”与“同一个元素”不是一回事。
+
+## 7. 用 `remain` 建模比维护 `sum` 更自然
+
+定义：
+
+$$
+remain = target - \sum path
+$$
+
+初始：
+
+$$
+remain = target
+$$
+
+每选择一个值 `x`：
+
+$$
+remain' = remain - x
+$$
+
+当：
+
+$$
+remain = 0
+$$
+
+说明当前路径刚好组成目标值。
+
+这种写法可以直接把“目标和”变成递归状态：
+
+```cpp
+void backtracking(const vector<int>& candidates,
+                  int remain,
+                  int startIndex)
+```
+
+相比同时维护 `sum` 与 `target`，状态更紧凑，也更容易写剪枝。
+
+## 8. 回溯三部曲
+
+### ① 递归状态
+
+维护：
+
+```text
+path       当前组合
+remain     还需要凑出的目标值
+startIndex 当前层允许选择的第一个下标
+```
+
+节点可以抽象为：
+
+$$
+(path,
+emain,startIndex)
+$$
+
+### ② 终止条件
+
+当：
+
+$$
+remain=0
+$$
+
+当前路径就是一个合法答案：
+
+```cpp
+if (remain == 0) {
+    result.push_back(path);
+    return;
+}
+```
+
+因为候选都是正整数，不需要继续向下搜索。
+
+### ③ 单层搜索
+
+本层遍历 `[startIndex, n)`：
+
+```cpp
+for (int i = startIndex; i < candidates.size(); ++i) {
+    if (candidates[i] > remain) break;
+
+    if (i > startIndex && candidates[i] == candidates[i - 1]) {
+        continue;
+    }
+
+    path.push_back(candidates[i]);
+    backtracking(candidates, remain - candidates[i], i + 1);
+    path.pop_back();
+}
+```
+
+三条核心规则全部集中在这里：
+
+1. `candidates[i] > remain`：目标和剪枝；
+2. `i > startIndex && candidates[i] == candidates[i - 1]`：树层去重；
+3. `i + 1`：当前下标只使用一次。
+
+## 9. 为什么不能“先搜完，再用 set 去重”？
+
+当然可以先枚举所有可能路径，再把结果塞进 `set`，但这会把大量重复子树完整搜索一遍。
+
+例如某一层有很多相同值：
+
+```text
+[1, 1, 1, 1, 1, ...]
+```
+
+如果不做树层去重，那么这些相同值会作为同一层的多个起点，各自展开结构高度相似甚至等价的子树。
+
+搜索后去重只能减少**结果数量**，不能减少**搜索过程**。
+
+而树层去重是在重复子树的根部直接：
+
+```cpp
+continue;
+```
+
+因此属于真正的搜索剪枝。
+
+## 10. 剪枝为什么可以 `break`，而不是 `continue`？
+
+排序后：
+
+$$
+candidates[i]\le candidates[i+1]\le\cdots
+$$
+
+如果当前已经：
+
+$$
+candidates[i] > remain
+$$
+
+那么后面的每一个候选也都有：
+
+$$
+candidates[j] > remain,\qquad j>i
+$$
+
+因此当前层后续所有分支都不可能成功，可以直接：
+
+```cpp
+break;
+```
+
+而不是只跳过当前元素的 `continue`。
+
+<Callout type="info" title="break 与 continue 的判断标准">
+
+- 只有“当前候选不行，但后面的候选可能行”时用 `continue`；
+- 如果利用单调性已经证明“后面的候选全部不行”，应直接 `break`。
+
+</Callout>
+
+## 11. 完整 C++ 实现
+
+```cpp title="C++"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& candidates,
+                      int remain,
+                      int startIndex) {
+        if (remain == 0) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = startIndex; i < static_cast<int>(candidates.size()); ++i) {
+            // candidates 已排序：当前值过大，后面只会更大
+            if (candidates[i] > remain) {
+                break;
+            }
+
+            // 同一树层：相同值只允许第一个作为分支入口
+            if (i > startIndex && candidates[i] == candidates[i - 1]) {
+                continue;
+            }
+
+            path.push_back(candidates[i]);
+
+            // 每个下标只能使用一次，所以进入 i + 1
+            backtracking(candidates, remain - candidates[i], i + 1);
+
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        result.clear();
+        path.clear();
+
+        backtracking(candidates, target, 0);
+        return result;
+    }
+};
+```
+
+## 12. 手推一遍：`[1,1,2,5,6,7,10]`，`target = 8`
+
+从根节点开始：
+
+### 第一条主分支：选择第一个 `1`
+
+```text
+path = [1]
+remain = 7
+startIndex = 1
+```
+
+这一层可以继续选择第二个 `1`，因为它处于**树枝**上：
+
+```text
+[1, 1]
+```
+
+接着可以得到：
+
+```text
+[1, 1, 6]
+```
+
+也可以从 `[1]` 继续得到：
+
+```text
+[1, 2, 5]
+[1, 7]
+```
+
+### 回到根节点
+
+根节点第一个 `1` 的整棵子树已经搜索完。
+
+此时循环准备选择第二个 `1`，满足：
+
+```cpp
+i > startIndex
+candidates[i] == candidates[i - 1]
+```
+
+所以直接跳过。
+
+这一步避免重新生成：
+
+```text
+[1, 1, 6]
+[1, 2, 5]
+[1, 7]
+```
+
+随后从 `2` 开始，还能得到：
+
+```text
+[2, 6]
+```
+
+最终所有组合恰好出现一次。
+
+## 13. `startIndex` 去重与 `used` 去重的等价关系
+
+### 写法 A：利用层边界
+
+```cpp
+if (i > startIndex && candidates[i] == candidates[i - 1]) {
+    continue;
+}
+```
+
+它直接判断：当前相同值是不是**本层第二次出现**。
+
+### 写法 B：利用路径使用状态
+
+```cpp
+if (i > 0 &&
+    candidates[i] == candidates[i - 1] &&
+    !used[i - 1]) {
+    continue;
+}
+```
+
+它通过 `used[i - 1]` 判断前一个相同元素是否已经从当前路径回溯出来。
+
+两种写法在本题都成立，但第一种更简单。
+
+什么时候 `used` 更有价值？
+
+当问题不再由一个清晰的 `startIndex` 划分层级，例如后面的**排列问题**中，每一层都可能从整个数组选择元素，此时 `used` 会成为更自然的状态。
+
+## 14. 高频错误
+
+### 错误一：忘记排序
+
+```cpp
+if (i > startIndex && candidates[i] == candidates[i - 1])
+```
+
+只有在相同值相邻时才有意义。
+
+### 错误二：递归传 `i`
+
+```cpp
+backtracking(..., i);
+```
+
+这会允许同一个下标被无限重复使用，变成 `39. 组合总和` 的模型。
+
+本题必须：
+
+```cpp
+backtracking(..., i + 1);
+```
+
+### 错误三：把树枝上的相同值也删掉
+
+如果去重条件没有限制在同一层，就会误删 `[1,1,6]` 这种合法答案。
+
+### 错误四：排序后仍用 `continue` 做目标和剪枝
+
+```cpp
+if (candidates[i] > remain) continue;
+```
+
+虽然结果仍可能正确，但浪费了单调性。排序后应该直接：
+
+```cpp
+break;
+```
+
+## 15. 复杂度分析
+
+设候选数组长度为 $n$。
+
+忽略剪枝时，每个下标都有“选 / 不选”两种可能，因此搜索状态上界与子集枚举同阶：
+
+$$
+O(2^n)
+$$
+
+记录一个答案需要复制最多 $O(n)$ 个元素，所以常见的宽松上界写成：
+
+$$
+O(n\cdot 2^n)
+$$
+
+排序还需要：
+
+$$
+O(n\log n)
+$$
+
+因此总体可写为：
+
+$$
+O(n\log n+n\cdot 2^n)
+$$
+
+通常由指数级搜索部分主导。
+
+递归深度最多为 $n$，`path` 最多保存 $n$ 个元素，因此不计答案空间时：
+
+$$
+O(n)
+$$
+
+如果使用 `used` 数组，也仍然是 $O(n)$ 级辅助空间。
+
+## 16. 一张表记住“组合总和”系列
+
+| 题目 | 候选值是否重复 | 单个下标能否重复使用 | 下一层起点 | 是否树层去重 |
+| --- | --- | --- | --- | --- |
+| 216. 组合总和 III | 否 | 否 | `i + 1` | 否 |
+| 39. 组合总和 | 否 | **可以** | `i` | 否 |
+| 40. 组合总和 II | **可以** | 否 | `i + 1` | **是** |
+
+最值得记住的是：
+
+```text
+能否重复使用当前下标 → 决定传 i 还是 i + 1
+候选值是否存在重复     → 决定是否需要同层去重
+```
+
+## 17. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    private final List<List<Integer>> result = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        backtracking(candidates, target, 0);
+        return result;
+    }
+
+    private void backtracking(int[] candidates, int remain, int startIndex) {
+        if (remain == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+            if (i > startIndex && candidates[i] == candidates[i - 1]) continue;
+
+            path.add(candidates[i]);
+            backtracking(candidates, remain - candidates[i], i + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+        candidates.sort()
+        result = []
+        path = []
+
+        def backtracking(remain: int, start: int) -> None:
+            if remain == 0:
+                result.append(path[:])
+                return
+
+            for i in range(start, len(candidates)):
+                if candidates[i] > remain:
+                    break
+                if i > start and candidates[i] == candidates[i - 1]:
+                    continue
+
+                path.append(candidates[i])
+                backtracking(remain - candidates[i], i + 1)
+                path.pop()
+
+        backtracking(target, 0)
+        return result
+```
+
+
+
+```go tab="Go"
+func combinationSum2(candidates []int, target int) [][]int {
+    sort.Ints(candidates)
+
+    result := make([][]int, 0)
+    path := make([]int, 0)
+
+    var backtracking func(remain, start int)
+    backtracking = func(remain, start int) {
+        if remain == 0 {
+            temp := append([]int(nil), path...)
+            result = append(result, temp)
+            return
+        }
+
+        for i := start; i < len(candidates); i++ {
+            if candidates[i] > remain {
+                break
+            }
+            if i > start && candidates[i] == candidates[i-1] {
+                continue
+            }
+
+            path = append(path, candidates[i])
+            backtracking(remain-candidates[i], i+1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    backtracking(target, 0)
+    return result
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var combinationSum2 = function(candidates, target) {
+    candidates.sort((a, b) => a - b);
+
+    const result = [];
+    const path = [];
+
+    function backtracking(remain, start) {
+        if (remain === 0) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = start; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+            if (i > start && candidates[i] === candidates[i - 1]) continue;
+
+            path.push(candidates[i]);
+            backtracking(remain - candidates[i], i + 1);
+            path.pop();
+        }
+    }
+
+    backtracking(target, 0);
+    return result;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function combinationSum2(candidates: number[], target: number): number[][] {
+    candidates.sort((a, b) => a - b);
+
+    const result: number[][] = [];
+    const path: number[] = [];
+
+    function backtracking(remain: number, start: number): void {
+        if (remain === 0) {
+            result.push([...path]);
+            return;
+        }
+
+        for (let i = start; i < candidates.length; i++) {
+            if (candidates[i] > remain) break;
+            if (i > start && candidates[i] === candidates[i - 1]) continue;
+
+            path.push(candidates[i]);
+            backtracking(remain - candidates[i], i + 1);
+            path.pop();
+        }
+    }
+
+    backtracking(target, 0);
+    return result;
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn combination_sum2(mut candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
+        candidates.sort_unstable();
+        let mut result = Vec::new();
+        let mut path = Vec::new();
+
+        Self::backtracking(&candidates, target, 0, &mut path, &mut result);
+        result
+    }
+
+    fn backtracking(
+        candidates: &[i32],
+        remain: i32,
+        start: usize,
+        path: &mut Vec<i32>,
+        result: &mut Vec<Vec<i32>>,
+    ) {
+        if remain == 0 {
+            result.push(path.clone());
+            return;
+        }
+
+        for i in start..candidates.len() {
+            if candidates[i] > remain {
+                break;
+            }
+            if i > start && candidates[i] == candidates[i - 1] {
+                continue;
+            }
+
+            path.push(candidates[i]);
+            Self::backtracking(candidates, remain - candidates[i], i + 1, path, result);
+            path.pop();
+        }
+    }
+}
+```
+
+
+
+```c tab="C"
+#include <stdlib.h>
+
+static int *path;
+static int pathSize;
+static int **result;
+static int resultSize;
+static int *columnSizes;
+
+static int cmp(const void *a, const void *b) {
+    return (*(const int *)a) - (*(const int *)b);
+}
+
+static void dfs(int *nums, int n, int remain, int start) {
+    if (remain == 0) {
+        int *row = (int *)malloc(sizeof(int) * pathSize);
+        for (int i = 0; i < pathSize; ++i) row[i] = path[i];
+        result[resultSize] = row;
+        columnSizes[resultSize] = pathSize;
+        resultSize++;
+        return;
+    }
+
+    for (int i = start; i < n; ++i) {
+        if (nums[i] > remain) break;
+        if (i > start && nums[i] == nums[i - 1]) continue;
+
+        path[pathSize++] = nums[i];
+        dfs(nums, n, remain - nums[i], i + 1);
+        pathSize--;
+    }
+}
+
+int **combinationSum2(int *candidates, int candidatesSize, int target,
+                      int *returnSize, int **returnColumnSizes) {
+    qsort(candidates, candidatesSize, sizeof(int), cmp);
+
+    path = (int *)malloc(sizeof(int) * candidatesSize);
+    result = (int **)malloc(sizeof(int *) * 20000);
+    columnSizes = (int *)malloc(sizeof(int) * 20000);
+    pathSize = 0;
+    resultSize = 0;
+
+    dfs(candidates, candidatesSize, target, 0);
+
+    *returnSize = resultSize;
+    *returnColumnSizes = columnSizes;
+    free(path);
+    return result;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func combinationSum2(_ candidates: [Int], _ target: Int) -> [[Int]] {
+        let nums = candidates.sorted()
+        var result = [[Int]]()
+        var path = [Int]()
+
+        func backtracking(_ remain: Int, _ start: Int) {
+            if remain == 0 {
+                result.append(path)
+                return
+            }
+
+            var i = start
+            while i < nums.count {
+                if nums[i] > remain { break }
+
+                if i > start && nums[i] == nums[i - 1] {
+                    i += 1
+                    continue
+                }
+
+                path.append(nums[i])
+                backtracking(remain - nums[i], i + 1)
+                path.removeLast()
+                i += 1
+            }
+        }
+
+        backtracking(target, 0)
+        return result
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def combinationSum2(candidates: Array[Int], target: Int): List[List[Int]] = {
+    val nums = candidates.sorted
+    val result = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ListBuffer[Int]()
+
+    def backtracking(remain: Int, start: Int): Unit = {
+      if (remain == 0) {
+        result += path.toList
+        return
+      }
+
+      var i = start
+      while (i < nums.length && nums(i) <= remain) {
+        if (i == start || nums(i) != nums(i - 1)) {
+          path += nums(i)
+          backtracking(remain - nums(i), i + 1)
+          path.remove(path.length - 1)
+        }
+        i += 1
+      }
+    }
+
+    backtracking(target, 0)
+    result.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution
+{
+    private readonly IList<IList<int>> result = new List<IList<int>>();
+    private readonly List<int> path = new List<int>();
+
+    public IList<IList<int>> CombinationSum2(int[] candidates, int target)
+    {
+        Array.Sort(candidates);
+        Backtracking(candidates, target, 0);
+        return result;
+    }
+
+    private void Backtracking(int[] candidates, int remain, int start)
+    {
+        if (remain == 0)
+        {
+            result.Add(new List<int>(path));
+            return;
+        }
+
+        for (int i = start; i < candidates.Length; i++)
+        {
+            if (candidates[i] > remain) break;
+            if (i > start && candidates[i] == candidates[i - 1]) continue;
+
+            path.Add(candidates[i]);
+            Backtracking(candidates, remain - candidates[i], i + 1);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```

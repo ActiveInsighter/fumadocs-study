@@ -1,0 +1,1004 @@
+---
+title: 最长递增子序列
+sidebarTitle: 最长递增子序列
+summary: 系统讲解 LeetCode 300 最长递增子序列，重点理解“以 nums[i] 结尾”的 DP 状态设计，并进一步推导贪心 + 二分的 O(n log n) 优化方法。
+---
+
+# 300. 最长递增子序列
+
+[LeetCode 300：最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
+
+给定整数数组 `nums`，求其中**最长严格递增子序列**的长度。
+
+例如：
+
+```text
+nums = [10, 9, 2, 5, 3, 7, 101, 18]
+```
+
+一个最长递增子序列可以是：
+
+```text
+[2, 3, 7, 101]
+```
+
+因此答案为：
+
+$$
+\boxed{4}
+$$
+
+<Callout type="warning" title="子序列不是子数组">
+子序列只要求保持原数组中的相对顺序，不要求元素连续；子数组则必须连续。最长递增子序列中的元素完全可以跨越多个位置。
+</Callout>
+
+## 1. 先明确“严格递增”
+
+严格递增要求相邻选中元素满足：
+
+$$
+a_1<a_2<a_3<\cdots<a_m
+$$
+
+因此相等元素不能同时作为递增关系的一部分。
+
+例如：
+
+```text
+nums = [7, 7, 7, 7]
+```
+
+最长严格递增子序列长度只能是：
+
+$$
+1
+$$
+
+这也是后面判断条件必须写成：
+
+```cpp
+nums[j] < nums[i]
+```
+
+而不是 `<=` 的原因。
+
+## 2. 最关键的状态设计
+
+本题最重要的不是转移公式，而是如何定义 `dp[i]`。
+
+定义：
+
+$$
+\boxed{
+dp[i]=\text{以 }nums[i]\text{ 作为最后一个元素的最长严格递增子序列长度}
+}
+$$
+
+这里“**以 `nums[i]` 结尾**”四个字非常关键。
+
+为什么不能简单定义为：
+
+> `dp[i]` 表示前 $i$ 个元素中的最长递增子序列长度？
+
+因为后续要判断：
+
+$$
+nums[j]<nums[i]
+$$
+
+只有当我们知道某个子序列确实以 `nums[j]` 结尾时，才能判断能否把 `nums[i]` 接到它后面。
+
+<Callout type="info" title="子序列 DP 的经典套路">
+当“能否扩展当前序列”取决于前一个序列的尾部元素时，常常需要把状态定义成“以某个位置结尾的最优值”。
+</Callout>
+
+## 3. 状态转移从哪里来
+
+假设当前处理下标 $i$。
+
+我们枚举所有：
+
+$$
+0\le j<i
+$$
+
+如果：
+
+$$
+nums[j]<nums[i]
+$$
+
+说明任何以 `nums[j]` 结尾的递增子序列，都可以在后面追加 `nums[i]`。
+
+于是得到候选长度：
+
+$$
+dp[j]+1
+$$
+
+因此：
+
+$$
+\boxed{
+dp[i]=\max_{0\le j<i,\;nums[j]<nums[i]}(dp[j]+1)
+}
+$$
+
+代码就是：
+
+```cpp
+for (int j = 0; j < i; ++j) {
+    if (nums[j] < nums[i]) {
+        dp[i] = max(dp[i], dp[j] + 1);
+    }
+}
+```
+
+## 4. 为什么一定要取所有 $j$ 中的最大值
+
+考虑：
+
+```text
+nums = [1, 4, 2, 3, 5]
+```
+
+当处理 `5` 时，可以接到很多位置后面：
+
+```text
+1 -> 5
+4 -> 5
+2 -> 5
+3 -> 5
+```
+
+但这些位置对应的递增子序列长度不同。
+
+如果 `3` 对应：
+
+```text
+[1, 2, 3]
+```
+
+那么接上 `5` 后长度是 4。
+
+因此本题不是“找到一个比当前值小的前驱就够了”，而是：
+
+> 在所有合法前驱中，选择 `dp[j]` 最大的那个。
+
+## 5. 初始化
+
+任何单独一个元素都可以构成长度为 1 的递增子序列。
+
+所以：
+
+$$
+\boxed{dp[i]=1}
+$$
+
+对于所有 $i$ 都成立。
+
+初始化代码：
+
+```cpp
+vector<int> dp(nums.size(), 1);
+```
+
+## 6. 遍历顺序
+
+`dp[i]` 依赖所有：
+
+$$
+dp[0],dp[1],\ldots,dp[i-1]
+$$
+
+所以外层 $i$ 必须从左到右：
+
+```text
+0 -> 1 -> 2 -> ... -> n-1
+```
+
+内层 $j$ 只要完整遍历 $[0,i)$ 即可。
+
+最自然的写法：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < i; ++j) {
+        ...
+    }
+}
+```
+
+## 7. 为什么答案不是 `dp[n - 1]`
+
+这是本题非常高频的错误。
+
+`dp[i]` 表示的是：
+
+> **必须以 `nums[i]` 结尾**的最长递增子序列。
+
+但全局最长递增子序列不一定以最后一个元素结尾。
+
+例如：
+
+```text
+nums = [1, 2, 3, 0]
+```
+
+有：
+
+```text
+dp = [1, 2, 3, 1]
+```
+
+最终答案显然是：
+
+$$
+3
+$$
+
+而不是：
+
+$$
+dp[3]=1
+$$
+
+所以答案必须是：
+
+$$
+\boxed{\max_{0\le i<n}dp[i]}
+$$
+
+## 8. 手推 DP 数组
+
+以：
+
+```text
+nums = [0, 1, 0, 3, 2]
+```
+
+为例。
+
+原图如下：
+
+![300.最长上升子序列](https://file1.kamacoder.com/i/algo/20210110170945618.jpg)
+
+### $i=0$，`nums[0]=0`
+
+只有自己：
+
+$$
+dp[0]=1
+$$
+
+### $i=1$，`nums[1]=1`
+
+因为：
+
+$$
+nums[0]<nums[1]
+$$
+
+所以：
+
+$$
+dp[1]=dp[0]+1=2
+$$
+
+此时：
+
+```text
+dp = [1, 2, 1, 1, 1]
+```
+
+### $i=2$，`nums[2]=0`
+
+前面没有严格小于它的元素，因此：
+
+$$
+dp[2]=1
+$$
+
+### $i=3$，`nums[3]=3`
+
+它可以接在 `0`、`1`、`0` 后面。
+
+候选值为：
+
+$$
+2,3,2
+$$
+
+取最大：
+
+$$
+dp[3]=3
+$$
+
+### $i=4$，`nums[4]=2`
+
+可以接在 `0`、`1`、`0` 后面，因此：
+
+$$
+dp[4]=3
+$$
+
+最终：
+
+```text
+dp = [1, 2, 1, 3, 3]
+```
+
+答案：
+
+$$
+\boxed{3}
+$$
+
+## 9. $O(n^2)$ 标准动态规划
+
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n, 1);
+        int answer = 1;
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (nums[j] < nums[i]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            answer = max(answer, dp[i]);
+        }
+
+        return answer;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+\boxed{O(n^2)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+## 10. 为什么这套 DP 很重要
+
+本题是后续子序列 DP 的起点。
+
+它建立了一个非常重要的思维模式：
+
+$$
+\boxed{\text{枚举当前结尾 }i+\text{枚举合法前驱 }j}
+$$
+
+后续很多题都会出现类似结构：
+
+```text
+for i:
+    for j < i:
+        if j 可以转移到 i:
+            dp[i] = best(dp[i], dp[j] + contribution)
+```
+
+这种“前驱型 DP”在：
+
+- 最长递增子序列；
+- 最长数对链；
+- 最大整除子集；
+- 带约束的序列选择；
+
+中都非常常见。
+
+## 11. 能不能更快：$O(n\log n)$
+
+可以。
+
+经典优化方法是：
+
+$$
+\boxed{\text{贪心}+\text{二分查找}}
+$$
+
+维护数组 `tails`：
+
+$$
+tails[len-1]=\text{长度为 }len\text{ 的递增子序列中，最小可能的尾部值}
+$$
+
+注意：
+
+> `tails` 本身不一定是真实的某一个最长递增子序列。
+
+它保存的是“每种长度下，最有潜力继续扩展的最小尾部”。
+
+## 12. 为什么尾部越小越好
+
+假设已经有两个长度同为 3 的递增子序列：
+
+```text
+[1, 4, 9]
+[1, 3, 5]
+```
+
+它们的尾部是：
+
+```text
+9 和 5
+```
+
+显然尾部为 `5` 更容易被后面的元素接上。
+
+例如后面来了 `7`：
+
+```text
+7 不能接在 9 后面
+7 可以接在 5 后面
+```
+
+所以对于相同长度，我们只需要保留最小尾部。
+
+这就是贪心的核心：
+
+$$
+\boxed{\text{同样长度，尾部越小，未来扩展能力越强}}
+$$
+
+## 13. `tails` 的更新规则
+
+依次处理每个 `num`。
+
+### 情况一：`num` 大于当前所有尾部
+
+如果：
+
+```text
+num > tails.back()
+```
+
+说明它可以把当前最长长度继续延长 1：
+
+```cpp
+tails.push_back(num);
+```
+
+### 情况二：不能延长
+
+需要找到 `tails` 中：
+
+$$
+\boxed{\text{第一个 }\ge num\text{ 的位置}}
+$$
+
+并替换为 `num`。
+
+这就是 `lower_bound`：
+
+```cpp
+auto it = lower_bound(tails.begin(), tails.end(), num);
+*it = num;
+```
+
+为什么找第一个 `>= num`，而不是第一个 `> num`？
+
+因为本题要求**严格递增**。
+
+相等元素不能增加长度，因此应该覆盖原来的相等尾部，而不是插到后面。
+
+## 14. 二分过程示例
+
+考虑：
+
+```text
+nums = [10, 9, 2, 5, 3, 7, 101, 18]
+```
+
+### 处理 10
+
+```text
+tails = [10]
+```
+
+### 处理 9
+
+用 9 替换第一个 `>=9` 的 10：
+
+```text
+tails = [9]
+```
+
+### 处理 2
+
+```text
+tails = [2]
+```
+
+### 处理 5
+
+5 大于尾部 2：
+
+```text
+tails = [2, 5]
+```
+
+### 处理 3
+
+替换第一个 `>=3` 的 5：
+
+```text
+tails = [2, 3]
+```
+
+### 处理 7
+
+```text
+tails = [2, 3, 7]
+```
+
+### 处理 101
+
+```text
+tails = [2, 3, 7, 101]
+```
+
+### 处理 18
+
+替换 101：
+
+```text
+tails = [2, 3, 7, 18]
+```
+
+最终：
+
+$$
+|tails|=4
+$$
+
+所以 LIS 长度为：
+
+$$
+\boxed{4}
+$$
+
+## 15. 为什么 `tails` 的长度一定正确
+
+每当 `num` 大于所有尾部时，我们确实找到了一个更长的递增序列，因此 `tails` 长度增加。
+
+如果 `num` 不能延长当前最大长度，我们只会用它去改善某个长度的最小尾部，不会改变已经能够达到的最大长度。
+
+所以整个过程中：
+
+$$
+\boxed{|tails|=\text{当前扫描前缀的 LIS 长度}}
+$$
+
+## 16. $O(n\log n)$ 实现
+
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int> tails;
+
+        for (int x : nums) {
+            auto it = lower_bound(tails.begin(), tails.end(), x);
+
+            if (it == tails.end()) {
+                tails.push_back(x);
+            } else {
+                *it = x;
+            }
+        }
+
+        return tails.size();
+    }
+};
+```
+
+每个元素进行一次二分查找：
+
+$$
+O(\log n)
+$$
+
+总时间复杂度：
+
+$$
+\boxed{O(n\log n)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+## 17. `tails` 为什么不一定是真实 LIS
+
+考虑某些输入时，后来的较小值可能替换前面较大的尾部：
+
+```text
+tails = [2, 5, 7]
+```
+
+后来遇到 `3`：
+
+```text
+tails = [2, 3, 7]
+```
+
+这里 `tails` 的各个位置是在不同时间被更新的。
+
+因此它主要承担的是：
+
+> 记录每种长度的“最佳尾部阈值”。
+
+如果题目要求真正恢复出一条 LIS，就需要额外记录：
+
+- 每个元素的前驱位置；
+- 每个长度对应的末尾下标。
+
+不能直接把 `tails` 当答案序列输出。
+
+## 18. DP 与贪心 + 二分如何选择
+
+### 动态规划
+
+优点：
+
+- 状态含义直观；
+- 很容易扩展成更复杂的子序列问题；
+- 可以自然记录前驱并恢复路径；
+- 是学习后续子序列 DP 的核心基础。
+
+复杂度：
+
+$$
+O(n^2)
+$$
+
+适合：
+
+- 数据规模不大；
+- 题目还有额外转移条件；
+- 需要理解或修改状态关系。
+
+### 贪心 + 二分
+
+优点：
+
+- 时间复杂度更低；
+- 对标准 LIS 非常高效。
+
+复杂度：
+
+$$
+O(n\log n)
+$$
+
+适合：
+
+- 标准 LIS；
+- $n$ 很大；
+- 只要求长度或能够额外维护前驱。
+
+## 19. 高频错误
+
+### 错误一：状态定义成“前 $i$ 个元素的 LIS”却继续使用尾部比较
+
+如果状态中没有记录“以谁结尾”，那么：
+
+$$
+nums[j]<nums[i]
+$$
+
+就无法和 `dp[j]` 的真实尾部建立对应关系。
+
+### 错误二：使用 `<=`
+
+严格递增必须：
+
+```cpp
+nums[j] < nums[i]
+```
+
+### 错误三：直接返回 `dp[n-1]`
+
+应该返回：
+
+$$
+\max_i dp[i]
+$$
+
+### 错误四：二分时使用 `upper_bound`
+
+标准严格 LIS 需要找：
+
+$$
+\text{第一个 }\ge x
+$$
+
+因此用：
+
+```cpp
+lower_bound
+```
+
+### 错误五：把 `tails` 当作真实 LIS
+
+`tails.size()` 一定是长度，但 `tails` 中的元素未必对应原数组中的同一条合法子序列。
+
+## 20. 严格递增与非递减的二分区别
+
+这是竞赛和面试中非常重要的细节。
+
+### 严格递增 LIS
+
+条件：
+
+$$
+a_1<a_2<\cdots
+$$
+
+遇到 `x` 时寻找：
+
+$$
+\boxed{\text{第一个 }\ge x}
+$$
+
+即：
+
+```cpp
+lower_bound
+```
+
+### 最长非递减子序列
+
+条件：
+
+$$
+a_1\le a_2\le\cdots
+$$
+
+相等值允许延长长度，因此寻找：
+
+$$
+\boxed{\text{第一个 }>x}
+$$
+
+即：
+
+```cpp
+upper_bound
+```
+
+一张表记住：
+
+| 目标 | 关系 | 二分位置 |
+| --- | --- | --- |
+| 严格递增 | `<` | 第一个 `>= x`，`lower_bound` |
+| 非递减 | `<=` | 第一个 `> x`，`upper_bound` |
+
+## 21. 这一题真正应该掌握什么
+
+这道题有两个层次。
+
+### 第一层：动态规划状态设计
+
+牢记：
+
+$$
+\boxed{dp[i]=\text{以 }nums[i]\text{ 结尾的 LIS 长度}}
+$$
+
+转移：
+
+$$
+\boxed{
+nums[j]<nums[i]\Rightarrow dp[i]=\max(dp[i],dp[j]+1)
+}
+$$
+
+### 第二层：最小尾部贪心
+
+对于每一种长度，只保留最小尾部：
+
+$$
+\boxed{\text{尾部越小，未来越容易扩展}}
+$$
+
+利用 `tails` 的单调性，再用二分将复杂度降低到：
+
+$$
+\boxed{O(n\log n)}
+$$
+
+<Callout type="tip" title="一句话记忆">
+$O(n^2)$ DP 是“枚举当前结尾和所有前驱”；$O(n\log n)$ 优化则是“只保留每种长度的最小尾部，并用二分快速定位该更新哪个长度”。
+</Callout>
+
+## 其他语言版本
+
+下面统一给出更高效的 $O(n\log n)$ 写法。
+
+```java tab="Java"
+import java.util.*;
+
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        int[] tails = new int[nums.length];
+        int size = 0;
+
+        for (int x : nums) {
+            int left = 0, right = size;
+            while (left < right) {
+                int mid = left + (right - left) / 2;
+                if (tails[mid] < x) {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+
+            tails[left] = x;
+            if (left == size) size++;
+        }
+
+        return size;
+    }
+}
+```
+
+```python tab="Python"
+from bisect import bisect_left
+from typing import List
+
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        tails = []
+
+        for x in nums:
+            pos = bisect_left(tails, x)
+            if pos == len(tails):
+                tails.append(x)
+            else:
+                tails[pos] = x
+
+        return len(tails)
+```
+
+```javascript tab="JavaScript"
+var lengthOfLIS = function(nums) {
+    const tails = [];
+
+    for (const x of nums) {
+        let left = 0, right = tails.length;
+
+        while (left < right) {
+            const mid = Math.floor((left + right) / 2);
+            if (tails[mid] < x) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        if (left === tails.length) tails.push(x);
+        else tails[left] = x;
+    }
+
+    return tails.length;
+};
+```
+
+```typescript tab="TypeScript"
+function lengthOfLIS(nums: number[]): number {
+    const tails: number[] = [];
+
+    for (const x of nums) {
+        let left = 0;
+        let right = tails.length;
+
+        while (left < right) {
+            const mid = Math.floor((left + right) / 2);
+            if (tails[mid] < x) left = mid + 1;
+            else right = mid;
+        }
+
+        if (left === tails.length) tails.push(x);
+        else tails[left] = x;
+    }
+
+    return tails.length;
+}
+```
+
+```go tab="Go"
+func lengthOfLIS(nums []int) int {
+    tails := make([]int, 0, len(nums))
+
+    for _, x := range nums {
+        left, right := 0, len(tails)
+        for left < right {
+            mid := left + (right-left)/2
+            if tails[mid] < x {
+                left = mid + 1
+            } else {
+                right = mid
+            }
+        }
+
+        if left == len(tails) {
+            tails = append(tails, x)
+        } else {
+            tails[left] = x
+        }
+    }
+
+    return len(tails)
+}
+```
+
+```c tab="C"
+int lengthOfLIS(int* nums, int numsSize) {
+    int* tails = (int*)malloc(sizeof(int) * numsSize);
+    int size = 0;
+
+    for (int i = 0; i < numsSize; ++i) {
+        int x = nums[i];
+        int left = 0, right = size;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (tails[mid] < x) left = mid + 1;
+            else right = mid;
+        }
+
+        tails[left] = x;
+        if (left == size) ++size;
+    }
+
+    free(tails);
+    return size;
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn length_of_lis(nums: Vec<i32>) -> i32 {
+        let mut tails: Vec<i32> = Vec::new();
+
+        for x in nums {
+            let mut left = 0usize;
+            let mut right = tails.len();
+
+            while left < right {
+                let mid = left + (right - left) / 2;
+                if tails[mid] < x {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+
+            if left == tails.len() {
+                tails.push(x);
+            } else {
+                tails[left] = x;
+            }
+        }
+
+        tails.len() as i32
+    }
+}
+```

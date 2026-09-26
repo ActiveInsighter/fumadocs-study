@@ -1,0 +1,879 @@
+---
+title: 对称二叉树：把“一棵树”转化为“两棵树的镜像比较”
+description: 以 LeetCode 101 为主线，系统理解镜像递归、成对比较、递归终止条件设计，以及队列和栈为何都能完成对称性判断，并迁移到相同的树与子树判断。
+---
+
+# 对称二叉树：把“一棵树”转化为“两棵树的镜像比较”
+
+> LeetCode 101 · Symmetric Tree
+
+[题目链接](https://leetcode.cn/problems/symmetric-tree/)
+
+给定一棵二叉树，判断它是否关于根节点的竖直中轴镜像对称。
+
+![101. 对称二叉树](https://file1.kamacoder.com/i/algo/20210203144607387.png)
+
+这道题看起来是在判断“一棵树”，但真正进入算法后，最重要的转换是：
+
+```text
+不要比较 root 的左孩子和右孩子是否相同，
+而要比较“左子树”和“右子树”是否互为镜像。
+```
+
+<Callout title="这道题的核心不是遍历，而是比较关系" type="idea">
+
+普通二叉树遍历通常只维护一个当前节点；对称二叉树却必须**同时维护一对节点**。
+
+对任意一对镜像位置上的节点 `left`、`right`，必须同时满足：
+
+1. 两者的空 / 非空状态一致；
+2. 两者值相等；
+3. `left->left` 与 `right->right` 镜像对应；
+4. `left->right` 与 `right->left` 镜像对应。
+
+真正需要记住的是这组“外侧对外侧、内侧对内侧”的配对关系。
+
+</Callout>
+
+## 1. 先弄清楚：到底在比较谁
+
+假设根节点的两棵子树如下：
+
+```text
+            root
+           /    \
+          A      B
+         / \    / \
+        C   D  E   F
+```
+
+如果整棵树关于中轴对称，那么镜像位置应该满足：
+
+```text
+A  ↔ B
+C  ↔ F    ← 外侧
+D  ↔ E    ← 内侧
+```
+
+也就是说，对当前正在比较的一对节点 `left` 和 `right`，下一层必须比较：
+
+```text
+left->left   ↔ right->right
+left->right  ↔ right->left
+```
+
+而**不是**：
+
+```text
+left->left   ↔ right->left
+left->right  ↔ right->right
+```
+
+![对称二叉树内外侧比较](https://file1.kamacoder.com/i/algo/20210203144624414.png)
+
+<Cards>
+  <Card title="外侧比较">左子树的左孩子，对应右子树的右孩子。</Card>
+  <Card title="内侧比较">左子树的右孩子，对应右子树的左孩子。</Card>
+  <Card title="同时成立">当前值相等，并且内外两组都镜像，当前这对子树才镜像。</Card>
+</Cards>
+
+## 2. 把问题写成一个明确的函数语义
+
+最推荐先定义辅助函数：
+
+```cpp
+bool compare(TreeNode* left, TreeNode* right)
+```
+
+它的语义不是“遍历两个节点”，而是：
+
+> 判断以 `left` 和 `right` 为根的两棵子树是否互为镜像。
+
+一旦函数语义确定，整题就变成：
+
+```cpp
+return compare(root->left, root->right);
+```
+
+这也是树形递归中非常重要的习惯：**先定义递归函数代表什么，再写代码。**
+
+## 3. 递归最难的地方：四种终止情况必须有顺序
+
+比较两个节点前，不能直接访问 `left->val` 和 `right->val`，因为其中一个节点可能为空。
+
+一共只有四类情况：
+
+| `left` | `right` | 结果 | 原因 |
+| --- | --- | --- | --- |
+| 空 | 空 | `true` | 这一对位置同时缺失，局部镜像 |
+| 空 | 非空 | `false` | 结构不对称 |
+| 非空 | 空 | `false` | 结构不对称 |
+| 非空 | 非空 | 继续判断 | 还要比较节点值与下一层 |
+
+当两者都非空后，再比较节点值：
+
+```cpp
+if (left->val != right->val) return false;
+```
+
+因此一个清晰的判断顺序是：
+
+```cpp
+if (left == nullptr && right == nullptr) return true;
+if (left == nullptr || right == nullptr) return false;
+if (left->val != right->val) return false;
+```
+
+<Callout title="为什么空节点判断比数值判断更重要？" type="warning">
+
+树的“相同”或“镜像”不只要求节点值一样，还要求**结构一样**。
+
+例如：
+
+```text
+左侧有节点 1，右侧没有节点
+```
+
+即使后面某个位置也出现了值 `1`，结构已经不可能镜像。
+
+所以这类题永远先比较：
+
+```text
+结构 → 节点值 → 子问题
+```
+
+</Callout>
+
+## 4. 递归关系：外侧和内侧都必须成立
+
+当前两个节点都存在且值相等后，只剩两个子问题：
+
+```cpp
+bool outside = compare(left->left, right->right);
+bool inside  = compare(left->right, right->left);
+```
+
+最终：
+
+```cpp
+return outside && inside;
+```
+
+用数学化的递归定义表示，可以写成：
+
+$$
+Mirror(L,R)=
+\begin{cases}
+true, & L=\varnothing,\ R=\varnothing \\
+false, & L=\varnothing\ \oplus\ R=\varnothing \\
+false, & L.val\ne R.val \\
+Mirror(L.left,R.right)\land Mirror(L.right,R.left), & \text{otherwise}
+\end{cases}
+$$
+
+其中 `⊕` 表示“恰好一个为空”。
+
+这已经把整道题完整描述出来了。
+
+## 5. 递归写法：最推荐的主解
+
+```cpp title="LeetCode 101 · 递归镜像比较"
+class Solution {
+public:
+    bool compare(TreeNode* left, TreeNode* right) {
+        if (left == nullptr && right == nullptr) return true;
+        if (left == nullptr || right == nullptr) return false;
+        if (left->val != right->val) return false;
+
+        bool outside = compare(left->left, right->right);
+        bool inside  = compare(left->right, right->left);
+
+        return outside && inside;
+    }
+
+    bool isSymmetric(TreeNode* root) {
+        if (root == nullptr) return true;
+        return compare(root->left, root->right);
+    }
+};
+```
+
+### 用递归三步法重新检查
+
+### 1. 参数和返回值
+
+参数必须同时包含镜像位置上的两个节点：
+
+```cpp
+TreeNode* left, TreeNode* right
+```
+
+返回 `bool`，表示两棵子树是否互为镜像。
+
+### 2. 终止条件
+
+先处理空节点，再处理值不同：
+
+```text
+都空 → true
+一个空 → false
+值不同 → false
+```
+
+### 3. 单层递归逻辑
+
+```text
+外侧：left.left  ↔ right.right
+内侧：left.right ↔ right.left
+```
+
+两者同时为真才返回真。
+
+## 6. 这里为什么常被称为“后序思想”
+
+如果只看左子树这一侧，比较顺序可以理解为：
+
+```text
+左 → 右 → 当前
+```
+
+右子树则是：
+
+```text
+右 → 左 → 当前
+```
+
+当前这对节点最终能不能判定为镜像，需要等待两组子问题的布尔结果：
+
+```cpp
+outside && inside
+```
+
+因此它具有明显的**后序 / 自底向上**特征：
+
+```text
+先得到子问题答案
+再得到当前问题答案
+```
+
+不过更准确地说，本题不是在一棵树上机械执行标准后序遍历，而是在**两棵子树上同步进行镜像递归**。
+
+<Callout title="不要死记‘这题必须后序’" type="info">
+
+真正应该记住的是：
+
+```text
+当前判断依赖两个更小子问题的返回值。
+```
+
+这才是为什么递归天然适合本题。
+
+</Callout>
+
+## 7. 用一组反例理解“值相等还不够”
+
+下面两棵子树根节点值都相同：
+
+```text
+    2             2
+   /               \
+  3                 3
+```
+
+这是镜像的。
+
+但下面这组：
+
+```text
+    2             2
+   /             /
+  3             3
+```
+
+不是镜像。
+
+如果算法只收集节点值，再比较值序列，很容易丢掉空节点位置的信息。
+
+因此，对称性判断本质是：
+
+```text
+结构镜像 + 对应值相等
+```
+
+而不是单纯的“值序列相同”。
+
+## 8. 迭代法：队列中保存的不是“一层节点”，而是“待比较节点对”
+
+本题也可以迭代完成。
+
+![对称二叉树迭代比较](https://file1.kamacoder.com/i/algo/101.%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91.gif)
+
+最重要的一点是：
+
+> 虽然使用了 `queue`，但这**不是普通层序遍历**。
+
+队列真正保存的是：
+
+```text
+(leftNode, rightNode)
+```
+
+也就是一对一对的镜像候选节点。
+
+为了避免把配对关系藏在“连续 push 两次”中，更推荐直接让队列元素就是一个节点对：
+
+```cpp title="队列迭代 · 显式保存节点对"
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if (root == nullptr) return true;
+
+        queue<pair<TreeNode*, TreeNode*>> q;
+        q.push({root->left, root->right});
+
+        while (!q.empty()) {
+            auto [left, right] = q.front();
+            q.pop();
+
+            if (left == nullptr && right == nullptr) {
+                continue;
+            }
+
+            if (left == nullptr || right == nullptr) {
+                return false;
+            }
+
+            if (left->val != right->val) {
+                return false;
+            }
+
+            // 外侧必须成对
+            q.push({left->left, right->right});
+
+            // 内侧必须成对
+            q.push({left->right, right->left});
+        }
+
+        return true;
+    }
+};
+```
+
+这种写法比“队列里依次塞两个裸指针”更容易验证正确性，因为数据结构直接表达了算法语义：
+
+```text
+队列中的每个元素 = 下一次必须比较的一对镜像节点
+```
+
+## 9. 为什么栈也可以
+
+既然容器里保存的是互相配对的节点，那么实际上：
+
+```text
+先比较哪一对
+```
+
+并不影响最终结果。
+
+因此可以把队列换成栈：
+
+```cpp title="栈迭代"
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if (root == nullptr) return true;
+
+        stack<pair<TreeNode*, TreeNode*>> st;
+        st.push({root->left, root->right});
+
+        while (!st.empty()) {
+            auto [left, right] = st.top();
+            st.pop();
+
+            if (left == nullptr && right == nullptr) continue;
+            if (left == nullptr || right == nullptr) return false;
+            if (left->val != right->val) return false;
+
+            st.push({left->left, right->right});
+            st.push({left->right, right->left});
+        }
+
+        return true;
+    }
+};
+```
+
+<Callout title="队列和栈为什么都成立？" type="success">
+
+本题没有要求按某种固定顺序输出结果，也没有层级依赖。
+
+我们只需要保证：
+
+```text
+每一组必须比较的镜像节点对，最终都被检查一次。
+```
+
+所以 DFS 风格的栈和 BFS 风格的队列都可以。
+
+</Callout>
+
+## 10. 递归与迭代其实维护的是同一个状态
+
+| 写法 | 保存的状态 | 下一步 |
+| --- | --- | --- |
+| 递归 | 函数参数 `(left, right)` | 递归到外侧与内侧 |
+| 队列 | `queue<pair<...>>` | 取出一对并压入两对 |
+| 栈 | `stack<pair<...>>` | 取出一对并压入两对 |
+
+因此三种写法的核心状态完全相同：
+
+```text
+一对应该互为镜像的节点
+```
+
+这比背“递归模板”“队列模板”“栈模板”更重要。
+
+## 11. 正确性理解：维护一个镜像不变量
+
+迭代法中，可以把不变量写成：
+
+> 容器中的每一对 `(u, v)`，都代表“如果整棵树对称，那么 `u` 和 `v` 必须互为镜像”。
+
+每取出一对节点：
+
+1. 如果都空，这一对成立；
+2. 如果只有一个空，不变量被破坏，立即返回 `false`；
+3. 如果值不同，不变量被破坏，立即返回 `false`；
+4. 否则继续生成两组更小的镜像约束：
+
+```text
+(u.left,  v.right)
+(u.right, v.left)
+```
+
+当容器被清空仍未发现矛盾，说明所有镜像约束都成立，因此整棵树对称。
+
+## 12. 复杂度分析
+
+设二叉树共有 $n$ 个节点，高度为 $h$。
+
+### 时间复杂度
+
+最坏情况下需要检查整棵树：
+
+$$
+O(n)
+$$
+
+每个真实节点只会参与常数次比较。
+
+### 递归额外空间
+
+递归调用深度最多等于树高：
+
+$$
+O(h)
+$$
+
+平衡树约为 $O(\log n)$，退化成链时最坏为 $O(n)$。
+
+### 迭代额外空间
+
+队列或栈在最坏情况下都可能保存 $O(n)$ 个待比较节点：
+
+$$
+O(n)
+$$
+
+## 13. 高频错误
+
+### 错误 1：比较“同方向孩子”
+
+错误写法：
+
+```cpp
+compare(left->left, right->left);
+compare(left->right, right->right);
+```
+
+这是在比较两棵树是否“相同”，而不是“镜像”。
+
+对称树必须交叉比较：
+
+```cpp
+compare(left->left, right->right);
+compare(left->right, right->left);
+```
+
+### 错误 2：只比较节点值，不比较空节点结构
+
+例如：
+
+```text
+  1       1
+ /         \
+2           2
+```
+
+和值排列看起来类似，但空节点位置决定了结构关系。
+
+### 错误 3：把队列写法误认为普通 BFS
+
+普通 BFS 的核心状态通常是：
+
+```text
+当前层有哪些节点
+```
+
+本题队列的核心状态是：
+
+```text
+哪些节点应该成对比较
+```
+
+不要因为“用了 queue”就自动把问题理解成层序遍历。
+
+### 错误 4：根节点为空时忘记处理
+
+按照常见定义，空树本身是对称的：
+
+```cpp
+if (root == nullptr) return true;
+```
+
+### 错误 5：精简代码写得太早
+
+下面代码当然正确：
+
+```cpp
+return left->val == right->val
+    && compare(left->left, right->right)
+    && compare(left->right, right->left);
+```
+
+但学习阶段更重要的是先把“结构判空 → 值比较 → 外侧 → 内侧”完整写清楚。
+
+## 14. 从本题迁移到“相同的树”
+
+LeetCode 100「相同的树」与本题几乎只有配对关系不同。
+
+对称二叉树：
+
+```text
+p.left  ↔ q.right
+p.right ↔ q.left
+```
+
+相同的树：
+
+```text
+p.left  ↔ q.left
+p.right ↔ q.right
+```
+
+所以可以统一成一个思维模板：
+
+```text
+两个树的关系判断
+= 当前节点关系
++ 左右子问题的配对规则
+```
+
+<Cards>
+  <Card title="相同">同方向比较：左对左，右对右。</Card>
+  <Card title="镜像">交叉比较：左对右，右对左。</Card>
+  <Card title="子树">通常再叠加“从哪些候选根开始匹配”的搜索过程。</Card>
+</Cards>
+
+## 15. 从本题迁移到“另一棵树的子树”
+
+LeetCode 572「另一棵树的子树」可以分成两层问题：
+
+```text
+第一层：枚举大树中的候选根节点
+第二层：判断候选子树与目标树是否完全相同
+```
+
+第二层本质上就是 LeetCode 100 的“双树比较”。
+
+因此二叉树题里一个非常常见的套路是：
+
+```text
+先找到候选位置
+再启动一个“双树关系判断”函数
+```
+
+这类函数通常参数都会是两个节点，而不是一个节点。
+
+## 16. 一眼识别“双节点递归”题
+
+当题目出现以下关键词时，要警惕它可能不是普通单节点 DFS：
+
+- 两棵树是否相同；
+- 两棵树是否镜像；
+- 一棵树是否包含另一棵树；
+- 两个节点之间的关系；
+- 同时沿两棵树移动；
+- 配对、匹配、对应位置。
+
+典型函数形态往往是：
+
+```cpp
+bool solve(TreeNode* a, TreeNode* b)
+```
+
+而不是：
+
+```cpp
+void traversal(TreeNode* root)
+```
+
+## 17. 本题最值得形成的固定思维
+
+```text
+看到“对称”
+    ↓
+不要比较一棵树内部相邻节点
+    ↓
+把根的左右子树拆成两棵树
+    ↓
+维护一对镜像节点 (left, right)
+    ↓
+先判空，再判值
+    ↓
+外侧：left.left  ↔ right.right
+内侧：left.right ↔ right.left
+    ↓
+递归、栈、队列都只是承载这个状态的方式
+```
+
+<Callout title="一句话记忆" type="success">
+
+**对称二叉树不是“左等于右”，而是“左子树与右子树互为镜像”；镜像的递归规则就是外侧对外侧、内侧对内侧。**
+
+</Callout>
+
+## 18. 自测
+
+学完后，尝试不看代码回答：
+
+- 为什么本题辅助函数要传两个节点？
+- 为什么不能只比较 `root->left->val` 和 `root->right->val`？
+- 为什么必须先处理空节点？
+- “外侧”和“内侧”分别是哪两个节点？
+- 为什么队列写法不是普通层序遍历？
+- 为什么把队列换成栈仍然正确？
+- 相同的树与对称二叉树的递归式只差在哪里？
+
+如果这些问题都能解释清楚，就已经掌握了这类“双树关系判断”的基本模型。
+
+## 其他语言实现
+
+下面各语言都保留同一个核心递归关系：**先判断当前节点，再交叉比较外侧与内侧。**
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) return true;
+        return compare(root.left, root.right);
+    }
+
+    private boolean compare(TreeNode left, TreeNode right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        if (left.val != right.val) return false;
+
+        return compare(left.left, right.right)
+            && compare(left.right, right.left);
+    }
+}
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def isSymmetric(self, root):
+        if root is None:
+            return True
+        return self.compare(root.left, root.right)
+
+    def compare(self, left, right):
+        if left is None and right is None:
+            return True
+        if left is None or right is None:
+            return False
+        if left.val != right.val:
+            return False
+
+        return (
+            self.compare(left.left, right.right)
+            and self.compare(left.right, right.left)
+        )
+```
+
+
+
+```go title="Go" tab="Go"
+func isSymmetric(root *TreeNode) bool {
+    if root == nil {
+        return true
+    }
+    return compare(root.Left, root.Right)
+}
+
+func compare(left, right *TreeNode) bool {
+    if left == nil && right == nil {
+        return true
+    }
+    if left == nil || right == nil {
+        return false
+    }
+    if left.Val != right.Val {
+        return false
+    }
+
+    return compare(left.Left, right.Right) &&
+        compare(left.Right, right.Left)
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var isSymmetric = function(root) {
+    if (root === null) return true;
+
+    const compare = (left, right) => {
+        if (left === null && right === null) return true;
+        if (left === null || right === null) return false;
+        if (left.val !== right.val) return false;
+
+        return compare(left.left, right.right)
+            && compare(left.right, right.left);
+    };
+
+    return compare(root.left, root.right);
+};
+```
+
+
+
+```typescript title="TypeScript" tab="TypeScript"
+function isSymmetric(root: TreeNode | null): boolean {
+    if (root === null) return true;
+
+    function compare(
+        left: TreeNode | null,
+        right: TreeNode | null
+    ): boolean {
+        if (left === null && right === null) return true;
+        if (left === null || right === null) return false;
+        if (left.val !== right.val) return false;
+
+        return compare(left.left, right.right)
+            && compare(left.right, right.left);
+    }
+
+    return compare(root.left, root.right);
+}
+```
+
+### Swift
+
+```swift title="Swift"
+class Solution {
+    func isSymmetric(_ root: TreeNode?) -> Bool {
+        guard let root = root else { return true }
+        return compare(root.left, root.right)
+    }
+
+    private func compare(_ left: TreeNode?, _ right: TreeNode?) -> Bool {
+        if left == nil && right == nil { return true }
+        guard let left = left, let right = right else { return false }
+        if left.val != right.val { return false }
+
+        return compare(left.left, right.right)
+            && compare(left.right, right.left)
+    }
+}
+```
+
+### Scala
+
+```scala title="Scala"
+object Solution {
+  def isSymmetric(root: TreeNode): Boolean = {
+    if (root == null) true
+    else compare(root.left, root.right)
+  }
+
+  private def compare(left: TreeNode, right: TreeNode): Boolean = {
+    if (left == null && right == null) true
+    else if (left == null || right == null) false
+    else if (left.value != right.value) false
+    else {
+      compare(left.left, right.right) &&
+      compare(left.right, right.left)
+    }
+  }
+}
+```
+
+
+
+```rust title="Rust" tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type Node = Option<Rc<RefCell<TreeNode>>>;
+
+impl Solution {
+    pub fn is_symmetric(root: Node) -> bool {
+        fn compare(left: &Node, right: &Node) -> bool {
+            match (left, right) {
+                (None, None) => true,
+                (Some(_), None) | (None, Some(_)) => false,
+                (Some(l), Some(r)) => {
+                    let lb = l.borrow();
+                    let rb = r.borrow();
+
+                    lb.val == rb.val
+                        && compare(&lb.left, &rb.right)
+                        && compare(&lb.right, &rb.left)
+                }
+            }
+        }
+
+        match root {
+            None => true,
+            Some(node) => {
+                let node = node.borrow();
+                compare(&node.left, &node.right)
+            }
+        }
+    }
+}
+```
+
+
+
+```csharp title="C#" tab="C#"
+public class Solution {
+    public bool IsSymmetric(TreeNode root) {
+        if (root == null) return true;
+        return Compare(root.left, root.right);
+    }
+
+    private bool Compare(TreeNode left, TreeNode right) {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
+        if (left.val != right.val) return false;
+
+        return Compare(left.left, right.right)
+            && Compare(left.right, right.left);
+    }
+}
+```

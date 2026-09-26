@@ -1,0 +1,1201 @@
+---
+title: 90. 子集 II
+summary: 在子集问题“收集整棵搜索树”的基础上加入重复元素去重，掌握排序 + 同一树层跳重，并理解它与组合总和 II 的统一逻辑。
+description: LeetCode 90 子集 II：幂集、重复元素、排序、树层去重、startIndex、used 数组、局部 Set、复杂度分析与多语言实现。
+---
+
+
+# 90. 子集 II
+
+[LeetCode 题目链接](https://leetcode.cn/problems/subsets-ii/)
+
+给定一个可能包含重复元素的整数数组 `nums`，返回所有可能的子集，且答案中**不能出现重复子集**。
+
+```text title="示例"
+输入：nums = [1, 2, 2]
+输出：[[], [1], [1,2], [1,2,2], [2], [2,2]]
+```
+
+答案顺序不重要。
+
+<Callout title="这道题其实是两道旧题的叠加">
+
+`90. 子集 II` 可以直接拆成：
+
+$$
+\boxed{78.\ 子集：搜索树所有节点都要收集}
+$$
+
+加上：
+
+$$
+\boxed{40.\ 组合总和\ II：排序后做树层去重}
+$$
+
+因此真正需要掌握的不是新模板，而是如何把两个已经学过的规则组合起来。
+
+</Callout>
+
+## 1. 与 78. 子集相比，唯一的新困难是什么？
+
+`78. 子集` 保证所有元素互不相同。
+
+因此像：
+
+```text
+[1, 2, 3]
+```
+
+每个选择分支天然不同，不会生成相同子集。
+
+本题中可能出现：
+
+```text
+[1, 2, 2]
+```
+
+两个 `2` 来自不同下标，但它们数值相同。
+
+如果完全照搬 `78. 子集` 的代码，根节点会分别以两个 `2` 为第一步展开：
+
+```text
+[] → 2(下标1)
+[] → 2(下标2)
+```
+
+这两条分支都会产生子集：
+
+```text
+[2]
+```
+
+于是答案重复。
+
+所以本题新增的核心问题只有一个：
+
+> **怎样避免同一树层由相同数值启动两个等价分支？**
+
+## 2. 为什么要先排序？
+
+先把数组排序：
+
+```cpp
+sort(nums.begin(), nums.end());
+```
+
+例如：
+
+```text
+[2, 1, 2]
+```
+
+会变成：
+
+```text
+[1, 2, 2]
+```
+
+排序后，相同值被放到一起，才能通过：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+高效判断当前候选是否与前一个候选重复。
+
+<Callout type="info" title="排序改变顺序，会不会改变子集答案？">
+
+不会。
+
+子集只关心“选了哪些值”，不关心这些值在输出中的排列顺序，因此可以先排序再搜索。
+
+这与后面的 `491. 非递减子序列` 不同：子序列必须保持原数组相对顺序，不能为了去重随意排序。
+
+</Callout>
+
+## 3. 搜索树：为什么只去掉同一树层的重复？
+
+以：
+
+```text
+nums = [1, 2, 2]
+```
+
+为例。
+
+![90.子集II](https://file1.kamacoder.com/i/algo/20201124195411977.png)
+
+先观察两个完全不同的场景。
+
+### 场景一：同一树层选择两个相同值
+
+根节点：
+
+```text
+[]
+```
+
+若先以第一个 `2` 为起点，会得到：
+
+```text
+[2]
+[2,2]
+```
+
+回溯到根节点后，如果再以第二个 `2` 为起点，会再次得到：
+
+```text
+[2]
+```
+
+这就是重复答案。
+
+所以：
+
+> **同一树层中，相同值只能作为分支起点一次。**
+
+### 场景二：同一树枝选择两个相同值
+
+路径：
+
+```text
+[] → 第一个 2 → 第二个 2
+```
+
+得到：
+
+```text
+[2,2]
+```
+
+这是一个合法且独立的子集。
+
+所以：
+
+> **同一树枝中的相同值不能简单跳过。**
+
+这再次得到回溯去重最重要的原则：
+
+$$
+\boxed{\text{树层去重，树枝保留}}
+$$
+
+## 4. 最简洁的去重条件
+
+排序之后，当前层循环为：
+
+```cpp
+for (int i = startIndex; i < nums.size(); ++i) {
+    if (i > startIndex && nums[i] == nums[i - 1]) {
+        continue;
+    }
+
+    path.push_back(nums[i]);
+    backtracking(nums, i + 1);
+    path.pop_back();
+}
+```
+
+其中最重要的是：
+
+```cpp
+i > startIndex
+```
+
+### `i == startIndex`
+
+表示当前候选是**这一层第一个被尝试的元素**。
+
+即使：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+也不能因为它和父层附近的元素相同就跳过，因为那可能是同一树枝上的合法重复。
+
+### `i > startIndex`
+
+表示当前层前面已经尝试过至少一个候选。
+
+如果再满足：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+说明当前层已经以相同数值启动过一棵等价子树，所以必须跳过。
+
+<Callout type="warn" title="最常见错误：写成 i > 0">
+
+错误写法：
+
+```cpp
+if (i > 0 && nums[i] == nums[i - 1]) continue;
+```
+
+它没有区分“本层第一个元素”和“本层后续元素”，可能把同一树枝上合法的第二个重复值也删掉。
+
+这里要判断的是**同层重复**，所以边界必须是 `startIndex`。
+
+</Callout>
+
+## 5. 为什么仍然要在递归入口收集答案？
+
+去重只改变“哪些分支要搜索”，不会改变子集问题的答案定义。
+
+对于任意当前路径：
+
+```text
+[]
+[1]
+[1,2]
+[1,2,2]
+[2]
+[2,2]
+```
+
+它本身就是一个合法子集。
+
+因此仍然要在递归一开始执行：
+
+```cpp
+result.push_back(path);
+```
+
+也就是说：
+
+```cpp
+void backtracking(...) {
+    result.push_back(path);   // 先收集当前节点
+
+    for (...) {
+        // 再向下搜索
+    }
+}
+```
+
+这是 `78. 子集` 与本题共同的核心结构。
+
+## 6. 回溯三部曲
+
+### ① 递归参数
+
+```cpp
+void backtracking(const vector<int>& nums, int startIndex)
+```
+
+并维护：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+`startIndex` 表示当前层允许选择的最左下标。
+
+### ② 进入节点立即收集
+
+```cpp
+result.push_back(path);
+```
+
+因为搜索树上的每个节点都代表一个不同的合法子集。
+
+第一次调用时 `path` 为空，因此空集 `[]` 会自然被收集。
+
+### ③ 当前层排序去重后继续搜索
+
+```cpp
+for (int i = startIndex; i < nums.size(); ++i) {
+    if (i > startIndex && nums[i] == nums[i - 1]) {
+        continue;
+    }
+
+    path.push_back(nums[i]);
+    backtracking(nums, i + 1);
+    path.pop_back();
+}
+```
+
+结构仍然是：
+
+```text
+选择 → 递归 → 撤销选择
+```
+
+只是“选择”之前多了一次树层去重判断。
+
+## 7. C++ 标准写法
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, int startIndex) {
+        result.push_back(path);
+
+        for (int i = startIndex; i < nums.size(); ++i) {
+            // 同一树层中，相同值只作为分支起点一次
+            if (i > startIndex && nums[i] == nums[i - 1]) {
+                continue;
+            }
+
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+建议优先掌握这一版，因为它只依赖：
+
+```text
+排序 + startIndex
+```
+
+就能直接表达“同一树层去重”。
+
+## 8. 手动模拟 `[1,2,2]`
+
+排序后仍为：
+
+```text
+[1,2,2]
+```
+
+### 根节点
+
+```text
+path = []
+startIndex = 0
+```
+
+先收集：
+
+```text
+[]
+```
+
+然后尝试 `1`。
+
+### 进入 `[1]`
+
+收集：
+
+```text
+[1]
+```
+
+当前层从下标 `1` 开始。
+
+先选第一个 `2`：
+
+```text
+[1,2]
+```
+
+继续再选第二个 `2`：
+
+```text
+[1,2,2]
+```
+
+回溯到 `[1]` 以后，当前层准备直接选择第二个 `2`。
+
+此时：
+
+```text
+i > startIndex
+nums[i] == nums[i - 1]
+```
+
+成立，因此跳过。
+
+否则就会再次生成：
+
+```text
+[1,2]
+```
+
+### 回到根节点
+
+根节点先以第一个 `2` 为起点：
+
+```text
+[2]
+[2,2]
+```
+
+再准备以第二个 `2` 为起点时，同样因为属于同一树层重复而跳过。
+
+最终每个唯一子集都恰好生成一次。
+
+## 9. `used` 数组写法：从状态角度理解树层与树枝
+
+也可以维护：
+
+```cpp
+vector<bool> used(nums.size(), false);
+```
+
+选择某个下标时：
+
+```cpp
+used[i] = true;
+```
+
+回溯时：
+
+```cpp
+used[i] = false;
+```
+
+对于相邻的重复元素：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+如果：
+
+```cpp
+used[i - 1] == true
+```
+
+说明前一个相同值仍然在当前路径上，这是**同一树枝**，允许继续选。
+
+如果：
+
+```cpp
+used[i - 1] == false
+```
+
+说明前一个相同值已经完成搜索并回溯撤销，现在正在同一层尝试另一个相同值，这是**同一树层**，应该跳过。
+
+所以可写成：
+
+```cpp
+if (i > 0 &&
+    nums[i] == nums[i - 1] &&
+    !used[i - 1]) {
+    continue;
+}
+```
+
+完整代码：
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums,
+                      int startIndex,
+                      vector<bool>& used) {
+        result.push_back(path);
+
+        for (int i = startIndex; i < nums.size(); ++i) {
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                continue;
+            }
+
+            path.push_back(nums[i]);
+            used[i] = true;
+
+            backtracking(nums, i + 1, used);
+
+            used[i] = false;
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<bool> used(nums.size(), false);
+        backtracking(nums, 0, used);
+        return result;
+    }
+};
+```
+
+<Callout type="info" title="本题为什么更推荐 startIndex 写法？">
+
+因为子集问题本来就通过 `startIndex` 限制候选区间，而 `i > startIndex` 已经足够准确地区分“本层第一个候选”和“本层后续候选”。
+
+`used` 写法很有教学价值，尤其有助于理解后面的排列去重；但对本题而言并不是必要状态。
+
+</Callout>
+
+## 10. 还可以用“每层一个 Set”去重
+
+另一种直接表达树层去重的方法是：
+
+```cpp
+void backtracking(const vector<int>& nums, int startIndex) {
+    result.push_back(path);
+
+    unordered_set<int> usedThisLevel;
+
+    for (int i = startIndex; i < nums.size(); ++i) {
+        if (usedThisLevel.count(nums[i])) {
+            continue;
+        }
+        usedThisLevel.insert(nums[i]);
+
+        path.push_back(nums[i]);
+        backtracking(nums, i + 1);
+        path.pop_back();
+    }
+}
+```
+
+这里的集合不是全局的，也不是沿递归树共享的，而是：
+
+$$
+\boxed{\text{每一个递归节点拥有自己的本层 Set}}
+$$
+
+它记录：
+
+```text
+这一层已经以哪些数值启动过分支
+```
+
+所以也能正确实现树层去重。
+
+不过本题已经排序，直接比较相邻元素：
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1])
+```
+
+通常更简单，也不需要额外哈希集合。
+
+## 11. 为什么不推荐“全部生成后再用 Set 去重”？
+
+一种看似方便的方法是：
+
+1. 完全按照普通子集枚举；
+2. 把每个结果丢进 `set`；
+3. 最后依靠集合去重。
+
+它通常可以得到正确答案，但搜索过程本身仍然访问了大量重复子树。
+
+更好的思路是：
+
+```text
+重复结果还没有生成之前，就识别出它对应的是等价分支并直接跳过
+```
+
+也就是：
+
+$$
+\boxed{\text{在搜索树上去重，而不是在结果集上补救}}
+$$
+
+这不仅效率更高，也更能体现回溯算法的结构。
+
+## 12. 和 40. 组合总和 II 的去重逻辑完全一致吗？
+
+是的，树层去重的核心条件完全一致：
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+两题差异主要在**答案收集条件**。
+
+### 40. 组合总和 II
+
+只有当：
+
+$$
+remain=0
+$$
+
+才收集当前路径。
+
+### 90. 子集 II
+
+任意当前路径都是合法子集，所以每次进入递归都收集：
+
+```cpp
+result.push_back(path);
+```
+
+这说明同一个“树层去重”规则可以复用到不同问题，真正变化的是搜索树中哪些节点属于答案。
+
+## 13. 和 78. 子集的代码只差两步
+
+`78. 子集`：
+
+```cpp
+void backtracking(const vector<int>& nums, int startIndex) {
+    result.push_back(path);
+
+    for (int i = startIndex; i < nums.size(); ++i) {
+        path.push_back(nums[i]);
+        backtracking(nums, i + 1);
+        path.pop_back();
+    }
+}
+```
+
+本题只增加：
+
+```cpp
+sort(nums.begin(), nums.end());
+```
+
+以及：
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+也就是：
+
+$$
+\boxed{90 = 78 + \text{排序} + \text{树层去重}}
+$$
+
+## 14. 另一种思路：选 / 不选二叉树
+
+还可以把每个下标都看成一次二元决策：
+
+```text
+选 nums[index]
+不选 nums[index]
+```
+
+普通子集因此可以形成深度为 $n$ 的二叉树。
+
+但含重复元素时，二叉写法需要额外设计去重规则，否则不同下标的相同值仍可能得到同一个子集。
+
+相比之下，本文的 `for + startIndex` 写法把“同层候选”显式放在同一个循环中，因此：
+
+```cpp
+i > startIndex && nums[i] == nums[i - 1]
+```
+
+可以非常自然地完成去重。
+
+所以对于“组合 / 子集 + 去重”问题，通常更推荐横向 `for` 枚举的搜索树模型。
+
+## 15. 复杂度分析
+
+设数组长度为 $n$。
+
+如果所有元素都互不相同，子集数量达到最大值：
+
+$$
+2^n
+$$
+
+每个子集复制到结果数组时，长度最多为 $n$，因此整体时间复杂度通常写为：
+
+$$
+O(n2^n)
+$$
+
+此外排序需要：
+
+$$
+O(n\log n)
+$$
+
+被指数级枚举成本覆盖，所以总时间复杂度仍记为：
+
+$$
+O(n2^n)
+$$
+
+递归最大深度为 $n$，`path` 最大长度也为 $n$，若不计最终输出结果占用空间，则辅助空间复杂度为：
+
+$$
+O(n)
+$$
+
+如果输入中存在大量重复值，唯一子集数会少于 $2^n$，树层去重也会实际减少搜索节点。
+
+## 16. 一个更精确的结果数量观察
+
+假设排序后共有 $m$ 种不同的数值，第 $j$ 种数值出现：
+
+$$
+c_j
+$$
+
+次。
+
+对于某种值，可以在子集中选择：
+
+```text
+0 个、1 个、2 个、...、c_j 个
+```
+
+一共有：
+
+$$
+c_j+1
+$$
+
+种选择。
+
+因此唯一子集总数为：
+
+$$
+\prod_{j=1}^{m}(c_j+1)
+$$
+
+例如：
+
+```text
+nums = [1,2,2]
+```
+
+其中：
+
+- `1` 出现 $1$ 次，可选 $0$ 或 $1$ 个：$2$ 种；
+- `2` 出现 $2$ 次，可选 $0,1,2$ 个：$3$ 种。
+
+所以唯一子集数为：
+
+$$
+2\times3=6
+$$
+
+正好对应：
+
+```text
+[]
+[1]
+[2]
+[1,2]
+[2,2]
+[1,2,2]
+```
+
+这个公式也从组合意义上解释了为什么重复元素会让唯一子集数量小于 $2^n$。
+
+## 17. 常见错误
+
+### 错误一：不排序就比较相邻元素
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1])
+```
+
+只有在相同值已经相邻时才能完整去重，所以必须先排序。
+
+### 错误二：把 `i > startIndex` 写成 `i > 0`
+
+会误删同一树枝上合法的重复值。
+
+### 错误三：递归传 `startIndex + 1`
+
+错误：
+
+```cpp
+backtracking(nums, startIndex + 1);
+```
+
+应该根据当前真正选择的元素下标 `i` 继续：
+
+```cpp
+backtracking(nums, i + 1);
+```
+
+否则候选区间与实际选择不对应。
+
+### 错误四：只在叶子节点收集
+
+子集问题所有节点都属于答案，必须在递归入口收集。
+
+### 错误五：把全局 `set` 当作首选解法
+
+全局结果去重能掩盖重复搜索，但没有真正理解“同一树层只保留一个相同值分支”的核心规律。
+
+## 18. 解题记忆模型
+
+遇到“数组可能重复 + 求唯一组合 / 子集”时，可以先想到四步：
+
+```text
+1. 排序，让相同值相邻
+2. 使用 startIndex 控制当前层候选范围
+3. i > startIndex 且当前值 == 前一个值 → 跳过
+4. 下一层根据元素复用规则决定传 i 还是 i + 1
+```
+
+对于本题，因为每个下标最多使用一次：
+
+```text
+下一层传 i + 1
+```
+
+又因为是子集问题：
+
+```text
+进入每个节点立即收集 path
+```
+
+最终就得到完整模型：
+
+$$
+\boxed{\text{排序}}
++
+\boxed{\text{树层去重}}
++
+\boxed{i+1}
++
+\boxed{\text{所有节点收集}}
+$$
+
+## 19. 其他语言实现
+
+
+
+```java tab="Java"
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        dfs(nums, 0);
+        return ans;
+    }
+
+    private void dfs(int[] nums, int start) {
+        ans.add(new ArrayList<>(path));
+
+        for (int i = start; i < nums.length; i++) {
+            if (i > start && nums[i] == nums[i - 1]) {
+                continue;
+            }
+
+            path.add(nums[i]);
+            dfs(nums, i + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+class Solution:
+    def subsetsWithDup(self, nums: list[int]) -> list[list[int]]:
+        nums.sort()
+        ans: list[list[int]] = []
+        path: list[int] = []
+
+        def dfs(start: int) -> None:
+            ans.append(path[:])
+
+            for i in range(start, len(nums)):
+                if i > start and nums[i] == nums[i - 1]:
+                    continue
+
+                path.append(nums[i])
+                dfs(i + 1)
+                path.pop()
+
+        dfs(0)
+        return ans
+```
+
+
+
+```go tab="Go"
+func subsetsWithDup(nums []int) [][]int {
+    sort.Ints(nums)
+
+    ans := [][]int{}
+    path := []int{}
+
+    var dfs func(int)
+    dfs = func(start int) {
+        ans = append(ans, append([]int(nil), path...))
+
+        for i := start; i < len(nums); i++ {
+            if i > start && nums[i] == nums[i-1] {
+                continue
+            }
+
+            path = append(path, nums[i])
+            dfs(i + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(0)
+    return ans
+}
+```
+
+
+
+```javascript tab="JavaScript"
+var subsetsWithDup = function(nums) {
+    nums.sort((a, b) => a - b);
+
+    const ans = [];
+    const path = [];
+
+    function dfs(start) {
+        ans.push([...path]);
+
+        for (let i = start; i < nums.length; i++) {
+            if (i > start && nums[i] === nums[i - 1]) {
+                continue;
+            }
+
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+};
+```
+
+
+
+```typescript tab="TypeScript"
+function subsetsWithDup(nums: number[]): number[][] {
+    nums.sort((a, b) => a - b);
+
+    const ans: number[][] = [];
+    const path: number[] = [];
+
+    function dfs(start: number): void {
+        ans.push([...path]);
+
+        for (let i = start; i < nums.length; i++) {
+            if (i > start && nums[i] === nums[i - 1]) {
+                continue;
+            }
+
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+}
+```
+
+
+
+```rust tab="Rust"
+impl Solution {
+    pub fn subsets_with_dup(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn dfs(
+            nums: &[i32],
+            start: usize,
+            path: &mut Vec<i32>,
+            ans: &mut Vec<Vec<i32>>,
+        ) {
+            ans.push(path.clone());
+
+            for i in start..nums.len() {
+                if i > start && nums[i] == nums[i - 1] {
+                    continue;
+                }
+
+                path.push(nums[i]);
+                dfs(nums, i + 1, path, ans);
+                path.pop();
+            }
+        }
+
+        nums.sort();
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        dfs(&nums, 0, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+
+
+```c tab="C"
+static int cmpInt(const void* a, const void* b) {
+    int x = *(const int*)a;
+    int y = *(const int*)b;
+    return (x > y) - (x < y);
+}
+
+static void dfs(
+    int* nums,
+    int numsSize,
+    int start,
+    int* path,
+    int pathSize,
+    int*** ans,
+    int** colSizes,
+    int* ansSize,
+    int* capacity
+) {
+    if (*ansSize == *capacity) {
+        *capacity *= 2;
+        *ans = (int**)realloc(*ans, sizeof(int*) * (*capacity));
+        *colSizes = (int*)realloc(*colSizes, sizeof(int) * (*capacity));
+    }
+
+    int* subset = NULL;
+    if (pathSize > 0) {
+        subset = (int*)malloc(sizeof(int) * pathSize);
+        memcpy(subset, path, sizeof(int) * pathSize);
+    }
+
+    (*ans)[*ansSize] = subset;
+    (*colSizes)[*ansSize] = pathSize;
+    (*ansSize)++;
+
+    for (int i = start; i < numsSize; ++i) {
+        if (i > start && nums[i] == nums[i - 1]) {
+            continue;
+        }
+
+        path[pathSize] = nums[i];
+        dfs(nums, numsSize, i + 1, path, pathSize + 1,
+            ans, colSizes, ansSize, capacity);
+    }
+}
+
+int** subsetsWithDup(
+    int* nums,
+    int numsSize,
+    int* returnSize,
+    int** returnColumnSizes
+) {
+    qsort(nums, numsSize, sizeof(int), cmpInt);
+
+    int capacity = 16;
+    int ansSize = 0;
+    int** ans = (int**)malloc(sizeof(int*) * capacity);
+    int* colSizes = (int*)malloc(sizeof(int) * capacity);
+    int* path = (int*)malloc(sizeof(int) * numsSize);
+
+    dfs(nums, numsSize, 0, path, 0,
+        &ans, &colSizes, &ansSize, &capacity);
+
+    free(path);
+    *returnSize = ansSize;
+    *returnColumnSizes = colSizes;
+    return ans;
+}
+```
+
+### Swift
+
+```swift
+class Solution {
+    func subsetsWithDup(_ nums: [Int]) -> [[Int]] {
+        let nums = nums.sorted()
+        var ans = [[Int]]()
+        var path = [Int]()
+
+        func dfs(_ start: Int) {
+            ans.append(path)
+
+            guard start < nums.count else { return }
+
+            for i in start..<nums.count {
+                if i > start && nums[i] == nums[i - 1] {
+                    continue
+                }
+
+                path.append(nums[i])
+                dfs(i + 1)
+                path.removeLast()
+            }
+        }
+
+        dfs(0)
+        return ans
+    }
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def subsetsWithDup(nums: Array[Int]): List[List[Int]] = {
+    val sorted = nums.sorted
+    val ans = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ArrayBuffer[Int]()
+
+    def dfs(start: Int): Unit = {
+      ans += path.toList
+
+      for (i <- start until sorted.length) {
+        if (!(i > start && sorted(i) == sorted(i - 1))) {
+          path += sorted(i)
+          dfs(i + 1)
+          path.remove(path.length - 1)
+        }
+      }
+    }
+
+    dfs(0)
+    ans.toList
+  }
+}
+```
+
+
+
+```csharp tab="C#"
+public class Solution {
+    public IList<IList<int>> SubsetsWithDup(int[] nums) {
+        Array.Sort(nums);
+
+        var ans = new List<IList<int>>();
+        var path = new List<int>();
+
+        void Dfs(int start) {
+            ans.Add(new List<int>(path));
+
+            for (int i = start; i < nums.Length; i++) {
+                if (i > start && nums[i] == nums[i - 1]) {
+                    continue;
+                }
+
+                path.Add(nums[i]);
+                Dfs(i + 1);
+                path.RemoveAt(path.Count - 1);
+            }
+        }
+
+        Dfs(0);
+        return ans;
+    }
+}
+```

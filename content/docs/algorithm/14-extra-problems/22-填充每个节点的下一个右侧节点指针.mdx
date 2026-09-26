@@ -1,0 +1,489 @@
+---
+title: 填充每个节点的下一个右侧节点指针
+description: 从层序遍历过渡到利用 next 指针逐层连接，理解完美二叉树中“同父节点连接”和“跨父节点连接”两类关系，并掌握常量额外空间解法。
+---
+
+# 116. 填充每个节点的下一个右侧节点指针
+
+[LeetCode 116：填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/)
+
+给定一棵 **完美二叉树**，每个非叶子节点都有两个子节点，并且所有叶子节点位于同一层。
+
+每个节点额外带有一个 `next` 指针，需要把它指向同一层右侧紧邻的节点；如果当前节点已经是这一层最右侧节点，则令 `next = nullptr`。
+
+```text
+struct Node {
+    int val;
+    Node *left;
+    Node *right;
+    Node *next;
+};
+```
+
+![填充 next 指针示意图](https://file1.kamacoder.com/i/algo/20210727143202.png)
+
+## 一、这道题真正考什么
+
+如果只看“把同一层节点连起来”，最直观的方法当然是层序遍历：
+
+```text
+每层取出所有节点 -> 按顺序连接
+```
+
+但是题目进一步要求：
+
+> 尽量只使用常量级额外空间。
+
+这意味着，我们应该思考：
+
+> 能不能不额外保存“这一层有哪些节点”，而是利用已经建立好的 `next` 指针直接在当前层横向移动？
+
+这正是本题最重要的技巧。
+
+## 二、核心结构：每个父节点只负责两类连接
+
+假设当前父节点为 `cur`。
+
+它需要完成两条线：
+
+1. **同一个父节点内部**：`cur.left -> cur.right`
+2. **跨父节点连接**：`cur.right -> cur.next.left`
+
+示意如下：
+
+![两类 next 连接关系](https://file1.kamacoder.com/i/algo/116.填充每个节点的下一个右侧节点指针1.png)
+
+因此连接公式可以写成：
+
+```cpp
+cur->left->next = cur->right;
+
+if (cur->next != nullptr) {
+    cur->right->next = cur->next->left;
+}
+```
+
+第二条语句为什么成立？
+
+因为题目保证是 **完美二叉树**。如果 `cur` 的右边还有同层节点，那么 `cur->next` 一定是相邻父节点，而下一层中紧跟在 `cur->right` 后面的节点就是：
+
+```text
+cur.next.left
+```
+
+> [!IMPORTANT]
+> 本题能写出如此简洁的跨父节点连接，是因为树是完美二叉树。若换成普通二叉树，就不能直接假设 `cur.next.left` 一定存在。
+
+## 三、推荐解法：利用 next 指针逐层扫描
+
+这是最符合题意的迭代方法，并且真正做到 $O(1)$ 额外空间。
+
+### 1. 先看层与层之间的关系
+
+假设当前已经处于某一层的最左节点：
+
+```text
+leftmost
+```
+
+这一层通过 `next` 已经形成链：
+
+```text
+A -> B -> C -> D -> null
+```
+
+那么我们就可以：
+
+```text
+cur = leftmost
+cur = cur.next
+cur = cur.next
+...
+```
+
+一路横向扫描当前层。
+
+扫描过程中，每个 `cur` 负责把 **下一层** 的两个连接补好。
+
+### 2. 为什么可以从第二层开始不断复用 next
+
+根节点所在层只有一个节点，不需要连接。
+
+当我们处理根节点时，可以建立第二层：
+
+```text
+root.left -> root.right
+```
+
+第二层建立完成后，便可以沿第二层的 `next` 横向移动，继续建立第三层。
+
+于是形成循环：
+
+```text
+当前层已经连接好
+      ↓
+利用当前层 next 横向遍历
+      ↓
+建立下一层 next
+      ↓
+进入下一层最左节点
+```
+
+这就是本题常量空间解法的本质。
+
+## 四、C++ 常量空间实现
+
+```cpp
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+
+        Node* leftmost = root;
+
+        // 只要还有下一层，就继续建立连接
+        while (leftmost->left != nullptr) {
+            Node* cur = leftmost;
+
+            while (cur != nullptr) {
+                // 1. 同父节点连接
+                cur->left->next = cur->right;
+
+                // 2. 跨父节点连接
+                if (cur->next != nullptr) {
+                    cur->right->next = cur->next->left;
+                }
+
+                cur = cur->next;
+            }
+
+            leftmost = leftmost->left;
+        }
+
+        return root;
+    }
+};
+```
+
+### 复杂度
+
+每个节点最多被访问常数次，因此：
+
+- 时间复杂度：$O(n)$
+- 额外空间复杂度：$O(1)$
+
+这里没有使用队列、数组或显式栈。
+
+## 五、为什么 `while (leftmost->left != nullptr)` 就够了
+
+因为完美二叉树中：
+
+- 如果当前层不是叶子层，那么当前层所有节点都有左右孩子；
+- 如果 `leftmost->left == nullptr`，说明已经到达叶子层。
+
+叶子层本身没有下一层需要连接，因此循环可以结束。
+
+这个条件也再次依赖 **完美二叉树** 的结构性质。
+
+## 六、递归法：先连接当前节点，再递归左右子树
+
+递归也非常适合本题。
+
+对于节点 `cur`：
+
+```text
+cur.left  -> cur.right
+cur.right -> cur.next.left（如果 cur.next 存在）
+```
+
+然后递归处理左右孩子。
+
+```cpp
+class Solution {
+private:
+    void dfs(Node* cur) {
+        if (cur == nullptr || cur->left == nullptr) {
+            return;
+        }
+
+        cur->left->next = cur->right;
+
+        if (cur->next != nullptr) {
+            cur->right->next = cur->next->left;
+        }
+
+        dfs(cur->left);
+        dfs(cur->right);
+    }
+
+public:
+    Node* connect(Node* root) {
+        dfs(root);
+        return root;
+    }
+};
+```
+
+### 为什么先处理连接，再向下递归
+
+例如在处理某个右子树内部的跨父节点连接时，会使用：
+
+```text
+cur.next
+```
+
+所以必须保证父层上的 `next` 已经提前建立好。
+
+这也是这里采用类似 **前序处理** 的原因。
+
+> [!TIP]
+> 可以把递归函数理解为：“已知当前节点所在层的 next 已经正确，利用它建立下一层的连接。”
+
+## 七、层序遍历：最直观但不是最优空间解法
+
+如果暂时不考虑常量空间要求，BFS 是最好理解的方法。
+
+每一层：
+
+1. 记录当前层节点数 `size`；
+2. 依次出队；
+3. 当前节点不是本层最后一个节点时，让它指向队首；
+4. 将左右孩子压入队列。
+
+```cpp
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+
+        queue<Node*> q;
+        q.push(root);
+
+        while (!q.empty()) {
+            int size = q.size();
+
+            for (int i = 0; i < size; ++i) {
+                Node* cur = q.front();
+                q.pop();
+
+                if (i + 1 < size) {
+                    cur->next = q.front();
+                }
+
+                if (cur->left != nullptr) {
+                    q.push(cur->left);
+                }
+                if (cur->right != nullptr) {
+                    q.push(cur->right);
+                }
+            }
+        }
+
+        return root;
+    }
+};
+```
+
+### 复杂度
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(n)$
+
+最宽的一层可能包含约一半节点，因此队列最坏需要线性空间。
+
+## 八、三种方法如何选择
+
+| 方法 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- |
+| BFS 层序遍历 | $O(n)$ | $O(n)$ | 最直观，容易写 |
+| 递归 | $O(n)$ | $O(h)$ 调用栈 | 代码简洁，依赖已建立的上层 `next` |
+| 利用 `next` 逐层扫描 | $O(n)$ | $O(1)$ | 最符合题意，推荐掌握 |
+
+如果是第一次做，可以先写 BFS；如果目标是掌握这道题真正的技巧，应重点理解第三种方法。
+
+## 九、常见错误
+
+### 错误 1：只连接左右兄弟节点
+
+只写：
+
+```cpp
+cur->left->next = cur->right;
+```
+
+会漏掉：
+
+```text
+一个父节点的右孩子
+        ↓
+下一个父节点的左孩子
+```
+
+也就是跨父节点连接。
+
+### 错误 2：跨父节点时写成 `cur->next->right`
+
+正确目标是：
+
+```cpp
+cur->right->next = cur->next->left;
+```
+
+因为下一棵相邻子树中，最先出现的是左孩子。
+
+### 错误 3：忘记当前层必须先建立好 next
+
+下一层跨子树连接依赖：
+
+```cpp
+cur->next
+```
+
+如果当前层的 `next` 还没建立，就无法完成下一层的跨父节点连接。
+
+## 十、模板总结
+
+这道题最值得记住的并不是 BFS，而是下面这组关系：
+
+```text
+同父节点：
+left.next = right
+
+跨父节点：
+right.next = parent.next.left
+```
+
+以及整体迭代框架：
+
+```text
+leftmost = root
+
+while 还有下一层:
+    cur = leftmost
+
+    while cur != null:
+        连接 cur 的两个孩子
+        连接 cur 与下一个父节点的孩子
+        cur = cur.next
+
+    leftmost = leftmost.left
+```
+
+> [!NOTE]
+> “利用已经建立的结构，避免额外数据结构”是本题最重要的思想。它在链表化遍历、树的层间连接等问题中都很有价值。
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return null;
+        }
+
+        Node leftmost = root;
+
+        while (leftmost.left != null) {
+            Node cur = leftmost;
+
+            while (cur != null) {
+                cur.left.next = cur.right;
+
+                if (cur.next != null) {
+                    cur.right.next = cur.next.left;
+                }
+
+                cur = cur.next;
+            }
+
+            leftmost = leftmost.left;
+        }
+
+        return root;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        if root is None:
+            return None
+
+        leftmost = root
+
+        while leftmost.left is not None:
+            cur = leftmost
+
+            while cur is not None:
+                cur.left.next = cur.right
+
+                if cur.next is not None:
+                    cur.right.next = cur.next.left
+
+                cur = cur.next
+
+            leftmost = leftmost.left
+
+        return root
+```
+
+```go tab="Go"
+func connect(root *Node) *Node {
+    if root == nil {
+        return nil
+    }
+
+    leftmost := root
+
+    for leftmost.Left != nil {
+        cur := leftmost
+
+        for cur != nil {
+            cur.Left.Next = cur.Right
+
+            if cur.Next != nil {
+                cur.Right.Next = cur.Next.Left
+            }
+
+            cur = cur.Next
+        }
+
+        leftmost = leftmost.Left
+    }
+
+    return root
+}
+```
+
+```javascript tab="JavaScript"
+var connect = function(root) {
+    if (root === null) {
+        return null;
+    }
+
+    let leftmost = root;
+
+    while (leftmost.left !== null) {
+        let cur = leftmost;
+
+        while (cur !== null) {
+            cur.left.next = cur.right;
+
+            if (cur.next !== null) {
+                cur.right.next = cur.next.left;
+            }
+
+            cur = cur.next;
+        }
+
+        leftmost = leftmost.left;
+    }
+
+    return root;
+};
+```

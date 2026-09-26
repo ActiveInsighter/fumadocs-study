@@ -1,0 +1,682 @@
+---
+title: 二叉树统一迭代遍历：用“访问 / 处理”状态统一三种 DFS
+description: 用标记法统一前序、中序、后序遍历的迭代写法，重点理解节点第一次出栈与真正处理之间的区别，并掌握空指针标记法与 visited 状态法。
+---
+
+# 二叉树统一迭代遍历：用“访问 / 处理”状态统一三种 DFS
+
+前一篇中，前序、中序、后序的普通迭代写法并不完全统一：前序可以直接“弹栈即处理”，中序却需要额外的 `cur` 指针一路向左，后序又常通过反转前序结果实现。
+
+这说明一个本质问题：**三种遍历真正不同的不是“要不要用栈”，而是节点被访问时，是否已经到了可以处理它的时机。**
+
+统一迭代法就是把这个“处理时机”显式记录下来。
+
+<Callout title="核心思想" type="idea">
+
+一个节点进入栈，不一定代表现在就要把它加入答案。
+
+我们把一次遍历拆成两种状态：
+
+- **第一次访问节点**：只负责安排“左子树、当前节点、右子树”之后的执行顺序；
+- **第二次回到节点**：说明轮到真正处理当前节点，此时才把它加入结果。
+
+只要能区分这两种状态，前序、中序、后序就可以使用同一套框架。
+
+</Callout>
+
+## 1. 为什么普通迭代法看起来不统一
+
+递归代码之所以统一，是因为函数调用栈不仅保存了“节点”，还隐式保存了**返回以后应该从哪一行继续执行**。
+
+例如中序遍历：
+
+```cpp title="递归中序遍历"
+void traversal(TreeNode* root) {
+    if (root == nullptr) return;
+
+    traversal(root->left);   // 左
+    process(root);           // 中
+    traversal(root->right);  // 右
+}
+```
+
+当程序进入 `root->left` 时，调用栈会记住：
+
+> 左子树返回后，不是结束，而是继续执行 `process(root)`。
+
+普通 `stack<TreeNode*>` 只保存了“哪个节点以后还要回来”，却没有保存“回来以后是继续展开，还是现在就处理”。
+
+所以统一迭代法真正补充的是**执行状态**。
+
+## 2. 两种常见标记方式
+
+统一迭代法常见两种实现。
+
+<Cards>
+  <Card title="空指针标记法">节点再次入栈后紧跟一个 `nullptr`，弹出 `nullptr` 时表示下一个节点应该被处理。</Card>
+  <Card title="visited 状态法">栈中保存 `(node, visited)`；`false` 表示第一次访问，`true` 表示已经安排完子节点，现在可以处理。</Card>
+</Cards>
+
+二者思想完全相同：**让栈同时保存节点和“程序执行到哪一步”的信息。**
+
+在理解层面，更推荐先掌握 `visited` 状态法；在熟悉以后，再看空指针标记法会非常自然。
+
+## 3. 先掌握 visited 状态法
+
+我们定义：
+
+```cpp
+stack<pair<TreeNode*, bool>> st;
+```
+
+其中：
+
+| `visited` | 含义 | 当前动作 |
+| --- | --- | --- |
+| `false` | 第一次访问节点 | 不处理，先把之后的执行顺序压入栈 |
+| `true` | 第二次访问节点 | 直接处理当前节点 |
+
+统一框架可以写成：
+
+```cpp title="统一迭代框架"
+while (!st.empty()) {
+    auto [node, visited] = st.top();
+    st.pop();
+
+    if (visited) {
+        process(node);
+        continue;
+    }
+
+    // 第一次访问：按“目标遍历顺序的逆序”压栈
+}
+```
+
+为什么要**逆序压栈**？
+
+因为栈是后进先出（LIFO）。假设我们希望真正执行：
+
+```text
+A → B → C
+```
+
+那么压栈必须是：
+
+```text
+C → B → A
+```
+
+这样 `A` 才会最先弹出。
+
+<Callout title="统一迭代法最重要的口诀" type="success">
+
+**目标顺序是什么，就把它反过来压栈；当前节点需要处理时，重新压入 `(node, true)`。**
+
+</Callout>
+
+## 4. 中序遍历：左 → 根 → 右
+
+中序遍历的目标执行顺序是：
+
+```text
+左 → 根 → 右
+```
+
+因此第一次访问节点时，应该按逆序压栈：
+
+```text
+右 → 根 → 左
+```
+
+其中“根”不能立即处理，所以压入 `(node, true)`。
+
+```cpp title="中序遍历 · visited 标记法"
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<pair<TreeNode*, bool>> st;
+
+        if (root != nullptr) {
+            st.push({root, false});
+        }
+
+        while (!st.empty()) {
+            auto [node, visited] = st.top();
+            st.pop();
+
+            if (visited) {
+                result.push_back(node->val);
+                continue;
+            }
+
+            // 目标：左 -> 根 -> 右
+            // 压栈：右 -> 根 -> 左
+            if (node->right != nullptr) {
+                st.push({node->right, false});
+            }
+
+            st.push({node, true});
+
+            if (node->left != nullptr) {
+                st.push({node->left, false});
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+![中序遍历统一迭代法](https://file1.kamacoder.com/i/algo/%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%E8%BF%AD%E4%BB%A3%EF%BC%88%E7%BB%9F%E4%B8%80%E5%86%99%E6%B3%95%EF%BC%89.gif)
+
+### 手动模拟一次
+
+考虑：
+
+```text
+    2
+   / \
+  1   3
+```
+
+中序目标是：
+
+```text
+1 → 2 → 3
+```
+
+初始：
+
+```text
+[(2, false)]
+```
+
+第一次弹出 `(2, false)`，它不能直接进入答案，而是安排之后的顺序：
+
+```text
+push (3, false)
+push (2, true)
+push (1, false)
+```
+
+此时栈顶到栈底为：
+
+```text
+(1, false), (2, true), (3, false)
+```
+
+因此执行顺序自然就是左、根、右。
+
+## 5. 前序遍历：根 → 左 → 右
+
+前序目标为：
+
+```text
+根 → 左 → 右
+```
+
+逆序压栈为：
+
+```text
+右 → 左 → 根
+```
+
+所以只需要调整第一次访问节点时的三段入栈顺序：
+
+```cpp title="前序遍历 · visited 标记法"
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<pair<TreeNode*, bool>> st;
+
+        if (root != nullptr) {
+            st.push({root, false});
+        }
+
+        while (!st.empty()) {
+            auto [node, visited] = st.top();
+            st.pop();
+
+            if (visited) {
+                result.push_back(node->val);
+                continue;
+            }
+
+            // 目标：根 -> 左 -> 右
+            // 压栈：右 -> 左 -> 根
+            if (node->right != nullptr) {
+                st.push({node->right, false});
+            }
+
+            if (node->left != nullptr) {
+                st.push({node->left, false});
+            }
+
+            st.push({node, true});
+        }
+
+        return result;
+    }
+};
+```
+
+注意：普通前序迭代法其实更短，因为根节点第一次弹出时就能直接处理。统一写法的价值不在于“代码最短”，而在于**把三种遍历抽象成同一个模型**。
+
+## 6. 后序遍历：左 → 右 → 根
+
+后序目标为：
+
+```text
+左 → 右 → 根
+```
+
+逆序压栈：
+
+```text
+根 → 右 → 左
+```
+
+```cpp title="后序遍历 · visited 标记法"
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<pair<TreeNode*, bool>> st;
+
+        if (root != nullptr) {
+            st.push({root, false});
+        }
+
+        while (!st.empty()) {
+            auto [node, visited] = st.top();
+            st.pop();
+
+            if (visited) {
+                result.push_back(node->val);
+                continue;
+            }
+
+            // 目标：左 -> 右 -> 根
+            // 压栈：根 -> 右 -> 左
+            st.push({node, true});
+
+            if (node->right != nullptr) {
+                st.push({node->right, false});
+            }
+
+            if (node->left != nullptr) {
+                st.push({node->left, false});
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+后序遍历最能体现统一迭代法的优势：当前节点必须等到左右子树都处理完才能真正处理，所以 `(node, true)` 本质上就是给当前节点安排了一个**延迟执行任务**。
+
+## 7. 三种遍历真正只差“压栈顺序”
+
+把三种写法放在一起，会非常清楚：
+
+| 遍历 | 目标执行顺序 | 第一次访问时的压栈顺序 |
+| --- | --- | --- |
+| 前序 | 根 → 左 → 右 | 右 → 左 → 根 |
+| 中序 | 左 → 根 → 右 | 右 → 根 → 左 |
+| 后序 | 左 → 右 → 根 | 根 → 右 → 左 |
+
+其中表格里的“根”都应该压成：
+
+```cpp
+st.push({node, true});
+```
+
+左右孩子则压成：
+
+```cpp
+st.push({child, false});
+```
+
+于是可以进一步得到一个统一认知：
+
+> 三种 DFS 遍历并不是三套算法，而是同一棵“执行顺序树”上的三种节点处理时机。
+
+## 8. 空指针标记法
+
+另一种经典写法不保存 `bool`，而是使用 `nullptr` 作为“下一项需要处理”的标记。
+
+规则是：
+
+1. 第一次弹出非空节点：重新安排执行顺序；
+2. 当前节点若以后需要处理，则把节点重新入栈；
+3. 紧接着再压入 `nullptr`；
+4. 当 `nullptr` 被弹出时，再弹出下一个节点并真正处理。
+
+以中序遍历为例：
+
+```cpp title="中序遍历 · 空指针标记法"
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<TreeNode*> st;
+
+        if (root != nullptr) {
+            st.push(root);
+        }
+
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+
+            if (node != nullptr) {
+                // 目标：左 -> 根 -> 右
+                // 压栈：右 -> 根 -> 左
+                if (node->right != nullptr) {
+                    st.push(node->right);
+                }
+
+                st.push(node);
+                st.push(nullptr); // 标记：下一个节点下次应该直接处理
+
+                if (node->left != nullptr) {
+                    st.push(node->left);
+                }
+            } else {
+                node = st.top();
+                st.pop();
+                result.push_back(node->val);
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+这里的 `nullptr` **不是树里的空孩子**，而是人为塞进栈里的控制标记。
+
+<Callout title="不要混淆两种 nullptr" type="warn">
+
+统一迭代法中的 `nullptr` 是“程序状态标记”，不是“空子树节点”。因此代码通常不会把真实空孩子压栈，而只会在某个待处理节点之前压入一个专门的 `nullptr`。
+
+</Callout>
+
+## 9. 两种标记法如何选择
+
+| 对比项 | `visited` 状态法 | `nullptr` 标记法 |
+| --- | --- | --- |
+| 可读性 | 更直观 | 更紧凑，但初看更绕 |
+| 类型安全 | 明确保存状态 | 借用特殊指针值表达状态 |
+| 面试现场 | 更容易解释 | 熟练后写得很快 |
+| 泛化能力 | 很强，可扩展更多状态 | 更适合二阶段处理 |
+
+如果第一次学习统一迭代法，建议优先掌握 `visited` 版本。
+
+## 10. 复杂度分析
+
+三种统一迭代遍历都满足：
+
+- 每个节点只会被安排有限次；
+- 每次压栈、弹栈都是 $O(1)$。
+
+因此时间复杂度为：
+
+$$
+O(n)
+$$
+
+其中 $n$ 是节点数。
+
+栈空间与树高相关。最坏情况下树退化成链表，空间复杂度为：
+
+$$
+O(n)
+$$
+
+较平衡时，栈深通常与树高同阶，可记为：
+
+$$
+O(h)
+$$
+
+## 11. 常见错误
+
+### 错误 1：忘记“逆序压栈”
+
+目标顺序是前序：
+
+```text
+根 → 左 → 右
+```
+
+如果也按“根、左、右”的顺序直接压栈，那么真正弹出的顺序会反过来。
+
+应该始终先写出：
+
+```text
+目标执行顺序
+↓ 反转
+实际压栈顺序
+```
+
+### 错误 2：把第一次访问就当成处理
+
+统一迭代法最关键的就是把这两件事分开。第一次访问只负责**安排任务**，真正处理只发生在 `visited == true` 或遇到标记时。
+
+### 错误 3：`visited == true` 后还继续展开孩子
+
+第二次访问已经代表“现在就是处理时机”，处理完应该直接 `continue`，否则会重复展开当前子树。
+
+### 错误 4：空树直接压入 `(nullptr, false)`
+
+如果后续代码直接访问 `node->left`，会产生空指针问题。最简单的做法是只在 `root != nullptr` 时入栈。
+
+## 12. 从统一迭代法理解“递归的本质”
+
+统一迭代法最值得掌握的并不是某段模板，而是它把递归里原本隐含的信息暴露了出来。
+
+递归调用栈实际上同时保存：
+
+```text
+节点 + 当前执行阶段 + 返回位置
+```
+
+而统一迭代法显式保存：
+
+```text
+(node, visited)
+```
+
+所以它可以看成一种非常简化的“手写调用栈”。
+
+这也解释了为什么今后很多更复杂的树算法，会出现类似思想：
+
+- 节点第一次进入时执行一类逻辑；
+- 子树完成后再次回到节点时执行另一类逻辑；
+- 必要时甚至可以设计第三种、第四种状态。
+
+<Callout title="什么时候值得使用统一迭代法？" type="info">
+
+如果题目只是要求前序 / 中序 / 后序输出，普通递归或常规迭代通常更简洁。
+
+统一迭代法更适合用来理解：**显式栈如何模拟递归执行阶段**。这个思想比模板本身更重要。
+
+</Callout>
+
+## 13. 一页速记
+
+```text
+第一次访问：安排执行顺序
+第二次访问：真正处理节点
+
+目标顺序：根 左 右
+压栈顺序：右 左 根*
+
+目标顺序：左 根 右
+压栈顺序：右 根* 左
+
+目标顺序：左 右 根
+压栈顺序：根* 右 左
+
+* 根节点重新入栈时标记为 visited = true
+```
+
+## 其他语言实现
+
+下面统一使用 `visited` 状态法实现中序遍历。理解这一版后，前序和后序只需要调整入栈顺序。
+
+
+
+```cpp title="C++" tab="C++"
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> result;
+        stack<pair<TreeNode*, bool>> st;
+        if (root) st.push({root, false});
+
+        while (!st.empty()) {
+            auto [node, visited] = st.top();
+            st.pop();
+
+            if (visited) {
+                result.push_back(node->val);
+                continue;
+            }
+
+            if (node->right) st.push({node->right, false});
+            st.push({node, true});
+            if (node->left) st.push({node->left, false});
+        }
+        return result;
+    }
+};
+```
+
+
+
+```python title="Python" tab="Python"
+class Solution:
+    def inorderTraversal(self, root):
+        result = []
+        stack = [(root, False)] if root else []
+
+        while stack:
+            node, visited = stack.pop()
+
+            if visited:
+                result.append(node.val)
+                continue
+
+            if node.right:
+                stack.append((node.right, False))
+            stack.append((node, True))
+            if node.left:
+                stack.append((node.left, False))
+
+        return result
+```
+
+
+
+```java title="Java" tab="Java"
+class Solution {
+    private static class State {
+        TreeNode node;
+        boolean visited;
+
+        State(TreeNode node, boolean visited) {
+            this.node = node;
+            this.visited = visited;
+        }
+    }
+
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        Deque<State> stack = new ArrayDeque<>();
+        if (root != null) stack.push(new State(root, false));
+
+        while (!stack.isEmpty()) {
+            State state = stack.pop();
+            TreeNode node = state.node;
+
+            if (state.visited) {
+                result.add(node.val);
+                continue;
+            }
+
+            if (node.right != null) stack.push(new State(node.right, false));
+            stack.push(new State(node, true));
+            if (node.left != null) stack.push(new State(node.left, false));
+        }
+
+        return result;
+    }
+}
+```
+
+
+
+```go title="Go" tab="Go"
+type State struct {
+    node    *TreeNode
+    visited bool
+}
+
+func inorderTraversal(root *TreeNode) []int {
+    result := []int{}
+    stack := []State{}
+    if root != nil {
+        stack = append(stack, State{root, false})
+    }
+
+    for len(stack) > 0 {
+        state := stack[len(stack)-1]
+        stack = stack[:len(stack)-1]
+
+        if state.visited {
+            result = append(result, state.node.Val)
+            continue
+        }
+
+        node := state.node
+        if node.Right != nil {
+            stack = append(stack, State{node.Right, false})
+        }
+        stack = append(stack, State{node, true})
+        if node.Left != nil {
+            stack = append(stack, State{node.Left, false})
+        }
+    }
+
+    return result
+}
+```
+
+
+
+```javascript title="JavaScript" tab="JavaScript"
+var inorderTraversal = function(root) {
+    const result = [];
+    const stack = root ? [[root, false]] : [];
+
+    while (stack.length > 0) {
+        const [node, visited] = stack.pop();
+
+        if (visited) {
+            result.push(node.val);
+            continue;
+        }
+
+        if (node.right) stack.push([node.right, false]);
+        stack.push([node, true]);
+        if (node.left) stack.push([node.left, false]);
+    }
+
+    return result;
+};
+```

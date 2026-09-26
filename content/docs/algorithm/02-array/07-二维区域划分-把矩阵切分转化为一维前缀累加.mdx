@@ -1,0 +1,797 @@
+---
+title: 二维区域划分：把矩阵切分转化为一维前缀累加
+description: 以“开发商购买土地”为例，从二维暴力枚举出发，将横切与竖切分别压缩成行和、列和问题，推导 |total-2×part|，讲清非空区域边界、复杂度与无需保存完整矩阵的优化。
+---
+
+
+# 二维区域划分：把矩阵切分转化为一维前缀累加
+
+题目：卡码网 44「开发商购买土地」。
+
+给定一个 $n\times m$ 的矩阵，每个位置表示一块土地的价值。现在只能用一条完整的**水平分割线**或**竖直分割线**把整个矩阵分成两个非空区域，要求两个区域价值总和的差尽可能小。
+
+例如：
+
+```text
+1 2 | 3
+2 1 | 3
+1 2 | 3
+```
+
+左侧区域价值为：
+
+$$
+1+2+2+1+1+2=9
+$$
+
+右侧区域价值为：
+
+$$
+3+3+3=9
+$$
+
+因此最小差值为：
+
+$$
+0
+$$
+
+---
+
+## 1. 先看清题目真正允许枚举的东西
+
+这道题不是“任意切出两个矩形”，也不是二维前缀和中的任意子矩形查询。
+
+合法划分只有两类：
+
+1. 在相邻两行之间横切；
+2. 在相邻两列之间竖切。
+
+所以候选分割线总数只有：
+
+$$
+(n-1)+(m-1)
+$$
+
+而不是 $O(nm)$ 个矩形，更不是指数级划分。
+
+<Callout title="第一步永远先缩小搜索空间" type="info">
+看到二维矩阵，不要立刻套“二维前缀和”。先问：真正需要枚举的状态是什么？本题只需要枚举横向和纵向分割线，因此可以把二维问题压缩成两个一维问题。
+</Callout>
+
+---
+
+## 2. 暴力为什么会重复计算
+
+假设枚举一条水平分割线。
+
+最直接的方法是：
+
+1. 枚举切在哪两行之间；
+2. 每次重新遍历上半部分求和；
+3. 再遍历下半部分求和。
+
+如果矩阵接近 $n\times n$，这样的重复求和会把复杂度推到约：
+
+$$
+O(n^3)
+$$
+
+问题就在于：
+
+> 当分割线只向下移动一行时，前面绝大部分元素的和其实已经算过了。
+
+这与一维“区间和”问题中的重复计算完全相同。
+
+---
+
+## 3. 核心变形：只要知道一侧的和就够了
+
+记整个矩阵的总价值为：
+
+$$
+S
+$$
+
+某条分割线一侧的价值为：
+
+$$
+P
+$$
+
+那么另一侧一定是：
+
+$$
+S-P
+$$
+
+两部分差值为：
+
+$$
+|P-(S-P)|
+$$
+
+整理得到：
+
+$$
+\boxed{|2P-S|}
+$$
+
+也可以写成：
+
+$$
+\boxed{|S-2P|}
+$$
+
+所以每枚举一条分割线，我们根本不需要分别计算两边：
+
+> 维护已经扫过的一侧累计和 $P$，再计算 $|S-2P|$ 即可。
+
+这是本题最关键的代数化简。
+
+---
+
+## 4. 横向切分：把每一行压缩成一个数
+
+先定义每一行的和：
+
+$$
+row[i]=\sum_{j=0}^{m-1} a[i][j]
+$$
+
+那么原来的二维矩阵就可以在横向切分问题中压缩为：
+
+```text
+row[0], row[1], row[2], ..., row[n-1]
+```
+
+假设分割线放在第 $i$ 行与第 $i+1$ 行之间，那么上半部分的和是：
+
+$$
+P_i=row[0]+row[1]+\cdots+row[i]
+$$
+
+对应差值：
+
+$$
+|S-2P_i|
+$$
+
+因此只要从上到下做一次前缀累加即可。
+
+---
+
+## 5. 竖向切分完全同理
+
+定义每一列的和：
+
+$$
+col[j]=\sum_{i=0}^{n-1} a[i][j]
+$$
+
+竖切时，把矩阵压缩成：
+
+```text
+col[0], col[1], col[2], ..., col[m-1]
+```
+
+若分割线在第 $j$ 列与第 $j+1$ 列之间，左半部分累计和为：
+
+$$
+Q_j=col[0]+col[1]+\cdots+col[j]
+$$
+
+差值同样是：
+
+$$
+|S-2Q_j|
+$$
+
+所以整道题本质上是：
+
+> 分别对“行和数组”和“列和数组”做一次前缀扫描，取最小差值。
+
+---
+
+## 6. 一个容易漏掉的边界：两个区域必须非空
+
+如果共有 $n$ 行，水平分割线只能出现在：
+
+```text
+第 0 行后
+第 1 行后
+...
+第 n-2 行后
+```
+
+不能放在最后一行之后，因为那样第二个区域为空。
+
+因此横切枚举范围应为：
+
+$$
+0\le i<n-1
+$$
+
+竖切同理：
+
+$$
+0\le j<m-1
+$$
+
+<Callout title="常见隐藏错误" type="warning">
+有些实现会在扫描完最后一行或最后一列之后也计算一次差值。那实际上对应“一个区域包含整个矩阵、另一个区域为空”，不符合题意。即使部分测试数据碰巧不影响最优答案，也应该从逻辑上排除。
+</Callout>
+
+---
+
+## 7. 推荐实现：读入时同时统计行和、列和与总和
+
+没有必要保存完整的 $n\times m$ 矩阵。
+
+读入每个元素 $x=a[i][j]$ 时，同时执行：
+
+```text
+row[i] += x
+col[j] += x
+total  += x
+```
+
+读完之后：
+
+- `row` 已经保存每一行总和；
+- `col` 已经保存每一列总和；
+- `total` 保存矩阵总和。
+
+于是只需要两次一维扫描。
+
+```cpp
+long long answer = LLONG_MAX;
+
+long long prefix = 0;
+for (int i = 0; i < n - 1; ++i) {
+    prefix += row[i];
+    answer = min(answer, llabs(total - 2 * prefix));
+}
+
+prefix = 0;
+for (int j = 0; j < m - 1; ++j) {
+    prefix += col[j];
+    answer = min(answer, llabs(total - 2 * prefix));
+}
+```
+
+---
+
+## 8. 为什么这其实也是前缀和思想
+
+上一节“区间和”中，我们显式构造：
+
+$$
+prefix[i]
+$$
+
+来保存前 $i$ 个元素的和。
+
+本题只需要从左到右或从上到下**顺序枚举一次**，不会反复查询历史位置，因此没必要真的保存完整 `prefix` 数组。
+
+只维护一个变量：
+
+```cpp
+prefix += row[i];
+```
+
+就已经在做前缀累加。
+
+可以把两种形式理解为：
+
+| 场景 | 做法 |
+| --- | --- |
+| 后续有大量任意区间查询 | 保存完整前缀和数组 |
+| 只顺序扫描所有前缀一次 | 一个累计变量即可 |
+
+这也是一个很重要的空间优化意识：
+
+> 不要为了“用了前缀和思想”就机械地创建前缀数组。
+
+---
+
+## 9. 用样例完整走一遍
+
+矩阵：
+
+```text
+1 2 3
+2 1 3
+1 2 3
+```
+
+总和：
+
+$$
+S=18
+$$
+
+### 横向
+
+行和：
+
+```text
+6, 6, 6
+```
+
+合法横切只有两条。
+
+第一行后：
+
+$$
+P=6
+$$
+
+差值：
+
+$$
+|18-2\times6|=6
+$$
+
+第二行后：
+
+$$
+P=12
+$$
+
+差值：
+
+$$
+|18-2\times12|=6
+$$
+
+### 纵向
+
+列和：
+
+```text
+4, 5, 9
+```
+
+第一列后：
+
+$$
+P=4
+$$
+
+差值：
+
+$$
+|18-8|=10
+$$
+
+第二列后：
+
+$$
+P=9
+$$
+
+差值：
+
+$$
+|18-18|=0
+$$
+
+因此最终答案：
+
+$$
+\boxed{0}
+$$
+
+---
+
+## 10. 复杂度分析
+
+读取整个矩阵必然需要访问每个元素一次：
+
+$$
+O(nm)
+$$
+
+扫描所有横向和纵向分割线：
+
+$$
+O(n+m)
+$$
+
+因此总时间复杂度：
+
+$$
+\boxed{O(nm)}
+$$
+
+由于没有保存完整矩阵，只保存行和与列和：
+
+$$
+\boxed{O(n+m)}
+$$
+
+额外空间。
+
+如果已经因为其他需求保存了矩阵，那么当然也可以先存矩阵再统计，但对本题本身来说没有必要。
+
+---
+
+## 11. 为什么这里不需要二维前缀和
+
+二维前缀和适合快速回答：
+
+> 任意子矩形的元素和是多少？
+
+例如查询：
+
+$$
+[x_1,x_2]\times[y_1,y_2]
+$$
+
+但本题的区域始终是完整的若干行或完整的若干列，结构非常特殊。
+
+如果硬套二维前缀和：
+
+- 可以做；
+- 但状态更多；
+- 代码更复杂；
+- 没有任何复杂度收益。
+
+<Callout title="算法选择原则" type="info">
+能用一维统计解决的问题，不要为了“高级”而升级到二维前缀和。算法设计追求的是与问题结构匹配，而不是使用最复杂的工具。
+</Callout>
+
+---
+
+## 12. 从本题提炼出的通用模型
+
+很多“把整体分成两部分，使差最小”的题都能做同样的变形。
+
+设总和为 $S$，第一部分和为 $P$，第二部分自然是 $S-P$：
+
+$$
+\text{diff}=|P-(S-P)|=|2P-S|
+$$
+
+于是问题往往转化为：
+
+> 找一个合法的 $P$，让它尽量接近 $S/2$。
+
+区别只在于“合法的第一部分”如何产生：
+
+- 数组切一刀：枚举前缀；
+- 矩阵横切/竖切：枚举行前缀或列前缀；
+- 任意选若干元素：可能变成背包问题；
+- 树上切边：可能变成子树和问题。
+
+看到“两个部分的和之差最小”时，可以优先尝试这个代数变形。
+
+---
+
+## 13. 完整 C++ 实现
+
+```cpp
+#include <climits>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<long long> row(n, 0);
+    vector<long long> col(m, 0);
+    long long total = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            long long x;
+            cin >> x;
+            row[i] += x;
+            col[j] += x;
+            total += x;
+        }
+    }
+
+    long long answer = LLONG_MAX;
+
+    // 在相邻两行之间切，不能切在最后一行之后。
+    long long prefix = 0;
+    for (int i = 0; i < n - 1; ++i) {
+        prefix += row[i];
+        answer = min(answer, llabs(total - 2 * prefix));
+    }
+
+    // 在相邻两列之间切，不能切在最后一列之后。
+    prefix = 0;
+    for (int j = 0; j < m - 1; ++j) {
+        prefix += col[j];
+        answer = min(answer, llabs(total - 2 * prefix));
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+---
+
+## 14. 其他语言版本
+
+
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        FastScanner fs = new FastScanner(System.in);
+        int n = fs.nextInt();
+        int m = fs.nextInt();
+
+        long[] row = new long[n];
+        long[] col = new long[m];
+        long total = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                long x = fs.nextLong();
+                row[i] += x;
+                col[j] += x;
+                total += x;
+            }
+        }
+
+        long answer = Long.MAX_VALUE;
+        long prefix = 0;
+
+        for (int i = 0; i < n - 1; i++) {
+            prefix += row[i];
+            answer = Math.min(answer, Math.abs(total - 2 * prefix));
+        }
+
+        prefix = 0;
+        for (int j = 0; j < m - 1; j++) {
+            prefix += col[j];
+            answer = Math.min(answer, Math.abs(total - 2 * prefix));
+        }
+
+        System.out.println(answer);
+    }
+
+    static class FastScanner {
+        private final InputStream in;
+        private final byte[] buffer = new byte[1 << 16];
+        private int ptr = 0, len = 0;
+
+        FastScanner(InputStream in) {
+            this.in = in;
+        }
+
+        private int read() throws IOException {
+            if (ptr >= len) {
+                len = in.read(buffer);
+                ptr = 0;
+                if (len <= 0) return -1;
+            }
+            return buffer[ptr++];
+        }
+
+        long nextLong() throws IOException {
+            int c;
+            do c = read(); while (c <= ' ');
+            long sign = 1;
+            if (c == '-') {
+                sign = -1;
+                c = read();
+            }
+            long value = 0;
+            while (c > ' ') {
+                value = value * 10 + c - '0';
+                c = read();
+            }
+            return value * sign;
+        }
+
+        int nextInt() throws IOException {
+            return (int) nextLong();
+        }
+    }
+}
+```
+
+
+
+```python tab="Python"
+import sys
+
+
+def main() -> None:
+    data = list(map(int, sys.stdin.buffer.read().split()))
+    it = iter(data)
+
+    n = next(it)
+    m = next(it)
+
+    row = [0] * n
+    col = [0] * m
+    total = 0
+
+    for i in range(n):
+        for j in range(m):
+            x = next(it)
+            row[i] += x
+            col[j] += x
+            total += x
+
+    ans = float("inf")
+
+    prefix = 0
+    for i in range(n - 1):
+        prefix += row[i]
+        ans = min(ans, abs(total - 2 * prefix))
+
+    prefix = 0
+    for j in range(m - 1):
+        prefix += col[j]
+        ans = min(ans, abs(total - 2 * prefix))
+
+    print(ans)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func abs(x int64) int64 {
+    if x < 0 {
+        return -x
+    }
+    return x
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    row := make([]int64, n)
+    col := make([]int64, m)
+    var total int64
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            var x int64
+            fmt.Fscan(in, &x)
+            row[i] += x
+            col[j] += x
+            total += x
+        }
+    }
+
+    const MaxInt64 = int64(^uint64(0) >> 1)
+    ans := MaxInt64
+
+    var prefix int64
+    for i := 0; i < n-1; i++ {
+        prefix += row[i]
+        d := abs(total - 2*prefix)
+        if d < ans {
+            ans = d
+        }
+    }
+
+    prefix = 0
+    for j := 0; j < m-1; j++ {
+        prefix += col[j]
+        d := abs(total - 2*prefix)
+        if d < ans {
+            ans = d
+        }
+    }
+
+    fmt.Fprintln(out, ans)
+}
+```
+
+
+
+```javascript tab="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+
+const row = new Array(n).fill(0);
+const col = new Array(m).fill(0);
+let total = 0;
+
+for (let i = 0; i < n; i++) {
+    for (let j = 0; j < m; j++) {
+        const x = data[p++];
+        row[i] += x;
+        col[j] += x;
+        total += x;
+    }
+}
+
+let answer = Infinity;
+let prefix = 0;
+
+for (let i = 0; i < n - 1; i++) {
+    prefix += row[i];
+    answer = Math.min(answer, Math.abs(total - 2 * prefix));
+}
+
+prefix = 0;
+for (let j = 0; j < m - 1; j++) {
+    prefix += col[j];
+    answer = Math.min(answer, Math.abs(total - 2 * prefix));
+}
+
+console.log(answer);
+```
+
+
+
+```typescript tab="TypeScript"
+import * as fs from 'fs';
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+
+const n = data[p++];
+const m = data[p++];
+const row: number[] = new Array(n).fill(0);
+const col: number[] = new Array(m).fill(0);
+let total = 0;
+
+for (let i = 0; i < n; i++) {
+    for (let j = 0; j < m; j++) {
+        const x = data[p++];
+        row[i] += x;
+        col[j] += x;
+        total += x;
+    }
+}
+
+let answer = Infinity;
+let prefix = 0;
+
+for (let i = 0; i < n - 1; i++) {
+    prefix += row[i];
+    answer = Math.min(answer, Math.abs(total - 2 * prefix));
+}
+
+prefix = 0;
+for (let j = 0; j < m - 1; j++) {
+    prefix += col[j];
+    answer = Math.min(answer, Math.abs(total - 2 * prefix));
+}
+
+console.log(answer);
+```

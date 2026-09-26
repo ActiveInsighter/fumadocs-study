@@ -1,0 +1,659 @@
+---
+title: 零钱兑换
+sidebarTitle: 零钱兑换
+summary: 将 LeetCode 322 建模为完全背包最小值问题，系统解释状态定义、无穷大初始化、正序容量更新，以及为什么本题两种循环顺序都成立。
+---
+
+# 322. 零钱兑换
+
+[LeetCode 322：零钱兑换](https://leetcode.cn/problems/coin-change/)
+
+给定不同面额的硬币数组 `coins` 和目标金额 `amount`。
+
+每种硬币可以使用任意多次，求凑出 `amount` 所需要的**最少硬币数**；如果无法凑出，返回 `-1`。
+
+例如：
+
+```text
+coins = [1, 2, 5]
+amount = 11
+```
+
+最优方案为：
+
+```text
+5 + 5 + 1
+```
+
+因此答案为：
+
+$$
+\boxed{3}
+$$
+
+<Callout type="warning" title="不要和零钱兑换 II 混淆">
+“零钱兑换 II”求的是组合方案数；本题求的是最少硬币数。虽然二者都是完全背包，但 DP 状态、初始化、转移目标以及对遍历顺序的要求都不同。
+</Callout>
+
+## 1. 为什么是完全背包
+
+对每一种硬币：
+
+- 面额就是物品重量；
+- 目标金额就是背包容量；
+- 每种硬币数量无限；
+- 希望恰好凑满 `amount`；
+- 目标不是最大价值，也不是方案数量，而是**使用物品数最少**。
+
+所以本题属于：
+
+$$
+\boxed{\text{完全背包最小值问题}}
+$$
+
+## 2. 状态定义
+
+定义：
+
+$$
+\boxed{dp[j]=\text{凑成金额 }j\text{ 所需的最少硬币数}}
+$$
+
+最终要求：
+
+$$
+\boxed{dp[amount]}
+$$
+
+如果该状态始终不可达，则返回 `-1`。
+
+## 3. 状态转移：最后再加入一枚硬币
+
+假设当前考虑面额为：
+
+$$
+coin
+$$
+
+如果金额：
+
+$$
+j-coin
+$$
+
+已经能够凑出，并且最少需要：
+
+$$
+dp[j-coin]
+$$
+
+枚硬币，那么再加入一枚 `coin` 后，就可以凑出金额 `j`，硬币数为：
+
+$$
+dp[j-coin]+1
+$$
+
+因此：
+
+$$
+\boxed{dp[j]=\min(dp[j],\ dp[j-coin]+1)}
+$$
+
+这就是本题的核心递推式。
+
+## 4. 为什么 `dp[0] = 0`
+
+金额为 `0` 时，不需要任何硬币：
+
+$$
+\boxed{dp[0]=0}
+$$
+
+注意这里和“计数型背包”的 `dp[0] = 1` 完全不同。
+
+因为二者状态含义不同：
+
+| 类型 | `dp[0]` | 含义 |
+| --- | ---: | --- |
+| 方案计数 | `1` | 凑成 0 有一种空方案 |
+| 最少硬币数 | `0` | 凑成 0 不需要硬币 |
+
+<Callout type="info" title="初始化永远服务于状态定义">
+不要死记 `dp[0]` 到底是 0 还是 1。先写清楚 `dp[i]` 表示什么，再根据语义决定初始化。
+</Callout>
+
+## 5. 为什么其他位置要初始化为无穷大
+
+对于所有：
+
+$$
+j>0
+$$
+
+初始时还不知道它能否被凑出，因此应设为一个“不可能成为最优答案”的极大值：
+
+$$
+\boxed{dp[j]=+\infty}
+$$
+
+这样递推：
+
+$$
+dp[j]=\min(dp[j],dp[j-coin]+1)
+$$
+
+才可以正常更新。
+
+如果错误地把所有 `dp[j]` 初始化为 `0`，那么：
+
+$$
+\min(0,dp[j-coin]+1)=0
+$$
+
+后续任何合法方案都无法覆盖初始值，答案必然错误。
+
+## 6. 不可达状态为什么不能直接 `+1`
+
+如果：
+
+$$
+dp[j-coin]=+\infty
+$$
+
+说明 `j - coin` 本身不可达。
+
+那么从一个不可达状态添加一枚硬币，仍然不应该被视为合法方案。
+
+在 C++ 中如果使用 `INT_MAX`，还必须避免直接计算：
+
+```cpp
+INT_MAX + 1
+```
+
+因为会发生整数溢出。
+
+因此应先判断：
+
+```cpp
+if (dp[j - coin] != INF) {
+    dp[j] = min(dp[j], dp[j - coin] + 1);
+}
+```
+
+也可以选择安全的有限上界，例如：
+
+```cpp
+const int INF = amount + 1;
+```
+
+因为在硬币面额均为正整数时，若存在面额 `1`，最多也只需要 `amount` 枚；即使不存在 `1`，`amount + 1` 仍足以表示“不可能”。
+
+## 7. 为什么容量必须正序
+
+每种硬币可以使用任意多次，所以属于完全背包。
+
+假设当前硬币面额为 `2`。
+
+计算 `dp[2]` 后，如果继续正序计算 `dp[4]`，就可以使用刚更新的：
+
+$$
+dp[2]
+$$
+
+从而得到：
+
+$$
+dp[4]=dp[2]+1
+$$
+
+这等价于再次使用一枚面额 `2` 的硬币。
+
+因此完全背包需要：
+
+$$
+\boxed{j\text{ 从小到大遍历}}
+$$
+
+也就是：
+
+```cpp
+for (int j = coin; j <= amount; ++j)
+```
+
+如果像 01 背包那样倒序，就会阻止同一种硬币在当前轮被重复使用。
+
+## 8. 本题最容易疑惑：两个循环谁在外层？
+
+这里和“零钱兑换 II”“组合总和 IV”最大的不同是：
+
+> 本题求最小硬币数，而不是方案数。
+
+### 写法 A：硬币在外层
+
+```cpp
+for (int coin : coins) {
+    for (int j = coin; j <= amount; ++j) {
+        dp[j] = min(dp[j], dp[j - coin] + 1);
+    }
+}
+```
+
+可以。
+
+### 写法 B：金额在外层
+
+```cpp
+for (int j = 1; j <= amount; ++j) {
+    for (int coin : coins) {
+        if (j >= coin) {
+            dp[j] = min(dp[j], dp[j - coin] + 1);
+        }
+    }
+}
+```
+
+也可以。
+
+为什么二者都成立？
+
+因为我们只关心：
+
+$$
+\boxed{\text{达到某个金额所需的最少硬币数}}
+$$
+
+例如：
+
+```text
+1 + 2 + 2
+2 + 1 + 2
+2 + 2 + 1
+```
+
+虽然排列不同，但它们都使用 `3` 枚硬币。
+
+本题只取最小值，不统计这些路径分别出现多少次，因此顺序不会改变最终最优值。
+
+<Callout type="tip" title="一个非常重要的判断标准">
+循环顺序是否敏感，关键看状态更新是否在“统计路径”。求组合数 / 排列数时，路径顺序会影响计数；求最小值时，通常只是比较候选状态的最优值，因此不需要区分路径顺序。
+</Callout>
+
+## 9. 与零钱兑换 II、组合总和 IV 对比
+
+这三道题使用了几乎一样的背包背景，却分别训练了完全不同的 DP 目标。
+
+| 题目 | 目标 | 递推 | 外层 / 内层 |
+| --- | --- | --- | --- |
+| 零钱兑换 II | 组合数 | `dp[j] += dp[j-coin]` | 物品外、容量内 |
+| 组合总和 IV | 排列数 | `dp[j] += dp[j-num]` | 容量外、物品内 |
+| 零钱兑换 | 最少硬币数 | `dp[j] = min(dp[j], dp[j-coin] + 1)` | 两种顺序均可 |
+
+因此不要只背“完全背包容量正序”这一句话。
+
+完整判断应拆成两层：
+
+```text
+第一层：物品能否重复？
+    └─ 能 → 完全背包 → 容量允许正序
+
+第二层：状态统计什么？
+    ├─ 组合数 → 物品外层
+    ├─ 排列数 → 容量外层
+    └─ 最值 → 通常两者均可，但要保证依赖状态已经可用
+```
+
+## 10. 手推示例
+
+以：
+
+```text
+coins = [1, 2, 5]
+amount = 5
+```
+
+为例。
+
+初始化：
+
+```text
+金额:  0   1   2   3   4   5
+dp:    0   ∞   ∞   ∞   ∞   ∞
+```
+
+### 处理硬币 `1`
+
+所有金额都可以只由 `1` 组成：
+
+```text
+dp = [0, 1, 2, 3, 4, 5]
+```
+
+### 处理硬币 `2`
+
+逐步更新：
+
+```text
+dp[2] = min(2, dp[0] + 1) = 1
+dp[3] = min(3, dp[1] + 1) = 2
+dp[4] = min(4, dp[2] + 1) = 2
+dp[5] = min(5, dp[3] + 1) = 3
+```
+
+得到：
+
+```text
+dp = [0, 1, 1, 2, 2, 3]
+```
+
+### 处理硬币 `5`
+
+$$
+dp[5]=\min(3,dp[0]+1)=1
+$$
+
+最终：
+
+```text
+dp = [0, 1, 1, 2, 2, 1]
+```
+
+因此：
+
+$$
+\boxed{dp[5]=1}
+$$
+
+原文中的状态推导示意图保留如下：
+
+![零钱兑换 DP 状态推导](https://file1.kamacoder.com/i/algo/20210201111833906.jpg)
+
+## 11. 推荐 C++ 写法
+
+这里使用“硬币外层、金额内层”，结构与完全背包标准模板一致。
+
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        const int INF = amount + 1;
+        vector<int> dp(amount + 1, INF);
+        dp[0] = 0;
+
+        for (int coin : coins) {
+            for (int j = coin; j <= amount; ++j) {
+                dp[j] = min(dp[j], dp[j - coin] + 1);
+            }
+        }
+
+        return dp[amount] == INF ? -1 : dp[amount];
+    }
+};
+```
+
+这里使用 `amount + 1` 作为不可达标记，因此无需担心 `INT_MAX + 1` 溢出。
+
+### 复杂度
+
+设硬币种类数为 `n`：
+
+$$
+\boxed{T(n,amount)=O(n\cdot amount)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{S(amount)=O(amount)}
+$$
+
+## 12. 金额外层写法
+
+本题也可以写成：
+
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        const int INF = amount + 1;
+        vector<int> dp(amount + 1, INF);
+        dp[0] = 0;
+
+        for (int j = 1; j <= amount; ++j) {
+            for (int coin : coins) {
+                if (j >= coin) {
+                    dp[j] = min(dp[j], dp[j - coin] + 1);
+                }
+            }
+        }
+
+        return dp[amount] == INF ? -1 : dp[amount];
+    }
+};
+```
+
+这种写法更容易理解为：
+
+> 对每个金额 `j`，枚举最后使用的硬币。
+
+也就是：
+
+$$
+dp[j]=1+\min_{coin\le j}dp[j-coin]
+$$
+
+从图论角度看，它甚至可以理解成一张从金额 `0` 到金额 `amount` 的最短路问题：每使用一枚硬币就走一条代价为 `1` 的边。
+
+## 13. 从最短路角度重新理解
+
+把金额 `0 ~ amount` 看成节点。
+
+如果存在硬币 `coin`，就可以从金额 `x` 走到：
+
+$$
+x+coin
+$$
+
+使用一枚硬币相当于走一步，边权均为 `1`。
+
+于是题目变成：
+
+> 从节点 `0` 到节点 `amount` 最少走多少步？
+
+这解释了为什么递推一定是：
+
+$$
+\boxed{dp[j]=\min(dp[j],dp[j-coin]+1)}
+$$
+
+也解释了为什么不同硬币顺序并不重要：
+
+我们只关心最终最短距离，而不是有多少条不同路径。
+
+## 14. 高频错误
+
+### 错误一：初始化为 0
+
+```cpp
+vector<int> dp(amount + 1, 0);
+```
+
+这会让所有状态看起来都已经有一个“0 枚硬币”的最优答案，后续无法更新。
+
+正确做法：
+
+```cpp
+vector<int> dp(amount + 1, INF);
+dp[0] = 0;
+```
+
+### 错误二：把容量倒序
+
+```cpp
+for (int j = amount; j >= coin; --j)
+```
+
+这是 01 背包的更新方式，会限制当前硬币最多使用一次，不符合“硬币无限”的题意。
+
+### 错误三：把它当成方案计数题
+
+本题的状态不是“多少种凑法”，而是“最少使用多少枚硬币”。
+
+所以：
+
+```cpp
+dp[j] += dp[j - coin];
+```
+
+不是本题的递推。
+
+### 错误四：看到循环顺序不同就认为其中一个错了
+
+本题求最值，硬币外层和金额外层都能得到正确答案；真正不能随意交换的是那些要求区分组合 / 排列的计数题。
+
+## 15. 完全背包最小值模板
+
+当题目满足：
+
+- 每种物品可重复使用；
+- 目标是恰好达到某容量；
+- 求使用物品数量或代价的最小值；
+
+可以尝试：
+
+```cpp
+const int INF = target + 1;
+vector<int> dp(target + 1, INF);
+dp[0] = 0;
+
+for (int item : items) {
+    for (int j = item; j <= target; ++j) {
+        dp[j] = min(dp[j], dp[j - item] + 1);
+    }
+}
+```
+
+如果最终：
+
+```cpp
+dp[target] == INF
+```
+
+说明目标不可达。
+
+## 16. 其他语言版本
+
+```java tab="Java"
+import java.util.Arrays;
+
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int INF = amount + 1;
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, INF);
+        dp[0] = 0;
+
+        for (int coin : coins) {
+            for (int j = coin; j <= amount; j++) {
+                dp[j] = Math.min(dp[j], dp[j - coin] + 1);
+            }
+        }
+
+        return dp[amount] == INF ? -1 : dp[amount];
+    }
+}
+```
+
+```python tab="Python"
+from typing import List
+
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        inf = amount + 1
+        dp = [inf] * (amount + 1)
+        dp[0] = 0
+
+        for coin in coins:
+            for j in range(coin, amount + 1):
+                dp[j] = min(dp[j], dp[j - coin] + 1)
+
+        return -1 if dp[amount] == inf else dp[amount]
+```
+
+```go tab="Go"
+func coinChange(coins []int, amount int) int {
+    inf := amount + 1
+    dp := make([]int, amount+1)
+
+    for i := 1; i <= amount; i++ {
+        dp[i] = inf
+    }
+
+    for _, coin := range coins {
+        for j := coin; j <= amount; j++ {
+            if dp[j-coin]+1 < dp[j] {
+                dp[j] = dp[j-coin] + 1
+            }
+        }
+    }
+
+    if dp[amount] == inf {
+        return -1
+    }
+    return dp[amount]
+}
+```
+
+```javascript tab="JavaScript"
+var coinChange = function (coins, amount) {
+  const INF = amount + 1;
+  const dp = new Array(amount + 1).fill(INF);
+  dp[0] = 0;
+
+  for (const coin of coins) {
+    for (let j = coin; j <= amount; j++) {
+      dp[j] = Math.min(dp[j], dp[j - coin] + 1);
+    }
+  }
+
+  return dp[amount] === INF ? -1 : dp[amount];
+};
+```
+
+```typescript tab="TypeScript"
+function coinChange(coins: number[], amount: number): number {
+  const INF = amount + 1;
+  const dp: number[] = new Array(amount + 1).fill(INF);
+  dp[0] = 0;
+
+  for (const coin of coins) {
+    for (let j = coin; j <= amount; j++) {
+      dp[j] = Math.min(dp[j], dp[j - coin] + 1);
+    }
+  }
+
+  return dp[amount] === INF ? -1 : dp[amount];
+}
+```
+
+## 17. 本题总结
+
+“零钱兑换”是理解完全背包的关键题之一，因为它能把三个常被混淆的问题一次分开：
+
+1. **为什么容量正序？** —— 同一种硬币允许重复使用；
+2. **为什么 `dp[0] = 0`？** —— 状态记录的是最少硬币数；
+3. **为什么两个外层顺序都可以？** —— 求最优值，不统计排列或组合数量。
+
+最终只需要牢牢记住状态语义：
+
+$$
+\boxed{dp[j]=\text{凑成金额 }j\text{ 的最少硬币数}}
+$$
+
+以及转移：
+
+$$
+\boxed{dp[j]=\min(dp[j],dp[j-coin]+1)}
+$$
+
+真正掌握这两点后，代码只是状态定义的直接翻译。

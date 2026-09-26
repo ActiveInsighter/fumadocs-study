@@ -1,0 +1,809 @@
+---
+title: 打家劫舍
+sidebarTitle: 打家劫舍
+summary: 系统讲解 LeetCode 198 的线性选取型动态规划，从“偷或不偷”推导状态转移，并进一步解释状态机视角、滚动变量空间优化和与最大权独立集的联系。
+---
+
+# 198. 打家劫舍
+
+[LeetCode 198：打家劫舍](https://leetcode.cn/problems/house-robber/)
+
+给定一个非负整数数组 `nums`，`nums[i]` 表示第 $i$ 间房屋中的现金。
+
+限制条件是：
+
+> 不能同时偷相邻的两间房屋。
+
+目标是在不触发警报的情况下，使偷到的总金额最大。
+
+例如：
+
+```text
+nums = [2, 7, 9, 3, 1]
+```
+
+可以选择：
+
+```text
+2 + 9 + 1 = 12
+```
+
+因此答案为：
+
+$$
+\boxed{12}
+$$
+
+<Callout type="info" title="这道题的核心模型">
+每个位置都面临“选 / 不选”两个决策，而一旦选了当前位置，就不能选择相邻位置。这类题可以抽象为：**从线性序列中选择若干互不相邻的元素，使权值和最大。**
+</Callout>
+
+## 1. 为什么贪心不可靠
+
+看到金额数组，很容易产生一些局部策略：
+
+```text
+每次偷当前更大的房屋
+```
+
+或者：
+
+```text
+只偷奇数位置 / 偶数位置
+```
+
+但这些规则都不能保证全局最优。
+
+例如：
+
+```text
+[2, 1, 1, 2]
+```
+
+只看局部相邻最大值很容易错过：
+
+$$
+2+2=4
+$$
+
+真正的问题在于：当前房屋是否选择，会改变下一间房屋是否可选，因此决策之间存在状态依赖。
+
+这正是动态规划适用的典型结构。
+
+## 2. 状态定义
+
+定义：
+
+$$
+\boxed{dp[i]=\text{只考虑下标 }0\sim i\text{ 的房屋时，能够偷到的最大金额}}
+$$
+
+注意关键词是：
+
+> **考虑到第 $i$ 间房屋。**
+
+它并不表示第 $i$ 间房屋一定被偷。
+
+最终答案是：
+
+$$
+\boxed{dp[n-1]}
+$$
+
+## 3. 状态转移：当前房屋只有两种选择
+
+计算 `dp[i]` 时，只需要讨论：
+
+```text
+偷第 i 间房
+不偷第 i 间房
+```
+
+### 情况一：偷第 $i$ 间房
+
+因为不能偷相邻房屋，所以第 $i-1$ 间不能偷。
+
+能够叠加的最优历史状态只能来自：
+
+$$
+dp[i-2]
+$$
+
+因此：
+
+$$
+\boxed{dp[i-2]+nums[i]}
+$$
+
+### 情况二：不偷第 $i$ 间房
+
+此时最优答案就是只考虑到第 $i-1$ 间时的最大金额：
+
+$$
+\boxed{dp[i-1]}
+$$
+
+### 两者取最大值
+
+于是得到经典递推式：
+
+$$
+\boxed{
+ dp[i]=\max\left(dp[i-1],\ dp[i-2]+nums[i]\right)
+}
+$$
+
+这就是整道题最核心的状态转移。
+
+<Callout type="warning" title="dp[i-1] 不代表一定偷了第 i-1 间">
+`dp[i-1]` 的含义是“考虑前 $i$ 间房屋后的最优答案”。最优方案里可能偷了第 $i-1$ 间，也可能没有。不要把 `dp[i]` 误解成“必须偷第 i 间”。
+</Callout>
+
+## 4. 初始化
+
+当只有第一间房：
+
+$$
+\boxed{dp[0]=nums[0]}
+$$
+
+当考虑前两间房，因为它们相邻，只能选择金额更高的一间：
+
+$$
+\boxed{dp[1]=\max(nums[0],nums[1])}
+$$
+
+因此递推从：
+
+```text
+i = 2
+```
+
+开始即可。
+
+## 5. 遍历顺序
+
+因为：
+
+$$
+dp[i]
+$$
+
+依赖：
+
+$$
+dp[i-1],\quad dp[i-2]
+$$
+
+所以必须从左到右计算：
+
+```cpp
+for (int i = 2; i < n; ++i) {
+    dp[i] = max(dp[i - 1], dp[i - 2] + nums[i]);
+}
+```
+
+依赖方向非常明确：
+
+```text
+dp[i - 2] ─┐
+            ├─> dp[i]
+dp[i - 1] ─┘
+```
+
+## 6. 手推示例 `[2, 7, 9, 3, 1]`
+
+初始：
+
+$$
+dp[0]=2
+$$
+
+$$
+dp[1]=\max(2,7)=7
+$$
+
+### $i=2$
+
+第 2 间金额为 9。
+
+不偷：
+
+$$
+dp[1]=7
+$$
+
+偷：
+
+$$
+dp[0]+9=2+9=11
+$$
+
+因此：
+
+$$
+dp[2]=11
+$$
+
+### $i=3$
+
+不偷：
+
+$$
+11
+$$
+
+偷：
+
+$$
+7+3=10
+$$
+
+所以：
+
+$$
+dp[3]=11
+$$
+
+### $i=4$
+
+不偷：
+
+$$
+11
+$$
+
+偷：
+
+$$
+11+1=12
+$$
+
+所以：
+
+$$
+dp[4]=12
+$$
+
+完整数组：
+
+```text
+nums  2  7  9  3  1
+dp    2  7 11 11 12
+```
+
+原资料中的状态推导图：
+
+![打家劫舍 DP 推导](https://file1.kamacoder.com/i/algo/20210221170954115.jpg)
+
+最终答案：
+
+$$
+\boxed{12}
+$$
+
+## 7. 标准一维 DP 写法
+
+```cpp
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) return 0;
+        if (n == 1) return nums[0];
+
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        dp[1] = max(nums[0], nums[1]);
+
+        for (int i = 2; i < n; ++i) {
+            dp[i] = max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+
+        return dp[n - 1];
+    }
+};
+```
+
+时间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{O(n)}
+$$
+
+## 8. 为什么可以把空间压缩到 $O(1)$
+
+递推式只需要：
+
+$$
+dp[i-1]
+$$
+
+和：
+
+$$
+dp[i-2]
+$$
+
+更早的状态不会再被访问。
+
+因此没有必要保存整个 `dp` 数组。
+
+设：
+
+```text
+prev2 = dp[i - 2]
+prev1 = dp[i - 1]
+```
+
+当前状态：
+
+$$
+cur=\max(prev1,prev2+nums[i])
+$$
+
+更新：
+
+```text
+prev2 <- prev1
+prev1 <- cur
+```
+
+代码：
+
+```cpp
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int prev2 = 0;
+        int prev1 = 0;
+
+        for (int money : nums) {
+            int cur = max(prev1, prev2 + money);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+
+        return prev1;
+    }
+};
+```
+
+时间复杂度仍为：
+
+$$
+O(n)
+$$
+
+空间复杂度降为：
+
+$$
+\boxed{O(1)}
+$$
+
+## 9. 为什么从 `prev2 = prev1 = 0` 开始也正确
+
+滚动变量版本没有显式写：
+
+```text
+dp[0]
+dp[1]
+```
+
+而是从空前缀开始。
+
+第一次处理 `nums[0]`：
+
+$$
+cur=\max(0,0+nums[0])=nums[0]
+$$
+
+得到相当于 `dp[0]` 的状态。
+
+第二次处理 `nums[1]`：
+
+$$
+cur=\max(nums[0],nums[1])
+$$
+
+自然得到 `dp[1]`。
+
+因此这只是把边界条件融入统一循环，并没有改变状态转移。
+
+## 10. 第二种状态定义：明确记录“偷 / 不偷”
+
+还可以定义二维状态：
+
+$$
+\boxed{dp[i][0]=\text{不偷第 }i\text{ 间时的最大金额}}
+$$
+
+$$
+\boxed{dp[i][1]=\text{偷第 }i\text{ 间时的最大金额}}
+$$
+
+如果不偷当前房屋，前一间可偷可不偷：
+
+$$
+\boxed{dp[i][0]=\max(dp[i-1][0],dp[i-1][1])}
+$$
+
+如果偷当前房屋，前一间必须不偷：
+
+$$
+\boxed{dp[i][1]=dp[i-1][0]+nums[i]}
+$$
+
+最终答案：
+
+$$
+\boxed{\max(dp[n-1][0],dp[n-1][1])}
+$$
+
+这种写法状态更多，但“约束是如何传递的”看得更直观。
+
+### 代码
+
+```cpp
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) return 0;
+
+        vector<array<int, 2>> dp(n);
+        dp[0][0] = 0;
+        dp[0][1] = nums[0];
+
+        for (int i = 1; i < n; ++i) {
+            dp[i][0] = max(dp[i - 1][0], dp[i - 1][1]);
+            dp[i][1] = dp[i - 1][0] + nums[i];
+        }
+
+        return max(dp[n - 1][0], dp[n - 1][1]);
+    }
+};
+```
+
+## 11. 两种 DP 定义有什么区别
+
+### 定义 A：前缀最优值
+
+$$
+dp[i]=\text{考虑 }0\sim i\text{ 的最大收益}
+$$
+
+转移：
+
+$$
+dp[i]=\max(dp[i-1],dp[i-2]+nums[i])
+$$
+
+优点：
+
+- 状态少；
+- 代码短；
+- 最适合本题。
+
+### 定义 B：状态机
+
+```text
+偷当前房屋
+不偷当前房屋
+```
+
+优点：
+
+- 决策含义更明确；
+- 更容易推广到“冷冻期”“持有 / 不持有”等多状态问题；
+- 有助于理解后面的股票 DP。
+
+这两种写法本质等价，只是状态粒度不同。
+
+## 12. 从“选 / 不选”模板理解
+
+本题可以写成非常典型的选择模型：
+
+对于第 $i$ 个元素：
+
+### 不选
+
+继承：
+
+$$
+dp[i-1]
+$$
+
+### 选
+
+因为与前一个冲突，只能接在：
+
+$$
+dp[i-2]
+$$
+
+后面：
+
+$$
+dp[i-2]+nums[i]
+$$
+
+于是：
+
+$$
+\boxed{\text{当前最优}=\max(\text{不选},\text{选})}
+$$
+
+这是大量“不能选择相邻元素”题目的共同模板。
+
+## 13. 与最大权独立集的关系
+
+把每间房看成路径图上的一个节点：
+
+```text
+0 — 1 — 2 — 3 — 4
+```
+
+节点权值就是：
+
+```text
+nums[i]
+```
+
+因为相邻节点不能同时选择，所以题目等价于：
+
+> 在一条路径图上求最大权独立集。
+
+对于一般图，最大权独立集可能非常困难；但路径图的结构非常简单，每个节点只和前后相邻，因此可以用线性 DP 在：
+
+$$
+O(n)
+$$
+
+时间内解决。
+
+这个视角也解释了为什么后续「打家劫舍 II」把首尾相连后会变成环形 DP。
+
+## 14. 为什么它和 01 背包有相似感，但不是标准背包
+
+两者都有：
+
+```text
+选当前元素
+不选当前元素
+```
+
+但约束不同。
+
+01 背包的约束是：
+
+$$
+\sum w_i\le V
+$$
+
+打家劫舍的约束是：
+
+```text
+相邻元素不能同时选择
+```
+
+因此状态轴也不同：
+
+- 背包：状态通常围绕“容量”；
+- 打家劫舍：状态围绕“序列位置”。
+
+不要因为转移都带 `max` 就机械套背包模板。
+
+## 15. 常见错误
+
+### 错误一：把 `dp[i]` 理解成“一定偷第 i 间”
+
+若这样定义，原递推式就不再成立。
+
+标准定义是：
+
+$$
+dp[i]=\text{考虑到第 }i\text{ 间时的整体最优值}
+$$
+
+### 错误二：偷当前房屋时加 `dp[i-1]`
+
+错误写法：
+
+```cpp
+dp[i] = max(dp[i - 1], dp[i - 1] + nums[i]);
+```
+
+这相当于允许当前房屋与第 $i-1$ 间同时被偷。
+
+正确来源必须跳过相邻位置：
+
+$$
+dp[i-2]+nums[i]
+$$
+
+### 错误三：只比较 `nums[i-1]` 和 `nums[i]`
+
+最优结果不是局部金额比较，而是历史最优状态之间的比较。
+
+### 错误四：滚动变量更新顺序写反
+
+如果先覆盖 `prev1`，再用它更新 `prev2`，就会丢失上一轮状态。
+
+安全写法：
+
+```cpp
+int cur = max(prev1, prev2 + x);
+prev2 = prev1;
+prev1 = cur;
+```
+
+## 16. 本题的识别特征
+
+遇到以下描述时，可以快速联想到打家劫舍型 DP：
+
+```text
+不能选相邻元素
+选当前就必须跳过前一个
+从一条线性序列中选若干元素最大化总收益
+```
+
+典型状态转移：
+
+$$
+\boxed{dp[i]=\max(dp[i-1],dp[i-2]+value_i)}
+$$
+
+后续常见变形包括：
+
+- 首尾相邻：打家劫舍 II；
+- 树上父子不能同时选：打家劫舍 III；
+- 更一般的相邻 / 间隔约束选取问题。
+
+## 17. 总结
+
+「打家劫舍」是非常典型的线性动态规划。
+
+核心只需要抓住两种选择：
+
+$$
+\boxed{
+\begin{aligned}
+\text{不偷第 }i\text{ 间：}&\quad dp[i-1]\\
+\text{偷第 }i\text{ 间：}&\quad dp[i-2]+nums[i]
+\end{aligned}}
+$$
+
+因此：
+
+$$
+\boxed{dp[i]=\max(dp[i-1],dp[i-2]+nums[i])}
+$$
+
+进一步，因为状态只依赖前两个位置，可以压缩成：
+
+$$
+\boxed{O(n)\text{ 时间}+O(1)\text{ 空间}}
+$$
+
+真正应该掌握的不是“打家劫舍”这个故事，而是这个更一般的模式：
+
+> **线性序列中的元素存在相邻冲突时，对当前位置做“选 / 不选”分类，并从最近的合法历史状态转移。**
+
+## 其他语言版本
+
+```java tab="Java"
+class Solution {
+    public int rob(int[] nums) {
+        int prev2 = 0;
+        int prev1 = 0;
+
+        for (int money : nums) {
+            int cur = Math.max(prev1, prev2 + money);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+
+        return prev1;
+    }
+}
+```
+
+```python tab="Python"
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        prev2 = 0
+        prev1 = 0
+
+        for money in nums:
+            cur = max(prev1, prev2 + money)
+            prev2 = prev1
+            prev1 = cur
+
+        return prev1
+```
+
+```go tab="Go"
+func rob(nums []int) int {
+    prev2, prev1 := 0, 0
+
+    for _, money := range nums {
+        cur := prev1
+        if prev2+money > cur {
+            cur = prev2 + money
+        }
+        prev2, prev1 = prev1, cur
+    }
+
+    return prev1
+}
+```
+
+```javascript tab="JavaScript"
+const rob = (nums) => {
+  let prev2 = 0;
+  let prev1 = 0;
+
+  for (const money of nums) {
+    const cur = Math.max(prev1, prev2 + money);
+    prev2 = prev1;
+    prev1 = cur;
+  }
+
+  return prev1;
+};
+```
+
+```typescript tab="TypeScript"
+function rob(nums: number[]): number {
+  let prev2 = 0;
+  let prev1 = 0;
+
+  for (const money of nums) {
+    const cur = Math.max(prev1, prev2 + money);
+    prev2 = prev1;
+    prev1 = cur;
+  }
+
+  return prev1;
+}
+```
+
+```c tab="C"
+int rob(int* nums, int numsSize) {
+    int prev2 = 0;
+    int prev1 = 0;
+
+    for (int i = 0; i < numsSize; ++i) {
+        int take = prev2 + nums[i];
+        int cur = prev1 > take ? prev1 : take;
+        prev2 = prev1;
+        prev1 = cur;
+    }
+
+    return prev1;
+}
+```
+
+```rust tab="Rust"
+impl Solution {
+    pub fn rob(nums: Vec<i32>) -> i32 {
+        let mut prev2 = 0;
+        let mut prev1 = 0;
+
+        for money in nums {
+            let cur = prev1.max(prev2 + money);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+
+        prev1
+    }
+}
+```

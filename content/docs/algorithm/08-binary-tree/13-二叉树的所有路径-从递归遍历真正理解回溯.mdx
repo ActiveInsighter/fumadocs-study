@@ -1,0 +1,1199 @@
+---
+title: 二叉树的所有路径：从递归遍历真正理解回溯
+description: 以 LeetCode 257 为主线，从“路径状态如何随 DFS 变化”出发，系统理解前序遍历、叶子节点判定、递归与回溯的一一对应关系，并给出显式回溯、值传递隐式回溯和迭代法三种实现。
+---
+
+# 二叉树的所有路径：从递归遍历真正理解回溯
+
+> LeetCode 257 · Binary Tree Paths
+
+[题目链接](https://leetcode.cn/problems/binary-tree-paths/)
+
+给定一棵二叉树，返回所有从**根节点到叶子节点**的路径。
+
+叶子节点指左右孩子都为空的节点：
+
+$$
+leaf(u) \iff u.left=\varnothing \land u.right=\varnothing
+$$
+
+例如：
+
+![二叉树的所有路径示例](https://file1.kamacoder.com/i/algo/2021020415161576.png)
+
+如果根到叶子的两条路径分别为：
+
+```text
+1 -> 2 -> 5
+1 -> 3
+```
+
+那么结果就是：
+
+```text
+["1->2->5", "1->3"]
+```
+
+<Callout title="本题真正要学的不是字符串拼接" type="idea">
+
+这道题第一次把二叉树 DFS 中一个非常重要的机制完整暴露出来：
+
+**沿一条分支向下时修改状态，返回上一层时恢复状态。**
+
+这就是回溯。
+
+</Callout>
+
+## 1. 为什么这道题天然是前序遍历
+
+我们需要记录的是：
+
+```text
+根节点 -> 当前节点
+```
+
+这条路径。
+
+当 DFS 从父节点进入孩子节点时，父节点必须已经出现在路径中，因此处理顺序应当是：
+
+```text
+当前节点
+   ↓
+左子树
+   ↓
+右子树
+```
+
+也就是前序遍历：
+
+$$
+\text{root}\rightarrow\text{left}\rightarrow\text{right}
+$$
+
+如果用状态变化来描述：
+
+```text
+进入节点 u
+    ↓
+把 u 加入 path
+    ↓
+递归左子树
+    ↓
+恢复 path
+    ↓
+递归右子树
+    ↓
+恢复 path
+```
+
+![二叉树路径的前序遍历与回溯过程](https://file1.kamacoder.com/i/algo/20210204151702443.png)
+
+因此，本题本质上不是单纯“遍历整棵树”，而是：
+
+> **在遍历过程中维护当前递归分支的路径状态。**
+
+## 2. 先明确 DFS 中的状态是什么
+
+设当前正在访问节点 $u$。
+
+我们维护一个数组：
+
+```cpp
+vector<int> path;
+```
+
+它始终表示：
+
+$$
+path = \text{从根节点到当前递归位置的节点序列}
+$$
+
+例如正在访问节点 `5` 时：
+
+```text
+    1
+   / \
+  2   3
+   \
+    5
+```
+
+`path` 应为：
+
+```text
+[1, 2, 5]
+```
+
+这个不变量非常重要。
+
+<Callout title="DFS 状态不变量" type="info">
+
+进入某一层递归后，`path` 必须准确表示当前分支；离开这一层递归后，必须恢复成进入该层之前的状态。
+
+只要一直维护这个不变量，回溯代码就很难写错。
+
+</Callout>
+
+## 3. 递归三部曲
+
+### 3.1 参数与返回值
+
+递归函数需要知道三件事：
+
+- 当前节点 `cur`；
+- 当前路径 `path`；
+- 最终答案 `result`。
+
+因此可以定义：
+
+```cpp
+void traversal(TreeNode* cur,
+               vector<int>& path,
+               vector<string>& result)
+```
+
+这里不需要返回值，因为所有完整路径都直接写入 `result`。
+
+### 3.2 终止条件：为什么不是 `cur == nullptr`
+
+很多二叉树递归都会写：
+
+```cpp
+if (cur == nullptr) return;
+```
+
+但本题真正关心的是：
+
+```text
+什么时候得到了一条完整的根到叶路径？
+```
+
+答案是：当前节点就是叶子节点。
+
+因此终止条件应写成：
+
+```cpp
+if (cur->left == nullptr && cur->right == nullptr) {
+    // 收集完整路径
+    return;
+}
+```
+
+注意：
+
+```text
+只有一个孩子为空 ≠ 叶子节点
+```
+
+只有左右孩子都为空才是叶子节点。
+
+### 3.3 单层逻辑
+
+进入当前节点后，先把它加入路径：
+
+```cpp
+path.push_back(cur->val);
+```
+
+如果已经到叶子，就把路径序列化为字符串并加入答案。
+
+否则继续向左右孩子递归。
+
+这里真正关键的是：**递归回来以后要撤销刚才为了进入这个孩子而加入的状态。**
+
+## 4. 回溯最核心的模式：做选择、递归、撤销选择
+
+假设当前位于节点 `1`，准备进入左孩子 `2`。
+
+我们做的事情可以抽象成：
+
+```text
+选择 2
+递归搜索以 2 开头的所有路径
+撤销 2
+```
+
+代码正是：
+
+```cpp
+if (cur->left) {
+    traversal(cur->left, path, result);
+    path.pop_back();
+}
+```
+
+右子树同理：
+
+```cpp
+if (cur->right) {
+    traversal(cur->right, path, result);
+    path.pop_back();
+}
+```
+
+所以回溯最值得记住的代码骨架不是某道题的具体变量名，而是：
+
+```text
+for 每一个可选分支:
+    做选择
+    递归
+    撤销选择
+```
+
+在二叉树中，“可选分支”通常就是左孩子和右孩子。
+
+## 5. 为什么递归和回溯必须成对出现
+
+一个常见错误是：
+
+```cpp
+if (cur->left) {
+    traversal(cur->left, path, result);
+}
+if (cur->right) {
+    traversal(cur->right, path, result);
+}
+path.pop_back();
+```
+
+这段代码的问题是：
+
+```text
+左递归和右递归一共可能发生两次
+但只执行了一次恢复
+```
+
+如果左子树修改了 `path`，在进入右子树之前没有恢复，那么右子树会继承本不属于自己的左分支状态。
+
+正确关系应始终是：
+
+```text
+一次向下递归
+    ↕
+一次对应的状态恢复
+```
+
+可以把它理解成括号匹配：
+
+```text
+push -> dfs -> pop
+push -> dfs -> pop
+```
+
+而不是：
+
+```text
+push -> dfs
+push -> dfs
+pop
+```
+
+<Callout title="判断回溯代码是否正确的快速方法" type="warning">
+
+看到一个会修改共享状态的递归调用时，立刻问自己：
+
+**“这次递归结束以后，谁负责把状态恢复？”**
+
+如果找不到明确对应的恢复操作，就要高度警惕。
+
+</Callout>
+
+## 6. 推荐写法：`vector<int>` 显式展示回溯
+
+对于刚开始学习回溯的人，这一版最值得掌握，因为状态变化完全可见。
+
+```cpp
+class Solution {
+private:
+    void traversal(TreeNode* cur,
+                   vector<int>& path,
+                   vector<string>& result) {
+        // 进入当前节点：把当前值加入路径
+        path.push_back(cur->val);
+
+        // 当前节点是叶子节点：得到一条完整路径
+        if (cur->left == nullptr && cur->right == nullptr) {
+            string s;
+            for (int i = 0; i < static_cast<int>(path.size()); ++i) {
+                if (i > 0) s += "->";
+                s += to_string(path[i]);
+            }
+            result.push_back(s);
+            return;
+        }
+
+        if (cur->left) {
+            traversal(cur->left, path, result);
+            path.pop_back();  // 回溯：撤销左孩子带来的状态
+        }
+
+        if (cur->right) {
+            traversal(cur->right, path, result);
+            path.pop_back();  // 回溯：撤销右孩子带来的状态
+        }
+    }
+
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> result;
+        if (root == nullptr) return result;
+
+        vector<int> path;
+        traversal(root, path, result);
+        return result;
+    }
+};
+```
+
+### 一个容易困惑的细节
+
+你可能会发现：
+
+```cpp
+path.push_back(cur->val);
+```
+
+发生在当前层函数开头，但当前层函数末尾并没有统一写：
+
+```cpp
+path.pop_back();
+```
+
+原因是这个节点是由**父层递归**加入当前搜索分支的。
+
+当当前层返回后，父层紧接着执行：
+
+```cpp
+path.pop_back();
+```
+
+因此恢复动作发生在“发起递归”的那一层。
+
+以边 `parent -> child` 为单位看最清晰：
+
+```text
+父层调用 child
+    ↓
+child 被加入 path
+    ↓
+child 子树搜索完毕
+    ↓
+回到父层
+    ↓
+父层 pop_back() 撤销 child
+```
+
+## 7. 用一棵树手动走一遍
+
+假设：
+
+```text
+        1
+       / \
+      2   3
+       \
+        5
+```
+
+### 第一步：进入根节点
+
+```text
+path = [1]
+```
+
+### 第二步：进入左孩子 2
+
+```text
+path = [1, 2]
+```
+
+`2` 不是叶子，继续进入 `5`。
+
+### 第三步：进入 5
+
+```text
+path = [1, 2, 5]
+```
+
+`5` 是叶子，收集：
+
+```text
+1->2->5
+```
+
+### 第四步：返回节点 2
+
+执行：
+
+```cpp
+path.pop_back();
+```
+
+恢复为：
+
+```text
+path = [1, 2]
+```
+
+节点 `2` 没有其他分支，继续返回根节点。
+
+根层再执行对应的：
+
+```cpp
+path.pop_back();
+```
+
+于是：
+
+```text
+path = [1]
+```
+
+现在才能安全进入右子树 `3`。
+
+### 第五步：进入右孩子 3
+
+```text
+path = [1, 3]
+```
+
+收集：
+
+```text
+1->3
+```
+
+整个过程就是：
+
+```text
+[1]
+[1,2]
+[1,2,5]  -> 收集
+[1,2]     -> 回溯
+[1]       -> 回溯
+[1,3]     -> 收集
+[1]       -> 回溯
+```
+
+这就是 DFS 的状态树。
+
+## 8. 另一种递归：把回溯藏在值传递里
+
+还可以让 `path` 使用值传递：
+
+```cpp
+void traversal(TreeNode* cur,
+               string path,
+               vector<string>& result)
+```
+
+每一层函数都有自己独立的 `path` 副本。
+
+于是可以写得很短：
+
+```cpp
+class Solution {
+private:
+    void traversal(TreeNode* cur,
+                   string path,
+                   vector<string>& result) {
+        path += to_string(cur->val);
+
+        if (cur->left == nullptr && cur->right == nullptr) {
+            result.push_back(path);
+            return;
+        }
+
+        if (cur->left) {
+            traversal(cur->left, path + "->", result);
+        }
+        if (cur->right) {
+            traversal(cur->right, path + "->", result);
+        }
+    }
+
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> result;
+        if (root == nullptr) return result;
+
+        traversal(root, "", result);
+        return result;
+    }
+};
+```
+
+表面上这里没有 `pop_back()`，但回溯并没有消失。
+
+它只是变成了：
+
+```text
+子函数修改自己的 path 副本
+        ↓
+子函数返回
+        ↓
+父函数原来的 path 自动保留
+```
+
+也就是**依靠值语义自动恢复状态**。
+
+![值传递中隐藏的回溯](https://file1.kamacoder.com/i/algo/20220831173322.png)
+
+<Callout title="显式回溯 vs 隐式回溯" type="info">
+
+`vector<int>& path`：多层递归共享同一份状态，因此必须手动撤销修改。
+
+`string path`：每层递归拥有自己的副本，函数返回时天然恢复到父层状态。
+
+两者的搜索逻辑相同，只是状态管理方式不同。
+
+</Callout>
+
+## 9. 一个非常重要的参数语义问题
+
+比较下面两种参数：
+
+```cpp
+vector<int>& path
+```
+
+和：
+
+```cpp
+string path
+```
+
+### 引用传递
+
+```cpp
+vector<int>& path
+```
+
+所有递归层操作的是同一份对象。
+
+所以：
+
+```cpp
+path.push_back(...);
+```
+
+会真实改变共享状态，递归结束后必须：
+
+```cpp
+path.pop_back();
+```
+
+### 值传递
+
+```cpp
+string path
+```
+
+进入下一层时会获得新的值。
+
+因此子层：
+
+```cpp
+path += "->";
+```
+
+不会永久改变父层变量。
+
+这就是为什么很多简洁递归代码“看不到回溯”，但逻辑上仍然完成了回溯。
+
+## 10. 为什么 `string& path` 反而不适合演示
+
+理论上当然可以共享一个字符串，然后手动撤销。
+
+例如加入：
+
+```text
+123->
+```
+
+如果要回溯，就必须准确删除刚刚追加的字符数。
+
+节点值可能是：
+
+```text
+7
+42
+-103
+```
+
+追加长度并不固定，因此恢复起来比：
+
+```cpp
+vector<int> path;
+path.pop_back();
+```
+
+麻烦得多。
+
+所以教学和模板层面，使用：
+
+```cpp
+vector<int>& path
+```
+
+最容易看清楚“一个节点对应一次加入、一次删除”的状态变化。
+
+## 11. 迭代法：把递归栈中的“节点 + 状态”显式保存
+
+递归函数实际上隐式保存了：
+
+```text
+当前节点
+当前路径
+```
+
+因此如果改成迭代，就必须自己把这两部分一起压入栈。
+
+可以使用两个同步栈：
+
+```text
+节点栈 treeStack
+路径栈 pathStack
+```
+
+两者必须严格对应：
+
+```text
+treeStack.top()  <->  pathStack.top()
+```
+
+C++ 实现：
+
+```cpp
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> result;
+        if (root == nullptr) return result;
+
+        stack<TreeNode*> treeStack;
+        stack<string> pathStack;
+
+        treeStack.push(root);
+        pathStack.push(to_string(root->val));
+
+        while (!treeStack.empty()) {
+            TreeNode* node = treeStack.top();
+            treeStack.pop();
+
+            string path = pathStack.top();
+            pathStack.pop();
+
+            if (node->left == nullptr && node->right == nullptr) {
+                result.push_back(path);
+            }
+
+            // 栈后进先出：先压右，再压左，才能保持前序的“左先于右”
+            if (node->right) {
+                treeStack.push(node->right);
+                pathStack.push(path + "->" + to_string(node->right->val));
+            }
+
+            if (node->left) {
+                treeStack.push(node->left);
+                pathStack.push(path + "->" + to_string(node->left->val));
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+### 为什么迭代法里不需要 `pop_back` 回溯
+
+因为每一个压栈元素已经携带了属于自己的完整路径状态：
+
+```text
+(node, path)
+```
+
+不同分支互不共享可变路径。
+
+从状态模型上看，它和“字符串值传递递归”其实非常相似。
+
+<Cards>
+  <Card title="递归 + 引用路径">共享状态，靠 push / pop 显式回溯。</Card>
+  <Card title="递归 + 值路径">每层复制状态，函数返回时自动恢复。</Card>
+  <Card title="迭代 + 栈">把节点及其对应状态一起存入显式栈。</Card>
+</Cards>
+
+## 12. 三种写法本质上是同一件事
+
+可以把三种实现统一成一个状态转移模型。
+
+当前状态记为：
+
+$$
+(u,P)
+$$
+
+其中：
+
+- $u$：当前节点；
+- $P$：从根到 $u$ 的路径。
+
+如果 $u$ 是叶子：
+
+$$
+(u,P)\rightarrow \text{output}(P)
+$$
+
+如果存在左孩子 $l$：
+
+$$
+(u,P)\rightarrow(l,P+[l])
+$$
+
+如果存在右孩子 $r$：
+
+$$
+(u,P)\rightarrow(r,P+[r])
+$$
+
+递归、回溯、显式栈只是三种不同的状态保存机制。
+
+## 13. 常见错误
+
+### 错误一：把“空节点”当作一条路径的结束
+
+错误思路：
+
+```cpp
+if (cur == nullptr) {
+    result.push_back(...);
+}
+```
+
+空节点并不是叶子。
+
+一条合法路径必须结束在：
+
+```cpp
+cur->left == nullptr && cur->right == nullptr
+```
+
+### 错误二：递归后忘记恢复共享路径
+
+如果路径参数是引用：
+
+```cpp
+vector<int>& path
+```
+
+那么每次进入一个分支后都必须恢复。
+
+否则会出现类似：
+
+```text
+1->2->5->3
+```
+
+这种把两个不同分支错误拼在一起的路径。
+
+### 错误三：先递归左右子树，再加入当前节点
+
+那实际上更接近后序思路，无法自然维护“根到当前节点”的路径。
+
+本题最自然的顺序是：
+
+```text
+中 -> 左 -> 右
+```
+
+### 错误四：迭代法只存节点，不存路径状态
+
+普通前序遍历只需要：
+
+```cpp
+stack<TreeNode*> st;
+```
+
+但本题每个节点都必须知道：
+
+```text
+我是通过哪条根路径到达的？
+```
+
+因此必须额外保存路径，或把节点和路径封装成同一个状态对象。
+
+## 14. 复杂度分析：别忽略“输出本身”的成本
+
+设二叉树节点数为 $n$，树高为 $h$。
+
+如果只看树的访问次数，每个节点只访问一次，所以 DFS 主体是：
+
+$$
+O(n)
+$$
+
+但最终还要生成所有路径字符串。
+
+设所有输出字符串的总长度为 $S$，更精确地说，总时间复杂度应写成：
+
+$$
+O(n+S)
+$$
+
+因为仅仅把最终答案写出来就至少需要 $O(S)$ 时间。
+
+递归调用栈最多有 $h$ 层，因此辅助空间为：
+
+$$
+O(h)
+$$
+
+当前路径本身最多也有 $h$ 个节点，因此除结果数组外仍为：
+
+$$
+O(h)
+$$
+
+如果把返回结果占用的空间也计算在内，则还要加上：
+
+$$
+O(S)
+$$
+
+## 15. 从这道题迁移到真正的回溯算法
+
+本题已经包含标准回溯算法的全部核心元素：
+
+```text
+1. 当前状态：path
+2. 可选分支：left / right
+3. 做选择：进入孩子
+4. 递归搜索
+5. 撤销选择：pop_back
+6. 收集答案：到达叶子节点
+```
+
+以后学习组合、子集、排列时，只是“树”从真实二叉树变成了**搜索树**。
+
+例如组合问题：
+
+```text
+当前 path
+├─ 选择 1
+├─ 选择 2
+└─ 选择 3
+```
+
+本题：
+
+```text
+当前 path
+├─ 走左孩子
+└─ 走右孩子
+```
+
+所以可以把这道题看作理解回溯的桥梁。
+
+<Callout title="一句话记忆" type="idea">
+
+**递归负责进入下一层，回溯负责在回来以后恢复现场。**
+
+如果状态是共享可变对象，通常需要显式恢复；如果状态按值复制，恢复过程可能隐藏在语言的值语义中。
+
+</Callout>
+
+## 16. 推荐掌握顺序
+
+<h3>先写显式回溯版</h3>
+    使用 `vector<int>& path`，真正看清 `push_back → recursion → pop_back`。
+  <h3>再写字符串值传递版</h3>
+    理解为什么没有 `pop_back` 仍然属于回溯。
+  <h3>最后写迭代版</h3>
+    理解显式栈不仅要保存节点，还要保存“到达该节点时的状态”。
+  ## 17. 其他语言版本
+
+### Java
+
+```java
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> result = new ArrayList<>();
+        if (root == null) return result;
+
+        List<Integer> path = new ArrayList<>();
+        dfs(root, path, result);
+        return result;
+    }
+
+    private void dfs(TreeNode node, List<Integer> path, List<String> result) {
+        path.add(node.val);
+
+        if (node.left == null && node.right == null) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < path.size(); i++) {
+                if (i > 0) sb.append("->");
+                sb.append(path.get(i));
+            }
+            result.add(sb.toString());
+            return;
+        }
+
+        if (node.left != null) {
+            dfs(node.left, path, result);
+            path.remove(path.size() - 1);
+        }
+
+        if (node.right != null) {
+            dfs(node.right, path, result);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+### Python
+
+```python
+class Solution:
+    def binaryTreePaths(self, root):
+        result = []
+        if not root:
+            return result
+
+        path = []
+
+        def dfs(node):
+            path.append(node.val)
+
+            if not node.left and not node.right:
+                result.append("->".join(map(str, path)))
+                return
+
+            if node.left:
+                dfs(node.left)
+                path.pop()
+
+            if node.right:
+                dfs(node.right)
+                path.pop()
+
+        dfs(root)
+        return result
+```
+
+### Go
+
+```go
+func binaryTreePaths(root *TreeNode) []string {
+    if root == nil {
+        return []string{}
+    }
+
+    result := make([]string, 0)
+
+    var dfs func(*TreeNode, string)
+    dfs = func(node *TreeNode, path string) {
+        path += strconv.Itoa(node.Val)
+
+        if node.Left == nil && node.Right == nil {
+            result = append(result, path)
+            return
+        }
+
+        if node.Left != nil {
+            dfs(node.Left, path+"->")
+        }
+        if node.Right != nil {
+            dfs(node.Right, path+"->")
+        }
+    }
+
+    dfs(root, "")
+    return result
+}
+```
+
+### JavaScript
+
+```javascript
+var binaryTreePaths = function(root) {
+  if (!root) return [];
+
+  const result = [];
+
+  const dfs = (node, path) => {
+    path += String(node.val);
+
+    if (!node.left && !node.right) {
+      result.push(path);
+      return;
+    }
+
+    if (node.left) dfs(node.left, path + '->');
+    if (node.right) dfs(node.right, path + '->');
+  };
+
+  dfs(root, '');
+  return result;
+};
+```
+
+### TypeScript
+
+```typescript
+function binaryTreePaths(root: TreeNode | null): string[] {
+    const result: string[] = [];
+    if (root === null) return result;
+
+    function dfs(node: TreeNode, path: string): void {
+        path += String(node.val);
+
+        if (node.left === null && node.right === null) {
+            result.push(path);
+            return;
+        }
+
+        if (node.left !== null) dfs(node.left, path + '->');
+        if (node.right !== null) dfs(node.right, path + '->');
+    }
+
+    dfs(root, '');
+    return result;
+}
+```
+
+### Swift
+
+```swift
+func binaryTreePaths(_ root: TreeNode?) -> [String] {
+    guard let root = root else { return [] }
+
+    var result = [String]()
+    var path = [Int]()
+
+    func dfs(_ node: TreeNode) {
+        path.append(node.val)
+
+        if node.left == nil && node.right == nil {
+            result.append(path.map(String.init).joined(separator: "->"))
+            return
+        }
+
+        if let left = node.left {
+            dfs(left)
+            path.removeLast()
+        }
+
+        if let right = node.right {
+            dfs(right)
+            path.removeLast()
+        }
+    }
+
+    dfs(root)
+    return result
+}
+```
+
+### Scala
+
+```scala
+object Solution {
+  def binaryTreePaths(root: TreeNode): List[String] = {
+    if (root == null) return List.empty
+
+    val result = scala.collection.mutable.ListBuffer[String]()
+
+    def dfs(node: TreeNode, path: String): Unit = {
+      val current =
+        if (path.isEmpty) node.value.toString
+        else path + "->" + node.value
+
+      if (node.left == null && node.right == null) {
+        result += current
+        return
+      }
+
+      if (node.left != null) dfs(node.left, current)
+      if (node.right != null) dfs(node.right, current)
+    }
+
+    dfs(root, "")
+    result.toList
+  }
+}
+```
+
+### Rust
+
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn binary_tree_paths(
+        root: Option<Rc<RefCell<TreeNode>>>
+    ) -> Vec<String> {
+        let mut result = Vec::new();
+
+        fn dfs(
+            node: Rc<RefCell<TreeNode>>,
+            path: String,
+            result: &mut Vec<String>,
+        ) {
+            let node_ref = node.borrow();
+            let current = if path.is_empty() {
+                node_ref.val.to_string()
+            } else {
+                format!("{}->{}", path, node_ref.val)
+            };
+
+            if node_ref.left.is_none() && node_ref.right.is_none() {
+                result.push(current);
+                return;
+            }
+
+            if let Some(left) = node_ref.left.clone() {
+                dfs(left, current.clone(), result);
+            }
+            if let Some(right) = node_ref.right.clone() {
+                dfs(right, current, result);
+            }
+        }
+
+        if let Some(root) = root {
+            dfs(root, String::new(), &mut result);
+        }
+
+        result
+    }
+}
+```
+
+### C#
+
+```csharp
+public class Solution {
+    public IList<string> BinaryTreePaths(TreeNode root) {
+        var result = new List<string>();
+        if (root == null) return result;
+
+        Dfs(root, "", result);
+        return result;
+    }
+
+    private void Dfs(TreeNode node, string path, IList<string> result) {
+        string current = string.IsNullOrEmpty(path)
+            ? node.val.ToString()
+            : path + "->" + node.val;
+
+        if (node.left == null && node.right == null) {
+            result.Add(current);
+            return;
+        }
+
+        if (node.left != null) Dfs(node.left, current, result);
+        if (node.right != null) Dfs(node.right, current, result);
+    }
+}
+```
