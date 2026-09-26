@@ -92,7 +92,6 @@ public:
 
 ## 其他语言补充
 
-````code-tabs
 ```javascript label="JavaScript"
 var totalNQueens = function(n) {
     let count = 0;
@@ -293,4 +292,3 @@ class Solution {
     }
 }
 ```
-````

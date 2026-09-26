@@ -337,7 +337,6 @@ SPFA（队列优化版Bellman_ford） 在理论上 时间复杂度更胜一筹�
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.*;
 
@@ -496,4 +495,3 @@ async function main() {
 
 main()
 ```
-````

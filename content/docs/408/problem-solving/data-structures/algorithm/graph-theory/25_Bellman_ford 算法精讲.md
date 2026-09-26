@@ -382,7 +382,6 @@ Bellman_ford 是可以计算 负权值的单源最短路算法。
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 public class Main {
 
@@ -506,4 +505,3 @@ async function main() {
 
 main()
 ```
-````

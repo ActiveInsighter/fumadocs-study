@@ -394,7 +394,6 @@ Kruskal算法 时间复杂度 为 nlogn，其中n 为边的数量，适用稀疏
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.*;
 
@@ -720,4 +719,3 @@ int main()
     return 0;
 }
 ```
-````

@@ -234,7 +234,6 @@ public:
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 class Solution {
 	List<List<Integer>> result = new ArrayList<>();
@@ -689,4 +688,3 @@ public class Solution
     }
 }
 ```
-````

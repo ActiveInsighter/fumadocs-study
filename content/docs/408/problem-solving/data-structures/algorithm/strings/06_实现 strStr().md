@@ -541,7 +541,6 @@ public:
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 class Solution {
     /**
@@ -1423,4 +1422,3 @@ int strStr(char* haystack, char* needle) {
     return -1;
 }
 ```
-````

@@ -720,7 +720,6 @@ for (int v = 1; v <= n; v++) {
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.Arrays;
 import java.util.Scanner;
@@ -899,4 +898,3 @@ async function main() {
 
 main()
 ```
-````

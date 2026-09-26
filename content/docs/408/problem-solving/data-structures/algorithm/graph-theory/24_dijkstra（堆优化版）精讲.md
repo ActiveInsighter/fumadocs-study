@@ -640,7 +640,6 @@ int main() {
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.*;
 
@@ -885,4 +884,3 @@ func main() {
     fmt.Println(result)
 }
 ```
-````

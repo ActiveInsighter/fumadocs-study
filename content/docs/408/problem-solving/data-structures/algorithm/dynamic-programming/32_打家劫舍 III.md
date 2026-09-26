@@ -207,7 +207,6 @@ public:
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 class Solution {
     // 1.递归去偷，超时
@@ -560,4 +559,3 @@ impl Solution {
     }
 }
 ```
-````

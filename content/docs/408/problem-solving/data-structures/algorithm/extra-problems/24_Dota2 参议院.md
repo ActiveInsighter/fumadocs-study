@@ -101,7 +101,6 @@ public:
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 class Solution {
     public String predictPartyVictory(String senateStr) {
@@ -255,4 +254,3 @@ function predictPartyVictory(senate: string): string {
     return hasR ? 'Radiant' : 'Dire';
 };
 ```
-````

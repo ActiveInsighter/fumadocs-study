@@ -204,7 +204,6 @@ public:
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 // 版本一
 class Solution {
@@ -499,4 +498,3 @@ impl Solution {
     }
 }
 ```
-````

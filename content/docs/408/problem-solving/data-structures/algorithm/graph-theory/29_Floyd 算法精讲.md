@@ -407,7 +407,6 @@ floyd算法的时间复杂度相对较高，适合 稠密图且源点较多的�
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 public class FloydBase {
 
@@ -524,4 +523,3 @@ if __name__ == '__main__':
         else:
             print(grid[start][end])
 ```
-````

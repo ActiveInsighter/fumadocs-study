@@ -623,7 +623,6 @@ dijkstra 是贪心的思路 每一次搜索都只会找距离源点最近的非�
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.*;
 
@@ -873,4 +872,3 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-````

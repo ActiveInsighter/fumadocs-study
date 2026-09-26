@@ -508,7 +508,6 @@ int main() {
 
 ## 其他语言版本
 
-````code-tabs
 ```java label="Java"
 import java.util.*;
 
@@ -719,4 +718,3 @@ async function main() {
 
 main()
 ```
-````

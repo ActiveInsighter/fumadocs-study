@@ -327,7 +327,6 @@ IDA * 算法 对这一空间增长问题进行了优化，关于 IDA * 算法，
 
 ## 其他语言版本
 
-````code-tabs
 ```python label="Python"
 import heapq
 
@@ -648,4 +647,3 @@ int main() {
     return 0;
 }
 ```
-````
