@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - codex/algorithm-notes-0926
-      - codex/fix-markdown-bold-table-0926
   workflow_dispatch:
     inputs:
       deploy:
