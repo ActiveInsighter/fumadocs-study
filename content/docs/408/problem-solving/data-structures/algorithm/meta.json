@@ -1,7 +1,6 @@
 {
-  "title": "算法笔记",
-  "description": "按算法基础、数据结构与常见解题范式分为 14 个模块。",
-  "root": true,
+  "title": "算法专题",
+  "description": "按 14 个模块整理算法基础与题型笔记，共 271 篇。",
   "pages": [
     "index",
     "algorithm-basics",
@@ -18,6 +17,5 @@
     "monotonic-stack",
     "graph-theory",
     "extra-problems"
-  ],
-  "defaultOpen": true
+  ]
 }
