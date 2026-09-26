@@ -230,3 +230,49 @@ jobs:
             wait_for_route "${path}"
           done
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Verify client navigation in Headless Chrome
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        shell: bash
+        env:
+          DEPLOYMENT_URL: ${{ steps.cloudflare-deploy.outputs.deployment-url }}
+        run: |
+          set -euo pipefail
+          chrome_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          [[ -n "${chrome_bin}" ]] || {
+            echo '::error::No Chrome/Chromium executable is available on the runner.'
+            exit 1
+          }
+          rm -rf /tmp/fumadocs-browser-check
+          npm install --prefix /tmp/fumadocs-browser-check --no-audit --no-fund puppeteer-core@24.22.3
+          CHROME_BIN="${chrome_bin}" NODE_PATH=/tmp/fumadocs-browser-check/node_modules node <<'NODE'
+          const puppeteer = require('puppeteer-core');
+          const base = process.env.DEPLOYMENT_URL.replace(/\/$/, '');
+          const browser = await puppeteer.launch({
+            executablePath: process.env.CHROME_BIN,
+            headless: true,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          try {
+            const page = await browser.newPage();
+            const badText = 'This page could not be found.';
+            await page.goto(base + '/', { waitUntil: 'networkidle2', timeout: 120000 });
+            const before = await page.content();
+            if (before.includes(badText)) throw new Error('Homepage rendered the Next.js 404 page.');
+
+            await page.click('a[href="/docs/politics/"]');
+            await page.waitForFunction(
+              () => location.pathname === '/docs/politics/' || document.body.innerText.includes('This page could not be found.'),
+              { timeout: 120000 },
+            );
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            const after = await page.content();
+            const path = await page.evaluate(() => location.pathname);
+            console.log('[browser-check] after click path=' + path);
+            if (path !== '/docs/politics/') throw new Error('Client navigation landed on unexpected path: ' + path);
+            if (after.includes(badText)) throw new Error('Client navigation rendered the Next.js 404 page.');
+            console.log('[browser-check] homepage -> /docs/politics/ succeeded without 404');
+          } finally {
+            await browser.close();
+          }
+          NODE
