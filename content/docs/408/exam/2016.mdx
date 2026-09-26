@@ -653,7 +653,8 @@ do {
 
 进程 P1 和 P2 均包含并发执行的线程，部分伪代码描述如下所示。
 
-进程 P1`
+进程 P1
+```
 int x = 0;
 Thread1()
 {
@@ -665,7 +666,9 @@ Thread2()
     int a;
     a = 2; x += 2;
 }
-`进程 P2`
+```
+进程 P2
+```
 int x = 0;
 Thread3()
 {
@@ -677,7 +680,7 @@ Thread4()
     int b;
     b = x; x += 4;
 }
-`
+```
 
 下列选项中，需要互斥执行的操作是（ ）。
 
@@ -1008,7 +1011,7 @@ $$
 
 实现参考 快速排序的单向递归算法。
 
-`int partition(int a[], int low, int high) {
+```int partition(int a[], int low, int high) {
   int l = low;
   int r = high;
   int pivot = a[l];
@@ -1054,7 +1057,7 @@ void solve(int a[], int n) {
   }
   return S2 - S1;
 }
-`
+```
 
 3）本参考答案给出的算法平均时间复杂度是 $O(n)$ , 空间复杂度是 $O(1)$ 。
 

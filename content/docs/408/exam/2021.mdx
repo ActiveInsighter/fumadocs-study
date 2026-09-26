@@ -862,7 +862,7 @@ typedef struct {                    // 图的定义
 
 2）算法实现
 
-`int isExistEL(MGraph G) {
+```int isExistEL(MGraph G) {
   // 统计度为奇数的定点个数
   int count = 0;
   for (int v = 0; v < numVertices; v++) {
@@ -882,7 +882,7 @@ typedef struct {                    // 图的定义
   }
   return 0;
 }
-`
+```
 
 3）时间和空间复杂度
 
@@ -1012,7 +1012,8 @@ else count[i]++;
 
 下表给出了整型信号量 S 的 wait() 和 signal() 操作的功能描述，以及采用开/关中断指令实现信号量操作互斥的两种方法。
 
-功能描述`
+功能描述
+```
 Semaphore S;
 
 wait(S) {
@@ -1030,7 +1031,9 @@ signal(S) {
 }
 
 
-`方法 1`
+```
+方法 1
+```
 Semaphore S;
 
 
@@ -1048,7 +1051,9 @@ signal(S) {
     开中断；
 }
 
-`方法 2`
+```
+方法 2
+```
 Semaphore S;
 
 wait(S) {
@@ -1066,7 +1071,7 @@ signal(S) {
     S = S+1;
     开中断；
 }
-`
+```
 
 请回答下列问题。
 

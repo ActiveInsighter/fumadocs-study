@@ -911,7 +911,7 @@ T2 的存储结果如下：
 
 2）算法实现
 
-`// val 存储中序遍历中访问到的最大值
+```// val 存储中序遍历中访问到的最大值
 // 返回值：当前子树是否为 BST
 bool solve(SqBiTree *tree, int k, int *val) {
   if (k >= tree->ElemNum) {
@@ -941,7 +941,7 @@ bool solve(SqBiTree *tree, int k, int *val) {
   }
   return true;
 }
-`
+```
 
 </ExamAnswer>
 
@@ -1107,7 +1107,7 @@ $$
 
 进程 T1 要依次执行 A、E、F。进程 T2 要执行 B、C、D。由图可知，T2 执行 C 必须在 T1 执行完 A 之后；T1 执行 E 必须在 T2 执行完 C 之后。因此，有两对同步关系。信号量的定义 和同步关系的描述如下：
 
-`semaphore AC = 0;
+```semaphore AC = 0;
 semaphore CE = 0;
 
 T1() {
@@ -1125,7 +1125,7 @@ T2() {
     signal(CE);
     D;
 }
-`
+```
 
 </ExamAnswer>
 

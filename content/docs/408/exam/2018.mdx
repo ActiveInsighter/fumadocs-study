@@ -504,15 +504,18 @@ P1 的周转时间：30+1+24 +1 +36+1 +12=105μs
 
 属于同一进程的两个线程 thread1 和 thread2 并发执行，共享初值为 0 的全局变量 x。thread1 和 thread2 实现对全局变量 x 加 1 的机器级代码描述如下：
 
-thread1`
+thread1
+```
 mov R1, x   // (x) → R1
 inc R1      // (R1) + 1 → R1
 mov x, R1   // (R1) → x
-`thread2`
+```
+thread2
+```
 mov R2, x   // (x) → R2
 inc R2      // (R2) + 1 → R2
 mov x, R2   // (R2) → x
-`
+```
 
 在所有可能的指令执行序列中，使 x 的值为 2 的序列个数是（）。
 
@@ -834,7 +837,7 @@ UDP 协议实现分用 (demultiplexing) 时所依据的头部字段是（ ）。
 
 2）算法实现
 
-`int findMissMin(int a[], int n) {
+```int findMissMin(int a[], int n) {
   // 来记录 1 ~ n 是否出现过
   int vis[n];
   for (int i = 0; i < n; i++) {
@@ -855,7 +858,7 @@ UDP 协议实现分用 (demultiplexing) 时所依据的头部字段是（ ）。
   }
   return n+1;
 }
-`
+```
 
 3）时间复杂度：遍历 $A$ 一次，遍历 $B$ 一次，两次循环内操作步骤为 $O(1)$ 量级，因此时间 复杂度为 $O(n)$ 。空间复杂度：额外分配了 $B[n]$ , 空间复杂度为 $O(n)$ 。
 

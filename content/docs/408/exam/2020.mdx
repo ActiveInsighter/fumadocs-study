@@ -1004,7 +1004,7 @@ $L^{1} = ∣a − b∣$ ， $L^{2} = ∣b − c∣$ ， $L^{3} = ∣c − a∣$ 
 
 2）算法实现
 
-`void solve(int S1[], int n1, int S2[], int n2, int S3[], int n3) {
+```void solve(int S1[], int n1, int S2[], int n2, int S3[], int n3) {
   int i = 0, j = 0, k = 0;
   int res = INT32_MAX;
   while (i < n1 && j < n2 && k < n3) {
@@ -1022,7 +1022,7 @@ $L^{1} = ∣a − b∣$ ， $L^{2} = ∣b − c∣$ ， $L^{3} = ∣c − a∣$ 
   }
   return res;
 }
-`
+```
 
 3）设 $n = ∣S^{1}∣ + ∣S^{2}∣ + ∣S^{3}∣$ ，时间复杂度为 $O(n)$ ，空间复杂度为 $O(1)$ 。
 
@@ -1142,7 +1142,7 @@ for(k = 0; k < 1024; k++)
 
 本题要求实现操作的先后顺序，没有互斥关系，是一个简单的同步问题。 本题虽然有 5 个操作，但是只有 4 个同步关系，因此分别设置信号量 SAC、SBC、SCE 和 SDE 对应 4 个同步关系。
 
-`semaphore SAC = 0; // 实现 A 是 C 的前驱关系
+```semaphore SAC = 0; // 实现 A 是 C 的前驱关系
 semaphore SBC = 0; // 实现 B 是 C 的前驱关系
 semaphore SCE = 0; // 实现 C 是 E 的前驱关系
 semaphore SDE = 0; // 实现 D 是 E 的前驱关系
@@ -1174,7 +1174,7 @@ E() {
   P(SDE);
   操作E;
 }
-`
+```
 
 </ExamAnswer>
 

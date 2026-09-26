@@ -860,7 +860,7 @@ typedef struct node{
 
 2）算法实现（10 分）
 
-`void preorder(node *root, int depth) {
+```void preorder(node *root, int depth) {
   if (!root) {
     return;
   }
@@ -880,7 +880,7 @@ typedef struct node{
 void solve(node *root) {
   preorder(root, 1);
 }
-`
+```
 
 将二叉树的中序遍历递归算法稍加改造即可得本题答案。除根结点和叶结点外，遍历到其他结点时在遍历其左子树之前加上左括号，在遍历完右子树后加上右括号。
 
@@ -1100,7 +1100,7 @@ M 的指令长短不一，不符合 RISC 指令系统特点。（1 分）
 
 某进程中有 3 个并发执行的线程 thread1、thread2、thread3，其伪代码如下所示。
 
-`
+```
 //复数的结构类型定义
 typedef struct
 {
@@ -1119,7 +1119,7 @@ cnum add(cnum p,cnum q)
     s.b=p.b+q.b;
     return s;
 }
-``
+
 thread1
 {
     cnum w;
@@ -1138,7 +1138,7 @@ thread2
 
 
 
-``
+
 thread3
 {
     cnum w;
@@ -1157,7 +1157,7 @@ thread3
 
 
 
-`
+```
 
 请添加必要的信号量和 P、V（或 wait()、signal()）操作，要求确保线程互斥访问临界资源，并且最大程度地并发执行。
 
@@ -1165,7 +1165,7 @@ thread3
 
 先找出线程对在各个变量上的互斥、并发关系。如果是一读一写或两个都是写，那么这就是互斥关系。每一个互斥关系都需要一个信号量进行调节。
 
-`// 冲突：
+```// 冲突：
 // t1 和 t3 关于 y 有读写冲突
 // t2 和 t3 关于 y, z 都有读写冲突
 
@@ -1218,7 +1218,7 @@ thread3()
   V(y_mutex1);
   // ...
 }
-`
+```
 
 【评分标准】
 

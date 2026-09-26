@@ -45,9 +45,9 @@ prev 是指向前直接前驱结点的指针，next 是指向直接后继结点�
 
 执行完语句：
 
-`s->next = p->next;
+```s->next = p->next;
 p->next = s;
-`
+```
 
 后，`s->next` 已经指向 `p` 原来的后继结点，同时 `p->next` 已经指向 `s`。因此，还需要完成两个指针的修改：
 
@@ -56,19 +56,19 @@ p->next = s;
 
 由于在执行 `p->next = s` 后，`p->next` 与 `s` 指向同一个结点，因此：
 
-`s->prev = s->next->prev;
-`
+```s->prev = s->next->prev;
+```
 
 等价于：
 
-`s->prev = p;
-`
+```s->prev = p;
+```
 
 故选项 C：
 
-`s->prev = s->next->prev;
+```s->prev = s->next->prev;
 s->next->prev = s;
-`
+```
 
 能够正确完成插入操作，因此本题答案为 **C**。
 
@@ -972,7 +972,7 @@ typedef struct {                    // 图的类型定义
 
 2）算法实现
 
-`int printVertices(MGraph G) {
+```int printVertices(MGraph G) {
     // K 顶点的个数
     int count = 0;
     for (int v = 0; v < numVertices; v++) {
@@ -994,7 +994,7 @@ typedef struct {                    // 图的类型定义
     }
     return count;
 }
-`
+```
 
 </ExamAnswer>
 
