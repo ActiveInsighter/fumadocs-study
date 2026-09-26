@@ -247,6 +247,7 @@ jobs:
           npm install --prefix /tmp/fumadocs-browser-check --no-audit --no-fund puppeteer-core@24.22.3
           CHROME_BIN="${chrome_bin}" NODE_PATH=/tmp/fumadocs-browser-check/node_modules node <<'NODE'
           const puppeteer = require('puppeteer-core');
+          (async () => {
           const base = process.env.DEPLOYMENT_URL.replace(/\/$/, '');
           const browser = await puppeteer.launch({
             executablePath: process.env.CHROME_BIN,
@@ -275,4 +276,8 @@ jobs:
           } finally {
             await browser.close();
           }
+          })().catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+          });
           NODE
