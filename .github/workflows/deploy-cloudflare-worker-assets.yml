@@ -211,8 +211,8 @@ jobs:
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
-            '/docs/408/problem-solving/data-structures/algorithm/' \
-            '/docs/408/problem-solving/data-structures/algorithm/08-binary-tree/28-bst-lca/'; do
+            '/docs/algorithm/' \
+            '/docs/algorithm/08-binary-tree/28-bst-lca/'; do
             wait_for_route "${path}"
           done
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"

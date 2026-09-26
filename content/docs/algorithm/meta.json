@@ -1,5 +1,7 @@
 {
   "title": "算法学习笔记",
+  "description": "按算法基础、数据结构与常见解题范式分为 14 个模块。",
+  "root": true,
   "pages": [
     "index",
     "目录",
@@ -17,5 +19,6 @@
     "12-monotonic-stack",
     "13-graph",
     "14-extra-problems"
-  ]
+  ],
+  "defaultOpen": true
 }
