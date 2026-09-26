@@ -52,16 +52,25 @@ export function buildCloudflareAssetsIgnore() {
 
 async function ensureRootIndex(outputRoot) {
   const rootIndexPath = path.join(outputRoot, 'index.html');
+  const docsIndexPath = path.join(outputRoot, 'docs', 'index.html');
+
+  let shouldRestore = false;
 
   try {
     await stat(rootIndexPath);
-    return false;
+    const rootHtml = await readFile(rootIndexPath, 'utf8');
+    shouldRestore = rootHtml.includes('This page could not be found.');
   } catch {
-    const docsIndexPath = path.join(outputRoot, 'docs', 'index.html');
-    await stat(docsIndexPath);
-    await copyFile(docsIndexPath, rootIndexPath);
-    return true;
+    shouldRestore = true;
   }
+
+  if (!shouldRestore) {
+    return false;
+  }
+
+  await stat(docsIndexPath);
+  await copyFile(docsIndexPath, rootIndexPath);
+  return true;
 }
 
 export async function prepareCloudflareStaticAssets(outputRoot = path.resolve('.static-docs')) {
