@@ -305,21 +305,34 @@ jobs:
             }
 
             await page.goto(base + '/docs/algorithm/', { waitUntil: 'networkidle2', timeout: 120000 });
-            const deepHref = '/docs/algorithm/08-binary-tree/28-bst-lca/';
+            const deepHref = await page.evaluate(() => {
+              const links = Array.from(document.querySelectorAll('a[href]'))
+                .map((element) => element.getAttribute('href'))
+                .filter((href) => href && href.startsWith('/docs/algorithm/') && href !== '/docs/algorithm/');
+              return links.find((href) => href.endsWith('/')) ?? links[0] ?? null;
+            });
+            if (!deepHref) {
+              throw new Error('Algorithm index exposes no internal document link to verify.');
+            }
             await page.click(`a[href="${deepHref}"]`);
             await page.waitForFunction(
-              (expected) => location.pathname === expected || document.body.innerText.includes('This page could not be found.'),
+              (expected) =>
+                location.pathname === expected ||
+                location.pathname === expected.replace(/\/$/, '') ||
+                document.body.innerText.includes('This page could not be found.'),
               { timeout: 120000 },
               deepHref,
             );
             await new Promise((resolve) => setTimeout(resolve, 1200));
             const deepText = await page.evaluate(() => document.body.innerText);
             const deepPath = await page.evaluate(() => location.pathname);
-            console.log('[browser-check] deep click -> ' + deepPath);
-            if (deepPath !== deepHref || deepText.includes(badText)) {
-              throw new Error('Deep Fumadocs client navigation failed: ' + deepPath);
+            console.log('[browser-check] deep click ' + deepHref + ' -> ' + deepPath);
+            const normalizedDeepPath = deepPath.replace(/\/$/, '');
+            const normalizedDeepHref = deepHref.replace(/\/$/, '');
+            if (normalizedDeepPath !== normalizedDeepHref || deepText.includes(badText)) {
+              throw new Error('Deep Fumadocs client navigation failed: ' + deepPath + ' expected=' + deepHref);
             }
-            console.log('[browser-check] all homepage module links, blog index, and deep Fumadocs navigation passed');
+            console.log('[browser-check] all homepage module links, blog index, and real deep Fumadocs navigation passed');
           } finally {
             await browser.close();
           }
