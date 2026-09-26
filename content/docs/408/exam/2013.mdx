@@ -839,7 +839,8 @@ SMTP协议用于用户代理向邮件服务器发送邮件，或在邮件服务�
 
 2）算法实现
 
-```int majority(int a[], int n) {
+```
+int majority(int a[], int n) {
   if (n == 0) {
     return -1;
   }
@@ -1056,7 +1057,8 @@ coend
 
 出入口一次仅允许一个人通过，设置互斥信号量 mutex, 初值为 1。博物馆最多可同时容 纳 500 人，故设置信号量 empty, 初值为 500。
 
-```semaphore empty = 500;
+```
+semaphore empty = 500;
 semaphore mutex = 1;
 
 visitor() {

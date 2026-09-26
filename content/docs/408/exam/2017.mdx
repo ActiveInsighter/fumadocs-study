@@ -860,7 +860,8 @@ typedef struct node{
 
 2）算法实现（10 分）
 
-```void preorder(node *root, int depth) {
+```
+void preorder(node *root, int depth) {
   if (!root) {
     return;
   }
@@ -1165,7 +1166,8 @@ thread3
 
 先找出线程对在各个变量上的互斥、并发关系。如果是一读一写或两个都是写，那么这就是互斥关系。每一个互斥关系都需要一个信号量进行调节。
 
-```// 冲突：
+```
+// 冲突：
 // t1 和 t3 关于 y 有读写冲突
 // t2 和 t3 关于 y, z 都有读写冲突
 

@@ -859,7 +859,8 @@ Connection 字段代表 连接方式，Close 表明为非持续连接方式，ke
 
 3）算法实现
 
-```void RemoveElements(ListNode *head, int n) {
+```
+void RemoveElements(ListNode *head, int n) {
   // 数组充当哈希表
   int hash[n+1];
   for (int i = 0; i <= n; i++) {
@@ -1062,7 +1063,8 @@ B {
 
 <ExamAnswer>
 
-```semaphore A_full = x;        // A 信箱中已有的邮件个数
+```
+semaphore A_full = x;        // A 信箱中已有的邮件个数
 semaphore A_empty = M - x;   // A 信箱还可以放多少个邮件
 semaphore B_full = y;        // B 信箱中已有的邮件个数
 semaphore B_empty = N - y;   // B 信箱中还能放多少个邮件

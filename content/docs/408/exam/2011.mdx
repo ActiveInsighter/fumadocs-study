@@ -921,7 +921,8 @@ e() 和 l() 数组与它们的差值如下表所示。
 
 2）算法实现
 
-```int M_Search(int A[], int B[], int n) {
+```
+int M_Search(int A[], int B[], int n) {
     int s1 = 0, d1 = n - 1, m1, s2 = 1, d2 = n - 1, m2;
     // 分别表示序列 A 和 B 的首位、末位和中位数
     while (s1 != d1 || s2 != d2) {

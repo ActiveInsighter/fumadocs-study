@@ -1087,7 +1087,8 @@ IV 支持一条 TCP 连接收取多封邮件
 
 2）算法实现如下：
 
-```void calMulMax(int A[], int res[], int n) {
+```
+void calMulMax(int A[], int res[], int n) {
     int minValue = INT32_MAX;
     int maxValue = INT32_MIN;
     for (int i = n-1; i >= 0; i--) {
@@ -1296,7 +1297,8 @@ idiv R1          // R1<-({R0,R1}/R2)
 
 实现甲和乙之间的同步需要使用到 pits 和 empty 这两个信号量，同时还需要一个 water 信号量来实现乙和丁的同步，代码实现如下：
 
-```semaphore mutex = 1;  // 对铁锹的使用需要互斥
+```
+semaphore mutex = 1;  // 对铁锹的使用需要互斥
 semaphore pits  = 3;  // 甲还能挖洞的数量
 sempahore empty = 0;  // 可以使用的树坑数量
 sempahore water = 0;  // 需要浇水的水苗数量

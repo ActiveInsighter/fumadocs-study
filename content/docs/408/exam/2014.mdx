@@ -770,7 +770,8 @@ UDP 提供的是无连接的服务，I 正确；同时 UDP 也提供复用/分�
 
 1. 二叉树结点的数据类型定义如下：
 
-```typedef struct BiTNode(
+```
+typedef struct BiTNode(
     int weight;
     struct BiTNode *lchild,*rchild;
 }BiTNode,*BiTree;
@@ -778,7 +779,8 @@ UDP 提供的是无连接的服务，I 正确；同时 UDP 也提供复用/分�
 
 1. 算法代码如下：
 
-```int _wpl(Node *root, int depth) {
+```
+int _wpl(Node *root, int depth) {
   if (!root) {
     return 0;
   }
@@ -838,7 +840,8 @@ int wpl(Node *root) {
 
 2）链式存储结构的如下图所示。
 
-```struct Arc {
+```
+struct Arc {
   uint32_t id;
   uint32_t ip;
   int metric;
@@ -1072,7 +1075,8 @@ F 的文件控制区的起始块号和文件长度的内容会因此改变。（
 
 设置四个变量 consumer_mutex、buffer_mutex、empty 和 full, consumer_mutex 用于一个控制一个消费者进程一个 周期（10 次）内对于缓冲区的控制，初值为 1；buffer_mutex 用于进程单次互斥的访问缓冲区，初值 为 1；empty 代表缓冲区的空位数，初值为 0；full 代表缓冲区的产品数，初值为 1000，具体进 程的描述如下：
 
-```semaphore consumer_mutex = 1;
+```
+semaphore consumer_mutex = 1;
 semaphore buffer_mutex = 1;
 semaphore full = 0;
 semaphore empty = 1000;
