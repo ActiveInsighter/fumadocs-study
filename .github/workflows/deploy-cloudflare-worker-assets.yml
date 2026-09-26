@@ -209,8 +209,8 @@ jobs:
           wait_for_route '/'
 
           homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
-          if grep -Fq 'This page could not be found.' <<<"${homepage}"; then
-            echo '::error::Cloudflare root route rendered the Next.js 404 page.'
+          if ! grep -Fq '2027 考研学习' <<<"${homepage}"; then
+            echo '::error::Cloudflare root route did not render the expected study homepage.'
             exit 1
           fi
 
