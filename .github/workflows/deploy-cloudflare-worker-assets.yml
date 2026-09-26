@@ -160,7 +160,7 @@ jobs:
               | cut -c1-30)"
             suffix="${suffix%-}"
             [[ -n "${suffix}" ]] || suffix='branch'
-            worker_name="fumadocs-static-docs-preview-${suffix}"
+            worker_name="fumadocs-preview-${suffix}"
           fi
           echo "name=${worker_name}" >> "${GITHUB_OUTPUT}"
           echo "- Cloudflare Worker target: \`${worker_name}\`" >> "${GITHUB_STEP_SUMMARY}"
