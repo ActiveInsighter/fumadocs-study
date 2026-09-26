@@ -683,9 +683,9 @@ $$
 
 ## 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int numDistinct(String s, String t) {
         long[] dp = new long[t.length() + 1];
@@ -704,9 +704,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def numDistinct(self, s: str, t: str) -> int:
         dp = [0] * (len(t) + 1)
@@ -720,9 +720,9 @@ class Solution:
         return dp[-1]
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func numDistinct(s string, t string) int {
     dp := make([]uint64, len(t)+1)
     dp[0] = 1
@@ -739,9 +739,9 @@ func numDistinct(s string, t string) int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var numDistinct = function(s, t) {
     const dp = new Array(t.length + 1).fill(0);
     dp[0] = 1;

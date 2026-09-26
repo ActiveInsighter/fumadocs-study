@@ -786,9 +786,9 @@ $$
 
 下面统一采用“排序 + 剩余目标值/等价剪枝”的思路。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.*;
 
 class Solution {
@@ -818,9 +818,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def combinationSum(self, candidates, target):
         candidates.sort()
@@ -844,9 +844,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func combinationSum(candidates []int, target int) [][]int {
@@ -879,9 +879,9 @@ func combinationSum(candidates []int, target int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var combinationSum = function(candidates, target) {
     candidates.sort((a, b) => a - b);
 
@@ -908,9 +908,9 @@ var combinationSum = function(candidates, target) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function combinationSum(candidates: number[], target: number): number[][] {
     candidates.sort((a, b) => a - b);
 
@@ -937,9 +937,9 @@ function combinationSum(candidates: number[], target: number): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn combination_sum(mut candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
         candidates.sort_unstable();
@@ -989,9 +989,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int *path;
@@ -1109,9 +1109,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     private readonly IList<IList<int>> result = new List<IList<int>>();

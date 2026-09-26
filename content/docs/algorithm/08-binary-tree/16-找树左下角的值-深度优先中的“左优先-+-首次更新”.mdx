@@ -498,9 +498,9 @@ DFS 中真正保证“最左”的组合是：
 
 ## 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -525,9 +525,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from collections import deque
 
 class Solution:
@@ -550,9 +550,9 @@ class Solution:
         return answer
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func findBottomLeftValue(root *TreeNode) int {
     queue := []*TreeNode{root}
     answer := root.Val
@@ -578,9 +578,9 @@ func findBottomLeftValue(root *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var findBottomLeftValue = function(root) {
   const queue = [root];
   let head = 0;
@@ -600,9 +600,9 @@ var findBottomLeftValue = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function findBottomLeftValue(root: TreeNode | null): number {
   if (root === null) throw new Error('root must be non-null');
 
@@ -677,9 +677,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::rc::Rc;
@@ -712,9 +712,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public int FindBottomLeftValue(TreeNode root) {
         var queue = new Queue<TreeNode>();

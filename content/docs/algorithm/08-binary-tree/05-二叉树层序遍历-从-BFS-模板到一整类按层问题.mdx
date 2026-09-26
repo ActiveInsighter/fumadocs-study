@@ -735,9 +735,9 @@ while (!q.empty()) {
 
 下面都以 LeetCode 102 的标准层序遍历为例。不同语言只是在“队列”这个数据结构的具体写法上不同。
 
-### C++
 
-```cpp title="C++"
+
+```cpp title="C++" tab="C++"
 class Solution {
 public:
     vector<vector<int>> levelOrder(TreeNode* root) {
@@ -768,9 +768,9 @@ public:
 };
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 from collections import deque
 
 class Solution:
@@ -798,9 +798,9 @@ class Solution:
         return result
 ```
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public List<List<Integer>> levelOrder(TreeNode root) {
         List<List<Integer>> result = new ArrayList<>();
@@ -829,9 +829,9 @@ class Solution {
 }
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func levelOrder(root *TreeNode) [][]int {
     if root == nil {
         return [][]int{}
@@ -865,9 +865,9 @@ func levelOrder(root *TreeNode) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var levelOrder = function(root) {
     if (root === null) return [];
 

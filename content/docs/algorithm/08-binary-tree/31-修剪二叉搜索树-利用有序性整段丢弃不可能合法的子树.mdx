@@ -616,9 +616,9 @@ return root;
 
 下面各语言统一采用“**越界时利用 BST 有序性只保留可能合法的一侧；合法时递归修剪左右子树**”的写法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode trimBST(TreeNode root, int low, int high) {
         if (root == null) return null;
@@ -637,9 +637,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def trimBST(self, root, low, high):
         if root is None:
@@ -655,9 +655,9 @@ class Solution:
         return root
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func trimBST(root *TreeNode, low int, high int) *TreeNode {
     if root == nil {
         return nil
@@ -676,9 +676,9 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var trimBST = function(root, low, high) {
     if (root === null) return null;
 
@@ -695,9 +695,9 @@ var trimBST = function(root, low, high) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function trimBST(
     root: TreeNode | null,
     low: number,
@@ -739,9 +739,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -772,9 +772,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     public TreeNode TrimBST(TreeNode root, int low, int high)

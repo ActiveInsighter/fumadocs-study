@@ -767,9 +767,9 @@ $$
 
 ## 18. 多语言实现
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     vector<string> commonChars(vector<string>& words) {
@@ -804,9 +804,9 @@ public:
 };
 ```
 
-  ### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public List<String> commonChars(String[] words) {
         int[] minFreq = new int[26];
@@ -840,9 +840,9 @@ class Solution {
 }
 ```
 
-  ### Python
 
-```python
+
+```python tab="Python"
 from collections import Counter
 from typing import List
 
@@ -861,9 +861,9 @@ class Solution:
         return result
 ```
 
-  ### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var commonChars = function(words) {
     const base = 'a'.charCodeAt(0);
     const minFreq = new Array(26).fill(0);

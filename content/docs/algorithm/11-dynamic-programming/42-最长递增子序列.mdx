@@ -831,7 +831,7 @@ $O(n^2)$ DP 是“枚举当前结尾和所有前驱”；$O(n\log n)$ 优化则�
 
 下面统一给出更高效的 $O(n\log n)$ 写法。
 
-```java label="Java"
+```java tab="Java"
 import java.util.*;
 
 class Solution {
@@ -859,7 +859,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from bisect import bisect_left
 from typing import List
 
@@ -877,7 +877,7 @@ class Solution:
         return len(tails)
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var lengthOfLIS = function(nums) {
     const tails = [];
 
@@ -901,7 +901,7 @@ var lengthOfLIS = function(nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function lengthOfLIS(nums: number[]): number {
     const tails: number[] = [];
 
@@ -923,7 +923,7 @@ function lengthOfLIS(nums: number[]): number {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func lengthOfLIS(nums []int) int {
     tails := make([]int, 0, len(nums))
 
@@ -949,7 +949,7 @@ func lengthOfLIS(nums []int) int {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int lengthOfLIS(int* nums, int numsSize) {
     int* tails = (int*)malloc(sizeof(int) * numsSize);
     int size = 0;
@@ -973,7 +973,7 @@ int lengthOfLIS(int* nums, int numsSize) {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn length_of_lis(nums: Vec<i32>) -> i32 {
         let mut tails: Vec<i32> = Vec::new();

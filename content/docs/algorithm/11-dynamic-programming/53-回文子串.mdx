@@ -612,7 +612,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int countSubstrings(String s) {
         int n = s.length();
@@ -634,7 +634,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def countSubstrings(self, s: str) -> int:
         n = len(s)
@@ -650,7 +650,7 @@ class Solution:
         return answer
 ```
 
-```go label="Go"
+```go tab="Go"
 func countSubstrings(s string) int {
     n := len(s)
     dp := make([][]bool, n)
@@ -672,7 +672,7 @@ func countSubstrings(s string) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var countSubstrings = function(s) {
     const n = s.length;
     const dp = Array.from({ length: n }, () => Array(n).fill(false));
@@ -691,7 +691,7 @@ var countSubstrings = function(s) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function countSubstrings(s: string): number {
     const n = s.length;
     const dp: boolean[][] = Array.from(

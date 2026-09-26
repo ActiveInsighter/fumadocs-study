@@ -475,7 +475,7 @@ second->next = first;
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public ListNode swapPairs(ListNode head) {
         ListNode dummy = new ListNode(0, head);
@@ -497,7 +497,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
         dummy = ListNode(0, head)
@@ -516,7 +516,7 @@ class Solution:
         return dummy.next
 ```
 
-```go label="Go"
+```go tab="Go"
 func swapPairs(head *ListNode) *ListNode {
     dummy := &ListNode{Next: head}
     cur := dummy
@@ -536,7 +536,7 @@ func swapPairs(head *ListNode) *ListNode {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn swap_pairs(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
         match head {
@@ -554,7 +554,7 @@ impl Solution {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var swapPairs = function(head) {
     const dummy = new ListNode(0, head);
     let cur = dummy;
@@ -574,7 +574,7 @@ var swapPairs = function(head) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function swapPairs(head: ListNode | null): ListNode | null {
     const dummy = new ListNode(0, head);
     let cur: ListNode = dummy;

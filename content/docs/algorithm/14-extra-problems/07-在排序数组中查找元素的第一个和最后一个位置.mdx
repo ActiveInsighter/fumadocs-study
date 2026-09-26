@@ -1007,7 +1007,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private int lowerBound(int[] nums, int target) {
         int left = 0;
@@ -1056,7 +1056,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def searchRange(self, nums: List[int], target: int) -> List[int]:
         def lower_bound(x: int) -> int:
@@ -1094,7 +1094,7 @@ class Solution:
         return [first, last]
 ```
 
-```go label="Go"
+```go tab="Go"
 func searchRange(nums []int, target int) []int {
     lowerBound := func(target int) int {
         left, right := 0, len(nums)
@@ -1139,7 +1139,7 @@ func searchRange(nums []int, target int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var searchRange = function(nums, target) {
     const lowerBound = (x) => {
         let left = 0;
@@ -1185,7 +1185,7 @@ var searchRange = function(nums, target) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function searchRange(nums: number[], target: number): number[] {
     const lowerBound = (x: number): number => {
         let left = 0;
@@ -1231,7 +1231,7 @@ function searchRange(nums: number[], target: number): number[] {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn search_range(nums: Vec<i32>, target: i32) -> Vec<i32> {
         fn lower_bound(nums: &[i32], target: i32) -> usize {

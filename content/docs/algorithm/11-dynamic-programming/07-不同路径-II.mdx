@@ -577,7 +577,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int uniquePathsWithObstacles(int[][] obstacleGrid) {
         int m = obstacleGrid.length;
@@ -600,7 +600,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def uniquePathsWithObstacles(self, obstacleGrid: list[list[int]]) -> int:
         m, n = len(obstacleGrid), len(obstacleGrid[0])
@@ -617,7 +617,7 @@ class Solution:
         return dp[-1]
 ```
 
-```go label="Go"
+```go tab="Go"
 func uniquePathsWithObstacles(obstacleGrid [][]int) int {
     m, n := len(obstacleGrid), len(obstacleGrid[0])
     dp := make([]int, n)
@@ -637,7 +637,7 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var uniquePathsWithObstacles = function(obstacleGrid) {
     const m = obstacleGrid.length;
     const n = obstacleGrid[0].length;
@@ -658,7 +658,7 @@ var uniquePathsWithObstacles = function(obstacleGrid) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function uniquePathsWithObstacles(obstacleGrid: number[][]): number {
     const m = obstacleGrid.length;
     const n = obstacleGrid[0].length;
@@ -679,7 +679,7 @@ function uniquePathsWithObstacles(obstacleGrid: number[][]): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn unique_paths_with_obstacles(obstacle_grid: Vec<Vec<i32>>) -> i32 {
         let n = obstacle_grid[0].len();
@@ -701,7 +701,7 @@ impl Solution {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int uniquePathsWithObstacles(int** obstacleGrid, int obstacleGridSize,
                              int* obstacleGridColSize) {
     int m = obstacleGridSize;
@@ -747,7 +747,7 @@ object Solution {
 }
 ```
 
-```csharp label="C#"
+```csharp tab="C#"
 public class Solution
 {
     public int UniquePathsWithObstacles(int[][] obstacleGrid)

@@ -647,9 +647,9 @@ $$
 
 下面均采用“按绝对值降序 + 负数优先取反 + 剩余奇数次翻转最小绝对值”的统一实现。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.Arrays;
 
 class Solution {
@@ -679,9 +679,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def largestSumAfterKNegations(self, nums: list[int], k: int) -> int:
         nums.sort(key=abs, reverse=True)
@@ -697,9 +697,9 @@ class Solution:
         return sum(nums)
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func largestSumAfterKNegations(nums []int, k int) int {
@@ -733,9 +733,9 @@ func largestSumAfterKNegations(nums []int, k int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn largest_sum_after_k_negations(mut nums: Vec<i32>, mut k: i32) -> i32 {
         nums.sort_by_key(|x| std::cmp::Reverse(x.abs()));
@@ -757,9 +757,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var largestSumAfterKNegations = function (nums, k) {
   nums.sort((a, b) => Math.abs(b) - Math.abs(a));
 
@@ -778,9 +778,9 @@ var largestSumAfterKNegations = function (nums, k) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function largestSumAfterKNegations(nums: number[], k: number): number {
   nums.sort((a, b) => Math.abs(b) - Math.abs(a));
 
@@ -799,9 +799,9 @@ function largestSumAfterKNegations(nums: number[], k: number): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int absInt(int x) {
@@ -860,9 +860,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int LargestSumAfterKNegations(int[] nums, int k)

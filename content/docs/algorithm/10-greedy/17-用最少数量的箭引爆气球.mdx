@@ -896,9 +896,9 @@ $$
 
 下面统一采用“按右端点升序”的写法。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.*;
 
 class Solution {
@@ -924,9 +924,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -947,9 +947,9 @@ class Solution:
         return arrows
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func findMinArrowShots(points [][]int) int {
@@ -975,9 +975,9 @@ func findMinArrowShots(points [][]int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn find_min_arrow_shots(mut points: Vec<Vec<i32>>) -> i32 {
         if points.is_empty() {
@@ -1001,9 +1001,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var findMinArrowShots = function (points) {
   if (points.length === 0) {
     return 0;
@@ -1025,9 +1025,9 @@ var findMinArrowShots = function (points) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function findMinArrowShots(points: number[][]): number {
   if (points.length === 0) {
     return 0;
@@ -1049,9 +1049,9 @@ function findMinArrowShots(points: number[][]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int cmp(const void* a, const void* b) {
@@ -1086,9 +1086,9 @@ int findMinArrowShots(int** points, int pointsSize, int* pointsColSize) {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int FindMinArrowShots(int[][] points)

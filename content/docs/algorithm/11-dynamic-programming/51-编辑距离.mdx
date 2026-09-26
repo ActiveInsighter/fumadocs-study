@@ -681,9 +681,9 @@ $$
 
 ## 17. 其他语言版本
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     int minDistance(string word1, string word2) {
@@ -708,9 +708,9 @@ public:
 };
 ```
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int minDistance(String word1, String word2) {
         int n = word1.length();
@@ -738,9 +738,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def minDistance(self, word1: str, word2: str) -> int:
         n, m = len(word1), len(word2)
@@ -765,9 +765,9 @@ class Solution:
         return dp[n][m]
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func minDistance(word1 string, word2 string) int {
     n, m := len(word1), len(word2)
     dp := make([][]int, n+1)
@@ -800,9 +800,9 @@ func minDistance(word1 string, word2 string) int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var minDistance = function(word1, word2) {
     const n = word1.length;
     const m = word2.length;

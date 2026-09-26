@@ -475,7 +475,7 @@ if (!unite(u, v)) return {u, v};
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private int[] parent;
     private int[] size;
@@ -525,7 +525,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 
@@ -559,7 +559,7 @@ class Solution:
         return []
 ```
 
-```go label="Go"
+```go tab="Go"
 func findRedundantConnection(edges [][]int) []int {
     n := len(edges)
     parent := make([]int, n+1)
@@ -603,7 +603,7 @@ func findRedundantConnection(edges [][]int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var findRedundantConnection = function(edges) {
     const n = edges.length;
     const parent = Array.from({ length: n + 1 }, (_, i) => i);

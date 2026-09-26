@@ -371,9 +371,9 @@ s = [1, 2, 3, 5]
 
 下面统一采用更容易理解的“**小饼干优先满足小胃口**”写法。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.Arrays;
 
 class Solution {
@@ -394,9 +394,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def findContentChildren(self, g: list[int], s: list[int]) -> int:
         g.sort()
@@ -411,9 +411,9 @@ class Solution:
         return child
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func findContentChildren(g []int, s []int) int {
@@ -432,9 +432,9 @@ func findContentChildren(g []int, s []int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn find_content_children(mut g: Vec<i32>, mut s: Vec<i32>) -> i32 {
         g.sort_unstable();
@@ -453,9 +453,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var findContentChildren = function (g, s) {
   g.sort((a, b) => a - b);
   s.sort((a, b) => a - b);
@@ -472,9 +472,9 @@ var findContentChildren = function (g, s) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function findContentChildren(g: number[], s: number[]): number {
   g.sort((a, b) => a - b);
   s.sort((a, b) => a - b);
@@ -491,9 +491,9 @@ function findContentChildren(g: number[], s: number[]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int cmp(const void* a, const void* b) {
@@ -541,9 +541,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int FindContentChildren(int[] g, int[] s)

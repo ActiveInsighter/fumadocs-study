@@ -538,9 +538,9 @@ BST 已经把节点按大小组织好了，没有必要重复搜索。
 
 下面各语言统一采用“**反向中序遍历 + 全局累加和**”这一核心策略。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     private int sum = 0;
 
@@ -562,9 +562,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def convertBST(self, root):
         self.total = 0
@@ -582,9 +582,9 @@ class Solution:
         return root
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func convertBST(root *TreeNode) *TreeNode {
     sum := 0
 
@@ -605,9 +605,9 @@ func convertBST(root *TreeNode) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var convertBST = function(root) {
     let sum = 0;
 
@@ -627,9 +627,9 @@ var convertBST = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function convertBST(root: TreeNode | null): TreeNode | null {
     let sum = 0;
 
@@ -649,9 +649,9 @@ function convertBST(root: TreeNode | null): TreeNode | null {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 void traversal(struct TreeNode* node, int* sum) {
     if (node == NULL) {
         return;
@@ -692,9 +692,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -727,9 +727,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     private int sum = 0;

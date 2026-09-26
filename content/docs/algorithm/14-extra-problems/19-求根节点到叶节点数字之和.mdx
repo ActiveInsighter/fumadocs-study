@@ -540,7 +540,7 @@ int dfs(TreeNode* node, int state) {
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int sumNumbers(TreeNode root) {
         return dfs(root, 0);
@@ -563,7 +563,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def sumNumbers(self, root: Optional[TreeNode]) -> int:
         def dfs(node: Optional[TreeNode], current: int) -> int:
@@ -580,7 +580,7 @@ class Solution:
         return dfs(root, 0)
 ```
 
-```go label="Go"
+```go tab="Go"
 func sumNumbers(root *TreeNode) int {
     var dfs func(*TreeNode, int) int
 
@@ -602,7 +602,7 @@ func sumNumbers(root *TreeNode) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var sumNumbers = function(root) {
     const dfs = (node, current) => {
         if (node === null) {
@@ -622,7 +622,7 @@ var sumNumbers = function(root) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function sumNumbers(root: TreeNode | null): number {
     function dfs(node: TreeNode | null, current: number): number {
         if (node === null) {
@@ -642,7 +642,7 @@ function sumNumbers(root: TreeNode | null): number {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int dfs(struct TreeNode* node, int current) {
     if (node == NULL) {
         return 0;

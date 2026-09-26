@@ -467,9 +467,9 @@ result.append(path[:])
 
 ## 15. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<Integer>> ans = new ArrayList<>();
     private final List<Integer> path = new ArrayList<>();
@@ -490,9 +490,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
         ans, path = [], []
@@ -508,9 +508,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func subsets(nums []int) [][]int {
     ans := [][]int{}
     path := []int{}
@@ -530,9 +530,9 @@ func subsets(nums []int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var subsets = function(nums) {
     const ans = [];
     const path = [];
@@ -551,9 +551,9 @@ var subsets = function(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function subsets(nums: number[]): number[][] {
     const ans: number[][] = [];
     const path: number[] = [];
@@ -572,9 +572,9 @@ function subsets(nums: number[]): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn subsets(nums: Vec<i32>) -> Vec<Vec<i32>> {
         fn dfs(nums: &[i32], start: usize, path: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
@@ -594,9 +594,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static int* path;
 static int pathSize;
 static int** ans;
@@ -686,9 +686,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public IList<IList<int>> Subsets(int[] nums) {
         var ans = new List<IList<int>>();

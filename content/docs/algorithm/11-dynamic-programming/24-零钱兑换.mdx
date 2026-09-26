@@ -542,7 +542,7 @@ dp[target] == INF
 
 ## 16. 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 import java.util.Arrays;
 
 class Solution {
@@ -563,7 +563,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 
@@ -580,7 +580,7 @@ class Solution:
         return -1 if dp[amount] == inf else dp[amount]
 ```
 
-```go label="Go"
+```go tab="Go"
 func coinChange(coins []int, amount int) int {
     inf := amount + 1
     dp := make([]int, amount+1)
@@ -604,7 +604,7 @@ func coinChange(coins []int, amount int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var coinChange = function (coins, amount) {
   const INF = amount + 1;
   const dp = new Array(amount + 1).fill(INF);
@@ -620,7 +620,7 @@ var coinChange = function (coins, amount) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function coinChange(coins: number[], amount: number): number {
   const INF = amount + 1;
   const dp: number[] = new Array(amount + 1).fill(INF);

@@ -602,9 +602,9 @@ ReturnType dfs(TreeNode* root) {
 
 下面各语言统一采用“**后序递归 + 左右返回值汇合**”这一核心解法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
         if (root == null || root == p || root == q) {
@@ -623,9 +623,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def lowestCommonAncestor(self, root, p, q):
         if root is None or root is p or root is q:
@@ -640,9 +640,9 @@ class Solution:
         return left if left is not None else right
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
     if root == nil || root == p || root == q {
         return root
@@ -661,9 +661,9 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var lowestCommonAncestor = function(root, p, q) {
     if (root === null || root === p || root === q) {
         return root;
@@ -680,9 +680,9 @@ var lowestCommonAncestor = function(root, p, q) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function lowestCommonAncestor(
     root: TreeNode | null,
     p: TreeNode | null,
@@ -724,9 +724,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -764,9 +764,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     public TreeNode LowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)

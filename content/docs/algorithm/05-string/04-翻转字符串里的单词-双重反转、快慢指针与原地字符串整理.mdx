@@ -493,9 +493,9 @@ $$
 
 ## 其他语言版本
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     void reverseRange(string& s, int left, int right) {
@@ -542,9 +542,9 @@ public:
 };
 ```
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public String reverseWords(String s) {
         StringBuilder cleaned = new StringBuilder();
@@ -586,9 +586,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def reverseWords(self, s: str) -> str:
         chars = []
@@ -618,9 +618,9 @@ class Solution:
         return ''.join(chars)
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func reverseRange(s []byte, left, right int) {
     for left < right {
         s[left], s[right] = s[right], s[left]

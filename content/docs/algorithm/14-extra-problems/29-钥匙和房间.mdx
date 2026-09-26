@@ -651,7 +651,7 @@ while (!q.empty()) {
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean canVisitAllRooms(List<List<Integer>> rooms) {
         int n = rooms.size();
@@ -679,7 +679,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def canVisitAllRooms(self, rooms: List[List[int]]) -> bool:
         n = len(rooms)
@@ -698,7 +698,7 @@ class Solution:
         return all(visited)
 ```
 
-```go label="Go"
+```go tab="Go"
 func canVisitAllRooms(rooms [][]int) bool {
     n := len(rooms)
     visited := make([]bool, n)
@@ -727,7 +727,7 @@ func canVisitAllRooms(rooms [][]int) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var canVisitAllRooms = function(rooms) {
     const n = rooms.length;
     const visited = new Array(n).fill(false);

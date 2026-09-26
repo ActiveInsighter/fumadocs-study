@@ -633,7 +633,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int minCut(String s) {
         int n = s.length();
@@ -671,7 +671,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def minCut(self, s: str) -> int:
         n = len(s)
@@ -696,7 +696,7 @@ class Solution:
         return dp[-1]
 ```
 
-```go label="Go"
+```go tab="Go"
 func minCut(s string) int {
     n := len(s)
     pal := make([][]bool, n)
@@ -734,7 +734,7 @@ func minCut(s string) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var minCut = function(s) {
     const n = s.length;
     const pal = Array.from({ length: n }, () => Array(n).fill(false));

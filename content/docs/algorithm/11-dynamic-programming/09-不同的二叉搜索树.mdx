@@ -454,7 +454,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int numTrees(int n) {
         int[] dp = new int[n + 1];
@@ -471,7 +471,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def numTrees(self, n: int) -> int:
         dp = [0] * (n + 1)
@@ -484,7 +484,7 @@ class Solution:
         return dp[n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func numTrees(n int) int {
     dp := make([]int, n+1)
     dp[0] = 1
@@ -499,7 +499,7 @@ func numTrees(n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var numTrees = function(n) {
     const dp = new Array(n + 1).fill(0);
     dp[0] = 1;
@@ -514,7 +514,7 @@ var numTrees = function(n) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function numTrees(n: number): number {
     const dp: number[] = new Array(n + 1).fill(0);
     dp[0] = 1;
@@ -529,7 +529,7 @@ function numTrees(n: number): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn num_trees(n: i32) -> i32 {
         let n = n as usize;
@@ -547,7 +547,7 @@ impl Solution {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int numTrees(int n) {
     int* dp = (int*)calloc(n + 1, sizeof(int));
     dp[0] = 1;

@@ -811,7 +811,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int findTargetSumWays(int[] nums, int target) {
         int sum = 0;
@@ -837,7 +837,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def findTargetSumWays(self, nums: list[int], target: int) -> int:
         total = sum(nums)
@@ -858,7 +858,7 @@ class Solution:
         return dp[bag_size]
 ```
 
-```go label="Go"
+```go tab="Go"
 func findTargetSumWays(nums []int, target int) int {
     sum := 0
     for _, num := range nums {
@@ -890,7 +890,7 @@ func findTargetSumWays(nums []int, target int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var findTargetSumWays = function(nums, target) {
     const sum = nums.reduce((acc, num) => acc + num, 0);
 

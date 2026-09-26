@@ -851,9 +851,9 @@ $$
 
 ## 20. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<Integer>> ans = new ArrayList<>();
     private final List<Integer> path = new ArrayList<>();
@@ -889,9 +889,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def findSubsequences(self, nums: list[int]) -> list[list[int]]:
         ans: list[list[int]] = []
@@ -918,9 +918,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func findSubsequences(nums []int) [][]int {
     ans := [][]int{}
     path := []int{}
@@ -955,9 +955,9 @@ func findSubsequences(nums []int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var findSubsequences = function(nums) {
     const ans = [];
     const path = [];
@@ -989,9 +989,9 @@ var findSubsequences = function(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function findSubsequences(nums: number[]): number[][] {
     const ans: number[][] = [];
     const path: number[] = [];
@@ -1023,9 +1023,9 @@ function findSubsequences(nums: number[]): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::collections::HashSet;
 
 impl Solution {
@@ -1064,9 +1064,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static void dfs(
     int* nums,
     int numsSize,
@@ -1202,9 +1202,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public IList<IList<int>> FindSubsequences(int[] nums) {
         var ans = new List<IList<int>>();

@@ -685,9 +685,9 @@ $$
 
 ## 17. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<Integer>> result = new ArrayList<>();
     private final List<Integer> path = new ArrayList<>();
@@ -716,9 +716,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
         candidates.sort()
@@ -744,9 +744,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func combinationSum2(candidates []int, target int) [][]int {
     sort.Ints(candidates)
 
@@ -780,9 +780,9 @@ func combinationSum2(candidates []int, target int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var combinationSum2 = function(candidates, target) {
     candidates.sort((a, b) => a - b);
 
@@ -810,9 +810,9 @@ var combinationSum2 = function(candidates, target) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function combinationSum2(candidates: number[], target: number): number[][] {
     candidates.sort((a, b) => a - b);
 
@@ -840,9 +840,9 @@ function combinationSum2(candidates: number[], target: number): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn combination_sum2(mut candidates: Vec<i32>, target: i32) -> Vec<Vec<i32>> {
         candidates.sort_unstable();
@@ -881,9 +881,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int *path;
@@ -1004,9 +1004,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     private readonly IList<IList<int>> result = new List<IList<int>>();

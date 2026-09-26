@@ -539,9 +539,9 @@ $$
 
 下面统一给出线性时间的贪心写法。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int wiggleMaxLength(int[] nums) {
         if (nums.length <= 1) {
@@ -566,9 +566,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def wiggleMaxLength(self, nums: list[int]) -> int:
         if len(nums) <= 1:
@@ -588,9 +588,9 @@ class Solution:
         return answer
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func wiggleMaxLength(nums []int) int {
     if len(nums) <= 1 {
         return len(nums)
@@ -613,9 +613,9 @@ func wiggleMaxLength(nums []int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn wiggle_max_length(nums: Vec<i32>) -> i32 {
         if nums.len() <= 1 {
@@ -641,9 +641,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var wiggleMaxLength = function (nums) {
   if (nums.length <= 1) return nums.length;
 
@@ -666,9 +666,9 @@ var wiggleMaxLength = function (nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function wiggleMaxLength(nums: number[]): number {
   if (nums.length <= 1) return nums.length;
 
@@ -691,9 +691,9 @@ function wiggleMaxLength(nums: number[]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 int wiggleMaxLength(int* nums, int numsSize) {
     if (numsSize <= 1) {
         return numsSize;
@@ -744,9 +744,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int WiggleMaxLength(int[] nums)

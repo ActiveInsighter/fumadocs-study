@@ -638,7 +638,7 @@ $$
 
 以下优先展示“Map + Set”的通用写法；无需依赖具体值域。
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean uniqueOccurrences(int[] arr) {
         Map<Integer, Integer> count = new HashMap<>();
@@ -660,7 +660,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def uniqueOccurrences(self, arr: List[int]) -> bool:
         count = {}
@@ -672,7 +672,7 @@ class Solution:
         return len(frequencies) == len(set(frequencies))
 ```
 
-```go label="Go"
+```go tab="Go"
 func uniqueOccurrences(arr []int) bool {
     count := make(map[int]int)
 
@@ -693,7 +693,7 @@ func uniqueOccurrences(arr []int) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var uniqueOccurrences = function(arr) {
     const count = new Map();
 
@@ -706,7 +706,7 @@ var uniqueOccurrences = function(arr) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function uniqueOccurrences(arr: number[]): boolean {
     const count = new Map<number, number>();
 
@@ -719,7 +719,7 @@ function uniqueOccurrences(arr: number[]): boolean {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 use std::collections::{HashMap, HashSet};
 
 impl Solution {

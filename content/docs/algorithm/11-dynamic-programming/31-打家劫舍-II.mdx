@@ -354,7 +354,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int rob(int[] nums) {
         int n = nums.length;
@@ -375,7 +375,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def rob(self, nums: List[int]) -> int:
         n = len(nums)
@@ -395,7 +395,7 @@ class Solution:
         return prev1
 ```
 
-```go label="Go"
+```go tab="Go"
 func rob(nums []int) int {
     n := len(nums)
     if n == 1 {
@@ -419,7 +419,7 @@ func max(a, b int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var rob = function(nums) {
     const n = nums.length;
     if (n === 1) return nums[0];
@@ -441,7 +441,7 @@ function robRange(nums, left, right) {
 }
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function rob(nums: number[]): number {
     const n = nums.length;
     if (n === 1) return nums[0];
@@ -465,7 +465,7 @@ function robRange(nums: number[], left: number, right: number): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn rob(nums: Vec<i32>) -> i32 {
         let n = nums.len();

@@ -480,9 +480,9 @@ BST
 
 下面各语言统一采用“**中序遍历 + 前驱节点**”这一核心解法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     private TreeNode pre;
     private int ans;
@@ -507,9 +507,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def getMinimumDifference(self, root):
         pre = None
@@ -530,9 +530,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func getMinimumDifference(root *TreeNode) int {
     var pre *TreeNode
     ans := int(^uint(0) >> 1)
@@ -556,9 +556,9 @@ func getMinimumDifference(root *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var getMinimumDifference = function(root) {
     let pre = null;
     let ans = Infinity;
@@ -579,9 +579,9 @@ var getMinimumDifference = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function getMinimumDifference(root: TreeNode | null): number {
     let pre: TreeNode | null = null;
     let ans = Infinity;
@@ -627,9 +627,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -663,9 +663,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     private TreeNode pre = null;

@@ -298,7 +298,7 @@ queue.push(index + n);
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public String predictPartyVictory(String senate) {
         int n = senate.length();
@@ -329,7 +329,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from collections import deque
 
 class Solution:
@@ -356,7 +356,7 @@ class Solution:
         return "Radiant" if radiant else "Dire"
 ```
 
-```go label="Go"
+```go tab="Go"
 func predictPartyVictory(senate string) string {
     n := len(senate)
     radiant := make([]int, 0)
@@ -390,7 +390,7 @@ func predictPartyVictory(senate string) string {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var predictPartyVictory = function(senate) {
     const n = senate.length;
     const radiant = [];
@@ -416,7 +416,7 @@ var predictPartyVictory = function(senate) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function predictPartyVictory(senate: string): string {
     const n = senate.length;
     const radiant: number[] = [];

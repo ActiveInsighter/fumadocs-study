@@ -497,9 +497,9 @@ backtrack(index):
 
 ## 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
 
     //设置全局列表存储最后的结果
@@ -540,9 +540,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def __init__(self):
         self.letterMap = [
@@ -673,9 +673,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 var (
     m []string
     path []byte
@@ -706,9 +706,9 @@ func dfs(digits string, start int) {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var letterCombinations = function(digits) {
     const k = digits.length;
     const map = ["","","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"];
@@ -733,9 +733,9 @@ var letterCombinations = function(digits) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function letterCombinations(digits: string): string[] {
     if (digits === '') return [];
     const strMap: { [index: string]: string[] } = {
@@ -767,9 +767,9 @@ function letterCombinations(digits: string): string[] {
 };
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 const map: [&str; 10] = [
     "", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz",
 ];
@@ -799,9 +799,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 char* path;
 int pathTop;
 char** result;
@@ -973,9 +973,9 @@ def backtracking(result, letter_map, digits, path, index)
 end
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public IList<string> res = new List<string>();

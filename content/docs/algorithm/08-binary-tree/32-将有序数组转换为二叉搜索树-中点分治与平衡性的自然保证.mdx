@@ -570,9 +570,9 @@ left > right
 
 下面各语言统一使用“**中点作为根 + 递归构造左右半区间**”的核心思路。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode sortedArrayToBST(int[] nums) {
         return build(nums, 0, nums.length - 1);
@@ -592,9 +592,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def sortedArrayToBST(self, nums):
         def build(left, right):
@@ -610,9 +610,9 @@ class Solution:
         return build(0, len(nums) - 1)
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func sortedArrayToBST(nums []int) *TreeNode {
     var build func(int, int) *TreeNode
 
@@ -632,9 +632,9 @@ func sortedArrayToBST(nums []int) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var sortedArrayToBST = function(nums) {
     const build = (left, right) => {
         if (left > right) {
@@ -652,9 +652,9 @@ var sortedArrayToBST = function(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function sortedArrayToBST(nums: number[]): TreeNode | null {
     const build = (left: number, right: number): TreeNode | null => {
         if (left > right) {
@@ -672,9 +672,9 @@ function sortedArrayToBST(nums: number[]): TreeNode | null {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 struct TreeNode* build(int* nums, int left, int right) {
     if (left > right) {
         return NULL;
@@ -713,9 +713,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -738,9 +738,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     public TreeNode SortedArrayToBST(int[] nums)

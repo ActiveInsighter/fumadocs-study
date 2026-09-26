@@ -620,7 +620,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int longestPalindromeSubseq(String s) {
         int n = s.length();
@@ -645,7 +645,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def longestPalindromeSubseq(self, s: str) -> int:
         n = len(s)
@@ -664,7 +664,7 @@ class Solution:
         return dp[0][n - 1]
 ```
 
-```go label="Go"
+```go tab="Go"
 func longestPalindromeSubseq(s string) int {
     n := len(s)
     dp := make([][]int, n)
@@ -689,7 +689,7 @@ func longestPalindromeSubseq(s string) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var longestPalindromeSubseq = function(s) {
     const n = s.length;
     const dp = Array.from({ length: n }, () => Array(n).fill(0));
@@ -712,7 +712,7 @@ var longestPalindromeSubseq = function(s) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function longestPalindromeSubseq(s: string): number {
     const n = s.length;
     const dp: number[][] = Array.from(

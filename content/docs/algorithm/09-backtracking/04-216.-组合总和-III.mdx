@@ -518,9 +518,9 @@ $$
 
 ## 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
 	List<List<Integer>> result = new ArrayList<>();
 	LinkedList<Integer> path = new LinkedList<>();
@@ -618,9 +618,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def combinationSum3(self, k: int, n: int) -> List[List[int]]:
         result = []  # 存放结果集
@@ -642,9 +642,9 @@ class Solution:
             path.pop()  # 回溯
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 var (
     res [][]int
     path  []int
@@ -675,9 +675,9 @@ func dfs(k, n int, start int, sum int) {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 /**
  * @param {number} k
  * @param {number} n
@@ -750,9 +750,9 @@ var combinationSum3 = function (k, n) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function combinationSum3(k: number, n: number): number[][] {
     const resArr: number[][] = [];
     function backTracking(k: number, n: number, sum: number, startIndex: number, tempArr: number[]): void {
@@ -774,9 +774,9 @@ function combinationSum3(k: number, n: number): number[][] {
 };
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn combination_sum3(k: i32, n: i32) -> Vec<Vec<i32>> {
         let mut result = vec![];
@@ -811,9 +811,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 int* path;
 int pathTop;
 int** ans;
@@ -931,9 +931,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public IList<IList<int>> res = new List<IList<int>>();

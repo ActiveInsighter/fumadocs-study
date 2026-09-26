@@ -521,7 +521,7 @@ reverse(nums.begin() + k, nums.end());
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private void reverse(int[] nums, int left, int right) {
         while (left < right) {
@@ -544,7 +544,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def rotate(self, nums: List[int], k: int) -> None:
         n = len(nums)
@@ -561,7 +561,7 @@ class Solution:
         reverse(k, n - 1)
 ```
 
-```go label="Go"
+```go tab="Go"
 func rotate(nums []int, k int) {
     n := len(nums)
     k %= n
@@ -580,7 +580,7 @@ func rotate(nums []int, k int) {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var rotate = function(nums, k) {
     const n = nums.length;
     k %= n;
@@ -599,7 +599,7 @@ var rotate = function(nums, k) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function rotate(nums: number[], k: number): void {
     const n = nums.length;
     k %= n;
@@ -618,7 +618,7 @@ function rotate(nums: number[], k: number): void {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn rotate(nums: &mut Vec<i32>, k: i32) {
         let k = k as usize % nums.len();

@@ -622,9 +622,9 @@ public:
 
 下面统一使用最清晰的递归或直接 DFS/BFS 写法。重点不是语言语法差异，而是保持同一个不变量：**每个节点交换一次左右孩子。**
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode invertTree(TreeNode root) {
         if (root == null) return null;
@@ -640,9 +640,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def invertTree(self, root):
         if not root:
@@ -654,9 +654,9 @@ class Solution:
         return root
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func invertTree(root *TreeNode) *TreeNode {
     if root == nil {
         return nil
@@ -669,9 +669,9 @@ func invertTree(root *TreeNode) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var invertTree = function(root) {
     if (root === null) return null;
 
@@ -682,9 +682,9 @@ var invertTree = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function invertTree(root: TreeNode | null): TreeNode | null {
     if (root === null) return null;
 
@@ -698,9 +698,9 @@ function invertTree(root: TreeNode | null): TreeNode | null {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 struct TreeNode* invertTree(struct TreeNode* root) {
     if (root == NULL) return NULL;
 
@@ -727,9 +727,9 @@ func invertTree(_ root: TreeNode?) -> TreeNode? {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 impl Solution {
     pub fn invert_tree(
         root: Option<Rc<RefCell<TreeNode>>>
@@ -746,9 +746,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public TreeNode InvertTree(TreeNode root) {
         if (root == null) return null;

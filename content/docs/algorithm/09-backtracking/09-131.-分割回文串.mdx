@@ -642,9 +642,9 @@ DP 只能缓存“某个区间是不是回文”，不能减少题目要求输�
 
 下面统一采用“预处理回文表 + 回溯”的版本，使不同语言之间的状态设计保持一致。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<String>> result = new ArrayList<>();
     private final List<String> path = new ArrayList<>();
@@ -682,9 +682,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def partition(self, s: str) -> List[List[str]]:
         n = len(s)
@@ -717,9 +717,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func partition(s string) [][]string {
     n := len(s)
     palindrome := make([][]bool, n)
@@ -761,9 +761,9 @@ func partition(s string) [][]string {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var partition = function(s) {
     const n = s.length;
     const palindrome = Array.from({ length: n }, () => Array(n).fill(false));
@@ -798,9 +798,9 @@ var partition = function(s) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function partition(s: string): string[][] {
     const n = s.length;
     const palindrome: boolean[][] = Array.from(
@@ -838,9 +838,9 @@ function partition(s: string): string[][] {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -954,9 +954,9 @@ class Solution {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn partition(s: String) -> Vec<Vec<String>> {
         let chars: Vec<char> = s.chars().collect();
@@ -1040,9 +1040,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     private readonly IList<IList<string>> result = new List<IList<string>>();

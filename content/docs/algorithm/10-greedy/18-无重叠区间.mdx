@@ -765,9 +765,9 @@ $$
 
 以下实现统一采用最清晰的“**按右端点排序 + 统计最大保留数量**”写法。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.Arrays;
 
 class Solution {
@@ -791,9 +791,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -814,9 +814,9 @@ class Solution:
         return len(intervals) - keep
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func eraseOverlapIntervals(intervals [][]int) int {
@@ -842,9 +842,9 @@ func eraseOverlapIntervals(intervals [][]int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn erase_overlap_intervals(mut intervals: Vec<Vec<i32>>) -> i32 {
         if intervals.is_empty() {
@@ -868,9 +868,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var eraseOverlapIntervals = function(intervals) {
     if (intervals.length === 0) return 0;
 
@@ -890,9 +890,9 @@ var eraseOverlapIntervals = function(intervals) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function eraseOverlapIntervals(intervals: number[][]): number {
     if (intervals.length === 0) return 0;
 
@@ -912,9 +912,9 @@ function eraseOverlapIntervals(intervals: number[][]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int cmp(const void* a, const void* b) {
@@ -949,9 +949,9 @@ int eraseOverlapIntervals(int** intervals,
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 using System;
 
 public class Solution

@@ -657,9 +657,9 @@ leftSize 算错了
 
 以下代码统一实现 **LeetCode 106：中序 + 后序构造二叉树**，并使用“中序下标表 + 左闭右开区间”的 $O(n)$ 思路。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private Map<Integer, Integer> index = new HashMap<>();
 
@@ -695,9 +695,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
         index = {value: i for i, value in enumerate(inorder)}
@@ -725,9 +725,9 @@ class Solution:
         return build(0, len(inorder), 0, len(postorder))
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func buildTree(inorder []int, postorder []int) *TreeNode {
     index := make(map[int]int, len(inorder))
     for i, v := range inorder {
@@ -760,9 +760,9 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var buildTree = function(inorder, postorder) {
   const index = new Map();
   inorder.forEach((value, i) => index.set(value, i));
@@ -790,9 +790,9 @@ var buildTree = function(inorder, postorder) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
   const index = new Map<number, number>();
   inorder.forEach((value, i) => index.set(value, i));
@@ -869,9 +869,9 @@ class Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static int findIndex(int* inorder, int left, int right, int value) {
     for (int i = left; i < right; ++i) {
         if (inorder[i] == value) return i;
@@ -949,9 +949,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -1007,9 +1007,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     private Dictionary<int, int> index = new();
 

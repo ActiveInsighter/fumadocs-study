@@ -613,9 +613,9 @@ $$
 
 ## 15. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private List<List<Integer>> res = new ArrayList<>();
     private List<Integer> path = new ArrayList<>();
@@ -710,9 +710,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def subsetsWithDup(self, nums):
         nums.sort()  # 去重需要排序
@@ -779,9 +779,9 @@ class Solution:
                 used[i] = False
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 function subsetsWithDup(nums) {
     nums.sort((a, b) => a - b);
     const resArr = [];
@@ -847,9 +847,9 @@ function permuteUnique(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function subsetsWithDup(nums: number[]): number[][] {
     nums.sort((a, b) => a - b);
     const resArr: number[][] = [];
@@ -919,9 +919,9 @@ function permuteUnique(nums: number[]): number[][] {
 };
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::collections::HashSet;
 impl Solution {
     pub fn subsets_with_dup(mut nums: Vec<i32>) -> Vec<Vec<i32>> {

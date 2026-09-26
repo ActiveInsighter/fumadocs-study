@@ -563,9 +563,9 @@ root = null
 
 下面统一给出最核心的后序递归版本。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public int minDepth(TreeNode root) {
         if (root == null) return 0;
@@ -578,9 +578,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def minDepth(self, root):
         if root is None:
@@ -594,9 +594,9 @@ class Solution:
         return min(left, right) + 1
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func minDepth(root *TreeNode) int {
     if root == nil { return 0 }
     left := minDepth(root.Left)
@@ -608,9 +608,9 @@ func minDepth(root *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var minDepth = function(root) {
     if (root === null) return 0;
     const left = minDepth(root.left);
@@ -621,9 +621,9 @@ var minDepth = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function minDepth(root: TreeNode | null): number {
     if (root === null) return 0;
     const left = minDepth(root.left);
@@ -634,9 +634,9 @@ function minDepth(root: TreeNode | null): number {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 int minDepth(struct TreeNode* root) {
     if (root == NULL) return 0;
     int left = minDepth(root->left);
@@ -677,9 +677,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -700,9 +700,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public int MinDepth(TreeNode root) {
         if (root == null) return 0;

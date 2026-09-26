@@ -778,9 +778,9 @@ $$
 
 ## 18. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private LinkedList<String> res;
     private LinkedList<String> path = new LinkedList<>();
@@ -935,9 +935,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def findItinerary(self, tickets: List[List[str]]) -> List[str]:
         self.adj = {}
@@ -992,9 +992,9 @@ class Solution:
         result.append(airport)  # 将当前机场添加到行程路径中
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 type pair struct {
 	target  string
 	visited bool
@@ -1051,9 +1051,9 @@ func findItinerary(tickets [][]string) []string {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var findItinerary = function(tickets) {
     let result = ['JFK']
     let map = {}
@@ -1156,9 +1156,9 @@ var findItinerary = function (tickets) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function findItinerary(tickets: string[][]): string[] {
     /**
         TicketsMap 实例：
@@ -1200,9 +1200,9 @@ function findItinerary(tickets: string[][]): string[] {
 };
 ```
 
-### C
 
-```c
+
+```c tab="C"
 typedef struct {
     char *name;        /* key */
     int cnt;           /* 记录到达机场是否飞过了 */
@@ -1410,9 +1410,9 @@ for line in tickets {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::collections::HashMap;
 impl Solution {
     fn backtracking(airport: String, targets: &mut HashMap<&String, Vec<&String>>, result: &mut Vec<String>) {

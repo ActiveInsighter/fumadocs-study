@@ -431,7 +431,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int maxUncrossedLines(int[] nums1, int[] nums2) {
         int n = nums1.length;
@@ -453,7 +453,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -471,7 +471,7 @@ class Solution:
         return dp[n][m]
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var maxUncrossedLines = function(nums1, nums2) {
     const n = nums1.length;
     const m = nums2.length;
@@ -491,7 +491,7 @@ var maxUncrossedLines = function(nums1, nums2) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function maxUncrossedLines(nums1: number[], nums2: number[]): number {
     const n = nums1.length;
     const m = nums2.length;
@@ -514,7 +514,7 @@ function maxUncrossedLines(nums1: number[], nums2: number[]): number {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func maxUncrossedLines(nums1 []int, nums2 []int) int {
     n, m := len(nums1), len(nums2)
     dp := make([][]int, n+1)
@@ -538,7 +538,7 @@ func maxUncrossedLines(nums1 []int, nums2 []int) int {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn max_uncrossed_lines(nums1: Vec<i32>, nums2: Vec<i32>) -> i32 {
         let n = nums1.len();

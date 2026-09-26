@@ -486,7 +486,7 @@ for (int i = 1; i < nums.size(); ++i) {
 如果状态只依赖上一项，就可以把数组压缩成一个变量。
 ## 13. 其他语言版本
 
-```cpp label="C++"
+```cpp tab="C++"
 class Solution {
 public:
     int maxSubArray(vector<int>& nums) {
@@ -503,7 +503,7 @@ public:
 };
 ```
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int maxSubArray(int[] nums) {
         int current = nums[0];
@@ -519,7 +519,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
         current = nums[0]
@@ -532,7 +532,7 @@ class Solution:
         return answer
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var maxSubArray = function(nums) {
     let current = nums[0];
     let answer = nums[0];
@@ -546,7 +546,7 @@ var maxSubArray = function(nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function maxSubArray(nums: number[]): number {
     let current = nums[0];
     let answer = nums[0];
@@ -560,7 +560,7 @@ function maxSubArray(nums: number[]): number {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func maxSubArray(nums []int) int {
     current := nums[0]
     answer := nums[0]

@@ -574,9 +574,9 @@ while (fast != nullptr && fast->next != nullptr) {
 
 下面给出最常用的“反转单链表”模板，便于对照不同语言中的节点引用写法。
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 ListNode* reverseList(ListNode* head) {
     ListNode* prev = nullptr;
     ListNode* cur = head;
@@ -592,9 +592,9 @@ ListNode* reverseList(ListNode* head) {
 }
 ```
 
-  ### Java
 
-```java
+
+```java tab="Java"
 public ListNode reverseList(ListNode head) {
     ListNode prev = null;
     ListNode cur = head;
@@ -610,9 +610,9 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 
-  ### Python
 
-```python
+
+```python tab="Python"
 def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
     prev = None
     cur = head
@@ -626,9 +626,9 @@ def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
     return prev
 ```
 
-  ### Go
 
-```go
+
+```go tab="Go"
 func reverseList(head *ListNode) *ListNode {
     var prev *ListNode
     cur := head
@@ -644,9 +644,9 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-  ### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var reverseList = function (head) {
   let prev = null;
   let cur = head;

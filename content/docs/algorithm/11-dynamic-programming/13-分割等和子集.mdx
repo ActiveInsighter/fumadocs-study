@@ -565,7 +565,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean canPartition(int[] nums) {
         int sum = 0;
@@ -594,7 +594,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def canPartition(self, nums: list[int]) -> bool:
         total = sum(nums)
@@ -614,7 +614,7 @@ class Solution:
         return False
 ```
 
-```go label="Go"
+```go tab="Go"
 func canPartition(nums []int) bool {
     sum := 0
     for _, num := range nums {
@@ -643,7 +643,7 @@ func canPartition(nums []int) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var canPartition = function(nums) {
   const sum = nums.reduce((acc, x) => acc + x, 0);
 
@@ -667,7 +667,7 @@ var canPartition = function(nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function canPartition(nums: number[]): boolean {
   const sum = nums.reduce((acc, x) => acc + x, 0);
 

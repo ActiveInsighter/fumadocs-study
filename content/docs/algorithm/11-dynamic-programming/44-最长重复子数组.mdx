@@ -481,7 +481,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int findLength(int[] nums1, int[] nums2) {
         int[] dp = new int[nums2.length + 1];
@@ -503,7 +503,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def findLength(self, nums1: List[int], nums2: List[int]) -> int:
         dp = [0] * (len(nums2) + 1)
@@ -520,7 +520,7 @@ class Solution:
         return ans
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var findLength = function(nums1, nums2) {
     const dp = new Array(nums2.length + 1).fill(0);
     let ans = 0;
@@ -540,7 +540,7 @@ var findLength = function(nums1, nums2) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function findLength(nums1: number[], nums2: number[]): number {
     const dp: number[] = new Array(nums2.length + 1).fill(0);
     let ans = 0;
@@ -560,7 +560,7 @@ function findLength(nums1: number[], nums2: number[]): number {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func findLength(nums1 []int, nums2 []int) int {
     dp := make([]int, len(nums2)+1)
     ans := 0
@@ -582,7 +582,7 @@ func findLength(nums1 []int, nums2 []int) int {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int findLength(int* nums1, int nums1Size, int* nums2, int nums2Size) {
     int* dp = (int*)calloc(nums2Size + 1, sizeof(int));
     int ans = 0;
@@ -603,7 +603,7 @@ int findLength(int* nums1, int nums1Size, int* nums2, int nums2Size) {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn find_length(nums1: Vec<i32>, nums2: Vec<i32>) -> i32 {
         let mut dp = vec![0; nums2.len() + 1];

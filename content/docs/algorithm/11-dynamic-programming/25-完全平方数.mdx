@@ -507,7 +507,7 @@ for (int i = 1; i * i <= n; ++i) {
 
 ## 14. 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 import java.util.Arrays;
 
 class Solution {
@@ -527,7 +527,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def numSquares(self, n: int) -> int:
         dp = [n + 1] * (n + 1)
@@ -542,7 +542,7 @@ class Solution:
         return dp[n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func numSquares(n int) int {
     dp := make([]int, n+1)
     for i := 1; i <= n; i++ {
@@ -562,7 +562,7 @@ func numSquares(n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var numSquares = function (n) {
   const dp = new Array(n + 1).fill(n + 1);
   dp[0] = 0;
@@ -577,7 +577,7 @@ var numSquares = function (n) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function numSquares(n: number): number {
   const dp: number[] = new Array(n + 1).fill(n + 1);
   dp[0] = 0;

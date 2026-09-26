@@ -524,9 +524,9 @@ return dummy.next;
 
 ## 其他语言版本
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     ListNode* removeElements(ListNode* head, int val) {
@@ -548,9 +548,9 @@ public:
 };
 ```
 
-  ### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public ListNode removeElements(ListNode head, int val) {
         ListNode dummy = new ListNode(0, head);
@@ -569,9 +569,9 @@ class Solution {
 }
 ```
 
-  ### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
         dummy = ListNode(0, head)
@@ -586,9 +586,9 @@ class Solution:
         return dummy.next
 ```
 
-  ### C
 
-```c
+
+```c tab="C"
 struct ListNode* removeElements(struct ListNode* head, int val) {
     struct ListNode dummy;
     dummy.val = 0;

@@ -878,7 +878,7 @@ while (队列非空) {
 
 下面给出 **邻接表 BFS + 最短边数** 的标准模板。`dist[x] == -1` 同时承担“尚未访问”的判重作用。
 
-```cpp label="C++"
+```cpp tab="C++"
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -907,7 +907,7 @@ vector<int> bfs(int start, const vector<vector<int>>& graph) {
 }
 ```
 
-```java label="Java"
+```java tab="Java"
 import java.util.*;
 
 static int[] bfs(int start, List<List<Integer>> graph) {
@@ -933,7 +933,7 @@ static int[] bfs(int start, List<List<Integer>> graph) {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from collections import deque
 
 
@@ -955,7 +955,7 @@ def bfs(start: int, graph: list[list[int]]) -> list[int]:
     return dist
 ```
 
-```go label="Go"
+```go tab="Go"
 func bfs(start int, graph [][]int) []int {
     dist := make([]int, len(graph))
     for i := range dist {
@@ -986,7 +986,7 @@ func bfs(start int, graph [][]int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 function bfs(start, graph) {
   const dist = Array(graph.length).fill(-1);
   const queue = [start];

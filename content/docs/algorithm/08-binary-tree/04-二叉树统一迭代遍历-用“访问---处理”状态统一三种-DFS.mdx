@@ -529,9 +529,9 @@ $$
 
 下面统一使用 `visited` 状态法实现中序遍历。理解这一版后，前序和后序只需要调整入栈顺序。
 
-### C++
 
-```cpp title="C++"
+
+```cpp title="C++" tab="C++"
 class Solution {
 public:
     vector<int> inorderTraversal(TreeNode* root) {
@@ -557,9 +557,9 @@ public:
 };
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def inorderTraversal(self, root):
         result = []
@@ -581,9 +581,9 @@ class Solution:
         return result
 ```
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     private static class State {
         TreeNode node;
@@ -619,9 +619,9 @@ class Solution {
 }
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 type State struct {
     node    *TreeNode
     visited bool
@@ -657,9 +657,9 @@ func inorderTraversal(root *TreeNode) []int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var inorderTraversal = function(root) {
     const result = [];
     const stack = root ? [[root, false]] : [];

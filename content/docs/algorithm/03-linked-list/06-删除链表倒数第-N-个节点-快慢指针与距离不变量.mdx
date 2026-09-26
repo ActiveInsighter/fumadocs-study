@@ -492,9 +492,9 @@ $$
 
 ## 其他语言版本
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
@@ -517,9 +517,9 @@ public:
 };
 ```
 
-  ### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public ListNode removeNthFromEnd(ListNode head, int n) {
         ListNode dummy = new ListNode(0, head);
@@ -541,9 +541,9 @@ class Solution {
 }
 ```
 
-  ### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
         dummy = ListNode(0, head)
@@ -560,9 +560,9 @@ class Solution:
         return dummy.next
 ```
 
-  ### Go
 
-```go
+
+```go tab="Go"
 func removeNthFromEnd(head *ListNode, n int) *ListNode {
     dummy := &ListNode{Val: 0, Next: head}
     fast, slow := dummy, dummy
@@ -581,9 +581,9 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 }
 ```
 
-  ### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var removeNthFromEnd = function (head, n) {
   const dummy = new ListNode(0, head);
   let fast = dummy;

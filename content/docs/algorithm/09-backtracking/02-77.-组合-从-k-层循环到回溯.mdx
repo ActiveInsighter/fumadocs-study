@@ -339,9 +339,9 @@ $$
 
 ## 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<Integer>> result = new ArrayList<>();
     private final List<Integer> path = new ArrayList<>();
@@ -367,9 +367,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def combine(self, n: int, k: int) -> list[list[int]]:
         ans: list[list[int]] = []
@@ -389,9 +389,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func combine(n int, k int) [][]int {
     ans := make([][]int, 0)
     path := make([]int, 0, k)
@@ -416,9 +416,9 @@ func combine(n int, k int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var combine = function (n, k) {
   const ans = [];
   const path = [];
@@ -441,9 +441,9 @@ var combine = function (n, k) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function combine(n: number, k: number): number[][] {
   const ans: number[][] = [];
   const path: number[] = [];
@@ -466,9 +466,9 @@ function combine(n: number, k: number): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     fn dfs(n: i32, k: usize, start: i32, path: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
         if path.len() == k {
@@ -492,9 +492,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static int *path;
 static int pathSize;
 static int **ans;
@@ -615,9 +615,9 @@ def combine(n, k)
 end
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     private readonly IList<IList<int>> ans = new List<IList<int>>();
     private readonly List<int> path = new List<int>();

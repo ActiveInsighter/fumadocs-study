@@ -373,7 +373,7 @@ public:
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int trap(int[] height) {
         int sum = 0;
@@ -491,7 +491,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def trap(self, height: List[int]) -> int:
         res = 0
@@ -590,7 +590,7 @@ class Solution:
         return result
 ```
 
-```go label="Go"
+```go tab="Go"
 func trap(height []int) int {
 	var left, right, leftMax, rightMax, res int
 	right = len(height) - 1
@@ -718,7 +718,7 @@ func min(x, y int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 //暴力解法
 var trap = function(height) {
     const len = height.length;
@@ -818,7 +818,7 @@ var trap = function(height) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function trap(height: number[]): number {
     const length: number = height.length;
     let resVal: number = 0;
@@ -891,7 +891,7 @@ function trap(height: number[]): number {
 };
 ```
 
-```c label="C"
+```c tab="C"
 int trap(int* height, int heightSize) {
     int ans = 0;
     int left = 0, right = heightSize - 1;               //初始化两个指针到左右两边
@@ -914,7 +914,7 @@ int trap(int* height, int heightSize) {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn trap(height: Vec<i32>) -> i32 {
         let n = height.len();

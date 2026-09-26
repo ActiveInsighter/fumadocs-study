@@ -837,9 +837,9 @@ $$
 
 ## 17. 其他语言版本
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.*;
 
 class Solution {
@@ -861,9 +861,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -877,9 +877,9 @@ class Solution:
         return queue
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func reconstructQueue(people [][]int) [][]int {
@@ -903,9 +903,9 @@ func reconstructQueue(people [][]int) [][]int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn reconstruct_queue(mut people: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
         people.sort_by(|a, b| {
@@ -927,9 +927,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var reconstructQueue = function (people) {
   people.sort((a, b) => {
     if (a[0] !== b[0]) {
@@ -948,9 +948,9 @@ var reconstructQueue = function (people) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function reconstructQueue(people: number[][]): number[][] {
   people.sort((a, b) => {
     if (a[0] !== b[0]) {
@@ -969,9 +969,9 @@ function reconstructQueue(people: number[][]): number[][] {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int cmp(const void* a, const void* b) {
@@ -1038,9 +1038,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int[][] ReconstructQueue(int[][] people)

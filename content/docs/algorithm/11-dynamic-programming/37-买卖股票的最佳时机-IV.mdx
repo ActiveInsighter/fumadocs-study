@@ -523,7 +523,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int maxProfit(int k, int[] prices) {
         if (prices.length == 0 || k == 0) return 0;
@@ -553,7 +553,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -576,7 +576,7 @@ class Solution:
         return dp[2 * k]
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var maxProfit = function(k, prices) {
     if (prices.length === 0 || k === 0) return 0;
 
@@ -600,7 +600,7 @@ var maxProfit = function(k, prices) {
 };
 ```
 
-```go label="Go"
+```go tab="Go"
 func maxProfit(k int, prices []int) int {
     if len(prices) == 0 || k == 0 {
         return 0

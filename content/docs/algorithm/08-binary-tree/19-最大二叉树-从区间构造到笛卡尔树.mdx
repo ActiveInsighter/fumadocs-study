@@ -554,9 +554,9 @@ TreeNode* build(int left, int right) {
 
 以下版本统一采用“原数组 + 左闭右开区间”的递归写法，避免复制子数组。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public TreeNode constructMaximumBinaryTree(int[] nums) {
         return build(nums, 0, nums.length);
@@ -580,9 +580,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def constructMaximumBinaryTree(self, nums: List[int]) -> Optional[TreeNode]:
         def build(left: int, right: int) -> Optional[TreeNode]:
@@ -602,9 +602,9 @@ class Solution:
         return build(0, len(nums))
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func constructMaximumBinaryTree(nums []int) *TreeNode {
     var build func(int, int) *TreeNode
 
@@ -630,9 +630,9 @@ func constructMaximumBinaryTree(nums []int) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var constructMaximumBinaryTree = function(nums) {
   const build = (left, right) => {
     if (left >= right) return null;
@@ -654,9 +654,9 @@ var constructMaximumBinaryTree = function(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
   function build(left: number, right: number): TreeNode | null {
     if (left >= right) return null;
@@ -709,9 +709,9 @@ class Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static struct TreeNode* build(int* nums, int left, int right) {
     if (left >= right) return NULL;
 
@@ -762,9 +762,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -800,9 +800,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public TreeNode ConstructMaximumBinaryTree(int[] nums) {
         return Build(nums, 0, nums.Length);

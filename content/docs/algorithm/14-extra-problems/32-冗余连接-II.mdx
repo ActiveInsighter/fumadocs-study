@@ -502,7 +502,7 @@ u -> v
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private int[] parent;
 
@@ -578,7 +578,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 
@@ -633,7 +633,7 @@ class Solution:
         return []
 ```
 
-```go label="Go"
+```go tab="Go"
 func findRedundantDirectedConnection(edges [][]int) []int {
     n := len(edges)
     indegree := make([]int, n+1)
@@ -708,7 +708,7 @@ func findRedundantDirectedConnection(edges [][]int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var findRedundantDirectedConnection = function (edges) {
     const n = edges.length;
     const indegree = new Array(n + 1).fill(0);

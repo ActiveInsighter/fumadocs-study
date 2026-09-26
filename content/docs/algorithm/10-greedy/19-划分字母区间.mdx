@@ -712,9 +712,9 @@ $$
 
 以下代码都采用“**预处理最后出现位置 + 一次扫描动态扩张右边界**”的标准写法。
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.ArrayList;
 import java.util.List;
 
@@ -744,9 +744,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -770,9 +770,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func partitionLabels(s string) []int {
     last := [26]int{}
 
@@ -799,9 +799,9 @@ func partitionLabels(s string) []int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn partition_labels(s: String) -> Vec<i32> {
         let bytes = s.as_bytes();
@@ -829,9 +829,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var partitionLabels = function(s) {
     const last = new Array(26).fill(0);
 
@@ -856,9 +856,9 @@ var partitionLabels = function(s) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function partitionLabels(s: string): number[] {
     const last: number[] = new Array(26).fill(0);
 
@@ -883,9 +883,9 @@ function partitionLabels(s: string): number[] {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 #include <string.h>
 
@@ -919,9 +919,9 @@ int* partitionLabels(char* s, int* returnSize) {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 using System;
 using System.Collections.Generic;
 

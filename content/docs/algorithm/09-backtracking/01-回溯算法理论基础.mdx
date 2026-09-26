@@ -341,9 +341,9 @@ function backtrack(state):
 
 为了让模板本身可以直接运行和改写，下面以最经典的“从 `nums` 中选择 `k` 个元素”为骨架。它完整展示了**终止 → 横向枚举 → 做选择 → 递归 → 撤销**这五个动作，并加入了“剩余元素数量不足”的基础剪枝。
 
-### C++
 
-```cpp title="C++"
+
+```cpp title="C++" tab="C++"
 #include <vector>
 using namespace std;
 
@@ -367,9 +367,9 @@ void backtracking(const vector<int>& nums, int k, int startIndex) {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 result = []
 path = []
 
@@ -388,9 +388,9 @@ def backtracking(nums, k, start_index):
         path.pop()                              # 撤销选择
 ```
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 import java.util.ArrayList;
 import java.util.List;
 
@@ -416,9 +416,9 @@ class BacktrackingTemplate {
 }
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 package backtracking
 
 var result [][]int

@@ -545,9 +545,9 @@ $$
 
 下面均采用“累加所有正相邻差值”的 $O(n)$ 贪心实现。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int maxProfit(int[] prices) {
         int profit = 0;
@@ -561,9 +561,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def maxProfit(self, prices: list[int]) -> int:
         profit = 0
@@ -574,9 +574,9 @@ class Solution:
         return profit
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func maxProfit(prices []int) int {
     profit := 0
 
@@ -591,9 +591,9 @@ func maxProfit(prices []int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn max_profit(prices: Vec<i32>) -> i32 {
         let mut profit = 0;
@@ -607,9 +607,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var maxProfit = function (prices) {
   let profit = 0;
 
@@ -621,9 +621,9 @@ var maxProfit = function (prices) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function maxProfit(prices: number[]): number {
   let profit = 0;
 
@@ -635,9 +635,9 @@ function maxProfit(prices: number[]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 int maxProfit(int* prices, int pricesSize) {
     int profit = 0;
 
@@ -668,9 +668,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int MaxProfit(int[] prices)

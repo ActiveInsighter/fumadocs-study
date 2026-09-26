@@ -138,7 +138,7 @@ public:
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int[] nextGreaterElements(int[] nums) {
         //边界判断
@@ -161,7 +161,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def nextGreaterElements(self, nums: List[int]) -> List[int]:
         dp = [-1] * len(nums)
@@ -197,7 +197,7 @@ class Solution:
         return res
 ```
 
-```go label="Go"
+```go tab="Go"
 // 版本一
 func nextGreaterElements(nums []int) []int {
     // 拼接一个新的nums
@@ -250,7 +250,7 @@ func nextGreaterElements(nums []int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 /**
  * @param {number[]} nums
  * @return {number[]}
@@ -273,7 +273,7 @@ var nextGreaterElements = function (nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function nextGreaterElements(nums: number[]): number[] {
     const length: number = nums.length;
     const stack: number[] = [];
@@ -295,7 +295,7 @@ function nextGreaterElements(nums: number[]): number[] {
 };
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn next_greater_elements(nums: Vec<i32>) -> Vec<i32> {
         let mut ans = vec![-1; nums.len() * 2];

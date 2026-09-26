@@ -479,7 +479,7 @@ bool compare(TreeNode* a, TreeNode* b) {
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean isSameTree(TreeNode p, TreeNode q) {
         if (p == null && q == null) {
@@ -498,7 +498,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
         if p is None and q is None:
@@ -514,7 +514,7 @@ class Solution:
         )
 ```
 
-```go label="Go"
+```go tab="Go"
 func isSameTree(p *TreeNode, q *TreeNode) bool {
     if p == nil && q == nil {
         return true
@@ -531,7 +531,7 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var isSameTree = function(p, q) {
     if (p === null && q === null) {
         return true;
@@ -548,7 +548,7 @@ var isSameTree = function(p, q) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function isSameTree(
     p: TreeNode | null,
     q: TreeNode | null

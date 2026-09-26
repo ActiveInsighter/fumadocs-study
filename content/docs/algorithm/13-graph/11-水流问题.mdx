@@ -726,7 +726,7 @@ $$
 
 以下版本统一采用反向搜索：从两组边界分别向高度不降低的方向扩展，再取两个可达集合的交集。
 
-```java label="Java"
+```java tab="Java"
 import java.io.*;
 import java.util.*;
 
@@ -794,7 +794,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 import sys
 sys.setrecursionlimit(1_000_000)
 input = sys.stdin.readline
@@ -836,7 +836,7 @@ for i in range(n):
             print(i, j)
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import (
@@ -911,7 +911,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 const fs = require('fs');
 const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
 

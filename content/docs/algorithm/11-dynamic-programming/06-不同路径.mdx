@@ -539,7 +539,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int uniquePaths(int m, int n) {
         int[] dp = new int[n];
@@ -556,7 +556,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def uniquePaths(self, m: int, n: int) -> int:
         dp = [1] * n
@@ -568,7 +568,7 @@ class Solution:
         return dp[-1]
 ```
 
-```go label="Go"
+```go tab="Go"
 func uniquePaths(m int, n int) int {
     dp := make([]int, n)
     for i := range dp {
@@ -585,7 +585,7 @@ func uniquePaths(m int, n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var uniquePaths = function(m, n) {
     const dp = new Array(n).fill(1);
 
@@ -599,7 +599,7 @@ var uniquePaths = function(m, n) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function uniquePaths(m: number, n: number): number {
     const dp: number[] = new Array(n).fill(1);
 
@@ -613,7 +613,7 @@ function uniquePaths(m: number, n: number): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn unique_paths(m: i32, n: i32) -> i32 {
         let (m, n) = (m as usize, n as usize);
@@ -630,7 +630,7 @@ impl Solution {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int uniquePaths(int m, int n) {
     int *dp = (int *)malloc(sizeof(int) * n);
     for (int j = 0; j < n; ++j) {
@@ -665,7 +665,7 @@ object Solution {
 }
 ```
 
-```csharp label="C#"
+```csharp tab="C#"
 public class Solution
 {
     public int UniquePaths(int m, int n)

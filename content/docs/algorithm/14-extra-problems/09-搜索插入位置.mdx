@@ -727,7 +727,7 @@ return lowerBound(nums, target);
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int searchInsert(int[] nums, int target) {
         int left = 0;
@@ -748,7 +748,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def searchInsert(self, nums: List[int], target: int) -> int:
         left, right = 0, len(nums)
@@ -764,7 +764,7 @@ class Solution:
         return left
 ```
 
-```go label="Go"
+```go tab="Go"
 func searchInsert(nums []int, target int) int {
     left, right := 0, len(nums)
 
@@ -782,7 +782,7 @@ func searchInsert(nums []int, target int) int {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn search_insert(nums: Vec<i32>, target: i32) -> i32 {
         let mut left = 0usize;
@@ -803,7 +803,7 @@ impl Solution {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var searchInsert = function(nums, target) {
     let left = 0;
     let right = nums.length;
@@ -822,7 +822,7 @@ var searchInsert = function(nums, target) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function searchInsert(nums: number[], target: number): number {
     let left = 0;
     let right = nums.length;

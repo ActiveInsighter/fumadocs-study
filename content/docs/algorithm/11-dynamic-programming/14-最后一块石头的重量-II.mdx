@@ -689,7 +689,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int lastStoneWeightII(int[] stones) {
         int sum = 0;
@@ -711,7 +711,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def lastStoneWeightII(self, stones: list[int]) -> int:
         total = sum(stones)
@@ -725,7 +725,7 @@ class Solution:
         return total - 2 * dp[target]
 ```
 
-```go label="Go"
+```go tab="Go"
 func lastStoneWeightII(stones []int) int {
     sum := 0
     for _, stone := range stones {
@@ -748,7 +748,7 @@ func lastStoneWeightII(stones []int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var lastStoneWeightII = function(stones) {
   const sum = stones.reduce((acc, x) => acc + x, 0);
   const target = Math.floor(sum / 2);
@@ -764,7 +764,7 @@ var lastStoneWeightII = function(stones) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function lastStoneWeightII(stones: number[]): number {
   const sum = stones.reduce((acc, x) => acc + x, 0);
   const target = Math.floor(sum / 2);

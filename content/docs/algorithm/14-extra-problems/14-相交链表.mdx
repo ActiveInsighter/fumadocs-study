@@ -290,7 +290,7 @@ pA = (pA == nullptr) ? headB : pA->next;
 
 ## 九、其他语言版本
 
-```java label="Java"
+```java tab="Java"
 public class Solution {
     public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
         ListNode a = headA;
@@ -306,7 +306,7 @@ public class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
         a, b = headA, headB
@@ -318,7 +318,7 @@ class Solution:
         return a
 ```
 
-```go label="Go"
+```go tab="Go"
 func getIntersectionNode(headA, headB *ListNode) *ListNode {
     a, b := headA, headB
 
@@ -340,7 +340,7 @@ func getIntersectionNode(headA, headB *ListNode) *ListNode {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var getIntersectionNode = function(headA, headB) {
     let a = headA;
     let b = headB;
@@ -354,7 +354,7 @@ var getIntersectionNode = function(headA, headB) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function getIntersectionNode(headA: ListNode | null, headB: ListNode | null): ListNode | null {
     let a: ListNode | null = headA;
     let b: ListNode | null = headB;

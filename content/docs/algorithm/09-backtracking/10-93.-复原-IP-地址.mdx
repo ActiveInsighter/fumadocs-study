@@ -358,9 +358,9 @@ IPv4 有效输入长度最多 12，因此实际搜索规模很小。递归深度
 
 ## 11. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<String> ans = new ArrayList<>();
     private final List<String> path = new ArrayList<>();
@@ -393,9 +393,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def restoreIpAddresses(self, s: str) -> List[str]:
         ans, path = [], []
@@ -426,9 +426,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func restoreIpAddresses(s string) []string {
     ans := []string{}
     path := []string{}
@@ -459,9 +459,9 @@ func restoreIpAddresses(s string) []string {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var restoreIpAddresses = function(s) {
     const ans = [], path = [];
     const dfs = (start) => {
@@ -489,9 +489,9 @@ var restoreIpAddresses = function(s) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function restoreIpAddresses(s: string): string[] {
     const ans: string[] = [];
     const path: string[] = [];
@@ -521,9 +521,9 @@ function restoreIpAddresses(s: string): string[] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn restore_ip_addresses(s: String) -> Vec<String> {
         fn dfs(s: &[u8], start: usize, path: &mut Vec<String>, ans: &mut Vec<String>) {
@@ -555,9 +555,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static void dfs(const char* s, int n, int start, int depth,
                 char parts[4][4], char*** ans, int* size) {
     int chars = n - start;
@@ -667,9 +667,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     private readonly IList<string> ans = new List<string>();
     private readonly List<string> path = new List<string>();

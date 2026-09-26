@@ -656,7 +656,7 @@ dist[nx][ny] = dist[x][y] + 1;
 
 以下版本均采用 **队列 + 四方向扩展 + 入队即标记**。
 
-```java label="Java"
+```java tab="Java"
 import java.io.*;
 import java.util.*;
 
@@ -727,7 +727,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 import sys
 from collections import deque
 
@@ -770,7 +770,7 @@ for i in range(n):
 print(answer)
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import (
@@ -846,7 +846,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 const fs = require('fs');
 
 const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);

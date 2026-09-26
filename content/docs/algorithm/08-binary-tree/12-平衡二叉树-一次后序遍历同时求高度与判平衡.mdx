@@ -838,9 +838,9 @@ $$
 
 下面统一使用“一次后序遍历 + `-1` 哨兵”的最优思路。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public boolean isBalanced(TreeNode root) {
         return getHeight(root) != -1;
@@ -864,9 +864,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def isBalanced(self, root):
         return self.get_height(root) != -1
@@ -889,9 +889,9 @@ class Solution:
         return max(left_height, right_height) + 1
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func isBalanced(root *TreeNode) bool {
     return getHeight(root) != -1
 }
@@ -926,9 +926,9 @@ func getHeight(node *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var isBalanced = function(root) {
     const getHeight = (node) => {
         if (node === null) return 0;
@@ -950,9 +950,9 @@ var isBalanced = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function isBalanced(root: TreeNode | null): boolean {
     function getHeight(node: TreeNode | null): number {
         if (node === null) return 0;
@@ -974,9 +974,9 @@ function isBalanced(root: TreeNode | null): boolean {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 #include <stdlib.h>
 
 static int getHeight(struct TreeNode* node) {
@@ -1026,9 +1026,9 @@ class Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -1065,9 +1065,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public bool IsBalanced(TreeNode root) {
         return GetHeight(root) != -1;

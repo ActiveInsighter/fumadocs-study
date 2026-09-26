@@ -605,9 +605,9 @@ $$
 
 ## 14. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     List<List<String>> res = new ArrayList<>();
 
@@ -719,9 +719,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def solveNQueens(self, n: int) -> List[List[str]]:
         result = []  # 存储最终结果的二维字符串数组
@@ -766,9 +766,9 @@ class Solution:
         return True  # 当前位置合法
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func solveNQueens(n int) [][]string {
     var res [][]string
 	chessboard := make([][]string, n)
@@ -822,9 +822,9 @@ func isValid(n, row, col int, chessboard [][]string) bool {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 /**
  * @param {number} n
  * @return {string[][]}
@@ -888,9 +888,9 @@ var solveNQueens = function (n) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function solveNQueens(n: number): string[][] {
     const board: string[][] = new Array(n).fill(0).map(_ => new Array(n).fill('.'));
     const resArr: string[][] = [];
@@ -991,9 +991,9 @@ func solveNQueens(_ n: Int) -> [[String]] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     fn is_valid(row: usize, col: usize, chessboard: &mut Vec<Vec<char>>, n: usize) -> bool {
         let mut i = 0 as usize;
@@ -1041,9 +1041,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 char ***ans;
 char **path;
 int ansTop, pathTop;
@@ -1239,9 +1239,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public List<IList<string>> res = new();

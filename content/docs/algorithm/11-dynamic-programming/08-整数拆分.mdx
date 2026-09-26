@@ -770,7 +770,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int integerBreak(int n) {
         int[] dp = new int[n + 1];
@@ -790,7 +790,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def integerBreak(self, n: int) -> int:
         dp = [0] * (n + 1)
@@ -807,7 +807,7 @@ class Solution:
         return dp[n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func integerBreak(n int) int {
     dp := make([]int, n+1)
     dp[2] = 1
@@ -829,7 +829,7 @@ func integerBreak(n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var integerBreak = function(n) {
     const dp = new Array(n + 1).fill(0);
     dp[2] = 1;
@@ -848,7 +848,7 @@ var integerBreak = function(n) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function integerBreak(n: number): number {
     const dp: number[] = new Array(n + 1).fill(0);
     dp[2] = 1;
@@ -867,7 +867,7 @@ function integerBreak(n: number): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn integer_break(n: i32) -> i32 {
         let n = n as usize;
@@ -887,7 +887,7 @@ impl Solution {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int integerBreak(int n) {
     int* dp = (int*)calloc(n + 1, sizeof(int));
     dp[2] = 1;
@@ -927,7 +927,7 @@ object Solution {
 }
 ```
 
-```csharp label="C#"
+```csharp tab="C#"
 public class Solution
 {
     public int IntegerBreak(int n)

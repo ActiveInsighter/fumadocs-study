@@ -453,7 +453,7 @@ for (int sum = 1; sum <= target; ++sum) {
 
 ## 12. 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 import java.util.Scanner;
 
 public class Main {
@@ -478,7 +478,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 def climb_stairs(n: int, m: int) -> int:
     dp = [0] * (n + 1)
     dp[0] = 1
@@ -495,7 +495,7 @@ n, m = map(int, input().split())
 print(climb_stairs(n, m))
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import "fmt"
@@ -519,7 +519,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 function climbStairs(n, m) {
   const dp = new Array(n + 1).fill(0);
   dp[0] = 1;
@@ -540,7 +540,7 @@ const [n, m] = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
 console.log(climbStairs(n, m));
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function climbStairs(n: number, m: number): number {
   const dp: number[] = new Array(n + 1).fill(0);
   dp[0] = 1;

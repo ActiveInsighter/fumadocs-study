@@ -468,7 +468,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 import java.util.*;
 
 class Solution {
@@ -490,7 +490,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def wordBreak(self, s: str, wordDict: list[str]) -> bool:
         words = set(wordDict)
@@ -507,7 +507,7 @@ class Solution:
         return dp[n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func wordBreak(s string, wordDict []string) bool {
     words := make(map[string]bool, len(wordDict))
     for _, word := range wordDict {
@@ -529,7 +529,7 @@ func wordBreak(s string, wordDict []string) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 function wordBreak(s, wordDict) {
   const words = new Set(wordDict);
   const dp = new Array(s.length + 1).fill(false);
@@ -548,7 +548,7 @@ function wordBreak(s, wordDict) {
 }
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function wordBreak(s: string, wordDict: string[]): boolean {
   const words = new Set<string>(wordDict);
   const dp: boolean[] = new Array(s.length + 1).fill(false);

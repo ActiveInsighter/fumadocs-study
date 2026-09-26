@@ -687,9 +687,9 @@ $$
 
 下面统一给出“利用完全二叉树性质”的核心解法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public int countNodes(TreeNode root) {
         if (root == null) return 0;
@@ -717,9 +717,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def countNodes(self, root):
         if root is None:
@@ -744,9 +744,9 @@ class Solution:
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func countNodes(root *TreeNode) int {
     if root == nil {
         return 0
@@ -773,9 +773,9 @@ func countNodes(root *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var countNodes = function(root) {
     if (root === null) return 0;
 
@@ -801,9 +801,9 @@ var countNodes = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function countNodes(root: TreeNode | null): number {
     if (root === null) return 0;
 
@@ -829,9 +829,9 @@ function countNodes(root: TreeNode | null): number {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 int countNodes(struct TreeNode* root) {
     if (root == NULL) return 0;
 
@@ -917,9 +917,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -956,9 +956,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public int CountNodes(TreeNode root) {
         if (root == null) return 0;

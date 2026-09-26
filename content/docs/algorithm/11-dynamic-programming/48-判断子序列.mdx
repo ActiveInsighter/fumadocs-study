@@ -561,7 +561,7 @@ true
 当同一个 `t` 面对大量 `s` 查询时，预处理字符位置并二分查找更加合适。
 ## 17. 其他语言版本
 
-```cpp label="C++"
+```cpp tab="C++"
 class Solution {
 public:
     bool isSubsequence(string s, string t) {
@@ -578,7 +578,7 @@ public:
 };
 ```
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean isSubsequence(String s, String t) {
         int i = 0;
@@ -594,7 +594,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def isSubsequence(self, s: str, t: str) -> bool:
         i = 0
@@ -606,7 +606,7 @@ class Solution:
         return i == len(s)
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var isSubsequence = function(s, t) {
     let i = 0;
 
@@ -620,7 +620,7 @@ var isSubsequence = function(s, t) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function isSubsequence(s: string, t: string): boolean {
     let i = 0;
 
@@ -634,7 +634,7 @@ function isSubsequence(s: string, t: string): boolean {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func isSubsequence(s string, t string) bool {
     i := 0
 

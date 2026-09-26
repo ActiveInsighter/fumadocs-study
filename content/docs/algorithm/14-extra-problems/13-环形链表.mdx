@@ -426,7 +426,7 @@ while (fast && fast->next) {
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 public class Solution {
     public boolean hasCycle(ListNode head) {
         ListNode slow = head;
@@ -446,7 +446,7 @@ public class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def hasCycle(self, head: Optional[ListNode]) -> bool:
         slow = fast = head
@@ -461,7 +461,7 @@ class Solution:
         return False
 ```
 
-```go label="Go"
+```go tab="Go"
 func hasCycle(head *ListNode) bool {
     slow, fast := head, head
 
@@ -478,7 +478,7 @@ func hasCycle(head *ListNode) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var hasCycle = function(head) {
     let slow = head;
     let fast = head;
@@ -496,7 +496,7 @@ var hasCycle = function(head) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function hasCycle(head: ListNode | null): boolean {
     let slow: ListNode | null = head;
     let fast: ListNode | null = head;

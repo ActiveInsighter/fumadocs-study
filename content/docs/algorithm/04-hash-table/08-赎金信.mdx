@@ -629,9 +629,9 @@ ransomNote 消耗库存
 
 ## 16. 多语言实现
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     bool canConstruct(string ransomNote, string magazine) {
@@ -658,9 +658,9 @@ public:
 };
 ```
 
-  ### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public boolean canConstruct(String ransomNote, String magazine) {
         if (ransomNote.length() > magazine.length()) {
@@ -684,9 +684,9 @@ class Solution {
 }
 ```
 
-  ### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def canConstruct(self, ransomNote: str, magazine: str) -> bool:
         if len(ransomNote) > len(magazine):
@@ -707,9 +707,9 @@ class Solution:
         return True
 ```
 
-  ### Go
 
-```go
+
+```go tab="Go"
 func canConstruct(ransomNote string, magazine string) bool {
     if len(ransomNote) > len(magazine) {
         return false
@@ -733,9 +733,9 @@ func canConstruct(ransomNote string, magazine string) bool {
 }
 ```
 
-  ### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var canConstruct = function(ransomNote, magazine) {
     if (ransomNote.length > magazine.length) {
         return false;
@@ -762,9 +762,9 @@ var canConstruct = function(ransomNote, magazine) {
 };
 ```
 
-  ### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function canConstruct(ransomNote: string, magazine: string): boolean {
     if (ransomNote.length > magazine.length) {
         return false;

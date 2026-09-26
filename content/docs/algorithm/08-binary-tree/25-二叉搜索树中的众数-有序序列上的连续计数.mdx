@@ -639,9 +639,9 @@ pre + count + maxCount + result
 
 下面各语言统一采用“**中序遍历 + 连续计数 + 在线维护众数**”这一核心解法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     private TreeNode pre;
     private int count;
@@ -683,9 +683,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def findMode(self, root):
         pre = None
@@ -719,9 +719,9 @@ class Solution:
         return result
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func findMode(root *TreeNode) []int {
     var pre *TreeNode
     count, maxCount := 0, 0
@@ -758,9 +758,9 @@ func findMode(root *TreeNode) []int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var findMode = function(root) {
     let pre = null;
     let count = 0;
@@ -791,9 +791,9 @@ var findMode = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function findMode(root: TreeNode | null): number[] {
     let pre: TreeNode | null = null;
     let count = 0;
@@ -860,9 +860,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -918,9 +918,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     private TreeNode pre = null;

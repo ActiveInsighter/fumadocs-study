@@ -413,7 +413,7 @@ root->right = build(mid + 1, right);
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private final List<Integer> nums = new ArrayList<>();
 
@@ -441,7 +441,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def balanceBST(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         nums = []
@@ -467,7 +467,7 @@ class Solution:
         return build(0, len(nums) - 1)
 ```
 
-```go label="Go"
+```go tab="Go"
 func balanceBST(root *TreeNode) *TreeNode {
     nums := make([]int, 0)
 
@@ -499,7 +499,7 @@ func balanceBST(root *TreeNode) *TreeNode {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var balanceBST = function(root) {
     const nums = [];
 
@@ -525,7 +525,7 @@ var balanceBST = function(root) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function balanceBST(root: TreeNode | null): TreeNode | null {
     const nums: number[] = [];
 

@@ -374,7 +374,7 @@ a -> a
 
 ## 十、其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean isIsomorphic(String s, String t) {
         Map<Character, Character> st = new HashMap<>();
@@ -396,7 +396,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def isIsomorphic(self, s: str, t: str) -> bool:
         st = {}
@@ -414,7 +414,7 @@ class Solution:
         return True
 ```
 
-```go label="Go"
+```go tab="Go"
 func isIsomorphic(s string, t string) bool {
     st := make(map[byte]byte)
     ts := make(map[byte]byte)
@@ -437,7 +437,7 @@ func isIsomorphic(s string, t string) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var isIsomorphic = function(s, t) {
     const st = new Map();
     const ts = new Map();
@@ -457,7 +457,7 @@ var isIsomorphic = function(s, t) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function isIsomorphic(s: string, t: string): boolean {
     const st = new Map<string, string>();
     const ts = new Map<string, string>();

@@ -647,9 +647,9 @@ $$
 
 下面均采用推荐的 $O(n)$ 区间淘汰贪心。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int canCompleteCircuit(int[] gas, int[] cost) {
         int start = 0;
@@ -672,9 +672,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def canCompleteCircuit(self, gas: list[int], cost: list[int]) -> int:
         start = 0
@@ -693,9 +693,9 @@ class Solution:
         return -1 if total_sum < 0 else start
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func canCompleteCircuit(gas []int, cost []int) int {
     start := 0
     curSum := 0
@@ -719,9 +719,9 @@ func canCompleteCircuit(gas []int, cost []int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn can_complete_circuit(gas: Vec<i32>, cost: Vec<i32>) -> i32 {
         let mut start = 0usize;
@@ -748,9 +748,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var canCompleteCircuit = function(gas, cost) {
     let start = 0;
     let curSum = 0;
@@ -771,9 +771,9 @@ var canCompleteCircuit = function(gas, cost) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function canCompleteCircuit(gas: number[], cost: number[]): number {
     let start = 0;
     let curSum = 0;
@@ -794,9 +794,9 @@ function canCompleteCircuit(gas: number[], cost: number[]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
     int start = 0;
     int curSum = 0;
@@ -842,9 +842,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public int CanCompleteCircuit(int[] gas, int[] cost) {
         int start = 0;

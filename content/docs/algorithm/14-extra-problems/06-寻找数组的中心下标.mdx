@@ -564,7 +564,7 @@ return -1;
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int pivotIndex(int[] nums) {
         int total = 0;
@@ -589,7 +589,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def pivotIndex(self, nums: List[int]) -> int:
         total = sum(nums)
@@ -606,7 +606,7 @@ class Solution:
         return -1
 ```
 
-```go label="Go"
+```go tab="Go"
 func pivotIndex(nums []int) int {
     total := 0
     for _, x := range nums {
@@ -629,7 +629,7 @@ func pivotIndex(nums []int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var pivotIndex = function(nums) {
     const total = nums.reduce((sum, x) => sum + x, 0);
     let leftSum = 0;
@@ -648,7 +648,7 @@ var pivotIndex = function(nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function pivotIndex(nums: number[]): number {
     const total = nums.reduce((sum, x) => sum + x, 0);
     let leftSum = 0;
@@ -667,7 +667,7 @@ function pivotIndex(nums: number[]): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn pivot_index(nums: Vec<i32>) -> i32 {
         let total: i32 = nums.iter().sum();

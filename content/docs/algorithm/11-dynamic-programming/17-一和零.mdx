@@ -535,7 +535,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int findMaxForm(String[] strs, int m, int n) {
         int[][] dp = new int[m + 1][n + 1];
@@ -567,7 +567,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def findMaxForm(self, strs: list[str], m: int, n: int) -> int:
         dp = [[0] * (n + 1) for _ in range(m + 1)]
@@ -586,7 +586,7 @@ class Solution:
         return dp[m][n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func findMaxForm(strs []string, m int, n int) int {
     dp := make([][]int, m+1)
     for i := range dp {
@@ -617,7 +617,7 @@ func findMaxForm(strs []string, m int, n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var findMaxForm = function(strs, m, n) {
     const dp = Array.from(
         { length: m + 1 },

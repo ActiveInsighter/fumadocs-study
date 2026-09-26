@@ -977,7 +977,7 @@ find(source) == find(destination)
 
 下面都采用 **路径压缩 + 按大小合并**，并保持 ACM 输入输出格式。
 
-```java label="Java"
+```java tab="Java"
 import java.io.*;
 import java.util.*;
 
@@ -1049,7 +1049,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 import sys
 
 input = sys.stdin.readline
@@ -1093,7 +1093,7 @@ source, destination = map(int, input().split())
 print(1 if uf.is_same(source, destination) else 0)
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import (
@@ -1173,7 +1173,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 const fs = require('fs');
 
 const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);

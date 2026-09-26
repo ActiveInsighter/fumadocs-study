@@ -703,7 +703,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 import java.util.Scanner;
 
 public class Main {
@@ -746,7 +746,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 def complete_knapsack(n: int, bag_weight: int,
                       weight: list[int], value: list[int]) -> int:
     dp = [[0] * (bag_weight + 1) for _ in range(n)]
@@ -779,7 +779,7 @@ for _ in range(n):
 print(complete_knapsack(n, bag_weight, weight, value))
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import "fmt"
@@ -824,7 +824,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 const fs = require('fs');
 const input = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
 

@@ -988,9 +988,9 @@ $$
 
 下面都采用同一套“逆序扫描 + `flag` 标记后缀”的实现。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int monotoneIncreasingDigits(int n) {
         char[] digits = String.valueOf(n).toCharArray();
@@ -1012,9 +1012,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def monotoneIncreasingDigits(self, n: int) -> int:
         digits = list(str(n))
@@ -1031,9 +1031,9 @@ class Solution:
         return int(''.join(digits))
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "strconv"
 
 func monotoneIncreasingDigits(n int) int {
@@ -1056,9 +1056,9 @@ func monotoneIncreasingDigits(n int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn monotone_increasing_digits(n: i32) -> i32 {
         let mut digits = n.to_string().into_bytes();
@@ -1082,9 +1082,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var monotoneIncreasingDigits = function(n) {
     const digits = String(n).split('');
     let flag = digits.length;
@@ -1104,9 +1104,9 @@ var monotoneIncreasingDigits = function(n) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function monotoneIncreasingDigits(n: number): number {
     const digits: number[] = String(n)
         .split('')
@@ -1129,9 +1129,9 @@ function monotoneIncreasingDigits(n: number): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1158,9 +1158,9 @@ int monotoneIncreasingDigits(int n) {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public int MonotoneIncreasingDigits(int n) {
         char[] digits = n.ToString().ToCharArray();

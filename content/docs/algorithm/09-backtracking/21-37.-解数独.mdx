@@ -677,9 +677,9 @@ $$
 
 ## 18. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public void solveSudoku(char[][] board) {
         solveSudokuHelper(board);
@@ -809,9 +809,9 @@ class Solution{
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def solveSudoku(self, board: List[List[str]]) -> None:
         """
@@ -869,9 +869,9 @@ class Solution:
         return False
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func solveSudoku(board [][]byte) {
 	var backtracking func(board [][]byte) bool
 	backtracking = func(board [][]byte) bool {
@@ -925,9 +925,9 @@ func isvalid(row, col int, k byte, board [][]byte) bool {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var solveSudoku = function(board) {
     function isValid(row, col, val, board) {
         let len = board.length
@@ -982,9 +982,9 @@ var solveSudoku = function(board) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 /**
  Do not return anything, modify board in-place instead.
  */
@@ -1031,9 +1031,9 @@ function solveSudoku(board: string[][]): void {
 };
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     fn is_valid(row: usize, col: usize, val: char, board: &mut Vec<Vec<char>>) -> bool{
         for i in 0..9 {
@@ -1077,9 +1077,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 bool isValid(char** board, int row, int col, int k) {
     /* 判断当前行是否有重复元素 */
     for (int i = 0; i < 9; i++) {
@@ -1282,9 +1282,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public void SolveSudoku(char[][] board)

@@ -536,7 +536,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int minCostClimbingStairs(int[] cost) {
         int n = cost.length;
@@ -557,7 +557,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def minCostClimbingStairs(self, cost: List[int]) -> int:
         n = len(cost)
@@ -572,7 +572,7 @@ class Solution:
         return dp[n]
 ```
 
-```go label="Go"
+```go tab="Go"
 func minCostClimbingStairs(cost []int) int {
     n := len(cost)
     dp := make([]int, n+1)
@@ -591,7 +591,7 @@ func minCostClimbingStairs(cost []int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var minCostClimbingStairs = function(cost) {
   const n = cost.length;
   const dp = new Array(n + 1).fill(0);
@@ -607,7 +607,7 @@ var minCostClimbingStairs = function(cost) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function minCostClimbingStairs(cost: number[]): number {
   const n = cost.length;
   const dp: number[] = new Array(n + 1).fill(0);
@@ -623,7 +623,7 @@ function minCostClimbingStairs(cost: number[]): number {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn min_cost_climbing_stairs(cost: Vec<i32>) -> i32 {
         let n = cost.len();
@@ -639,7 +639,7 @@ impl Solution {
 }
 ```
 
-```c label="C"
+```c tab="C"
 int minCostClimbingStairs(int* cost, int costSize) {
     int dp[costSize + 1];
     dp[0] = 0;
@@ -655,7 +655,7 @@ int minCostClimbingStairs(int* cost, int costSize) {
 }
 ```
 
-```csharp label="C#"
+```csharp tab="C#"
 public class Solution {
     public int MinCostClimbingStairs(int[] cost) {
         int n = cost.Length;

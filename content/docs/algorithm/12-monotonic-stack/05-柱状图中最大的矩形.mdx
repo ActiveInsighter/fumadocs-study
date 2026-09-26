@@ -227,7 +227,7 @@ public:
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int largestRectangleArea(int[] heights) {
         int length = heights.length;
@@ -325,7 +325,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 # 暴力解法（leetcode超时）
 class Solution:
     def largestRectangleArea(self, heights: List[int]) -> int:
@@ -450,7 +450,7 @@ class Solution:
         return result
 ```
 
-```go label="Go"
+```go tab="Go"
 func largestRectangleArea(heights []int) int {
     sum := 0
     for i := 0; i < len(heights); i++ {
@@ -591,7 +591,7 @@ func largestRectangleArea(heights []int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 //双指针 js中运行速度最快
 var largestRectangleArea = function(heights) {
     const len = heights.length;
@@ -680,7 +680,7 @@ var largestRectangleArea = function(heights) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function largestRectangleArea(heights: number[]): number {
     let resMax: number = 0;
     for (let i = 0, length = heights.length; i < length; i++) {
@@ -756,7 +756,7 @@ function largestRectangleArea(heights: number[]): number {
 };
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn largest_rectangle_area(v: Vec<i32>) -> i32 {
         let n = v.len();

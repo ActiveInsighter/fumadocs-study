@@ -790,9 +790,9 @@ $$
 
 不同语言的动态数组实现细节不同，但“连续数组中间插入需要移动后续元素”这一核心规律基本一致。
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn reconstruct_queue(mut people: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
         people.sort_by(|a, b| {
@@ -816,9 +816,9 @@ impl Solution {
 }
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 import "sort"
 
 func reconstructQueue(people [][]int) [][]int {
@@ -845,9 +845,9 @@ func reconstructQueue(people [][]int) [][]int {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -864,9 +864,9 @@ class Solution:
         return queue
 ```
 
-### Java
 
-```java
+
+```java tab="Java"
 import java.util.*;
 
 class Solution {

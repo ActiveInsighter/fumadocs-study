@@ -719,9 +719,9 @@ $$
 
 以下实现都遵循同一个核心模板：**初始化为 1 → 左到右 → 右到左取最大值 → 求和**。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int candy(int[] ratings) {
         int n = ratings.length;
@@ -749,9 +749,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def candy(self, ratings: list[int]) -> int:
         n = len(ratings)
@@ -768,9 +768,9 @@ class Solution:
         return sum(candies)
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func candy(ratings []int) int {
     n := len(ratings)
     candies := make([]int, n)
@@ -798,9 +798,9 @@ func candy(ratings []int) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn candy(ratings: Vec<i32>) -> i32 {
         let n = ratings.len();
@@ -823,9 +823,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var candy = function (ratings) {
   const n = ratings.length;
   const candies = new Array(n).fill(1);
@@ -846,9 +846,9 @@ var candy = function (ratings) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function candy(ratings: number[]): number {
   const n = ratings.length;
   const candies: number[] = new Array(n).fill(1);
@@ -869,9 +869,9 @@ function candy(ratings: number[]): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdlib.h>
 
 static int maxInt(int a, int b) {
@@ -932,9 +932,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public int Candy(int[] ratings)

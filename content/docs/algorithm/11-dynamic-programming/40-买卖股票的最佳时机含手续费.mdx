@@ -599,7 +599,7 @@ $$
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int maxProfit(int[] prices, int fee) {
         int hold = -prices[0];
@@ -618,7 +618,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from typing import List
 
 class Solution:
@@ -636,7 +636,7 @@ class Solution:
         return cash
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var maxProfit = function(prices, fee) {
     let hold = -prices[0];
     let cash = 0;
@@ -653,7 +653,7 @@ var maxProfit = function(prices, fee) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function maxProfit(prices: number[], fee: number): number {
     let hold: number = -prices[0];
     let cash: number = 0;
@@ -670,7 +670,7 @@ function maxProfit(prices: number[], fee: number): number {
 }
 ```
 
-```go label="Go"
+```go tab="Go"
 func maxProfit(prices []int, fee int) int {
     hold := -prices[0]
     cash := 0
@@ -694,7 +694,7 @@ func max(a, b int) int {
 }
 ```
 
-```c label="C"
+```c tab="C"
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 int maxProfit(int* prices, int pricesSize, int fee) {
@@ -713,7 +713,7 @@ int maxProfit(int* prices, int pricesSize, int fee) {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn max_profit(prices: Vec<i32>, fee: i32) -> i32 {
         let mut hold = -prices[0];

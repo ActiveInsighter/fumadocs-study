@@ -202,7 +202,7 @@ public:
 
 ## 其他语言版本
 
-```c label="C"
+```c tab="C"
 /* 先用单调栈的方法计算出结果，再根据nums1中的元素去查找对应的结果 */
 /**
  * Note: The returned array must be malloced, assume caller calls free().
@@ -256,7 +256,7 @@ int* nextGreaterElement(int* nums1, int nums1Size, int* nums2, int nums2Size, in
 }
 ```
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int[] nextGreaterElement(int[] nums1, int[] nums2) {
         Stack<Integer> temp = new Stack<>();
@@ -313,7 +313,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 # 版本一
 class Solution:
     def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
@@ -354,7 +354,7 @@ class Solution:
         return ans
 ```
 
-```go label="Go"
+```go tab="Go"
 func nextGreaterElement(nums1 []int, nums2 []int) []int {
     res := make([]int, len(nums1))
     for i := range res { res[i] = -1 }
@@ -415,7 +415,7 @@ func nextGreaterElement(nums1 []int, nums2 []int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var nextGreaterElement = function (nums1, nums2) {
   let stack = [];
   let map = new Map();
@@ -436,7 +436,7 @@ var nextGreaterElement = function (nums1, nums2) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function nextGreaterElement(nums1: number[], nums2: number[]): number[] {
     const resArr: number[] = new Array(nums1.length).fill(-1);
     const stack: number[] = [];
@@ -463,7 +463,7 @@ function nextGreaterElement(nums1: number[], nums2: number[]): number[] {
 };
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 use std::collections::HashMap;
 impl Solution {
     pub fn next_greater_element(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {

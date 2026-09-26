@@ -671,9 +671,9 @@ void traversal(TreeNode* root)
 
 下面各语言都保留同一个核心递归关系：**先判断当前节点，再交叉比较外侧与内侧。**
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public boolean isSymmetric(TreeNode root) {
         if (root == null) return true;
@@ -691,9 +691,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def isSymmetric(self, root):
         if root is None:
@@ -714,9 +714,9 @@ class Solution:
         )
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func isSymmetric(root *TreeNode) bool {
     if root == nil {
         return true
@@ -740,9 +740,9 @@ func compare(left, right *TreeNode) bool {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var isSymmetric = function(root) {
     if (root === null) return true;
 
@@ -759,9 +759,9 @@ var isSymmetric = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function isSymmetric(root: TreeNode | null): boolean {
     if (root === null) return true;
 
@@ -822,9 +822,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -858,9 +858,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public bool IsSymmetric(TreeNode root) {
         if (root == null) return true;

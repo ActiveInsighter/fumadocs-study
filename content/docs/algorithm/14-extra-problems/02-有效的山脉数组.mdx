@@ -477,7 +477,7 @@ left + 1 < n
 
 以下统一使用“双指针从两端爬坡”的写法，便于横向对照。
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public boolean validMountainArray(int[] arr) {
         int n = arr.length;
@@ -499,7 +499,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def validMountainArray(self, arr: List[int]) -> bool:
         n = len(arr)
@@ -517,7 +517,7 @@ class Solution:
         return left == right and left != 0 and right != n - 1
 ```
 
-```go label="Go"
+```go tab="Go"
 func validMountainArray(arr []int) bool {
     n := len(arr)
     if n < 3 {
@@ -538,7 +538,7 @@ func validMountainArray(arr []int) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var validMountainArray = function(arr) {
     const n = arr.length;
     if (n < 3) return false;
@@ -558,7 +558,7 @@ var validMountainArray = function(arr) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function validMountainArray(arr: number[]): boolean {
     const n = arr.length;
     if (n < 3) return false;
@@ -578,7 +578,7 @@ function validMountainArray(arr: number[]): boolean {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn valid_mountain_array(arr: Vec<i32>) -> bool {
         let n = arr.len();

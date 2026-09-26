@@ -723,9 +723,9 @@ if (条件) {
 
 下面各语言统一采用“**沿 BST 搜索路径找到空位置并插入**”这一核心思路。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode insertIntoBST(TreeNode root, int val) {
         if (root == null) {
@@ -743,9 +743,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def insertIntoBST(self, root, val):
         if root is None:
@@ -759,9 +759,9 @@ class Solution:
         return root
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func insertIntoBST(root *TreeNode, val int) *TreeNode {
     if root == nil {
         return &TreeNode{Val: val}
@@ -777,9 +777,9 @@ func insertIntoBST(root *TreeNode, val int) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var insertIntoBST = function(root, val) {
     if (root === null) {
         return new TreeNode(val);
@@ -795,9 +795,9 @@ var insertIntoBST = function(root, val) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function insertIntoBST(root: TreeNode | null, val: number): TreeNode | null {
     if (root === null) {
         return new TreeNode(val);
@@ -833,9 +833,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -861,9 +861,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     public TreeNode InsertIntoBST(TreeNode root, int val)

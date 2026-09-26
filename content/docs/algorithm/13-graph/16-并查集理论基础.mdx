@@ -1245,7 +1245,7 @@ find(u) == find(v)
 
 下面统一采用 **路径压缩 + 按大小合并**。
 
-```java label="Java"
+```java tab="Java"
 class UnionFind {
     private final int[] parent;
     private final int[] size;
@@ -1296,7 +1296,7 @@ class UnionFind {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class UnionFind:
     def __init__(self, n: int):
         self.parent = list(range(n + 1))
@@ -1328,7 +1328,7 @@ class UnionFind:
         return self.size[self.find(x)]
 ```
 
-```go label="Go"
+```go tab="Go"
 type UnionFind struct {
     parent []int
     size   []int
@@ -1375,7 +1375,7 @@ func (uf *UnionFind) IsSame(u, v int) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 class UnionFind {
   constructor(n) {
     this.parent = Array.from({ length: n + 1 }, (_, i) => i);

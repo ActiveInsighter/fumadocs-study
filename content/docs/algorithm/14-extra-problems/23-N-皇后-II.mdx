@@ -491,7 +491,7 @@ backtrack(row):
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     private int answer = 0;
     private boolean[] columns;
@@ -535,7 +535,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def totalNQueens(self, n: int) -> int:
         columns = [False] * n
@@ -571,7 +571,7 @@ class Solution:
         return answer
 ```
 
-```go label="Go"
+```go tab="Go"
 func totalNQueens(n int) int {
     columns := make([]bool, n)
     mainDiag := make([]bool, 2*n-1)
@@ -610,7 +610,7 @@ func totalNQueens(n int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var totalNQueens = function(n) {
     const columns = new Array(n).fill(false);
     const mainDiag = new Array(2 * n - 1).fill(false);

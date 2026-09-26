@@ -870,9 +870,9 @@ $$
 
 ## 19. 其他语言实现
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private final List<List<Integer>> ans = new ArrayList<>();
     private final List<Integer> path = new ArrayList<>();
@@ -899,9 +899,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def subsetsWithDup(self, nums: list[int]) -> list[list[int]]:
         nums.sort()
@@ -923,9 +923,9 @@ class Solution:
         return ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func subsetsWithDup(nums []int) [][]int {
     sort.Ints(nums)
 
@@ -952,9 +952,9 @@ func subsetsWithDup(nums []int) [][]int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var subsetsWithDup = function(nums) {
     nums.sort((a, b) => a - b);
 
@@ -980,9 +980,9 @@ var subsetsWithDup = function(nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function subsetsWithDup(nums: number[]): number[][] {
     nums.sort((a, b) => a - b);
 
@@ -1008,9 +1008,9 @@ function subsetsWithDup(nums: number[]): number[][] {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn subsets_with_dup(mut nums: Vec<i32>) -> Vec<Vec<i32>> {
         fn dfs(
@@ -1041,9 +1041,9 @@ impl Solution {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 static int cmpInt(const void* a, const void* b) {
     int x = *(const int*)a;
     int y = *(const int*)b;
@@ -1170,9 +1170,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     public IList<IList<int>> SubsetsWithDup(int[] nums) {
         Array.Sort(nums);

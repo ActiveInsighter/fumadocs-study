@@ -1044,9 +1044,9 @@ $$
 
 下面所有实现都采用同一套三状态后序贪心。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     private static final int UNCOVERED = 0;
     private static final int CAMERA = 1;
@@ -1083,9 +1083,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     UNCOVERED = 0
     CAMERA = 1
@@ -1116,9 +1116,9 @@ class Solution:
         return self.cameras
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func minCameraCover(root *TreeNode) int {
     const (
         uncovered = 0
@@ -1157,9 +1157,9 @@ func minCameraCover(root *TreeNode) int {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -1204,9 +1204,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var minCameraCover = function(root) {
     const UNCOVERED = 0;
     const CAMERA = 1;
@@ -1242,9 +1242,9 @@ var minCameraCover = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function minCameraCover(root: TreeNode | null): number {
     const UNCOVERED = 0;
     const CAMERA = 1;
@@ -1280,9 +1280,9 @@ function minCameraCover(root: TreeNode | null): number {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 enum State {
     UNCOVERED = 0,
     CAMERA = 1,
@@ -1320,9 +1320,9 @@ int minCameraCover(struct TreeNode* root) {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution {
     private const int Uncovered = 0;
     private const int Camera = 1;

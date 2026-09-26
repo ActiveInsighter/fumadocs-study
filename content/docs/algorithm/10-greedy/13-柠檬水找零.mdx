@@ -527,9 +527,9 @@ return true
 
 以下实现都只维护 $5$ 和 $10$ 两种有效零钱状态。
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public boolean lemonadeChange(int[] bills) {
         int five = 0;
@@ -559,9 +559,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def lemonadeChange(self, bills: list[int]) -> bool:
         five = 0
@@ -587,9 +587,9 @@ class Solution:
         return True
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func lemonadeChange(bills []int) bool {
     five, ten := 0, 0
 
@@ -618,9 +618,9 @@ func lemonadeChange(bills []int) bool {
 }
 ```
 
-### Rust
 
-```rust
+
+```rust tab="Rust"
 impl Solution {
     pub fn lemonade_change(bills: Vec<i32>) -> bool {
         let mut five = 0;
@@ -655,9 +655,9 @@ impl Solution {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var lemonadeChange = function (bills) {
   let five = 0;
   let ten = 0;
@@ -685,9 +685,9 @@ var lemonadeChange = function (bills) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function lemonadeChange(bills: number[]): boolean {
   let five = 0;
   let ten = 0;
@@ -715,9 +715,9 @@ function lemonadeChange(bills: number[]): boolean {
 }
 ```
 
-### C
 
-```c
+
+```c tab="C"
 #include <stdbool.h>
 
 bool lemonadeChange(int* bills, int billsSize) {
@@ -781,9 +781,9 @@ object Solution {
 }
 ```
 
-### C#
 
-```csharp
+
+```csharp tab="C#"
 public class Solution
 {
     public bool LemonadeChange(int[] bills)

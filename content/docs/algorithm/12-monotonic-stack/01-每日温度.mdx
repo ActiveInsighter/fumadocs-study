@@ -207,7 +207,7 @@ public:
 
 ## 其他语言版本
 
-```c label="C"
+```c tab="C"
 /**
  * Note: The returned array must be malloced, assume caller calls free().
  */
@@ -237,7 +237,7 @@ int* dailyTemperatures(int* temperatures, int temperaturesSize, int* returnSize)
 }
 ```
 
-```java label="Java"
+```java tab="Java"
 class Solution {
   // 版本 1
     public int[] dailyTemperatures(int[] temperatures) {
@@ -293,7 +293,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
         answer = [0]*len(temperatures)
@@ -323,7 +323,7 @@ class Solution:
         return answer
 ```
 
-```go label="Go"
+```go tab="Go"
 func dailyTemperatures(t []int) []int {
     var res []int
     for i := 0; i < len(t)-1; i++ {
@@ -388,7 +388,7 @@ func dailyTemperatures(num []int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 // 版本一
 var dailyTemperatures = function(temperatures) {
     const n = temperatures.length;
@@ -430,7 +430,7 @@ var dailyTemperatures = function(temperatures) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function dailyTemperatures(temperatures: number[]): number[] {
     const length: number = temperatures.length;
     const stack: number[] = [];
@@ -452,7 +452,7 @@ function dailyTemperatures(temperatures: number[]): number[] {
 };
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     /// 单调栈的本质是以“空间换时间”，记录之前已访问过的非递增子序列下标
     pub fn daily_temperatures(temperatures: Vec<i32>) -> Vec<i32> {

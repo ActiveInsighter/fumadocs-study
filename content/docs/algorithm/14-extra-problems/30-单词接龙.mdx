@@ -429,7 +429,7 @@ DFS 更擅长：
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int ladderLength(String beginWord, String endWord, List<String> wordList) {
         Set<String> words = new HashSet<>(wordList);
@@ -475,7 +475,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 from collections import deque
 from typing import List
 
@@ -510,7 +510,7 @@ class Solution:
         return 0
 ```
 
-```go label="Go"
+```go tab="Go"
 func ladderLength(beginWord string, endWord string, wordList []string) int {
     words := make(map[string]bool)
     for _, word := range wordList {
@@ -564,7 +564,7 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var ladderLength = function(beginWord, endWord, wordList) {
     const words = new Set(wordList);
     if (!words.has(endWord)) return 0;

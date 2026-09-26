@@ -466,7 +466,7 @@ State dfs(TreeNode* node) {
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int rob(TreeNode root) {
         int[] state = dfs(root);
@@ -488,7 +488,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def rob(self, root: Optional[TreeNode]) -> int:
         not_rob, rob_cur = self.dfs(root)
@@ -507,7 +507,7 @@ class Solution:
         return not_rob, rob_cur
 ```
 
-```go label="Go"
+```go tab="Go"
 func rob(root *TreeNode) int {
     state := dfs(root)
     return max(state[0], state[1])
@@ -533,7 +533,7 @@ func max(a, b int) int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var rob = function(root) {
     const [notRob, robCur] = dfs(root);
     return Math.max(notRob, robCur);
@@ -553,7 +553,7 @@ function dfs(node) {
 }
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function rob(root: TreeNode | null): number {
     const [notRob, robCur] = dfs(root);
     return Math.max(notRob, robCur);
@@ -573,7 +573,7 @@ function dfs(node: TreeNode | null): [number, number] {
 }
 ```
 
-```c label="C"
+```c tab="C"
 typedef struct {
     int notRob;
     int rob;
@@ -605,7 +605,7 @@ int rob(struct TreeNode* root) {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 

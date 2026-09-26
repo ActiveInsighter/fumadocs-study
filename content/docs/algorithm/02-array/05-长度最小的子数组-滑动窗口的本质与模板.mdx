@@ -687,9 +687,9 @@ long long sum = 0;
 
 ## 16. 其他语言实现
 
-### C++
 
-```cpp
+
+```cpp tab="C++"
 class Solution {
 public:
     int minSubArrayLen(int target, vector<int>& nums) {
@@ -711,9 +711,9 @@ public:
 };
 ```
 
-### Java
 
-```java
+
+```java tab="Java"
 class Solution {
     public int minSubArrayLen(int target, int[] nums) {
         int left = 0;
@@ -734,9 +734,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python
+
+```python tab="Python"
 class Solution:
     def minSubArrayLen(self, target: int, nums: list[int]) -> int:
         left = 0
@@ -754,9 +754,9 @@ class Solution:
         return 0 if ans == len(nums) + 1 else ans
 ```
 
-### Go
 
-```go
+
+```go tab="Go"
 func minSubArrayLen(target int, nums []int) int {
     left := 0
     sum := 0
@@ -782,9 +782,9 @@ func minSubArrayLen(target int, nums []int) int {
 }
 ```
 
-### JavaScript
 
-```javascript
+
+```javascript tab="JavaScript"
 var minSubArrayLen = function(target, nums) {
     let left = 0;
     let sum = 0;
@@ -803,9 +803,9 @@ var minSubArrayLen = function(target, nums) {
 };
 ```
 
-### TypeScript
 
-```typescript
+
+```typescript tab="TypeScript"
 function minSubArrayLen(target: number, nums: number[]): number {
     let left = 0;
     let sum = 0;

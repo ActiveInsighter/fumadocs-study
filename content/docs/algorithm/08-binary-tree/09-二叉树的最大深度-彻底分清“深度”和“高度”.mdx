@@ -920,9 +920,9 @@ BFS：每处理一层 depth++
 
 下面以 LeetCode 104 的最简后序递归为主；它最能体现“子树高度返回给父节点”的核心关系。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public int maxDepth(TreeNode root) {
         if (root == null) return 0;
@@ -935,9 +935,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def maxDepth(self, root):
         if root is None:
@@ -949,9 +949,9 @@ class Solution:
         return max(left_height, right_height) + 1
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func maxDepth(root *TreeNode) int {
     if root == nil {
         return 0
@@ -967,9 +967,9 @@ func maxDepth(root *TreeNode) int {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var maxDepth = function(root) {
     if (root === null) return 0;
 
@@ -980,9 +980,9 @@ var maxDepth = function(root) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function maxDepth(root: TreeNode | null): number {
     if (root === null) return 0;
 
@@ -993,9 +993,9 @@ function maxDepth(root: TreeNode | null): number {
 }
 ```
 
-### C
 
-```c title="C"
+
+```c title="C" tab="C"
 int maxDepth(struct TreeNode* root) {
     if (root == NULL) return 0;
 
@@ -1036,9 +1036,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -1057,9 +1057,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution {
     public int MaxDepth(TreeNode root) {
         if (root == null) return 0;

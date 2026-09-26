@@ -541,7 +541,7 @@ $$
 
 以下实现都采用同一策略：`1 → 2` 标记边界连通陆地，最后统一执行 `1 → 0`、`2 → 1`。
 
-```java label="Java"
+```java tab="Java"
 import java.io.*;
 import java.util.*;
 
@@ -608,7 +608,7 @@ public class Main {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 import sys
 sys.setrecursionlimit(1_000_000)
 input = sys.stdin.readline
@@ -652,7 +652,7 @@ for row in grid:
     print(*row)
 ```
 
-```go label="Go"
+```go tab="Go"
 package main
 
 import (
@@ -732,7 +732,7 @@ func main() {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 const fs = require('fs');
 const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
 

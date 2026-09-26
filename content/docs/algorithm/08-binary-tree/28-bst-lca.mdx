@@ -653,9 +653,9 @@ while (root != nullptr) {
 
 下面各语言统一采用“**BST 有序性 + 单路搜索**”的核心写法。
 
-### Java
 
-```java title="Java"
+
+```java title="Java" tab="Java"
 class Solution {
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
         while (root != null) {
@@ -672,9 +672,9 @@ class Solution {
 }
 ```
 
-### Python
 
-```python title="Python"
+
+```python title="Python" tab="Python"
 class Solution:
     def lowestCommonAncestor(self, root, p, q):
         while root is not None:
@@ -687,9 +687,9 @@ class Solution:
         return None
 ```
 
-### Go
 
-```go title="Go"
+
+```go title="Go" tab="Go"
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
     for root != nil {
         if root.Val > p.Val && root.Val > q.Val {
@@ -704,9 +704,9 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 }
 ```
 
-### JavaScript
 
-```javascript title="JavaScript"
+
+```javascript title="JavaScript" tab="JavaScript"
 var lowestCommonAncestor = function(root, p, q) {
     while (root !== null) {
         if (root.val > p.val && root.val > q.val) {
@@ -721,9 +721,9 @@ var lowestCommonAncestor = function(root, p, q) {
 };
 ```
 
-### TypeScript
 
-```typescript title="TypeScript"
+
+```typescript title="TypeScript" tab="TypeScript"
 function lowestCommonAncestor(
     root: TreeNode | null,
     p: TreeNode | null,
@@ -766,9 +766,9 @@ object Solution {
 }
 ```
 
-### Rust
 
-```rust title="Rust"
+
+```rust title="Rust" tab="Rust"
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -798,9 +798,9 @@ impl Solution {
 }
 ```
 
-### C#
 
-```csharp title="C#"
+
+```csharp title="C#" tab="C#"
 public class Solution
 {
     public TreeNode LowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)

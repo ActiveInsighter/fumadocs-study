@@ -554,7 +554,7 @@ BST
 
 ## 其他语言版本
 
-```java label="Java"
+```java tab="Java"
 //使用統一迭代法
 class Solution {
     public boolean isValidBST(TreeNode root) {
@@ -663,7 +663,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 # Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
@@ -755,7 +755,7 @@ class Solution:
         return True
 ```
 
-```go label="Go"
+```go tab="Go"
 func isValidBST(root *TreeNode) bool {
 	// 二叉搜索树也可以是空树
     if root == nil {
@@ -799,7 +799,7 @@ func isValidBST(root *TreeNode) bool {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 /**
  * Definition for a binary tree node.
  * function TreeNode(val, left, right) {
@@ -893,7 +893,7 @@ var isValidBST = function (root) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function isValidBST(root: TreeNode | null): boolean {
     const traversalArr: number[] = [];
     function inorderTraverse(root: TreeNode | null): void {
@@ -986,7 +986,7 @@ object Solution {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 impl Solution {
     pub fn is_valid_bst(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
         Self::valid_bst(i64::MIN, i64::MAX, root)
@@ -1027,7 +1027,7 @@ impl Solution {
 }
 ```
 
-```csharp label="C#"
+```csharp tab="C#"
 // 递归
 public long val = Int64.MinValue;
 public bool IsValidBST(TreeNode root)

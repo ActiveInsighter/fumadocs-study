@@ -457,7 +457,7 @@ vector<int> sorted = nums;
 
 以下统一采用“排序 + 首次出现位置”的通用写法，便于在不同语言之间对照。
 
-```java label="Java"
+```java tab="Java"
 class Solution {
     public int[] smallerNumbersThanCurrent(int[] nums) {
         int[] sorted = Arrays.copyOf(nums, nums.length);
@@ -478,7 +478,7 @@ class Solution {
 }
 ```
 
-```python label="Python"
+```python tab="Python"
 class Solution:
     def smallerNumbersThanCurrent(self, nums: List[int]) -> List[int]:
         sorted_nums = sorted(nums)
@@ -491,7 +491,7 @@ class Solution:
         return [first_index[x] for x in nums]
 ```
 
-```go label="Go"
+```go tab="Go"
 func smallerNumbersThanCurrent(nums []int) []int {
     sortedNums := append([]int(nil), nums...)
     sort.Ints(sortedNums)
@@ -512,7 +512,7 @@ func smallerNumbersThanCurrent(nums []int) []int {
 }
 ```
 
-```javascript label="JavaScript"
+```javascript tab="JavaScript"
 var smallerNumbersThanCurrent = function(nums) {
     const sorted = [...nums].sort((a, b) => a - b);
     const firstIndex = new Map();
@@ -527,7 +527,7 @@ var smallerNumbersThanCurrent = function(nums) {
 };
 ```
 
-```typescript label="TypeScript"
+```typescript tab="TypeScript"
 function smallerNumbersThanCurrent(nums: number[]): number[] {
     const sorted = [...nums].sort((a, b) => a - b);
     const firstIndex = new Map<number, number>();
@@ -542,7 +542,7 @@ function smallerNumbersThanCurrent(nums: number[]): number[] {
 }
 ```
 
-```rust label="Rust"
+```rust tab="Rust"
 use std::collections::HashMap;
 
 impl Solution {
