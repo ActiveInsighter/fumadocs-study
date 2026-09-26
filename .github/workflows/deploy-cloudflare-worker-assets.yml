@@ -275,21 +275,51 @@ jobs:
               throw new Error('Homepage visibly rendered the Next.js 404 page.');
             }
 
-            await page.click('a[href="/docs/politics/"]');
-            await page.waitForFunction(
-              () => location.pathname === '/docs/politics/' || document.body.innerText.includes('This page could not be found.'),
-              { timeout: 120000 },
-            );
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            const afterText = await page.evaluate(() => document.body.innerText);
-            const path = await page.evaluate(() => location.pathname);
-            console.log('[browser-check] after click path=' + path);
-            if (path !== '/docs/politics/') throw new Error('Client navigation landed on unexpected path: ' + path);
-            if (afterText.includes(badText)) {
-              console.log('[browser-check] after-click body=' + afterText.slice(0, 800));
-              throw new Error('Client navigation visibly rendered the Next.js 404 page.');
+            async function clickFromHome(href) {
+              await page.goto(base + '/', { waitUntil: 'networkidle2', timeout: 120000 });
+              await page.click(`a[href="${href}"]`);
+              await page.waitForFunction(
+                (expected) => location.pathname === expected || document.body.innerText.includes('This page could not be found.'),
+                { timeout: 120000 },
+                href,
+              );
+              await new Promise((resolve) => setTimeout(resolve, 1200));
+              const text = await page.evaluate(() => document.body.innerText);
+              const path = await page.evaluate(() => location.pathname);
+              console.log('[browser-check] click ' + href + ' -> ' + path);
+              if (path !== href) throw new Error('Client navigation landed on unexpected path: ' + path + ' expected=' + href);
+              if (text.includes(badText)) {
+                console.log('[browser-check] visible body=' + text.slice(0, 800));
+                throw new Error('Client navigation visibly rendered the Next.js 404 page for ' + href);
+              }
             }
-            console.log('[browser-check] homepage -> /docs/politics/ succeeded without visible 404');
+
+            for (const href of [
+              '/docs/politics/',
+              '/docs/english/',
+              '/docs/math/',
+              '/docs/408/',
+              '/blog/',
+            ]) {
+              await clickFromHome(href);
+            }
+
+            await page.goto(base + '/docs/algorithm/', { waitUntil: 'networkidle2', timeout: 120000 });
+            const deepHref = '/docs/algorithm/08-binary-tree/28-bst-lca/';
+            await page.click(`a[href="${deepHref}"]`);
+            await page.waitForFunction(
+              (expected) => location.pathname === expected || document.body.innerText.includes('This page could not be found.'),
+              { timeout: 120000 },
+              deepHref,
+            );
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            const deepText = await page.evaluate(() => document.body.innerText);
+            const deepPath = await page.evaluate(() => location.pathname);
+            console.log('[browser-check] deep click -> ' + deepPath);
+            if (deepPath !== deepHref || deepText.includes(badText)) {
+              throw new Error('Deep Fumadocs client navigation failed: ' + deepPath);
+            }
+            console.log('[browser-check] all homepage module links, blog index, and deep Fumadocs navigation passed');
           } finally {
             await browser.close();
           }
