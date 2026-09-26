@@ -3,9 +3,6 @@ title: 区间和：前缀和如何把重复查询降到 O(1)
 description: 从多次区间求和的 O(nm) 暴力方案出发，推导一维前缀和，重点讲清 prefix[i] 的定义、闭区间公式、哨兵位写法、复杂度权衡以及溢出问题。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 区间和：前缀和如何把重复查询降到 O(1)
 
@@ -334,17 +331,11 @@ $$
 
 ## 7. 标准构造方式
 
-<Steps>
-<Step>
-
 创建：
 
 ```cpp
 vector<long long> prefix(n + 1, 0);
 ```
-
-</Step>
-<Step>
 
 依次读取数组，并构造：
 
@@ -352,17 +343,11 @@ vector<long long> prefix(n + 1, 0);
 prefix[i + 1] = prefix[i] + x;
 ```
 
-</Step>
-<Step>
-
 每次查询 `[l,r]`，直接计算：
 
 ```cpp
 prefix[r + 1] - prefix[l]
 ```
-
-</Step>
-</Steps>
 
 完整 C++：
 
@@ -765,8 +750,7 @@ scanf
 
 ## 17. 其他语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 #include <iostream>
@@ -797,8 +781,7 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 import java.io.*;
@@ -836,8 +819,7 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 import sys
@@ -870,8 +852,7 @@ if __name__ == "__main__":
     main()
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 package main
@@ -909,8 +890,7 @@ func main() {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 const fs = require('fs');
@@ -936,8 +916,7 @@ while (index + 1 < data.length) {
 process.stdout.write(output.join('\n'));
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 import * as fs from 'fs';
@@ -965,6 +944,3 @@ while (index + 1 < data.length) {
 
 process.stdout.write(output.join('\n'));
 ```
-
-</Tab>
-</Tabs>

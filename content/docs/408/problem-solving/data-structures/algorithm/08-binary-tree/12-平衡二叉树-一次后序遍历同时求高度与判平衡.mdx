@@ -270,8 +270,6 @@ int getHeight(TreeNode* node)
 
 ### 递归三步法
 
-<Steps>
-
 ### 1. 参数与返回值
 
 参数是当前节点 `node`。
@@ -308,8 +306,6 @@ $$
 $$
 1+\max(leftHeight,rightHeight)
 $$
-
-</Steps>
 
 ## 7. 推荐写法：一次后序遍历解决
 
@@ -842,8 +838,7 @@ $$
 
 下面统一使用“一次后序遍历 + `-1` 哨兵”的最优思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -869,8 +864,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -895,8 +889,7 @@ class Solution:
         return max(left_height, right_height) + 1
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func isBalanced(root *TreeNode) bool {
@@ -933,8 +926,7 @@ func getHeight(node *TreeNode) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var isBalanced = function(root) {
@@ -958,8 +950,7 @@ var isBalanced = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function isBalanced(root: TreeNode | null): boolean {
@@ -983,8 +974,7 @@ function isBalanced(root: TreeNode | null): boolean {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c title="C"
 #include <stdlib.h>
@@ -1010,8 +1000,7 @@ bool isBalanced(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift title="Swift"
 class Solution {
@@ -1037,8 +1026,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -1077,8 +1065,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution {
@@ -1103,6 +1090,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

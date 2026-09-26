@@ -3,10 +3,7 @@ title: 移除链表元素：虚拟头结点与统一删除逻辑
 description: 以 LeetCode 203 为主线，系统讲解单链表删除节点、头结点特判、虚拟头结点、指针移动规则、内存释放，以及递归解法的时间与空间复杂度。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 移除链表元素：虚拟头结点与统一删除逻辑
 
@@ -301,25 +298,12 @@ dummy->next = dummy->next->next;
 
 ## 8. 推荐写法：dummy + 前驱指针
 
-<Steps>
-  <Step>
-    创建 `dummy`，并让 `dummy.next = head`。
-  </Step>
-  <Step>
-    令 `cur = dummy`，始终让 `cur` 表示待检查节点的前驱。
-  </Step>
-  <Step>
-    若 `cur.next.val == val`，直接绕过 `cur.next`。
-  </Step>
-  <Step>
-    否则才让 `cur` 向后移动。
-  </Step>
-  <Step>
-    最终返回 `dummy.next`。
-  </Step>
-</Steps>
-
-```cpp
+创建 `dummy`，并让 `dummy.next = head`。
+  令 `cur = dummy`，始终让 `cur` 表示待检查节点的前驱。
+  若 `cur.next.val == val`，直接绕过 `cur.next`。
+  否则才让 `cur` 向后移动。
+  最终返回 `dummy.next`。
+  ```cpp
 class Solution {
 public:
     ListNode* removeElements(ListNode* head, int val) {
@@ -540,8 +524,7 @@ return dummy.next;
 
 ## 其他语言版本
 
-<Tabs items={['C++', 'Java', 'Python', 'C']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -565,8 +548,7 @@ public:
 };
 ```
 
-  </Tab>
-  <Tab value="Java">
+  ### Java
 
 ```java
 class Solution {
@@ -587,8 +569,7 @@ class Solution {
 }
 ```
 
-  </Tab>
-  <Tab value="Python">
+  ### Python
 
 ```python
 class Solution:
@@ -605,8 +586,7 @@ class Solution:
         return dummy.next
 ```
 
-  </Tab>
-  <Tab value="C">
+  ### C
 
 ```c
 struct ListNode* removeElements(struct ListNode* head, int val) {
@@ -629,6 +609,3 @@ struct ListNode* removeElements(struct ListNode* head, int val) {
     return dummy.next;
 }
 ```
-
-  </Tab>
-</Tabs>

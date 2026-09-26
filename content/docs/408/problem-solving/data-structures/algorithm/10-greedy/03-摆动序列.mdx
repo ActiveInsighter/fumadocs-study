@@ -4,9 +4,6 @@ summary: 把最长摆动子序列转化为“保留峰谷、删除单调中间�
 description: LeetCode 376 摆动序列。系统讲解贪心建模、峰谷思想、平坡边界、正确性证明、动态规划视角与多语言代码。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 376. 摆动序列
 
@@ -316,9 +313,6 @@ if ((preDiff <= 0 && curDiff > 0) ||
 
 ## 8. 最终贪心算法
 
-<Steps>
-<Step>
-
 ### 初始化
 
 如果数组长度不超过 $1$，直接返回长度。
@@ -332,9 +326,6 @@ answer = 1
 
 `answer = 1` 表示先默认保留一个端点。
 
-</Step>
-<Step>
-
 ### 计算当前差值
 
 依次计算：
@@ -342,9 +333,6 @@ answer = 1
 $$
 curDiff=nums[i+1]-nums[i]
 $$
-
-</Step>
-<Step>
 
 ### 判断是否发生有效方向切换
 
@@ -362,9 +350,6 @@ preDiff >= 0 && curDiff < 0
 
 说明当前点形成新的峰或谷，答案加一。
 
-</Step>
-<Step>
-
 ### 只在有效摆动时更新坡度
 
 ```text
@@ -372,9 +357,6 @@ preDiff = curDiff
 ```
 
 平坡和同方向继续延伸时，都不更新 `preDiff`。
-
-</Step>
-</Steps>
 
 ## 9. C++ 标准写法
 
@@ -557,8 +539,7 @@ $$
 
 下面统一给出线性时间的贪心写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -585,8 +566,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -608,8 +588,7 @@ class Solution:
         return answer
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func wiggleMaxLength(nums []int) int {
@@ -634,8 +613,7 @@ func wiggleMaxLength(nums []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -663,8 +641,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var wiggleMaxLength = function (nums) {
@@ -689,8 +666,7 @@ var wiggleMaxLength = function (nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function wiggleMaxLength(nums: number[]): number {
@@ -715,8 +691,7 @@ function wiggleMaxLength(nums: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 int wiggleMaxLength(int* nums, int numsSize) {
@@ -741,8 +716,7 @@ int wiggleMaxLength(int* nums, int numsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -770,8 +744,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution
@@ -802,6 +775,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

@@ -952,8 +952,7 @@ Hash Map + 小根堆
 
 # 24. 多语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -1003,9 +1002,7 @@ public:
 };
 ```
 
-  </Tab>
-
-  <Tab value="Java">
+  ### Java
 
 ```java
 import java.util.*;
@@ -1045,9 +1042,7 @@ class Solution {
 }
 ```
 
-  </Tab>
-
-  <Tab value="Python">
+  ### Python
 
 ```python
 from collections import Counter
@@ -1072,9 +1067,7 @@ class Solution:
         return [value for count, value in heap]
 ```
 
-  </Tab>
-
-  <Tab value="Go">
+  ### Go
 
 ```go
 type Item struct {
@@ -1142,9 +1135,7 @@ func topKFrequent(nums []int, k int) []int {
 }
 ```
 
-  </Tab>
-
-  <Tab value="JavaScript">
+  ### JavaScript
 
 ```javascript
 var topKFrequent = function(nums, k) {
@@ -1164,9 +1155,7 @@ var topKFrequent = function(nums, k) {
 };
 ```
 
-  </Tab>
-
-  <Tab value="TypeScript">
+  ### TypeScript
 
 ```typescript
 function topKFrequent(
@@ -1186,10 +1175,7 @@ function topKFrequent(
 }
 ```
 
-  </Tab>
-</Tabs>
-
-<Callout type="note" title="关于 JavaScript / TypeScript">
+  <Callout type="note" title="关于 JavaScript / TypeScript">
 语言标准库没有统一内置的优先队列，因此上面的版本使用排序保持代码简洁。
 
 如果运行环境提供 Heap / PriorityQueue 库，则可按同样的“小根堆大小固定为 K”思路实现 $O(n\log k)$。

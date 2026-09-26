@@ -3,9 +3,6 @@ title: 库函数使用原则与复杂度意识
 description: 建立刷题时使用标准库的正确边界：什么时候应该自己实现，什么时候应该直接调用库函数，以及如何把库函数复杂度纳入整体算法分析。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 库函数使用原则与复杂度意识
 
@@ -425,15 +422,9 @@ Deque<Integer>
 
 面试中可以遵循这样的策略：
 
-<Steps>
-<Step>
-
 ### 先确认考点
 
 如果面试官明确要求“实现某算法”，就不要用等价库函数绕过它。
-
-</Step>
-<Step>
 
 ### 说明你使用的操作复杂度
 
@@ -443,24 +434,15 @@ Deque<Integer>
 
 这比只写出代码更能体现算法意识。
 
-</Step>
-<Step>
-
 ### 如果担心库函数掩盖细节，可主动说明
 
 例如：
 
 > 这里我先调用标准排序；如果需要，我也可以手写归并排序实现。
 
-</Step>
-<Step>
-
 ### 不要为了“炫技”重复造轮子
 
 如果库函数不是考点，优先写清晰、正确、可靠的实现。
-
-</Step>
-</Steps>
 
 ---
 
@@ -574,8 +556,7 @@ $$
 
 下面用一个典型双指针例子说明：即使语言提供删除 API，当题目考察原地数组处理时，自己实现一次线性覆盖通常更符合训练目标。
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 int removeElement(vector<int>& nums, int val) {
@@ -591,8 +572,7 @@ int removeElement(vector<int>& nums, int val) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 static int removeElement(int[] nums, int val) {
@@ -608,8 +588,7 @@ static int removeElement(int[] nums, int val) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 def remove_element(nums: list[int], val: int) -> int:
@@ -622,9 +601,6 @@ def remove_element(nums: list[int], val: int) -> int:
 
     return slow
 ```
-
-</Tab>
-</Tabs>
 
 时间复杂度为：
 

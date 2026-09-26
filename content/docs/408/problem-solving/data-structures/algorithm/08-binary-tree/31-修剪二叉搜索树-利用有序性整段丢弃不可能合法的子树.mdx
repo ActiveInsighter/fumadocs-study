@@ -510,7 +510,7 @@ $$
 
 ## 12. 高频错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：越界节点直接返回 null">
 
 这是本题最典型错误。
@@ -568,7 +568,7 @@ root.val > high
 本题中答案分别是右侧修剪结果、左侧修剪结果或当前节点本身。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 13. 一张表记住全部递归逻辑
 
@@ -616,8 +616,7 @@ return root;
 
 下面各语言统一采用“**越界时利用 BST 有序性只保留可能合法的一侧；合法时递归修剪左右子树**”的写法。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -638,8 +637,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -657,8 +655,7 @@ class Solution:
         return root
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func trimBST(root *TreeNode, low int, high int) *TreeNode {
@@ -679,8 +676,7 @@ func trimBST(root *TreeNode, low int, high int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var trimBST = function(root, low, high) {
@@ -699,8 +695,7 @@ var trimBST = function(root, low, high) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function trimBST(
@@ -723,8 +718,7 @@ function trimBST(
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala title="Scala"
 object Solution {
@@ -745,8 +739,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -779,8 +772,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution
@@ -804,6 +796,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

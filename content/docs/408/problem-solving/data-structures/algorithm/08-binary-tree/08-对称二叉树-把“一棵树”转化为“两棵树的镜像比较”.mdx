@@ -200,8 +200,6 @@ public:
 
 ### 用递归三步法重新检查
 
-<Steps>
-
 ### 1. 参数和返回值
 
 参数必须同时包含镜像位置上的两个节点：
@@ -230,8 +228,6 @@ TreeNode* left, TreeNode* right
 ```
 
 两者同时为真才返回真。
-
-</Steps>
 
 ## 6. 这里为什么常被称为“后序思想”
 
@@ -675,8 +671,7 @@ void traversal(TreeNode* root)
 
 下面各语言都保留同一个核心递归关系：**先判断当前节点，再交叉比较外侧与内侧。**
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -696,8 +691,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -720,8 +714,7 @@ class Solution:
         )
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func isSymmetric(root *TreeNode) bool {
@@ -747,8 +740,7 @@ func compare(left, right *TreeNode) bool {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var isSymmetric = function(root) {
@@ -767,8 +759,7 @@ var isSymmetric = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function isSymmetric(root: TreeNode | null): boolean {
@@ -790,8 +781,7 @@ function isSymmetric(root: TreeNode | null): boolean {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift title="Swift"
 class Solution {
@@ -811,8 +801,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala title="Scala"
 object Solution {
@@ -833,8 +822,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -870,8 +858,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution {
@@ -890,6 +877,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

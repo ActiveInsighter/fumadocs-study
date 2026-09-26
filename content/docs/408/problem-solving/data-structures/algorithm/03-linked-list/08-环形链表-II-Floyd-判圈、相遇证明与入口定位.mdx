@@ -3,10 +3,7 @@ title: 环形链表 II：Floyd 判圈、相遇证明与入口定位
 description: 以 LeetCode 142 为主线，系统推导快慢指针为什么一定能在环中相遇、为什么从头结点和相遇点同步出发会在环入口重逢，并总结环形链表题的通用模板。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 环形链表 II：Floyd 判圈、相遇证明与入口定位
 
@@ -177,9 +174,6 @@ $$
 
 ## 5. 两阶段模板
 
-<Steps>
-  <Step>
-
 **第一阶段：判断是否存在环**
 
 ```text
@@ -189,10 +183,7 @@ fast 每次走 2 步
 
 如果 `fast` 或 `fast.next` 为空，说明无环。
 
-  </Step>
-  <Step>
-
-**等待快慢指针第一次相遇**
+  **等待快慢指针第一次相遇**
 
 ```text
 slow == fast
@@ -200,20 +191,14 @@ slow == fast
 
 说明已经进入第二阶段。
 
-  </Step>
-  <Step>
-
-**一个指针回到 head**
+  **一个指针回到 head**
 
 ```text
 p = head
 q = meeting
 ```
 
-  </Step>
-  <Step>
-
-**两个指针都每次走 1 步**
+  **两个指针都每次走 1 步**
 
 第一次出现：
 
@@ -223,10 +208,7 @@ p == q
 
 的位置就是环入口。
 
-  </Step>
-</Steps>
-
----
+  ---
 
 ## 6. C++ 标准写法
 
@@ -457,8 +439,7 @@ $$
 
 ## 其他语言版本
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -485,8 +466,7 @@ public:
 };
 ```
 
-  </Tab>
-  <Tab value="Java">
+  ### Java
 
 ```java
 public class Solution {
@@ -512,8 +492,7 @@ public class Solution {
 }
 ```
 
-  </Tab>
-  <Tab value="Python">
+  ### Python
 
 ```python
 class Solution:
@@ -534,8 +513,7 @@ class Solution:
         return None
 ```
 
-  </Tab>
-  <Tab value="Go">
+  ### Go
 
 ```go
 func detectCycle(head *ListNode) *ListNode {
@@ -559,8 +537,7 @@ func detectCycle(head *ListNode) *ListNode {
 }
 ```
 
-  </Tab>
-  <Tab value="JavaScript">
+  ### JavaScript
 
 ```javascript
 var detectCycle = function (head) {
@@ -585,8 +562,7 @@ var detectCycle = function (head) {
 };
 ```
 
-  </Tab>
-  <Tab value="TypeScript">
+  ### TypeScript
 
 ```typescript
 function detectCycle(head: ListNode | null): ListNode | null {
@@ -610,6 +586,3 @@ function detectCycle(head: ListNode | null): ListNode | null {
   return null;
 }
 ```
-
-  </Tab>
-</Tabs>

@@ -537,7 +537,7 @@ $$
 
 | 问题 | 状态保存什么 | 字符相等时 | 字符不等时 |
 | --- | --- | --- | --- |
-| 判断子序列 | 是否 / 匹配长度 | 继续匹配 | 跳过源串字符 | 
+| 判断子序列 | 是否 / 匹配长度 | 继续匹配 | 跳过源串字符 |
 | 不同的子序列 | 方案数 | **用 + 不用** | 只能不用 |
 
 最核心的变化是：
@@ -683,8 +683,7 @@ $$
 
 ## 其他语言版本
 
-<Tabs items={["Java", "Python", "Go", "JavaScript"]}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -705,8 +704,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -722,8 +720,7 @@ class Solution:
         return dp[-1]
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func numDistinct(s string, t string) int {
@@ -742,8 +739,7 @@ func numDistinct(s string, t string) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var numDistinct = function(s, t) {
@@ -761,6 +757,3 @@ var numDistinct = function(s, t) {
     return dp[t.length];
 };
 ```
-
-</Tab>
-</Tabs>

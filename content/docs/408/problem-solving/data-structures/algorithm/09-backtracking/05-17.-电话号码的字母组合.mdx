@@ -4,8 +4,6 @@ summary: 把电话号码映射问题抽象成“多个集合之间的笛卡尔�
 description: LeetCode 17 电话号码的字母组合：按键映射、多集合组合、搜索树、index 状态、回溯模板、复杂度与常见错误。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 17. 电话号码的字母组合
 
@@ -169,9 +167,6 @@ $$
 
 ## 5. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数
 
 需要：
@@ -191,9 +186,6 @@ $$
 \text{递归深度}=\text{当前待处理的数字位置}
 $$
 
-</Step>
-<Step>
-
 ### ② 终止条件
 
 当：
@@ -211,9 +203,6 @@ if (index == digits.size()) {
 }
 ```
 
-</Step>
-<Step>
-
 ### ③ 单层搜索
 
 本层只枚举当前数字对应的字母：
@@ -230,9 +219,6 @@ for (char ch : letters) {
 ```
 
 下一层一定处理 `digits[index + 1]`。
-
-</Step>
-</Steps>
 
 ## 6. 完整 C++ 实现
 
@@ -511,8 +497,7 @@ backtrack(index):
 
 ## 其他语言版本
 
-<Tabs groupId="phone-letter-combinations-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'Ruby', 'C#']} persist>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -555,8 +540,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -689,8 +673,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 var (
@@ -723,8 +706,7 @@ func dfs(digits string, start int) {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var letterCombinations = function(digits) {
@@ -751,8 +733,7 @@ var letterCombinations = function(digits) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function letterCombinations(digits: string): string[] {
@@ -786,8 +767,7 @@ function letterCombinations(digits: string): string[] {
 };
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 const map: [&str; 10] = [
@@ -819,8 +799,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 char* path;
@@ -882,8 +861,7 @@ char ** letterCombinations(char * digits, int* returnSize){
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift
 func letterCombinations(_ digits: String) -> [String] {
@@ -924,8 +902,7 @@ func letterCombinations(_ digits: String) -> [String] {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -956,8 +933,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Ruby">
+### Ruby
 
 ```ruby
 def letter_combinations(digits)
@@ -997,8 +973,7 @@ def backtracking(result, letter_map, digits, path, index)
 end
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution
@@ -1031,6 +1006,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

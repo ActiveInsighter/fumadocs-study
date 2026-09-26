@@ -3,9 +3,6 @@ title: 递归算法的时间复杂度与快速幂
 description: 通过 x 的 n 次方问题系统掌握递归调用次数、递归树、递推式与快速幂的复杂度分析方法。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 递归算法的时间复杂度与快速幂
 
@@ -488,9 +485,6 @@ $$
 
 看到递归函数时，可以按三步分析。
 
-<Steps>
-<Step>
-
 ### 数一层会递归几次
 
 例如有两个 `solve(n / 2)`：
@@ -498,9 +492,6 @@ $$
 $$
 a=2
 $$
-
-</Step>
-<Step>
 
 看每个子问题缩小到多少
 
@@ -510,9 +501,6 @@ $$
 \frac nb
 quad\text{且}\quad b=2
 $$
-
-</Step>
-<Step>
 
 计算当前层的非递归工作
 
@@ -527,9 +515,6 @@ $$
 $$
 T(n)=aT\left(\frac nb\right)+f(n)
 $$
-
-</Step>
-</Steps>
 
 这也是分治算法分析最常见的形式。
 
@@ -683,8 +668,7 @@ return t + t;
 
 ## 17. 多语言实现
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 long long fastPow(long long x, long long n) {
@@ -717,8 +701,7 @@ long long fastPowIterative(long long x, long long n) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 static long fastPow(long x, long n) {
@@ -751,8 +734,7 @@ static long fastPowIterative(long x, long n) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 def fast_pow(x: int, n: int) -> int:
@@ -779,9 +761,6 @@ def fast_pow_iterative(x: int, n: int) -> int:
 
     return result
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

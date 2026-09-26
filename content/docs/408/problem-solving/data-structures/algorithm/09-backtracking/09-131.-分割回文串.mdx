@@ -4,8 +4,6 @@ summary: 把字符串切割问题转化为组合型搜索，理解 startIndex �
 description: LeetCode 131 分割回文串：切割问题搜索树、startIndex、回文判定、回溯模板、动态规划预处理、复杂度与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 131. 分割回文串
 
@@ -163,9 +161,6 @@ startIndex
 
 ## 4. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数
 
 只需要传入：
@@ -186,9 +181,6 @@ $$
 $$
 
 因为原字符串不变，`startIndex` 已经唯一确定了“还有哪部分没有处理”。
-
-</Step>
-<Step>
 
 ### ② 终止条件
 
@@ -213,9 +205,6 @@ if (startIndex == s.size()) {
 
 > **所有字符都已经被若干个回文段完整覆盖**，才是一组答案。
 
-</Step>
-<Step>
-
 ### ③ 单层搜索
 
 本层枚举当前段的结束位置 `i`：
@@ -239,9 +228,6 @@ backtracking(s, i + 1);
 ```
 
 表示当前段 `[startIndex, i]` 已经切走，下一层从紧接着的位置开始。
-
-</Step>
-</Steps>
 
 ## 5. 为什么本题没有“重复组合”问题？
 
@@ -656,8 +642,7 @@ DP 只能缓存“某个区间是不是回文”，不能减少题目要求输�
 
 下面统一采用“预处理回文表 + 回溯”的版本，使不同语言之间的状态设计保持一致。
 
-<Tabs groupId="palindrome-partitioning-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust', 'Scala', 'C#']} persist>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -697,8 +682,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -733,8 +717,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func partition(s string) [][]string {
@@ -778,8 +761,7 @@ func partition(s string) [][]string {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var partition = function(s) {
@@ -816,8 +798,7 @@ var partition = function(s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function partition(s: string): string[][] {
@@ -857,8 +838,7 @@ function partition(s: string): string[][] {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 #include <stdbool.h>
@@ -929,8 +909,7 @@ char ***partition(char *s, int *returnSize, int **returnColumnSizes) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift
 class Solution {
@@ -975,8 +954,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -1023,8 +1001,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -1063,8 +1040,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution
@@ -1110,6 +1086,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

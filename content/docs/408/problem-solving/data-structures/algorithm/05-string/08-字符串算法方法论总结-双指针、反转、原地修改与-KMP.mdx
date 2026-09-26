@@ -3,10 +3,7 @@ title: 字符串算法方法论总结：双指针、反转、原地修改与 KMP
 description: 总结字符串模块的核心方法，把字符数组、库函数复杂度、双指针、原地扩容、三次反转、KMP 与字符串周期统一成一套可迁移的解题框架。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 字符串算法方法论总结：双指针、反转、原地修改与 KMP
 
@@ -249,33 +246,19 @@ $$
 
 更好的办法是：
 
-<Steps>
-<Step>
-
 ### 先计算最终长度
 
 统计会被替换的字符数，算出扩容后总长度。
 
-</Step>
-
-<Step>
-
 ### 一次性扩容
 
 直接把容器扩展到最终大小。
-
-</Step>
-
-<Step>
 
 ### 从后向前填写
 
 旧指针指向原字符串末尾，新指针指向扩容后末尾。
 
 因为新空间位于后方，所以不会覆盖仍未读取的数据。
-
-</Step>
-</Steps>
 
 这个技巧不仅适用于字符串，也适用于很多数组原地扩张问题。
 
@@ -593,18 +576,11 @@ $$
 
 ## 15. 一套通用字符串解题流程
 
-<Steps>
-<Step>
-
 ### 明确字符串是否允许原地修改
 
 不同语言的字符串可变性不同。
 
 例如 Python 字符串不可变，很多“原地修改”实际需要转换为列表。
-
-</Step>
-
-<Step>
 
 ### 判断长度是否变化
 
@@ -614,40 +590,21 @@ $$
 
 如果长度增长，考虑“预扩容 + 从后往前”。
 
-</Step>
-
-<Step>
-
 ### 看是否存在两端关系
 
 如果操作天然涉及首尾、回文、反转、两端比较，优先考虑相向双指针。
-
-</Step>
-
-<Step>
 
 ### 看是否存在“块”的顺序变化
 
 如果目标只是改变若干连续块的相对顺序，考虑反转组合。
 
-</Step>
-
-<Step>
-
 ### 看是否存在模式复用
 
 如果涉及模式串匹配、最长相等前后缀、重复周期，考虑 KMP / 前缀函数。
 
-</Step>
-
-<Step>
-
 ### 最后检查库函数复杂度
 
 确认 `erase`、`insert`、`find`、切片、拼接等调用不会把整体复杂度放大。
-
-</Step>
-</Steps>
 
 ---
 
@@ -655,8 +612,7 @@ $$
 
 真正需要熟练到可以手写的模板并不多。
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 // 1. 区间反转 [left, right]
@@ -682,8 +638,7 @@ vector<int> prefixFunction(const string& s) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 // 1. 区间反转 [left, right]
@@ -713,8 +668,7 @@ static int[] prefixFunction(String s) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 # 1. 区间反转 [left, right]
@@ -741,9 +695,6 @@ def prefix_function(s: str) -> list[int]:
 
     return pi
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

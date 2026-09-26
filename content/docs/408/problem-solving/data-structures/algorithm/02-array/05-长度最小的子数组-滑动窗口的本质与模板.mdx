@@ -3,9 +3,6 @@ title: 长度最小的子数组：滑动窗口的本质与模板
 description: 以 LeetCode 209 为主线，从 O(n²) 枚举推导 O(n) 滑动窗口，系统理解窗口不变量、左右指针移动条件、复杂度证明，以及“为什么正整数”是本题能这样收缩窗口的关键。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 长度最小的子数组：滑动窗口的本质与模板
 
@@ -164,9 +161,6 @@ $$
 
 遇到滑动窗口题目时，可以固定问自己三个问题：
 
-<Steps>
-<Step>
-
 ### 窗口表示什么？
 
 本题窗口 `[left, right]` 表示当前正在考虑的连续子数组。
@@ -176,9 +170,6 @@ $$
 $$
 sum=nums[left]+\cdots+nums[right]
 $$
-
-</Step>
-<Step>
 
 ### 右端点什么时候移动？
 
@@ -191,9 +182,6 @@ sum += nums[right];
 ```
 
 也就是把一个新元素加入窗口。
-
-</Step>
-<Step>
 
 ### 左端点什么时候移动？
 
@@ -213,9 +201,6 @@ sum -= nums[left];
 ```
 
 只要删除后窗口仍然满足条件，就继续缩小。
-
-</Step>
-</Steps>
 
 ---
 
@@ -702,8 +687,7 @@ long long sum = 0;
 
 ## 16. 其他语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -727,8 +711,7 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -751,8 +734,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -772,8 +754,7 @@ class Solution:
         return 0 if ans == len(nums) + 1 else ans
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func minSubArrayLen(target int, nums []int) int {
@@ -801,8 +782,7 @@ func minSubArrayLen(target int, nums []int) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var minSubArrayLen = function(target, nums) {
@@ -823,8 +803,7 @@ var minSubArrayLen = function(target, nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function minSubArrayLen(target: number, nums: number[]): number {
@@ -844,6 +823,3 @@ function minSubArrayLen(target: number, nums: number[]): number {
     return ans === nums.length + 1 ? 0 : ans;
 }
 ```
-
-</Tab>
-</Tabs>

@@ -4,7 +4,7 @@ title: 从遍历序列构造二叉树：区间切分与唯一性
 
 # 从遍历序列构造二叉树：区间切分与唯一性
 
-> LeetCode 106 · Construct Binary Tree from Inorder and Postorder Traversal  
+> LeetCode 106 · Construct Binary Tree from Inorder and Postorder Traversal
 > LeetCode 105 · Construct Binary Tree from Preorder and Inorder Traversal
 
 本篇把两道经典“由遍历序列还原二叉树”的问题统一成一个模型：**先确定根，再借助中序遍历确定左右子树的边界，最后递归构造两个子树。**
@@ -194,8 +194,6 @@ TreeNode* build(
 
 > 用 `inorder[inLeft, inRight)` 与 `postorder[postLeft, postRight)` 构造对应子树，并返回根节点。
 
-<Steps>
-
 ### 1. 空区间直接返回
 
 ```cpp
@@ -223,8 +221,6 @@ int leftSize = rootIndex - inLeft;
 ### 5. 递归构造左右子树
 
 根据上一节的区间公式继续递归。
-
-</Steps>
 
 ## 5. 推荐写法：哈希表 + 下标区间
 
@@ -457,8 +453,7 @@ public:
 
 ## 8. 105 与 106 的统一模板
 
-<Tabs groupId="build-tree-comparison" items={['前序 + 中序', '中序 + 后序']}>
-<Tab value="前序 + 中序">
+### 前序 + 中序
 
 ```text
 根：preorder[preLeft]
@@ -475,8 +470,7 @@ leftSize = rootIndex - inLeft
   inorder  [rootIndex + 1, inRight)
 ```
 
-</Tab>
-<Tab value="中序 + 后序">
+### 中序 + 后序
 
 ```text
 根：postorder[postRight - 1]
@@ -492,9 +486,6 @@ leftSize = rootIndex - inLeft
   inorder   [rootIndex + 1, inRight)
   postorder [postLeft + leftSize, postRight - 1)
 ```
-
-</Tab>
-</Tabs>
 
 这两道题不要分开背。统一理解为：
 
@@ -577,7 +568,7 @@ $$
 
 ## 11. 常见错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：先切后序/前序，再想办法找中序边界">
 
 应该反过来：**先利用根切中序**。
@@ -620,7 +611,7 @@ postRight - 1
 如果允许重复值，仅靠这些遍历序列通常无法直接按相同方式唯一恢复。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 12. 调试这类题最有效的方法
 
@@ -666,8 +657,7 @@ leftSize 算错了
 
 以下代码统一实现 **LeetCode 106：中序 + 后序构造二叉树**，并使用“中序下标表 + 左闭右开区间”的 $O(n)$ 思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -705,8 +695,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -736,8 +725,7 @@ class Solution:
         return build(0, len(inorder), 0, len(postorder))
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func buildTree(inorder []int, postorder []int) *TreeNode {
@@ -772,8 +760,7 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var buildTree = function(inorder, postorder) {
@@ -803,8 +790,7 @@ var buildTree = function(inorder, postorder) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
@@ -839,8 +825,7 @@ function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift
 class Solution {
@@ -884,8 +869,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 static int findIndex(int* inorder, int left, int right, int value) {
@@ -929,8 +913,7 @@ struct TreeNode* buildTree(
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -966,8 +949,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 use std::cell::RefCell;
@@ -1025,8 +1007,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution {
@@ -1067,6 +1048,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

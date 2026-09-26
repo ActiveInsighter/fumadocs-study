@@ -213,7 +213,7 @@ for (int a : nums1) {
 ```
 
 <Callout type="tip" title="判断 value 应该存什么">
-两数之和中，找到匹配后需要返回“下标”，所以 value 存下标。  
+两数之和中，找到匹配后需要返回“下标”，所以 value 存下标。
 本题需要统计“多少种组合”，所以 value 存出现次数。
 
 同样是 Map，value 的含义完全取决于题目最终要求。
@@ -966,8 +966,7 @@ Map<组合值, 出现次数>
 
 ## 20. 多语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -1003,9 +1002,7 @@ public:
 };
 ```
 
-  </Tab>
-
-  <Tab value="Java">
+  ### Java
 
 ```java
 import java.util.HashMap;
@@ -1040,9 +1037,7 @@ class Solution {
 }
 ```
 
-  </Tab>
-
-  <Tab value="Python">
+  ### Python
 
 ```python
 from collections import Counter
@@ -1071,9 +1066,7 @@ class Solution:
         return answer
 ```
 
-  </Tab>
-
-  <Tab value="Go">
+  ### Go
 
 ```go
 func fourSumCount(
@@ -1102,9 +1095,7 @@ func fourSumCount(
 }
 ```
 
-  </Tab>
-
-  <Tab value="JavaScript">
+  ### JavaScript
 
 ```javascript
 var fourSumCount = function(nums1, nums2, nums3, nums4) {
@@ -1129,9 +1120,7 @@ var fourSumCount = function(nums1, nums2, nums3, nums4) {
 };
 ```
 
-  </Tab>
-
-  <Tab value="TypeScript">
+  ### TypeScript
 
 ```typescript
 function fourSumCount(
@@ -1161,10 +1150,7 @@ function fourSumCount(
 }
 ```
 
-  </Tab>
-</Tabs>
-
----
+  ---
 
 ## 21. 本题总结
 

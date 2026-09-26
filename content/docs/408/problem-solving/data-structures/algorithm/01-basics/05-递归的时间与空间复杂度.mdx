@@ -3,9 +3,6 @@ title: 递归的时间与空间复杂度
 description: 通过斐波那契数列与递归二分查找，理解递归树、调用总数、最大递归深度以及时间和空间复杂度为何不能混为一谈。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 递归的时间与空间复杂度
 
@@ -580,43 +577,25 @@ $$
 
 ## 16. 标准分析流程
 
-<Steps>
-<Step>
-
 ### 写出递推式或递归树
 
 先确定每次调用产生几个子问题，子问题规模是多少。
-
-</Step>
-<Step>
 
 ### 求总调用量
 
 它决定时间复杂度的重要部分。
 
-</Step>
-<Step>
-
 ### 求最大递归深度
 
 不要拿“总节点数”代替“最大深度”。
-
-</Step>
-<Step>
 
 ### 判断每层栈帧大小
 
 检查局部数组、复制参数、临时容器等是否随问题规模增长。
 
-</Step>
-<Step>
-
 ### 分别给出时间与空间复杂度
 
 不要只写一个“大 O”就结束。
-
-</Step>
-</Steps>
 
 ---
 
@@ -649,8 +628,7 @@ $$
 
 ## 18. 多语言实现：迭代斐波那契
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 long long fibonacci(int n) {
@@ -671,8 +649,7 @@ long long fibonacci(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 static long fibonacci(int n) {
@@ -693,8 +670,7 @@ static long fibonacci(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 def fibonacci(n: int) -> int:
@@ -711,9 +687,6 @@ def fibonacci(n: int) -> int:
 
     return prev1
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

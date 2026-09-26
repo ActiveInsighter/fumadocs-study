@@ -647,7 +647,7 @@ $$
 
 ## 18. 一页速记
 
-<CardGroup cols={2}>
+<Cards>
   <Card title="四个状态">
     `buy1 → sell1 → buy2 → sell2`，分别对应两笔交易的买入与卖出阶段。
   </Card>
@@ -666,12 +666,11 @@ $$
   <Card title="复杂度">
     时间 `$O(n)$`，压缩后空间 `$O(1)$`。
   </Card>
-</CardGroup>
+</Cards>
 
 ## 19. 其他语言实现
 
-<Tabs items={['Java', 'Python', 'JavaScript', 'Go']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -698,8 +697,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -723,8 +721,7 @@ class Solution:
         return sell2
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var maxProfit = function(prices) {
@@ -749,8 +746,7 @@ var maxProfit = function(prices) {
 };
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func maxProfit(prices []int) int {
@@ -774,6 +770,3 @@ func maxProfit(prices []int) int {
     return sell2
 }
 ```
-
-</Tab>
-</Tabs>

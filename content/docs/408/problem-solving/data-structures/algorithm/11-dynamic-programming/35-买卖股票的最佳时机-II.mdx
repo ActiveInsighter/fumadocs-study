@@ -51,14 +51,14 @@ $$
 
 这就是两道题最关键的区别。
 
-<CardGroup cols={2}>
+<Cards>
   <Card title="最多一次交易">
     买入只能从初始现金出发：`-prices[i]`。
   </Card>
   <Card title="允许多次交易">
     买入可以继承历史已实现利润：`dp[i - 1][1] - prices[i]`。
   </Card>
-</CardGroup>
+</Cards>
 
 ## 2. 状态定义
 
@@ -376,14 +376,14 @@ $$
 \boxed{\text{买入动作允许从什么状态出发}}
 $$
 
-<CardGroup cols={2}>
+<Cards>
   <Card title="121">
     一旦卖出，交易已经结束，不能再次进入持有状态。
   </Card>
   <Card title="122">
     卖出后仍可再次买入，所以“不持有”可以重新转移到“持有”。
   </Card>
-</CardGroup>
+</Cards>
 
 ## 13. 为什么贪心也能做
 
@@ -528,7 +528,7 @@ $$
 
 ## 16. 一页速记
 
-<CardGroup cols={2}>
+<Cards>
   <Card title="状态">
     `hold`：当天结束持有股票的最大现金；`cash`：当天结束不持有股票的最大现金。
   </Card>
@@ -547,12 +547,11 @@ $$
   <Card title="特殊贪心结论">
     累加所有相邻两天的正价格差即可。
   </Card>
-</CardGroup>
+</Cards>
 
 ## 17. 其他语言实现
 
-<Tabs items={['Java', 'Python', 'JavaScript', 'Go']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -573,8 +572,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -592,8 +590,7 @@ class Solution:
         return cash
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var maxProfit = function(prices) {
@@ -612,8 +609,7 @@ var maxProfit = function(prices) {
 };
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func maxProfit(prices []int) int {
@@ -631,6 +627,3 @@ func maxProfit(prices []int) int {
     return cash
 }
 ```
-
-</Tab>
-</Tabs>

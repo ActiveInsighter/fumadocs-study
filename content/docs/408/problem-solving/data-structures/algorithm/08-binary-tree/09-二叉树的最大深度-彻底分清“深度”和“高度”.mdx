@@ -186,8 +186,6 @@ return max(leftHeight, rightHeight) + 1; // 中
 
 ## 4. 用递归三步法完整推一遍
 
-<Steps>
-
 ### 1. 明确函数语义
 
 ```cpp
@@ -218,8 +216,6 @@ int rightHeight = getHeight(node->right);
 ```cpp
 return max(leftHeight, rightHeight) + 1;
 ```
-
-</Steps>
 
 完整展开版：
 
@@ -503,8 +499,7 @@ int size = q.size();
 
 ## 11. 三种解法该怎么选
 
-<Tabs groupId="max-depth-method" items={['后序递归', '前序递归', '层序 BFS']}>
-<Tab value="后序递归">
+### 后序递归
 
 最推荐。
 
@@ -516,8 +511,7 @@ int size = q.size();
 
 优点：代码最短、语义最稳定，也是后续很多树形递归题的基础。
 
-</Tab>
-<Tab value="前序递归">
+### 前序递归
 
 当题目更强调“路径上的层数”或需要沿路径携带状态时很自然。
 
@@ -528,8 +522,7 @@ int size = q.size();
 
 它能很好地连接到回溯思想。
 
-</Tab>
-<Tab value="层序 BFS">
+### 层序 BFS
 
 当问题本身与“层”高度相关时非常直观。
 
@@ -538,9 +531,6 @@ int size = q.size();
 ```
 
 如果后续问题还要求逐层统计信息，BFS 往往更方便。
-
-</Tab>
-</Tabs>
 
 ## 12. 一个重要对比：最大深度和最小深度不是完全同一道题
 
@@ -930,8 +920,7 @@ BFS：每处理一层 depth++
 
 下面以 LeetCode 104 的最简后序递归为主；它最能体现“子树高度返回给父节点”的核心关系。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -946,8 +935,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -961,8 +949,7 @@ class Solution:
         return max(left_height, right_height) + 1
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func maxDepth(root *TreeNode) int {
@@ -980,8 +967,7 @@ func maxDepth(root *TreeNode) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var maxDepth = function(root) {
@@ -994,8 +980,7 @@ var maxDepth = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function maxDepth(root: TreeNode | null): number {
@@ -1008,8 +993,7 @@ function maxDepth(root: TreeNode | null): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c title="C"
 int maxDepth(struct TreeNode* root) {
@@ -1022,8 +1006,7 @@ int maxDepth(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift title="Swift"
 class Solution {
@@ -1038,8 +1021,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala title="Scala"
 object Solution {
@@ -1054,8 +1036,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -1076,8 +1057,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution {
@@ -1091,6 +1071,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

@@ -214,7 +214,7 @@ complement = 9 - 7 = 2
 ```
 
 <Callout type="tip" title="建立映射时先问自己两件事">
-**我要查询什么？** —— 这决定 key。  
+**我要查询什么？** —— 这决定 key。
 **找到后还需要什么信息？** —— 这决定 value。
 
 本题查询的是“某个数是否出现过”，找到后还需要“它的下标”，所以自然得到 `数值 -> 下标`。
@@ -518,7 +518,7 @@ $$
 ```
 
 <Callout type="warning" title="不要把“两数之和”和“三数之和”机械类比">
-“两数之和”需要返回下标，且只找一组答案，哈希法非常自然。  
+“两数之和”需要返回下标，且只找一组答案，哈希法非常自然。
 “三数之和”要求返回所有不重复三元组，更适合排序 + 双指针，因为去重是核心难点。
 </Callout>
 
@@ -707,8 +707,7 @@ unordered_map<值, 下标>
 
 ## 17. 多语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -732,9 +731,7 @@ public:
 };
 ```
 
-  </Tab>
-
-  <Tab value="Java">
+  ### Java
 
 ```java
 import java.util.HashMap;
@@ -759,9 +756,7 @@ class Solution {
 }
 ```
 
-  </Tab>
-
-  <Tab value="Python">
+  ### Python
 
 ```python
 from typing import List
@@ -781,9 +776,7 @@ class Solution:
         return []
 ```
 
-  </Tab>
-
-  <Tab value="Go">
+  ### Go
 
 ```go
 func twoSum(nums []int, target int) []int {
@@ -803,9 +796,7 @@ func twoSum(nums []int, target int) []int {
 }
 ```
 
-  </Tab>
-
-  <Tab value="JavaScript">
+  ### JavaScript
 
 ```javascript
 var twoSum = function(nums, target) {
@@ -825,9 +816,7 @@ var twoSum = function(nums, target) {
 };
 ```
 
-  </Tab>
-
-  <Tab value="TypeScript">
+  ### TypeScript
 
 ```typescript
 function twoSum(nums: number[], target: number): number[] {
@@ -847,25 +836,22 @@ function twoSum(nums: number[], target: number): number[] {
 }
 ```
 
-  </Tab>
-</Tabs>
-
----
+  ---
 
 ## 18. 本题总结
 
 本题最重要的四个问题是：
 
-1. **为什么想到哈希？**  
+1. **为什么想到哈希？**
    因为需要快速判断补数是否出现过。
 
-2. **为什么不能只用 Set？**  
+2. **为什么不能只用 Set？**
    因为还需要补数对应的下标。
 
-3. **Map 存什么？**  
+3. **Map 存什么？**
    `元素值 -> 下标`。
 
-4. **为什么先查后存？**  
+4. **为什么先查后存？**
    为了保证当前元素不会与自己匹配。
 
 最终模板：

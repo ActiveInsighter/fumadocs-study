@@ -7,7 +7,7 @@ description: 从哈希函数、哈希冲突到数组、Set 与 Map 的选择，�
 
 哈希表（Hash Table，也常译作**散列表**）是算法题中最常见的“**用空间换时间**”的数据结构之一。
 
-它最核心的价值不是“存数据”，而是把原本需要顺序查找的问题，转化为**根据键直接定位位置**的问题。  
+它最核心的价值不是“存数据”，而是把原本需要顺序查找的问题，转化为**根据键直接定位位置**的问题。
 在哈希函数分布合理、负载因子受控的情况下，插入、删除、查询的平均时间复杂度都可以达到 $O(1)$。
 
 <Callout type="info" title="什么时候应该想到哈希表？">
@@ -242,7 +242,7 @@ $$
 
 > **使用额外空间，换取更快查询速度。**
 
-算法题中看到“空间复杂度增加，但时间复杂度显著下降”时，不要本能认为不好。  
+算法题中看到“空间复杂度增加，但时间复杂度显著下降”时，不要本能认为不好。
 很多题目的关键恰恰就是主动建立辅助映射。
 
 ---
@@ -640,8 +640,7 @@ key -> 状态
 
 ## 13. 多语言常用写法
 
-<Tabs items={['C++', 'Java', 'Python']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 #include <unordered_map>
@@ -659,9 +658,7 @@ unordered_map<int, int> freq;
 ++freq[10];
 ```
 
-  </Tab>
-
-  <Tab value="Java">
+  ### Java
 
 ```java
 import java.util.HashMap;
@@ -680,9 +677,7 @@ Map<Integer, Integer> freq = new HashMap<>();
 freq.put(10, freq.getOrDefault(10, 0) + 1);
 ```
 
-  </Tab>
-
-  <Tab value="Python">
+  ### Python
 
 ```python
 seen = set()
@@ -696,10 +691,7 @@ freq = {}
 freq[10] = freq.get(10, 0) + 1
 ```
 
-  </Tab>
-</Tabs>
-
----
+  ---
 
 ## 14. 本节小结
 

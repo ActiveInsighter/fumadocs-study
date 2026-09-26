@@ -3,9 +3,6 @@ title: 螺旋矩阵：用循环不变量控制四条边界
 description: 以 LeetCode 59 螺旋矩阵 II 为例，系统讲解矩阵模拟中的边界控制、左闭右开与动态四边界两种写法、奇偶规模处理、正确性与复杂度分析。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 螺旋矩阵：用循环不变量控制四条边界
 
@@ -304,17 +301,11 @@ right = n - 1;
 
 每画完一条边，就立刻收缩对应边界：
 
-<Steps>
-<Step>
-
 从 `left` 到 `right` 填顶部，然后：
 
 ```cpp
 ++top;
 ```
-
-</Step>
-<Step>
 
 从 `top` 到 `bottom` 填右侧，然后：
 
@@ -322,26 +313,17 @@ right = n - 1;
 --right;
 ```
 
-</Step>
-<Step>
-
 从 `right` 到 `left` 填底部，然后：
 
 ```cpp
 --bottom;
 ```
 
-</Step>
-<Step>
-
 从 `bottom` 到 `top` 填左侧，然后：
 
 ```cpp
 ++left;
 ```
-
-</Step>
-</Steps>
 
 这种写法不需要单独讨论奇数中心点：边界相遇时，循环自然把中心格填掉。
 
@@ -590,8 +572,7 @@ answer.push_back(matrix[row][col]);
 
 ## 14. 其他语言版本
 
-<Tabs items={["Java", "Python", "Go", "JavaScript", "TypeScript"]}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -633,8 +614,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 from typing import List
@@ -674,8 +654,7 @@ class Solution:
         return matrix
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func generateMatrix(n int) [][]int {
@@ -722,8 +701,7 @@ func generateMatrix(n int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var generateMatrix = function (n) {
@@ -765,8 +743,7 @@ var generateMatrix = function (n) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function generateMatrix(n: number): number[][] {
@@ -810,6 +787,3 @@ function generateMatrix(n: number): number[][] {
     return matrix;
 }
 ```
-
-</Tab>
-</Tabs>

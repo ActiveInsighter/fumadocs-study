@@ -3,9 +3,6 @@ title: 二分查找：循环不变量与边界的统一写法
 description: 以 LeetCode 704 为入口，系统掌握二分查找的前提、左右闭区间与左闭右开区间、循环不变量、复杂度以及常见边界错误。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 二分查找：循环不变量与边界的统一写法
 
@@ -339,8 +336,6 @@ $$
 
 寻找 `2`，采用 `[left, right]`：
 
-<Steps>
-<Step>
 初始 `left = 0, right = 6`，`mid = 3`，`nums[3] = 4 > 2`。
 
 所以：
@@ -348,15 +343,8 @@ $$
 ```text
 right = 2
 ```
-</Step>
-<Step>
 此时区间 `[0, 2]`，`mid = 1`，`nums[1] = 2`。
-</Step>
-<Step>
 命中目标，返回下标 `1`。
-</Step>
-</Steps>
-
 两轮比较就定位到了目标。
 
 ---
@@ -412,8 +400,7 @@ size_t right = nums.size() - 1;
 
 ## 10. 多语言模板
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 int search(const vector<int>& nums, int target) {
@@ -430,8 +417,7 @@ int search(const vector<int>& nums, int target) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -449,8 +435,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -469,8 +454,7 @@ class Solution:
         return -1
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func search(nums []int, target int) int {
@@ -491,8 +475,7 @@ func search(nums []int, target int) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 function search(nums, target) {
@@ -509,9 +492,6 @@ function search(nums, target) {
   return -1;
 }
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

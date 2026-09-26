@@ -542,7 +542,7 @@ $$
 
 ## 13. 常见错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：仍然照搬普通二叉树 LCA，左右子树都递归">
 
 这样通常也能做对，但浪费了 BST 的有序性。
@@ -598,7 +598,7 @@ return root->left = lowestCommonAncestor(root->left, p, q);
 后者虽然在某些输入下看起来结果还能返回正确节点，但它在语义上修改了原树，是不必要且危险的副作用。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 14. 与普通二叉树 LCA 对比
 
@@ -653,8 +653,7 @@ while (root != nullptr) {
 
 下面各语言统一采用“**BST 有序性 + 单路搜索**”的核心写法。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -673,8 +672,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -689,8 +687,7 @@ class Solution:
         return None
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
@@ -707,8 +704,7 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var lowestCommonAncestor = function(root, p, q) {
@@ -725,8 +721,7 @@ var lowestCommonAncestor = function(root, p, q) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function lowestCommonAncestor(
@@ -749,8 +744,7 @@ function lowestCommonAncestor(
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala title="Scala"
 object Solution {
@@ -772,8 +766,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -805,8 +798,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution
@@ -833,6 +825,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

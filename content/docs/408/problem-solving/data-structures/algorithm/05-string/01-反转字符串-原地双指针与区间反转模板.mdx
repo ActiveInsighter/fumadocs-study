@@ -3,10 +3,7 @@ title: 反转字符串：原地双指针与区间反转模板
 description: 以 LeetCode 344 为主线，讲清楚字符串原地反转、相向双指针、交换边界、字符数组与不可变字符串差异，并提炼可复用的区间反转模板。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 反转字符串：原地双指针与区间反转模板
 
@@ -379,8 +376,7 @@ reverse(s.begin(), s.end());
 
 ## 其他语言版本
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-  <Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -398,8 +394,7 @@ public:
 };
 ```
 
-  </Tab>
-  <Tab value="Java">
+  ### Java
 
 ```java
 class Solution {
@@ -418,8 +413,7 @@ class Solution {
 }
 ```
 
-  </Tab>
-  <Tab value="Python">
+  ### Python
 
 ```python
 class Solution:
@@ -432,8 +426,7 @@ class Solution:
             right -= 1
 ```
 
-  </Tab>
-  <Tab value="Go">
+  ### Go
 
 ```go
 func reverseString(s []byte) {
@@ -447,8 +440,7 @@ func reverseString(s []byte) {
 }
 ```
 
-  </Tab>
-  <Tab value="JavaScript">
+  ### JavaScript
 
 ```javascript
 var reverseString = function(s) {
@@ -463,8 +455,7 @@ var reverseString = function(s) {
 };
 ```
 
-  </Tab>
-  <Tab value="TypeScript">
+  ### TypeScript
 
 ```typescript
 function reverseString(s: string[]): void {
@@ -478,6 +469,3 @@ function reverseString(s: string[]): void {
     }
 }
 ```
-
-  </Tab>
-</Tabs>

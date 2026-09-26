@@ -3,10 +3,7 @@ title: 替换数字：原地扩容、从后向前填充与字符存储差异
 description: 以“将数字字符替换为 number”为例，掌握字符串扩容后的双指针回填、为什么必须从后向前写，以及不同语言中字符串可变性对实现方式的影响。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 替换数字：原地扩容、从后向前填充与字符存储差异
 
@@ -298,36 +295,21 @@ s.size()
 
 可以立刻考虑下面的套路。
 
-<Steps>
-<Step>
-
 ### 第一步：统计扩展量
 
 算出替换完成后的最终长度。
-
-</Step>
-<Step>
 
 ### 第二步：一次性扩容
 
 避免边扫描边插入。
 
-</Step>
-<Step>
-
 ### 第三步：旧指针指向旧尾部
 
 保证还没读取的数据仍处于安全区域。
 
-</Step>
-<Step>
-
 ### 第四步：新指针指向新尾部
 
 从右向左填入最终内容。
-
-</Step>
-</Steps>
 
 这种思想常见于：
 
@@ -375,8 +357,7 @@ $$
 
 ## 其他语言版本
 
-<Tabs items={["C++", "Java", "Python", "Go"]}>
-<Tab value="C++">
+### C++
 
 ```cpp
 #include <iostream>
@@ -414,8 +395,7 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 import java.util.Scanner;
@@ -452,8 +432,7 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 def replace_number(s: str) -> str:
@@ -478,8 +457,7 @@ s = input().strip()
 print(replace_number(s))
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 package main
@@ -516,6 +494,3 @@ func main() {
     fmt.Println(string(result))
 }
 ```
-
-</Tab>
-</Tabs>

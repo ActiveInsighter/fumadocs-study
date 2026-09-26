@@ -3,9 +3,6 @@ title: 移除元素：原地覆盖与快慢指针
 description: 以 LeetCode 27 为入口，理解数组为什么不能真正“删除”中间元素，并系统掌握原地覆盖、快慢指针、相向双指针与稳定性之间的关系。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 移除元素：原地覆盖与快慢指针
 
@@ -186,9 +183,6 @@ slow：负责写
 
 这句话就是整个算法正确性的核心。
 
-<Steps>
-<Step>
-
 ### 快指针遇到要删除的元素
 
 若：
@@ -203,10 +197,6 @@ nums[fast] == val
 fast 向前走
 slow 不动
 ```
-
-</Step>
-
-<Step>
 
 ### 快指针遇到应该保留的元素
 
@@ -225,10 +215,6 @@ nums[slow] = nums[fast];
 
 然后继续扫描。
 
-</Step>
-
-<Step>
-
 ### 扫描结束
 
 当 `fast` 到达数组末尾时，`slow` 恰好等于保留下来的元素数量。
@@ -238,9 +224,6 @@ nums[slow] = nums[fast];
 ```cpp
 return slow;
 ```
-
-</Step>
-</Steps>
 
 动画：
 
@@ -636,8 +619,7 @@ $$
 
 ## 14. 其他语言版本
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -655,8 +637,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -671,8 +652,7 @@ class Solution:
         return slow
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func removeElement(nums []int, val int) int {
@@ -689,8 +669,7 @@ func removeElement(nums []int, val int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -709,8 +688,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var removeElement = function(nums, val) {
@@ -725,6 +703,3 @@ var removeElement = function(nums, val) {
     return slow;
 };
 ```
-
-</Tab>
-</Tabs>

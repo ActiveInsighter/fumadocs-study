@@ -289,8 +289,7 @@ $$
 
 但状态含义完全不同。
 
-<Tabs items={["斐波那契数", "爬楼梯"]}>
-<Tab value="斐波那契数">
+### 斐波那契数
 
 $$
 dp[i]=\text{第 }i\text{ 个斐波那契数}
@@ -298,17 +297,13 @@ $$
 
 递推公式是题目定义直接给出的。
 
-</Tab>
-<Tab value="爬楼梯">
+### 爬楼梯
 
 $$
 dp[i]=\text{到达第 }i\text{ 级台阶的方法数}
 $$
 
 递推公式来自对“最后一步”的分类讨论。
-
-</Tab>
-</Tabs>
 
 这说明一个非常重要的事实：
 
@@ -540,8 +535,7 @@ $$
 
 ## 12. 代码模板
 
-<Tabs items={["C++", "Java", "Python", "Go", "JavaScript", "TypeScript", "C", "Rust"]}>
-<Tab value="C++">
+### C++
 
 ```cpp
 class Solution {
@@ -563,8 +557,7 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -585,8 +578,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -602,8 +594,7 @@ class Solution:
         return prev1
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func climbStairs(n int) int {
@@ -623,8 +614,7 @@ func climbStairs(n int) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var climbStairs = function(n) {
@@ -643,8 +633,7 @@ var climbStairs = function(n) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function climbStairs(n: number): number {
@@ -663,8 +652,7 @@ function climbStairs(n: number): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 int climbStairs(int n) {
@@ -683,8 +671,7 @@ int climbStairs(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -706,9 +693,6 @@ impl Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>
 
 ## 13. 本题总结
 

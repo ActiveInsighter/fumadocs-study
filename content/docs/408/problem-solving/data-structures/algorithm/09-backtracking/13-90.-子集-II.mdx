@@ -4,8 +4,6 @@ summary: 在子集问题“收集整棵搜索树”的基础上加入重复元�
 description: LeetCode 90 子集 II：幂集、重复元素、排序、树层去重、startIndex、used 数组、局部 Set、复杂度分析与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 90. 子集 II
 
@@ -281,9 +279,6 @@ void backtracking(...) {
 
 ## 6. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数
 
 ```cpp
@@ -299,9 +294,6 @@ vector<vector<int>> result;
 
 `startIndex` 表示当前层允许选择的最左下标。
 
-</Step>
-<Step>
-
 ### ② 进入节点立即收集
 
 ```cpp
@@ -311,9 +303,6 @@ result.push_back(path);
 因为搜索树上的每个节点都代表一个不同的合法子集。
 
 第一次调用时 `path` 为空，因此空集 `[]` 会自然被收集。
-
-</Step>
-<Step>
 
 ### ③ 当前层排序去重后继续搜索
 
@@ -336,9 +325,6 @@ for (int i = startIndex; i < nums.size(); ++i) {
 ```
 
 只是“选择”之前多了一次树层去重判断。
-
-</Step>
-</Steps>
 
 ## 7. C++ 标准写法
 
@@ -884,8 +870,7 @@ $$
 
 ## 19. 其他语言实现
 
-<Tabs groupId="subsets-ii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -914,8 +899,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -939,8 +923,7 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func subsetsWithDup(nums []int) [][]int {
@@ -969,8 +952,7 @@ func subsetsWithDup(nums []int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var subsetsWithDup = function(nums) {
@@ -998,8 +980,7 @@ var subsetsWithDup = function(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function subsetsWithDup(nums: number[]): number[][] {
@@ -1027,8 +1008,7 @@ function subsetsWithDup(nums: number[]): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -1061,8 +1041,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 static int cmpInt(const void* a, const void* b) {
@@ -1133,8 +1112,7 @@ int** subsetsWithDup(
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift
 class Solution {
@@ -1165,8 +1143,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -1193,8 +1170,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution {
@@ -1223,6 +1199,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

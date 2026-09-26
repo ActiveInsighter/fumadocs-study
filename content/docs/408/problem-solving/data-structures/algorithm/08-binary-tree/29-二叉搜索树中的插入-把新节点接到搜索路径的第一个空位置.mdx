@@ -557,7 +557,7 @@ AVL、红黑树等平衡搜索树正是为解决这一问题而设计的。
 
 ## 15. 常见错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：为了插入一个节点，遍历整棵树">
 
 BST 已经提供方向性。
@@ -623,7 +623,7 @@ return new TreeNode(val);
 普通 BST 没有自动平衡保证，最坏树高可以达到 $n$。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 16. 与“搜索 BST”的关系
 
@@ -723,8 +723,7 @@ if (条件) {
 
 下面各语言统一采用“**沿 BST 搜索路径找到空位置并插入**”这一核心思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -744,8 +743,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -761,8 +759,7 @@ class Solution:
         return root
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func insertIntoBST(root *TreeNode, val int) *TreeNode {
@@ -780,8 +777,7 @@ func insertIntoBST(root *TreeNode, val int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var insertIntoBST = function(root, val) {
@@ -799,8 +795,7 @@ var insertIntoBST = function(root, val) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript title="TypeScript"
 function insertIntoBST(root: TreeNode | null, val: number): TreeNode | null {
@@ -818,8 +813,7 @@ function insertIntoBST(root: TreeNode | null, val: number): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala title="Scala"
 object Solution {
@@ -839,8 +833,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -868,8 +861,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp title="C#"
 public class Solution
@@ -894,6 +886,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

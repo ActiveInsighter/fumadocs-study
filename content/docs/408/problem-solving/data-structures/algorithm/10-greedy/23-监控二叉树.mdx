@@ -4,9 +4,6 @@ summary: 用后序遍历从叶子向根传播三种状态：未覆盖、有摄�
 description: LeetCode 968 监控二叉树。系统讲解后序遍历、三状态设计、空节点状态、四类转移、根节点补处理、贪心正确性、与树形 DP 的区别、常见错误、复杂度和多语言实现。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 968. 监控二叉树
 
@@ -1047,8 +1044,7 @@ $$
 
 下面所有实现都采用同一套三状态后序贪心。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -1087,8 +1083,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -1121,8 +1116,7 @@ class Solution:
         return self.cameras
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func minCameraCover(root *TreeNode) int {
@@ -1163,8 +1157,7 @@ func minCameraCover(root *TreeNode) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 use std::cell::RefCell;
@@ -1211,8 +1204,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var minCameraCover = function(root) {
@@ -1250,8 +1242,7 @@ var minCameraCover = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function minCameraCover(root: TreeNode | null): number {
@@ -1289,8 +1280,7 @@ function minCameraCover(root: TreeNode | null): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 enum State {
@@ -1330,8 +1320,7 @@ int minCameraCover(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution {
@@ -1369,6 +1358,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

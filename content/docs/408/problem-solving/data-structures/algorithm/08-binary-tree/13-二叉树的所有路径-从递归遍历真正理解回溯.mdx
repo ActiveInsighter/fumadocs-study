@@ -904,25 +904,15 @@ $$
 
 ## 16. 推荐掌握顺序
 
-<Steps>
-  <Step>
-    <h3>先写显式回溯版</h3>
+<h3>先写显式回溯版</h3>
     使用 `vector<int>& path`，真正看清 `push_back → recursion → pop_back`。
-  </Step>
-  <Step>
-    <h3>再写字符串值传递版</h3>
+  <h3>再写字符串值传递版</h3>
     理解为什么没有 `pop_back` 仍然属于回溯。
-  </Step>
-  <Step>
-    <h3>最后写迭代版</h3>
+  <h3>最后写迭代版</h3>
     理解显式栈不仅要保存节点，还要保存“到达该节点时的状态”。
-  </Step>
-</Steps>
+  ## 17. 其他语言版本
 
-## 17. 其他语言版本
-
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 class Solution {
@@ -961,8 +951,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class Solution:
@@ -992,8 +981,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func binaryTreePaths(root *TreeNode) []string {
@@ -1025,8 +1013,7 @@ func binaryTreePaths(root *TreeNode) []string {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var binaryTreePaths = function(root) {
@@ -1051,8 +1038,7 @@ var binaryTreePaths = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function binaryTreePaths(root: TreeNode | null): string[] {
@@ -1076,8 +1062,7 @@ function binaryTreePaths(root: TreeNode | null): string[] {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+### Swift
 
 ```swift
 func binaryTreePaths(_ root: TreeNode?) -> [String] {
@@ -1110,8 +1095,7 @@ func binaryTreePaths(_ root: TreeNode?) -> [String] {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+### Scala
 
 ```scala
 object Solution {
@@ -1140,8 +1124,7 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 use std::cell::RefCell;
@@ -1187,8 +1170,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 public class Solution {
@@ -1215,6 +1197,3 @@ public class Solution {
     }
 }
 ```
-
-</Tab>
-</Tabs>

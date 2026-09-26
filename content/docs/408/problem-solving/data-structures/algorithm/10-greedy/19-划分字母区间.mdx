@@ -4,9 +4,6 @@ summary: 预处理每个字符最后一次出现的位置，扫描时维护当�
 description: LeetCode 763 划分字母区间。系统讲解最后出现位置、动态扩张右边界、贪心切分点的正确性、区间合并视角、复杂度、常见错误和多语言实现。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 763. 划分字母区间
 
@@ -203,9 +200,6 @@ left = 0
 right = 0
 ```
 
-<Steps>
-<Step>
-
 ### 扫描位置 0：`a`
 
 `a` 最后一次出现在位置 $8$，因此：
@@ -215,9 +209,6 @@ right=\max(0,8)=8
 $$
 
 当前片段至少必须延伸到位置 $8$。
-
-</Step>
-<Step>
 
 ### 扫描位置 1：`b`
 
@@ -229,9 +220,6 @@ $$
 
 右边界不变。
 
-</Step>
-<Step>
-
 ### 中途遇到其他字符
 
 对于每一个字符都执行：
@@ -241,9 +229,6 @@ right=\max(right,last[s[i]])
 $$
 
 只要某个字符最后出现得更远，当前片段就会被继续拉长。
-
-</Step>
-<Step>
 
 ### 扫描到位置 8
 
@@ -273,9 +258,6 @@ $$
 left = 9
 ```
 
-</Step>
-<Step>
-
 ### 对剩余字符串重复同样过程
 
 接下来依次得到：
@@ -290,9 +272,6 @@ left = 9
 ```text
 [9, 7, 8]
 ```
-
-</Step>
-</Steps>
 
 ---
 
@@ -733,8 +712,7 @@ $$
 
 以下代码都采用“**预处理最后出现位置 + 一次扫描动态扩张右边界**”的标准写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 import java.util.ArrayList;
@@ -766,8 +744,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 from typing import List
@@ -793,8 +770,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 func partitionLabels(s string) []int {
@@ -823,8 +799,7 @@ func partitionLabels(s string) []int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -854,8 +829,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var partitionLabels = function(s) {
@@ -882,8 +856,7 @@ var partitionLabels = function(s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function partitionLabels(s: string): number[] {
@@ -910,8 +883,7 @@ function partitionLabels(s: string): number[] {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 #include <stdlib.h>
@@ -947,8 +919,7 @@ int* partitionLabels(char* s, int* returnSize) {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 using System;
@@ -984,6 +955,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

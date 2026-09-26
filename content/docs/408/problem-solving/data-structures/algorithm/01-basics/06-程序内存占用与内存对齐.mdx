@@ -3,9 +3,6 @@ title: 程序内存占用与内存对齐
 description: 从栈、堆、静态存储区、对象开销与内存对齐出发，理解程序为什么比“变量字节数相加”更占内存，以及算法题中如何正确估算实际内存消耗。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 程序内存占用与内存对齐
 
@@ -493,9 +490,6 @@ $$
 
 可以按下面顺序快速判断。
 
-<Steps>
-<Step>
-
 ### 第一步：找出随 $n$ 增长的数据结构
 
 例如：
@@ -505,9 +499,6 @@ $$
 - `unordered_map` 保存 $n$ 个元素；
 - BFS 队列；
 - 递归调用栈。
-
-</Step>
-<Step>
 
 ### 第二步：估算核心数据量
 
@@ -523,17 +514,11 @@ $$
 4n^2\text{ byte}
 $$
 
-</Step>
-<Step>
-
 ### 第三步：加入容器和运行时开销的意识
 
 不要把刚才的值误认为精确 RSS。
 
 哈希表、树、对象、Python 列表等通常还有明显额外成本。
-
-</Step>
-<Step>
 
 ### 第四步：检查递归深度
 
@@ -542,9 +527,6 @@ $$
 $$
 cd
 $$
-
-</Step>
-<Step>
 
 ### 第五步：对照题目内存限制
 
@@ -567,9 +549,6 @@ $$
 $$
 
 显然不可行。
-
-</Step>
-</Steps>
 
 ---
 
@@ -636,8 +615,7 @@ std::cout << sizeof(p) << '\n';
 
 ## 18. 多语言示例：查看对象和容器的内存特征
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 #include <iostream>
@@ -666,8 +644,7 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 import java.util.ArrayList;
@@ -687,8 +664,7 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 import sys
@@ -702,9 +678,6 @@ print("sum of element objects:", sum(sys.getsizeof(x) for x in nums))
 # sys.getsizeof 主要返回对象自身占用，
 # 对复合对象通常不会自动递归统计其引用对象的全部内存。
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

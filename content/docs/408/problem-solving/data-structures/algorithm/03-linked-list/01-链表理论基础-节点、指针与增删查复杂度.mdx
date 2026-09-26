@@ -3,10 +3,7 @@ title: 链表理论基础：节点、指针与增删查复杂度
 description: 从链表的节点结构与内存模型出发，系统讲解单链表、双链表、循环链表、虚拟头结点、插入删除操作，以及链表与数组的性能差异。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 链表理论基础：节点、指针与增删查复杂度
 
@@ -224,16 +221,9 @@ A → X → B
 
 只需要修改两个连接关系。
 
-<Steps>
-  <Step>
-    让新节点 `X.next` 指向原来的 `B`。
-  </Step>
-  <Step>
-    再让 `A.next` 指向 `X`。
-  </Step>
-</Steps>
-
-代码：
+让新节点 `X.next` 指向原来的 `B`。
+  再让 `A.next` 指向 `X`。
+  代码：
 
 ```cpp
 x->next = a->next;
@@ -667,8 +657,7 @@ fast 每次走 2 步
 
 ## 16. 其他语言的链表节点定义
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 struct ListNode {
@@ -680,8 +669,7 @@ struct ListNode {
 };
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 public class ListNode {
@@ -701,8 +689,7 @@ public class ListNode {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 class ListNode:
@@ -711,8 +698,7 @@ class ListNode:
         self.next = next
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 type ListNode struct {
@@ -721,8 +707,7 @@ type ListNode struct {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 class ListNode {
@@ -733,8 +718,7 @@ class ListNode {
 }
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 class ListNode {
@@ -747,6 +731,3 @@ class ListNode {
   }
 }
 ```
-
-</Tab>
-</Tabs>

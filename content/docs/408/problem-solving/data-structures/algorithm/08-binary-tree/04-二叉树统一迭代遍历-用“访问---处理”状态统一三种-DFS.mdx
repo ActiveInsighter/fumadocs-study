@@ -529,8 +529,7 @@ $$
 
 下面统一使用 `visited` 状态法实现中序遍历。理解这一版后，前序和后序只需要调整入栈顺序。
 
-<Tabs groupId="binary-tree-language" persist items={['C++', 'Python', 'Java', 'Go', 'JavaScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp title="C++"
 class Solution {
@@ -558,8 +557,7 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 class Solution:
@@ -583,8 +581,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -622,8 +619,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 type State struct {
@@ -661,8 +657,7 @@ func inorderTraversal(root *TreeNode) []int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var inorderTraversal = function(root) {
@@ -685,6 +680,3 @@ var inorderTraversal = function(root) {
     return result;
 };
 ```
-
-</Tab>
-</Tabs>

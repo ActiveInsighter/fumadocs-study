@@ -4,9 +4,6 @@ summary: 按左端点排序后，只需维护当前合并区间的最远右端�
 description: LeetCode 56 合并区间。系统讲解左端点排序、扫描不变量、区间合并正确性、闭区间边界、与射气球/无重叠区间/划分字母区间的统一视角、常见错误、复杂度和多语言实现。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 56. 合并区间
 
@@ -249,9 +246,6 @@ $$
 
 ## 5. 完整算法流程
 
-<Steps>
-<Step>
-
 ### 按左端点升序排序
 
 把所有区间按：
@@ -264,9 +258,6 @@ $$
 
 若左端点相同，右端点的相对顺序并不影响正确性。
 
-</Step>
-<Step>
-
 ### 把第一个区间放入结果
 
 初始化：
@@ -276,9 +267,6 @@ result = [intervals[0]]
 ```
 
 此时它既是第一个答案候选，也是当前正在维护的合并区间。
-
-</Step>
-<Step>
 
 ### 从第二个区间开始扫描
 
@@ -301,9 +289,6 @@ $$
 last.right=\max(last.right,cur.right)
 $$
 
-</Step>
-<Step>
-
 ### 遇到断点时开启新区间
 
 若：
@@ -321,9 +306,6 @@ result.push_back(cur)
 ```
 
 之后这个新区间就成为新的 `result.back()`。
-
-</Step>
-</Steps>
 
 ---
 
@@ -922,9 +904,6 @@ $$
 
 以后看到类似题，可以先尝试套下面的思考框架：
 
-<Steps>
-<Step>
-
 ### 第一步：找排序维度
 
 通常考虑：
@@ -934,9 +913,6 @@ $$
 或
 按右端点升序
 ```
-
-</Step>
-<Step>
 
 ### 第二步：定义当前边界的语义
 
@@ -953,9 +929,6 @@ $$
 - 当前保留区间的结束位置；
 - 当前片段必须覆盖的最远位置。
 
-</Step>
-<Step>
-
 ### 第三步：写出继续条件
 
 例如本题：
@@ -966,9 +939,6 @@ $$
 
 表示新区间仍然与当前并集相连。
 
-</Step>
-<Step>
-
 ### 第四步：写出边界更新公式
 
 本题：
@@ -978,9 +948,6 @@ R=\max(R,r_i)
 $$
 
 如果这一步的 `min/max` 语义能解释清楚，代码基本就不会写错。
-
-</Step>
-</Steps>
 
 ---
 
@@ -1008,8 +975,7 @@ $$
 
 ## 21. 其他语言版本
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
-<Tab value="Java">
+### Java
 
 ```java
 import java.util.ArrayList;
@@ -1043,8 +1009,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 from typing import List
@@ -1066,8 +1031,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go
 import "sort"
@@ -1101,8 +1065,7 @@ func merge(intervals [][]int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+### Rust
 
 ```rust
 impl Solution {
@@ -1131,8 +1094,7 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript
 var merge = function(intervals) {
@@ -1157,8 +1119,7 @@ var merge = function(intervals) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+### TypeScript
 
 ```typescript
 function merge(intervals: number[][]): number[][] {
@@ -1183,8 +1144,7 @@ function merge(intervals: number[][]): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="C">
+### C
 
 ```c
 #include <stdlib.h>
@@ -1238,8 +1198,7 @@ int** merge(int** intervals,
 }
 ```
 
-</Tab>
-<Tab value="C#">
+### C#
 
 ```csharp
 using System;
@@ -1278,6 +1237,3 @@ public class Solution
     }
 }
 ```
-
-</Tab>
-</Tabs>

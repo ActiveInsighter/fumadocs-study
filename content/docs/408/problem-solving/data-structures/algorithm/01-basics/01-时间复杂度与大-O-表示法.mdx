@@ -3,9 +3,6 @@ title: 时间复杂度与大 O 表示法
 description: 从操作次数、渐近增长、复杂度化简到多变量分析，系统建立算法时间复杂度的判断方法。
 ---
 
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 时间复杂度与大 O 表示法
 
@@ -204,9 +201,6 @@ $$
 
 化简复杂度时可以分三步。
 
-<Steps>
-<Step>
-
 ### 去掉加法常数项
 
 $$
@@ -215,9 +209,6 @@ $$
 
 常数 $1000$ 不会随着 $n$ 增长。
 
-</Step>
-<Step>
-
 ### 忽略常数系数
 
 $$
@@ -225,9 +216,6 @@ $$
 $$
 
 常数倍不会改变增长阶。
-
-</Step>
-<Step>
 
 ### 保留最高阶项
 
@@ -245,9 +233,6 @@ $$
 $$
 
 所以当 $n$ 足够大时，$n$ 相比 $n^2$ 可以忽略。
-
-</Step>
-</Steps>
 
 最终得到：
 
@@ -626,22 +611,13 @@ $$
 
 以后拿到一段代码，可以按下面的顺序分析。
 
-<Steps>
-<Step>
-
 ### 确定输入规模
 
 先明确 $n$ 到底代表什么。若有多个独立规模，用 $m,n,V,E$ 等分别表示。
 
-</Step>
-<Step>
-
 ### 找基本操作
 
 通常是循环体、比较、赋值、哈希查询、字符串比较等真正重复发生的操作。
-
-</Step>
-<Step>
 
 ### 计算执行次数
 
@@ -652,9 +628,6 @@ $$
 - 每次乘 2 / 除 2；
 - 递归树；
 - 数据结构操作本身的复杂度。
-
-</Step>
-<Step>
 
 ### 合并多个阶段
 
@@ -674,15 +647,9 @@ O(m)+O(n)
 O(m+n)
 $$
 
-</Step>
-<Step>
-
 ### 最后再做渐近化简
 
 去掉常数系数、常数项和低阶项，保留主导增长项。
-
-</Step>
-</Steps>
 
 ---
 
@@ -724,8 +691,7 @@ $$
 O(n\log n)
 $$
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+### C++
 
 ```cpp
 void solve(int n) {
@@ -739,8 +705,7 @@ void solve(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java
 static void solve(int n) {
@@ -754,8 +719,7 @@ static void solve(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python
 def solve(n: int) -> None:
@@ -767,9 +731,6 @@ def solve(n: int) -> None:
             count += 1
             j *= 2
 ```
-
-</Tab>
-</Tabs>
 
 ---
 

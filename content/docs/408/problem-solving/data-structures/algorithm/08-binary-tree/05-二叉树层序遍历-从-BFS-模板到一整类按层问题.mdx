@@ -735,8 +735,7 @@ while (!q.empty()) {
 
 下面都以 LeetCode 102 的标准层序遍历为例。不同语言只是在“队列”这个数据结构的具体写法上不同。
 
-<Tabs groupId="binary-tree-language" persist items={['C++', 'Python', 'Java', 'Go', 'JavaScript']}>
-<Tab value="C++">
+### C++
 
 ```cpp title="C++"
 class Solution {
@@ -769,8 +768,7 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Python">
+### Python
 
 ```python title="Python"
 from collections import deque
@@ -800,8 +798,7 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Java">
+### Java
 
 ```java title="Java"
 class Solution {
@@ -832,8 +829,7 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Go">
+### Go
 
 ```go title="Go"
 func levelOrder(root *TreeNode) [][]int {
@@ -869,8 +865,7 @@ func levelOrder(root *TreeNode) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+### JavaScript
 
 ```javascript title="JavaScript"
 var levelOrder = function(root) {
@@ -898,6 +893,3 @@ var levelOrder = function(root) {
     return result;
 };
 ```
-
-</Tab>
-</Tabs>
