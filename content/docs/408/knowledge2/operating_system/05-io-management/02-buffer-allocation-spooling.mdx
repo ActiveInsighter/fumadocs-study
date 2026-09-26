@@ -9,7 +9,7 @@ description: "第 5 章 I/O 管理：缓冲、设备分配与 SPOOLing。I/O 设
 >
 > * 选择题：2009 年第 1 题、2011 年第 31 题、2013 年第 27 题、2015 年第 28 题、2018 年第 31 题、2022 年第 30 题、2026 年第 32 题
 
-**缓冲区（Buffer）**是在主存中开辟的一块临时区域，用于暂存 I/O 数据。
+**缓冲区（Buffer）**&#x2060;是在主存中开辟的一块临时区域，用于暂存 I/O 数据。
 
 缓冲最重要的作用不是“永久保存数据”，而是：
 
@@ -26,7 +26,7 @@ description: "第 5 章 I/O 管理：缓冲、设备分配与 SPOOLing。I/O 设
 
 ### 1. 磁盘高速缓存
 
-**磁盘高速缓存（Disk Cache）**利用主存空间保存近期从磁盘读取的数据块。
+**磁盘高速缓存（Disk Cache）**&#x2060;利用主存空间保存近期从磁盘读取的数据块。
 
 因此：
 
@@ -90,7 +90,7 @@ I/O → Buffer B → CPU
 
 ### 4. 循环缓冲
 
-**循环缓冲（Circular Buffer）**由多个连续缓冲单元构成，并在逻辑上形成一个环。
+**循环缓冲（Circular Buffer）**&#x2060;由多个连续缓冲单元构成，并在逻辑上形成一个环。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-management-003.svg" alt={"循环缓冲 读写指针环形推进，尾部回绕到头部 D D D D 写指针 读指针 回绕 已写入 空闲槽 · 容量固定，可持续覆盖旧数据 缓冲池 一组共享缓冲区，按需借用与归还 共享缓冲池 B1 空 B3 空 B5 空 输入队列 · 输出队列 · 空闲队列 进程 P1 进程 P2 进程 P3 借用 归还 已分配 空闲 · 多进程共享 · 提高利用率"} />
 
@@ -117,7 +117,7 @@ I/O → Buffer B → CPU
 
 ### 5. 缓冲池
 
-**缓冲池（Buffer Pool）**是一组由系统统一维护和分配的缓冲区。
+**缓冲池（Buffer Pool）**&#x2060;是一组由系统统一维护和分配的缓冲区。
 
 基本过程：
 
@@ -271,7 +271,7 @@ I/O 通道
 
 表示操作系统内部实际使用的具体硬件设备。
 
-操作系统可以通过**逻辑设备表 LUT（Logical Unit Table）**维护两者之间的映射。
+操作系统可以通过**逻辑设备表 LUT（Logical Unit Table）**&#x2060;维护两者之间的映射。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-management-005.svg" alt={'逻辑设备 → 物理设备映射 应用只认友好名，内核通过 LUT 查到真实硬件 应用层 内核 · 逻辑设备表 (LUT) 硬件层 App A open("/dev/sda") App B open("/dev/lp0") App C open("/dev/tty1") 逻辑名 驱动 / 类型 物理地址 /dev/sda block · SATA PCI 0:1f:2 /dev/lp0 char · printer USB bus2 /dev/tty1 char · console'} />
 
@@ -307,7 +307,7 @@ autofs_notrigger     rdisk0
 >
 > * 选择题：2016 年第 31 题
 
-**SPOOLing（Simultaneous Peripheral Operations On-Line）**称为**假脱机技术**或联机并发外设操作技术。
+**SPOOLing（Simultaneous Peripheral Operations On-Line）**&#x2060;称为**假脱机技术**或联机并发外设操作技术。
 
 其核心思想是：
 
