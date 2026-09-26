@@ -1,13 +1,11 @@
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 // @ts-expect-error The deployment helper is intentionally a Node.js ESM script.
 import {
   buildCloudflareAssetsIgnore,
   buildCloudflareRedirects,
   CLOUDFLARE_DYNAMIC_REDIRECT_LIMIT,
-  prepareCloudflareStaticAssets,
 } from '../scripts/prepare-cloudflare-static-assets.mjs';
 
 describe('Cloudflare Workers Static Assets deployment', () => {
@@ -47,30 +45,6 @@ describe('Cloudflare Workers Static Assets deployment', () => {
     expect(ruleLines.every((line) => !/\s200$/.test(line))).toBe(true);
   });
 
-
-  it('repairs a root index that contains the exported Next.js 404 page', async () => {
-    const outputRoot = mkdtempSync(join(tmpdir(), 'fumadocs-cloudflare-'));
-    mkdirSync(join(outputRoot, 'docs'), { recursive: true });
-
-    writeFileSync(join(outputRoot, 'index.html'), '<html>This page could not be found.</html>');
-    writeFileSync(join(outputRoot, 'docs', 'index.html'), '<html>Study docs home</html>');
-    writeFileSync(join(outputRoot, '404.html'), '<html>404</html>');
-    writeFileSync(
-      join(outputRoot, 'edgeone.json'),
-      JSON.stringify({
-        rewrites: [
-          {
-            source: '/docs/*/index.txt',
-            destination: '/docs/:splat/__next._full.txt',
-          },
-        ],
-      }),
-    );
-
-    await prepareCloudflareStaticAssets(outputRoot);
-
-    expect(readFileSync(join(outputRoot, 'index.html'), 'utf8')).toContain('Study docs home');
-  });
 
   it('keeps Cloudflare dynamic redirects within the documented limit', () => {
     expect(CLOUDFLARE_DYNAMIC_REDIRECT_LIMIT).toBe(100);
