@@ -22,7 +22,7 @@ describe('Cloudflare Workers Static Assets deployment', () => {
     });
   });
 
-  it('translates guarded EdgeOne RSC rewrites to supported Cloudflare redirects', () => {
+  it('translates guarded EdgeOne RSC rewrites to Cloudflare 200 proxy rewrites', () => {
     const redirects = buildCloudflareRedirects([
       {
         source: '/docs/*/index.txt',
@@ -34,8 +34,8 @@ describe('Cloudflare Workers Static Assets deployment', () => {
       },
     ]);
 
-    expect(redirects).toContain('/docs/*/index.txt /docs/:splat/__next._full.txt 302');
-    expect(redirects).toContain('/docs/*/__next.docs.txt /docs/__next.docs.txt 302');
+    expect(redirects).toContain('/docs/*/index.txt /docs/:splat/__next._full.txt 200');
+    expect(redirects).toContain('/docs/*/__next.docs.txt /docs/__next.docs.txt 200');
 
     const ruleLines = redirects
       .split('\n')

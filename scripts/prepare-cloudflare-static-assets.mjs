@@ -36,7 +36,7 @@ export function buildCloudflareRedirects(rewrites) {
     if (countSplats(source) > 1) {
       throw new Error(`Cloudflare _redirects supports only one splat per source: ${source}`);
     }
-    lines.push(`${source} ${destination} 302`);
+    lines.push(`${source} ${destination} 200`);
   }
 
   return `${lines.join('\n')}\n`;
@@ -81,7 +81,7 @@ export async function prepareCloudflareStaticAssets(outputRoot = path.resolve('.
   ]);
 
   console.log(`[cloudflare-assets] Wrote ${redirectsPath}.`);
-  console.log('[cloudflare-assets] Translated EdgeOne RSC rewrites to supported Cloudflare 302 redirects.');
+  console.log('[cloudflare-assets] Translated EdgeOne RSC rewrites to Cloudflare 200 proxy rewrites.');
   console.log('[cloudflare-assets] Confirmed 404.html for not_found_handling=404-page.');
   if (restoredRootIndex) {
     console.log('[cloudflare-assets] Restored missing root index.html from docs/index.html.');

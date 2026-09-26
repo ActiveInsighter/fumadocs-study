@@ -92,8 +92,8 @@ jobs:
           test -s .static-docs/_redirects
           test -s .static-docs/.assetsignore
           test -s .static-docs/404.html
-          grep -F '/docs/*/index.txt /docs/:splat/__next._full.txt 302' .static-docs/_redirects
-          grep -F '/docs/*/__next.docs.txt /docs/__next.docs.txt 302' .static-docs/_redirects
+          grep -F '/docs/*/index.txt /docs/:splat/__next._full.txt 200' .static-docs/_redirects
+          grep -F '/docs/*/__next.docs.txt /docs/__next.docs.txt 200' .static-docs/_redirects
           grep -Fx 'edgeone.json' .static-docs/.assetsignore
 
           file_count="$(find .static-docs -type f \
@@ -126,7 +126,7 @@ jobs:
             echo "- Local static package: $((package_bytes / 1024 / 1024)) MiB"
             echo '- Root index.html: present'
             echo '- Worker JavaScript: none (assets-only deployment)'
-            echo '- RSC dedupe aliases: served through supported Cloudflare 302 redirects'
+            echo '- RSC dedupe aliases: served through Cloudflare 200 proxy rewrites'
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Validate Wrangler configuration with a dry run
