@@ -167,8 +167,10 @@ height = max(leftHeight, rightHeight) + 1
 
 因此高度天然适合后序遍历。
 
-<Tabs groupId="depth-height-review" items={['深度', '高度']}>
-<Tab value="深度">
+
+
+### 深度
+
 
 关注“从根走到这里有多远”。
 
@@ -182,8 +184,10 @@ height = max(leftHeight, rightHeight) + 1
 
 常见写法：前序 + 回溯。
 
-</Tab>
-<Tab value="高度">
+
+
+### 高度
+
 
 关注“从这里向下还能走多远”。
 
@@ -195,8 +199,8 @@ height = max(leftHeight, rightHeight) + 1
 
 常见写法：后序 + 返回值。
 
-</Tab>
-</Tabs>
+
+
 
 最大深度之所以既能用前序也能用后序，是因为：
 
@@ -936,8 +940,10 @@ node->left = operation(node->left);
 
 下面的代码不是某一道具体题的答案，而是一个用于检查递归结构的通用骨架。真正做题时，应根据“父节点需要什么信息”修改返回值和单层逻辑。
 
-<Tabs groupId="binary-tree-dfs-template" items={['C++', 'Java', 'Python', 'JavaScript']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp title="C++ · 通用 DFS 骨架"
 Result dfs(TreeNode* node) {
@@ -962,8 +968,10 @@ Result dfs(TreeNode* node) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java · 通用 DFS 骨架"
 Result dfs(TreeNode node) {
@@ -988,8 +996,10 @@ Result dfs(TreeNode node) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python · 通用 DFS 骨架"
 def dfs(node):
@@ -1012,8 +1022,10 @@ def dfs(node):
     return merge(node, left, right)
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript · 通用 DFS 骨架"
 function dfs(node) {
@@ -1038,8 +1050,8 @@ function dfs(node) {
 }
 ```
 
-</Tab>
-</Tabs>
+
+
 
 <Callout title="最后的判断标准" type="idea">
 

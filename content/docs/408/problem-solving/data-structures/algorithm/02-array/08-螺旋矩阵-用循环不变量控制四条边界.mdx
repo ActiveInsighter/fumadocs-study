@@ -4,7 +4,6 @@ description: 以 LeetCode 59 螺旋矩阵 II 为例，系统讲解矩阵模拟�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 螺旋矩阵：用循环不变量控制四条边界
@@ -590,8 +589,10 @@ answer.push_back(matrix[row][col]);
 
 ## 14. 其他语言版本
 
-<Tabs items={["Java", "Python", "Go", "JavaScript", "TypeScript"]}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -633,8 +634,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 from typing import List
@@ -674,8 +677,10 @@ class Solution:
         return matrix
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func generateMatrix(n int) [][]int {
@@ -722,8 +727,10 @@ func generateMatrix(n int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var generateMatrix = function (n) {
@@ -765,8 +772,10 @@ var generateMatrix = function (n) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function generateMatrix(n: number): number[][] {
@@ -811,5 +820,5 @@ function generateMatrix(n: number): number[][] {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

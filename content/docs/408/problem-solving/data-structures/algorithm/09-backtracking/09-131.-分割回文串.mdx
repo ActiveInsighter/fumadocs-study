@@ -4,7 +4,6 @@ summary: 把字符串切割问题转化为组合型搜索，理解 startIndex �
 description: LeetCode 131 分割回文串：切割问题搜索树、startIndex、回文判定、回溯模板、动态规划预处理、复杂度与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 131. 分割回文串
@@ -656,8 +655,10 @@ DP 只能缓存“某个区间是不是回文”，不能减少题目要求输�
 
 下面统一采用“预处理回文表 + 回溯”的版本，使不同语言之间的状态设计保持一致。
 
-<Tabs groupId="palindrome-partitioning-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -697,8 +698,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -733,8 +736,10 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func partition(s string) [][]string {
@@ -778,8 +783,10 @@ func partition(s string) [][]string {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var partition = function(s) {
@@ -816,8 +823,10 @@ var partition = function(s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function partition(s: string): string[][] {
@@ -857,8 +866,10 @@ function partition(s: string): string[][] {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdbool.h>
@@ -929,8 +940,10 @@ char ***partition(char *s, int *returnSize, int **returnColumnSizes) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -975,8 +988,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -1023,8 +1038,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -1063,8 +1080,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -1111,5 +1130,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

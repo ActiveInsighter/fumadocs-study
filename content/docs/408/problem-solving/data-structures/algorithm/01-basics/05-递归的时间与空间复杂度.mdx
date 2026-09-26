@@ -4,7 +4,6 @@ description: 通过斐波那契数列与递归二分查找，理解递归树、�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 递归的时间与空间复杂度
@@ -649,8 +648,10 @@ $$
 
 ## 18. 多语言实现：迭代斐波那契
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 long long fibonacci(int n) {
@@ -671,8 +672,10 @@ long long fibonacci(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 static long fibonacci(int n) {
@@ -693,8 +696,10 @@ static long fibonacci(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 def fibonacci(n: int) -> int:
@@ -712,8 +717,8 @@ def fibonacci(n: int) -> int:
     return prev1
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

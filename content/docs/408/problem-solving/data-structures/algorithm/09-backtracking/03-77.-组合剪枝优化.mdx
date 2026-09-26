@@ -4,7 +4,6 @@ summary: 从“剩余候选是否足够”严格推导组合问题的剪枝上�
 description: LeetCode 77 组合的剪枝优化：推导 i <= n - (k - path.size()) + 1，解释 +1、边界条件、正确性与复杂度。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 77. 组合剪枝优化
@@ -387,8 +386,10 @@ $$
 
 ## 其他语言版本
 
-<Tabs groupId="combine-pruning-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -419,8 +420,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -444,8 +447,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func combine(n int, k int) [][]int {
@@ -473,8 +478,10 @@ func combine(n int, k int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var combine = function (n, k) {
@@ -501,8 +508,10 @@ var combine = function (n, k) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function combine(n: number, k: number): number[][] {
@@ -529,8 +538,10 @@ function combine(n: number, k: number): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -558,8 +569,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static int *path;
@@ -603,8 +616,10 @@ int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -635,8 +650,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -665,5 +682,5 @@ object Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

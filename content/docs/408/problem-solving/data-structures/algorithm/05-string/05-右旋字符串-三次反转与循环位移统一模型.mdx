@@ -4,7 +4,6 @@ description: 从卡码网右旋字符串出发，系统掌握“分段 + 三次�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
@@ -477,8 +476,10 @@ $$
 
 ## 11. 其他语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'C']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <algorithm>
@@ -507,8 +508,10 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Scanner;
@@ -544,8 +547,10 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 k = int(input())
@@ -560,8 +565,10 @@ print(s)
 
 Python 字符串不可变，因此上面的切片会使用 $O(n)$ 额外空间。
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 package main
@@ -597,8 +604,10 @@ func main() {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdio.h>
@@ -637,5 +646,5 @@ int main(void) {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

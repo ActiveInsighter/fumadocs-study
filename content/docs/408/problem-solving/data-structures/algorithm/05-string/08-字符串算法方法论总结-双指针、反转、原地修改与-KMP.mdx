@@ -4,7 +4,6 @@ description: 总结字符串模块的核心方法，把字符数组、库函数�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
@@ -655,8 +654,10 @@ $$
 
 真正需要熟练到可以手写的模板并不多。
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 // 1. 区间反转 [left, right]
@@ -682,8 +683,10 @@ vector<int> prefixFunction(const string& s) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 // 1. 区间反转 [left, right]
@@ -713,8 +716,10 @@ static int[] prefixFunction(String s) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 # 1. 区间反转 [left, right]
@@ -742,8 +747,8 @@ def prefix_function(s: str) -> list[int]:
     return pi
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

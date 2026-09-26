@@ -570,8 +570,10 @@ left > right
 
 下面各语言统一使用“**中点作为根 + 递归构造左右半区间**”的核心思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 class Solution {
@@ -593,8 +595,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 class Solution:
@@ -612,8 +616,10 @@ class Solution:
         return build(0, len(nums) - 1)
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 func sortedArrayToBST(nums []int) *TreeNode {
@@ -635,8 +641,10 @@ func sortedArrayToBST(nums []int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript"
 var sortedArrayToBST = function(nums) {
@@ -656,8 +664,10 @@ var sortedArrayToBST = function(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript title="TypeScript"
 function sortedArrayToBST(nums: number[]): TreeNode | null {
@@ -677,8 +687,10 @@ function sortedArrayToBST(nums: number[]): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c title="C"
 struct TreeNode* build(int* nums, int left, int right) {
@@ -699,8 +711,10 @@ struct TreeNode* sortedArrayToBST(int* nums, int numsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala title="Scala"
 object Solution {
@@ -720,8 +734,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -746,8 +762,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp title="C#"
 public class Solution
@@ -773,5 +791,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

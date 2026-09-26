@@ -5,7 +5,6 @@ description: LeetCode 763 划分字母区间。系统讲解最后出现位置、
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 763. 划分字母区间
@@ -733,8 +732,10 @@ $$
 
 以下代码都采用“**预处理最后出现位置 + 一次扫描动态扩张右边界**”的标准写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.ArrayList;
@@ -766,8 +767,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 from typing import List
@@ -793,8 +796,10 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func partitionLabels(s string) []int {
@@ -823,8 +828,10 @@ func partitionLabels(s string) []int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -854,8 +861,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var partitionLabels = function(s) {
@@ -882,8 +891,10 @@ var partitionLabels = function(s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function partitionLabels(s: string): number[] {
@@ -910,8 +921,10 @@ function partitionLabels(s: string): number[] {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -947,8 +960,10 @@ int* partitionLabels(char* s, int* returnSize) {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 using System;
@@ -985,5 +1000,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

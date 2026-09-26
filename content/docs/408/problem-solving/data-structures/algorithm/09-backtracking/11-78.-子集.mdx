@@ -4,7 +4,6 @@ summary: 从“收集叶子节点”切换到“收集整棵搜索树”，理�
 description: LeetCode 78 子集：幂集、搜索树所有节点、startIndex、空集、回溯模板、二进制枚举、复杂度与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 78. 子集
@@ -481,8 +480,10 @@ result.append(path[:])
 
 ## 15. 其他语言实现
 
-<Tabs groupId="subsets-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -505,8 +506,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -524,8 +527,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func subsets(nums []int) [][]int {
@@ -547,8 +552,10 @@ func subsets(nums []int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var subsets = function(nums) {
@@ -569,8 +576,10 @@ var subsets = function(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function subsets(nums: number[]): number[][] {
@@ -591,8 +600,10 @@ function subsets(nums: number[]): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -614,8 +625,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static int* path;
@@ -659,8 +672,10 @@ int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -685,8 +700,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -709,8 +726,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -733,5 +752,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

@@ -5,7 +5,6 @@ summary: 从“树层去重”的本质出发，系统比较排序 + used 与每
 description: 回溯算法去重专题：树层去重、树枝状态、每层 Set、used 数组、排序、子集 II、组合总和 II、全排列 II、错误写法与复杂度分析。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 回溯去重的另一种写法：每层 Set
@@ -630,8 +629,10 @@ $$
 
 ## 15. 其他语言实现
 
-<Tabs groupId="backtracking-dedup-set-language" items={['Java', 'Python', 'JavaScript', 'TypeScript', 'Rust']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -728,8 +729,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -798,8 +801,10 @@ class Solution:
                 used[i] = False
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 function subsetsWithDup(nums) {
@@ -867,8 +872,10 @@ function permuteUnique(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function subsetsWithDup(nums: number[]): number[][] {
@@ -940,8 +947,10 @@ function permuteUnique(nums: number[]): number[][] {
 };
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::collections::HashSet;
@@ -1048,5 +1057,5 @@ impl Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

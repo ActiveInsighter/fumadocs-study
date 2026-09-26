@@ -4,7 +4,6 @@ summary: 把固定四段的 IP 地址恢复问题建模为受约束的字符串�
 description: LeetCode 93 复原 IP 地址：字符串切割、IPv4 段合法性、剩余长度剪枝、回溯模板、复杂度与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 93. 复原 IP 地址
@@ -372,8 +371,10 @@ IPv4 有效输入长度最多 12，因此实际搜索规模很小。递归深度
 
 ## 11. 其他语言实现
 
-<Tabs groupId="restore-ip-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -408,8 +409,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -442,8 +445,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func restoreIpAddresses(s string) []string {
@@ -476,8 +481,10 @@ func restoreIpAddresses(s string) []string {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var restoreIpAddresses = function(s) {
@@ -507,8 +514,10 @@ var restoreIpAddresses = function(s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function restoreIpAddresses(s: string): string[] {
@@ -540,8 +549,10 @@ function restoreIpAddresses(s: string): string[] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -575,8 +586,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static void dfs(const char* s, int n, int start, int depth,
@@ -617,8 +630,10 @@ char** restoreIpAddresses(char* s, int* returnSize) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -653,8 +668,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -690,8 +707,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -726,5 +745,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

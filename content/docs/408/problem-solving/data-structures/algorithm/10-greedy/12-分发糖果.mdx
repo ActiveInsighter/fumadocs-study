@@ -5,7 +5,6 @@ description: LeetCode 135 分发糖果。系统讲解双向贪心、为何不能
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 135. 分发糖果
@@ -734,8 +733,10 @@ $$
 
 以下实现都遵循同一个核心模板：**初始化为 1 → 左到右 → 右到左取最大值 → 求和**。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -765,8 +766,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -785,8 +788,10 @@ class Solution:
         return sum(candies)
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func candy(ratings []int) int {
@@ -816,8 +821,10 @@ func candy(ratings []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -842,8 +849,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var candy = function (ratings) {
@@ -866,8 +875,10 @@ var candy = function (ratings) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function candy(ratings: number[]): number {
@@ -890,8 +901,10 @@ function candy(ratings: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -929,8 +942,10 @@ int candy(int* ratings, int ratingsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -955,8 +970,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -987,5 +1004,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

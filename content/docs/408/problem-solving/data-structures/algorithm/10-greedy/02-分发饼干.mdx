@@ -5,7 +5,6 @@ description: LeetCode 455 分发饼干。系统讲解贪心策略、交换论证
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 455. 分发饼干
@@ -389,8 +388,10 @@ s = [1, 2, 3, 5]
 
 下面统一采用更容易理解的“**小饼干优先满足小胃口**”写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Arrays;
@@ -413,8 +414,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -431,8 +434,10 @@ class Solution:
         return child
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 import "sort"
@@ -453,8 +458,10 @@ func findContentChildren(g []int, s []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -475,8 +482,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var findContentChildren = function (g, s) {
@@ -495,8 +504,10 @@ var findContentChildren = function (g, s) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function findContentChildren(g: number[], s: number[]): number {
@@ -515,8 +526,10 @@ function findContentChildren(g: number[], s: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -543,8 +556,10 @@ int findContentChildren(int* g, int gSize, int* s, int sSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -567,8 +582,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -593,5 +610,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

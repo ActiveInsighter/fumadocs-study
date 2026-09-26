@@ -4,7 +4,6 @@ summary: 在固定集合 1～9 中选择恰好 k 个互不重复的数字，使�
 description: LeetCode 216 组合总和 III：搜索树建模、回溯三部曲、数量剪枝、和剪枝、最小/最大可达和剪枝与复杂度分析。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 216. 组合总和 III
@@ -532,8 +531,10 @@ $$
 
 ## 其他语言版本
 
-<Tabs groupId="combination-sum-iii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -633,8 +634,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -658,8 +661,10 @@ class Solution:
             path.pop()  # 回溯
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 var (
@@ -692,8 +697,10 @@ func dfs(k, n int, start int, sum int) {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 /**
@@ -768,8 +775,10 @@ var combinationSum3 = function (k, n) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function combinationSum3(k: number, n: number): number[][] {
@@ -793,8 +802,10 @@ function combinationSum3(k: number, n: number): number[][] {
 };
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -831,8 +842,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 int* path;
@@ -891,8 +904,10 @@ int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes){
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 func combinationSum3(_ count: Int, _ targetSum: Int) -> [[Int]] {
@@ -924,8 +939,10 @@ func combinationSum3(_ count: Int, _ targetSum: Int) -> [[Int]] {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -954,8 +971,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -1017,5 +1036,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

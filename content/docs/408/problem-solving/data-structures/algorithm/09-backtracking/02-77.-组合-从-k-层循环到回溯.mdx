@@ -4,7 +4,6 @@ summary: 用状态空间树理解组合问题，掌握 startIndex 的本质、�
 description: LeetCode 77 组合的系统讲解：从多层循环抽象到回溯搜索树，重点理解 startIndex、选择范围、终止条件与状态恢复。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 77. 组合：从 $k$ 层循环到回溯
@@ -353,8 +352,10 @@ $$
 
 ## 其他语言版本
 
-<Tabs groupId="combine-basic-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'Ruby', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -382,8 +383,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -405,8 +408,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func combine(n int, k int) [][]int {
@@ -433,8 +438,10 @@ func combine(n int, k int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var combine = function (n, k) {
@@ -459,8 +466,10 @@ var combine = function (n, k) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function combine(n: number, k: number): number[][] {
@@ -485,8 +494,10 @@ function combine(n: number, k: number): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -512,8 +523,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static int *path;
@@ -556,8 +569,10 @@ int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -585,8 +600,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -613,8 +630,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Ruby">
+
+
+### Ruby
+
 
 ```ruby
 def combine(n, k)
@@ -639,8 +658,10 @@ def combine(n, k)
 end
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -669,5 +690,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

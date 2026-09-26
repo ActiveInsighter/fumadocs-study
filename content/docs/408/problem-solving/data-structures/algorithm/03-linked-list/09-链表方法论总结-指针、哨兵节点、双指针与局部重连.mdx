@@ -4,7 +4,6 @@ description: 系统回顾链表模块的核心模型与高频技巧，把移除�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
@@ -598,8 +597,10 @@ while (fast != nullptr && fast->next != nullptr) {
 
 下面给出最常用的“反转单链表”模板，便于对照不同语言中的节点引用写法。
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
-  <Tab value="C++">
+
+  
+### C++
+
 
 ```cpp
 ListNode* reverseList(ListNode* head) {
@@ -617,8 +618,10 @@ ListNode* reverseList(ListNode* head) {
 }
 ```
 
-  </Tab>
-  <Tab value="Java">
+  
+  
+### Java
+
 
 ```java
 public ListNode reverseList(ListNode head) {
@@ -636,8 +639,10 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 
-  </Tab>
-  <Tab value="Python">
+  
+  
+### Python
+
 
 ```python
 def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
@@ -653,8 +658,10 @@ def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
     return prev
 ```
 
-  </Tab>
-  <Tab value="Go">
+  
+  
+### Go
+
 
 ```go
 func reverseList(head *ListNode) *ListNode {
@@ -672,8 +679,10 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-  </Tab>
-  <Tab value="JavaScript">
+  
+  
+### JavaScript
+
 
 ```javascript
 var reverseList = function (head) {
@@ -691,5 +700,5 @@ var reverseList = function (head) {
 };
 ```
 
-  </Tab>
-</Tabs>
+  
+

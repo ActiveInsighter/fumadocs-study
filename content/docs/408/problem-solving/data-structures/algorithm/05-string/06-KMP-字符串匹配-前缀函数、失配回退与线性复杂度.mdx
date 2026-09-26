@@ -4,7 +4,6 @@ description: 以 LeetCode 28 为主线，从最长相等前后缀推导 KMP，�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
@@ -835,8 +834,10 @@ j == pattern.size()
 
 ## 15. 其他语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <string>
@@ -877,8 +878,10 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -914,8 +917,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -949,8 +954,10 @@ class Solution:
         return -1
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func strStr(text string, pattern string) int {
@@ -986,5 +993,5 @@ func strStr(text string, pattern string) int {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

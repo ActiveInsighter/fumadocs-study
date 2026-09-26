@@ -4,7 +4,6 @@ summary: 在不能排序的前提下完成子序列去重，掌握“保持原�
 description: LeetCode 491 非递减子序列：子序列搜索树、startIndex、树层去重、局部 Set、定长数组哈希、为什么不能排序、正确性与复杂度分析、多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 491. 非递减子序列
@@ -865,8 +864,10 @@ $$
 
 ## 20. 其他语言实现
 
-<Tabs groupId="non-decreasing-subsequences-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -904,8 +905,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -934,8 +937,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func findSubsequences(nums []int) [][]int {
@@ -972,8 +977,10 @@ func findSubsequences(nums []int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var findSubsequences = function(nums) {
@@ -1007,8 +1014,10 @@ var findSubsequences = function(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function findSubsequences(nums: number[]): number[][] {
@@ -1042,8 +1051,10 @@ function findSubsequences(nums: number[]): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::collections::HashSet;
@@ -1084,8 +1095,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static void dfs(
@@ -1154,8 +1167,10 @@ int** findSubsequences(
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -1191,8 +1206,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -1225,8 +1242,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -1261,5 +1280,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

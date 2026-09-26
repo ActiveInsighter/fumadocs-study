@@ -5,7 +5,6 @@ description: LeetCode 376 摆动序列。系统讲解贪心建模、峰谷思想
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 376. 摆动序列
@@ -557,8 +556,10 @@ $$
 
 下面统一给出线性时间的贪心写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -585,8 +586,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -608,8 +611,10 @@ class Solution:
         return answer
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func wiggleMaxLength(nums []int) int {
@@ -634,8 +639,10 @@ func wiggleMaxLength(nums []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -663,8 +670,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var wiggleMaxLength = function (nums) {
@@ -689,8 +698,10 @@ var wiggleMaxLength = function (nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function wiggleMaxLength(nums: number[]): number {
@@ -715,8 +726,10 @@ function wiggleMaxLength(nums: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 int wiggleMaxLength(int* nums, int numsSize) {
@@ -741,8 +754,10 @@ int wiggleMaxLength(int* nums, int numsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -770,8 +785,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -803,5 +820,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

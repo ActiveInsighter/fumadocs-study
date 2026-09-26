@@ -348,8 +348,10 @@ depth--;
 
 实际上下面两种写法表达的是同一个状态恢复过程。
 
-<Tabs groupId="bottom-left-backtracking" items={['显式修改', '值传递']}>
-<Tab value="显式修改">
+
+
+### 显式修改
+
 
 ```cpp
 depth++;
@@ -359,8 +361,10 @@ depth--;
 
 递归前修改当前变量，返回后必须手动恢复。
 
-</Tab>
-<Tab value="值传递">
+
+
+### 值传递
+
 
 ```cpp
 dfs(node->left, depth + 1);
@@ -368,8 +372,8 @@ dfs(node->left, depth + 1);
 
 传给子调用的是一个新值，当前栈帧中的 `depth` 从未被修改，所以返回时天然恢复。
 
-</Tab>
-</Tabs>
+
+
 
 这就是所谓的**隐式回溯**。
 
@@ -507,8 +511,10 @@ DFS 中真正保证“最左”的组合是：
 
 ## 其他语言版本
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.ArrayDeque;
@@ -535,8 +541,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 from collections import deque
@@ -561,8 +569,10 @@ class Solution:
         return answer
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func findBottomLeftValue(root *TreeNode) int {
@@ -590,8 +600,10 @@ func findBottomLeftValue(root *TreeNode) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var findBottomLeftValue = function(root) {
@@ -613,8 +625,10 @@ var findBottomLeftValue = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function findBottomLeftValue(root: TreeNode | null): number {
@@ -638,8 +652,10 @@ function findBottomLeftValue(root: TreeNode | null): number {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -667,8 +683,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 import scala.collection.mutable.Queue
@@ -693,8 +711,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::cell::RefCell;
@@ -729,8 +749,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -754,5 +776,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

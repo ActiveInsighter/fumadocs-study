@@ -3,7 +3,6 @@ title: 回溯算法理论基础
 description: 从“状态空间树”理解回溯：选择、递归、撤销、剪枝，以及组合、排列、子集、切割与棋盘问题的统一框架。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 回溯算法理论基础
@@ -361,8 +360,10 @@ function backtrack(state):
 
 为了让模板本身可以直接运行和改写，下面以最经典的“从 `nums` 中选择 `k` 个元素”为骨架。它完整展示了**终止 → 横向枚举 → 做选择 → 递归 → 撤销**这五个动作，并加入了“剩余元素数量不足”的基础剪枝。
 
-<Tabs groupId="backtracking-language" persist items={['C++', 'Python', 'Java', 'Go']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp title="C++"
 #include <vector>
@@ -388,8 +389,10 @@ void backtracking(const vector<int>& nums, int k, int startIndex) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 result = []
@@ -410,8 +413,10 @@ def backtracking(nums, k, start_index):
         path.pop()                              # 撤销选择
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 import java.util.ArrayList;
@@ -439,8 +444,10 @@ class BacktrackingTemplate {
 }
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 package backtracking
@@ -466,5 +473,5 @@ func search(nums []int, k int, startIndex int) {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

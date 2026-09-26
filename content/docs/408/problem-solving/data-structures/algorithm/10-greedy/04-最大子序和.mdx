@@ -5,7 +5,6 @@ description: LeetCode 53 最大子数组和。系统讲解暴力枚举、线性�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 53. 最大子序和
@@ -680,8 +679,10 @@ i + 1
 
 下面统一给出 $O(n)$ 时间、$O(1)$ 额外空间的 Kadane / 贪心写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -703,8 +704,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -722,8 +725,10 @@ class Solution:
         return answer
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func maxSubArray(nums []int) int {
@@ -744,8 +749,10 @@ func maxSubArray(nums []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -767,8 +774,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var maxSubArray = function (nums) {
@@ -788,8 +797,10 @@ var maxSubArray = function (nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function maxSubArray(nums: number[]): number {
@@ -809,8 +820,10 @@ function maxSubArray(nums: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <limits.h>
@@ -835,8 +848,10 @@ int maxSubArray(int* nums, int numsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -858,8 +873,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -885,5 +902,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

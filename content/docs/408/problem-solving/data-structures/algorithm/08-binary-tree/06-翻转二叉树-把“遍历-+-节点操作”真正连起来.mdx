@@ -622,8 +622,10 @@ public:
 
 下面统一使用最清晰的递归或直接 DFS/BFS 写法。重点不是语言语法差异，而是保持同一个不变量：**每个节点交换一次左右孩子。**
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 class Solution {
@@ -641,8 +643,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 class Solution:
@@ -656,8 +660,10 @@ class Solution:
         return root
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 func invertTree(root *TreeNode) *TreeNode {
@@ -672,8 +678,10 @@ func invertTree(root *TreeNode) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript"
 var invertTree = function(root) {
@@ -686,8 +694,10 @@ var invertTree = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript title="TypeScript"
 function invertTree(root: TreeNode | null): TreeNode | null {
@@ -703,8 +713,10 @@ function invertTree(root: TreeNode | null): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c title="C"
 struct TreeNode* invertTree(struct TreeNode* root) {
@@ -720,8 +732,10 @@ struct TreeNode* invertTree(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift title="Swift"
 func invertTree(_ root: TreeNode?) -> TreeNode? {
@@ -734,8 +748,10 @@ func invertTree(_ root: TreeNode?) -> TreeNode? {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust title="Rust"
 impl Solution {
@@ -754,8 +770,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp title="C#"
 public class Solution {
@@ -773,5 +791,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

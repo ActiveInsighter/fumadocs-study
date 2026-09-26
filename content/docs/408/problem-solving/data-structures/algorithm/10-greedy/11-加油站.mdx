@@ -5,7 +5,6 @@ description: LeetCode 134 加油站。系统讲解暴力模拟、前缀和视角
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 134. 加油站
@@ -662,8 +661,10 @@ $$
 
 下面均采用推荐的 $O(n)$ 区间淘汰贪心。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -688,8 +689,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -710,8 +713,10 @@ class Solution:
         return -1 if total_sum < 0 else start
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func canCompleteCircuit(gas []int, cost []int) int {
@@ -737,8 +742,10 @@ func canCompleteCircuit(gas []int, cost []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -767,8 +774,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var canCompleteCircuit = function(gas, cost) {
@@ -791,8 +800,10 @@ var canCompleteCircuit = function(gas, cost) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function canCompleteCircuit(gas: number[], cost: number[]): number {
@@ -815,8 +826,10 @@ function canCompleteCircuit(gas: number[], cost: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
@@ -839,8 +852,10 @@ int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -865,8 +880,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -891,5 +908,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

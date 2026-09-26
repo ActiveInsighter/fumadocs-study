@@ -5,7 +5,6 @@ description: 贪心算法区间专题阶段总结。系统对比 LeetCode 452、
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 贪心算法阶段总结四：区间问题统一框架
@@ -840,8 +839,10 @@ update / settle
 
 ## 18. 四道题的最短记忆版
 
-<Tabs items={['452 最少箭', '435 无重叠区间', '763 划分字母', '56 合并区间']}>
-<Tab value="452 最少箭">
+
+
+### 452 最少箭
+
 
 ```text
 按右端点排序
@@ -856,8 +857,10 @@ arrowPos = 当前箭位置
 
 > **最早结束、尽量共用。**
 
-</Tab>
-<Tab value="435 无重叠区间">
+
+
+### 435 无重叠区间
+
 
 ```text
 按右端点排序
@@ -878,8 +881,10 @@ $$
 
 > **结束越早，未来空间越大。**
 
-</Tab>
-<Tab value="763 划分字母">
+
+
+### 763 划分字母
+
 
 ```text
 先记录每个字符最后出现位置
@@ -894,8 +899,10 @@ right = max(right, last[s[i]])
 
 > **最远出现位置决定片段右边界。**
 
-</Tab>
-<Tab value="56 合并区间">
+
+
+### 56 合并区间
+
 
 ```text
 按左端点排序
@@ -911,8 +918,8 @@ right = max(right, last[s[i]])
 
 > **能连就扩张，断开就结算。**
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

@@ -4,7 +4,6 @@ summary: 掌握“候选数组含重复元素、每个下标只能使用一次�
 description: LeetCode 40 组合总和 II：排序、startIndex、树层去重、树枝重复、i + 1、目标和剪枝、used 数组等价写法与复杂度分析。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 40. 组合总和 II
@@ -699,8 +698,10 @@ $$
 
 ## 17. 其他语言实现
 
-<Tabs groupId="combination-sum-ii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -731,8 +732,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -760,8 +763,10 @@ class Solution:
         return result
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func combinationSum2(candidates []int, target int) [][]int {
@@ -797,8 +802,10 @@ func combinationSum2(candidates []int, target int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var combinationSum2 = function(candidates, target) {
@@ -828,8 +835,10 @@ var combinationSum2 = function(candidates, target) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function combinationSum2(candidates: number[], target: number): number[][] {
@@ -859,8 +868,10 @@ function combinationSum2(candidates: number[], target: number): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -901,8 +912,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -956,8 +969,10 @@ int **combinationSum2(int *candidates, int candidatesSize, int target,
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -994,8 +1009,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -1027,8 +1044,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -1064,5 +1083,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

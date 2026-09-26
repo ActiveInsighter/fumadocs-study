@@ -695,8 +695,10 @@ $$
 
 下面统一给出“利用完全二叉树性质”的核心解法。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 class Solution {
@@ -726,8 +728,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 class Solution:
@@ -754,8 +758,10 @@ class Solution:
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 func countNodes(root *TreeNode) int {
@@ -784,8 +790,10 @@ func countNodes(root *TreeNode) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript"
 var countNodes = function(root) {
@@ -813,8 +821,10 @@ var countNodes = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript title="TypeScript"
 function countNodes(root: TreeNode | null): number {
@@ -842,8 +852,10 @@ function countNodes(root: TreeNode | null): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c title="C"
 int countNodes(struct TreeNode* root) {
@@ -871,8 +883,10 @@ int countNodes(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift title="Swift"
 class Solution {
@@ -902,8 +916,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala title="Scala"
 object Solution {
@@ -933,8 +949,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -973,8 +991,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp title="C#"
 public class Solution {
@@ -1004,5 +1024,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

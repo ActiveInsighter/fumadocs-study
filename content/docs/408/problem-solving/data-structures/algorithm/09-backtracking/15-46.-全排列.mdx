@@ -4,7 +4,6 @@ summary: 从组合/子集的 startIndex 模型切换到排列的 used 模型，�
 description: LeetCode 46 全排列：排列与组合的本质区别、used 数组、搜索树、回溯三部曲、阶乘复杂度、正确性分析与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 46. 全排列
@@ -826,8 +825,10 @@ $$
 
 ## 21. 其他语言实现
 
-<Tabs groupId="permutations-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -863,8 +864,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -894,8 +897,10 @@ class Solution:
         return ans
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func permute(nums []int) [][]int {
@@ -930,8 +935,10 @@ func permute(nums []int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var permute = function(nums) {
@@ -965,8 +972,10 @@ var permute = function(nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function permute(nums: number[]): number[][] {
@@ -1000,8 +1009,10 @@ function permute(nums: number[]): number[][] {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -1041,8 +1052,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static void dfs(
@@ -1107,8 +1120,10 @@ int** permute(
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -1144,8 +1159,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -1179,8 +1196,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -1216,5 +1235,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

@@ -4,7 +4,6 @@ description: 从变量、数组、容器、递归调用栈到原地算法，系�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 空间复杂度与辅助空间分析
@@ -573,8 +572,10 @@ $$
 
 ## 17. 多语言示例：原地反转数组
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 void reverseArray(vector<int>& nums) {
@@ -589,8 +590,10 @@ void reverseArray(vector<int>& nums) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 static void reverseArray(int[] nums) {
@@ -607,8 +610,10 @@ static void reverseArray(int[] nums) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 def reverse_array(nums: list[int]) -> None:
@@ -621,8 +626,8 @@ def reverse_array(nums: list[int]) -> None:
         right -= 1
 ```
 
-</Tab>
-</Tabs>
+
+
 
 以上实现都只额外使用常数个变量，所以辅助空间为：
 

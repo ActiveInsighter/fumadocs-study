@@ -4,7 +4,6 @@ description: 从局部最优到全局最优，系统理解贪心策略的识别�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 贪心算法理论基础
@@ -309,8 +308,10 @@ $$
 
 贪心算法没有真正统一的代码模板，下面的代码只展示最常见的结构：**排序建立决策顺序，然后在线性扫描中不断接受当前安全的局部最优选择**。
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <algorithm>
@@ -336,8 +337,10 @@ int greedy(vector<int>& nums) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Arrays;
@@ -363,8 +366,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 def greedy(nums):
@@ -383,5 +388,5 @@ def greedy(nums):
     return answer
 ```
 
-</Tab>
-</Tabs>
+
+

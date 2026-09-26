@@ -4,7 +4,6 @@ description: 以 LeetCode 27 为入口，理解数组为什么不能真正“删
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 移除元素：原地覆盖与快慢指针
@@ -636,8 +635,10 @@ $$
 
 ## 14. 其他语言版本
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -655,8 +656,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -671,8 +674,10 @@ class Solution:
         return slow
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func removeElement(nums []int, val int) int {
@@ -689,8 +694,10 @@ func removeElement(nums []int, val int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -709,8 +716,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var removeElement = function(nums, val) {
@@ -726,5 +735,5 @@ var removeElement = function(nums, val) {
 };
 ```
 
-</Tab>
-</Tabs>
+
+

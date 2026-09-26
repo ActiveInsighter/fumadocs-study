@@ -4,7 +4,6 @@ description: 从多次区间求和的 O(nm) 暴力方案出发，推导一维前
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 区间和：前缀和如何把重复查询降到 O(1)
@@ -765,8 +764,10 @@ scanf
 
 ## 17. 其他语言实现
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <iostream>
@@ -797,8 +798,10 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.io.*;
@@ -836,8 +839,10 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 import sys
@@ -870,8 +875,10 @@ if __name__ == "__main__":
     main()
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 package main
@@ -909,8 +916,10 @@ func main() {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 const fs = require('fs');
@@ -936,8 +945,10 @@ while (index + 1 < data.length) {
 process.stdout.write(output.join('\n'));
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 import * as fs from 'fs';
@@ -966,5 +977,5 @@ while (index + 1 < data.length) {
 process.stdout.write(output.join('\n'));
 ```
 
-</Tab>
-</Tabs>
+
+

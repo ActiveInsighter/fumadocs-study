@@ -4,7 +4,6 @@ description: 从内存布局出发理解数组的随机访问、插入删除成�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 
 # 数组理论基础：连续内存、随机访问与二维布局
 
@@ -218,8 +217,10 @@ a[2] = new int[1];
 
 ## 8. 一个小实验：观察连续地址
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <iostream>
@@ -239,8 +240,10 @@ int main() {
 
 C++ 原生二维数组中，这些地址会按元素大小连续递增。
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 public class Main {
@@ -255,8 +258,10 @@ public class Main {
 
 打印出的内容不是可用于证明物理连续性的真实元素地址。Java 对象布局由 JVM 管理。
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 a = [[0, 1, 2], [3, 4, 5]]
@@ -267,8 +272,8 @@ print(id(a[1]))
 
 Python 的二维列表同样是“列表中保存对象引用”的模型，不应把它理解为 C/C++ 原生二维数组那样的一整块连续整数内存。
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

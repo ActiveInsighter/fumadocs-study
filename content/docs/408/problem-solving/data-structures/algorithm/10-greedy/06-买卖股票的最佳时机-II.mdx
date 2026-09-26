@@ -5,7 +5,6 @@ description: LeetCode 122 买卖股票的最佳时机 II。系统讲解利润拆
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 122. 买卖股票的最佳时机 II
@@ -560,8 +559,10 @@ $$
 
 下面均采用“累加所有正相邻差值”的 $O(n)$ 贪心实现。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -577,8 +578,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -591,8 +594,10 @@ class Solution:
         return profit
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func maxProfit(prices []int) int {
@@ -609,8 +614,10 @@ func maxProfit(prices []int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -626,8 +633,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var maxProfit = function (prices) {
@@ -641,8 +650,10 @@ var maxProfit = function (prices) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function maxProfit(prices: number[]): number {
@@ -656,8 +667,10 @@ function maxProfit(prices: number[]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 int maxProfit(int* prices, int pricesSize) {
@@ -674,8 +687,10 @@ int maxProfit(int* prices, int pricesSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -691,8 +706,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -711,5 +728,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

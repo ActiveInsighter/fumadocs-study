@@ -5,7 +5,6 @@ summary: 把“机票全部使用一次、从 JFK 出发、字典序最小”建
 description: LeetCode 332 重新安排行程：回溯、DFS、图搜索、字典序、重复机票、航班计数、剪枝、欧拉路径、Hierholzer 算法与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 332. 重新安排行程
@@ -810,8 +809,10 @@ $$
 
 ## 18. 其他语言实现
 
-<Tabs groupId="reconstruct-itinerary-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -968,8 +969,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -1026,8 +1029,10 @@ class Solution:
         result.append(airport)  # 将当前机场添加到行程路径中
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 type pair struct {
@@ -1086,8 +1091,10 @@ func findItinerary(tickets [][]string) []string {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var findItinerary = function(tickets) {
@@ -1192,8 +1199,10 @@ var findItinerary = function (tickets) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function findItinerary(tickets: string[][]): string[] {
@@ -1237,8 +1246,10 @@ function findItinerary(tickets: string[][]): string[] {
 };
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 typedef struct {
@@ -1338,8 +1349,10 @@ char **findItinerary(char ***tickets, int ticketsSize, int *ticketsColSize,
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 func findItinerary(_ tickets: [[String]]) -> [String] {
@@ -1449,8 +1462,10 @@ for line in tickets {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::collections::HashMap;
@@ -1478,5 +1493,5 @@ impl Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

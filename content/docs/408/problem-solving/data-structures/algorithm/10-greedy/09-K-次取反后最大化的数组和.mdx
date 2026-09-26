@@ -5,7 +5,6 @@ description: LeetCode 1005 K 次取反后最大化的数组和。系统讲解按
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 1005. K 次取反后最大化的数组和
@@ -665,8 +664,10 @@ $$
 
 下面均采用“按绝对值降序 + 负数优先取反 + 剩余奇数次翻转最小绝对值”的统一实现。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Arrays;
@@ -698,8 +699,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -717,8 +720,10 @@ class Solution:
         return sum(nums)
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 import "sort"
@@ -754,8 +759,10 @@ func largestSumAfterKNegations(nums []int, k int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -779,8 +786,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var largestSumAfterKNegations = function (nums, k) {
@@ -801,8 +810,10 @@ var largestSumAfterKNegations = function (nums, k) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function largestSumAfterKNegations(nums: number[], k: number): number {
@@ -823,8 +834,10 @@ function largestSumAfterKNegations(nums: number[], k: number): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -861,8 +874,10 @@ int largestSumAfterKNegations(int* nums, int numsSize, int k) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -886,8 +901,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -920,5 +937,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

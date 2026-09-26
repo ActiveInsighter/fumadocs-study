@@ -4,7 +4,6 @@ description: 以“开发商购买土地”为例，从二维暴力枚举出发�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 二维区域划分：把矩阵切分转化为一维前缀累加
@@ -528,8 +527,10 @@ int main() {
 
 ## 14. 其他语言版本
 
-<Tabs items={["Java", "Python", "Go", "JavaScript", "TypeScript"]}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.io.*;
@@ -612,8 +613,10 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 import sys
@@ -656,8 +659,10 @@ if __name__ == "__main__":
     main()
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 package main
@@ -722,8 +727,10 @@ func main() {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 const fs = require('fs');
@@ -763,8 +770,10 @@ for (let j = 0; j < m - 1; j++) {
 console.log(answer);
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 import * as fs from 'fs';
@@ -804,5 +813,5 @@ for (let j = 0; j < m - 1; j++) {
 console.log(answer);
 ```
 
-</Tab>
-</Tabs>
+
+

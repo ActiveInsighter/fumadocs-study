@@ -5,7 +5,6 @@ description: LeetCode 435 无重叠区间。系统讲解问题转化、右端点
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 435. 无重叠区间
@@ -783,8 +782,10 @@ $$
 
 以下实现统一采用最清晰的“**按右端点排序 + 统计最大保留数量**”写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Arrays;
@@ -810,8 +811,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 from typing import List
@@ -834,8 +837,10 @@ class Solution:
         return len(intervals) - keep
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 import "sort"
@@ -863,8 +868,10 @@ func eraseOverlapIntervals(intervals [][]int) int {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -890,8 +897,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var eraseOverlapIntervals = function(intervals) {
@@ -913,8 +922,10 @@ var eraseOverlapIntervals = function(intervals) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function eraseOverlapIntervals(intervals: number[][]): number {
@@ -936,8 +947,10 @@ function eraseOverlapIntervals(intervals: number[][]): number {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdlib.h>
@@ -974,8 +987,10 @@ int eraseOverlapIntervals(int** intervals,
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 using System;
@@ -1005,5 +1020,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

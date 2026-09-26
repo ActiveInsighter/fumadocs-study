@@ -538,8 +538,10 @@ BST 已经把节点按大小组织好了，没有必要重复搜索。
 
 下面各语言统一采用“**反向中序遍历 + 全局累加和**”这一核心策略。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 class Solution {
@@ -563,8 +565,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 class Solution:
@@ -584,8 +588,10 @@ class Solution:
         return root
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 func convertBST(root *TreeNode) *TreeNode {
@@ -608,8 +614,10 @@ func convertBST(root *TreeNode) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript"
 var convertBST = function(root) {
@@ -631,8 +639,10 @@ var convertBST = function(root) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript title="TypeScript"
 function convertBST(root: TreeNode | null): TreeNode | null {
@@ -654,8 +664,10 @@ function convertBST(root: TreeNode | null): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c title="C"
 void traversal(struct TreeNode* node, int* sum) {
@@ -676,8 +688,10 @@ struct TreeNode* convertBST(struct TreeNode* root) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala title="Scala"
 object Solution {
@@ -699,8 +713,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -735,8 +751,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp title="C#"
 public class Solution
@@ -764,5 +782,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

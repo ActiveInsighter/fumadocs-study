@@ -457,8 +457,10 @@ public:
 
 ## 8. 105 与 106 的统一模板
 
-<Tabs groupId="build-tree-comparison" items={['前序 + 中序', '中序 + 后序']}>
-<Tab value="前序 + 中序">
+
+
+### 前序 + 中序
+
 
 ```text
 根：preorder[preLeft]
@@ -475,8 +477,10 @@ leftSize = rootIndex - inLeft
   inorder  [rootIndex + 1, inRight)
 ```
 
-</Tab>
-<Tab value="中序 + 后序">
+
+
+### 中序 + 后序
+
 
 ```text
 根：postorder[postRight - 1]
@@ -493,8 +497,8 @@ leftSize = rootIndex - inLeft
   postorder [postLeft + leftSize, postRight - 1)
 ```
 
-</Tab>
-</Tabs>
+
+
 
 这两道题不要分开背。统一理解为：
 
@@ -666,8 +670,10 @@ leftSize 算错了
 
 以下代码统一实现 **LeetCode 106：中序 + 后序构造二叉树**，并使用“中序下标表 + 左闭右开区间”的 $O(n)$ 思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -705,8 +711,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -736,8 +744,10 @@ class Solution:
         return build(0, len(inorder), 0, len(postorder))
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func buildTree(inorder []int, postorder []int) *TreeNode {
@@ -772,8 +782,10 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var buildTree = function(inorder, postorder) {
@@ -803,8 +815,10 @@ var buildTree = function(inorder, postorder) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
@@ -839,8 +853,10 @@ function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -884,8 +900,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 static int findIndex(int* inorder, int left, int right, int value) {
@@ -929,8 +947,10 @@ struct TreeNode* buildTree(
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -966,8 +986,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::cell::RefCell;
@@ -1025,8 +1047,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -1068,5 +1092,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

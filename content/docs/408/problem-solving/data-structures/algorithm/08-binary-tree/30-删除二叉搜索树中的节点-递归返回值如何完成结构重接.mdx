@@ -590,8 +590,10 @@ TreeNode* modify(TreeNode* root, ...) {
 
 下面统一采用“**找到目标节点后，让右子树顶上来，并把左子树接到右子树最小节点左侧**”这一结构重接思路。
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java title="Java"
 class Solution {
@@ -620,8 +622,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python title="Python"
 class Solution:
@@ -649,8 +653,10 @@ class Solution:
         return root.right
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go title="Go"
 func deleteNode(root *TreeNode, key int) *TreeNode {
@@ -683,8 +689,10 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript title="JavaScript"
 var deleteNode = function(root, key) {
@@ -711,8 +719,10 @@ var deleteNode = function(root, key) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript title="TypeScript"
 function deleteNode(root: TreeNode | null, key: number): TreeNode | null {
@@ -739,8 +749,10 @@ function deleteNode(root: TreeNode | null, key: number): TreeNode | null {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala title="Scala"
 object Solution {
@@ -769,8 +781,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -824,8 +838,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp title="C#"
 public class Solution
@@ -860,5 +876,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

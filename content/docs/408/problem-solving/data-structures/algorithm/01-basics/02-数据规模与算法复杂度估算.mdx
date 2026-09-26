@@ -4,7 +4,6 @@ description: 从 OJ 超时机制、机器执行速度与数据范围出发，学
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 数据规模与算法复杂度估算
@@ -483,8 +482,10 @@ void nLogN(long long n) {
 
 ## 15. 完整实验代码
 
-<Tabs items={['C++', 'Java']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <chrono>
@@ -533,8 +534,10 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.Scanner;
@@ -587,8 +590,8 @@ public class TimeComplexityDemo {
 }
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

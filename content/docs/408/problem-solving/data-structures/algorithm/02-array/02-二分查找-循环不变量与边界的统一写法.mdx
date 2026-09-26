@@ -4,7 +4,6 @@ description: 以 LeetCode 704 为入口，系统掌握二分查找的前提、�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 二分查找：循环不变量与边界的统一写法
@@ -412,8 +411,10 @@ size_t right = nums.size() - 1;
 
 ## 10. 多语言模板
 
-<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 int search(const vector<int>& nums, int target) {
@@ -430,8 +431,10 @@ int search(const vector<int>& nums, int target) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -449,8 +452,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -469,8 +474,10 @@ class Solution:
         return -1
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func search(nums []int, target int) int {
@@ -491,8 +498,10 @@ func search(nums []int, target int) int {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 function search(nums, target) {
@@ -510,8 +519,8 @@ function search(nums, target) {
 }
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

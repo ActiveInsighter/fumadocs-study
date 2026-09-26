@@ -5,7 +5,6 @@ summary: 把数独求解重新建模为“每层给一个空格选择一个候�
 description: LeetCode 37 解数独：回溯、DFS、约束满足问题、行列宫剪枝、候选数字、提前返回、MRV、位运算优化与多语言实现。
 ---
 
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 37. 解数独
@@ -691,8 +690,10 @@ $$
 
 ## 18. 其他语言实现
 
-<Tabs groupId="sudoku-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -824,8 +825,10 @@ class Solution{
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -885,8 +888,10 @@ class Solution:
         return False
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func solveSudoku(board [][]byte) {
@@ -942,8 +947,10 @@ func isvalid(row, col int, k byte, board [][]byte) bool {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var solveSudoku = function(board) {
@@ -1000,8 +1007,10 @@ var solveSudoku = function(board) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 /**
@@ -1050,8 +1059,10 @@ function solveSudoku(board: string[][]): void {
 };
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -1097,8 +1108,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 bool isValid(char** board, int row, int col, int k) {
@@ -1163,8 +1176,10 @@ void solveSudoku(char** board, int boardSize, int* boardColSize) {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 func solveSudoku(_ board: inout [[Character]]) {
@@ -1213,8 +1228,10 @@ func solveSudoku(_ board: inout [[Character]]) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -1305,8 +1322,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -1361,5 +1380,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+

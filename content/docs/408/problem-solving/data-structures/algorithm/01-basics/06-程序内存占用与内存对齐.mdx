@@ -4,7 +4,6 @@ description: 从栈、堆、静态存储区、对象开销与内存对齐出发�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 程序内存占用与内存对齐
@@ -636,8 +635,10 @@ std::cout << sizeof(p) << '\n';
 
 ## 18. 多语言示例：查看对象和容器的内存特征
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 #include <iostream>
@@ -666,8 +667,10 @@ int main() {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.ArrayList;
@@ -687,8 +690,10 @@ public class Main {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 import sys
@@ -703,8 +708,8 @@ print("sum of element objects:", sum(sys.getsizeof(x) for x in nums))
 # 对复合对象通常不会自动递归统计其引用对象的全部内存。
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

@@ -260,8 +260,10 @@ $$
 
 ### 4.1 五步分析
 
-<Tabs items={["状态", "转移", "初始化", "顺序", "结果"]}>
-<Tab value="状态">
+
+
+### 状态
+
 
 定义：
 
@@ -271,8 +273,10 @@ $$
 
 即 `dp[i]` 表示第 `i` 个斐波那契数。
 
-</Tab>
-<Tab value="转移">
+
+
+### 转移
+
 
 由题意：
 
@@ -280,20 +284,26 @@ $$
 dp[i]=dp[i-1]+dp[i-2]
 $$
 
-</Tab>
-<Tab value="初始化">
+
+
+### 初始化
+
 
 $$
 dp[0]=0,\qquad dp[1]=1
 $$
 
-</Tab>
-<Tab value="顺序">
+
+
+### 顺序
+
 
 因为 `dp[i]` 依赖 `dp[i-1]` 和 `dp[i-2]`，所以 `i` 必须从小到大遍历。
 
-</Tab>
-<Tab value="结果">
+
+
+### 结果
+
 
 最终答案为：
 
@@ -301,8 +311,8 @@ $$
 dp[n]
 $$
 
-</Tab>
-</Tabs>
+
+
 
 ### 4.2 从二维思维到空间优化
 
@@ -495,8 +505,10 @@ DP 出错时，最有效的方法不是不断修改代码，而是**把状态表
 
 ## 11. 示例代码：斐波那契数
 
-<Tabs items={["C++", "Java", "Python", "JavaScript"]}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 class Solution {
@@ -518,8 +530,10 @@ public:
 };
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -540,8 +554,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -557,8 +573,10 @@ class Solution:
         return prev1
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var fib = function(n) {
@@ -577,8 +595,8 @@ var fib = function(n) {
 };
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ## 12. 本节总结
 

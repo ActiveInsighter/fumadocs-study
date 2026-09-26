@@ -65,8 +65,10 @@ $$
 
 路径和问题可以有两种最常见的状态表达。
 
-<Tabs groupId="path-sum-state" items={['累计和', '剩余目标']}>
-<Tab value="累计和">
+
+
+### 累计和
+
 
 从根开始累加：
 
@@ -80,8 +82,10 @@ currentSum += node.val
 currentSum == targetSum
 ```
 
-</Tab>
-<Tab value="剩余目标">
+
+
+### 剩余目标
+
 
 把目标值逐层减掉：
 
@@ -97,8 +101,8 @@ remain == node.val
 
 或者在进入下一层前已经减掉当前节点，则判断 `remain == 0`。
 
-</Tab>
-</Tabs>
+
+
 
 两者完全等价，但“剩余目标”往往更容易直接写成递归定义。
 
@@ -702,8 +706,10 @@ Path Sum 最推荐的思维模型是：
 
 ## 其他语言版本
 
-<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -721,8 +727,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -740,8 +748,10 @@ class Solution:
         )
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func hasPathSum(root *TreeNode, targetSum int) bool {
@@ -759,8 +769,10 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var hasPathSum = function(root, targetSum) {
@@ -776,8 +788,10 @@ var hasPathSum = function(root, targetSum) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
@@ -793,8 +807,10 @@ function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
 }
 ```
 
-</Tab>
-<Tab value="Swift">
+
+
+### Swift
+
 
 ```swift
 class Solution {
@@ -812,8 +828,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 bool hasPathSum(struct TreeNode* root, int targetSum) {
@@ -829,8 +847,10 @@ bool hasPathSum(struct TreeNode* root, int targetSum) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -847,8 +867,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 use std::cell::RefCell;
@@ -877,8 +899,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution {
@@ -896,5 +920,5 @@ public class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

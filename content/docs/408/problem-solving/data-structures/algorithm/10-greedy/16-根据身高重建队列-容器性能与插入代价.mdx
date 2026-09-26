@@ -5,7 +5,6 @@ description: 贪心算法进阶补充。围绕根据身高重建队列中的插�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 根据身高重建队列：容器性能与插入代价
@@ -805,8 +804,10 @@ $$
 
 不同语言的动态数组实现细节不同，但“连续数组中间插入需要移动后续元素”这一核心规律基本一致。
 
-<Tabs items={['Rust', 'Go', 'Python', 'Java']}>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -832,8 +833,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 import "sort"
@@ -862,8 +865,10 @@ func reconstructQueue(people [][]int) [][]int {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 from typing import List
@@ -882,8 +887,10 @@ class Solution:
         return queue
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 import java.util.*;
@@ -909,5 +916,5 @@ class Solution {
 }
 ```
 
-</Tab>
-</Tabs>
+
+

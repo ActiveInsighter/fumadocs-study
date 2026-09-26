@@ -4,7 +4,6 @@ description: 从操作次数、渐近增长、复杂度化简到多变量分析�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 时间复杂度与大 O 表示法
@@ -724,8 +723,10 @@ $$
 O(n\log n)
 $$
 
-<Tabs items={['C++', 'Java', 'Python']}>
-<Tab value="C++">
+
+
+### C++
+
 
 ```cpp
 void solve(int n) {
@@ -739,8 +740,10 @@ void solve(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 static void solve(int n) {
@@ -754,8 +757,10 @@ static void solve(int n) {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 def solve(n: int) -> None:
@@ -768,8 +773,8 @@ def solve(n: int) -> None:
             j *= 2
 ```
 
-</Tab>
-</Tabs>
+
+
 
 ---
 

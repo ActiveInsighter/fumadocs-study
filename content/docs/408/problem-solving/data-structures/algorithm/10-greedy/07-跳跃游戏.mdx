@@ -5,7 +5,6 @@ description: LeetCode 55 跳跃游戏。系统讲解最大可达下标的贪心�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 55. 跳跃游戏
@@ -709,8 +708,10 @@ $$
 
 下面统一给出“最大可达下标”这一前向贪心写法。
 
-<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
-<Tab value="Java">
+
+
+### Java
+
 
 ```java
 class Solution {
@@ -734,8 +735,10 @@ class Solution {
 }
 ```
 
-</Tab>
-<Tab value="Python">
+
+
+### Python
+
 
 ```python
 class Solution:
@@ -754,8 +757,10 @@ class Solution:
         return True
 ```
 
-</Tab>
-<Tab value="Go">
+
+
+### Go
+
 
 ```go
 func canJump(nums []int) bool {
@@ -779,8 +784,10 @@ func canJump(nums []int) bool {
 }
 ```
 
-</Tab>
-<Tab value="Rust">
+
+
+### Rust
+
 
 ```rust
 impl Solution {
@@ -804,8 +811,10 @@ impl Solution {
 }
 ```
 
-</Tab>
-<Tab value="JavaScript">
+
+
+### JavaScript
+
 
 ```javascript
 var canJump = function (nums) {
@@ -827,8 +836,10 @@ var canJump = function (nums) {
 };
 ```
 
-</Tab>
-<Tab value="TypeScript">
+
+
+### TypeScript
+
 
 ```typescript
 function canJump(nums: number[]): boolean {
@@ -850,8 +861,10 @@ function canJump(nums: number[]): boolean {
 }
 ```
 
-</Tab>
-<Tab value="C">
+
+
+### C
+
 
 ```c
 #include <stdbool.h>
@@ -878,8 +891,10 @@ bool canJump(int* nums, int numsSize) {
 }
 ```
 
-</Tab>
-<Tab value="Scala">
+
+
+### Scala
+
 
 ```scala
 object Solution {
@@ -906,8 +921,10 @@ object Solution {
 }
 ```
 
-</Tab>
-<Tab value="C#">
+
+
+### C#
+
 
 ```csharp
 public class Solution
@@ -936,5 +953,5 @@ public class Solution
 }
 ```
 
-</Tab>
-</Tabs>
+
+
