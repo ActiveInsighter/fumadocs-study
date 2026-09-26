@@ -145,6 +145,26 @@ jobs:
             exit 1
           }
 
+      - name: Select Cloudflare Worker target
+        id: worker
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == 'refs/heads/main' ]]; then
+            worker_name='fumadocs-static-docs'
+          else
+            suffix="$(printf '%s' "${GITHUB_REF_NAME}" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's/[^a-z0-9-]+/-/g; s/-+/-/g; s/^-|-$//g' \
+              | cut -c1-30)"
+            suffix="${suffix%-}"
+            [[ -n "${suffix}" ]] || suffix='branch'
+            worker_name="fumadocs-static-docs-preview-${suffix}"
+          fi
+          echo "name=${worker_name}" >> "${GITHUB_OUTPUT}"
+          echo "- Cloudflare Worker target: \`${worker_name}\`" >> "${GITHUB_STEP_SUMMARY}"
+
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
@@ -153,7 +173,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.129.0'
-          command: deploy --config wrangler.jsonc
+          command: deploy --config wrangler.jsonc --name ${{ steps.worker.outputs.name }}
 
       - name: Verify Cloudflare deployment
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
@@ -190,7 +210,9 @@ jobs:
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt'; do
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
+            '/docs/408/problem-solving/data-structures/algorithm/' \
+            '/docs/408/problem-solving/data-structures/algorithm/08-binary-tree/28-bst-lca/'; do
             wait_for_route "${path}"
           done
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
