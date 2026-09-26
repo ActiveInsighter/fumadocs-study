@@ -97,7 +97,7 @@ export default async function Page({ params }: PageParameters) {
 }
 
 export function generateStaticParams() {
-  return blogSource.generateParams();
+  return [{ slug: [] }, ...blogSource.generateParams()];
 }
 
 export async function generateMetadata({
