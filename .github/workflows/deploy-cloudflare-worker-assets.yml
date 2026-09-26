@@ -340,8 +340,8 @@ jobs:
               waitUntil: 'networkidle2',
               timeout: 120000,
             });
-            const languageTabs = await page.$eval('[role="tab"]', (elements) =>
-              elements
+            const languageTabs = await page.evaluate(() =>
+              Array.from(document.querySelectorAll('[role="tab"]'))
                 .map((element) => element.textContent?.trim())
                 .filter(Boolean),
             );
