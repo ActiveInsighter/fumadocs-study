@@ -5,7 +5,6 @@ description: LeetCode 455 分发饼干。系统讲解贪心策略、交换论证
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 455. 分发饼干
 
@@ -153,9 +152,6 @@ $$
 - `child` 指向当前还未满足的最小胃口；
 - `cookie` 指向当前最小的未使用饼干。
 
-<Steps>
-<Step>
-
 ### 比较当前孩子和当前饼干
 
 如果：
@@ -166,9 +162,6 @@ s[cookie] < g[child]
 
 说明这块饼干太小。
 
-</Step>
-<Step>
-
 ### 饼干太小：只移动饼干指针
 
 因为当前孩子已经是剩余孩子中胃口最小的，这块饼干连他都满足不了，更不可能满足后面的孩子。
@@ -178,9 +171,6 @@ s[cookie] < g[child]
 ```text
 cookie++
 ```
-
-</Step>
-<Step>
 
 ### 可以满足：完成一次匹配
 
@@ -197,17 +187,11 @@ child++
 cookie++
 ```
 
-</Step>
-<Step>
-
 ### 结束条件
 
 当孩子已经全部满足，或饼干已经全部使用时结束。
 
 最终 `child` 本身就是成功匹配的孩子数。
-
-</Step>
-</Steps>
 
 ## 5. C++ 标准写法
 
@@ -388,10 +372,7 @@ s = [1, 2, 3, 5]
 
 下面统一采用更容易理解的“**小饼干优先满足小胃口**”写法。
 
-
-
 ### Java
-
 
 ```java
 import java.util.Arrays;
@@ -414,10 +395,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -434,10 +412,7 @@ class Solution:
         return child
 ```
 
-
-
 ### Go
-
 
 ```go
 import "sort"
@@ -458,10 +433,7 @@ func findContentChildren(g []int, s []int) int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -482,10 +454,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var findContentChildren = function (g, s) {
@@ -504,10 +473,7 @@ var findContentChildren = function (g, s) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function findContentChildren(g: number[], s: number[]): number {
@@ -526,10 +492,7 @@ function findContentChildren(g: number[], s: number[]): number {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdlib.h>
@@ -556,10 +519,7 @@ int findContentChildren(int* g, int gSize, int* s, int sSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -582,10 +542,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -609,6 +566,4 @@ public class Solution
     }
 }
 ```
-
-
 

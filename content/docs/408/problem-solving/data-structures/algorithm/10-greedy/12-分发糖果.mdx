@@ -5,7 +5,6 @@ description: LeetCode 135 分发糖果。系统讲解双向贪心、为何不能
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 135. 分发糖果
 
@@ -697,22 +696,13 @@ candies = [1, 2, 1]
 
 可以优先思考：
 
-<Steps>
-<Step>
-
 ### 把双向关系拆成两个单向关系
 
 先暂时只处理左侧影响，再处理右侧影响。
 
-</Step>
-<Step>
-
 ### 根据依赖方向决定扫描方向
 
 依赖左边，就从左向右；依赖右边，就从右向左。
-
-</Step>
-<Step>
 
 ### 合并两边的约束下界
 
@@ -722,9 +712,6 @@ $$
 \max(\text{左侧要求},\text{右侧要求})
 $$
 
-</Step>
-</Steps>
-
 <Callout type="success" title="本题最值得记住的模板">
 先确定一边，再确定另一边；第二遍不能破坏第一遍已经建立的合法性，所以使用 `max` 合并两个方向的最低要求。
 </Callout>
@@ -733,10 +720,7 @@ $$
 
 以下实现都遵循同一个核心模板：**初始化为 1 → 左到右 → 右到左取最大值 → 求和**。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -766,10 +750,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -788,10 +769,7 @@ class Solution:
         return sum(candies)
 ```
 
-
-
 ### Go
-
 
 ```go
 func candy(ratings []int) int {
@@ -821,10 +799,7 @@ func candy(ratings []int) int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -849,10 +824,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var candy = function (ratings) {
@@ -875,10 +847,7 @@ var candy = function (ratings) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function candy(ratings: number[]): number {
@@ -901,10 +870,7 @@ function candy(ratings: number[]): number {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdlib.h>
@@ -942,10 +908,7 @@ int candy(int* ratings, int ratingsSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -970,10 +933,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -1003,6 +963,4 @@ public class Solution
     }
 }
 ```
-
-
 

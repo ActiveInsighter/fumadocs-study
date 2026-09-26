@@ -4,7 +4,6 @@ description: 从变量、数组、容器、递归调用栈到原地算法，系�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 空间复杂度与辅助空间分析
 
@@ -511,36 +510,21 @@ $O(n)$ 只说明增长趋势。若 $n=10^8$，即使是线性空间也可能直�
 
 ## 15. 分析空间复杂度的标准流程
 
-<Steps>
-<Step>
-
 ### 找出随输入规模增长的数据结构
 
 例如数组、矩阵、哈希表、队列、递归栈等。
-
-</Step>
-<Step>
 
 ### 判断这些空间是否会同时存在
 
 空间复杂度看峰值，不要把已经释放的内存重复累计。
 
-</Step>
-<Step>
-
 ### 分析递归最大深度
 
 递归时尤其要算调用栈。
 
-</Step>
-<Step>
-
 ### 判断参数是否复制
 
 按值、按引用、切片复制、字符串不可变等语言行为可能改变空间使用。
-
-</Step>
-<Step>
 
 ### 最后保留最高阶
 
@@ -549,9 +533,6 @@ $O(n)$ 只说明增长趋势。若 $n=10^8$，即使是线性空间也可能直�
 $$
 O(n^2+n+1)=O(n^2)
 $$
-
-</Step>
-</Steps>
 
 ---
 
@@ -572,10 +553,7 @@ $$
 
 ## 17. 多语言示例：原地反转数组
 
-
-
 ### C++
-
 
 ```cpp
 void reverseArray(vector<int>& nums) {
@@ -590,10 +568,7 @@ void reverseArray(vector<int>& nums) {
 }
 ```
 
-
-
 ### Java
-
 
 ```java
 static void reverseArray(int[] nums) {
@@ -610,10 +585,7 @@ static void reverseArray(int[] nums) {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 def reverse_array(nums: list[int]) -> None:
@@ -625,9 +597,6 @@ def reverse_array(nums: list[int]) -> None:
         left += 1
         right -= 1
 ```
-
-
-
 
 以上实现都只额外使用常数个变量，所以辅助空间为：
 
@@ -658,3 +627,4 @@ O(1),\quad O(\log n),\quad O(n),\quad O(n^2)
 $$
 
 掌握空间复杂度之后，再分析递归就不能只看“递归调用了多少次”，还必须看**最大同时存在多少层调用栈**。这正是下一篇的重点。
+

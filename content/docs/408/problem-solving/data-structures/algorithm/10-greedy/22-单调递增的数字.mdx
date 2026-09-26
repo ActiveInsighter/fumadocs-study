@@ -5,7 +5,6 @@ description: LeetCode 738 单调递增的数字。系统讲解逆向扫描、贪
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 738. 单调递增的数字
 
@@ -401,9 +400,6 @@ flag = i;
 
 ## 7. 完整贪心流程
 
-<Steps>
-<Step>
-
 ### 把整数转成可修改的数字序列
 
 例如：
@@ -413,9 +409,6 @@ flag = i;
 ```
 
 字符串形式可以直接比较和修改每一位，比不断做除法、取模更清晰。
-
-</Step>
-<Step>
 
 ### 从右向左检查相邻数字
 
@@ -433,9 +426,6 @@ $$
 
 若成立，说明当前位置破坏单调性。
 
-</Step>
-<Step>
-
 ### 左边一位减一
 
 执行：
@@ -452,9 +442,6 @@ flag = i
 
 记录后缀需要全部最大化的位置。
 
-</Step>
-<Step>
-
 ### 扫描结束后把后缀全部改成 9
 
 对所有：
@@ -469,9 +456,6 @@ $$
 d_i=9
 $$
 
-</Step>
-<Step>
-
 ### 转回整数
 
 字符串可能出现前导零，例如：
@@ -485,9 +469,6 @@ $$
 ```text
 999
 ```
-
-</Step>
-</Steps>
 
 ---
 
@@ -1008,10 +989,7 @@ $$
 
 下面都采用同一套“逆序扫描 + `flag` 标记后缀”的实现。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -1035,10 +1013,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -1057,10 +1032,7 @@ class Solution:
         return int(''.join(digits))
 ```
 
-
-
 ### Go
-
 
 ```go
 import "strconv"
@@ -1085,10 +1057,7 @@ func monotoneIncreasingDigits(n int) int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -1114,10 +1083,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var monotoneIncreasingDigits = function(n) {
@@ -1139,10 +1105,7 @@ var monotoneIncreasingDigits = function(n) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function monotoneIncreasingDigits(n: number): number {
@@ -1167,10 +1130,7 @@ function monotoneIncreasingDigits(n: number): number {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdio.h>
@@ -1199,10 +1159,7 @@ int monotoneIncreasingDigits(int n) {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution {
@@ -1225,6 +1182,4 @@ public class Solution {
     }
 }
 ```
-
-
 

@@ -4,7 +4,6 @@ description: 从多次区间求和的 O(nm) 暴力方案出发，推导一维前
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 区间和：前缀和如何把重复查询降到 O(1)
 
@@ -333,17 +332,11 @@ $$
 
 ## 7. 标准构造方式
 
-<Steps>
-<Step>
-
 创建：
 
 ```cpp
 vector<long long> prefix(n + 1, 0);
 ```
-
-</Step>
-<Step>
 
 依次读取数组，并构造：
 
@@ -351,17 +344,11 @@ vector<long long> prefix(n + 1, 0);
 prefix[i + 1] = prefix[i] + x;
 ```
 
-</Step>
-<Step>
-
 每次查询 `[l,r]`，直接计算：
 
 ```cpp
 prefix[r + 1] - prefix[l]
 ```
-
-</Step>
-</Steps>
 
 完整 C++：
 
@@ -764,10 +751,7 @@ scanf
 
 ## 17. 其他语言实现
 
-
-
 ### C++
-
 
 ```cpp
 #include <iostream>
@@ -798,10 +782,7 @@ int main() {
 }
 ```
 
-
-
 ### Java
-
 
 ```java
 import java.io.*;
@@ -839,10 +820,7 @@ public class Main {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 import sys
@@ -875,10 +853,7 @@ if __name__ == "__main__":
     main()
 ```
 
-
-
 ### Go
-
 
 ```go
 package main
@@ -916,10 +891,7 @@ func main() {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 const fs = require('fs');
@@ -945,10 +917,7 @@ while (index + 1 < data.length) {
 process.stdout.write(output.join('\n'));
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 import * as fs from 'fs';
@@ -976,6 +945,4 @@ while (index + 1 < data.length) {
 
 process.stdout.write(output.join('\n'));
 ```
-
-
 

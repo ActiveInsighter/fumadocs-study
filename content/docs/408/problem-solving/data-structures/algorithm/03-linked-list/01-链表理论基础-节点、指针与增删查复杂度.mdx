@@ -5,7 +5,6 @@ description: 从链表的节点结构与内存模型出发，系统讲解单链�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 链表理论基础：节点、指针与增删查复杂度
 
@@ -223,14 +222,9 @@ A → X → B
 
 只需要修改两个连接关系。
 
-<Steps>
-  <Step>
     让新节点 `X.next` 指向原来的 `B`。
-  </Step>
-  <Step>
+
     再让 `A.next` 指向 `X`。
-  </Step>
-</Steps>
 
 代码：
 
@@ -666,10 +660,7 @@ fast 每次走 2 步
 
 ## 16. 其他语言的链表节点定义
 
-
-
 ### C++
-
 
 ```cpp
 struct ListNode {
@@ -681,10 +672,7 @@ struct ListNode {
 };
 ```
 
-
-
 ### Java
-
 
 ```java
 public class ListNode {
@@ -704,10 +692,7 @@ public class ListNode {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class ListNode:
@@ -716,10 +701,7 @@ class ListNode:
         self.next = next
 ```
 
-
-
 ### Go
-
 
 ```go
 type ListNode struct {
@@ -728,10 +710,7 @@ type ListNode struct {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 class ListNode {
@@ -742,10 +721,7 @@ class ListNode {
 }
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 class ListNode {
@@ -758,6 +734,4 @@ class ListNode {
   }
 }
 ```
-
-
 

@@ -5,7 +5,6 @@ description: 以 LeetCode 459 为主线，系统讲解重复子字符串的两�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 重复子字符串：从字符串周期到 KMP 最小循环节
 
@@ -534,9 +533,6 @@ $$
 
 ## 11. KMP 实现
 
-<Steps>
-<Step>
-
 ### 构造前缀函数
 
 维护 `j` 表示当前最长相等前后缀长度。
@@ -559,10 +555,6 @@ j++
 pi[i] = j
 ```
 
-</Step>
-
-<Step>
-
 ### 失配时回退
 
 如果字符不同，则不断：
@@ -573,10 +565,6 @@ j = pi[j - 1]
 
 直到找到可以继续匹配的位置，或 `j == 0`。
 
-</Step>
-
-<Step>
-
 ### 求候选周期
 
 构造完成后：
@@ -586,10 +574,6 @@ L = pi[n - 1]
 p = n - L
 ```
 
-</Step>
-
-<Step>
-
 ### 判断是否完整重复
 
 只需判断：
@@ -598,17 +582,11 @@ p = n - L
 L > 0 && n % p == 0
 ```
 
-</Step>
-</Steps>
-
 ---
 
 ## 12. 推荐代码模板
 
-
-
 ### C++
-
 
 ```cpp
 #include <string>
@@ -641,10 +619,7 @@ public:
 };
 ```
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -672,10 +647,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -698,9 +670,6 @@ class Solution:
 
         return longest_border > 0 and n % period == 0
 ```
-
-
-
 
 ### 复杂度
 
@@ -832,3 +801,4 @@ $$
 
 就是字符串的最小周期长度。
 </Callout>
+

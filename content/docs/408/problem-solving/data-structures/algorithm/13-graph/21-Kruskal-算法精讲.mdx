@@ -286,8 +286,6 @@ $$
 
 ## 8. Kruskal 的标准流程
 
-<Steps>
-
 ### 将所有边存入数组
 
 每条边至少保存：
@@ -325,8 +323,6 @@ union(u, v)
 ### 选满 V-1 条边后停止
 
 此时如果已经选中 $V-1$ 条边，则生成树完成，没有必要继续扫描。
-
-</Steps>
 
 ---
 
@@ -957,8 +953,6 @@ $$
 
 ## 23. 做题时的固定模板
 
-<Steps>
-
 ### 识别题目
 
 看到：
@@ -1000,8 +994,6 @@ Edge { u, v, w }
 ### 检查是否选满 V-1 条边
 
 若没有，原图不连通。
-
-</Steps>
 
 ---
 
@@ -1178,7 +1170,6 @@ import sys
 
 input = sys.stdin.readline
 
-
 class UnionFind:
     def __init__(self, n: int):
         self.parent = list(range(n + 1))
@@ -1202,7 +1193,6 @@ class UnionFind:
         self.parent[root_v] = root_u
         self.size[root_u] += self.size[root_v]
         return True
-
 
 V, E = map(int, input().split())
 edges = []
@@ -1387,3 +1377,4 @@ func main() {
 }
 ```
 ````
+

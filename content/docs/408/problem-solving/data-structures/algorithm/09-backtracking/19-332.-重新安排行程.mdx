@@ -5,8 +5,6 @@ summary: 把“机票全部使用一次、从 JFK 出发、字典序最小”建
 description: LeetCode 332 重新安排行程：回溯、DFS、图搜索、字典序、重复机票、航班计数、剪枝、欧拉路径、Hierholzer 算法与多语言实现。
 ---
 
-import { Steps, Step } from 'fumadocs-ui/components/steps';
-
 # 332. 重新安排行程
 
 [LeetCode 题目链接](https://leetcode.cn/problems/reconstruct-itinerary/)
@@ -290,9 +288,6 @@ ATL < KUL < NRT < SFO < ...
 
 ## 7. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 路径状态
 
 使用：
@@ -308,9 +303,6 @@ route.push_back("JFK");
 ```
 
 `route.back()` 就是当前所在机场。
-
-</Step>
-<Step>
 
 ### ② 终止条件
 
@@ -331,9 +323,6 @@ if (route.size() == ticketNum + 1) {
 注意：这里不需要额外复制答案。
 
 因为 `route` 本身就是正在构造的最终答案。
-
-</Step>
-<Step>
 
 ### ③ 单层搜索
 
@@ -356,9 +345,6 @@ for (auto& [to, count] : targets[route.back()]) {
 ```
 
 选择时消耗一张票，失败后再恢复。
-
-</Step>
-</Steps>
 
 ## 8. 为什么递归函数应该返回 `bool`？
 
@@ -722,36 +708,21 @@ $$
 
 ## 16. 常见错误
 
-<Steps>
-<Step>
-
 ### ① 只记录机场 visited
 
 机场可以重复经过，不能把“机场是否访问过”当成边是否使用过。
-
-</Step>
-<Step>
 
 ### ② 把相同 `from → to` 合并成一条边但不计数
 
 会丢掉重复机票。
 
-</Step>
-<Step>
-
 ### ③ 每次只贪心选字典序最小下一站，不允许回退
 
 可能提前进入死路，导致剩余机票无法使用。
 
-</Step>
-<Step>
-
 ### ④ 找到完整行程后还继续搜索
 
 当前搜索顺序已经保证字典序，因此第一个完整解就是答案，可以立即返回。
-
-</Step>
-<Step>
 
 ### ⑤ 忘记回溯恢复票数
 
@@ -762,9 +733,6 @@ $$
 ```
 
 必须成对出现，否则其他分支会看到错误状态。
-
-</Step>
-</Steps>
 
 ## 17. 一套稳定的思考顺序
 
@@ -809,10 +777,7 @@ $$
 
 ## 18. 其他语言实现
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -969,10 +934,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -1029,10 +991,7 @@ class Solution:
         result.append(airport)  # 将当前机场添加到行程路径中
 ```
 
-
-
 ### Go
-
 
 ```go
 type pair struct {
@@ -1091,10 +1050,7 @@ func findItinerary(tickets [][]string) []string {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var findItinerary = function(tickets) {
@@ -1199,10 +1155,7 @@ var findItinerary = function (tickets) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function findItinerary(tickets: string[][]): string[] {
@@ -1246,10 +1199,7 @@ function findItinerary(tickets: string[][]): string[] {
 };
 ```
 
-
-
 ### C
-
 
 ```c
 typedef struct {
@@ -1349,10 +1299,7 @@ char **findItinerary(char ***tickets, int ticketsSize, int *ticketsColSize,
 }
 ```
 
-
-
 ### Swift
-
 
 ```swift
 func findItinerary(_ tickets: [[String]]) -> [String] {
@@ -1462,10 +1409,7 @@ for line in tickets {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 use std::collections::HashMap;
@@ -1492,6 +1436,4 @@ impl Solution {
     }
 }
 ```
-
-
 

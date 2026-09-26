@@ -4,8 +4,6 @@ summary: 从组合/子集的 startIndex 模型切换到排列的 used 模型，�
 description: LeetCode 46 全排列：排列与组合的本质区别、used 数组、搜索树、回溯三部曲、阶乘复杂度、正确性分析与多语言实现。
 ---
 
-import { Steps, Step } from 'fumadocs-ui/components/steps';
-
 # 46. 全排列
 
 [LeetCode 题目链接](https://leetcode.cn/problems/permutations/)
@@ -322,9 +320,6 @@ $$
 
 ## 7. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数：不再需要 `startIndex`
 
 ```cpp
@@ -349,9 +344,6 @@ i = 0
 
 开始遍历整个数组。
 
-</Step>
-<Step>
-
 ### ② 终止条件：排列长度达到 `n`
 
 当：
@@ -368,9 +360,6 @@ return;
 ```
 
 与子集不同，本题只收集叶子节点，不收集中间路径。
-
-</Step>
-<Step>
 
 ### ③ 单层搜索：跳过当前路径已经使用的下标
 
@@ -395,9 +384,6 @@ for (int i = 0; i < nums.size(); ++i) {
 ```text
 为排列的“当前空位”选择一个还没使用的元素
 ```
-
-</Step>
-</Steps>
 
 ## 8. C++ 标准写法
 
@@ -825,10 +811,7 @@ $$
 
 ## 21. 其他语言实现
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -864,10 +847,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -897,10 +877,7 @@ class Solution:
         return ans
 ```
 
-
-
 ### Go
-
 
 ```go
 func permute(nums []int) [][]int {
@@ -935,10 +912,7 @@ func permute(nums []int) [][]int {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var permute = function(nums) {
@@ -972,10 +946,7 @@ var permute = function(nums) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function permute(nums: number[]): number[][] {
@@ -1009,10 +980,7 @@ function permute(nums: number[]): number[][] {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -1052,10 +1020,7 @@ impl Solution {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 static void dfs(
@@ -1120,10 +1085,7 @@ int** permute(
 }
 ```
 
-
-
 ### Swift
-
 
 ```swift
 class Solution {
@@ -1159,10 +1121,7 @@ class Solution {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -1196,10 +1155,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution {
@@ -1234,6 +1190,4 @@ public class Solution {
     }
 }
 ```
-
-
 

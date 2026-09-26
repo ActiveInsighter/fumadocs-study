@@ -5,7 +5,6 @@ description: 系统总结数组的底层特性、二分查找、双指针、滑�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 数组方法论总结：从连续内存到六类高频模型
 
@@ -274,20 +273,13 @@ $$
 
 以正整数数组中“和至少为 $target$ 的最短子数组”为例：
 
-<Steps>
-  <Step>
     右端点加入新元素，扩大区间和。
-  </Step>
-  <Step>
+
     当区间和已经达到 $target$，记录当前长度。
-  </Step>
-  <Step>
+
     持续移动左端点，尝试删除冗余元素。
-  </Step>
-  <Step>
+
     条件失效后，再继续扩张右端点。
-  </Step>
-</Steps>
 
 虽然代码里可能存在嵌套 `while`，但 `left` 和 `right` 都只会单调向右移动最多 $n$ 次，因此总复杂度为：
 
@@ -591,3 +583,4 @@ $$
 ```
 
 如果能够在看到题目后先把它归入这张图，再决定代码模板，数组题就不再是一组孤立的题目，而会变成一套可以迁移的算法工具。
+

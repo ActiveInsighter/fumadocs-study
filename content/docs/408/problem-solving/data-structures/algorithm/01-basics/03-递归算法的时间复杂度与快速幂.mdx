@@ -4,7 +4,6 @@ description: 通过 x 的 n 次方问题系统掌握递归调用次数、递归�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 递归算法的时间复杂度与快速幂
 
@@ -487,9 +486,6 @@ $$
 
 看到递归函数时，可以按三步分析。
 
-<Steps>
-<Step>
-
 ### 数一层会递归几次
 
 例如有两个 `solve(n / 2)`：
@@ -497,9 +493,6 @@ $$
 $$
 a=2
 $$
-
-</Step>
-<Step>
 
 看每个子问题缩小到多少
 
@@ -509,9 +502,6 @@ $$
 \frac nb
 quad\text{且}\quad b=2
 $$
-
-</Step>
-<Step>
 
 计算当前层的非递归工作
 
@@ -526,9 +516,6 @@ $$
 $$
 T(n)=aT\left(\frac nb\right)+f(n)
 $$
-
-</Step>
-</Steps>
 
 这也是分治算法分析最常见的形式。
 
@@ -682,10 +669,7 @@ return t + t;
 
 ## 17. 多语言实现
 
-
-
 ### C++
-
 
 ```cpp
 long long fastPow(long long x, long long n) {
@@ -718,10 +702,7 @@ long long fastPowIterative(long long x, long long n) {
 }
 ```
 
-
-
 ### Java
-
 
 ```java
 static long fastPow(long x, long n) {
@@ -754,10 +735,7 @@ static long fastPowIterative(long x, long n) {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 def fast_pow(x: int, n: int) -> int:
@@ -784,9 +762,6 @@ def fast_pow_iterative(x: int, n: int) -> int:
 
     return result
 ```
-
-
-
 
 ---
 
@@ -825,3 +800,4 @@ O(\log n)
 $$
 
 这也是学习分治、归并排序、二分查找和动态规划时非常重要的一种思想：**不要重复求解同一个子问题。**
+

@@ -5,7 +5,6 @@ description: 以 LeetCode 160 / 面试题 02.07 为主线，理解链表相交�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 链表相交：长度对齐与双指针路径等长化
 
@@ -207,9 +206,6 @@ $$
 
 ## 6. 长度对齐法：步骤模板
 
-<Steps>
-  <Step>
-
 **分别统计两个链表长度**
 
 ```cpp
@@ -217,17 +213,11 @@ int lenA = getLength(headA);
 int lenB = getLength(headB);
 ```
 
-  </Step>
-  <Step>
-
 **让较长链表先走长度差**
 
 ```cpp
 int gap = abs(lenA - lenB);
 ```
-
-  </Step>
-  <Step>
 
 **两个指针同步向后移动**
 
@@ -238,15 +228,9 @@ while (curA != curB) {
 }
 ```
 
-  </Step>
-  <Step>
-
 **返回相遇节点**
 
 如果存在交点，相遇位置就是交点；如果不存在，两个指针最终都会变成 `nullptr`。
-
-  </Step>
-</Steps>
 
 ---
 
@@ -538,10 +522,7 @@ fast 比 slow 领先固定距离
 
 ## 其他语言版本
 
-
-  
 ### C++
-
 
 ```cpp
 class Solution {
@@ -560,10 +541,7 @@ public:
 };
 ```
 
-  
-  
 ### Java
-
 
 ```java
 public class Solution {
@@ -581,10 +559,7 @@ public class Solution {
 }
 ```
 
-  
-  
 ### Python
-
 
 ```python
 class Solution:
@@ -598,10 +573,7 @@ class Solution:
         return pA
 ```
 
-  
-  
 ### Go
-
 
 ```go
 func getIntersectionNode(headA, headB *ListNode) *ListNode {
@@ -625,10 +597,7 @@ func getIntersectionNode(headA, headB *ListNode) *ListNode {
 }
 ```
 
-  
-  
 ### JavaScript
-
 
 ```javascript
 var getIntersectionNode = function (headA, headB) {
@@ -643,6 +612,4 @@ var getIntersectionNode = function (headA, headB) {
   return pA;
 };
 ```
-
-  
 

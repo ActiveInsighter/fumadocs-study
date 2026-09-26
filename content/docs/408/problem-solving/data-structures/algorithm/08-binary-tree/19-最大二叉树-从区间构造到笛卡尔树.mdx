@@ -93,8 +93,6 @@ if (left >= right) return nullptr;
 
 对当前区间 `[left, right)`：
 
-<Steps>
-
 ### 1. 找最大值的位置
 
 ```cpp
@@ -129,8 +127,6 @@ root->right = build(nums, maxIndex + 1, right);
 ```cpp
 return root;
 ```
-
-</Steps>
 
 完整逻辑几乎就是题目定义的直接翻译。
 
@@ -448,10 +444,7 @@ $$
 
 两类题看起来不一样，实际上共享同一个骨架：
 
-
-
 ### 遍历序列构树
-
 
 ```text
 确定根：前序首元素 / 后序末元素
@@ -460,10 +453,7 @@ $$
 右区间 → 右子树
 ```
 
-
-
 ### 最大二叉树
-
 
 ```text
 确定根：当前区间最大值
@@ -471,9 +461,6 @@ $$
 左区间 → 左子树
 右区间 → 右子树
 ```
-
-
-
 
 统一抽象就是：
 
@@ -567,10 +554,7 @@ TreeNode* build(int left, int right) {
 
 以下版本统一采用“原数组 + 左闭右开区间”的递归写法，避免复制子数组。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -596,10 +580,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -621,10 +602,7 @@ class Solution:
         return build(0, len(nums))
 ```
 
-
-
 ### Go
-
 
 ```go
 func constructMaximumBinaryTree(nums []int) *TreeNode {
@@ -652,10 +630,7 @@ func constructMaximumBinaryTree(nums []int) *TreeNode {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var constructMaximumBinaryTree = function(nums) {
@@ -679,10 +654,7 @@ var constructMaximumBinaryTree = function(nums) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
@@ -706,10 +678,7 @@ function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
 }
 ```
 
-
-
 ### Swift
-
 
 ```swift
 class Solution {
@@ -740,10 +709,7 @@ class Solution {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 static struct TreeNode* build(int* nums, int left, int right) {
@@ -768,10 +734,7 @@ struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -799,10 +762,7 @@ object Solution {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 use std::cell::RefCell;
@@ -840,10 +800,7 @@ impl Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution {
@@ -868,6 +825,4 @@ public class Solution {
     }
 }
 ```
-
-
 

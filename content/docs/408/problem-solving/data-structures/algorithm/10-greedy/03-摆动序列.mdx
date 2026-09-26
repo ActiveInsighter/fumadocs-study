@@ -5,7 +5,6 @@ description: LeetCode 376 摆动序列。系统讲解贪心建模、峰谷思想
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 376. 摆动序列
 
@@ -315,9 +314,6 @@ if ((preDiff <= 0 && curDiff > 0) ||
 
 ## 8. 最终贪心算法
 
-<Steps>
-<Step>
-
 ### 初始化
 
 如果数组长度不超过 $1$，直接返回长度。
@@ -331,9 +327,6 @@ answer = 1
 
 `answer = 1` 表示先默认保留一个端点。
 
-</Step>
-<Step>
-
 ### 计算当前差值
 
 依次计算：
@@ -341,9 +334,6 @@ answer = 1
 $$
 curDiff=nums[i+1]-nums[i]
 $$
-
-</Step>
-<Step>
 
 ### 判断是否发生有效方向切换
 
@@ -361,9 +351,6 @@ preDiff >= 0 && curDiff < 0
 
 说明当前点形成新的峰或谷，答案加一。
 
-</Step>
-<Step>
-
 ### 只在有效摆动时更新坡度
 
 ```text
@@ -371,9 +358,6 @@ preDiff = curDiff
 ```
 
 平坡和同方向继续延伸时，都不更新 `preDiff`。
-
-</Step>
-</Steps>
 
 ## 9. C++ 标准写法
 
@@ -556,10 +540,7 @@ $$
 
 下面统一给出线性时间的贪心写法。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -586,10 +567,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -611,10 +589,7 @@ class Solution:
         return answer
 ```
 
-
-
 ### Go
-
 
 ```go
 func wiggleMaxLength(nums []int) int {
@@ -639,10 +614,7 @@ func wiggleMaxLength(nums []int) int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -670,10 +642,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var wiggleMaxLength = function (nums) {
@@ -698,10 +667,7 @@ var wiggleMaxLength = function (nums) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function wiggleMaxLength(nums: number[]): number {
@@ -726,10 +692,7 @@ function wiggleMaxLength(nums: number[]): number {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 int wiggleMaxLength(int* nums, int numsSize) {
@@ -754,10 +717,7 @@ int wiggleMaxLength(int* nums, int numsSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -785,10 +745,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -819,6 +776,4 @@ public class Solution
     }
 }
 ```
-
-
 

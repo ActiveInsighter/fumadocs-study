@@ -4,7 +4,6 @@ description: 从 OJ 超时机制、机器执行速度与数据范围出发，学
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 数据规模与算法复杂度估算
 
@@ -309,15 +308,9 @@ $$
 
 所以实际优化分为两个层次：
 
-<Steps>
-<Step>
-
 ### 第一层：先降低复杂度阶数
 
 从 $O(n^2)$ 降到 $O(n\log n)$，通常是决定性的优化。
-
-</Step>
-<Step>
 
 ### 第二层：再优化常数
 
@@ -328,9 +321,6 @@ $$
 - 改善缓存局部性；
 - 使用更合适的数据结构；
 - 优化输入输出。
-
-</Step>
-</Steps>
 
 ---
 
@@ -359,22 +349,13 @@ Java 常常使用 `BufferedReader`、`BufferedInputStream` 或自行实现快速
 
 拿到题目后，可以按以下顺序判断。
 
-<Steps>
-<Step>
-
 ### 看最大数据范围
 
 例如 $n\le10^5$。
 
-</Step>
-<Step>
-
 ### 枚举候选复杂度
 
 $O(n^2)$ 对应 $10^{10}$，明显太大；$O(n\log n)$ 约为 $10^6$ 量级，比较合理。
-
-</Step>
-<Step>
 
 ### 根据题目结构选择算法
 
@@ -388,15 +369,9 @@ $O(n^2)$ 对应 $10^{10}$，明显太大；$O(n\log n)$ 约为 $10^6$ 量级，�
 - 堆；
 - 树状数组或线段树。
 
-</Step>
-<Step>
-
 ### 最后检查常数和内存
 
 确认容器、递归深度、I/O 和空间占用不会成为新的瓶颈。
-
-</Step>
-</Steps>
 
 ---
 
@@ -482,10 +457,7 @@ void nLogN(long long n) {
 
 ## 15. 完整实验代码
 
-
-
 ### C++
-
 
 ```cpp
 #include <chrono>
@@ -534,10 +506,7 @@ int main() {
 }
 ```
 
-
-
 ### Java
-
 
 ```java
 import java.util.Scanner;
@@ -590,9 +559,6 @@ public class TimeComplexityDemo {
 }
 ```
 
-
-
-
 ---
 
 ## 总结
@@ -612,3 +578,4 @@ $$
 最重要的不是记住某台电脑“1 秒能跑多少次”，而是形成对 $10^5$、$10^8$、$n^2$、$2^n$ 等数量级的直觉。
 
 一旦这种直觉建立起来，很多题目甚至在读完数据范围时，就已经排除了大部分错误解法。
+

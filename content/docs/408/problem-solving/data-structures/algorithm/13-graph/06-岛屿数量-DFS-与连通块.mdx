@@ -116,8 +116,6 @@ visited[i][j] == false
 
 之后再次扫描到同一岛屿上的其他格子时，它们已经被 `visited` 标记，因此不会重复计数。
 
-<Steps>
-
 ### 扫描网格
 
 逐行逐列查看每个格子。
@@ -133,8 +131,6 @@ visited[i][j] == false
 ### 继续扫描
 
 直到所有格子都检查完毕。
-
-</Steps>
 
 可以把逻辑浓缩成一句话：
 
@@ -638,7 +634,6 @@ n, m = map(int, input().split())
 grid = [list(map(int, input().split())) for _ in range(n)]
 visited = [[False] * m for _ in range(n)]
 
-
 def dfs(x: int, y: int) -> None:
     for dx, dy in DIR:
         nx = x + dx
@@ -650,7 +645,6 @@ def dfs(x: int, y: int) -> None:
         if grid[nx][ny] == 1 and not visited[nx][ny]:
             visited[nx][ny] = True
             dfs(nx, ny)
-
 
 answer = 0
 
@@ -775,3 +769,4 @@ for (let i = 0; i < n; i++) {
 console.log(answer);
 ```
 ````
+

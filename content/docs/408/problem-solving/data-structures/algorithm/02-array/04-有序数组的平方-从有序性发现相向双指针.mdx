@@ -4,7 +4,6 @@ description: 以 LeetCode 977 为例，掌握“平方后局部失序”的结�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 有序数组的平方：从有序性发现相向双指针
 
@@ -78,18 +77,9 @@ $$
 
 最直接的做法：
 
-<Steps>
-<Step>
-
 将每个元素平方。
 
-</Step>
-<Step>
-
 对整个数组重新排序。
-
-</Step>
-</Steps>
 
 ```cpp
 class Solution {
@@ -843,10 +833,7 @@ while (left <= right) {
 
 ## 19. 其他语言版本
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -876,10 +863,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -906,10 +890,7 @@ class Solution:
         return result
 ```
 
-
-
 ### Go
-
 
 ```go
 func sortedSquares(nums []int) []int {
@@ -938,10 +919,7 @@ func sortedSquares(nums []int) []int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -975,10 +953,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var sortedSquares = function(nums) {
@@ -1005,6 +980,4 @@ var sortedSquares = function(nums) {
     return result;
 };
 ```
-
-
 

@@ -5,7 +5,6 @@ description: 以 LeetCode 541 为主线，掌握每 2k 个字符处理一段的�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 反转字符串 II：固定步长分段处理与边界统一
 
@@ -439,17 +438,11 @@ for (int start = 0; start < n; start += 2 * k) {
 
 ## 11. 与反转字符串 I 的关系
 
-<Steps>
-  <Step>
-
 **第一层：学会原地反转区间**
 
 ```text
 reverseRange(l, r)
 ```
-
-  </Step>
-  <Step>
 
 **第二层：学会定位需要处理的区间**
 
@@ -457,24 +450,15 @@ reverseRange(l, r)
 start = 0, 2k, 4k, ...
 ```
 
-  </Step>
-  <Step>
-
 **第三层：统一尾部边界**
 
 ```text
 end = min(start + k - 1, n - 1)
 ```
 
-  </Step>
-  <Step>
-
 **第四层：抽象为固定步长分块模板**
 
 以后遇到周期性字符串或数组模拟题，可以直接复用。
-
-  </Step>
-</Steps>
 
 ---
 
@@ -494,10 +478,7 @@ end = min(start + k - 1, n - 1)
 
 ## 其他语言版本
 
-
-  
 ### C++
-
 
 ```cpp
 class Solution {
@@ -515,10 +496,7 @@ public:
 };
 ```
 
-  
-  
 ### Java
-
 
 ```java
 class Solution {
@@ -543,10 +521,7 @@ class Solution {
 }
 ```
 
-  
-  
 ### Python
-
 
 ```python
 class Solution:
@@ -565,10 +540,7 @@ class Solution:
         return ''.join(chars)
 ```
 
-  
-  
 ### Go
-
 
 ```go
 func reverseStr(s string, k int) string {
@@ -592,10 +564,7 @@ func reverseStr(s string, k int) string {
 }
 ```
 
-  
-  
 ### JavaScript
-
 
 ```javascript
 var reverseStr = function(s, k) {
@@ -616,10 +585,7 @@ var reverseStr = function(s, k) {
 };
 ```
 
-  
-  
 ### TypeScript
-
 
 ```typescript
 function reverseStr(s: string, k: number): string {
@@ -639,6 +605,4 @@ function reverseStr(s: string, k: number): string {
     return chars.join('');
 }
 ```
-
-  
 

@@ -4,8 +4,6 @@ summary: 在不能排序的前提下完成子序列去重，掌握“保持原�
 description: LeetCode 491 非递减子序列：子序列搜索树、startIndex、树层去重、局部 Set、定长数组哈希、为什么不能排序、正确性与复杂度分析、多语言实现。
 ---
 
-import { Steps, Step } from 'fumadocs-ui/components/steps';
-
 # 491. 非递减子序列
 
 [LeetCode 题目链接](https://leetcode.cn/problems/non-decreasing-subsequences/)
@@ -289,9 +287,6 @@ path.pop_back();
 
 ## 7. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数：仍然需要 `startIndex`
 
 ```cpp
@@ -309,9 +304,6 @@ i + 1
 ```
 
 继续。
-
-</Step>
-<Step>
 
 ### ② 结果收集：路径长度至少为 2
 
@@ -340,9 +332,6 @@ if (path.size() >= 2) {
 ```text
 收集当前节点，然后继续向下搜索
 ```
-
-</Step>
-<Step>
 
 ### ③ 单层搜索：同时检查递增与去重
 
@@ -373,9 +362,6 @@ for (int i = startIndex; i < nums.size(); ++i) {
 ```
 
 只是“判断候选”比普通子集多了两层约束。
-
-</Step>
-</Steps>
 
 ## 8. C++ 标准写法：局部哈希集合
 
@@ -864,10 +850,7 @@ $$
 
 ## 20. 其他语言实现
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -905,10 +888,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -937,10 +917,7 @@ class Solution:
         return ans
 ```
 
-
-
 ### Go
-
 
 ```go
 func findSubsequences(nums []int) [][]int {
@@ -977,10 +954,7 @@ func findSubsequences(nums []int) [][]int {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var findSubsequences = function(nums) {
@@ -1014,10 +988,7 @@ var findSubsequences = function(nums) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function findSubsequences(nums: number[]): number[][] {
@@ -1051,10 +1022,7 @@ function findSubsequences(nums: number[]): number[][] {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 use std::collections::HashSet;
@@ -1095,10 +1063,7 @@ impl Solution {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 static void dfs(
@@ -1167,10 +1132,7 @@ int** findSubsequences(
 }
 ```
 
-
-
 ### Swift
-
 
 ```swift
 class Solution {
@@ -1206,10 +1168,7 @@ class Solution {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -1242,10 +1201,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution {
@@ -1279,6 +1235,4 @@ public class Solution {
     }
 }
 ```
-
-
 

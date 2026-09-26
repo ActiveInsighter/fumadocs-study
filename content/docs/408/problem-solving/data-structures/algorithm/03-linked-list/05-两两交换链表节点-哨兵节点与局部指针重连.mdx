@@ -5,7 +5,6 @@ description: 以 LeetCode 24 为主线，系统掌握链表相邻节点交换的
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 两两交换链表节点：哨兵节点与局部指针重连
 
@@ -148,9 +147,6 @@ cur → first → second → next
 
 然后依次做三步。
 
-<Steps>
-  <Step>
-
 **让前驱指向第二个节点**
 
 ```cpp
@@ -164,9 +160,6 @@ cur → second
 
 first → second → next
 ```
-
-  </Step>
-  <Step>
 
 **让第一个节点跳过第二个节点，接到后续链表**
 
@@ -182,9 +175,6 @@ cur → second
 first → next
 ```
 
-  </Step>
-  <Step>
-
 **让第二个节点指向第一个节点**
 
 ```cpp
@@ -196,9 +186,6 @@ second->next = first;
 ```text
 cur → second → first → next
 ```
-
-  </Step>
-</Steps>
 
 这个顺序的优点是：
 
@@ -766,10 +753,7 @@ $$
 
 ## 其他语言版本
 
-
-  
 ### C++
-
 
 ```cpp
 class Solution {
@@ -795,10 +779,7 @@ public:
 };
 ```
 
-  
-  
 ### Java
-
 
 ```java
 class Solution {
@@ -822,10 +803,7 @@ class Solution {
 }
 ```
 
-  
-  
 ### Python
-
 
 ```python
 class Solution:
@@ -846,10 +824,7 @@ class Solution:
         return dummy.next
 ```
 
-  
-  
 ### Go
-
 
 ```go
 func swapPairs(head *ListNode) *ListNode {
@@ -871,10 +846,7 @@ func swapPairs(head *ListNode) *ListNode {
 }
 ```
 
-  
-  
 ### JavaScript
-
 
 ```javascript
 var swapPairs = function (head) {
@@ -895,6 +867,4 @@ var swapPairs = function (head) {
   return dummy.next;
 };
 ```
-
-  
 

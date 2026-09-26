@@ -399,8 +399,6 @@ $$
 
 算法步骤只有三步。
 
-<Steps>
-
 ### 初始化并查集
 
 令每个节点一开始都是独立集合：
@@ -423,8 +421,6 @@ parent[i] = i
 ### 输出并结束
 
 因为题目保证输入来自“树 + 一条额外边”，一定可以找到答案。
-
-</Steps>
 
 ---
 
@@ -863,7 +859,6 @@ import sys
 
 input = sys.stdin.readline
 
-
 class UnionFind:
     def __init__(self, n: int):
         self.parent = list(range(n + 1))
@@ -887,7 +882,6 @@ class UnionFind:
         self.parent[root_v] = root_u
         self.size[root_u] += self.size[root_v]
         return True
-
 
 n = int(input())
 uf = UnionFind(n)
@@ -1021,3 +1015,4 @@ for (let i = 0; i < n; ++i) {
 }
 ```
 ````
+

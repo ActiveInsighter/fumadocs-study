@@ -5,7 +5,6 @@ description: LeetCode 406 根据身高重建队列。系统讲解双维约束的
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 406. 根据身高重建队列
 
@@ -218,9 +217,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 
 现在依次插入。
 
-<Steps>
-<Step>
-
 ### 插入 `[7,0]`
 
 ```text
@@ -229,9 +225,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 
 它前面需要 $0$ 个身高至少为 $7$ 的人，因此插在下标 $0$。
 
-</Step>
-<Step>
-
 ### 插入 `[7,1]`
 
 ```text
@@ -239,9 +232,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 ```
 
 它前面需要 $1$ 个身高至少为 $7$ 的人，因此插在下标 $1$。
-
-</Step>
-<Step>
 
 ### 插入 `[6,1]`
 
@@ -261,9 +251,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 
 它前面正好有一个身高不低于 $6$ 的人。
 
-</Step>
-<Step>
-
 ### 插入 `[5,0]`
 
 插入下标 $0$：
@@ -273,9 +260,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 ```
 
 虽然 `[5,0]` 被插到了最前面，但它身高更矮，因此不会破坏已经处理的高个子的 $k$。
-
-</Step>
-<Step>
 
 ### 插入 `[5,2]`
 
@@ -293,9 +277,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 
 其中两个人的身高都至少为 $5$，因此满足 $k=2$。
 
-</Step>
-<Step>
-
 ### 插入 `[4,4]`
 
 插入下标 $4$：
@@ -305,9 +286,6 @@ static bool cmp(const vector<int>& a, const vector<int>& b) {
 ```
 
 前面四个人的身高都至少为 $4$，因此满足要求。
-
-</Step>
-</Steps>
 
 原资料中的过程图也很好地展示了这一点：
 
@@ -800,9 +778,6 @@ $$
 
 并且两个维度共同决定合法性时，可以按下面思路排查。
 
-<Steps>
-<Step>
-
 ### 第一步：找哪个维度更像“主约束”
 
 问自己：
@@ -811,9 +786,6 @@ $$
 
 本题中，身高排序后，$k$ 直接变成插入位置。
 
-</Step>
-<Step>
-
 ### 第二步：寻找“以后不会破坏”的排序方向
 
 问：
@@ -821,9 +793,6 @@ $$
 > 当前对象处理完成后，未来对象会不会改变它已经满足的条件？
 
 身高降序时，未来更矮的人不会影响当前高个子的 $k$。
-
-</Step>
-<Step>
 
 ### 第三步：检查相同主关键字时的次排序
 
@@ -837,9 +806,6 @@ $$
 h 相同 -> k 升序
 ```
 
-</Step>
-<Step>
-
 ### 第四步：寻找构造动作
 
 排序之后，剩下的维度通常会变成：
@@ -851,9 +817,6 @@ h 相同 -> k 升序
 - 局部最大/最小值。
 
 本题恰好变成了“插入到下标 $k$”。
-
-</Step>
-</Steps>
 
 ---
 
@@ -875,10 +838,7 @@ $$
 
 ## 17. 其他语言版本
 
-
-
 ### Java
-
 
 ```java
 import java.util.*;
@@ -902,10 +862,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 from typing import List
@@ -921,10 +878,7 @@ class Solution:
         return queue
 ```
 
-
-
 ### Go
-
 
 ```go
 import "sort"
@@ -950,10 +904,7 @@ func reconstructQueue(people [][]int) [][]int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -977,10 +928,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var reconstructQueue = function (people) {
@@ -1001,10 +949,7 @@ var reconstructQueue = function (people) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function reconstructQueue(people: number[][]): number[][] {
@@ -1025,10 +970,7 @@ function reconstructQueue(people: number[][]): number[][] {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdlib.h>
@@ -1074,10 +1016,7 @@ int** reconstructQueue(
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 import scala.collection.mutable.ArrayBuffer
@@ -1100,10 +1039,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -1130,6 +1066,4 @@ public class Solution
     }
 }
 ```
-
-
 

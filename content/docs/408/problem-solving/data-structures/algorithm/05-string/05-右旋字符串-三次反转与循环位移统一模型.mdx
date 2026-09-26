@@ -5,7 +5,6 @@ description: 从卡码网右旋字符串出发，系统掌握“分段 + 三次�
 
 import { Callout } from 'fumadocs-ui/components/callout';
 import { Cards, Card } from 'fumadocs-ui/components/card';
-import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 右旋字符串：三次反转与循环位移统一模型
 
@@ -130,9 +129,6 @@ abcdefg, k = 2
 
 为例。
 
-<Steps>
-<Step>
-
 ### 第一步：整体反转
 
 ```text
@@ -141,10 +137,6 @@ abcdefg
 gfedcba
 ```
 
-</Step>
-
-<Step>
-
 ### 第二步：反转前 `k` 个字符
 
 ```text
@@ -152,10 +144,6 @@ gf | edcba
 ↓
 fg | edcba
 ```
-
-</Step>
-
-<Step>
 
 ### 第三步：反转剩余字符
 
@@ -170,9 +158,6 @@ fg | abcde
 ```text
 fgabcde
 ```
-
-</Step>
-</Steps>
 
 C++：
 
@@ -476,10 +461,7 @@ $$
 
 ## 11. 其他语言实现
 
-
-
 ### C++
-
 
 ```cpp
 #include <algorithm>
@@ -508,10 +490,7 @@ int main() {
 }
 ```
 
-
-
 ### Java
-
 
 ```java
 import java.util.Scanner;
@@ -547,10 +526,7 @@ public class Main {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 k = int(input())
@@ -565,10 +541,7 @@ print(s)
 
 Python 字符串不可变，因此上面的切片会使用 $O(n)$ 额外空间。
 
-
-
 ### Go
-
 
 ```go
 package main
@@ -604,10 +577,7 @@ func main() {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdio.h>
@@ -645,6 +615,4 @@ int main(void) {
     return 0;
 }
 ```
-
-
 

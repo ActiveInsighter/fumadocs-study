@@ -4,8 +4,6 @@ summary: 把电话号码映射问题抽象成“多个集合之间的笛卡尔�
 description: LeetCode 17 电话号码的字母组合：按键映射、多集合组合、搜索树、index 状态、回溯模板、复杂度与常见错误。
 ---
 
-import { Steps, Step } from 'fumadocs-ui/components/steps';
-
 # 17. 电话号码的字母组合
 
 给定一个只包含数字 `2`～`9` 的字符串，返回它能够表示的所有字母组合。
@@ -168,9 +166,6 @@ $$
 
 ## 5. 回溯三部曲
 
-<Steps>
-<Step>
-
 ### ① 递归参数
 
 需要：
@@ -190,9 +185,6 @@ $$
 \text{递归深度}=\text{当前待处理的数字位置}
 $$
 
-</Step>
-<Step>
-
 ### ② 终止条件
 
 当：
@@ -210,9 +202,6 @@ if (index == digits.size()) {
 }
 ```
 
-</Step>
-<Step>
-
 ### ③ 单层搜索
 
 本层只枚举当前数字对应的字母：
@@ -229,9 +218,6 @@ for (char ch : letters) {
 ```
 
 下一层一定处理 `digits[index + 1]`。
-
-</Step>
-</Steps>
 
 ## 6. 完整 C++ 实现
 
@@ -510,10 +496,7 @@ backtrack(index):
 
 ## 其他语言版本
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -556,10 +539,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -692,10 +672,7 @@ class Solution:
         return result
 ```
 
-
-
 ### Go
-
 
 ```go
 var (
@@ -728,10 +705,7 @@ func dfs(digits string, start int) {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var letterCombinations = function(digits) {
@@ -758,10 +732,7 @@ var letterCombinations = function(digits) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function letterCombinations(digits: string): string[] {
@@ -795,10 +766,7 @@ function letterCombinations(digits: string): string[] {
 };
 ```
 
-
-
 ### Rust
-
 
 ```rust
 const map: [&str; 10] = [
@@ -830,10 +798,7 @@ impl Solution {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 char* path;
@@ -895,10 +860,7 @@ char ** letterCombinations(char * digits, int* returnSize){
 }
 ```
 
-
-
 ### Swift
-
 
 ```swift
 func letterCombinations(_ digits: String) -> [String] {
@@ -939,10 +901,7 @@ func letterCombinations(_ digits: String) -> [String] {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -973,10 +932,7 @@ object Solution {
 }
 ```
 
-
-
 ### Ruby
-
 
 ```ruby
 def letter_combinations(digits)
@@ -1016,10 +972,7 @@ def backtracking(result, letter_map, digits, path, index)
 end
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -1052,6 +1005,4 @@ public class Solution
     }
 }
 ```
-
-
 

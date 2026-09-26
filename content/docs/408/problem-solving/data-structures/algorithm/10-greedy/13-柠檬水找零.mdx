@@ -5,7 +5,6 @@ description: LeetCode 860 柠檬水找零。讲解有限状态模拟、零钱价
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 860. 柠檬水找零
 
@@ -88,9 +87,6 @@ int ten = 0;
 
 ## 3. 三种付款分别怎么处理
 
-<Steps>
-<Step>
-
 ### 收到 5 美元
 
 不需要找零，直接增加一张 $5$：
@@ -100,9 +96,6 @@ int ten = 0;
 ```
 
 这是唯一处理方式。
-
-</Step>
-<Step>
 
 ### 收到 10 美元
 
@@ -117,9 +110,6 @@ if (five == 0) {
 ```
 
 如果手里没有 $5$ 美元，当前交易立刻失败，而且之后也不可能补救。
-
-</Step>
-<Step>
 
 ### 收到 20 美元
 
@@ -137,9 +127,6 @@ $$
 ```
 
 这里才出现真正的贪心选择。
-
-</Step>
-</Steps>
 
 ## 4. 核心贪心：优先用 `10 + 5`
 
@@ -541,10 +528,7 @@ return true
 
 以下实现都只维护 $5$ 和 $10$ 两种有效零钱状态。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -576,10 +560,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -607,10 +588,7 @@ class Solution:
         return True
 ```
 
-
-
 ### Go
-
 
 ```go
 func lemonadeChange(bills []int) bool {
@@ -641,10 +619,7 @@ func lemonadeChange(bills []int) bool {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -681,10 +656,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var lemonadeChange = function (bills) {
@@ -714,10 +686,7 @@ var lemonadeChange = function (bills) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function lemonadeChange(bills: number[]): boolean {
@@ -747,10 +716,7 @@ function lemonadeChange(bills: number[]): boolean {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdbool.h>
@@ -784,10 +750,7 @@ bool lemonadeChange(int* bills, int billsSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -819,10 +782,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -866,6 +826,4 @@ public class Solution
     }
 }
 ```
-
-
 

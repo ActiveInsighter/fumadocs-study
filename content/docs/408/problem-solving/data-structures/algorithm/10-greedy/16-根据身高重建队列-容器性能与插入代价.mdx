@@ -5,7 +5,6 @@ description: 贪心算法进阶补充。围绕根据身高重建队列中的插�
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 根据身高重建队列：容器性能与插入代价
 
@@ -209,15 +208,9 @@ $$
 
 典型过程如下。
 
-<Steps>
-<Step>
-
 ### 申请一块更大的连续内存
 
 新的容量通常会按照某种增长因子扩大，而不是每次只增加 1。
-
-</Step>
-<Step>
 
 ### 把旧元素搬到新空间
 
@@ -225,17 +218,11 @@ $$
 
 因此扩容不是简单地“在原数组后面接一块空间”。
 
-</Step>
-<Step>
-
 ### 释放旧空间
 
 完成搬移以后，原来的连续内存被释放。
 
 所以扩容可能导致原有元素地址变化，也会使指向这些元素的迭代器、指针和引用失效。
-
-</Step>
-</Steps>
 
 原资料使用下面的图展示这一过程：
 
@@ -804,10 +791,7 @@ $$
 
 不同语言的动态数组实现细节不同，但“连续数组中间插入需要移动后续元素”这一核心规律基本一致。
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -833,10 +817,7 @@ impl Solution {
 }
 ```
 
-
-
 ### Go
-
 
 ```go
 import "sort"
@@ -865,10 +846,7 @@ func reconstructQueue(people [][]int) [][]int {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 from typing import List
@@ -887,10 +865,7 @@ class Solution:
         return queue
 ```
 
-
-
 ### Java
-
 
 ```java
 import java.util.*;
@@ -915,6 +890,4 @@ class Solution {
     }
 }
 ```
-
-
 

@@ -5,7 +5,6 @@ description: LeetCode 122 买卖股票的最佳时机 II。系统讲解利润拆
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 122. 买卖股票的最佳时机 II
 
@@ -266,9 +265,6 @@ $$
 
 ## 7. 贪心代码为什么只需要一行核心逻辑
 
-<Steps>
-<Step>
-
 ### 从第二天开始扫描
 
 相邻收益需要比较：
@@ -279,9 +275,6 @@ prices[i] - prices[i - 1]
 
 所以第一组差值从 $i=1$ 开始。
 
-</Step>
-<Step>
-
 ### 只保留正收益
 
 ```cpp
@@ -290,9 +283,6 @@ max(prices[i] - prices[i - 1], 0)
 
 负收益直接视为 $0$，表示这一段不参与交易。
 
-</Step>
-<Step>
-
 ### 累加所有正收益
 
 ```cpp
@@ -300,9 +290,6 @@ profit += max(prices[i] - prices[i - 1], 0);
 ```
 
 扫描结束后就是全局最大利润。
-
-</Step>
-</Steps>
 
 C++ 实现：
 
@@ -559,10 +546,7 @@ $$
 
 下面均采用“累加所有正相邻差值”的 $O(n)$ 贪心实现。
 
-
-
 ### Java
-
 
 ```java
 class Solution {
@@ -578,10 +562,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 class Solution:
@@ -594,10 +575,7 @@ class Solution:
         return profit
 ```
 
-
-
 ### Go
-
 
 ```go
 func maxProfit(prices []int) int {
@@ -614,10 +592,7 @@ func maxProfit(prices []int) int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -633,10 +608,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var maxProfit = function (prices) {
@@ -650,10 +622,7 @@ var maxProfit = function (prices) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function maxProfit(prices: number[]): number {
@@ -667,10 +636,7 @@ function maxProfit(prices: number[]): number {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 int maxProfit(int* prices, int pricesSize) {
@@ -687,10 +653,7 @@ int maxProfit(int* prices, int pricesSize) {
 }
 ```
 
-
-
 ### Scala
-
 
 ```scala
 object Solution {
@@ -706,10 +669,7 @@ object Solution {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 public class Solution
@@ -727,6 +687,4 @@ public class Solution
     }
 }
 ```
-
-
 

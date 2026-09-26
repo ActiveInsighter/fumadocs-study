@@ -5,7 +5,6 @@ description: LeetCode 763 划分字母区间。系统讲解最后出现位置、
 ---
 
 import { Callout } from 'fumadocs-ui/components/callout';
-import { Step, Steps } from 'fumadocs-ui/components/steps';
 
 # 763. 划分字母区间
 
@@ -202,9 +201,6 @@ left = 0
 right = 0
 ```
 
-<Steps>
-<Step>
-
 ### 扫描位置 0：`a`
 
 `a` 最后一次出现在位置 $8$，因此：
@@ -214,9 +210,6 @@ right=\max(0,8)=8
 $$
 
 当前片段至少必须延伸到位置 $8$。
-
-</Step>
-<Step>
 
 ### 扫描位置 1：`b`
 
@@ -228,9 +221,6 @@ $$
 
 右边界不变。
 
-</Step>
-<Step>
-
 ### 中途遇到其他字符
 
 对于每一个字符都执行：
@@ -240,9 +230,6 @@ right=\max(right,last[s[i]])
 $$
 
 只要某个字符最后出现得更远，当前片段就会被继续拉长。
-
-</Step>
-<Step>
 
 ### 扫描到位置 8
 
@@ -272,9 +259,6 @@ $$
 left = 9
 ```
 
-</Step>
-<Step>
-
 ### 对剩余字符串重复同样过程
 
 接下来依次得到：
@@ -289,9 +273,6 @@ left = 9
 ```text
 [9, 7, 8]
 ```
-
-</Step>
-</Steps>
 
 ---
 
@@ -732,10 +713,7 @@ $$
 
 以下代码都采用“**预处理最后出现位置 + 一次扫描动态扩张右边界**”的标准写法。
 
-
-
 ### Java
-
 
 ```java
 import java.util.ArrayList;
@@ -767,10 +745,7 @@ class Solution {
 }
 ```
 
-
-
 ### Python
-
 
 ```python
 from typing import List
@@ -796,10 +771,7 @@ class Solution:
         return result
 ```
 
-
-
 ### Go
-
 
 ```go
 func partitionLabels(s string) []int {
@@ -828,10 +800,7 @@ func partitionLabels(s string) []int {
 }
 ```
 
-
-
 ### Rust
-
 
 ```rust
 impl Solution {
@@ -861,10 +830,7 @@ impl Solution {
 }
 ```
 
-
-
 ### JavaScript
-
 
 ```javascript
 var partitionLabels = function(s) {
@@ -891,10 +857,7 @@ var partitionLabels = function(s) {
 };
 ```
 
-
-
 ### TypeScript
-
 
 ```typescript
 function partitionLabels(s: string): number[] {
@@ -921,10 +884,7 @@ function partitionLabels(s: string): number[] {
 }
 ```
 
-
-
 ### C
-
 
 ```c
 #include <stdlib.h>
@@ -960,10 +920,7 @@ int* partitionLabels(char* s, int* returnSize) {
 }
 ```
 
-
-
 ### C#
-
 
 ```csharp
 using System;
@@ -999,6 +956,4 @@ public class Solution
     }
 }
 ```
-
-
 
