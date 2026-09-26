@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/algorithm-notes-0926
+      - codex/fix-markdown-bold-table-0926
   workflow_dispatch:
     inputs:
       deploy:
@@ -61,7 +62,7 @@ jobs:
 
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts
 
       - name: Restore Next/Turbopack build cache
         uses: actions/cache@v5
@@ -375,6 +376,93 @@ jobs:
               { timeout: 30000 },
             );
             console.log('[browser-check] Fumadocs multilingual code tabs rendered and switched to Java');
+
+            const formattingPath =
+              '/docs/408/knowledge2/operating_system/05-io-management/02-buffer-allocation-spooling/';
+            await page.goto(base + formattingPath, {
+              waitUntil: 'networkidle2',
+              timeout: 120000,
+            });
+
+            const formattingCheck = await page.evaluate(() => {
+              const body = document.querySelector('#docs-body');
+              if (!(body instanceof HTMLElement)) {
+                return { error: 'Missing #docs-body' };
+              }
+
+              const expectedStrong = [
+                '缓冲区（Buffer）',
+                '磁盘高速缓存（Disk Cache）',
+                '循环缓冲（Circular Buffer）',
+                '缓冲池（Buffer Pool）',
+                'DCT（Device Control Table，设备控制表）',
+                'SPOOLing（Simultaneous Peripheral Operations On-Line）',
+              ];
+              const strongTexts = Array.from(body.querySelectorAll('strong')).map(
+                (element) => element.textContent?.trim() ?? '',
+              );
+              const missingStrong = expectedStrong.filter(
+                (text) => !strongTexts.includes(text),
+              );
+              const leakedMarkers = body.innerText.match(/\*\*[^*\n]+\*\*/g) ?? [];
+
+              const table = body.querySelector('table');
+              const wrapper = table?.parentElement;
+              const head = table?.querySelector('th');
+              if (!(table instanceof HTMLTableElement) ||
+                  !(wrapper instanceof HTMLElement) ||
+                  !(head instanceof HTMLTableCellElement)) {
+                return {
+                  error: 'Missing Markdown table, wrapper, or table header',
+                  missingStrong,
+                  leakedMarkers,
+                };
+              }
+
+              const tableFontSize = getComputedStyle(table).fontSize;
+              const originalHead = head.textContent ?? '';
+              head.textContent = '超宽表头内容'.repeat(80);
+              const headWhiteSpace = getComputedStyle(head).whiteSpace;
+              const headerForcesOverflow = wrapper.scrollWidth > wrapper.clientWidth;
+              head.textContent = originalHead;
+
+              return {
+                missingStrong,
+                leakedMarkers,
+                tableFontSize,
+                headWhiteSpace,
+                headerForcesOverflow,
+              };
+            });
+            console.log('[browser-check] formatting=' + JSON.stringify(formattingCheck));
+            if (formattingCheck.error) {
+              throw new Error(formattingCheck.error);
+            }
+            if (formattingCheck.missingStrong.length > 0) {
+              throw new Error(
+                'Missing rendered strong terms: ' + formattingCheck.missingStrong.join(', '),
+              );
+            }
+            if (formattingCheck.leakedMarkers.length > 0) {
+              throw new Error(
+                'Raw Markdown strong markers leaked into the rendered page: ' +
+                  formattingCheck.leakedMarkers.join(' | '),
+              );
+            }
+            if (formattingCheck.tableFontSize !== '17px') {
+              throw new Error(
+                'Expected docs table font-size 17px, got ' + formattingCheck.tableFontSize,
+              );
+            }
+            if (formattingCheck.headWhiteSpace !== 'nowrap') {
+              throw new Error(
+                'Expected table header white-space nowrap, got ' + formattingCheck.headWhiteSpace,
+              );
+            }
+            if (!formattingCheck.headerForcesOverflow) {
+              throw new Error('Long table header content did not activate horizontal overflow.');
+            }
+            console.log('[browser-check] bold boundaries and table overflow typography passed');
           } finally {
             await browser.close();
           }

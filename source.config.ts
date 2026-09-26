@@ -1,5 +1,6 @@
 import { remarkMdxMermaid, remarkStructure } from 'fumadocs-core/mdx-plugins';
 import { remarkMdxMindmap } from './lib/mdx/remark-mindmap';
+import { remarkStrongBoundaryRepair } from './lib/mdx/remark-strong-boundary';
 import { pageSchema } from 'fumadocs-core/source/schema';
 import { defineCollections, defineConfig, defineDocs } from 'fumadocs-mdx/config';
 import lastModified from 'fumadocs-mdx/plugins/last-modified';
@@ -52,6 +53,7 @@ export default defineConfig({
             return entry !== remarkStructure;
           })
         : plugins),
+      remarkStrongBoundaryRepair,
       remarkMath,
       remarkMdxMermaid,
       remarkMdxMindmap,

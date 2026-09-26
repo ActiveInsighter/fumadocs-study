@@ -12,6 +12,11 @@
   line-height: 1.8;
 }
 
+/* Tables are intentionally one pixel smaller than the 18px docs body. */
+#docs-body table {
+  font-size: 1.0625rem;
+}
+
 .docs-page-title {
   font-size: clamp(1.8rem, 1.7rem + 0.45vw, 2rem) !important;
   font-weight: 500 !important;

@@ -63,10 +63,16 @@ body:has([data-claude-full-bleed='true']) {
   background: var(--background) !important;
 }
 
-#docs-body :where(div):has(> table) > table :where(th, td) {
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: normal;
+#docs-body :where(div):has(> table) > table :where(th, td),
+#docs-body :where(div):has(> table) > table :where(th *, td *) {
+  /*
+   * Fumadocs can attach wrapping utilities to header descendants. Make both
+   * header and body cells participate in the same intrinsic-width calculation,
+   * so either one can grow the table and activate the wrapper scrollbar.
+   */
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
 }
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar {
