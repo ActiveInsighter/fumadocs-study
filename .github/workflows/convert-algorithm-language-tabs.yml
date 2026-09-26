@@ -1,0 +1,45 @@
+name: Convert algorithm language code tabs
+
+on:
+  push:
+    branches:
+      - codex/algorithm-notes-0926
+    paths:
+      - .github/workflows/convert-algorithm-language-tabs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          ref: codex/algorithm-notes-0926
+          fetch-depth: 0
+
+      - name: Convert multilingual implementations to Fumadocs Code Tabs
+        run: node scripts/convert-algorithm-language-tabs.mjs
+
+      - name: Validate diff
+        run: |
+          set -euo pipefail
+          git diff --check
+          changed="$(git diff --name-only -- content/docs/algorithm | wc -l | tr -d ' ')"
+          echo "Changed algorithm notes: ${changed}"
+          if [[ "${changed}" == "0" ]]; then
+            echo "::error::Converter did not modify any algorithm notes."
+            exit 1
+          fi
+
+      - name: Commit converted notes
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/docs/algorithm
+          git commit -m "docs: convert algorithm language examples to code tabs"
+          git push origin HEAD:codex/algorithm-notes-0926
