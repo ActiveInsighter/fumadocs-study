@@ -9,6 +9,7 @@ import {
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
 import { InlineSvg } from '@/components/mdx/inline-svg';
+import { ExamAnswer, ExamQuestion } from '@/components/mdx/exam-question';
 import { WordCardModeToggle, WordCards } from '@/components/vocabulary/word-cards';
 import * as AccordionComponents from 'fumadocs-ui/components/accordion';
 import * as FilesComponents from 'fumadocs-ui/components/files';
@@ -25,7 +26,7 @@ import type { MDXComponents } from 'mdx/types';
  * official component groups below are registered globally so documentation can
  * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards, the shared
  * vocabulary display toggle, MindMap, inline SVG diagrams and the reusable Study
- * chart family
+ * chart family. ExamQuestion and ExamAnswer keep the annual 408 question pages consistent
  * without repeating imports in every MDX file.
  *
  * Feature-specific compositions (for example the Claude benchmark experience)
@@ -41,6 +42,8 @@ export function getMDXComponents(components?: MDXComponents) {
     Mermaid,
     MindMap,
     InlineSvg,
+    ExamQuestion,
+    ExamAnswer,
     StudyAreaChart,
     StudyBarChart,
     StudyHistogram,
