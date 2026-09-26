@@ -98,11 +98,18 @@ function transformSection(section) {
 
   const transformed = lines.join('\n');
   const tabs = [...transformed.matchAll(new RegExp(languageTabPattern.source, 'gi'))];
+  const remainingHeadings = [
+    ...transformed.matchAll(new RegExp(languageHeadingPattern.source, 'gmi')),
+  ];
+  const remainingLabels = [
+    ...transformed.matchAll(new RegExp(languageLabelPattern.source, 'gi')),
+  ];
 
   return {
     transformed,
     languageIndicators,
     tabCount: tabs.length,
+    legacyCount: remainingHeadings.length + remainingLabels.length,
   };
 }
 
@@ -127,7 +134,7 @@ for (const file of files) {
   candidates += 1;
 
   const result = transformSection(section);
-  if (result.tabCount < 2) {
+  if (result.tabCount < 2 || result.legacyCount > 0) {
     skipped.push(path.relative(root, file));
     continue;
   }
