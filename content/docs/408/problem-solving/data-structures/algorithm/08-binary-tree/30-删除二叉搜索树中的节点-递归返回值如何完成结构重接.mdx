@@ -476,7 +476,7 @@ $$
 
 ## 13. 高频错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：找到节点后直接返回 null">
 
 这只对叶子节点成立。只要目标节点还有孩子，就会把仍然合法的子树一起丢掉。
@@ -534,7 +534,7 @@ root = 5
 删除 `5` 后，新根就是 `8`。这也是函数必须返回 `TreeNode*` 的直接原因之一。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 14. 与前一篇“插入”放在一起理解
 

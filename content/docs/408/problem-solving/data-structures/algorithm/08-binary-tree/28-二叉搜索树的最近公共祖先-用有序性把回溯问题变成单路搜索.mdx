@@ -542,7 +542,7 @@ $$
 
 ## 13. 常见错误
 
-<AccordionGroup>
+<Accordions type="multiple">
 <Accordion title="错误 1：仍然照搬普通二叉树 LCA，左右子树都递归">
 
 这样通常也能做对，但浪费了 BST 的有序性。
@@ -598,7 +598,7 @@ return root->left = lowestCommonAncestor(root->left, p, q);
 后者虽然在某些输入下看起来结果还能返回正确节点，但它在语义上修改了原树，是不必要且危险的副作用。
 
 </Accordion>
-</AccordionGroup>
+</Accordions>
 
 ## 14. 与普通二叉树 LCA 对比
 
