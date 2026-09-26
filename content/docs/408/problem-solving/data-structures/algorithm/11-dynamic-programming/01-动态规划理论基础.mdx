@@ -260,10 +260,8 @@ $$
 
 ### 4.1 五步分析
 
-
-
-### 状态
-
+<Tabs items={["状态", "转移", "初始化", "顺序", "结果"]}>
+<Tab value="状态">
 
 定义：
 
@@ -273,10 +271,8 @@ $$
 
 即 `dp[i]` 表示第 `i` 个斐波那契数。
 
-
-
-### 转移
-
+</Tab>
+<Tab value="转移">
 
 由题意：
 
@@ -284,26 +280,20 @@ $$
 dp[i]=dp[i-1]+dp[i-2]
 $$
 
-
-
-### 初始化
-
+</Tab>
+<Tab value="初始化">
 
 $$
 dp[0]=0,\qquad dp[1]=1
 $$
 
-
-
-### 顺序
-
+</Tab>
+<Tab value="顺序">
 
 因为 `dp[i]` 依赖 `dp[i-1]` 和 `dp[i-2]`，所以 `i` 必须从小到大遍历。
 
-
-
-### 结果
-
+</Tab>
+<Tab value="结果">
 
 最终答案为：
 
@@ -311,8 +301,8 @@ $$
 dp[n]
 $$
 
-
-
+</Tab>
+</Tabs>
 
 ### 4.2 从二维思维到空间优化
 
@@ -505,10 +495,8 @@ DP 出错时，最有效的方法不是不断修改代码，而是**把状态表
 
 ## 11. 示例代码：斐波那契数
 
-
-
-### C++
-
+<Tabs items={["C++", "Java", "Python", "JavaScript"]}>
+<Tab value="C++">
 
 ```cpp
 class Solution {
@@ -530,10 +518,8 @@ public:
 };
 ```
 
-
-
-### Java
-
+</Tab>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -554,10 +540,8 @@ class Solution {
 }
 ```
 
-
-
-### Python
-
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -573,10 +557,8 @@ class Solution:
         return prev1
 ```
 
-
-
-### JavaScript
-
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var fib = function(n) {
@@ -595,14 +577,14 @@ var fib = function(n) {
 };
 ```
 
-
-
+</Tab>
+</Tabs>
 
 ## 12. 本节总结
 
 动态规划学习最容易陷入“看懂题解、记住公式、下次仍然不会”的循环。解决办法不是背更多模板，而是坚持把每一道题拆成稳定的分析流程。
 
-<Cards>
+<CardGroup cols={2}>
   <Card title="先定义状态" icon="Braces">
     明确 `dp` 数组每个维度和下标的含义，这是所有递推的基础。
   </Card>
@@ -615,7 +597,7 @@ var fib = function(n) {
   <Card title="顺序服从依赖" icon="ArrowRight">
     保证每个状态计算时，依赖的前驱状态已经准备好。
   </Card>
-</Cards>
+</CardGroup>
 
 最终可以把动态规划浓缩成一句更完整的话：
 

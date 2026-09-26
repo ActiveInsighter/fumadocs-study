@@ -4,6 +4,10 @@ summary: 在“最大可达范围”的基础上进一步计算最少跳跃次�
 description: LeetCode 45 跳跃游戏 II。系统讲解双边界贪心、为什么到达当前覆盖边界时才增加步数、与 BFS 分层的等价关系、正确性证明、边界条件、常见错误和多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 45. 跳跃游戏 II
 
 [LeetCode 45. 跳跃游戏 II](https://leetcode.cn/problems/jump-game-ii/)
@@ -352,6 +356,9 @@ i < n - 1
 
 ## 8. 推荐的标准写法
 
+<Steps>
+<Step>
+
 ### 初始化两个边界
 
 ```cpp
@@ -359,6 +366,9 @@ int currentEnd = 0;
 int nextEnd = 0;
 int steps = 0;
 ```
+
+</Step>
+<Step>
 
 ### 扫描到倒数第二个位置
 
@@ -368,11 +378,17 @@ for (int i = 0; i < n - 1; ++i)
 
 终点不需要再作为起跳点处理。
 
+</Step>
+<Step>
+
 ### 计算下一层最远边界
 
 ```cpp
 nextEnd = max(nextEnd, i + nums[i]);
 ```
+
+</Step>
+<Step>
 
 ### 当前层扫描结束时进入下一层
 
@@ -382,6 +398,9 @@ if (i == currentEnd) {
     currentEnd = nextEnd;
 }
 ```
+
+</Step>
+</Steps>
 
 完整实现：
 
@@ -633,7 +652,8 @@ $$
 
 下面均使用与 C++ 主解相同的“当前层边界 + 下一层边界”思路。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -656,7 +676,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -675,7 +696,8 @@ class Solution:
         return steps
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func jump(nums []int) int {
@@ -698,7 +720,8 @@ func jump(nums []int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -721,7 +744,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var jump = function (nums) {
@@ -742,7 +766,8 @@ var jump = function (nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function jump(nums: number[]): number {
@@ -763,7 +788,8 @@ function jump(nums: number[]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 int jump(int* nums, int numsSize) {
@@ -787,7 +813,8 @@ int jump(int* nums, int numsSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -810,7 +837,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -837,3 +865,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

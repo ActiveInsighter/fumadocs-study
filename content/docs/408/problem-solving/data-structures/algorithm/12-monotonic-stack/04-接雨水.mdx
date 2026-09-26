@@ -232,7 +232,7 @@ public:
 
 长就是通过柱子的高度来计算，宽是通过柱子之间的下标来计算，
 
-那么栈里有没有必要存一个 `pair<int, int>` 类型的元素，保存柱子的高度和下标呢。
+那么栈里有没有必要存一个pair<int, int>类型的元素，保存柱子的高度和下标呢。
 
 其实不用，栈里就存放下标就行，想要知道对应的高度，通过height[stack.top()] 就知道弹出的下标对应的高度了。
 
@@ -373,6 +373,7 @@ public:
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 class Solution {
     public int trap(int[] height) {
@@ -995,3 +996,4 @@ impl Solution {
     }
 }
 ```
+````

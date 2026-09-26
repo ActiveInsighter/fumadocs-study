@@ -4,6 +4,10 @@ summary: 把“最少删除多少区间”转化为“最多保留多少个互�
 description: LeetCode 435 无重叠区间。系统讲解问题转化、右端点贪心、交换论证、左端点等价写法、与最少箭数问题的联系、边界条件、常见错误和多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 435. 无重叠区间
 
 [LeetCode 435. Non-overlapping Intervals](https://leetcode.cn/problems/non-overlapping-intervals/)
@@ -225,6 +229,9 @@ $$
 
 ## 5. 标准算法流程
 
+<Steps>
+<Step>
+
 ### 按右端点升序排序
 
 对于：
@@ -237,6 +244,9 @@ $$
 
 这样扫描到的每个区间，都是当前候选中“结束最早”的区间。
 
+</Step>
+<Step>
+
 ### 保留第一个区间
 
 如果输入非空，第一个区间必然可以作为第一个保留区间。
@@ -247,6 +257,9 @@ $$
 keep = 1
 end = intervals[0][1]
 ```
+
+</Step>
+<Step>
 
 ### 从左到右扫描
 
@@ -265,6 +278,9 @@ end = intervals[i][1]
 
 否则当前区间与已保留区间重叠，直接跳过。
 
+</Step>
+<Step>
+
 ### 用总数减去最大保留数
 
 最终：
@@ -272,6 +288,9 @@ end = intervals[i][1]
 $$
 \boxed{answer=n-keep}
 $$
+
+</Step>
+</Steps>
 
 ---
 
@@ -764,7 +783,8 @@ $$
 
 以下实现统一采用最清晰的“**按右端点排序 + 统计最大保留数量**”写法。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
 
 ```java
 import java.util.Arrays;
@@ -790,7 +810,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 from typing import List
@@ -813,7 +834,8 @@ class Solution:
         return len(intervals) - keep
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 import "sort"
@@ -841,7 +863,8 @@ func eraseOverlapIntervals(intervals [][]int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -867,7 +890,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var eraseOverlapIntervals = function(intervals) {
@@ -889,7 +913,8 @@ var eraseOverlapIntervals = function(intervals) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function eraseOverlapIntervals(intervals: number[][]): number {
@@ -911,7 +936,8 @@ function eraseOverlapIntervals(intervals: number[][]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdlib.h>
@@ -948,7 +974,8 @@ int eraseOverlapIntervals(int** intervals,
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 using System;
@@ -978,3 +1005,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

@@ -3,6 +3,10 @@ title: 贪心算法理论基础
 description: 从局部最优到全局最优，系统理解贪心策略的识别、验证、证明与常见误区。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 贪心算法理论基础
 
 贪心算法（Greedy Algorithm）是一类**在每个决策阶段都选择当前看来最优方案，并希望这些局部最优选择最终构成全局最优解**的算法思想。
@@ -100,6 +104,9 @@ $$
 
 贪心没有一个看到题目就能机械套用的公式，但可以建立一套非常实用的分析流程。
 
+<Steps>
+<Step>
+
 ### 第一步：先明确“全局目标”
 
 先不要急着写代码，要明确最终到底在优化什么，例如：
@@ -111,6 +118,10 @@ $$
 - 最少需要多少资源。
 
 如果连全局目标都没有准确抽象出来，就很难设计局部策略。
+
+</Step>
+
+<Step>
 
 ### 第二步：寻找可能的局部最优规则
 
@@ -124,6 +135,10 @@ $$
 - 排序后按照某个维度逐个处理。
 
 注意：这些只是**候选策略**，不是正确性的证明。
+
+</Step>
+
+<Step>
 
 ### 第三步：主动寻找反例
 
@@ -139,11 +154,18 @@ $$
 
 如果很容易找到反例，说明贪心策略有问题；如果反复构造仍找不到反例，再尝试证明它。
 
+</Step>
+
+<Step>
+
 ### 第四步：证明“这一步不会后悔”
 
 常用方法是交换论证或反证法：证明任意最优解都可以调整成采用当前贪心选择的最优解。
 
 一旦这一步成立，再把问题缩小到剩余部分继续处理。
+
+</Step>
+</Steps>
 
 ## 5. 最实用的正确性证明：交换论证
 
@@ -287,7 +309,8 @@ $$
 
 贪心算法没有真正统一的代码模板，下面的代码只展示最常见的结构：**排序建立决策顺序，然后在线性扫描中不断接受当前安全的局部最优选择**。
 
-### C++
+<Tabs items={['C++', 'Java', 'Python']}>
+<Tab value="C++">
 
 ```cpp
 #include <algorithm>
@@ -313,7 +336,8 @@ int greedy(vector<int>& nums) {
 }
 ```
 
-### Java
+</Tab>
+<Tab value="Java">
 
 ```java
 import java.util.Arrays;
@@ -339,7 +363,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 def greedy(nums):
@@ -358,3 +383,5 @@ def greedy(nums):
     return answer
 ```
 
+</Tab>
+</Tabs>

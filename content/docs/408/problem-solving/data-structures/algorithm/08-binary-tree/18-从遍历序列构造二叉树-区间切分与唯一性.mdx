@@ -194,6 +194,8 @@ TreeNode* build(
 
 > 用 `inorder[inLeft, inRight)` 与 `postorder[postLeft, postRight)` 构造对应子树，并返回根节点。
 
+<Steps>
+
 ### 1. 空区间直接返回
 
 ```cpp
@@ -221,6 +223,8 @@ int leftSize = rootIndex - inLeft;
 ### 5. 递归构造左右子树
 
 根据上一节的区间公式继续递归。
+
+</Steps>
 
 ## 5. 推荐写法：哈希表 + 下标区间
 
@@ -453,7 +457,8 @@ public:
 
 ## 8. 105 与 106 的统一模板
 
-### 前序 + 中序
+<Tabs groupId="build-tree-comparison" items={['前序 + 中序', '中序 + 后序']}>
+<Tab value="前序 + 中序">
 
 ```text
 根：preorder[preLeft]
@@ -470,7 +475,8 @@ leftSize = rootIndex - inLeft
   inorder  [rootIndex + 1, inRight)
 ```
 
-### 中序 + 后序
+</Tab>
+<Tab value="中序 + 后序">
 
 ```text
 根：postorder[postRight - 1]
@@ -486,6 +492,9 @@ leftSize = rootIndex - inLeft
   inorder   [rootIndex + 1, inRight)
   postorder [postLeft + leftSize, postRight - 1)
 ```
+
+</Tab>
+</Tabs>
 
 这两道题不要分开背。统一理解为：
 
@@ -568,7 +577,7 @@ $$
 
 ## 11. 常见错误
 
-<Accordions type="multiple">
+<AccordionGroup>
 <Accordion title="错误 1：先切后序/前序，再想办法找中序边界">
 
 应该反过来：**先利用根切中序**。
@@ -611,7 +620,7 @@ postRight - 1
 如果允许重复值，仅靠这些遍历序列通常无法直接按相同方式唯一恢复。
 
 </Accordion>
-</Accordions>
+</AccordionGroup>
 
 ## 12. 调试这类题最有效的方法
 
@@ -657,7 +666,8 @@ leftSize 算错了
 
 以下代码统一实现 **LeetCode 106：中序 + 后序构造二叉树**，并使用“中序下标表 + 左闭右开区间”的 $O(n)$ 思路。
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -695,7 +705,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -725,7 +736,8 @@ class Solution:
         return build(0, len(inorder), 0, len(postorder))
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func buildTree(inorder []int, postorder []int) *TreeNode {
@@ -760,7 +772,8 @@ func buildTree(inorder []int, postorder []int) *TreeNode {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var buildTree = function(inorder, postorder) {
@@ -790,7 +803,8 @@ var buildTree = function(inorder, postorder) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
@@ -825,7 +839,8 @@ function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -869,7 +884,8 @@ class Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 static int findIndex(int* inorder, int left, int right, int value) {
@@ -913,7 +929,8 @@ struct TreeNode* buildTree(
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -949,7 +966,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 use std::cell::RefCell;
@@ -1007,7 +1025,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -1049,3 +1068,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

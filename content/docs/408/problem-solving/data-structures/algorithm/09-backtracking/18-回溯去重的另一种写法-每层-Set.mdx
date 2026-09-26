@@ -5,6 +5,9 @@ summary: 从“树层去重”的本质出发，系统比较排序 + used 与每
 description: 回溯算法去重专题：树层去重、树枝状态、每层 Set、used 数组、排序、子集 II、组合总和 II、全排列 II、错误写法与复杂度分析。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 回溯去重的另一种写法：每层 Set
 
 前面在 `90. 子集 II`、`40. 组合总和 II`、`47. 全排列 II` 中，我们已经反复遇到同一个问题：
@@ -565,21 +568,36 @@ $$
 
 ## 13. 最容易写错的四件事
 
+<Steps>
+<Step>
+
 ### ① 把 Set 设成全局变量
 
 会把多个父节点的去重状态混在一起。
+
+</Step>
+<Step>
 
 ### ② 每次递归 `clear()` 同一个全局 Set
 
 子递归会清掉父递归还需要的信息。
 
+</Step>
+<Step>
+
 ### ③ 回溯时 `erase` 本层 Set
 
 本层已经尝试过的值，本来就应该保持“已尝试”直到当前循环结束。
 
+</Step>
+<Step>
+
 ### ④ 以为 Set 可以替代排列中的 `used[i]`
 
 Set 管的是**数值级同层去重**；`used[i]` 管的是**下标级路径占用**，两者不能互相替代。
+
+</Step>
+</Steps>
 
 ## 14. 最终记忆模型
 
@@ -612,7 +630,8 @@ $$
 
 ## 15. 其他语言实现
 
-### Java
+<Tabs groupId="backtracking-dedup-set-language" items={['Java', 'Python', 'JavaScript', 'TypeScript', 'Rust']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -709,7 +728,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -778,7 +798,8 @@ class Solution:
                 used[i] = False
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 function subsetsWithDup(nums) {
@@ -846,7 +867,8 @@ function permuteUnique(nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function subsetsWithDup(nums: number[]): number[][] {
@@ -918,7 +940,8 @@ function permuteUnique(nums: number[]): number[][] {
 };
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 use std::collections::HashSet;
@@ -1025,3 +1048,5 @@ impl Solution {
 }
 ```
 
+</Tab>
+</Tabs>

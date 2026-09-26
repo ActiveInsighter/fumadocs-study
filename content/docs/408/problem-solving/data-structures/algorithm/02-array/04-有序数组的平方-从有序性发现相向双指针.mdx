@@ -3,6 +3,10 @@ title: 有序数组的平方：从有序性发现相向双指针
 description: 以 LeetCode 977 为例，掌握“平方后局部失序”的结构特征，理解为什么最大平方一定来自数组两端，并用相向双指针把 O(n log n) 优化到 O(n)。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 有序数组的平方：从有序性发现相向双指针
 
 题目：LeetCode 977「有序数组的平方」。
@@ -75,9 +79,18 @@ $$
 
 最直接的做法：
 
+<Steps>
+<Step>
+
 将每个元素平方。
 
+</Step>
+<Step>
+
 对整个数组重新排序。
+
+</Step>
+</Steps>
 
 ```cpp
 class Solution {
@@ -831,7 +844,8 @@ while (left <= right) {
 
 ## 19. 其他语言版本
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -861,7 +875,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -888,7 +903,8 @@ class Solution:
         return result
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func sortedSquares(nums []int) []int {
@@ -917,7 +933,8 @@ func sortedSquares(nums []int) []int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -951,7 +968,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var sortedSquares = function(nums) {
@@ -979,3 +997,5 @@ var sortedSquares = function(nums) {
 };
 ```
 
+</Tab>
+</Tabs>

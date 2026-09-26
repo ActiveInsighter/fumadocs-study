@@ -4,6 +4,9 @@ summary: 掌握“候选数组含重复元素、每个下标只能使用一次�
 description: LeetCode 40 组合总和 II：排序、startIndex、树层去重、树枝重复、i + 1、目标和剪枝、used 数组等价写法与复杂度分析。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 40. 组合总和 II
 
 给定一个正整数数组 `candidates` 和目标值 `target`，找出所有元素和等于 `target` 的组合。
@@ -334,6 +337,9 @@ void backtracking(const vector<int>& candidates,
 
 ## 8. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### ① 递归状态
 
 维护：
@@ -350,6 +356,9 @@ $$
 (path,
 emain,startIndex)
 $$
+
+</Step>
+<Step>
 
 ### ② 终止条件
 
@@ -369,6 +378,9 @@ if (remain == 0) {
 ```
 
 因为候选都是正整数，不需要继续向下搜索。
+
+</Step>
+<Step>
 
 ### ③ 单层搜索
 
@@ -393,6 +405,9 @@ for (int i = startIndex; i < candidates.size(); ++i) {
 1. `candidates[i] > remain`：目标和剪枝；
 2. `i > startIndex && candidates[i] == candidates[i - 1]`：树层去重；
 3. `i + 1`：当前下标只使用一次。
+
+</Step>
+</Steps>
 
 ## 9. 为什么不能“先搜完，再用 set 去重”？
 
@@ -684,7 +699,8 @@ $$
 
 ## 17. 其他语言实现
 
-### Java
+<Tabs groupId="combination-sum-ii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -715,7 +731,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -743,7 +760,8 @@ class Solution:
         return result
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func combinationSum2(candidates []int, target int) [][]int {
@@ -779,7 +797,8 @@ func combinationSum2(candidates []int, target int) [][]int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var combinationSum2 = function(candidates, target) {
@@ -809,7 +828,8 @@ var combinationSum2 = function(candidates, target) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function combinationSum2(candidates: number[], target: number): number[][] {
@@ -839,7 +859,8 @@ function combinationSum2(candidates: number[], target: number): number[][] {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -880,7 +901,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdlib.h>
@@ -934,7 +956,8 @@ int **combinationSum2(int *candidates, int candidatesSize, int target,
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -971,7 +994,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -1003,7 +1027,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -1039,3 +1064,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

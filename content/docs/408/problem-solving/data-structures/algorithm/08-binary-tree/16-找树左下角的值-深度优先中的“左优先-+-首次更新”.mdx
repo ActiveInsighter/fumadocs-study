@@ -266,6 +266,8 @@ if (depth > maxDepth) {
 
 ## 8. 递归三步法
 
+<Steps>
+
 ### 1. 明确递归函数的状态
 
 ```cpp
@@ -296,6 +298,8 @@ if (node->right != nullptr) dfs(node->right, depth + 1);
 ```
 
 `depth + 1` 作为值传入下一层，递归返回后当前层的 `depth` 并没有被修改，因此这里已经隐含了回溯。
+
+</Steps>
 
 ## 9. C++ 递归实现
 
@@ -344,7 +348,8 @@ depth--;
 
 实际上下面两种写法表达的是同一个状态恢复过程。
 
-### 显式修改
+<Tabs groupId="bottom-left-backtracking" items={['显式修改', '值传递']}>
+<Tab value="显式修改">
 
 ```cpp
 depth++;
@@ -354,13 +359,17 @@ depth--;
 
 递归前修改当前变量，返回后必须手动恢复。
 
-### 值传递
+</Tab>
+<Tab value="值传递">
 
 ```cpp
 dfs(node->left, depth + 1);
 ```
 
 传给子调用的是一个新值，当前栈帧中的 `depth` 从未被修改，所以返回时天然恢复。
+
+</Tab>
+</Tabs>
 
 这就是所谓的**隐式回溯**。
 
@@ -498,7 +507,8 @@ DFS 中真正保证“最左”的组合是：
 
 ## 其他语言版本
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java
 import java.util.ArrayDeque;
@@ -525,7 +535,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 from collections import deque
@@ -550,7 +561,8 @@ class Solution:
         return answer
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func findBottomLeftValue(root *TreeNode) int {
@@ -578,7 +590,8 @@ func findBottomLeftValue(root *TreeNode) int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var findBottomLeftValue = function(root) {
@@ -600,7 +613,8 @@ var findBottomLeftValue = function(root) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function findBottomLeftValue(root: TreeNode | null): number {
@@ -624,7 +638,8 @@ function findBottomLeftValue(root: TreeNode | null): number {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -652,7 +667,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 import scala.collection.mutable.Queue
@@ -677,7 +693,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 use std::cell::RefCell;
@@ -712,7 +729,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -736,3 +754,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

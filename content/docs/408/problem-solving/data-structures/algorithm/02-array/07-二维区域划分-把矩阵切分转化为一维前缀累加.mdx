@@ -3,6 +3,10 @@ title: 二维区域划分：把矩阵切分转化为一维前缀累加
 description: 以“开发商购买土地”为例，从二维暴力枚举出发，将横切与竖切分别压缩成行和、列和问题，推导 |total-2×part|，讲清非空区域边界、复杂度与无需保存完整矩阵的优化。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 二维区域划分：把矩阵切分转化为一维前缀累加
 
 题目：卡码网 44「开发商购买土地」。
@@ -524,7 +528,8 @@ int main() {
 
 ## 14. 其他语言版本
 
-### Java
+<Tabs items={["Java", "Python", "Go", "JavaScript", "TypeScript"]}>
+<Tab value="Java">
 
 ```java
 import java.io.*;
@@ -607,7 +612,8 @@ public class Main {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 import sys
@@ -650,7 +656,8 @@ if __name__ == "__main__":
     main()
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 package main
@@ -715,7 +722,8 @@ func main() {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 const fs = require('fs');
@@ -755,7 +763,8 @@ for (let j = 0; j < m - 1; j++) {
 console.log(answer);
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 import * as fs from 'fs';
@@ -795,3 +804,5 @@ for (let j = 0; j < m - 1; j++) {
 console.log(answer);
 ```
 
+</Tab>
+</Tabs>

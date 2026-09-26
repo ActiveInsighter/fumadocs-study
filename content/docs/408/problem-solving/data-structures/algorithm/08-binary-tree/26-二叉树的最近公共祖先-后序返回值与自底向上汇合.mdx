@@ -427,10 +427,8 @@ TreeNode* right = dfs(root->right);
 
 再做合并。
 
-
-
-### 存在性搜索
-
+<Tabs groupId="return-value-search" items={['存在性搜索', '左右结果合并']}>
+<Tab value="存在性搜索">
 
 ```cpp
 if (dfs(root->left)) return true;
@@ -440,10 +438,8 @@ return false;
 
 目标是：找到任意一个成功分支即可。
 
-
-
-### 左右结果合并
-
+</Tab>
+<Tab value="左右结果合并">
 
 ```cpp
 TreeNode* left = dfs(root->left);
@@ -453,8 +449,8 @@ return combine(left, right);
 
 目标是：父节点必须同时拿到左右子问题的信息。
 
-
-
+</Tab>
+</Tabs>
 
 <Callout title="不要把“有返回值”简单等同于“只搜一条边”" type="warning">
 
@@ -611,10 +607,8 @@ ReturnType dfs(TreeNode* root) {
 
 下面各语言统一采用“**后序递归 + 左右返回值汇合**”这一核心解法。
 
-
-
-### Java
-
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java title="Java"
 class Solution {
@@ -635,10 +629,8 @@ class Solution {
 }
 ```
 
-
-
-### Python
-
+</Tab>
+<Tab value="Python">
 
 ```python title="Python"
 class Solution:
@@ -655,10 +647,8 @@ class Solution:
         return left if left is not None else right
 ```
 
-
-
-### Go
-
+</Tab>
+<Tab value="Go">
 
 ```go title="Go"
 func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
@@ -679,10 +669,8 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 }
 ```
 
-
-
-### JavaScript
-
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript"
 var lowestCommonAncestor = function(root, p, q) {
@@ -701,10 +689,8 @@ var lowestCommonAncestor = function(root, p, q) {
 };
 ```
 
-
-
-### TypeScript
-
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript title="TypeScript"
 function lowestCommonAncestor(
@@ -727,10 +713,8 @@ function lowestCommonAncestor(
 }
 ```
 
-
-
-### Scala
-
+</Tab>
+<Tab value="Scala">
 
 ```scala title="Scala"
 object Solution {
@@ -751,10 +735,8 @@ object Solution {
 }
 ```
 
-
-
-### Rust
-
+</Tab>
+<Tab value="Rust">
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -794,10 +776,8 @@ impl Solution {
 }
 ```
 
-
-
-### C#
-
+</Tab>
+<Tab value="C#">
 
 ```csharp title="C#"
 public class Solution
@@ -822,5 +802,5 @@ public class Solution
 }
 ```
 
-
-
+</Tab>
+</Tabs>

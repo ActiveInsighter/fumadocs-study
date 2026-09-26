@@ -5,6 +5,9 @@ summary: 把数独求解重新建模为“每层给一个空格选择一个候�
 description: LeetCode 37 解数独：回溯、DFS、约束满足问题、行列宫剪枝、候选数字、提前返回、MRV、位运算优化与多语言实现。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 37. 解数独
 
 [LeetCode 题目链接](https://leetcode.cn/problems/sudoku-solver/)
@@ -288,6 +291,9 @@ int box = (row / 3) * 3 + col / 3;
 
 ## 8. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### 当前层处理哪个空格？
 
 ```cpp
@@ -295,6 +301,9 @@ auto [row, col] = spaces[index];
 ```
 
 每层只负责一个空格。
+
+</Step>
+<Step>
 
 ### 当前空格有哪些选择？
 
@@ -305,6 +314,9 @@ for (int d = 1; d <= 9; ++d)
 ```
 
 如果行、列、宫任意一处已经出现 `d`，就直接剪枝。
+
+</Step>
+<Step>
 
 ### 做选择、递归、撤销
 
@@ -325,6 +337,9 @@ for (int d = 1; d <= 9; ++d)
 ```
 
 如果后续成功，则直接 `return true`，无需撤销，因为最终答案就应该保留在棋盘中。
+
+</Step>
+</Steps>
 
 原资料另一幅图强调的也是这个过程：
 
@@ -676,7 +691,8 @@ $$
 
 ## 18. 其他语言实现
 
-### Java
+<Tabs groupId="sudoku-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -808,7 +824,8 @@ class Solution{
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -868,7 +885,8 @@ class Solution:
         return False
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func solveSudoku(board [][]byte) {
@@ -924,7 +942,8 @@ func isvalid(row, col int, k byte, board [][]byte) bool {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var solveSudoku = function(board) {
@@ -981,7 +1000,8 @@ var solveSudoku = function(board) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 /**
@@ -1030,7 +1050,8 @@ function solveSudoku(board: string[][]): void {
 };
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -1076,7 +1097,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 bool isValid(char** board, int row, int col, int k) {
@@ -1141,7 +1163,8 @@ void solveSudoku(char** board, int boardSize, int* boardColSize) {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 func solveSudoku(_ board: inout [[Character]]) {
@@ -1190,7 +1213,8 @@ func solveSudoku(_ board: inout [[Character]]) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -1281,7 +1305,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -1336,3 +1361,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

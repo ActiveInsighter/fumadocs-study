@@ -3,7 +3,10 @@ title: 翻转字符串里的单词：双重反转、快慢指针与原地字符�
 description: 以 LeetCode 151 为主线，掌握“去多余空格 → 整体反转 → 单词逐个反转”的经典字符串技巧，并分析 erase 导致的复杂度陷阱。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 翻转字符串里的单词：双重反转、快慢指针与原地字符串整理
 
@@ -461,17 +464,29 @@ i <= s.size()
 
 这道题把多个基础技巧组合在了一起：
 
+<Steps>
+<Step>
+
 ### 快慢指针压缩无效字符
 
 把“删除”转换成“覆盖”。
+
+</Step>
+<Step>
 
 ### 双指针反转区间
 
 建立可复用的基础操作。
 
+</Step>
+<Step>
+
 ### 整体反转改变块顺序
 
 通过一次全局操作完成单词顺序倒置。
+
+</Step>
+<Step>
 
 ### 局部反转恢复块内部顺序
 
@@ -483,6 +498,9 @@ $$
 
 恢复每个单词。
 
+</Step>
+</Steps>
+
 以后看到“若干块的顺序要反转，但块内部保持不变”时，可以优先思考：
 
 $$
@@ -493,7 +511,8 @@ $$
 
 ## 其他语言版本
 
-### C++
+<Tabs items={["C++", "Java", "Python", "Go"]}>
+<Tab value="C++">
 
 ```cpp
 class Solution {
@@ -542,7 +561,8 @@ public:
 };
 ```
 
-### Java
+</Tab>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -586,7 +606,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -618,7 +639,8 @@ class Solution:
         return ''.join(chars)
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func reverseRange(s []byte, left, right int) {
@@ -666,3 +688,5 @@ func reverseWords(str string) string {
 }
 ```
 
+</Tab>
+</Tabs>

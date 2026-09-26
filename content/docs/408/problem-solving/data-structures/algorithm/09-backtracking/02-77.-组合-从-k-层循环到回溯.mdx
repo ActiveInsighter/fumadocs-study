@@ -4,6 +4,9 @@ summary: 用状态空间树理解组合问题，掌握 startIndex 的本质、�
 description: LeetCode 77 组合的系统讲解：从多层循环抽象到回溯搜索树，重点理解 startIndex、选择范围、终止条件与状态恢复。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 77. 组合：从 $k$ 层循环到回溯
 
 [LeetCode 77. 组合](https://leetcode.cn/problems/combinations/)
@@ -145,6 +148,9 @@ $$
 
 ## 4. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### ① 定义路径与递归参数
 
 `path` 保存当前组合，`result` 保存所有完整组合。
@@ -162,6 +168,9 @@ vector<int> path;
 void backtracking(int n, int k, int startIndex);
 ```
 
+</Step>
+<Step>
+
 ### ② 确定终止条件
 
 当路径长度已经达到 $k$ 时，当前路径就是一个完整组合：
@@ -174,6 +183,9 @@ if (path.size() == k) {
 ```
 
 这里保存的是 `path` 的一个副本。之后即使继续 `pop_back()`，已经加入结果集的组合也不会被改变。
+
+</Step>
+<Step>
 
 ### ③ 横向枚举，纵向递归，返回后撤销
 
@@ -188,6 +200,9 @@ for (int i = startIndex; i <= n; ++i) {
 ![77.组合1](https://file1.kamacoder.com/i/algo/20201123195242899.png)
 
 `for` 循环负责同一层不同候选之间的**横向遍历**；递归调用负责搜索树的**纵向深入**。
+
+</Step>
+</Steps>
 
 ## 5. 用一次完整搜索理解“选择—递归—撤销”
 
@@ -338,7 +353,8 @@ $$
 
 ## 其他语言版本
 
-### Java
+<Tabs groupId="combine-basic-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'Ruby', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -366,7 +382,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -388,7 +405,8 @@ class Solution:
         return ans
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func combine(n int, k int) [][]int {
@@ -415,7 +433,8 @@ func combine(n int, k int) [][]int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var combine = function (n, k) {
@@ -440,7 +459,8 @@ var combine = function (n, k) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function combine(n: number, k: number): number[][] {
@@ -465,7 +485,8 @@ function combine(n: number, k: number): number[][] {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -491,7 +512,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 static int *path;
@@ -534,7 +556,8 @@ int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -562,7 +585,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -589,7 +613,8 @@ object Solution {
 }
 ```
 
-### Ruby
+</Tab>
+<Tab value="Ruby">
 
 ```ruby
 def combine(n, k)
@@ -614,7 +639,8 @@ def combine(n, k)
 end
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -643,3 +669,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

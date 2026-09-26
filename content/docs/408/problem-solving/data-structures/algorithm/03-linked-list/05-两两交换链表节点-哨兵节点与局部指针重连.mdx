@@ -3,7 +3,10 @@ title: 两两交换链表节点：哨兵节点与局部指针重连
 description: 以 LeetCode 24 为主线，系统掌握链表相邻节点交换的局部重连方法、虚拟头结点、不变量、指针修改顺序以及递归解法。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 两两交换链表节点：哨兵节点与局部指针重连
 
@@ -146,6 +149,9 @@ cur → first → second → next
 
 然后依次做三步。
 
+<Steps>
+  <Step>
+
 **让前驱指向第二个节点**
 
 ```cpp
@@ -159,6 +165,9 @@ cur → second
 
 first → second → next
 ```
+
+  </Step>
+  <Step>
 
 **让第一个节点跳过第二个节点，接到后续链表**
 
@@ -174,6 +183,9 @@ cur → second
 first → next
 ```
 
+  </Step>
+  <Step>
+
 **让第二个节点指向第一个节点**
 
 ```cpp
@@ -185,6 +197,9 @@ second->next = first;
 ```text
 cur → second → first → next
 ```
+
+  </Step>
+</Steps>
 
 这个顺序的优点是：
 
@@ -752,7 +767,8 @@ $$
 
 ## 其他语言版本
 
-### C++
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
 
 ```cpp
 class Solution {
@@ -778,7 +794,8 @@ public:
 };
 ```
 
-### Java
+  </Tab>
+  <Tab value="Java">
 
 ```java
 class Solution {
@@ -802,7 +819,8 @@ class Solution {
 }
 ```
 
-### Python
+  </Tab>
+  <Tab value="Python">
 
 ```python
 class Solution:
@@ -823,7 +841,8 @@ class Solution:
         return dummy.next
 ```
 
-### Go
+  </Tab>
+  <Tab value="Go">
 
 ```go
 func swapPairs(head *ListNode) *ListNode {
@@ -845,7 +864,8 @@ func swapPairs(head *ListNode) *ListNode {
 }
 ```
 
-### JavaScript
+  </Tab>
+  <Tab value="JavaScript">
 
 ```javascript
 var swapPairs = function (head) {
@@ -867,3 +887,5 @@ var swapPairs = function (head) {
 };
 ```
 
+  </Tab>
+</Tabs>

@@ -878,6 +878,7 @@ while (队列非空) {
 
 下面给出 **邻接表 BFS + 最短边数** 的标准模板。`dist[x] == -1` 同时承担“尚未访问”的判重作用。
 
+````code-tabs
 ```cpp label="C++"
 #include <iostream>
 #include <queue>
@@ -1008,3 +1009,4 @@ function bfs(start, graph) {
   return dist;
 }
 ```
+````

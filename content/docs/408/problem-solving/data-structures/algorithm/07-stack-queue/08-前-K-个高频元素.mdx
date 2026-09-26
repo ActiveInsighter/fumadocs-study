@@ -952,10 +952,8 @@ Hash Map + 小根堆
 
 # 24. 多语言实现
 
-
-  
-### C++
-
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
 
 ```cpp
 class Solution {
@@ -1005,11 +1003,9 @@ public:
 };
 ```
 
-  
+  </Tab>
 
-  
-### Java
-
+  <Tab value="Java">
 
 ```java
 import java.util.*;
@@ -1049,11 +1045,9 @@ class Solution {
 }
 ```
 
-  
+  </Tab>
 
-  
-### Python
-
+  <Tab value="Python">
 
 ```python
 from collections import Counter
@@ -1078,11 +1072,9 @@ class Solution:
         return [value for count, value in heap]
 ```
 
-  
+  </Tab>
 
-  
-### Go
-
+  <Tab value="Go">
 
 ```go
 type Item struct {
@@ -1150,11 +1142,9 @@ func topKFrequent(nums []int, k int) []int {
 }
 ```
 
-  
+  </Tab>
 
-  
-### JavaScript
-
+  <Tab value="JavaScript">
 
 ```javascript
 var topKFrequent = function(nums, k) {
@@ -1174,11 +1164,9 @@ var topKFrequent = function(nums, k) {
 };
 ```
 
-  
+  </Tab>
 
-  
-### TypeScript
-
+  <Tab value="TypeScript">
 
 ```typescript
 function topKFrequent(
@@ -1198,8 +1186,8 @@ function topKFrequent(
 }
 ```
 
-  
-
+  </Tab>
+</Tabs>
 
 <Callout type="note" title="关于 JavaScript / TypeScript">
 语言标准库没有统一内置的优先队列，因此上面的版本使用排序保持代码简洁。

@@ -167,7 +167,8 @@ height = max(leftHeight, rightHeight) + 1
 
 因此高度天然适合后序遍历。
 
-### 深度
+<Tabs groupId="depth-height-review" items={['深度', '高度']}>
+<Tab value="深度">
 
 关注“从根走到这里有多远”。
 
@@ -181,7 +182,8 @@ height = max(leftHeight, rightHeight) + 1
 
 常见写法：前序 + 回溯。
 
-### 高度
+</Tab>
+<Tab value="高度">
 
 关注“从这里向下还能走多远”。
 
@@ -192,6 +194,9 @@ height = max(leftHeight, rightHeight) + 1
 ```
 
 常见写法：后序 + 返回值。
+
+</Tab>
+</Tabs>
 
 最大深度之所以既能用前序也能用后序，是因为：
 
@@ -371,13 +376,28 @@ min(leftDepth, rightDepth) + 1
 
 典型模式：
 
+<Steps>
+<Step>
+
 进入当前节点，把它加入路径或累计状态。
+
+</Step>
+<Step>
 
 如果到达目标位置，处理当前完整路径。
 
+</Step>
+<Step>
+
 递归进入孩子。
 
+</Step>
+<Step>
+
 返回父节点之前，撤销当前节点造成的状态修改。
+
+</Step>
+</Steps>
 
 例如：
 
@@ -700,6 +720,9 @@ $$
 
 ## 15. 一套真正可执行的“二叉树解题流程”
 
+<Steps>
+<Step>
+
 ### 第一步：识别树的性质
 
 先确认它是：
@@ -709,6 +732,9 @@ $$
 ```
 
 不要浪费题目给出的结构条件。
+
+</Step>
+<Step>
 
 ### 第二步：明确递归函数的语义
 
@@ -724,9 +750,15 @@ $$
 返回当前子树中找到的目标节点
 ```
 
+</Step>
+<Step>
+
 ### 第三步：确定父节点需要什么返回值
 
 父节点如果需要子树结果，就设计返回值；如果只需要遍历并修改全局状态，可以使用 `void`。
+
+</Step>
+<Step>
 
 ### 第四步：写清终止条件
 
@@ -738,6 +770,9 @@ node == null
 
 但不要机械返回 `0` 或 `false`，必须确认这个值在当前问题语义里是否合理。
 
+</Step>
+<Step>
+
 ### 第五步：决定当前节点的处理时机
 
 ```text
@@ -746,6 +781,9 @@ node == null
 BST 有序问题 → 中序倾向
 按层处理 → BFS
 ```
+
+</Step>
+<Step>
 
 ### 第六步：检查状态是否需要回溯
 
@@ -759,13 +797,19 @@ count
 
 回到父节点以后是否需要恢复？
 
+</Step>
+<Step>
+
 ### 第七步：最后再考虑迭代写法和复杂度
 
 先保证模型正确，再决定是否使用栈、队列或其他优化。
 
+</Step>
+</Steps>
+
 ## 16. 高频错误清单
 
-<Accordions type="multiple">
+<AccordionGroup>
 <Accordion title="错误 1：只比较父子节点来验证 BST">
 
 BST 是全局约束，不是局部约束。
@@ -809,7 +853,7 @@ node->left = operation(node->left);
 真正要判断的是数据依赖：当前节点需要先处理，还是必须先拿到左右子树结果。
 
 </Accordion>
-</Accordions>
+</AccordionGroup>
 
 ## 17. 全章知识索引
 
@@ -892,7 +936,8 @@ node->left = operation(node->left);
 
 下面的代码不是某一道具体题的答案，而是一个用于检查递归结构的通用骨架。真正做题时，应根据“父节点需要什么信息”修改返回值和单层逻辑。
 
-### C++
+<Tabs groupId="binary-tree-dfs-template" items={['C++', 'Java', 'Python', 'JavaScript']}>
+<Tab value="C++">
 
 ```cpp title="C++ · 通用 DFS 骨架"
 Result dfs(TreeNode* node) {
@@ -917,7 +962,8 @@ Result dfs(TreeNode* node) {
 }
 ```
 
-### Java
+</Tab>
+<Tab value="Java">
 
 ```java title="Java · 通用 DFS 骨架"
 Result dfs(TreeNode node) {
@@ -942,7 +988,8 @@ Result dfs(TreeNode node) {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python title="Python · 通用 DFS 骨架"
 def dfs(node):
@@ -965,7 +1012,8 @@ def dfs(node):
     return merge(node, left, right)
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript · 通用 DFS 骨架"
 function dfs(node) {
@@ -990,6 +1038,9 @@ function dfs(node) {
 }
 ```
 
+</Tab>
+</Tabs>
+
 <Callout title="最后的判断标准" type="idea">
 
 真正掌握二叉树，不是看到题目后能背出某份代码，而是能在动手前回答：
@@ -1006,4 +1057,3 @@ function dfs(node) {
 这些问题回答清楚以后，代码通常只是把思路翻译出来。
 
 </Callout>
-

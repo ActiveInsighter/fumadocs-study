@@ -640,10 +640,8 @@ key -> 状态
 
 ## 13. 多语言常用写法
 
-
-  
-### C++
-
+<Tabs items={['C++', 'Java', 'Python']}>
+  <Tab value="C++">
 
 ```cpp
 #include <unordered_map>
@@ -661,11 +659,9 @@ unordered_map<int, int> freq;
 ++freq[10];
 ```
 
-  
+  </Tab>
 
-  
-### Java
-
+  <Tab value="Java">
 
 ```java
 import java.util.HashMap;
@@ -684,11 +680,9 @@ Map<Integer, Integer> freq = new HashMap<>();
 freq.put(10, freq.getOrDefault(10, 0) + 1);
 ```
 
-  
+  </Tab>
 
-  
-### Python
-
+  <Tab value="Python">
 
 ```python
 seen = set()
@@ -702,8 +696,8 @@ freq = {}
 freq[10] = freq.get(10, 0) + 1
 ```
 
-  
-
+  </Tab>
+</Tabs>
 
 ---
 

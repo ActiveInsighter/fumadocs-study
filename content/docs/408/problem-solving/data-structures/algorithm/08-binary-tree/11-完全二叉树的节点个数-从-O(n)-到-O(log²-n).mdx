@@ -94,6 +94,8 @@ $$
 
 ### 递归三步法
 
+<Steps>
+
 ### 1. 定义返回值
 
 `countNodes(root)` 返回以 `root` 为根的整棵子树的节点个数。
@@ -113,6 +115,8 @@ int leftCount = countNodes(root->left);
 int rightCount = countNodes(root->right);
 return leftCount + rightCount + 1;
 ```
+
+</Steps>
 
 ```cpp title="通用递归解法"
 class Solution {
@@ -344,6 +348,8 @@ $$
 
 核心过程只有三步：
 
+<Steps>
+
 ### 1. 空树直接返回 0
 
 ```cpp
@@ -378,6 +384,8 @@ if (leftDepth == rightDepth) {
 
 return 1 + countNodes(root->left) + countNodes(root->right);
 ```
+
+</Steps>
 
 完整代码：
 
@@ -687,7 +695,8 @@ $$
 
 下面统一给出“利用完全二叉树性质”的核心解法。
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java title="Java"
 class Solution {
@@ -717,7 +726,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python title="Python"
 class Solution:
@@ -744,7 +754,8 @@ class Solution:
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go title="Go"
 func countNodes(root *TreeNode) int {
@@ -773,7 +784,8 @@ func countNodes(root *TreeNode) int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript"
 var countNodes = function(root) {
@@ -801,7 +813,8 @@ var countNodes = function(root) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript title="TypeScript"
 function countNodes(root: TreeNode | null): number {
@@ -829,7 +842,8 @@ function countNodes(root: TreeNode | null): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c title="C"
 int countNodes(struct TreeNode* root) {
@@ -857,7 +871,8 @@ int countNodes(struct TreeNode* root) {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift title="Swift"
 class Solution {
@@ -887,7 +902,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala title="Scala"
 object Solution {
@@ -917,7 +933,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -956,7 +973,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp title="C#"
 public class Solution {
@@ -986,3 +1004,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

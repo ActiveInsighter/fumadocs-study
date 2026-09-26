@@ -4,6 +4,10 @@ summary: 把每个站点压缩为净油量 gas[i] - cost[i]，先用总和判断
 description: LeetCode 134 加油站。系统讲解暴力模拟、前缀和视角、区间淘汰贪心、正确性证明、与最大子序和的联系、常见错误以及多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 134. 加油站
 
 [LeetCode 134. 加油站](https://leetcode.cn/problems/gas-station/)
@@ -288,6 +292,9 @@ $$
 
 现在可以把算法写成三句话。
 
+<Steps>
+<Step>
+
 ### 累加当前候选起点的净油量
 
 ```cpp
@@ -299,6 +306,9 @@ curSum += gas[i] - cost[i];
 ```cpp
 totalSum += gas[i] - cost[i];
 ```
+
+</Step>
+<Step>
 
 ### 当前区间失败时整体淘汰
 
@@ -317,6 +327,9 @@ curSum = 0;
 
 因为区间 `[start, i]` 中所有位置都已经被证明不可能成为答案。
 
+</Step>
+<Step>
+
 ### 最后用总净油量判断是否存在解
 
 若：
@@ -328,6 +341,9 @@ totalSum < 0
 返回 `-1`。
 
 否则返回最终留下的 `start`。
+
+</Step>
+</Steps>
 
 ## 7. 标准线性解法
 
@@ -646,7 +662,8 @@ $$
 
 下面均采用推荐的 $O(n)$ 区间淘汰贪心。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -671,7 +688,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -692,7 +710,8 @@ class Solution:
         return -1 if total_sum < 0 else start
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func canCompleteCircuit(gas []int, cost []int) int {
@@ -718,7 +737,8 @@ func canCompleteCircuit(gas []int, cost []int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -747,7 +767,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var canCompleteCircuit = function(gas, cost) {
@@ -770,7 +791,8 @@ var canCompleteCircuit = function(gas, cost) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function canCompleteCircuit(gas: number[], cost: number[]): number {
@@ -793,7 +815,8 @@ function canCompleteCircuit(gas: number[], cost: number[]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
@@ -816,7 +839,8 @@ int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -841,7 +865,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -866,3 +891,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

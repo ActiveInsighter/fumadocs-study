@@ -198,10 +198,8 @@ $$
 
 一笔交易最终仍然只扣一次手续费，所以两种写法等价。
 
-
-
-### 卖出时扣
-
+<Tabs items={["卖出时扣", "买入时扣"]}>
+<Tab value="卖出时扣">
 
 $$
 hold' = \max(hold,cash-price)
@@ -213,10 +211,8 @@ $$
 
 这是最常见、也最直观的写法。
 
-
-
-### 买入时扣
-
+</Tab>
+<Tab value="买入时扣">
 
 $$
 hold' = \max(hold,cash-price-fee)
@@ -228,8 +224,8 @@ $$
 
 效果完全相同，但初始化也必须同步扣除手续费。
 
-
-
+</Tab>
+</Tabs>
 
 ## 6. 初始化
 
@@ -608,6 +604,7 @@ $$
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 class Solution {
     public int maxProfit(int[] prices, int fee) {
@@ -740,3 +737,4 @@ impl Solution {
     }
 }
 ```
+````

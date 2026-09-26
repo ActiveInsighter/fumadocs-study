@@ -416,28 +416,22 @@ dp[i] += dp[left] * dp[right];
 
 ## 13. 动态规划五步法复盘
 
-
-
-### 状态
-
+<Tabs items={["状态", "转移", "初始化", "顺序", "答案"]}>
+<Tab value="状态">
 
 $$
 dp[i]=\text{由 }i\text{ 个不同节点能构造出的 BST 数量}
 $$
 
-
-
-### 转移
-
+</Tab>
+<Tab value="转移">
 
 $$
 dp[i]=\sum_{j=1}^{i}dp[j-1]dp[i-j]
 $$
 
-
-
-### 初始化
-
+</Tab>
+<Tab value="初始化">
 
 $$
 dp[0]=1
@@ -445,24 +439,20 @@ $$
 
 空树视为一种合法结构。
 
-
-
-### 顺序
-
+</Tab>
+<Tab value="顺序">
 
 总节点数 `i` 从小到大；对每个 `i` 枚举根节点 `j`。
 
-
-
-### 答案
-
+</Tab>
+<Tab value="答案">
 
 $$
 dp[n]
 $$
 
-
-
+</Tab>
+</Tabs>
 
 ## 14. 一句话抓住本题
 
@@ -472,6 +462,7 @@ $$
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 class Solution {
     public int numTrees(int n) {
@@ -581,3 +572,4 @@ int numTrees(int n) {
     return ans;
 }
 ```
+````

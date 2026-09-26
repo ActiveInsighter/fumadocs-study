@@ -3,6 +3,9 @@ title: 数组理论基础：连续内存、随机访问与二维布局
 description: 从内存布局出发理解数组的随机访问、插入删除成本、C++ vector 与原生数组的区别，以及二维数组在不同语言中的实现差异。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
 # 数组理论基础：连续内存、随机访问与二维布局
 
 数组是算法学习中最基础的数据结构之一。很多数组题思路并不复杂，真正容易出错的地方往往是：**下标、边界、元素移动和内存模型**。
@@ -215,10 +218,8 @@ a[2] = new int[1];
 
 ## 8. 一个小实验：观察连续地址
 
-
-
-### C++
-
+<Tabs items={['C++', 'Java', 'Python']}>
+<Tab value="C++">
 
 ```cpp
 #include <iostream>
@@ -238,10 +239,8 @@ int main() {
 
 C++ 原生二维数组中，这些地址会按元素大小连续递增。
 
-
-
-### Java
-
+</Tab>
+<Tab value="Java">
 
 ```java
 public class Main {
@@ -256,10 +255,8 @@ public class Main {
 
 打印出的内容不是可用于证明物理连续性的真实元素地址。Java 对象布局由 JVM 管理。
 
-
-
-### Python
-
+</Tab>
+<Tab value="Python">
 
 ```python
 a = [[0, 1, 2], [3, 4, 5]]
@@ -270,8 +267,8 @@ print(id(a[1]))
 
 Python 的二维列表同样是“列表中保存对象引用”的模型，不应把它理解为 C/C++ 原生二维数组那样的一整块连续整数内存。
 
-
-
+</Tab>
+</Tabs>
 
 ---
 

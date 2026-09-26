@@ -545,12 +545,9 @@ $$
 
 这道题不是为了再背一遍 01 背包模板，而是训练三层转化能力：
 
-1. **等和划分** $
-ightarrow$ **寻找和为总和一半的子集**；
-2. **寻找子集** $
-ightarrow$ **每个元素只能使用一次的 01 背包**；
-3. **是否恰好达到目标** $
-ightarrow$ 最大价值状态或布尔可达状态。
+1. **等和划分** $ightarrow$ **寻找和为总和一半的子集**；
+2. **寻找子集** $ightarrow$ **每个元素只能使用一次的 01 背包**；
+3. **是否恰好达到目标** $ightarrow$ 最大价值状态或布尔可达状态。
 
 可以把核心模型压缩为：
 
@@ -568,6 +565,7 @@ $$
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 class Solution {
     public boolean canPartition(int[] nums) {
@@ -693,3 +691,4 @@ function canPartition(nums: number[]): boolean {
   return false;
 }
 ```
+````

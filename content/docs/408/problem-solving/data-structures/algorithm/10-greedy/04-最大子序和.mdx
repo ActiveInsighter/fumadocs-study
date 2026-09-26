@@ -4,6 +4,10 @@ summary: 从“负贡献前缀必须舍弃”出发理解 Kadane 算法，掌握
 description: LeetCode 53 最大子数组和。系统讲解暴力枚举、线性贪心、正确性证明、常见误区、区间恢复、动态规划等价形式与多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 53. 最大子序和
 
 [LeetCode 53. 最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
@@ -218,6 +222,9 @@ $$
 
 ## 5. 最终线性贪心算法
 
+<Steps>
+<Step>
+
 ### 初始化答案
 
 因为数组可能全部为负数，所以不能把答案初始化为 $0$。
@@ -234,6 +241,9 @@ int answer = INT_MIN;
 int sum = 0;
 ```
 
+</Step>
+<Step>
+
 ### 加入当前元素
 
 ```cpp
@@ -242,6 +252,9 @@ sum += nums[i];
 
 此时 `sum` 表示当前候选起点到位置 $i$ 的连续区间和。
 
+</Step>
+<Step>
+
 ### 立即更新全局答案
 
 ```cpp
@@ -249,6 +262,9 @@ answer = max(answer, sum);
 ```
 
 即使 `sum` 是负数，它也可能是全负数组中的最优答案。
+
+</Step>
+<Step>
 
 ### 丢弃负贡献前缀
 
@@ -265,6 +281,9 @@ sum = 0;
 ```
 
 表示下一轮从新的位置重新开始。
+
+</Step>
+</Steps>
 
 对应原始资料中的过程动画：
 
@@ -661,7 +680,8 @@ i + 1
 
 下面统一给出 $O(n)$ 时间、$O(1)$ 额外空间的 Kadane / 贪心写法。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -683,7 +703,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -701,7 +722,8 @@ class Solution:
         return answer
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func maxSubArray(nums []int) int {
@@ -722,7 +744,8 @@ func maxSubArray(nums []int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -744,7 +767,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var maxSubArray = function (nums) {
@@ -764,7 +788,8 @@ var maxSubArray = function (nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function maxSubArray(nums: number[]): number {
@@ -784,7 +809,8 @@ function maxSubArray(nums: number[]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <limits.h>
@@ -809,7 +835,8 @@ int maxSubArray(int* nums, int numsSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -831,7 +858,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -857,3 +885,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

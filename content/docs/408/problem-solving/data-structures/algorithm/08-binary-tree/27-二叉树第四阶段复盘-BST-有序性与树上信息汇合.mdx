@@ -175,7 +175,8 @@ left.val < root.val < right.val
 
 验证 BST 有两种非常重要的思路。
 
-### 中序递增
+<Tabs groupId="validate-bst-model" items={['中序递增', '上下界约束']}>
+<Tab value="中序递增">
 
 把 BST 看成在线生成的有序序列：
 
@@ -191,7 +192,8 @@ cur <= pre
 
 就可以立即判错。
 
-### 上下界约束
+</Tab>
+<Tab value="上下界约束">
 
 给每个节点传递一个合法区间：
 
@@ -212,6 +214,9 @@ cur <= pre
 ```
 
 这样祖先约束就会一直传到深层节点。
+
+</Tab>
+</Tabs>
 
 这两种方法分别训练：
 
@@ -635,6 +640,8 @@ answer = merge(root, left, right)
 
 可以把这一阶段串成一条完整路线：
 
+<Steps>
+
 ### 1. 合并二叉树
 
 学会同时维护两棵树的一对节点。
@@ -658,6 +665,8 @@ answer = merge(root, left, right)
 ### 6. 最近公共祖先
 
 离开 BST 有序性，转而训练后序返回值和树上信息汇合。
+
+</Steps>
 
 这条路线非常重要，因为它说明：
 
@@ -698,4 +707,3 @@ answer = merge(root, left, right)
 原资料附图：
 
 ![](https://file1.kamacoder.com/i/algo/01二维码.jpg)
-

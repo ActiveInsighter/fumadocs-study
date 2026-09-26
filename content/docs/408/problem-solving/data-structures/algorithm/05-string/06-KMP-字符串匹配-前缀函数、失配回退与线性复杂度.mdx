@@ -3,7 +3,10 @@ title: KMP 字符串匹配：前缀函数、失配回退与线性复杂度
 description: 以 LeetCode 28 为主线，从最长相等前后缀推导 KMP，解释前缀表为什么能回退、如何构造 prefix/next 数组，以及为什么整体复杂度是 O(n+m)。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # KMP 字符串匹配：前缀函数、失配回退与线性复杂度
 
@@ -832,7 +835,8 @@ j == pattern.size()
 
 ## 15. 其他语言实现
 
-### C++
+<Tabs items={['C++', 'Java', 'Python', 'Go']}>
+<Tab value="C++">
 
 ```cpp
 #include <string>
@@ -873,7 +877,8 @@ public:
 };
 ```
 
-### Java
+</Tab>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -909,7 +914,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -943,7 +949,8 @@ class Solution:
         return -1
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func strStr(text string, pattern string) int {
@@ -979,3 +986,5 @@ func strStr(text string, pattern string) int {
 }
 ```
 
+</Tab>
+</Tabs>

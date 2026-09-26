@@ -5,6 +5,9 @@ summary: 把 N 皇后建模为“每一行恰好放一个皇后”的树形搜�
 description: LeetCode 51 N 皇后：回溯、棋盘搜索、列约束、主副对角线、剪枝、搜索树、复杂度分析与多语言实现。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 51. N 皇后
 
 [LeetCode 题目链接](https://leetcode.cn/problems/n-queens/)
@@ -251,6 +254,9 @@ $$
 
 ## 5. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### 定义状态
 
 我们需要：
@@ -264,6 +270,9 @@ diag2Used   哪些 / 对角线已被占用
 ```
 
 其中棋盘本身负责保存最终答案，三个布尔数组负责快速判断冲突。
+
+</Step>
+<Step>
 
 ### 终止条件
 
@@ -285,6 +294,9 @@ result.push_back(chessboard);
 
 ![N 皇后递归到叶子节点时得到一个完整方案](https://file1.kamacoder.com/i/algo/20210130182532303-20230310122134167.jpg)
 
+</Step>
+<Step>
+
 ### 单层搜索
 
 第 `row` 行依次尝试所有列：
@@ -304,6 +316,9 @@ for (int col = 0; col < n; ++col)
 ```
 
 这正是最标准的“做选择 → 递归 → 撤销选择”。
+
+</Step>
+</Steps>
 
 ## 6. 搜索过程为什么天然包含剪枝？
 
@@ -604,7 +619,8 @@ $$
 
 ## 14. 其他语言实现
 
-### Java
+<Tabs groupId="n-queens-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Rust', 'C', 'Scala', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -718,7 +734,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -765,7 +782,8 @@ class Solution:
         return True  # 当前位置合法
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func solveNQueens(n int) [][]string {
@@ -821,7 +839,8 @@ func isValid(n, row, col int, chessboard [][]string) bool {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 /**
@@ -887,7 +906,8 @@ var solveNQueens = function (n) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function solveNQueens(n: number): string[][] {
@@ -939,7 +959,8 @@ function transformBoard(board: string[][]): string[] {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 func solveNQueens(_ n: Int) -> [[String]] {
@@ -990,7 +1011,8 @@ func solveNQueens(_ n: Int) -> [[String]] {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -1040,7 +1062,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 char ***ans;
@@ -1166,7 +1189,8 @@ char *** solveNQueens(int n, int* returnSize, int** returnColumnSizes){
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -1238,7 +1262,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -1294,3 +1319,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

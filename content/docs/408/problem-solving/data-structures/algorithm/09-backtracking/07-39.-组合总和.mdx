@@ -4,6 +4,9 @@ summary: 掌握“同一集合、元素可重复使用”的组合型回溯，�
 description: LeetCode 39 组合总和：搜索树建模、startIndex、元素重复选取、剩余目标值、排序剪枝、复杂度与多语言实现。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 39. 组合总和
 
 给定一个**无重复元素**的正整数数组 `candidates` 和目标值 `target`，找出所有元素和等于 `target` 的不同组合。
@@ -249,6 +252,9 @@ $$
 
 ## 5. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### ① 递归参数
 
 需要维护：
@@ -275,6 +281,9 @@ void backtracking(
 $$
 sum=\sum_{x\in path}x
 $$
+
+</Step>
+<Step>
 
 ### ② 终止条件
 
@@ -303,6 +312,9 @@ if (sum > target) {
 
 但后面排序剪枝后，可以让这种超界分支根本不进入递归。
 
+</Step>
+<Step>
+
 ### ③ 单层搜索
 
 当前层从 `startIndex` 开始枚举：
@@ -329,6 +341,9 @@ i + 1
 ```
 
 因为 `candidates[i]` 允许继续使用。
+
+</Step>
+</Steps>
 
 ## 6. 基础版本：先写对搜索空间
 
@@ -785,7 +800,8 @@ $$
 
 下面统一采用“排序 + 剩余目标值/等价剪枝”的思路。
 
-### Java
+<Tabs groupId="combination-sum-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 import java.util.*;
@@ -817,7 +833,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -843,7 +860,8 @@ class Solution:
         return result
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 import "sort"
@@ -878,7 +896,8 @@ func combinationSum(candidates []int, target int) [][]int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var combinationSum = function(candidates, target) {
@@ -907,7 +926,8 @@ var combinationSum = function(candidates, target) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function combinationSum(candidates: number[], target: number): number[][] {
@@ -936,7 +956,8 @@ function combinationSum(candidates: number[], target: number): number[][] {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -988,7 +1009,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdlib.h>
@@ -1046,7 +1068,8 @@ int **combinationSum(int *candidates, int candidatesSize,
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -1078,7 +1101,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -1108,7 +1132,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -1143,3 +1168,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

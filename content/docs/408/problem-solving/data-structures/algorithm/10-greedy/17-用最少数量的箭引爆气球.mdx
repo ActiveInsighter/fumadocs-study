@@ -4,6 +4,10 @@ summary: 经典区间贪心题：把每个气球看成闭区间，按右端点�
 description: LeetCode 452 用最少数量的箭引爆气球。系统讲解区间建模、按右端点排序的贪心策略、交换论证、按左端点维护交集的等价写法、边界条件、常见错误以及多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 452. 用最少数量的箭引爆气球
 
 [LeetCode 452. Minimum Number of Arrows to Burst Balloons](https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/)
@@ -206,6 +210,9 @@ $$
 [1,6], [2,8], [7,12], [10,16]
 ```
 
+<Steps>
+<Step>
+
 ### 处理 `[1,6]`
 
 这是最早结束的区间。
@@ -225,6 +232,9 @@ arrows = 1
 arrowPos = 6
 ```
 
+</Step>
+<Step>
+
 ### 处理 `[2,8]`
 
 因为：
@@ -236,6 +246,9 @@ $$
 所以第一支箭也能射爆这个气球。
 
 不需要增加箭。
+
+</Step>
+<Step>
 
 ### 处理 `[7,12]`
 
@@ -255,6 +268,9 @@ $$
 
 射第二支箭。
 
+</Step>
+<Step>
+
 ### 处理 `[10,16]`
 
 因为：
@@ -270,6 +286,9 @@ $$
 $$
 \boxed{2}
 $$
+
+</Step>
+</Steps>
 
 ---
 
@@ -895,7 +914,8 @@ $$
 
 下面统一采用“按右端点升序”的写法。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
 
 ```java
 import java.util.*;
@@ -923,7 +943,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 from typing import List
@@ -946,7 +967,8 @@ class Solution:
         return arrows
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 import "sort"
@@ -974,7 +996,8 @@ func findMinArrowShots(points [][]int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -1000,7 +1023,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var findMinArrowShots = function (points) {
@@ -1024,7 +1048,8 @@ var findMinArrowShots = function (points) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function findMinArrowShots(points: number[][]): number {
@@ -1048,7 +1073,8 @@ function findMinArrowShots(points: number[][]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdlib.h>
@@ -1085,7 +1111,8 @@ int findMinArrowShots(int** points, int pointsSize, int* pointsColSize) {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -1116,3 +1143,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

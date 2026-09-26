@@ -4,6 +4,9 @@ summary: 在全排列的 used 模型上叠加“排序 + 同层去重”，彻�
 description: LeetCode 47 全排列 II：重复元素排列、排序、树层去重、used 数组、去重条件推导、两种写法比较、复杂度分析与多语言实现。
 ---
 
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
 # 47. 全排列 II
 
 [LeetCode 题目链接](https://leetcode.cn/problems/permutations-ii/)
@@ -302,6 +305,9 @@ used[0] == true
 
 ## 8. 回溯三部曲
 
+<Steps>
+<Step>
+
 ### ① 递归参数：`nums + used`
 
 ```cpp
@@ -317,6 +323,9 @@ vector<int> path;
 vector<vector<int>> result;
 ```
 
+</Step>
+<Step>
+
 ### ② 终止条件：路径长度等于数组长度
 
 ```cpp
@@ -327,6 +336,9 @@ if (path.size() == nums.size()) {
 ```
 
 只有叶子节点才是完整排列。
+
+</Step>
+<Step>
 
 ### ③ 单层搜索：先同层去重，再判断当前下标是否已使用
 
@@ -349,6 +361,9 @@ for (int i = 0; i < nums.size(); ++i) {
     used[i] = false;
 }
 ```
+
+</Step>
+</Steps>
 
 ## 9. C++ 标准实现
 
@@ -827,7 +842,8 @@ $$
 
 ## 21. 其他语言实现
 
-### Java
+<Tabs groupId="permutations-ii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -865,7 +881,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -896,7 +913,8 @@ class Solution:
         return ans
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func permuteUnique(nums []int) [][]int {
@@ -935,7 +953,8 @@ func permuteUnique(nums []int) [][]int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var permuteUnique = function(nums) {
@@ -972,7 +991,8 @@ var permuteUnique = function(nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function permuteUnique(nums: number[]): number[][] {
@@ -1009,7 +1029,8 @@ function permuteUnique(nums: number[]): number[][] {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -1051,7 +1072,8 @@ impl Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 static int cmp(const void* a, const void* b) {
@@ -1126,7 +1148,8 @@ int** permuteUnique(
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -1164,7 +1187,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -1200,7 +1224,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -1239,3 +1264,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

@@ -807,8 +807,7 @@ $$
 
 删除那条额外的闭环边后，总边数回到 $n-1$，根节点重新出现，恢复成原来的有向树。
 
-这就是“没有入度 2 $
-ightarrow$ 一定走纯环分支”的结构性原因。
+这就是“没有入度 2 $ightarrow$ 一定走纯环分支”的结构性原因。
 
 ---
 
@@ -930,6 +929,8 @@ $$
 
 以后遇到类似“有向树中多了一条边”的题，可以按下面的顺序思考：
 
+<Steps>
+
 ### 先写出合法结构的度数约束
 
 根入度为 `0`，其他节点入度为 `1`。
@@ -950,6 +951,8 @@ $$
 
 问题只能落在唯一环上，按输入顺序用并查集找到闭环边。
 
+</Steps>
+
 <Callout type="success" title="一句话总结">
 
 **冗余连接 II 的关键不是“并查集更复杂了”，而是先用入度把有向结构分成几种情况，再让并查集只负责它真正擅长的无向连通与成环判断。**
@@ -960,6 +963,7 @@ $$
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 import java.io.*;
 import java.util.*;
@@ -1074,6 +1078,7 @@ import sys
 
 input = sys.stdin.readline
 
+
 class UnionFind:
     def __init__(self, n: int):
         self.parent = list(range(n + 1))
@@ -1098,6 +1103,7 @@ class UnionFind:
         self.size[root_u] += self.size[root_v]
         return True
 
+
 def is_tree_after_remove_edge(edges, n, skip):
     uf = UnionFind(n)
 
@@ -1109,6 +1115,7 @@ def is_tree_after_remove_edge(edges, n, skip):
 
     return True
 
+
 def find_cycle_edge(edges, n):
     uf = UnionFind(n)
 
@@ -1117,6 +1124,7 @@ def find_cycle_edge(edges, n):
             return i
 
     return -1
+
 
 n = int(input())
 edges = []
@@ -1355,4 +1363,4 @@ if (candidates.length > 0) {
 
 console.log(`${edges[answer][0]} ${edges[answer][1]}`);
 ```
-
+````

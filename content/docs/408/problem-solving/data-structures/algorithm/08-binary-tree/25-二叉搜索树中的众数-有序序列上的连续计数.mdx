@@ -566,10 +566,8 @@ $$
 
 这两题其实是一套模板。
 
-
-
-### 最小绝对差
-
+<Tabs groupId="bst-inorder-pattern" items={['最小绝对差', '众数']}>
+<Tab value="最小绝对差">
 
 中序遍历后：
 
@@ -589,10 +587,8 @@ $$
 pre + minDifference
 ```
 
-
-
-### 众数
-
+</Tab>
+<Tab value="众数">
 
 中序遍历后：
 
@@ -612,8 +608,8 @@ pre + minDifference
 pre + count + maxCount + result
 ```
 
-
-
+</Tab>
+</Tabs>
 
 共同思想都是：
 
@@ -648,10 +644,8 @@ pre + count + maxCount + result
 
 下面各语言统一采用“**中序遍历 + 连续计数 + 在线维护众数**”这一核心解法。
 
-
-
-### Java
-
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java title="Java"
 class Solution {
@@ -695,10 +689,8 @@ class Solution {
 }
 ```
 
-
-
-### Python
-
+</Tab>
+<Tab value="Python">
 
 ```python title="Python"
 class Solution:
@@ -734,10 +726,8 @@ class Solution:
         return result
 ```
 
-
-
-### Go
-
+</Tab>
+<Tab value="Go">
 
 ```go title="Go"
 func findMode(root *TreeNode) []int {
@@ -776,10 +766,8 @@ func findMode(root *TreeNode) []int {
 }
 ```
 
-
-
-### JavaScript
-
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript"
 var findMode = function(root) {
@@ -812,10 +800,8 @@ var findMode = function(root) {
 };
 ```
 
-
-
-### TypeScript
-
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript title="TypeScript"
 function findMode(root: TreeNode | null): number[] {
@@ -848,10 +834,8 @@ function findMode(root: TreeNode | null): number[] {
 }
 ```
 
-
-
-### Scala
-
+</Tab>
+<Tab value="Scala">
 
 ```scala title="Scala"
 object Solution {
@@ -887,10 +871,8 @@ object Solution {
 }
 ```
 
-
-
-### Rust
-
+</Tab>
+<Tab value="Rust">
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -948,10 +930,8 @@ impl Solution {
 }
 ```
 
-
-
-### C#
-
+</Tab>
+<Tab value="C#">
 
 ```csharp title="C#"
 public class Solution
@@ -997,5 +977,5 @@ public class Solution
 }
 ```
 
-
-
+</Tab>
+</Tabs>

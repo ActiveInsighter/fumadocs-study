@@ -3,7 +3,10 @@ title: 链表方法论总结：指针、哨兵节点、双指针与局部重连
 description: 系统回顾链表模块的核心模型与高频技巧，把移除元素、设计链表、反转、两两交换、删除倒数节点、链表相交和环形链表统一到“节点关系重构”的方法论中。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 链表方法论总结：指针、哨兵节点、双指针与局部重连
 
@@ -294,9 +297,15 @@ $$
 
 ## 10. 做链表题时的统一解题流程
 
+<Steps>
+  <Step>
+
 **先判断题目是否会修改链表结构**
 
 如果只是查找，可以更多关注遍历策略；如果会修改链接，必须画箭头。
+
+  </Step>
+  <Step>
 
 **判断头结点是否可能被修改**
 
@@ -305,6 +314,9 @@ $$
 ```text
 dummy → head
 ```
+
+  </Step>
+  <Step>
 
 **确定操作需要哪些角色指针**
 
@@ -315,6 +327,9 @@ prev / cur / next
 fast / slow
 left / right
 ```
+
+  </Step>
+  <Step>
 
 **写出一轮操作前后的局部结构**
 
@@ -330,9 +345,15 @@ prev → A → B → next
 prev → B → A → next
 ```
 
+  </Step>
+  <Step>
+
 **检查被覆盖的链接是否提前保存**
 
 如果某个 `next` 即将被改写，先确认是否还需要旧后继。
+
+  </Step>
+  <Step>
 
 **最后检查边界**
 
@@ -345,6 +366,9 @@ prev → B → A → next
 操作尾结点
 长度刚好等于边界值
 ```
+
+  </Step>
+</Steps>
 
 ---
 
@@ -574,7 +598,8 @@ while (fast != nullptr && fast->next != nullptr) {
 
 下面给出最常用的“反转单链表”模板，便于对照不同语言中的节点引用写法。
 
-### C++
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
 
 ```cpp
 ListNode* reverseList(ListNode* head) {
@@ -592,7 +617,8 @@ ListNode* reverseList(ListNode* head) {
 }
 ```
 
-### Java
+  </Tab>
+  <Tab value="Java">
 
 ```java
 public ListNode reverseList(ListNode head) {
@@ -610,7 +636,8 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 
-### Python
+  </Tab>
+  <Tab value="Python">
 
 ```python
 def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
@@ -626,7 +653,8 @@ def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
     return prev
 ```
 
-### Go
+  </Tab>
+  <Tab value="Go">
 
 ```go
 func reverseList(head *ListNode) *ListNode {
@@ -644,7 +672,8 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-### JavaScript
+  </Tab>
+  <Tab value="JavaScript">
 
 ```javascript
 var reverseList = function (head) {
@@ -662,3 +691,5 @@ var reverseList = function (head) {
 };
 ```
 
+  </Tab>
+</Tabs>

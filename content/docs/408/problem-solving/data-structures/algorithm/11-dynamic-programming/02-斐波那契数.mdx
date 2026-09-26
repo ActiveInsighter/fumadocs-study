@@ -180,44 +180,34 @@ $$
 S(n)=O(n)
 $$
 
-
-
-### 状态
-
+<Tabs items={["状态", "转移", "初始化", "顺序", "答案"]}>
+<Tab value="状态">
 
 $$
 dp[i]=F(i)
 $$
 
-
-
-### 转移
-
+</Tab>
+<Tab value="转移">
 
 $$
 dp[i]=dp[i-1]+dp[i-2]
 $$
 
-
-
-### 初始化
-
+</Tab>
+<Tab value="初始化">
 
 $$
 dp[0]=0,\qquad dp[1]=1
 $$
 
-
-
-### 顺序
-
+</Tab>
+<Tab value="顺序">
 
 从 `2` 到 `n` 递增遍历。
 
-
-
-### 答案
-
+</Tab>
+<Tab value="答案">
 
 最终返回：
 
@@ -225,8 +215,8 @@ $$
 dp[n]
 $$
 
-
-
+</Tab>
+</Tabs>
 
 ## 4. 为什么可以把空间压缩到 $O(1)$
 
@@ -426,10 +416,8 @@ $$
 
 ## 10. 代码模板
 
-
-
-### C++
-
+<Tabs items={["C++", "Java", "Python", "Go", "JavaScript", "TypeScript", "C", "Rust"]}>
+<Tab value="C++">
 
 ```cpp
 class Solution {
@@ -451,10 +439,8 @@ public:
 };
 ```
 
-
-
-### Java
-
+</Tab>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -475,10 +461,8 @@ class Solution {
 }
 ```
 
-
-
-### Python
-
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -494,10 +478,8 @@ class Solution:
         return prev1
 ```
 
-
-
-### Go
-
+</Tab>
+<Tab value="Go">
 
 ```go
 func fib(n int) int {
@@ -517,10 +499,8 @@ func fib(n int) int {
 }
 ```
 
-
-
-### JavaScript
-
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var fib = function(n) {
@@ -539,10 +519,8 @@ var fib = function(n) {
 };
 ```
 
-
-
-### TypeScript
-
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function fib(n: number): number {
@@ -561,10 +539,8 @@ function fib(n: number): number {
 }
 ```
 
-
-
-### C
-
+</Tab>
+<Tab value="C">
 
 ```c
 int fib(int n) {
@@ -583,10 +559,8 @@ int fib(int n) {
 }
 ```
 
-
-
-### Rust
-
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -609,8 +583,8 @@ impl Solution {
 }
 ```
 
-
-
+</Tab>
+</Tabs>
 
 ## 11. 本题总结
 

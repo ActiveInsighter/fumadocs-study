@@ -4,6 +4,10 @@ summary: 把“下一步应该跳几格”转化为“当前可达区间最远�
 description: LeetCode 55 跳跃游戏。系统讲解最大可达下标的贪心建模、覆盖区间不变量、正确性证明、边界条件、常见错误、反向视角与多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 55. 跳跃游戏
 
 [LeetCode 55. 跳跃游戏](https://leetcode.cn/problems/jump-game/)
@@ -415,6 +419,9 @@ $$
 
 ## 10. 标准线性算法
 
+<Steps>
+<Step>
+
 ### 初始化覆盖范围
 
 ```cpp
@@ -422,6 +429,9 @@ int cover = 0;
 ```
 
 表示起点 $0$ 已经可达。
+
+</Step>
+<Step>
 
 ### 只扫描当前能够到达的位置
 
@@ -431,11 +441,17 @@ for (int i = 0; i <= cover; ++i)
 
 只要 `i <= cover`，位置 `i` 就属于已知可达范围。
 
+</Step>
+<Step>
+
 ### 用当前位置扩展最远边界
 
 ```cpp
 cover = max(cover, i + nums[i]);
 ```
+
+</Step>
+<Step>
 
 ### 一旦覆盖终点立即成功
 
@@ -444,6 +460,9 @@ if (cover >= nums.size() - 1) {
     return true;
 }
 ```
+
+</Step>
+</Steps>
 
 C++ 实现：
 
@@ -690,7 +709,8 @@ $$
 
 下面统一给出“最大可达下标”这一前向贪心写法。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -714,7 +734,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -733,7 +754,8 @@ class Solution:
         return True
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func canJump(nums []int) bool {
@@ -757,7 +779,8 @@ func canJump(nums []int) bool {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -781,7 +804,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var canJump = function (nums) {
@@ -803,7 +827,8 @@ var canJump = function (nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function canJump(nums: number[]): boolean {
@@ -825,7 +850,8 @@ function canJump(nums: number[]): boolean {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdbool.h>
@@ -852,7 +878,8 @@ bool canJump(int* nums, int numsSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -879,7 +906,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -908,3 +936,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

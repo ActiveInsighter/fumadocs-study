@@ -93,6 +93,8 @@ if (left >= right) return nullptr;
 
 对当前区间 `[left, right)`：
 
+<Steps>
+
 ### 1. 找最大值的位置
 
 ```cpp
@@ -127,6 +129,8 @@ root->right = build(nums, maxIndex + 1, right);
 ```cpp
 return root;
 ```
+
+</Steps>
 
 完整逻辑几乎就是题目定义的直接翻译。
 
@@ -444,7 +448,8 @@ $$
 
 两类题看起来不一样，实际上共享同一个骨架：
 
-### 遍历序列构树
+<Tabs groupId="construct-pattern" items={['遍历序列构树', '最大二叉树']}>
+<Tab value="遍历序列构树">
 
 ```text
 确定根：前序首元素 / 后序末元素
@@ -453,7 +458,8 @@ $$
 右区间 → 右子树
 ```
 
-### 最大二叉树
+</Tab>
+<Tab value="最大二叉树">
 
 ```text
 确定根：当前区间最大值
@@ -461,6 +467,9 @@ $$
 左区间 → 左子树
 右区间 → 右子树
 ```
+
+</Tab>
+</Tabs>
 
 统一抽象就是：
 
@@ -472,7 +481,7 @@ $$
 
 ## 11. 常见错误
 
-<Accordions type="multiple">
+<AccordionGroup>
 <Accordion title="错误 1：maxValue 初始化为 0">
 
 如果题目允许负数，写：
@@ -522,7 +531,7 @@ if (left >= right) return nullptr;
 递归扫描版本最坏是 $O(n^2)$；只有借助单调栈等方式才能保证 $O(n)$。
 
 </Accordion>
-</Accordions>
+</AccordionGroup>
 
 ## 12. 一句话模板
 
@@ -554,7 +563,8 @@ TreeNode* build(int left, int right) {
 
 以下版本统一采用“原数组 + 左闭右开区间”的递归写法，避免复制子数组。
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -580,7 +590,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -602,7 +613,8 @@ class Solution:
         return build(0, len(nums))
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func constructMaximumBinaryTree(nums []int) *TreeNode {
@@ -630,7 +642,8 @@ func constructMaximumBinaryTree(nums []int) *TreeNode {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var constructMaximumBinaryTree = function(nums) {
@@ -654,7 +667,8 @@ var constructMaximumBinaryTree = function(nums) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
@@ -678,7 +692,8 @@ function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -709,7 +724,8 @@ class Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 static struct TreeNode* build(int* nums, int left, int right) {
@@ -734,7 +750,8 @@ struct TreeNode* constructMaximumBinaryTree(int* nums, int numsSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -762,7 +779,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 use std::cell::RefCell;
@@ -800,7 +818,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -826,3 +845,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

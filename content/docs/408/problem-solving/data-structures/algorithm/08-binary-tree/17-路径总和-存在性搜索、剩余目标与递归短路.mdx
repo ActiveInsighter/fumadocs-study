@@ -65,7 +65,8 @@ $$
 
 路径和问题可以有两种最常见的状态表达。
 
-### 累计和
+<Tabs groupId="path-sum-state" items={['累计和', '剩余目标']}>
+<Tab value="累计和">
 
 从根开始累加：
 
@@ -79,7 +80,8 @@ currentSum += node.val
 currentSum == targetSum
 ```
 
-### 剩余目标
+</Tab>
+<Tab value="剩余目标">
 
 把目标值逐层减掉：
 
@@ -94,6 +96,9 @@ remain == node.val
 ```
 
 或者在进入下一层前已经减掉当前节点，则判断 `remain == 0`。
+
+</Tab>
+</Tabs>
 
 两者完全等价，但“剩余目标”往往更容易直接写成递归定义。
 
@@ -210,6 +215,8 @@ leftResult || rightResult
 
 ## 6. 递归三步法
 
+<Steps>
+
 ### 1. 参数与返回值
 
 参数：
@@ -255,6 +262,8 @@ int remain = targetSum - root->val;
 return hasPathSum(root->left, remain)
     || hasPathSum(root->right, remain);
 ```
+
+</Steps>
 
 ## 7. C++ 最推荐写法
 
@@ -693,7 +702,8 @@ Path Sum 最推荐的思维模型是：
 
 ## 其他语言版本
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -711,7 +721,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -729,7 +740,8 @@ class Solution:
         )
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func hasPathSum(root *TreeNode, targetSum int) bool {
@@ -747,7 +759,8 @@ func hasPathSum(root *TreeNode, targetSum int) bool {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var hasPathSum = function(root, targetSum) {
@@ -763,7 +776,8 @@ var hasPathSum = function(root, targetSum) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
@@ -779,7 +793,8 @@ function hasPathSum(root: TreeNode | null, targetSum: number): boolean {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift
 class Solution {
@@ -797,7 +812,8 @@ class Solution {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 bool hasPathSum(struct TreeNode* root, int targetSum) {
@@ -813,7 +829,8 @@ bool hasPathSum(struct TreeNode* root, int targetSum) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -830,7 +847,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 use std::cell::RefCell;
@@ -859,7 +877,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -877,3 +896,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

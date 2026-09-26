@@ -3,7 +3,10 @@ title: 反转链表：双指针、递归与指针重连本质
 description: 以 LeetCode 206 为主线，从链表指针方向变化出发，系统掌握迭代双指针、前向递归与后向递归三种反转方法，并理解为什么必须先保存 next。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
 
 # 反转链表：双指针、递归与指针重连本质
 
@@ -158,11 +161,17 @@ ListNode* next = cur->next;
 
 完整顺序是：
 
+<Steps>
+  <Step>
+
 **保存后继节点**
 
 ```cpp
 ListNode* next = cur->next;
 ```
+
+  </Step>
+  <Step>
 
 **反转当前指针**
 
@@ -170,17 +179,26 @@ ListNode* next = cur->next;
 cur->next = pre;
 ```
 
+  </Step>
+  <Step>
+
 **移动 `pre`**
 
 ```cpp
 pre = cur;
 ```
 
+  </Step>
+  <Step>
+
 **移动 `cur`**
 
 ```cpp
 cur = next;
 ```
+
+  </Step>
+</Steps>
 
 <Callout title="指针题最重要的习惯" type="warning">
 凡是准备修改某个指针，而后续流程还需要它原来的指向时，必须先把原指向保存下来。链表中大量“断链”错误都源自忽略了这一点。
@@ -754,7 +772,8 @@ while (cur != nullptr) {
 
 ## 其他语言版本
 
-### C++
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
 
 ```cpp
 class Solution {
@@ -775,7 +794,8 @@ public:
 };
 ```
 
-### Java
+  </Tab>
+  <Tab value="Java">
 
 ```java
 class Solution {
@@ -795,7 +815,8 @@ class Solution {
 }
 ```
 
-### Python
+  </Tab>
+  <Tab value="Python">
 
 ```python
 class Solution:
@@ -812,7 +833,8 @@ class Solution:
         return prev
 ```
 
-### Go
+  </Tab>
+  <Tab value="Go">
 
 ```go
 func reverseList(head *ListNode) *ListNode {
@@ -830,7 +852,8 @@ func reverseList(head *ListNode) *ListNode {
 }
 ```
 
-### JavaScript
+  </Tab>
+  <Tab value="JavaScript">
 
 ```javascript
 var reverseList = function (head) {
@@ -848,3 +871,5 @@ var reverseList = function (head) {
 };
 ```
 
+  </Tab>
+</Tabs>

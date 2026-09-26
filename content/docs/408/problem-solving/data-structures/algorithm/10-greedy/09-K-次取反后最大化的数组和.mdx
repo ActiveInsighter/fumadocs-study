@@ -4,6 +4,10 @@ summary: 一道看似简单但包含两层贪心的经典题：优先消灭绝�
 description: LeetCode 1005 K 次取反后最大化的数组和。系统讲解按绝对值降序排序、两阶段贪心、奇偶性、交换论证、零元素影响、常见错误以及多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 1005. K 次取反后最大化的数组和
 
 [LeetCode 1005. K 次取反后最大化的数组和](https://leetcode.cn/problems/maximize-sum-of-array-after-k-negations/)
@@ -406,6 +410,9 @@ $$
 
 ## 9. 标准四步算法
 
+<Steps>
+<Step>
+
 ### 按绝对值从大到小排序
 
 ```cpp
@@ -415,6 +422,9 @@ sort(nums.begin(), nums.end(), [](int a, int b) {
 ```
 
 排序后，绝对值最小的元素位于末尾。
+
+</Step>
+<Step>
 
 ### 优先把负数变成正数
 
@@ -427,6 +437,9 @@ for (int& x : nums) {
 }
 ```
 
+</Step>
+<Step>
+
 ### 处理剩余奇数次操作
 
 ```cpp
@@ -437,11 +450,17 @@ if (k % 2 == 1) {
 
 偶数次可以互相抵消，不需要真的模拟。
 
+</Step>
+<Step>
+
 ### 求最终数组和
 
 ```cpp
 return accumulate(nums.begin(), nums.end(), 0);
 ```
+
+</Step>
+</Steps>
 
 完整 C++ 实现：
 
@@ -646,7 +665,8 @@ $$
 
 下面均采用“按绝对值降序 + 负数优先取反 + 剩余奇数次翻转最小绝对值”的统一实现。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 import java.util.Arrays;
@@ -678,7 +698,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -696,7 +717,8 @@ class Solution:
         return sum(nums)
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 import "sort"
@@ -732,7 +754,8 @@ func largestSumAfterKNegations(nums []int, k int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -756,7 +779,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var largestSumAfterKNegations = function (nums, k) {
@@ -777,7 +801,8 @@ var largestSumAfterKNegations = function (nums, k) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function largestSumAfterKNegations(nums: number[], k: number): number {
@@ -798,7 +823,8 @@ function largestSumAfterKNegations(nums: number[], k: number): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdlib.h>
@@ -835,7 +861,8 @@ int largestSumAfterKNegations(int* nums, int numsSize, int k) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -859,7 +886,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -892,3 +920,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

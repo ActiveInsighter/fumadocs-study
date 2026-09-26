@@ -104,6 +104,8 @@ $$
 
 最直观的写法是先把 BST 转成有序数组，再扫描相邻元素。
 
+<Steps>
+
 ### 1. 中序遍历整棵树
 
 把每个节点值依次放入数组 `values`。
@@ -119,6 +121,8 @@ values[i] - values[i - 1]
 ### 3. 维护最小值
 
 不断更新 `result` 即可。
+
+</Steps>
 
 ```cpp title="中序数组写法"
 class Solution {
@@ -480,7 +484,8 @@ BST
 
 下面各语言统一采用“**中序遍历 + 前驱节点**”这一核心解法。
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java title="Java"
 class Solution {
@@ -507,7 +512,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python title="Python"
 class Solution:
@@ -530,7 +536,8 @@ class Solution:
         return ans
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go title="Go"
 func getMinimumDifference(root *TreeNode) int {
@@ -556,7 +563,8 @@ func getMinimumDifference(root *TreeNode) int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript"
 var getMinimumDifference = function(root) {
@@ -579,7 +587,8 @@ var getMinimumDifference = function(root) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript title="TypeScript"
 function getMinimumDifference(root: TreeNode | null): number {
@@ -602,7 +611,8 @@ function getMinimumDifference(root: TreeNode | null): number {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala title="Scala"
 object Solution {
@@ -627,7 +637,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -663,7 +674,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp title="C#"
 public class Solution
@@ -694,3 +706,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

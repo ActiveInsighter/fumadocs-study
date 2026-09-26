@@ -141,6 +141,8 @@ int minDepth(TreeNode* root)
 
 ### 递归三步法
 
+<Steps>
+
 ### 1. 明确参数与返回值
 
 参数是当前节点 `root`，返回当前子树的最小深度。
@@ -156,6 +158,8 @@ if (root == nullptr) return 0;
 ### 3. 明确单层逻辑
 
 先递归得到左右子树的最小深度，再判断两侧是否真正存在。
+
+</Steps>
 
 ```cpp title="LeetCode 111 · 后序递归"
 class Solution {
@@ -442,7 +446,8 @@ if (!node->left && !node->right)
 
 ## 12. 高频错误三：机械套用最大深度模板
 
-### 最大深度
+<Tabs groupId="min-max-depth" items={['最大深度', '最小深度']}>
+<Tab value="最大深度">
 
 ```cpp
 int maxDepth(TreeNode* root) {
@@ -454,7 +459,8 @@ int maxDepth(TreeNode* root) {
 
 空分支的 `0` 不会干扰最大值。
 
-### 最小深度
+</Tab>
+<Tab value="最小深度">
 
 ```cpp
 int minDepth(TreeNode* root) {
@@ -471,6 +477,9 @@ int minDepth(TreeNode* root) {
 ```
 
 必须先排除不存在的分支。
+
+</Tab>
+</Tabs>
 
 ## 13. 边界用例检查
 
@@ -563,7 +572,8 @@ root = null
 
 下面统一给出最核心的后序递归版本。
 
-### Java
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
 
 ```java title="Java"
 class Solution {
@@ -578,7 +588,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python title="Python"
 class Solution:
@@ -594,7 +605,8 @@ class Solution:
         return min(left, right) + 1
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go title="Go"
 func minDepth(root *TreeNode) int {
@@ -608,7 +620,8 @@ func minDepth(root *TreeNode) int {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript title="JavaScript"
 var minDepth = function(root) {
@@ -621,7 +634,8 @@ var minDepth = function(root) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript title="TypeScript"
 function minDepth(root: TreeNode | null): number {
@@ -634,7 +648,8 @@ function minDepth(root: TreeNode | null): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c title="C"
 int minDepth(struct TreeNode* root) {
@@ -647,7 +662,8 @@ int minDepth(struct TreeNode* root) {
 }
 ```
 
-### Swift
+</Tab>
+<Tab value="Swift">
 
 ```swift title="Swift"
 class Solution {
@@ -662,7 +678,8 @@ class Solution {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala title="Scala"
 object Solution {
@@ -677,7 +694,8 @@ object Solution {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust title="Rust"
 use std::cell::RefCell;
@@ -700,7 +718,8 @@ impl Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp title="C#"
 public class Solution {
@@ -715,3 +734,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

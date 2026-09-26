@@ -4,6 +4,10 @@ summary: 从“区间利润可拆成相邻日涨跌”出发，理解为什么�
 description: LeetCode 122 买卖股票的最佳时机 II。系统讲解利润拆分、正增量贪心、正确性证明、交易区间还原、常见误区、动态规划对照与多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 122. 买卖股票的最佳时机 II
 
 [LeetCode 122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
@@ -263,6 +267,9 @@ $$
 
 ## 7. 贪心代码为什么只需要一行核心逻辑
 
+<Steps>
+<Step>
+
 ### 从第二天开始扫描
 
 相邻收益需要比较：
@@ -273,6 +280,9 @@ prices[i] - prices[i - 1]
 
 所以第一组差值从 $i=1$ 开始。
 
+</Step>
+<Step>
+
 ### 只保留正收益
 
 ```cpp
@@ -281,6 +291,9 @@ max(prices[i] - prices[i - 1], 0)
 
 负收益直接视为 $0$，表示这一段不参与交易。
 
+</Step>
+<Step>
+
 ### 累加所有正收益
 
 ```cpp
@@ -288,6 +301,9 @@ profit += max(prices[i] - prices[i - 1], 0);
 ```
 
 扫描结束后就是全局最大利润。
+
+</Step>
+</Steps>
 
 C++ 实现：
 
@@ -544,7 +560,8 @@ $$
 
 下面均采用“累加所有正相邻差值”的 $O(n)$ 贪心实现。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -560,7 +577,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -573,7 +591,8 @@ class Solution:
         return profit
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 func maxProfit(prices []int) int {
@@ -590,7 +609,8 @@ func maxProfit(prices []int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -606,7 +626,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var maxProfit = function (prices) {
@@ -620,7 +641,8 @@ var maxProfit = function (prices) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function maxProfit(prices: number[]): number {
@@ -634,7 +656,8 @@ function maxProfit(prices: number[]): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 int maxProfit(int* prices, int pricesSize) {
@@ -651,7 +674,8 @@ int maxProfit(int* prices, int pricesSize) {
 }
 ```
 
-### Scala
+</Tab>
+<Tab value="Scala">
 
 ```scala
 object Solution {
@@ -667,7 +691,8 @@ object Solution {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution
@@ -686,3 +711,5 @@ public class Solution
 }
 ```
 
+</Tab>
+</Tabs>

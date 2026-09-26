@@ -4,6 +4,10 @@ summary: 从右向左修复第一次下降：左边一位减一，后缀全部�
 description: LeetCode 738 单调递增的数字。系统讲解逆向扫描、贪心选择、flag 边界、连锁回退、正确性证明、典型样例、常见错误、复杂度及多语言实现。
 ---
 
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
 # 738. 单调递增的数字
 
 [LeetCode 738. Monotone Increasing Digits](https://leetcode.cn/problems/monotone-increasing-digits/)
@@ -398,6 +402,9 @@ flag = i;
 
 ## 7. 完整贪心流程
 
+<Steps>
+<Step>
+
 ### 把整数转成可修改的数字序列
 
 例如：
@@ -407,6 +414,9 @@ flag = i;
 ```
 
 字符串形式可以直接比较和修改每一位，比不断做除法、取模更清晰。
+
+</Step>
+<Step>
 
 ### 从右向左检查相邻数字
 
@@ -424,6 +434,9 @@ $$
 
 若成立，说明当前位置破坏单调性。
 
+</Step>
+<Step>
+
 ### 左边一位减一
 
 执行：
@@ -440,6 +453,9 @@ flag = i
 
 记录后缀需要全部最大化的位置。
 
+</Step>
+<Step>
+
 ### 扫描结束后把后缀全部改成 9
 
 对所有：
@@ -454,6 +470,9 @@ $$
 d_i=9
 $$
 
+</Step>
+<Step>
+
 ### 转回整数
 
 字符串可能出现前导零，例如：
@@ -467,6 +486,9 @@ $$
 ```text
 999
 ```
+
+</Step>
+</Steps>
 
 ---
 
@@ -987,7 +1009,8 @@ $$
 
 下面都采用同一套“逆序扫描 + `flag` 标记后缀”的实现。
 
-### Java
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
 
 ```java
 class Solution {
@@ -1011,7 +1034,8 @@ class Solution {
 }
 ```
 
-### Python
+</Tab>
+<Tab value="Python">
 
 ```python
 class Solution:
@@ -1030,7 +1054,8 @@ class Solution:
         return int(''.join(digits))
 ```
 
-### Go
+</Tab>
+<Tab value="Go">
 
 ```go
 import "strconv"
@@ -1055,7 +1080,8 @@ func monotoneIncreasingDigits(n int) int {
 }
 ```
 
-### Rust
+</Tab>
+<Tab value="Rust">
 
 ```rust
 impl Solution {
@@ -1081,7 +1107,8 @@ impl Solution {
 }
 ```
 
-### JavaScript
+</Tab>
+<Tab value="JavaScript">
 
 ```javascript
 var monotoneIncreasingDigits = function(n) {
@@ -1103,7 +1130,8 @@ var monotoneIncreasingDigits = function(n) {
 };
 ```
 
-### TypeScript
+</Tab>
+<Tab value="TypeScript">
 
 ```typescript
 function monotoneIncreasingDigits(n: number): number {
@@ -1128,7 +1156,8 @@ function monotoneIncreasingDigits(n: number): number {
 }
 ```
 
-### C
+</Tab>
+<Tab value="C">
 
 ```c
 #include <stdio.h>
@@ -1157,7 +1186,8 @@ int monotoneIncreasingDigits(int n) {
 }
 ```
 
-### C#
+</Tab>
+<Tab value="C#">
 
 ```csharp
 public class Solution {
@@ -1181,3 +1211,5 @@ public class Solution {
 }
 ```
 
+</Tab>
+</Tabs>

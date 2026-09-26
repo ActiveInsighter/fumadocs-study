@@ -185,6 +185,8 @@ Prim 不关心从起点走到 `v` 一共多远，只关心“现在用哪一条�
 
 每一轮固定做三件事：
 
+<Steps>
+
 ### 选择离生成树最近的树外顶点
 
 在所有 `isInTree[v] == false` 的顶点中，找：
@@ -220,6 +222,8 @@ $$
 $$
 
 因为树里刚刚多了 `cur`，原来离树最近的边可能因此发生变化。
+
+</Steps>
 
 可以浓缩为一句口诀：
 
@@ -959,6 +963,8 @@ if (minDist[cur] == INF)
 
 ## 21. 做题时的固定检查清单
 
+<Steps>
+
 ### 先判断是不是 MST 模型
 
 题目是否要求：
@@ -1000,6 +1006,8 @@ minDist[v] = v 到当前生成树的最小连接边权
 稀疏图 / E 较小：邻接表 + 小根堆
 ```
 
+</Steps>
+
 ---
 
 ## 22. 一句话理解 Prim
@@ -1030,6 +1038,7 @@ minDist[start] = 0
 
 ## 其他语言版本
 
+````code-tabs
 ```java label="Java"
 import java.io.*;
 import java.util.*;
@@ -1275,4 +1284,4 @@ func main() {
     fmt.Fprintln(out, answer)
 }
 ```
-
+````
