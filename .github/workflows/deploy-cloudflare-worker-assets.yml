@@ -239,7 +239,7 @@ jobs:
             wait_for_route "${path}"
           done
           markdown_content_type="$(curl --silent --show-error --max-time 60 -I "${base_url}/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md" \
-            | tr -d '\\r' \
+            | tr -d '\r' \
             | awk 'BEGIN { IGNORECASE=1 } /^content-type:/ { sub(/^[^:]+:[[:space:]]*/, ""); print; exit }')"
           if [[ "${markdown_content_type,,}" != 'text/markdown; charset=utf-8' ]]; then
             echo "::error::Markdown Content-Type is not UTF-8: ${markdown_content_type:-<missing>}."
