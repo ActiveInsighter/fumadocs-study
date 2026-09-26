@@ -499,7 +499,7 @@ $$
 
 ## 15. 一页速记
 
-<CardGroup cols={2}>
+<Cards>
   <Card title="状态">
     `dp[i][0]`：第 `i` 天持有股票的最大现金；`dp[i][1]`：第 `i` 天不持有股票的最大现金。
   </Card>
@@ -512,7 +512,7 @@ $$
   <Card title="关键限制">
     买入从 `-prices[i]` 出发，而不是从上一天不持有状态出发，这正是“最多一次交易”的体现。
   </Card>
-</CardGroup>
+</Cards>
 
 ## 16. 其他语言实现
 
@@ -596,6 +596,5 @@ func maxProfit(prices []int) int {
     return cash
 }
 ```
-
 
 
