@@ -37,6 +37,10 @@ function findStrongMarkers(line) {
 }
 
 export function normalizeStrongBoundariesInLine(line) {
+  line = line
+    .replace(/(\*\*)&#x2060;(?=\s)/gu, '$1')
+    .replace(/(?<=\s)&#x2060;(?=\*\*)/gu, '');
+
   const markers = findStrongMarkers(line);
   if (markers.length < 2) return line;
 
@@ -62,9 +66,13 @@ export function normalizeStrongBoundariesInLine(line) {
     const lastInner = innerCharacters.at(-1) ?? '';
 
     const needsOpeningBoundary =
-      wordCharacter.test(beforeCharacter) && punctuationOrSymbol.test(firstInner);
+      leadingWhitespace.length === 0 &&
+      wordCharacter.test(beforeCharacter) &&
+      punctuationOrSymbol.test(firstInner);
     const needsClosingBoundary =
-      punctuationOrSymbol.test(lastInner) && wordCharacter.test(afterCharacter);
+      trailingWhitespace.length === 0 &&
+      punctuationOrSymbol.test(lastInner) &&
+      wordCharacter.test(afterCharacter);
     const needsWhitespaceRepair =
       leadingWhitespace.length > 0 || trailingWhitespace.length > 0;
 
