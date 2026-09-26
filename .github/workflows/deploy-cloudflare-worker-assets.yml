@@ -257,9 +257,23 @@ jobs:
           try {
             const page = await browser.newPage();
             const badText = 'This page could not be found.';
+            page.on('response', (response) => {
+              const url = response.url();
+              if (response.status() >= 400 || url.includes('.txt') || url.includes('_rsc=')) {
+                console.log('[browser-response]', response.status(), url);
+              }
+            });
+            page.on('requestfailed', (request) => {
+              console.log('[browser-request-failed]', request.url(), request.failure()?.errorText || 'unknown');
+            });
+
             await page.goto(base + '/', { waitUntil: 'networkidle2', timeout: 120000 });
-            const before = await page.content();
-            if (before.includes(badText)) throw new Error('Homepage rendered the Next.js 404 page.');
+            const beforeText = await page.evaluate(() => document.body.innerText);
+            console.log('[browser-check] homepage path=' + await page.evaluate(() => location.pathname));
+            if (beforeText.includes(badText)) {
+              console.log('[browser-check] homepage body=' + beforeText.slice(0, 800));
+              throw new Error('Homepage visibly rendered the Next.js 404 page.');
+            }
 
             await page.click('a[href="/docs/politics/"]');
             await page.waitForFunction(
@@ -267,12 +281,15 @@ jobs:
               { timeout: 120000 },
             );
             await new Promise((resolve) => setTimeout(resolve, 1500));
-            const after = await page.content();
+            const afterText = await page.evaluate(() => document.body.innerText);
             const path = await page.evaluate(() => location.pathname);
             console.log('[browser-check] after click path=' + path);
             if (path !== '/docs/politics/') throw new Error('Client navigation landed on unexpected path: ' + path);
-            if (after.includes(badText)) throw new Error('Client navigation rendered the Next.js 404 page.');
-            console.log('[browser-check] homepage -> /docs/politics/ succeeded without 404');
+            if (afterText.includes(badText)) {
+              console.log('[browser-check] after-click body=' + afterText.slice(0, 800));
+              throw new Error('Client navigation visibly rendered the Next.js 404 page.');
+            }
+            console.log('[browser-check] homepage -> /docs/politics/ succeeded without visible 404');
           } finally {
             await browser.close();
           }
