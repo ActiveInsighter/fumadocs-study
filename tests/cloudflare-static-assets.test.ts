@@ -22,7 +22,7 @@ describe('Cloudflare Workers Static Assets deployment', () => {
     });
   });
 
-  it('translates guarded EdgeOne RSC rewrites to Cloudflare 200 proxy rules', () => {
+  it('translates guarded EdgeOne RSC rewrites to supported Cloudflare redirects', () => {
     const redirects = buildCloudflareRedirects([
       {
         source: '/docs/*/index.txt',
@@ -34,8 +34,9 @@ describe('Cloudflare Workers Static Assets deployment', () => {
       },
     ]);
 
-    expect(redirects).toContain('/docs/*/index.txt /docs/:splat/__next._full.txt 200');
-    expect(redirects).toContain('/docs/*/__next.docs.txt /docs/__next.docs.txt 200');
+    expect(redirects).toContain('/docs/*/index.txt /docs/:splat/__next._full.txt 302');
+    expect(redirects).toContain('/docs/*/__next.docs.txt /docs/__next.docs.txt 302');
+    expect(redirects).not.toContain(' 200');
   });
 
   it('keeps Cloudflare dynamic redirects within the documented limit', () => {
@@ -48,7 +49,7 @@ describe('Cloudflare Workers Static Assets deployment', () => {
     expect(() => buildCloudflareRedirects(tooMany)).toThrow(/at most 100 dynamic/);
   });
 
-  it('refuses unsupported multi-splat or external proxy rewrites', () => {
+  it('refuses unsupported multi-splat or external redirects', () => {
     expect(() =>
       buildCloudflareRedirects([
         { source: '/docs/*/nested/*', destination: '/docs/:splat' },
