@@ -1,1 +1,36 @@
-name: Normalize strong boundaries once\n\non:\n  push:\n    branches:\n      - codex/fix-markdown-bold-table-0926\n\npermissions:\n  contents: write\n\njobs:\n  normalize:\n    if: ${{ !contains(github.event.head_commit.message, '[strong-boundary-normalized]') }}\n    runs-on: ubuntu-24.04\n    steps:\n      - uses: actions/checkout@v6\n        with:\n          ref: codex/fix-markdown-bold-table-0926\n      - uses: actions/setup-node@v7\n        with:\n          node-version: 22\n      - name: Normalize Markdown strong boundaries\n        run: node scripts/normalize-strong-boundaries.mjs\n      - name: Commit normalized content\n        shell: bash\n        run: |\n          set -euo pipefail\n          if git diff --quiet; then\n            echo 'No normalization changes needed.'\n            exit 0\n          fi\n          git config user.name 'github-actions[bot]'\n          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'\n          git add content/docs content/blog\n          git commit -m 'docs: normalize strong emphasis boundaries [strong-boundary-normalized]'\n          git push origin HEAD:codex/fix-markdown-bold-table-0926\n
+name: Normalize strong boundaries once
+
+on:
+  push:
+    branches:
+      - codex/fix-markdown-bold-table-0926
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    if: ${{ !contains(github.event.head_commit.message, '[strong-boundary-normalized]') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: codex/fix-markdown-bold-table-0926
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Normalize Markdown strong boundaries
+        run: node scripts/normalize-strong-boundaries.mjs
+      - name: Commit normalized content
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo 'No normalization changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add content/docs content/blog
+          git commit -m 'docs: normalize strong emphasis boundaries [strong-boundary-normalized]'
+          git push origin HEAD:codex/fix-markdown-bold-table-0926
