@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - codex/algorithm-notes-0926
   workflow_dispatch:
     inputs:
       deploy:
@@ -85,11 +86,12 @@ jobs:
         run: |
           set -euo pipefail
 
+          test -s .static-docs/index.html
           test -s .static-docs/_redirects
           test -s .static-docs/.assetsignore
           test -s .static-docs/404.html
-          grep -F '/docs/*/index.txt /docs/:splat/__next._full.txt 200' .static-docs/_redirects
-          grep -F '/docs/*/__next.docs.txt /docs/__next.docs.txt 200' .static-docs/_redirects
+          grep -F '/docs/*/index.txt /docs/:splat/__next._full.txt 302' .static-docs/_redirects
+          grep -F '/docs/*/__next.docs.txt /docs/__next.docs.txt 302' .static-docs/_redirects
           grep -Fx 'edgeone.json' .static-docs/.assetsignore
 
           file_count="$(find .static-docs -type f \
@@ -120,13 +122,14 @@ jobs:
             echo "- Uploadable asset files: ${file_count}/20000"
             echo "- Largest uploadable asset: $((largest_bytes / 1024 / 1024)) MiB / 25 MiB"
             echo "- Local static package: $((package_bytes / 1024 / 1024)) MiB"
+            echo '- Root index.html: present'
             echo '- Worker JavaScript: none (assets-only deployment)'
-            echo '- RSC dedupe aliases: restored through two Cloudflare 200 proxy rules'
+            echo '- RSC dedupe aliases: served through supported Cloudflare 302 redirects'
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Validate Wrangler configuration with a dry run
         shell: bash
-        run: npx --yes wrangler@4.129.0 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
+        run: npx --yes wrangler@4.136.3 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
 
       - name: Check Cloudflare deployment credentials
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
@@ -168,11 +171,11 @@ jobs:
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: '4.129.0'
+          wranglerVersion: '4.136.3'
           command: deploy --config wrangler.jsonc --name ${{ steps.worker.outputs.name }}
 
       - name: Verify Cloudflare deployment
@@ -204,6 +207,13 @@ jobs:
           }
 
           wait_for_route '/'
+
+          homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
+          if grep -Fq 'This page could not be found.' <<<"${homepage}"; then
+            echo '::error::Cloudflare root route rendered the Next.js 404 page.'
+            exit 1
+          fi
+
           for path in \
             '/docs/' \
             '/search-index.json' \
