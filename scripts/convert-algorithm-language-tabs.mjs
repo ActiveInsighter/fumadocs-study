@@ -52,15 +52,6 @@ function findLastMultilingualSection(content) {
   const next = content.slice(bodyStart).match(/\n##\s+/);
   const end = next ? bodyStart + next.index : content.length;
 
-  // The user's target is the language implementations at the end of a note.
-  // Ignore an earlier multilingual discussion if a substantial H2 section follows it.
-  if (end < content.length) {
-    const remainder = content.slice(end).trim();
-    if (remainder.length > 0 && !/^##\s+(?:总结|本题总结|本节总结|小结|复盘)/m.test(remainder)) {
-      return null;
-    }
-  }
-
   return { start, end };
 }
 
