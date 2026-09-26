@@ -87,6 +87,8 @@ jobs:
           set -euo pipefail
 
           test -s .static-docs/index.html
+          grep -Fq 'href="/docs/politics"' .static-docs/index.html
+          grep -Fq 'href="/blog"' .static-docs/index.html
           test -s .static-docs/_redirects
           test -s .static-docs/.assetsignore
           test -s .static-docs/404.html
@@ -209,8 +211,10 @@ jobs:
           wait_for_route '/'
 
           homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
-          if ! grep -Fq '2027 考研学习' <<<"${homepage}"; then
-            echo '::error::Cloudflare root route did not render the expected study homepage.'
+          if ! grep -Fq 'href="/docs/politics"' <<<"${homepage}" || ! grep -Fq 'href="/blog"' <<<"${homepage}"; then
+            echo '::error::Cloudflare root route did not render the expected study homepage links.'
+            printf '%s' "${homepage}" | head -c 1200
+            echo
             exit 1
           fi
 
