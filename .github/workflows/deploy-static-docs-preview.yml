@@ -290,7 +290,7 @@ jobs:
           echo 'RSC rewrite payloads match the deduplicated local sources.'
 
       - name: Diagnose EdgeOne deployment status
-        if: ${{ failure() && steps.deploy.outcome == 'success' }}
+        if: ${{ failure() && steps.deploy.outcome != 'skipped' }}
         shell: bash
         run: |
           set -euo pipefail
