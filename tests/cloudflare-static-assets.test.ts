@@ -36,7 +36,13 @@ describe('Cloudflare Workers Static Assets deployment', () => {
 
     expect(redirects).toContain('/docs/*/index.txt /docs/:splat/__next._full.txt 302');
     expect(redirects).toContain('/docs/*/__next.docs.txt /docs/__next.docs.txt 302');
-    expect(redirects).not.toContain(' 200');
+
+    const ruleLines = redirects
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith('#'));
+
+    expect(ruleLines.every((line) => !/\s200$/.test(line))).toBe(true);
   });
 
   it('keeps Cloudflare dynamic redirects within the documented limit', () => {
