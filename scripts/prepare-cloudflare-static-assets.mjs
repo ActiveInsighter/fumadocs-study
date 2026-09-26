@@ -1,4 +1,4 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
+import { copyFile, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,7 +20,8 @@ export function buildCloudflareRedirects(rewrites) {
 
   const lines = [
     '# Generated from .static-docs/edgeone.json by scripts/prepare-cloudflare-static-assets.mjs.',
-    '# HTTP 200 rules are internal proxy rewrites: the browser URL stays unchanged.',
+    '# Cloudflare Workers Static Assets does not support 200 rewrite rules in _redirects.',
+    '# Use temporary redirects instead; browser/fetch clients follow them to the canonical RSC asset.',
   ];
 
   for (const rewrite of rewrites) {
@@ -30,12 +31,12 @@ export function buildCloudflareRedirects(rewrites) {
       throw new Error(`Invalid rewrite entry: ${JSON.stringify(rewrite)}`);
     }
     if (!source.startsWith('/') || !destination.startsWith('/')) {
-      throw new Error(`Cloudflare proxy rewrites must stay on-site: ${source} -> ${destination}`);
+      throw new Error(`Cloudflare redirects must stay on-site: ${source} -> ${destination}`);
     }
     if (countSplats(source) > 1) {
       throw new Error(`Cloudflare _redirects supports only one splat per source: ${source}`);
     }
-    lines.push(`${source} ${destination} 200`);
+    lines.push(`${source} ${destination} 302`);
   }
 
   return `${lines.join('\n')}\n`;
@@ -49,6 +50,20 @@ export function buildCloudflareAssetsIgnore() {
   ].join('\n');
 }
 
+async function ensureRootIndex(outputRoot) {
+  const rootIndexPath = path.join(outputRoot, 'index.html');
+
+  try {
+    await stat(rootIndexPath);
+    return false;
+  } catch {
+    const docsIndexPath = path.join(outputRoot, 'docs', 'index.html');
+    await stat(docsIndexPath);
+    await copyFile(docsIndexPath, rootIndexPath);
+    return true;
+  }
+}
+
 export async function prepareCloudflareStaticAssets(outputRoot = path.resolve('.static-docs')) {
   const edgeOneConfigPath = path.join(outputRoot, 'edgeone.json');
   const redirectsPath = path.join(outputRoot, '_redirects');
@@ -59,14 +74,20 @@ export async function prepareCloudflareStaticAssets(outputRoot = path.resolve('.
   const redirects = buildCloudflareRedirects(edgeOneConfig.rewrites);
 
   await stat(notFoundPath);
+  const restoredRootIndex = await ensureRootIndex(outputRoot);
   await Promise.all([
     writeFile(redirectsPath, redirects, 'utf8'),
     writeFile(assetsIgnorePath, buildCloudflareAssetsIgnore(), 'utf8'),
   ]);
 
   console.log(`[cloudflare-assets] Wrote ${redirectsPath}.`);
-  console.log('[cloudflare-assets] Reused guarded RSC dedupe rewrites as Cloudflare Static Assets 200 proxies.');
+  console.log('[cloudflare-assets] Translated EdgeOne RSC rewrites to supported Cloudflare 302 redirects.');
   console.log('[cloudflare-assets] Confirmed 404.html for not_found_handling=404-page.');
+  if (restoredRootIndex) {
+    console.log('[cloudflare-assets] Restored missing root index.html from docs/index.html.');
+  } else {
+    console.log('[cloudflare-assets] Confirmed root index.html exists.');
+  }
 }
 
 const isDirectRun =
