@@ -1,0 +1,768 @@
+---
+title: 把二叉搜索树转换为累加树：反向中序遍历与后缀累加
+---
+
+# 把二叉搜索树转换为累加树：反向中序遍历与后缀累加
+
+> LeetCode 538 · Convert BST to Greater Tree
+
+[题目链接](https://leetcode.cn/problems/convert-bst-to-greater-tree/)
+
+给定一棵节点值互不相同的二叉搜索树。需要把每个节点 `node` 的值修改成：
+
+> 原树中所有**大于或等于 `node.val`** 的节点值之和。
+
+![把二叉搜索树转换为累加树](https://file1.kamacoder.com/i/algo/20201023160751832.png)
+
+<Callout title="本题真正考什么" type="idea">
+
+这道题表面上是“修改树”，本质上却是：
+
+> **把 BST 看成一个升序数组，然后从右向左做后缀累加。**
+
+普通中序遍历是“左 → 中 → 右”，得到升序序列；反过来采用“右 → 中 → 左”，就会按照从大到小的顺序访问节点。
+
+</Callout>
+
+## 1. 先把树想成一个有序数组
+
+BST 的中序遍历满足：
+
+```text
+左 → 中 → 右
+```
+
+得到的节点值严格递增。
+
+例如某棵 BST 的中序序列是：
+
+```text
+[2, 5, 13]
+```
+
+题目要求每个位置变成“大于等于它的所有值之和”：
+
+```text
+原数组： [ 2,  5, 13]
+结果：   [20, 18, 13]
+```
+
+如果从右向左扫描：
+
+```text
+13        → 13
+5 + 13    → 18
+2 + 18    → 20
+```
+
+只需要维护一个运行中的累加和即可。
+
+于是回到 BST：
+
+```text
+从大到小访问节点
+=
+右 → 中 → 左
+```
+
+这就是本题的核心。
+
+## 2. 为什么必须是“右 → 中 → 左”
+
+普通中序：
+
+```text
+左 → 中 → 右
+```
+
+访问顺序是：
+
+```text
+小 → 大
+```
+
+而当前节点的新值依赖所有**更大的节点**。
+
+所以在修改当前节点之前，那些更大的节点必须已经被处理过。
+
+因此必须把遍历方向反过来：
+
+```text
+右 → 中 → 左
+```
+
+访问顺序就变成：
+
+```text
+大 → 小
+```
+
+![反向中序遍历](https://file1.kamacoder.com/i/algo/20210204153440666.png)
+
+<Callout title="BST 中序遍历的双向价值" type="success">
+
+BST 中：
+
+```text
+左 → 中 → 右  = 从小到大
+右 → 中 → 左  = 从大到小
+```
+
+很多 BST 问题本质上都可以先“线性化思考”，再决定采用哪一个方向遍历。
+
+</Callout>
+
+## 3. 累加变量到底表示什么
+
+定义变量：
+
+```cpp
+int sum = 0;
+```
+
+当遍历到当前节点 `cur` 时，希望维护下面这个不变量：
+
+> `sum` 表示所有**已经访问过的节点**的修改后累计值，也就是所有比当前节点更大的原始节点值之和。
+
+因为我们按从大到小遍历，所以当前节点到来时：
+
+```text
+sum = 所有严格大于 cur->val 的节点值之和
+```
+
+然后执行：
+
+```cpp
+sum += cur->val;
+cur->val = sum;
+```
+
+此时：
+
+```text
+cur->val = 所有大于等于当前原值的节点之和
+```
+
+刚好符合题意。
+
+## 4. 为什么更新顺序不能写反
+
+正确写法：
+
+```cpp
+sum += cur->val;
+cur->val = sum;
+```
+
+因为 `sum` 必须先吸收当前节点的**原始值**。
+
+如果先覆盖 `cur->val`，再参与计算，就可能丢失原值。
+
+更重要的是，在进入左子树之前，`sum` 必须已经包含当前节点，因为当前节点对左子树中的所有节点来说都是“更大的值”。
+
+因此完整顺序是：
+
+```text
+1. 处理右子树中的所有更大值
+2. 把当前原值加入 sum
+3. 用 sum 覆盖当前节点
+4. 再处理左子树中的更小值
+```
+
+## 5. 递归三部曲
+
+### 5.1 函数含义
+
+函数只负责按“右 → 中 → 左”遍历并原地修改节点，不需要返回新的子树根：
+
+```cpp
+void traversal(TreeNode* cur)
+```
+
+同时维护一个成员变量：
+
+```cpp
+int sum = 0;
+```
+
+### 5.2 终止条件
+
+遇到空节点直接返回：
+
+```cpp
+if (cur == nullptr) return;
+```
+
+### 5.3 单层逻辑
+
+```cpp
+traversal(cur->right);  // 右：先处理更大的值
+
+sum += cur->val;        // 中：加入当前原值
+cur->val = sum;         // 更新当前节点
+
+traversal(cur->left);   // 左：再处理更小的值
+```
+
+这个顺序不能交换。
+
+## 6. C++：递归实现
+
+```cpp title="C++ · 递归"
+class Solution {
+private:
+    int sum = 0;
+
+    void traversal(TreeNode* cur) {
+        if (cur == nullptr) {
+            return;
+        }
+
+        traversal(cur->right);
+
+        sum += cur->val;
+        cur->val = sum;
+
+        traversal(cur->left);
+    }
+
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        sum = 0;
+        traversal(root);
+        return root;
+    }
+};
+```
+
+这份代码真正值得记忆的不是语法，而是下面这个模板：
+
+```text
+右子树
+↓
+利用“前面已经处理过的更大值”更新当前节点
+↓
+左子树
+```
+
+## 7. 用具体例子走一遍
+
+假设 BST 中序序列是：
+
+```text
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+```
+
+反向中序遍历顺序就是：
+
+```text
+8, 7, 6, 5, 4, 3, 2, 1, 0
+```
+
+累加过程：
+
+| 当前原值 | 进入节点前 `sum` | 更新后 `sum` | 节点新值 |
+| ---: | ---: | ---: | ---: |
+| 8 | 0 | 8 | 8 |
+| 7 | 8 | 15 | 15 |
+| 6 | 15 | 21 | 21 |
+| 5 | 21 | 26 | 26 |
+| 4 | 26 | 30 | 30 |
+| 3 | 30 | 33 | 33 |
+| 2 | 33 | 35 | 35 |
+| 1 | 35 | 36 | 36 |
+| 0 | 36 | 36 | 36 |
+
+可以看到，它与“对升序数组做后缀和”完全等价。
+
+## 8. 正确性为什么成立
+
+设当前节点原值为 $x$。
+
+由于是 BST，所有右子树节点均满足：
+
+$$
+v>x
+$$
+
+反向中序遍历会先完整访问这些更大的节点。
+
+因此处理当前节点前：
+
+$$
+sum=\sum_{v>x}v
+$$
+
+再执行：
+
+$$
+sum\leftarrow sum+x
+$$
+
+于是：
+
+$$
+sum=\sum_{v\ge x}v
+$$
+
+然后令当前节点：
+
+$$
+node.val\leftarrow sum
+$$
+
+恰好满足题目要求。
+
+接着继续进入左子树。因为左子树节点都小于 $x$，当前节点也应该计入它们的累加结果，所以更新后的 `sum` 正好成为下一阶段需要的状态。
+
+## 9. 迭代法：把普通中序模板反过来
+
+普通中序迭代模板是：
+
+```text
+不断向左入栈
+→ 弹出中节点
+→ 转向右边
+```
+
+本题只需要镜像：
+
+```text
+不断向右入栈
+→ 弹出中节点并累加
+→ 转向左边
+```
+
+```cpp title="C++ · 迭代"
+class Solution {
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        int sum = 0;
+        stack<TreeNode*> st;
+        TreeNode* cur = root;
+
+        while (cur != nullptr || !st.empty()) {
+            while (cur != nullptr) {
+                st.push(cur);
+                cur = cur->right;
+            }
+
+            cur = st.top();
+            st.pop();
+
+            sum += cur->val;
+            cur->val = sum;
+
+            cur = cur->left;
+        }
+
+        return root;
+    }
+};
+```
+
+<Callout title="如何从中序模板快速推出本题" type="info">
+
+如果已经熟悉 BST 普通中序迭代：
+
+```text
+左 → 中 → 右
+```
+
+那么本题不需要重新背模板，只要把“左”和“右”镜像即可：
+
+```text
+右 → 中 → 左
+```
+
+</Callout>
+
+## 10. `sum` 和 `pre` 两种写法有什么区别
+
+有些实现会写：
+
+```cpp
+cur->val += pre;
+pre = cur->val;
+```
+
+这里的 `pre` 实际上保存的是：
+
+> 上一个访问节点修改后的值。
+
+由于反向中序过程中，前一个修改后的值恰好就是“所有已访问更大值的总和”，因此这种写法也是正确的。
+
+不过从语义上看：
+
+```cpp
+sum += cur->val;
+cur->val = sum;
+```
+
+更直接，因为变量明确表达“累加和”。
+
+## 11. 节点值为负数会不会失效
+
+不会。
+
+本题依赖的是：
+
+1. BST 提供确定的大小顺序；
+2. 按从大到小访问；
+3. 按顺序累加。
+
+并不要求节点值为正数。
+
+例如：
+
+```text
+[-5, -2, 3]
+```
+
+从右向左：
+
+```text
+3  → 3
+-2 → 1
+-5 → -4
+```
+
+仍然严格符合“大于等于当前值的节点之和”。
+
+## 12. 复杂度分析
+
+每个节点恰好访问一次，因此：
+
+$$
+T(n)=O(n)
+$$
+
+递归法的额外空间由树高 $h$ 决定：
+
+$$
+O(h)
+$$
+
+如果 BST 比较平衡：
+
+$$
+h=O(\log n)
+$$
+
+如果 BST 完全退化成链表：
+
+$$
+h=O(n)
+$$
+
+迭代法中的显式栈同样最多保存 $O(h)$ 个节点。
+
+## 13. 常见错误
+
+### 错误一：仍然使用普通中序遍历
+
+如果按：
+
+```text
+左 → 中 → 右
+```
+
+那么访问当前节点时，拿到的是更小节点的累加状态，而题目需要的是更大节点之和。
+
+方向完全相反。
+
+### 错误二：每到一个节点再搜索所有更大节点
+
+这样虽然可能写出正确答案，但会重复遍历大量节点，最坏可能达到：
+
+$$
+O(n^2)
+$$
+
+BST 已经把节点按大小组织好了，没有必要重复搜索。
+
+### 错误三：先进入左子树再累加
+
+一旦先处理左边，就破坏了“访问当前节点时，所有更大值已经处理完”的不变量。
+
+### 错误四：忘记跨节点保存累加状态
+
+`sum` 不能在每次递归调用里重新初始化。
+
+它必须是一次完整遍历共享的状态。
+
+## 14. 与前面 BST 题目的联系
+
+这一题与“最小绝对差”“众数”有一个非常统一的思路：
+
+> **利用 BST 的中序有序性，把树问题转成有序序列问题。**
+
+| 问题 | 中序序列上的等价操作 |
+| --- | --- |
+| 验证 BST | 检查是否严格递增 |
+| 最小绝对差 | 比较相邻元素差值 |
+| BST 众数 | 统计连续相等段 |
+| 累加树 | 从右向左做后缀累加 |
+
+这也是为什么掌握 BST 后，许多题看起来是树题，真正做的却是“有序数组上的扫描”。
+
+<Callout title="BST 的核心能力" type="success">
+
+遇到 BST，第一反应不应该只是“左小右大”。
+
+还应该立刻想到：
+
+```text
+中序遍历     → 升序序列
+反向中序遍历 → 降序序列
+```
+
+然后问自己：**如果这是一维有序数组，我会怎么做？**
+
+</Callout>
+
+## 15. 复盘清单
+
+完成本篇后，应能独立解释：
+
+- 为什么普通中序遍历 BST 会得到升序序列？
+- 为什么本题必须使用“右 → 中 → 左”？
+- 处理当前节点之前，`sum` 的准确含义是什么？
+- 为什么更新顺序是 `sum += cur->val` 再 `cur->val = sum`？
+- 为什么这道题等价于对有序数组求后缀和？
+- 为什么负数不会破坏算法正确性？
+- 递归法和迭代法的空间复杂度为什么都是 $O(h)$？
+- BST 中序有序性还能怎样迁移到最小差、众数等问题？
+
+## 其他语言实现
+
+下面各语言统一采用“**反向中序遍历 + 全局累加和**”这一核心策略。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    private int sum = 0;
+
+    public TreeNode convertBST(TreeNode root) {
+        traversal(root);
+        return root;
+    }
+
+    private void traversal(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        traversal(node.right);
+        sum += node.val;
+        node.val = sum;
+        traversal(node.left);
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def convertBST(self, root):
+        self.total = 0
+
+        def traversal(node):
+            if node is None:
+                return
+
+            traversal(node.right)
+            self.total += node.val
+            node.val = self.total
+            traversal(node.left)
+
+        traversal(root)
+        return root
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func convertBST(root *TreeNode) *TreeNode {
+    sum := 0
+
+    var traversal func(*TreeNode)
+    traversal = func(node *TreeNode) {
+        if node == nil {
+            return
+        }
+
+        traversal(node.Right)
+        sum += node.Val
+        node.Val = sum
+        traversal(node.Left)
+    }
+
+    traversal(root)
+    return root
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var convertBST = function(root) {
+    let sum = 0;
+
+    const traversal = (node) => {
+        if (node === null) {
+            return;
+        }
+
+        traversal(node.right);
+        sum += node.val;
+        node.val = sum;
+        traversal(node.left);
+    };
+
+    traversal(root);
+    return root;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function convertBST(root: TreeNode | null): TreeNode | null {
+    let sum = 0;
+
+    const traversal = (node: TreeNode | null): void => {
+        if (node === null) {
+            return;
+        }
+
+        traversal(node.right);
+        sum += node.val;
+        node.val = sum;
+        traversal(node.left);
+    };
+
+    traversal(root);
+    return root;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c title="C"
+void traversal(struct TreeNode* node, int* sum) {
+    if (node == NULL) {
+        return;
+    }
+
+    traversal(node->right, sum);
+    *sum += node->val;
+    node->val = *sum;
+    traversal(node->left, sum);
+}
+
+struct TreeNode* convertBST(struct TreeNode* root) {
+    int sum = 0;
+    traversal(root, &sum);
+    return root;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def convertBST(root: TreeNode): TreeNode = {
+    var sum = 0
+
+    def traversal(node: TreeNode): Unit = {
+      if (node == null) return
+
+      traversal(node.right)
+      sum += node.value
+      node.value = sum
+      traversal(node.left)
+    }
+
+    traversal(root)
+    root
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn convert_bst(
+        root: Option<Rc<RefCell<TreeNode>>>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        fn traversal(
+            node: &Option<Rc<RefCell<TreeNode>>>,
+            sum: &mut i32,
+        ) {
+            let Some(rc) = node else {
+                return;
+            };
+
+            let right = rc.borrow().right.clone();
+            traversal(&right, sum);
+
+            *sum += rc.borrow().val;
+            rc.borrow_mut().val = *sum;
+
+            let left = rc.borrow().left.clone();
+            traversal(&left, sum);
+        }
+
+        let mut sum = 0;
+        traversal(&root, &mut sum);
+        root
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    private int sum = 0;
+
+    public TreeNode ConvertBST(TreeNode root)
+    {
+        Traversal(root);
+        return root;
+    }
+
+    private void Traversal(TreeNode node)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+        Traversal(node.right);
+        sum += node.val;
+        node.val = sum;
+        Traversal(node.left);
+    }
+}
+```
+
+</Tab>
+</Tabs>

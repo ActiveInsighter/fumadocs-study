@@ -1,0 +1,996 @@
+---
+title: 用队列实现栈
+description: 用单队列旋转或双队列搬运模拟 LIFO 栈，理解“把新元素转到队头”的顺序重排思想与复杂度差异。
+---
+
+# 225. 用队列实现栈
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/implement-stack-using-queues/">
+    LeetCode 225 · Implement Stack using Queues
+  </Card>
+</Cards>
+
+要求只使用队列的标准操作，实现一个后进先出栈。
+
+需要支持：
+
+```text
+push(x)
+pop()
+top()
+empty()
+```
+
+例如：
+
+```text
+push(1)
+push(2)
+top()   -> 2
+pop()   -> 2
+empty() -> false
+```
+
+<Callout type="info" title="这道题的核心">
+队列是：
+
+```text
+FIFO
+```
+
+栈是：
+
+```text
+LIFO
+```
+
+所以关键是想办法让“最新进入的元素”变成下一次最先被访问的元素。
+</Callout>
+
+---
+
+## 1. 为什么普通队列不能直接模拟栈
+
+依次入队：
+
+```text
+1
+2
+3
+```
+
+队列结构：
+
+```text
+front             back
+  ↓                 ↓
+  1      2          3
+```
+
+如果直接出队：
+
+```text
+1
+2
+3
+```
+
+但栈要求：
+
+```text
+3
+2
+1
+```
+
+所以必须重新安排队列内部顺序。
+
+---
+
+# 2. 方法一：单队列旋转
+
+这是最推荐的写法。
+
+思路：
+
+> 每次 `push(x)` 后，把新元素前面的旧元素全部依次出队再入队，让 `x` 旋转到队头。
+
+例如原队列：
+
+```text
+1, 2
+```
+
+push `3` 后：
+
+```text
+1, 2, 3
+```
+
+现在把前两个元素依次移到队尾：
+
+```text
+2, 3, 1
+```
+
+再移一次：
+
+```text
+3, 1, 2
+```
+
+于是：
+
+```text
+front = 3
+```
+
+最新元素已经来到最前面。
+
+这样之后：
+
+```text
+pop
+```
+
+只需普通出队即可。
+
+---
+
+## 3. 为什么旋转 `size - 1` 次
+
+push 新元素后，队列长度设为：
+
+$$
+n
+$$
+
+新元素位于：
+
+```text
+队尾
+```
+
+它前面有：
+
+$$
+n-1
+$$
+
+个旧元素。
+
+只要把这些旧元素逐个：
+
+```text
+出队
+再入队
+```
+
+新元素就会来到队头。
+
+所以需要旋转：
+
+$$
+n-1
+$$
+
+次。
+
+---
+
+## 4. 标准单队列解法
+
+```cpp
+class MyStack {
+private:
+    queue<int> q;
+
+public:
+    MyStack() = default;
+
+    void push(int x) {
+        q.push(x);
+
+        int count = q.size() - 1;
+
+        while (count--) {
+            q.push(q.front());
+            q.pop();
+        }
+    }
+
+    int pop() {
+        int value = q.front();
+        q.pop();
+
+        return value;
+    }
+
+    int top() {
+        return q.front();
+    }
+
+    bool empty() {
+        return q.empty();
+    }
+};
+```
+
+---
+
+## 5. 一次完整过程
+
+操作：
+
+```text
+push(1)
+push(2)
+push(3)
+```
+
+### push(1)
+
+```text
+[1]
+```
+
+无需旋转。
+
+---
+
+### push(2)
+
+先：
+
+```text
+[1, 2]
+```
+
+旋转 1 次：
+
+```text
+[2, 1]
+```
+
+---
+
+### push(3)
+
+先：
+
+```text
+[2, 1, 3]
+```
+
+旋转 2 次：
+
+第一轮：
+
+```text
+[1, 3, 2]
+```
+
+第二轮：
+
+```text
+[3, 2, 1]
+```
+
+现在队列顺序恰好就是栈的弹出顺序。
+
+所以：
+
+```text
+pop -> 3
+pop -> 2
+pop -> 1
+```
+
+---
+
+# 6. 为什么这种设计让 pop 很简单
+
+通过在 `push` 阶段完成顺序整理，我们维护一个不变量：
+
+> 队头始终是当前栈顶。
+
+所以：
+
+```cpp
+top()
+```
+
+就是：
+
+```cpp
+q.front()
+```
+
+而：
+
+```cpp
+pop()
+```
+
+就是普通队列：
+
+```cpp
+q.pop()
+```
+
+这是一种：
+
+> **把复杂度集中到 push**
+
+的设计。
+
+---
+
+# 7. 时间复杂度
+
+假设当前栈里有 $n$ 个元素。
+
+### push
+
+要旋转：
+
+$$
+n-1
+$$
+
+次。
+
+所以：
+
+$$
+O(n)
+$$
+
+### pop
+
+直接从队头删除：
+
+$$
+O(1)
+$$
+
+### top
+
+直接读取队头：
+
+$$
+O(1)
+$$
+
+### empty
+
+$$
+O(1)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+# 8. 方法二：双队列
+
+也可以使用两个队列：
+
+```text
+q1
+q2
+```
+
+一种常见策略：
+
+1. 新元素先进入空队列；
+2. 把原队列所有元素依次搬到新队列；
+3. 交换两个队列角色。
+
+例如：
+
+```text
+q1 = [3, 2, 1]
+```
+
+push `4`：
+
+```text
+q2 = [4]
+```
+
+再把 q1 全部搬进去：
+
+```text
+q2 = [4, 3, 2, 1]
+```
+
+最后交换：
+
+```text
+q1 = [4, 3, 2, 1]
+q2 = []
+```
+
+此时：
+
+```text
+q1.front() = 栈顶
+```
+
+---
+
+## 9. 双队列写法
+
+```cpp
+class MyStack {
+private:
+    queue<int> q1;
+    queue<int> q2;
+
+public:
+    void push(int x) {
+        q2.push(x);
+
+        while (!q1.empty()) {
+            q2.push(q1.front());
+            q1.pop();
+        }
+
+        swap(q1, q2);
+    }
+
+    int pop() {
+        int value = q1.front();
+        q1.pop();
+
+        return value;
+    }
+
+    int top() {
+        return q1.front();
+    }
+
+    bool empty() {
+        return q1.empty();
+    }
+};
+```
+
+---
+
+# 10. 单队列为什么更优雅
+
+双队列本质上做的是：
+
+```text
+把旧元素全部搬到新元素后面
+```
+
+单队列则发现：
+
+> 其实不需要第二个容器，只要把原队头不断移到队尾，就能完成同样的循环旋转。
+
+所以单队列：
+
+- 空间结构更简单；
+- 逻辑更直接；
+- 更能体现队列自身“循环移动”的能力。
+
+---
+
+# 11. 还可以让 pop 复杂、push 简单吗
+
+当然可以。
+
+另一种策略是：
+
+### push
+
+普通入队：
+
+$$
+O(1)
+$$
+
+### pop
+
+把前 $n-1$ 个元素全部移到辅助队列，最后一个元素就是栈顶：
+
+$$
+O(n)
+$$
+
+也就是说：
+
+> 可以选择让 `push` 复杂，也可以让 `pop` 复杂。
+
+设计数据结构时，经常需要根据使用场景决定：
+
+```text
+哪个操作更频繁
+哪个操作更应该优化
+```
+
+---
+
+# 12. 和“用栈实现队列”的差异
+
+两道题虽然互为镜像，但结构不完全对称。
+
+### 两栈实现队列
+
+可以利用：
+
+```text
+两次反转
+```
+
+并做到：
+
+```text
+push O(1)
+pop 均摊 O(1)
+```
+
+### 队列实现栈
+
+队列只能从队头删除。
+
+为了让最新元素来到队头，需要显式重排：
+
+```text
+旋转
+```
+
+所以通常至少有一个操作是：
+
+$$
+O(n)
+$$
+
+这也是二者复杂度不同的原因。
+
+---
+
+# 13. 为什么不能直接用 deque 的后端接口
+
+如果题目规定：
+
+> 只能使用标准队列操作。
+
+那么就不能偷偷调用：
+
+```text
+back pop
+```
+
+因为普通 Queue 的合法行为是：
+
+```text
+队尾入
+队头出
+```
+
+即使某些语言底层用 `deque` 实现，也不能利用题目禁止的接口。
+
+算法题考的是抽象数据类型，而不是底层容器能做什么。
+
+---
+
+# 14. 本题真正训练的是“顺序转换”
+
+把序列：
+
+```text
+1, 2, 3
+```
+
+转换成：
+
+```text
+3, 2, 1
+```
+
+可以通过队列旋转：
+
+```text
+新元素加入尾部
+      ↓
+把旧元素全部移到尾部
+      ↓
+新元素来到队头
+```
+
+于是队列的访问顺序被主动维护成：
+
+```text
+栈顺序
+```
+
+---
+
+# 15. 不变量
+
+单队列实现中最重要的不变量：
+
+> 队列从 front 到 back 的顺序，始终等于栈从 top 到 bottom 的顺序。
+
+例如栈逻辑上：
+
+```text
+top
+ ↓
+ 3
+ 2
+ 1
+```
+
+队列维护：
+
+```text
+front
+ ↓
+[3, 2, 1]
+```
+
+只要这个不变量成立：
+
+```text
+top = front
+pop = pop_front
+```
+
+就天然正确。
+
+---
+
+# 16. 常见错误
+
+### 错误一：push 后不旋转
+
+那队头仍然是最旧元素，只是普通 FIFO 队列。
+
+---
+
+### 错误二：旋转次数写成 `size`
+
+如果旋转完整：
+
+$$
+n
+$$
+
+次，队列会回到原状态。
+
+应该只旋转：
+
+$$
+n-1
+$$
+
+个旧元素。
+
+---
+
+### 错误三：旋转时先 pop 后丢失元素
+
+正确顺序：
+
+```cpp
+q.push(q.front());
+q.pop();
+```
+
+先把队头复制到队尾，再删除旧队头。
+
+---
+
+### 错误四：同时使用两个非空队列却没有明确职责
+
+如果用双队列，最好维护：
+
+```text
+一个保存当前栈
+另一个只作为临时队列
+```
+
+不要让状态散落在两个队列中。
+
+---
+
+# 17. 一眼识别本题
+
+看到：
+
+```text
+只能使用 Queue
+但要模拟 LIFO
+```
+
+优先想到：
+
+```text
+每次 push 后旋转
+让新元素来到 front
+```
+
+核心模板：
+
+```cpp
+q.push(x);
+
+for (旧元素数量次) {
+    q.push(q.front());
+    q.pop();
+}
+```
+
+之后：
+
+```text
+q.front() = 栈顶
+```
+
+---
+
+# 18. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class MyStack {
+private:
+    queue<int> q;
+
+public:
+    MyStack() = default;
+
+    void push(int x) {
+        q.push(x);
+
+        int count = q.size() - 1;
+
+        while (count--) {
+            q.push(q.front());
+            q.pop();
+        }
+    }
+
+    int pop() {
+        int value = q.front();
+        q.pop();
+
+        return value;
+    }
+
+    int top() {
+        return q.front();
+    }
+
+    bool empty() {
+        return q.empty();
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+class MyStack {
+    private Queue<Integer> q;
+
+    public MyStack() {
+        q = new ArrayDeque<>();
+    }
+
+    public void push(int x) {
+        q.offer(x);
+
+        int count = q.size() - 1;
+
+        while (count-- > 0) {
+            q.offer(q.poll());
+        }
+    }
+
+    public int pop() {
+        return q.poll();
+    }
+
+    public int top() {
+        return q.peek();
+    }
+
+    public boolean empty() {
+        return q.isEmpty();
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from collections import deque
+
+class MyStack:
+    def __init__(self):
+        self.q = deque()
+
+    def push(self, x: int) -> None:
+        self.q.append(x)
+
+        for _ in range(len(self.q) - 1):
+            self.q.append(self.q.popleft())
+
+    def pop(self) -> int:
+        return self.q.popleft()
+
+    def top(self) -> int:
+        return self.q[0]
+
+    def empty(self) -> bool:
+        return not self.q
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+type MyStack struct {
+    q []int
+}
+
+func Constructor() MyStack {
+    return MyStack{}
+}
+
+func (s *MyStack) Push(x int) {
+    s.q = append(s.q, x)
+
+    count := len(s.q) - 1
+
+    for i := 0; i < count; i++ {
+        front := s.q[0]
+        s.q = s.q[1:]
+        s.q = append(s.q, front)
+    }
+}
+
+func (s *MyStack) Pop() int {
+    value := s.q[0]
+    s.q = s.q[1:]
+
+    return value
+}
+
+func (s *MyStack) Top() int {
+    return s.q[0]
+}
+
+func (s *MyStack) Empty() bool {
+    return len(s.q) == 0
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var MyStack = function() {
+    this.q = [];
+};
+
+MyStack.prototype.push = function(x) {
+    this.q.push(x);
+
+    let count = this.q.length - 1;
+
+    while (count-- > 0) {
+        this.q.push(this.q.shift());
+    }
+};
+
+MyStack.prototype.pop = function() {
+    return this.q.shift();
+};
+
+MyStack.prototype.top = function() {
+    return this.q[0];
+};
+
+MyStack.prototype.empty = function() {
+    return this.q.length === 0;
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+class MyStack {
+    private q: number[] = [];
+
+    push(x: number): void {
+        this.q.push(x);
+
+        let count = this.q.length - 1;
+
+        while (count-- > 0) {
+            this.q.push(this.q.shift()!);
+        }
+    }
+
+    pop(): number {
+        return this.q.shift()!;
+    }
+
+    top(): number {
+        return this.q[0];
+    }
+
+    empty(): boolean {
+        return this.q.length === 0;
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+# 19. 复杂度总结
+
+使用“push 时旋转”的单队列方案：
+
+| 操作 | 时间复杂度 |
+| --- | ---: |
+| `push` | $O(n)$ |
+| `pop` | $O(1)$ |
+| `top` | $O(1)$ |
+| `empty` | $O(1)$ |
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+## 20. 本题总结
+
+用队列模拟栈的核心是：
+
+```text
+新元素先正常入队
+       ↓
+把之前所有旧元素依次移到队尾
+       ↓
+新元素来到队头
+       ↓
+front 永远就是 stack top
+```
+
+最重要的不变量：
+
+> **Queue 的 front → back 顺序，始终等于 Stack 的 top → bottom 顺序。**
+
+只要维护住这个不变量，`pop` 和 `top` 都会变得非常简单。

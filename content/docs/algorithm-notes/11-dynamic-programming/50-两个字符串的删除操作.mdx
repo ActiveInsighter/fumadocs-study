@@ -1,0 +1,927 @@
+---
+title: 两个字符串的删除操作
+sidebarTitle: 两个字符串的删除操作
+summary: 系统讲解 LeetCode 583 两个字符串的删除操作，分别从“最少删除次数”直接建模和“保留最长公共子序列”两条路线推导，建立删除距离与 LCS 的等价关系，并为编辑距离铺垫。
+---
+
+# 583. 两个字符串的删除操作
+
+[LeetCode 583：两个字符串的删除操作](https://leetcode.cn/problems/delete-operation-for-two-strings/)
+
+给定两个字符串 `word1` 和 `word2`，每一步可以从任意一个字符串中删除一个字符。
+
+求最少删除多少次，才能使两个字符串完全相同。
+
+例如：
+
+```text
+word1 = "sea"
+word2 = "eat"
+```
+
+一种最优过程是：
+
+```text
+"sea" -> "ea"
+"eat" -> "ea"
+```
+
+总共删除 $2$ 次，因此答案为：
+
+```text
+2
+```
+
+<Callout type="info" title="这题有两个同样重要的视角">
+可以直接定义“最少删除次数”做编辑距离型 DP；也可以先求最长公共子序列，再删除两个字符串中所有不属于该公共子序列的字符。两种方法最终完全等价。
+</Callout>
+
+## 1. 最终留下来的字符串一定是什么
+
+如果经过若干删除后：
+
+```text
+word1 == word2
+```
+
+那么最终留下来的字符串必须同时保持：
+
+- `word1` 中的相对顺序；
+- `word2` 中的相对顺序。
+
+所以它一定是两个字符串的**公共子序列**。
+
+如果想让删除次数最少，就应该尽可能多地保留字符。
+
+因此最终保留的最优结果，一定可以取为：
+
+$$
+\boxed{\text{最长公共子序列（LCS）}}
+$$
+
+这给出了第二种解法的核心结论。
+
+但在此之前，先从更直接的“删除次数 DP”开始。
+
+# 方法一：直接定义最少删除次数
+
+## 2. 状态定义
+
+定义：
+
+$$
+\boxed{
+dp[i][j]
+=
+\text{使 }word1[0\ldots i-1]
+\text{ 与 }word2[0\ldots j-1]
+\text{ 相同所需的最少删除次数}
+}
+$$
+
+最终答案为：
+
+$$
+\boxed{dp[n][m]}
+$$
+
+其中：
+
+$$
+n=|word1|,
+\qquad
+m=|word2|
+$$
+
+## 3. 当前字符相等时
+
+如果：
+
+$$
+word1[i-1]=word2[j-1]
+$$
+
+这两个字符可以直接保留，不需要删除。
+
+于是问题退化为前面的前缀：
+
+$$
+\boxed{dp[i][j]=dp[i-1][j-1]}
+$$
+
+直觉上就是：
+
+```text
+最后两个字符已经对齐，不要动它们
+```
+
+## 4. 当前字符不相等时
+
+如果：
+
+$$
+word1[i-1]\ne word2[j-1]
+$$
+
+两个最后字符不可能同时保留。
+
+至少要删除其中一个。
+
+### 选择一：删除 `word1[i-1]`
+
+删除一次之后：
+
+```text
+word1 前 i-1 个字符
+word2 前 j 个字符
+```
+
+因此代价是：
+
+$$
+dp[i-1][j]+1
+$$
+
+### 选择二：删除 `word2[j-1]`
+
+同理：
+
+$$
+dp[i][j-1]+1
+$$
+
+所以：
+
+$$
+\boxed{
+dp[i][j]
+=
+\min(dp[i-1][j],dp[i][j-1])+1
+}
+$$
+
+## 5. 为什么不需要单独考虑“两个都删”
+
+你当然可以写第三个候选：
+
+$$
+dp[i-1][j-1]+2
+$$
+
+但它是冗余的。
+
+原因是，从：
+
+$$
+dp[i][j-1]
+$$
+
+这个状态再删除 `word1[i-1]`，已经可以实现“两边最后一个都不保留”。
+
+同理，从 `dp[i-1][j]` 也可以完成类似过程。
+
+所以最简洁的转移只需要：
+
+$$
+\boxed{
+\min(dp[i-1][j]+1,dp[i][j-1]+1)
+}
+$$
+
+<Callout type="tip" title="这是编辑距离思想的雏形">
+这里允许的编辑操作只有“删除”。下一章标准编辑距离会继续加入“插入”和“替换”，二维状态结构几乎不变，只是转移分支会更多。
+</Callout>
+
+## 6. 完整转移公式
+
+$$
+\boxed{
+dp[i][j]=
+\begin{cases}
+dp[i-1][j-1], & word1[i-1]=word2[j-1]\\
+\min(dp[i-1][j],dp[i][j-1])+1, & word1[i-1]\ne word2[j-1]
+\end{cases}}
+$$
+
+## 7. 初始化
+
+如果 `word2` 为空字符串：
+
+```text
+word1 = 前 i 个字符
+word2 = ""
+```
+
+要使两者相等，只能把 `word1` 的所有字符删除。
+
+所以：
+
+$$
+\boxed{dp[i][0]=i}
+$$
+
+同理：
+
+$$
+\boxed{dp[0][j]=j}
+$$
+
+其中：
+
+$$
+dp[0][0]=0
+$$
+
+## 8. 遍历顺序
+
+当前状态依赖：
+
+- 正上方 `dp[i-1][j]`；
+- 左侧 `dp[i][j-1]`；
+- 左上方 `dp[i-1][j-1]`。
+
+因此正常按照：
+
+```text
+从上到下
+从左到右
+```
+
+即可。
+
+## 9. 示例推导
+
+对于：
+
+```text
+word1 = "sea"
+word2 = "eat"
+```
+
+状态表如下：
+
+![两个字符串的删除操作 DP 表](https://file1.kamacoder.com/i/algo/20210714101750205.png)
+
+最终：
+
+$$
+\boxed{dp[3][3]=2}
+$$
+
+也就是最少删除两次。
+
+## 10. 方法一标准代码
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        for (int i = 0; i <= n; ++i) {
+            dp[i][0] = i;
+        }
+
+        for (int j = 0; j <= m; ++j) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + 1;
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+};
+```
+
+复杂度：
+
+$$
+T=O(nm)
+$$
+
+$$
+S=O(nm)
+$$
+
+# 方法二：转化为最长公共子序列
+
+## 11. 为什么 LCS 可以直接得到答案
+
+设两个字符串的最长公共子序列长度为：
+
+$$
+L
+$$
+
+为了让 `word1` 变成这条公共子序列，需要删除：
+
+$$
+n-L
+$$
+
+个字符。
+
+为了让 `word2` 也变成同一条公共子序列，需要删除：
+
+$$
+m-L
+$$
+
+个字符。
+
+总删除次数：
+
+$$
+(n-L)+(m-L)
+$$
+
+即：
+
+$$
+\boxed{n+m-2L}
+$$
+
+因此：
+
+$$
+\boxed{
+\text{minimum deletions}
+=
+|word1|+|word2|-2\cdot LCS(word1,word2)
+}
+$$
+
+## 12. 为什么保留 LCS 一定最优
+
+假设最终留下的公共字符串长度为：
+
+$$
+k
+$$
+
+那么删除次数一定是：
+
+$$
+n+m-2k
+$$
+
+为了让这个值最小，就必须让：
+
+$$
+k
+$$
+
+尽可能大。
+
+而两个字符串能够共同保留的最长保序序列，定义上就是最长公共子序列。
+
+因此这不是一个技巧性的凑公式，而是严格等价变换。
+
+## 13. LCS 状态转移
+
+定义：
+
+$$
+\boxed{
+lcs[i][j]
+=
+word1\text{ 前 }i\text{ 个字符与 }word2\text{ 前 }j\text{ 个字符的最长公共子序列长度}
+}
+$$
+
+如果字符相等：
+
+$$
+\boxed{lcs[i][j]=lcs[i-1][j-1]+1}
+$$
+
+否则：
+
+$$
+\boxed{lcs[i][j]=\max(lcs[i-1][j],lcs[i][j-1])}
+$$
+
+最后：
+
+$$
+\boxed{answer=n+m-2\cdot lcs[n][m]}
+$$
+
+## 14. 方法二标准代码
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return n + m - 2 * dp[n][m];
+    }
+};
+```
+
+复杂度同样为：
+
+$$
+T=O(nm)
+$$
+
+$$
+S=O(nm)
+$$
+
+## 15. 两种方法其实在做同一件事
+
+两种方法看起来状态完全不同：
+
+### 方法一
+
+直接问：
+
+```text
+至少删除多少字符？
+```
+
+### 方法二
+
+反过来问：
+
+```text
+最多能够保留多少字符？
+```
+
+它们是一对典型的互补视角：
+
+$$
+\boxed{
+\text{最少删除}
+\Longleftrightarrow
+\text{最多保留}
+}
+$$
+
+很多动态规划题都可以通过这种“删掉多少 / 保留多少”的互补关系转换。
+
+## 16. 一维空间压缩：直接删除 DP
+
+二维状态依赖：
+
+```text
+上一行同列
+当前行左侧
+上一行左上角
+```
+
+可以用一维数组加一个变量保存左上角值。
+
+设：
+
+$$
+dp[j]
+$$
+
+表示当前处理到 `word1` 某个前缀时，与 `word2` 前 `j` 个字符对齐的最少删除次数。
+
+更新前：
+
+- `dp[j]` 是上一行正上方；
+- `dp[j-1]` 是当前行左侧；
+- `prevDiagonal` 保存上一行左上角。
+
+代码如下：
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<int> dp(m + 1);
+        for (int j = 0; j <= m; ++j) {
+            dp[j] = j;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            int prevDiagonal = dp[0];
+            dp[0] = i;
+
+            for (int j = 1; j <= m; ++j) {
+                int oldUp = dp[j];
+
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[j] = prevDiagonal;
+                } else {
+                    dp[j] = min(dp[j], dp[j - 1]) + 1;
+                }
+
+                prevDiagonal = oldUp;
+            }
+        }
+
+        return dp[m];
+    }
+};
+```
+
+空间复杂度下降为：
+
+$$
+\boxed{O(m)}
+$$
+
+如果希望进一步优化，应让较短字符串作为第二维，使空间复杂度达到：
+
+$$
+\boxed{O(\min(n,m))}
+$$
+
+## 17. 与“判断子序列”的关系
+
+在判断子序列中，本质上只允许：
+
+```text
+删除一个字符串中的字符
+```
+
+而这道题允许：
+
+```text
+删除 word1 的字符
+删除 word2 的字符
+```
+
+因此当末尾字符不相等时，状态从单一方向：
+
+$$
+dp[i][j-1]
+$$
+
+扩展成两个删除方向：
+
+$$
+dp[i-1][j]
+$$
+
+和：
+
+$$
+dp[i][j-1]
+$$
+
+这正是二维编辑型 DP 逐步扩展的过程。
+
+## 18. 与“不同的子序列”的关系
+
+上一题允许从源串中删除字符，但目标串必须完整保留，并且要求：
+
+```text
+统计有多少种删除方法
+```
+
+因此状态是**方案数**。
+
+本题两边都可以删除，要求：
+
+```text
+最少删除多少次
+```
+
+因此状态是**最优值**。
+
+可以对比：
+
+| 问题 | 可操作对象 | DP 类型 |
+| --- | --- | --- |
+| 判断子序列 | 主要跳过源串字符 | 存在性 / 匹配长度 |
+| 不同的子序列 | 跳过源串字符 | 方案计数 |
+| 两个字符串的删除操作 | 两边都可删除 | 最小代价 |
+
+它们的二维表长得很像，但状态含义完全不同。
+
+## 19. 与标准编辑距离的关系
+
+这道题只允许：
+
+```text
+删除
+```
+
+下一篇标准编辑距离还会允许：
+
+```text
+插入
+删除
+替换
+```
+
+这意味着当：
+
+$$
+word1[i-1]\ne word2[j-1]
+$$
+
+标准编辑距离会多出第三个核心来源：
+
+$$
+dp[i-1][j-1]+1
+$$
+
+表示替换。
+
+所以本题可以视作：
+
+$$
+\boxed{
+\text{编辑距离的“仅删除”版本}
+}
+$$
+
+## 20. 常见错误
+
+### 错误一：字符不等时只删除固定一边
+
+错误示例：
+
+```cpp
+dp[i][j] = dp[i - 1][j] + 1;
+```
+
+可能删除 `word2[j-1]` 更优，所以必须取：
+
+$$
+\min(dp[i-1][j],dp[i][j-1])+1
+$$
+
+### 错误二：忘记初始化第一行第一列
+
+当其中一个字符串为空时，答案就是另一个字符串的长度。
+
+所以：
+
+$$
+dp[i][0]=i,
+\qquad
+dp[0][j]=j
+$$
+
+### 错误三：LCS 公式少乘一个 2
+
+删除的是两个字符串中**各自**不属于 LCS 的字符。
+
+因此：
+
+$$
+(n-L)+(m-L)=n+m-2L
+$$
+
+不是：
+
+$$
+n+m-L
+$$
+
+### 错误四：把公共子序列误认为公共子串
+
+最终保留字符只需要保持相对顺序，不需要在原字符串中连续。
+
+所以必须用 LCS，而不是最长公共子数组 / 子串。
+
+## 21. 如何选择两种写法
+
+如果当前章节正在学习编辑距离，推荐优先写：
+
+```text
+直接删除 DP
+```
+
+因为它能直接训练：
+
+- 操作语义；
+- 边界初始化；
+- 三方向依赖。
+
+如果已经熟练掌握 LCS，想快速做题，则可以直接使用：
+
+$$
+\boxed{n+m-2LCS}
+$$
+
+二者时间复杂度相同。
+
+## 22. 一个更通用的思维方式
+
+很多题目可以从两个方向建模：
+
+### 代价视角
+
+```text
+为了达到目标，最少要删 / 改 / 付出多少？
+```
+
+### 保留视角
+
+```text
+最多能保留多少原有结构？
+```
+
+当操作成本固定时，两种视角经常可以互相转化。
+
+本题就是最经典的例子之一：
+
+$$
+\boxed{
+\text{最少删除字符数}
+=
+\text{总字符数}-\text{最多可共同保留字符数}
+}
+$$
+
+而“最多可共同保留字符数”正是两倍 LCS 长度对应的保留量。
+
+## 23. 本题总结
+
+直接删除 DP：
+
+$$
+\boxed{
+dp[i][j]=
+\begin{cases}
+dp[i-1][j-1], & word1[i-1]=word2[j-1]\\
+\min(dp[i-1][j],dp[i][j-1])+1, & word1[i-1]\ne word2[j-1]
+\end{cases}}
+$$
+
+初始化：
+
+$$
+\boxed{dp[i][0]=i,\qquad dp[0][j]=j}
+$$
+
+LCS 等价公式：
+
+$$
+\boxed{
+answer
+=
+|word1|+|word2|-2\cdot LCS(word1,word2)
+}
+$$
+
+真正应该建立的知识连接是：
+
+```text
+判断子序列
+    ↓
+不同的子序列（计数）
+    ↓
+两个字符串都允许删除
+    ↓
+标准编辑距离（插入 / 删除 / 替换）
+```
+
+从这一题开始，二维字符串 DP 的“编辑操作”框架已经基本成型。
+
+## 其他语言版本
+
+<Tabs items={["Java", "Python", "Go", "JavaScript"]}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int n = word1.length();
+        int m = word2.length();
+        int[][] dp = new int[n + 1][m + 1];
+
+        for (int i = 0; i <= n; i++) dp[i][0] = i;
+        for (int j = 0; j <= m; j++) dp[0][j] = j;
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + 1;
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        n, m = len(word1), len(word2)
+        dp = [[0] * (m + 1) for _ in range(n + 1)]
+
+        for i in range(n + 1):
+            dp[i][0] = i
+        for j in range(m + 1):
+            dp[0][j] = j
+
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1]
+                else:
+                    dp[i][j] = min(dp[i - 1][j], dp[i][j - 1]) + 1
+
+        return dp[n][m]
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func minDistance(word1 string, word2 string) int {
+    n, m := len(word1), len(word2)
+    dp := make([][]int, n+1)
+
+    for i := range dp {
+        dp[i] = make([]int, m+1)
+    }
+
+    for i := 0; i <= n; i++ {
+        dp[i][0] = i
+    }
+    for j := 0; j <= m; j++ {
+        dp[0][j] = j
+    }
+
+    for i := 1; i <= n; i++ {
+        for j := 1; j <= m; j++ {
+            if word1[i-1] == word2[j-1] {
+                dp[i][j] = dp[i-1][j-1]
+            } else {
+                if dp[i-1][j] < dp[i][j-1] {
+                    dp[i][j] = dp[i-1][j] + 1
+                } else {
+                    dp[i][j] = dp[i][j-1] + 1
+                }
+            }
+        }
+    }
+
+    return dp[n][m]
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var minDistance = function(word1, word2) {
+    const n = word1.length;
+    const m = word2.length;
+    const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+
+    for (let i = 0; i <= n; ++i) dp[i][0] = i;
+    for (let j = 0; j <= m; ++j) dp[0][j] = j;
+
+    for (let i = 1; i <= n; ++i) {
+        for (let j = 1; j <= m; ++j) {
+            if (word1[i - 1] === word2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + 1;
+            }
+        }
+    }
+
+    return dp[n][m];
+};
+```
+
+</Tab>
+</Tabs>

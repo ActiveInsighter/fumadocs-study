@@ -1,0 +1,538 @@
+---
+title: 二分查找：循环不变量与边界的统一写法
+description: 以 LeetCode 704 为入口，系统掌握二分查找的前提、左右闭区间与左闭右开区间、循环不变量、复杂度以及常见边界错误。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 二分查找：循环不变量与边界的统一写法
+
+二分查找的思想很简单：每次排除一半搜索范围。
+
+真正难的不是理解“折半”，而是始终保持**区间定义一致**。
+
+题目：LeetCode 704「二分查找」。给定一个升序数组 `nums` 和目标值 `target`，若存在则返回下标，否则返回 `-1`。
+
+```text
+nums = [-1, 0, 3, 5, 9, 12]
+target = 9
+
+答案：4
+```
+
+---
+
+## 1. 二分查找为什么是 $O(\log n)$
+
+假设最初有 $n$ 个候选元素，每轮查找后只剩大约一半：
+
+$$
+n,\frac n2,\frac n4,\frac n8,\ldots
+$$
+
+经过 $k$ 轮后，规模约为：
+
+$$
+\frac{n}{2^k}
+$$
+
+当搜索区间缩小到 1 个元素附近时：
+
+$$
+\frac{n}{2^k}\le 1
+$$
+
+因此：
+
+$$
+2^k\ge n
+$$
+
+即：
+
+$$
+k\ge \log_2 n
+$$
+
+所以时间复杂度为：
+
+$$
+O(\log n)
+$$
+
+迭代写法只使用常数个变量，因此额外空间复杂度为：
+
+$$
+O(1)
+$$
+
+---
+
+## 2. 使用二分查找需要什么条件
+
+经典二分查找至少需要：
+
+- 搜索空间具有某种**单调性**；
+- 能够根据中间位置的结果判断答案在哪一侧。
+
+对于最基础的数组查找，就是：
+
+- 数组已经有序；
+- 比较 `nums[mid]` 与 `target` 后，可以排除一半元素。
+
+<Callout title="不只有“有序数组找某个数”才叫二分" type="info">
+更广义的二分可以用于“答案具有单调性”的问题，例如寻找最小可行值、最大可行值。后面常见的“二分答案”本质仍然是维护一个单调搜索区间。
+</Callout>
+
+---
+
+## 3. 二分查找最重要的思想：循环不变量
+
+很多人会背：
+
+```text
+while (left <= right)
+right = mid - 1
+```
+
+但一换写法就混乱。
+
+真正稳定的方法是先问：
+
+> **当前搜索区间到底定义成什么？**
+
+最常见的两种定义是：
+
+1. 左闭右闭：`[left, right]`；
+2. 左闭右开：`[left, right)`。
+
+一旦区间定义确定，循环条件和边界更新就必须与它一致。
+
+---
+
+## 4. 写法一：左闭右闭 `[left, right]`
+
+初始状态：
+
+```cpp
+int left = 0;
+int right = nums.size() - 1;
+```
+
+因为 `right` 指向最后一个真实元素，所以区间是：
+
+$$
+[left,right]
+$$
+
+### 为什么是 `left <= right`
+
+当：
+
+```text
+left == right
+```
+
+区间 `[left, right]` 仍包含一个合法元素，所以还必须检查一次。
+
+因此：
+
+```cpp
+while (left <= right)
+```
+
+### 为什么 `right = mid - 1`
+
+若：
+
+```cpp
+nums[mid] > target
+```
+
+那么 `mid` 已经确认不可能是答案。
+
+新的搜索区间应为：
+
+$$
+[left,mid-1]
+$$
+
+所以：
+
+```cpp
+right = mid - 1;
+```
+
+同理，如果 `nums[mid] < target`，新的区间为：
+
+$$
+[mid+1,right]
+$$
+
+因此：
+
+```cpp
+left = mid + 1;
+```
+
+![左闭右闭二分查找](https://file1.kamacoder.com/i/algo/20210311153055723.jpg)
+
+完整写法：
+
+```cpp
+int search(vector<int>& nums, int target) {
+    int left = 0;
+    int right = static_cast<int>(nums.size()) - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1;
+        } else {
+            return mid;
+        }
+    }
+
+    return -1;
+}
+```
+
+---
+
+## 5. 写法二：左闭右开 `[left, right)`
+
+初始化：
+
+```cpp
+int left = 0;
+int right = nums.size();
+```
+
+注意 `right` 本身不属于搜索区间。
+
+### 为什么是 `left < right`
+
+当：
+
+```text
+left == right
+```
+
+区间 `[left, right)` 已经为空，因此循环结束。
+
+所以：
+
+```cpp
+while (left < right)
+```
+
+### 为什么 `right = mid`
+
+若 `nums[mid] > target`，我们要丢掉 `mid` 及其右侧。
+
+新的区间写成左闭右开形式就是：
+
+$$
+[left,mid)
+$$
+
+因此：
+
+```cpp
+right = mid;
+```
+
+而不是 `mid - 1`。
+
+![左闭右开二分查找](https://file1.kamacoder.com/i/algo/20210311153123632.jpg)
+
+完整写法：
+
+```cpp
+int search(vector<int>& nums, int target) {
+    int left = 0;
+    int right = nums.size();
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid;
+        } else {
+            return mid;
+        }
+    }
+
+    return -1;
+}
+```
+
+---
+
+## 6. 两种写法不要混搭
+
+| 项目 | 左闭右闭 | 左闭右开 |
+| --- | --- | --- |
+| 初始右边界 | `n - 1` | `n` |
+| 区间 | `[left, right]` | `[left, right)` |
+| 循环条件 | `left <= right` | `left < right` |
+| 去左半边 | `right = mid - 1` | `right = mid` |
+| 去右半边 | `left = mid + 1` | `left = mid + 1` |
+
+最常见 bug 就是把两个模板拼在一起，例如：
+
+```cpp
+int right = nums.size() - 1;
+while (left < right) {
+    ...
+}
+```
+
+这并非一定永远错误，但若没有重新证明循环不变量，很容易漏掉最后一个候选元素。
+
+<Callout title="不要背代码，背区间" type="tip">
+看到二分题时先在纸上写出 `[left, right]` 或 `[left, right)`。之后每一行边界更新都问一句：“更新后的区间是否仍然表示所有可能答案？”
+</Callout>
+
+---
+
+## 7. 为什么中点推荐这样写
+
+常见写法：
+
+```cpp
+int mid = (left + right) / 2;
+```
+
+在整数范围很大时，`left + right` 可能溢出。
+
+更稳妥的是：
+
+```cpp
+int mid = left + (right - left) / 2;
+```
+
+数学上它仍然等于：
+
+$$
+\frac{left+right}{2}
+$$
+
+但避免了先计算两个大正数之和。
+
+---
+
+## 8. 手动模拟一次
+
+在数组：
+
+```text
+[1, 2, 3, 4, 7, 9, 10]
+```
+
+寻找 `2`，采用 `[left, right]`：
+
+<Steps>
+<Step>
+初始 `left = 0, right = 6`，`mid = 3`，`nums[3] = 4 > 2`。
+
+所以：
+
+```text
+right = 2
+```
+</Step>
+<Step>
+此时区间 `[0, 2]`，`mid = 1`，`nums[1] = 2`。
+</Step>
+<Step>
+命中目标，返回下标 `1`。
+</Step>
+</Steps>
+
+两轮比较就定位到了目标。
+
+---
+
+## 9. 常见错误清单
+
+### 错误 1：忘记有序前提
+
+无序数组：
+
+```text
+[8, 1, 5, 3, 9]
+```
+
+不能直接使用经典二分查找，因为中间元素与目标的大小关系无法帮助你排除固定一半。
+
+### 错误 2：更新后没有缩小区间
+
+例如在某些模板里错误写：
+
+```cpp
+left = mid;
+```
+
+若 `mid == left`，下一轮可能还是相同区间，从而死循环。
+
+### 错误 3：`n - 1` 在无符号类型上出问题
+
+C++ 中 `vector::size()` 返回无符号类型。空数组情况下直接写：
+
+```cpp
+size_t right = nums.size() - 1;
+```
+
+可能发生下溢。
+
+实际刷题时可以：
+
+- 使用 `int` 并保证规模可表示；
+- 或选择 `[0, n)` 模板，自然支持空区间。
+
+### 错误 4：只会“找等于”，不会“找边界”
+
+有重复值时，经常要找：
+
+- 第一个大于等于 `target` 的位置；
+- 第一个大于 `target` 的位置；
+- 最后一个小于等于 `target` 的位置。
+
+这些题仍是二分，但返回条件和循环不变量需要进一步调整。
+
+---
+
+## 10. 多语言模板
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+<Tab value="C++">
+
+```cpp
+int search(const vector<int>& nums, int target) {
+    int left = 0;
+    int right = static_cast<int>(nums.size()) - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] == target) return mid;
+        if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+```
+
+</Tab>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) return mid;
+            if (nums[mid] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def search(self, nums: list[int], target: int) -> int:
+        left, right = 0, len(nums) - 1
+
+        while left <= right:
+            mid = left + (right - left) // 2
+            if nums[mid] == target:
+                return mid
+            if nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return -1
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func search(nums []int, target int) int {
+    left, right := 0, len(nums)-1
+
+    for left <= right {
+        mid := left + (right-left)/2
+        if nums[mid] == target {
+            return mid
+        }
+        if nums[mid] < target {
+            left = mid + 1
+        } else {
+            right = mid - 1
+        }
+    }
+    return -1
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+function search(nums, target) {
+  let left = 0;
+  let right = nums.length - 1;
+
+  while (left <= right) {
+    const mid = left + Math.floor((right - left) / 2);
+    if (nums[mid] === target) return mid;
+    if (nums[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+
+  return -1;
+}
+```
+
+</Tab>
+</Tabs>
+
+---
+
+## 11. 相关练习
+
+建议按照“精确查找 → 边界查找 → 二分答案”的顺序练习：
+
+- LeetCode 704：二分查找；
+- LeetCode 35：搜索插入位置；
+- LeetCode 34：在排序数组中查找元素的第一个和最后一个位置；
+- LeetCode 69：x 的平方根；
+- LeetCode 367：有效的完全平方数。
+
+---
+
+## 12. 本篇小结
+
+二分查找真正要掌握的不是某个模板，而是：
+
+$$
+\boxed{\text{区间定义} \rightarrow \text{循环条件} \rightarrow \text{边界更新}}
+$$
+
+只要这三者始终一致，绝大多数边界错误都会自然消失。

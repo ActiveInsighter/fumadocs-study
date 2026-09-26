@@ -1,0 +1,371 @@
+---
+title: 相交链表
+description: 从尾部对齐到双指针换头，理解链表“相交”为什么比较的是节点身份，并掌握 O(1) 空间的两种经典解法。
+---
+
+# 160. 相交链表
+
+[LeetCode 160：相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/)
+
+给定两个单链表 `headA` 和 `headB`，返回它们相交的起始节点；如果不相交，返回 `nullptr`。
+
+原题示意图：
+
+![](https://file1.kamacoder.com/i/algo/20211219221657.png)
+
+示例：
+
+![](https://file1.kamacoder.com/i/algo/20211219221723.png)
+
+![](https://file1.kamacoder.com/i/algo/20211219221749.png)
+
+![](https://file1.kamacoder.com/i/algo/20211219221812.png)
+
+> [!IMPORTANT]
+> “相交”不是两个节点的 `val` 相等，而是两个指针指向**同一个节点对象**。因此判断条件必须是 `curA == curB`，不能写成 `curA->val == curB->val`。
+
+## 一、先理解链表为什么一旦相交就不会再分开
+
+单链表中的每个节点只有一个 `next` 指针。
+
+如果链表 A 和链表 B 在节点 `C` 处相交，那么从 `C` 开始，两条链表访问到的是同一批节点：
+
+```text
+A: a1 -> a2 -> C -> d1 -> d2
+               ^
+B:      b1 -> b2
+```
+
+因为 `C` 只有一个 `next`，所以它后面的路径只能唯一确定。
+
+因此两个无环单链表若相交，一定呈现：
+
+```text
+两条不同前缀 + 一段完全相同的公共后缀
+```
+
+问题于是转化为：**怎样让两个指针同时进入这段公共后缀？**
+
+## 二、方法一：长度对齐
+
+设链表 A 长度为 $m$，链表 B 长度为 $n$。
+
+如果 $m>n$，那么 A 比 B 多出：
+
+$gap=m-n$
+
+个节点。
+
+先让 A 的指针向前走 `gap` 步，此时两个指针到链表尾部的剩余距离完全相同。
+
+原文示意图：
+
+![链表相交：初始位置](https://file1.kamacoder.com/i/algo/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4_1.png)
+
+对齐之后：
+
+![链表相交：尾部对齐](https://file1.kamacoder.com/i/algo/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4_2.png)
+
+随后两个指针同步向后移动：
+
+- 如果第一次出现 `curA == curB`，当前位置就是第一个交点；
+- 如果二者最终同时到达 `nullptr`，说明没有交点。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+        int lenA = 0, lenB = 0;
+
+        for (ListNode* p = headA; p != nullptr; p = p->next) ++lenA;
+        for (ListNode* p = headB; p != nullptr; p = p->next) ++lenB;
+
+        ListNode* curA = headA;
+        ListNode* curB = headB;
+
+        if (lenA < lenB) {
+            swap(lenA, lenB);
+            swap(curA, curB);
+        }
+
+        int gap = lenA - lenB;
+        while (gap--) curA = curA->next;
+
+        while (curA != nullptr) {
+            if (curA == curB) return curA;
+            curA = curA->next;
+            curB = curB->next;
+        }
+
+        return nullptr;
+    }
+};
+```
+
+时间复杂度为 $O(m+n)$，额外空间复杂度为 $O(1)$。
+
+## 三、为什么“尾部对齐”一定正确
+
+假设公共后缀长度为 $c$，那么两条链表可以写成：
+
+```text
+A = 独有前缀 A' + 公共后缀 C
+B = 独有前缀 B' + 公共后缀 C
+```
+
+于是：
+
+$m=|A'|+c$
+
+$n=|B'|+c$
+
+两式相减：
+
+$m-n=|A'|-|B'|$
+
+所以让较长链表先走 $|m-n|$ 步，本质上是在消除两个独有前缀的长度差。
+
+对齐后，两指针距离尾部一样远，因此：
+
+- 若存在公共后缀，它们会同时到达公共后缀的第一个节点；
+- 若不存在公共后缀，它们会同时到达 `nullptr`。
+
+## 四、方法二：双指针换头
+
+还可以完全不计算长度。
+
+设置：
+
+```cpp
+ListNode* pA = headA;
+ListNode* pB = headB;
+```
+
+然后不断前进：
+
+- `pA` 走完 A 后，从 B 的头部继续；
+- `pB` 走完 B 后，从 A 的头部继续。
+
+```cpp
+class Solution {
+public:
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+        ListNode* pA = headA;
+        ListNode* pB = headB;
+
+        while (pA != pB) {
+            pA = (pA == nullptr) ? headB : pA->next;
+            pB = (pB == nullptr) ? headA : pB->next;
+        }
+
+        return pA;
+    }
+};
+```
+
+代码更短，但关键是理解它为什么成立。
+
+## 五、换头法为什么能够自动消除长度差
+
+设：
+
+```text
+A = a + c
+B = b + c
+```
+
+其中：
+
+- $a$：A 独有前缀长度；
+- $b$：B 独有前缀长度；
+- $c$：公共后缀长度。
+
+指针 `pA` 的完整路线是：
+
+```text
+A -> B
+```
+
+走到交点前的总路程是：
+
+$a+c+b$
+
+指针 `pB` 的路线是：
+
+```text
+B -> A
+```
+
+走到同一交点前的总路程是：
+
+$b+c+a$
+
+两者完全相等：
+
+$a+c+b=b+c+a$
+
+因此长度差被“交换链表”自动补偿掉了。
+
+> [!TIP]
+> 可以把换头法记成一句话：**你走我的前缀，我走你的前缀，最后我们拥有完全相同的总路程。**
+
+## 六、不相交时为什么也会停止
+
+若没有公共节点，则：
+
+```text
+A = a
+B = b
+```
+
+`pA` 会走：
+
+```text
+A + B
+```
+
+`pB` 会走：
+
+```text
+B + A
+```
+
+二者都走了 $a+b$ 个节点后，同时变成 `nullptr`。
+
+此时：
+
+```cpp
+pA == pB
+```
+
+仍然成立，于是循环结束并返回 `nullptr`。
+
+所以这段写法不需要额外判断“不相交”的情况。
+
+## 七、常见错误
+
+### 错误 1：比较节点值
+
+```cpp
+if (curA->val == curB->val)
+```
+
+这是错误的。
+
+两个不同节点完全可以拥有相同的值。
+
+必须比较：
+
+```cpp
+if (curA == curB)
+```
+
+### 错误 2：误以为链表能“交叉后再次分开”
+
+普通单链表做不到这一点。
+
+一旦两个指针指向同一个节点，之后沿 `next` 走出的序列必然完全一致。
+
+### 错误 3：换头时写成 `pA = pA->next`
+
+当 `pA == nullptr` 时不能解引用。
+
+标准写法是：
+
+```cpp
+pA = (pA == nullptr) ? headB : pA->next;
+```
+
+## 八、两种方法如何选择
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|---|---:|---:|---|
+| 长度对齐 | $O(m+n)$ | $O(1)$ | 原理直观，适合第一次理解 |
+| 双指针换头 | $O(m+n)$ | $O(1)$ | 代码极简，面试中非常经典 |
+
+> [!IMPORTANT]
+> 真正需要掌握的不是某一段代码，而是“**两条路径存在长度差时，先消除长度差，再同步比较**”这一双指针思想。
+
+## 九、其他语言版本
+
+````code-tabs
+```java label="Java"
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode a = headA;
+        ListNode b = headB;
+
+        while (a != b) {
+            a = (a == null) ? headB : a.next;
+            b = (b == null) ? headA : b.next;
+        }
+
+        return a;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        a, b = headA, headB
+
+        while a is not b:
+            a = headB if a is None else a.next
+            b = headA if b is None else b.next
+
+        return a
+```
+
+```go label="Go"
+func getIntersectionNode(headA, headB *ListNode) *ListNode {
+    a, b := headA, headB
+
+    for a != b {
+        if a == nil {
+            a = headB
+        } else {
+            a = a.Next
+        }
+
+        if b == nil {
+            b = headA
+        } else {
+            b = b.Next
+        }
+    }
+
+    return a
+}
+```
+
+```javascript label="JavaScript"
+var getIntersectionNode = function(headA, headB) {
+    let a = headA;
+    let b = headB;
+
+    while (a !== b) {
+        a = a === null ? headB : a.next;
+        b = b === null ? headA : b.next;
+    }
+
+    return a;
+};
+```
+
+```typescript label="TypeScript"
+function getIntersectionNode(headA: ListNode | null, headB: ListNode | null): ListNode | null {
+    let a: ListNode | null = headA;
+    let b: ListNode | null = headB;
+
+    while (a !== b) {
+        a = a === null ? headB : a.next;
+        b = b === null ? headA : b.next;
+    }
+
+    return a;
+}
+```
+````

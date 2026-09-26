@@ -1,0 +1,483 @@
+---
+title: 反转字符串：原地双指针与区间反转模板
+description: 以 LeetCode 344 为主线，讲清楚字符串原地反转、相向双指针、交换边界、字符数组与不可变字符串差异，并提炼可复用的区间反转模板。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 反转字符串：原地双指针与区间反转模板
+
+> 对应题目：[LeetCode 344. 反转字符串](https://leetcode.cn/problems/reverse-string/)
+
+给定一个字符数组 `s`，要求**原地**将其反转，并且只使用 $O(1)$ 额外空间。
+
+例如：
+
+```text
+输入：['h', 'e', 'l', 'l', 'o']
+输出：['o', 'l', 'l', 'e', 'h']
+```
+
+这道题看起来很简单，但它是后续字符串题最重要的基础操作之一：
+
+- 反转整个字符串；
+- 反转某个闭区间；
+- 每隔固定长度反转一段；
+- 先整体反转，再局部反转；
+- 用“反转”代替额外数组，从而实现原地算法。
+
+---
+
+## 1. 为什么最自然的方法是相向双指针
+
+设字符串长度为 $n$，使用两个下标：
+
+- `left = 0`，从左向右移动；
+- `right = n - 1`，从右向左移动。
+
+每轮交换：
+
+```text
+s[left] ↔ s[right]
+```
+
+然后：
+
+```text
+left++
+right--
+```
+
+直到：
+
+```text
+left >= right
+```
+
+以 `hello` 为例：
+
+![反转字符串过程](https://file1.kamacoder.com/i/algo/344.%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2.gif)
+
+<Callout title="这不是普通的双指针，而是相向双指针" type="info">
+两个指针从区间两端出发，每次处理一对关于区间中心对称的位置。只要题目出现“翻转”“对称交换”“从两端向中间处理”，都应优先想到这一模型。
+</Callout>
+
+---
+
+## 2. 循环不变量：为什么这样交换一定正确
+
+在任意一轮开始前，可以维护这样一个不变量：
+
+> `left` 左侧和 `right` 右侧的元素，已经处在最终反转后的正确位置。
+
+假设当前区间为：
+
+```text
+[left ........ right]
+```
+
+交换 `s[left]` 与 `s[right]` 后，这两个位置就都确定了。
+
+随后缩小区间：
+
+```text
+left + 1 ........ right - 1
+```
+
+因此每一轮都会固定两个字符，直到剩余区间长度不超过 1。
+
+---
+
+## 3. 奇数长度和偶数长度为什么不需要分类
+
+很多初学者会担心：
+
+- 偶数长度最后是两个字符；
+- 奇数长度最后会剩一个中间字符。
+
+其实只要循环条件写成：
+
+```cpp
+while (left < right)
+```
+
+两种情况会自然统一。
+
+### 偶数长度
+
+```text
+abcd
+↑  ↑
+```
+
+最后处理完中间两个字符后，出现：
+
+```text
+left > right
+```
+
+循环结束。
+
+### 奇数长度
+
+```text
+abcde
+  ↑
+```
+
+最后会出现：
+
+```text
+left == right
+```
+
+中间字符不需要移动，循环直接结束。
+
+<Callout title="边界设计原则" type="success">
+优秀的双指针代码通常不需要手写奇偶分类。让循环条件本身覆盖边界，代码更短，也更不容易错。
+</Callout>
+
+---
+
+## 4. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left = 0;
+        int right = static_cast<int>(s.size()) - 1;
+
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+};
+```
+
+这里 `swap` 可以直接使用，因为本题真正要考察的是**反转区间的双指针结构**，而不是“如何手写交换两个变量”。
+
+若想完全手写交换：
+
+```cpp
+char temp = s[left];
+s[left] = s[right];
+s[right] = temp;
+```
+
+---
+
+## 5. 为什么不建议用异或交换
+
+原资料中常见一种写法：
+
+```cpp
+s[left] ^= s[right];
+s[right] ^= s[left];
+s[left] ^= s[right];
+```
+
+它确实可以在特定条件下交换两个整数型值，但实际算法代码通常不推荐这样写。
+
+原因有三点：
+
+1. 可读性明显差于 `swap`；
+2. 对类型有要求，泛化能力差；
+3. 若两个操作数实际引用同一位置，异或交换会把值清零。
+
+本题虽然因为 `left < right` 不会交换同一个元素，但仍没有必要牺牲可读性。
+
+<Callout title="刷题不是炫技" type="warning">
+复杂的位运算写法并不会降低本题的渐进复杂度。能够更清晰表达算法意图的代码通常更值得保留。
+</Callout>
+
+---
+
+## 6. 时间复杂度为什么是 $O(n)$
+
+设字符串长度为 $n$。
+
+每轮处理两个字符，因此循环次数约为：
+
+$$
+\left\lfloor \frac{n}{2} \right\rfloor
+$$
+
+每轮交换是 $O(1)$，所以：
+
+$$
+T(n)=O\left(\frac{n}{2}\right)=O(n)
+$$
+
+只使用 `left`、`right` 和一个临时变量，因此辅助空间：
+
+$$
+S(n)=O(1)
+$$
+
+---
+
+## 7. “原地”到底是什么意思
+
+原地算法并不是说**绝对不能使用任何变量**，而是额外空间不能随着输入规模 $n$ 增长。
+
+例如：
+
+```cpp
+int left;
+int right;
+char temp;
+```
+
+无论字符串有多长，这些变量数量都不变，所以仍然是：
+
+$$
+O(1)
+$$
+
+而下面这种做法：
+
+```text
+新建一个长度为 n 的数组
+从后往前复制字符
+```
+
+需要：
+
+$$
+O(n)
+$$
+
+额外空间，不满足本题的原地要求。
+
+---
+
+## 8. 字符数组与字符串不可变性
+
+不同语言对“字符串”的底层语义不同。
+
+<Cards>
+  <Card title="C++ string / vector<char>">
+    字符可以按下标直接修改，因此可以真正原地交换。
+  </Card>
+  <Card title="Java String">
+    `String` 不可变。若题目要求原地修改，通常会直接给 `char[]`。
+  </Card>
+  <Card title="Python str">
+    `str` 不可变。LeetCode 344 传入的是 `List[str]`，因此可以原地交换列表元素。
+  </Card>
+  <Card title="JavaScript Array">
+    数组可变，因此字符数组可以直接交换。
+  </Card>
+</Cards>
+
+所以讨论空间复杂度时要区分：
+
+- **算法思想要求的辅助空间**；
+- **语言为了把不可变字符串转换成可变字符序列而产生的空间**。
+
+---
+
+## 9. 真正值得记住的是“反转区间”模板
+
+比“反转整个字符串”更通用的是：
+
+> 给定闭区间 $[l,r]$，原地反转该区间。
+
+```cpp
+void reverseRange(string& s, int left, int right) {
+    while (left < right) {
+        swap(s[left], s[right]);
+        ++left;
+        --right;
+    }
+}
+```
+
+这段模板后面会反复出现。
+
+例如：
+
+```text
+abcdefg
+  ^^^^
+  [2,5]
+```
+
+反转区间 `[2, 5]`：
+
+```text
+abfedcg
+```
+
+<Callout title="区间定义一定要统一" type="warning">
+如果辅助函数采用闭区间 `[left, right]`，调用时右端点应传最后一个需要反转的下标；如果使用标准库常见的半开区间 `[first, last)`，则右端点语义完全不同。字符串题大量错误都来自区间语义混用。
+</Callout>
+
+---
+
+## 10. 库函数什么时候可以用
+
+本题如果直接写：
+
+```cpp
+reverse(s.begin(), s.end());
+```
+
+虽然能通过，但会绕过题目要练习的核心算法。
+
+更合理的原则是：
+
+- 如果一个库函数**直接替代了题目的核心算法**，学习阶段尽量自己实现；
+- 如果库函数只是辅助操作，而且你已经理解其复杂度和行为，可以放心使用。
+
+例如本题中：
+
+- 直接调用 `reverse`：跳过核心；
+- 调用 `swap`：只是完成常数级交换，不影响核心思路。
+
+---
+
+## 11. 常见错误
+
+<Cards>
+  <Card title="错误 1：循环写成 left <= right">
+    当 `left == right` 时会额外交换中间元素。虽然普通临时变量交换通常无害，但逻辑上没有必要；若使用某些特殊交换技巧还可能出错。
+  </Card>
+  <Card title="错误 2：right 初始化为 s.size()">
+    最后一个合法下标是 `n - 1`，不是 `n`。
+  </Card>
+  <Card title="错误 3：额外建立完整副本">
+    能得到正确答案，但辅助空间会退化为 $O(n)$。
+  </Card>
+  <Card title="错误 4：混淆字符和字节">
+    在 UTF-8 等变长编码场景中，一个“可见字符”可能由多个字节组成，按字节反转不等价于按 Unicode 字符反转。算法题通常会明确字符数组语义。
+  </Card>
+</Cards>
+
+---
+
+## 12. 一页速记
+
+| 项目 | 结论 |
+| --- | --- |
+| 核心方法 | 相向双指针 |
+| 左指针 | 从 `0` 开始 |
+| 右指针 | 从 `n - 1` 开始 |
+| 循环条件 | `left < right` |
+| 每轮操作 | 交换两端元素并向中间移动 |
+| 时间复杂度 | $O(n)$ |
+| 辅助空间 | $O(1)$ |
+| 最重要的迁移能力 | 原地反转任意区间 |
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left = 0;
+        int right = static_cast<int>(s.size()) - 1;
+
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0;
+        int right = s.length - 1;
+
+        while (left < right) {
+            char temp = s[left];
+            s[left] = s[right];
+            s[right] = temp;
+            left++;
+            right--;
+        }
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def reverseString(self, s: list[str]) -> None:
+        left, right = 0, len(s) - 1
+
+        while left < right:
+            s[left], s[right] = s[right], s[left]
+            left += 1
+            right -= 1
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func reverseString(s []byte) {
+    left, right := 0, len(s)-1
+
+    for left < right {
+        s[left], s[right] = s[right], s[left]
+        left++
+        right--
+    }
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var reverseString = function(s) {
+    let left = 0;
+    let right = s.length - 1;
+
+    while (left < right) {
+        [s[left], s[right]] = [s[right], s[left]];
+        left++;
+        right--;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="TypeScript">
+
+```typescript
+function reverseString(s: string[]): void {
+    let left = 0;
+    let right = s.length - 1;
+
+    while (left < right) {
+        [s[left], s[right]] = [s[right], s[left]];
+        left++;
+        right--;
+    }
+}
+```
+
+  </Tab>
+</Tabs>

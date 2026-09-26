@@ -1,0 +1,686 @@
+---
+title: 比较含退格的字符串
+description: 从栈模拟到逆向双指针，理解退格字符串比较为什么能够在 O(1) 额外空间内完成，并掌握“跳过未来会被删除的字符”这一通用技巧。
+---
+
+# 844. 比较含退格的字符串
+
+[LeetCode 844：比较含退格的字符串](https://leetcode.cn/problems/backspace-string-compare/)
+
+给定两个字符串 `s` 和 `t`，其中 `#` 表示退格键。分别把它们输入到空白文本编辑器后，判断最终得到的字符串是否相同。
+
+如果当前文本已经为空，再输入 `#`，文本仍然保持为空。
+
+例如：
+
+```text
+s = "ab#c"
+t = "ad#c"
+```
+
+两者最终都会变成：
+
+```text
+"ac"
+```
+
+所以答案为 `true`。
+
+再例如：
+
+```text
+s = "a#c"
+t = "b"
+```
+
+处理后分别为：
+
+```text
+"c"
+"b"
+```
+
+所以答案为 `false`。
+
+## 一、这道题真正考什么
+
+看到 `#` 会删除前一个有效字符，很容易想到 **栈**：
+
+- 普通字符：入栈；
+- `#`：如果栈非空，就弹出栈顶。
+
+这当然能做，但题目还可以继续优化：
+
+> 我们能不能不真正构造“退格后的字符串”，而是直接比较两个字符串最终留下来的有效字符？
+
+答案是可以，而且只需要 $O(1)$ 额外空间。
+
+本题因此有两层价值：
+
+1. 用栈理解“字符消除”模型；
+2. 用逆向双指针把显式模拟优化成原地扫描。
+
+## 二、方法一：用字符串模拟栈
+
+因为最终还需要比较结果，所以没有必要真的使用 `stack<char>`。直接用 `string` 作为栈更加方便：
+
+- `push_back` / `+=`：压入字符；
+- `pop_back`：执行退格；
+- 最后两个字符串可以直接使用 `==` 比较。
+
+### 处理一个字符串
+
+```cpp
+string build(const string& str) {
+    string result;
+
+    for (char c : str) {
+        if (c != '#') {
+            result.push_back(c);
+        } else if (!result.empty()) {
+            result.pop_back();
+        }
+    }
+
+    return result;
+}
+```
+
+于是主逻辑就是：
+
+```cpp
+return build(s) == build(t);
+```
+
+### 完整代码
+
+```cpp
+class Solution {
+private:
+    string build(const string& str) {
+        string result;
+
+        for (char c : str) {
+            if (c != '#') {
+                result.push_back(c);
+            } else if (!result.empty()) {
+                result.pop_back();
+            }
+        }
+
+        return result;
+    }
+
+public:
+    bool backspaceCompare(string s, string t) {
+        return build(s) == build(t);
+    }
+};
+```
+
+### 复杂度
+
+设两个字符串长度分别为 $n$ 和 $m$：
+
+- 时间复杂度：$O(n+m)$；
+- 空间复杂度：$O(n+m)$。
+
+> [!NOTE]
+> 这里的“栈”只是思维模型。使用 `string`、`vector<char>`、`StringBuilder` 等可在尾部增删的结构都可以完成模拟。
+
+## 三、为什么可以从后往前比较
+
+要想做到 $O(1)$ 额外空间，关键是改变遍历方向。
+
+从前向后扫描时，看到普通字符并不知道它未来会不会被后面的 `#` 删除，因此往往必须先保存它。
+
+但从后向前扫描时，情况完全不同。
+
+例如：
+
+```text
+ab##c
+```
+
+从右往左看：
+
+```text
+c  #  #  b  a
+```
+
+遇到 `#` 后，我们已经知道：
+
+> 它一定会删除左侧尚未处理的一个普通字符。
+
+因此只需要维护一个变量：
+
+```text
+skip = 还有多少个普通字符应该被跳过
+```
+
+规则为：
+
+- 遇到 `#`：`skip++`；
+- 遇到普通字符且 `skip > 0`：这个字符会被删除，`skip--`；
+- 遇到普通字符且 `skip == 0`：这是最终真正留下来的字符。
+
+这就是 $O(1)$ 空间解法的核心。
+
+## 四、逆向扫描一个字符串
+
+假设当前指针为 `i`。
+
+```cpp
+while (i >= 0) {
+    if (s[i] == '#') {
+        ++skip;
+        --i;
+    } else if (skip > 0) {
+        --skip;
+        --i;
+    } else {
+        break;
+    }
+}
+```
+
+循环结束时有两种可能：
+
+1. `i < 0`：已经没有有效字符；
+2. `i >= 0`：`s[i]` 就是下一个最终会保留下来的字符。
+
+然后对 `t` 做完全相同的处理，再比较两个有效字符即可。
+
+## 五、方法二：逆向双指针，$O(1)$ 额外空间
+
+原文动画：
+
+![比较含退格的字符串](https://file1.kamacoder.com/i/algo/844.%E6%AF%94%E8%BE%83%E5%90%AB%E9%80%80%E6%A0%BC%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2.gif)
+
+设：
+
+```text
+i = s.size() - 1
+j = t.size() - 1
+```
+
+每一轮都做三件事：
+
+1. 在 `s` 中找到下一个有效字符；
+2. 在 `t` 中找到下一个有效字符；
+3. 比较它们。
+
+### 推荐实现
+
+```cpp
+class Solution {
+public:
+    bool backspaceCompare(string s, string t) {
+        int i = static_cast<int>(s.size()) - 1;
+        int j = static_cast<int>(t.size()) - 1;
+
+        while (i >= 0 || j >= 0) {
+            int skipS = 0;
+            while (i >= 0) {
+                if (s[i] == '#') {
+                    ++skipS;
+                    --i;
+                } else if (skipS > 0) {
+                    --skipS;
+                    --i;
+                } else {
+                    break;
+                }
+            }
+
+            int skipT = 0;
+            while (j >= 0) {
+                if (t[j] == '#') {
+                    ++skipT;
+                    --j;
+                } else if (skipT > 0) {
+                    --skipT;
+                    --j;
+                } else {
+                    break;
+                }
+            }
+
+            // 两边都还有有效字符
+            if (i >= 0 && j >= 0) {
+                if (s[i] != t[j]) {
+                    return false;
+                }
+            }
+            // 只有一边还有有效字符
+            else if (i >= 0 || j >= 0) {
+                return false;
+            }
+
+            --i;
+            --j;
+        }
+
+        return true;
+    }
+};
+```
+
+### 复杂度
+
+每个指针最多从右向左走完整个字符串一次，所以：
+
+- 时间复杂度：$O(n+m)$；
+- 空间复杂度：$O(1)$。
+
+> [!IMPORTANT]
+> 虽然代码里存在嵌套 `while`，但并不是 $O(n^2)$。因为 `i` 和 `j` 始终只向一个方向移动，每个字符最多处理一次。
+
+## 六、手算：`ab##` 与 `c#d#`
+
+先看：
+
+```text
+s = ab##
+```
+
+从右向左：
+
+```text
+# -> skip = 1
+# -> skip = 2
+b -> 被删除，skip = 1
+a -> 被删除，skip = 0
+```
+
+最终为空。
+
+再看：
+
+```text
+t = c#d#
+```
+
+从右向左：
+
+```text
+# -> skip = 1
+d -> 被删除，skip = 0
+# -> skip = 1
+c -> 被删除，skip = 0
+```
+
+也为空。
+
+因此结果为 `true`。
+
+## 七、最容易写错的边界
+
+### 1. 对空字符串退格
+
+```text
+s = "###a"
+```
+
+前三个 `#` 不会产生“负数个字符”。
+
+逆向扫描时，即使 `skip` 很大，只要字符串已经扫描完就结束，不需要额外处理。
+
+### 2. 一边先没有有效字符
+
+例如：
+
+```text
+s = "a#"
+t = "a"
+```
+
+处理后：
+
+```text
+s = ""
+t = "a"
+```
+
+因此仅仅在“两个指针都有效”时比较字符还不够。
+
+必须额外判断：
+
+```cpp
+else if (i >= 0 || j >= 0) {
+    return false;
+}
+```
+
+### 3. `skip` 应属于当前字符串
+
+两个字符串必须分别维护自己的退格数量。不要把 `s` 和 `t` 的 `skip` 混在一起。
+
+## 八、为什么这种逆向技巧很重要
+
+这类题的共同特征是：
+
+> 后面的操作会影响前面的元素。
+
+正向遍历时，很难提前知道某个元素最终是否有效；逆向遍历却可以先看到“控制信息”。
+
+类似思想包括：
+
+- 从右侧统计删除次数；
+- 从后向前跳过失效元素；
+- 不构造中间结果，直接比较最终有效元素。
+
+可以把它记成一个通用模板：
+
+> **如果后缀决定前面元素是否有效，尝试从后往前扫描。**
+
+## 九、两种方法怎么选
+
+| 方法 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- |
+| 构造最终字符串 | $O(n+m)$ | $O(n+m)$ | 最直观，最容易写 |
+| 逆向双指针 | $O(n+m)$ | $O(1)$ | 更优，边界处理更值得掌握 |
+
+如果只是快速写出正确代码，模拟栈已经足够；如果题目要求常数额外空间，或者希望掌握更高质量的双指针技巧，应该熟练逆向解法。
+
+## 十、总结
+
+本题最值得记住的不是 `#` 本身，而是这条思路链：
+
+```text
+退格 = 删除前一个有效字符
+        ↓
+正向处理需要保存历史
+        ↓
+逆向时先遇到删除操作
+        ↓
+用 skip 统计未来要跳过多少字符
+        ↓
+直接比较最终有效字符
+```
+
+一句话模板：
+
+> **从后往前，用 `skip` 表示还需要忽略多少个普通字符；每次找到一个真正有效的字符再进行比较。**
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean backspaceCompare(String s, String t) {
+        int i = s.length() - 1;
+        int j = t.length() - 1;
+
+        while (i >= 0 || j >= 0) {
+            int skipS = 0;
+            while (i >= 0) {
+                if (s.charAt(i) == '#') {
+                    skipS++;
+                    i--;
+                } else if (skipS > 0) {
+                    skipS--;
+                    i--;
+                } else {
+                    break;
+                }
+            }
+
+            int skipT = 0;
+            while (j >= 0) {
+                if (t.charAt(j) == '#') {
+                    skipT++;
+                    j--;
+                } else if (skipT > 0) {
+                    skipT--;
+                    j--;
+                } else {
+                    break;
+                }
+            }
+
+            if (i >= 0 && j >= 0) {
+                if (s.charAt(i) != t.charAt(j)) {
+                    return false;
+                }
+            } else if (i >= 0 || j >= 0) {
+                return false;
+            }
+
+            i--;
+            j--;
+        }
+
+        return true;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def backspaceCompare(self, s: str, t: str) -> bool:
+        i, j = len(s) - 1, len(t) - 1
+
+        while i >= 0 or j >= 0:
+            skip_s = 0
+            while i >= 0:
+                if s[i] == '#':
+                    skip_s += 1
+                    i -= 1
+                elif skip_s > 0:
+                    skip_s -= 1
+                    i -= 1
+                else:
+                    break
+
+            skip_t = 0
+            while j >= 0:
+                if t[j] == '#':
+                    skip_t += 1
+                    j -= 1
+                elif skip_t > 0:
+                    skip_t -= 1
+                    j -= 1
+                else:
+                    break
+
+            if i >= 0 and j >= 0:
+                if s[i] != t[j]:
+                    return False
+            elif i >= 0 or j >= 0:
+                return False
+
+            i -= 1
+            j -= 1
+
+        return True
+```
+
+```go label="Go"
+func backspaceCompare(s string, t string) bool {
+    i, j := len(s)-1, len(t)-1
+
+    for i >= 0 || j >= 0 {
+        skipS := 0
+        for i >= 0 {
+            if s[i] == '#' {
+                skipS++
+                i--
+            } else if skipS > 0 {
+                skipS--
+                i--
+            } else {
+                break
+            }
+        }
+
+        skipT := 0
+        for j >= 0 {
+            if t[j] == '#' {
+                skipT++
+                j--
+            } else if skipT > 0 {
+                skipT--
+                j--
+            } else {
+                break
+            }
+        }
+
+        if i >= 0 && j >= 0 {
+            if s[i] != t[j] {
+                return false
+            }
+        } else if i >= 0 || j >= 0 {
+            return false
+        }
+
+        i--
+        j--
+    }
+
+    return true
+}
+```
+
+```javascript label="JavaScript"
+var backspaceCompare = function(s, t) {
+    let i = s.length - 1;
+    let j = t.length - 1;
+
+    while (i >= 0 || j >= 0) {
+        let skipS = 0;
+        while (i >= 0) {
+            if (s[i] === '#') {
+                skipS++;
+                i--;
+            } else if (skipS > 0) {
+                skipS--;
+                i--;
+            } else {
+                break;
+            }
+        }
+
+        let skipT = 0;
+        while (j >= 0) {
+            if (t[j] === '#') {
+                skipT++;
+                j--;
+            } else if (skipT > 0) {
+                skipT--;
+                j--;
+            } else {
+                break;
+            }
+        }
+
+        if (i >= 0 && j >= 0) {
+            if (s[i] !== t[j]) return false;
+        } else if (i >= 0 || j >= 0) {
+            return false;
+        }
+
+        i--;
+        j--;
+    }
+
+    return true;
+};
+```
+
+```typescript label="TypeScript"
+function backspaceCompare(s: string, t: string): boolean {
+    let i = s.length - 1;
+    let j = t.length - 1;
+
+    while (i >= 0 || j >= 0) {
+        let skipS = 0;
+        while (i >= 0) {
+            if (s[i] === '#') {
+                skipS++;
+                i--;
+            } else if (skipS > 0) {
+                skipS--;
+                i--;
+            } else {
+                break;
+            }
+        }
+
+        let skipT = 0;
+        while (j >= 0) {
+            if (t[j] === '#') {
+                skipT++;
+                j--;
+            } else if (skipT > 0) {
+                skipT--;
+                j--;
+            } else {
+                break;
+            }
+        }
+
+        if (i >= 0 && j >= 0) {
+            if (s[i] !== t[j]) return false;
+        } else if (i >= 0 || j >= 0) {
+            return false;
+        }
+
+        i--;
+        j--;
+    }
+
+    return true;
+}
+```
+
+```c label="C"
+#include <stdbool.h>
+#include <string.h>
+
+bool backspaceCompare(char* s, char* t) {
+    int i = (int)strlen(s) - 1;
+    int j = (int)strlen(t) - 1;
+
+    while (i >= 0 || j >= 0) {
+        int skipS = 0;
+        while (i >= 0) {
+            if (s[i] == '#') {
+                skipS++;
+                i--;
+            } else if (skipS > 0) {
+                skipS--;
+                i--;
+            } else {
+                break;
+            }
+        }
+
+        int skipT = 0;
+        while (j >= 0) {
+            if (t[j] == '#') {
+                skipT++;
+                j--;
+            } else if (skipT > 0) {
+                skipT--;
+                j--;
+            } else {
+                break;
+            }
+        }
+
+        if (i >= 0 && j >= 0) {
+            if (s[i] != t[j]) return false;
+        } else if (i >= 0 || j >= 0) {
+            return false;
+        }
+
+        i--;
+        j--;
+    }
+
+    return true;
+}
+```
+````

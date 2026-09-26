@@ -1,0 +1,519 @@
+---
+title: 完全背包理论基础：一维 DP
+sidebarTitle: 完全背包：一维 DP
+summary: 从二维完全背包压缩到一维状态，重点理解容量为什么必须正序遍历，以及“物品优先 / 容量优先”在纯最大价值模型中为何都可行。
+---
+
+# 完全背包理论基础：一维 DP
+
+二维完全背包最重要的递推式是：
+
+$$
+dp[i][j]=\max\left(dp[i-1][j],\ dp[i][j-weight[i]]+value[i]\right)
+$$
+
+与 01 背包相比，真正决定完全背包性质的是第二项仍然来自当前行 `i`：选择一次当前物品后，剩余容量仍然可以继续选择它。
+
+这一篇进一步把二维状态压缩成一维，并把完全背包最容易混淆的两个问题讲清楚：
+
+1. 为什么容量必须从小到大遍历？
+2. 为什么在“纯完全背包最大价值”问题中，物品和容量两层循环可以交换？
+
+<Callout type="info" title="先记住一句话">
+01 背包为了防止一件物品被重复使用，容量通常倒序；完全背包恰恰需要允许同一物品重复使用，因此容量要正序。
+</Callout>
+
+## 1. 问题模型
+
+有 $N$ 种物品和容量为 $W$ 的背包。
+
+第 $i$ 种物品：
+
+- 重量为 $weight[i]$；
+- 价值为 $value[i]$；
+- 可以选择任意多个。
+
+目标是在总重量不超过 $W$ 的前提下，使总价值最大。
+
+例如：
+
+| 物品 | 重量 | 价值 |
+| --- | ---: | ---: |
+| 0 | 1 | 15 |
+| 1 | 3 | 20 |
+| 2 | 4 | 30 |
+
+背包容量为：
+
+$$
+W=4
+$$
+
+## 2. 从二维 DP 压缩到一维
+
+二维完全背包定义：
+
+$$
+dp[i][j]=\text{只考虑 }0\sim i\text{ 号物品、容量为 }j\text{ 时的最大价值}
+$$
+
+转移：
+
+$$
+dp[i][j]=\max\left(dp[i-1][j],\ dp[i][j-weight[i]]+value[i]\right)
+$$
+
+观察右侧：
+
+- `dp[i-1][j]` 表示“不选择当前物品”；
+- `dp[i][j-weight[i]] + value[i]` 表示“至少选择一个当前物品”。
+
+压缩后，用一维数组：
+
+$$
+\boxed{dp[j]=\text{容量为 }j\text{ 时能够取得的最大价值}}
+$$
+
+则状态转移变为：
+
+$$
+\boxed{dp[j]=\max\left(dp[j],\ dp[j-weight[i]]+value[i]\right)}
+$$
+
+形式看起来和 01 背包完全一样，但遍历方向恰好相反。
+
+## 3. 为什么完全背包容量必须正序
+
+这是本篇最重要的结论。
+
+假设当前物品重量：
+
+$$
+weight[i]=2
+$$
+
+当计算容量 $j=4$ 时，我们希望允许当前物品使用两次。
+
+因此：
+
+$$
+dp[4]\leftarrow dp[2]+value[i]
+$$
+
+这里的 `dp[2]` 必须已经包含“当前物品被使用过一次”的结果，这样再加一次 `value[i]`，才能得到“使用两次当前物品”的方案。
+
+所以容量应该按：
+
+$$
+2,3,4,\ldots,W
+$$
+
+正序更新。
+
+也就是：
+
+```cpp
+for (int j = weight[i]; j <= W; ++j) {
+    dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+}
+```
+
+### 正序更新发生了什么
+
+假设某物品：
+
+$$
+weight=2,\qquad value=3
+$$
+
+初始：
+
+| 容量 $j$ | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `dp[j]` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+正序更新后：
+
+- $j=2$：`dp[2] = dp[0] + 3 = 3`；
+- $j=4$：此时 `dp[2]` 已经是 $3$，所以 `dp[4] = dp[2] + 3 = 6`；
+- $j=6$：此时 `dp[4]` 已经是 $6$，所以 `dp[6] = dp[4] + 3 = 9`。
+
+也就是说，同一轮中刚刚更新出的状态会继续参与后续状态计算。
+
+这正是完全背包“同一物品可以重复使用”的实现机制。
+
+![完全背包一维 DP：物品优先](https://file1.kamacoder.com/i/algo/20210126104529605.jpg)
+
+## 4. 为什么 01 背包恰好相反
+
+01 背包的一维转移同样是：
+
+$$
+dp[j]=\max\left(dp[j],\ dp[j-weight[i]]+value[i]\right)
+$$
+
+但容量必须倒序。
+
+原因是：
+
+> 01 背包不允许当前物品在同一轮中被重复使用。
+
+如果也正序遍历，那么 `dp[j-weight[i]]` 很可能刚刚使用过当前物品，再拿它更新 `dp[j]`，就相当于又使用了一次当前物品。
+
+因此两类背包最核心的区别可以整理为：
+
+| 类型 | 单种物品可用次数 | 容量遍历方向 | 目的 |
+| --- | --- | --- | --- |
+| 01 背包 | 最多一次 | 从大到小 | 防止本轮重复使用 |
+| 完全背包 | 无限次 | 从小到大 | 允许本轮继续使用 |
+
+<Callout type="warning" title="不要死记循环方向">
+真正应该记住的是“当前轮已经更新过的状态，能不能再次使用”。能用就是完全背包式正序；不能用就是 01 背包式倒序。
+</Callout>
+
+## 5. 一维 DP 的标准写法
+
+物品在外、容量在内：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = weight[i]; j <= W; ++j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+时间复杂度：
+
+$$
+O(NW)
+$$
+
+空间复杂度：
+
+$$
+O(W)
+$$
+
+相比二维 DP 的 $O(NW)$ 空间，一维写法更适合实际做题。
+
+## 6. 两层循环能不能交换
+
+对于当前这个“纯完全背包最大价值”模型，下面两种写法都可以。
+
+### 写法 A：先物品，再容量
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = weight[i]; j <= W; ++j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+### 写法 B：先容量，再物品
+
+```cpp
+for (int j = 0; j <= W; ++j) {
+    for (int i = 0; i < n; ++i) {
+        if (j >= weight[i]) {
+            dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+        }
+    }
+}
+```
+
+![完全背包一维 DP：容量优先](https://file1.kamacoder.com/i/algo/20210729234011.png)
+
+为什么都可以？
+
+因为这里只求：
+
+$$
+\text{最大价值}
+$$
+
+我们并不关心物品选择顺序，也不区分：
+
+$$
+(1,2)
+$$
+
+和：
+
+$$
+(2,1)
+$$
+
+这样的排列。
+
+只要所有合法转移最终都能被访问，最大值就可以正确传播。
+
+## 7. 但“循环顺序无所谓”不是普遍规律
+
+这是特别容易产生误解的地方。
+
+在纯完全背包最大价值问题中，两层循环可以交换；但一旦题目问的是：
+
+- 方案数量；
+- 组合数量；
+- 排列数量；
+- 是否区分选择顺序；
+
+循环顺序就会直接改变状态语义。
+
+例如下一篇“零钱兑换 II”要求的是**组合数**，必须：
+
+> 外层遍历硬币，内层遍历金额。
+
+而后面的“组合总和 IV”要求的是**排列数**，则要反过来：
+
+> 外层遍历目标容量，内层遍历物品。
+
+所以更准确的结论是：
+
+$$
+\boxed{\text{纯完全背包最大值问题中，两层循环可交换；计数问题必须结合语义判断}}
+$$
+
+## 8. 完整 C++ 实现
+
+下面使用“物品在外、容量在内”的标准写法。
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int n, bagWeight;
+    cin >> n >> bagWeight;
+
+    vector<int> weight(n);
+    vector<int> value(n);
+
+    for (int i = 0; i < n; ++i) {
+        cin >> weight[i] >> value[i];
+    }
+
+    vector<int> dp(bagWeight + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = weight[i]; j <= bagWeight; ++j) {
+            dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+        }
+    }
+
+    cout << dp[bagWeight] << '\n';
+    return 0;
+}
+```
+
+## 9. 一维完全背包的统一理解
+
+如果只记代码，很容易把正序和倒序混淆。
+
+更推荐从“状态可复用性”理解。
+
+### 01 背包
+
+当前物品最多用一次：
+
+$$
+\text{本轮新状态不能再次参与本轮转移}
+$$
+
+所以倒序。
+
+### 完全背包
+
+当前物品可以无限使用：
+
+$$
+\text{本轮新状态允许再次参与本轮转移}
+$$
+
+所以正序。
+
+这就是容量遍历方向背后的本质。
+
+## 10. 常见错误
+
+### 错误一：完全背包仍然倒序
+
+```cpp
+for (int j = W; j >= weight[i]; --j)
+```
+
+这样每件物品在这一轮只能被使用一次，实际退化成了 01 背包。
+
+### 错误二：把“纯完全背包可交换循环”推广到所有题
+
+对于最大价值模型通常没问题，但计数模型会区分组合与排列。
+
+### 错误三：状态定义是“恰好装满”，却仍然全部初始化为 0
+
+如果题目要求“恰好装满”的最大价值，无法到达的状态通常应该初始化为负无穷，而不是 0。
+
+因此初始化必须和状态定义配套。
+
+## 11. 本题模板
+
+```cpp
+vector<int> dp(W + 1, 0);
+
+for (int i = 0; i < n; ++i) {
+    for (int j = weight[i]; j <= W; ++j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+可以把它记成：
+
+$$
+\boxed{\text{完全背包：物品无限次，容量正序}}
+$$
+
+## 12. 其他语言版本
+
+<CodeTabs items={["Java", "Python", "Go", "Rust"]}>
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int bagWeight = scanner.nextInt();
+
+        int[] weight = new int[n];
+        int[] value = new int[n];
+
+        for (int i = 0; i < n; i++) {
+            weight[i] = scanner.nextInt();
+            value[i] = scanner.nextInt();
+        }
+
+        int[] dp = new int[bagWeight + 1];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = weight[i]; j <= bagWeight; j++) {
+                dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i]);
+            }
+        }
+
+        System.out.println(dp[bagWeight]);
+    }
+}
+```
+
+```python
+def complete_knapsack(weight, value, bag_weight):
+    dp = [0] * (bag_weight + 1)
+
+    for i in range(len(weight)):
+        for j in range(weight[i], bag_weight + 1):
+            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
+
+    return dp[bag_weight]
+
+
+n, bag_weight = map(int, input().split())
+weight = []
+value = []
+for _ in range(n):
+    w, v = map(int, input().split())
+    weight.append(w)
+    value.append(v)
+
+print(complete_knapsack(weight, value, bag_weight))
+```
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    var n, bagWeight int
+    fmt.Scan(&n, &bagWeight)
+
+    weight := make([]int, n)
+    value := make([]int, n)
+
+    for i := 0; i < n; i++ {
+        fmt.Scan(&weight[i], &value[i])
+    }
+
+    dp := make([]int, bagWeight+1)
+
+    for i := 0; i < n; i++ {
+        for j := weight[i]; j <= bagWeight; j++ {
+            candidate := dp[j-weight[i]] + value[i]
+            if candidate > dp[j] {
+                dp[j] = candidate
+            }
+        }
+    }
+
+    fmt.Println(dp[bagWeight])
+}
+```
+
+```rust
+use std::io::{self, Read};
+
+fn main() {
+    let mut input = String::new();
+    io::stdin().read_to_string(&mut input).unwrap();
+    let mut it = input.split_whitespace();
+
+    let n: usize = it.next().unwrap().parse().unwrap();
+    let bag_weight: usize = it.next().unwrap().parse().unwrap();
+
+    let mut weight = vec![0usize; n];
+    let mut value = vec![0i32; n];
+
+    for i in 0..n {
+        weight[i] = it.next().unwrap().parse().unwrap();
+        value[i] = it.next().unwrap().parse().unwrap();
+    }
+
+    let mut dp = vec![0i32; bag_weight + 1];
+
+    for i in 0..n {
+        for j in weight[i]..=bag_weight {
+            dp[j] = dp[j].max(dp[j - weight[i]] + value[i]);
+        }
+    }
+
+    println!("{}", dp[bag_weight]);
+}
+```
+
+</CodeTabs>
+
+## 13. 小结
+
+完全背包的一维优化，本质上不是简单“删掉一维”，而是利用了当前行状态可以从左向右递推的性质。
+
+需要真正掌握三件事：
+
+1. 一维状态：
+
+   $$
+   dp[j]=\text{容量为 }j\text{ 时的最优值}
+   $$
+
+2. 转移：
+
+   $$
+   dp[j]=\max(dp[j],dp[j-weight[i]]+value[i])
+   $$
+
+3. 容量正序：让本轮刚更新的状态继续参与本轮计算，从而实现同一物品的重复使用。
+
+下一篇进入完全背包中最重要的“计数型”问题：**零钱兑换 II**。在那里，循环顺序将不再只是写法差异，而会直接决定你算的是组合数还是排列数。

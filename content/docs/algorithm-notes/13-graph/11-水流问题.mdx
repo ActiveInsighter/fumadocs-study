@@ -1,0 +1,985 @@
+---
+title: 水流问题
+subtitle: 从“每个点向外试”转化为“从两组边界逆流而上”
+summary: 通过卡码网 103 掌握反向图搜索：分别从两组边界逆着水流方向搜索，取两个可达集合的交集，把四次方暴力优化到 O(NM)。
+---
+
+# 水流问题
+
+> **卡码网 103. 水流问题**
+>
+> 给定一个 $N\times M$ 高度矩阵。水只能从一个格子流向上下左右相邻、且高度不高于当前位置的格子。矩阵的上边界和左边界属于第一组边界，下边界和右边界属于第二组边界。求所有能够同时把水流到两组边界的格子。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1175)
+
+这是一道非常典型的 **反向搜索** 题。
+
+如果按题意正向思考，会自然得到：
+
+```text
+对每个格子分别搜索
+→ 看能不能到第一组边界
+→ 再看能不能到第二组边界
+```
+
+这样虽然直观，却会产生大量重复搜索。
+
+真正高效的做法是把问题反过来：
+
+> **不是问“每个点能不能流到边界”，而是从边界出发，沿水流的反方向去找“哪些点能够流到我”。**
+
+最终只需要求两个可达集合的交集。
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+5 5
+1 3 1 2 4
+1 2 1 3 2
+2 4 7 2 1
+4 5 6 1 1
+1 4 1 2 1
+```
+
+输出的一组合法结果：
+
+```text
+0 4
+1 3
+2 2
+3 0
+3 1
+3 2
+4 0
+4 1
+```
+
+原题示意图：
+
+![水流问题示意图](https://file1.kamacoder.com/i/algo/20240517115816.png)
+
+图中的蓝色格子都满足：
+
+```text
+能流向上/左边界
+并且
+能流向下/右边界
+```
+
+---
+
+## 2. 先把“水能往哪里流”写成不等式
+
+假设当前位置为 $u$，相邻位置为 $v$。
+
+水从 $u$ 流向 $v$ 的条件是：
+
+$$
+h(v)\le h(u)
+$$
+
+其中 $h(x)$ 表示位置 $x$ 的高度。
+
+所以正向搜索时，如果当前位置为 `(x,y)`，下一位置为 `(nx,ny)`，允许移动的条件是：
+
+```cpp
+grid[nx][ny] <= grid[x][y]
+```
+
+也就是只能“向低处或等高处”流。
+
+---
+
+## 3. 暴力方案：从每个格子分别搜索
+
+最直接的方法是遍历所有 $NM$ 个格子。
+
+对每个起点：
+
+1. DFS/BFS 搜索它能到达的所有位置；
+2. 判断是否碰到第一组边界；
+3. 判断是否碰到第二组边界。
+
+单次搜索最坏会遍历整个矩阵：
+
+$$
+O(NM)
+$$
+
+起点又有 $NM$ 个，所以总时间复杂度达到：
+
+$$
+O((NM)^2)=O(N^2M^2)
+$$
+
+当 $N,M$ 稍大时，大量重复搜索会非常浪费。
+
+<Callout type="warning" title="真正的问题不是 DFS 慢，而是搜索被重复做了太多次">
+
+很多优化题的关键都不是“换一个更快的搜索算法”，而是：
+
+> 能不能改变搜索起点，让同一个节点只处理一次？
+
+</Callout>
+
+---
+
+## 4. 关键逆向：如果水能从 A 流到 B，那么反向可以从 B 搜到 A
+
+正向条件为：
+
+$$
+h(B)\le h(A)
+$$
+
+也就是说：
+
+```text
+A（高） → B（低）
+```
+
+如果我们从边界位置 `B` 反向搜索，希望找到“哪些位置能把水流到 B”，那么就应该允许：
+
+```text
+B（低） → A（高）
+```
+
+反向移动条件变成：
+
+$$
+h(A)\ge h(B)
+$$
+
+因此从当前位置 `(x,y)` 逆流到邻居 `(nx,ny)` 时要求：
+
+```cpp
+grid[nx][ny] >= grid[x][y]
+```
+
+这就是整道题最关键的一处不等号反转。
+
+---
+
+## 5. 两组边界分别反向搜索
+
+定义两个布尔矩阵：
+
+```cpp
+first[i][j]
+second[i][j]
+```
+
+含义分别是：
+
+- `first[i][j] = true`：从 `(i,j)` 出发的水能够流到第一组边界；
+- `second[i][j] = true`：从 `(i,j)` 出发的水能够流到第二组边界。
+
+但我们不会从 `(i,j)` 正向验证，而是反过来构造它们。
+
+### 第一组边界
+
+第一组边界是：
+
+```text
+上边界 + 左边界
+```
+
+从这些格子同时向“更高或等高”的邻居反向搜索。
+
+原题第一组边界反向搜索示意：
+
+![从第一组边界逆流搜索](https://file1.kamacoder.com/i/algo/20250304174747.png)
+
+所有被访问到的节点都满足：
+
+> 它们存在一条正向水流路径能够到达第一组边界。
+
+### 第二组边界
+
+第二组边界是：
+
+```text
+下边界 + 右边界
+```
+
+同样逆流搜索。
+
+原题第二组边界反向搜索示意：
+
+![从第二组边界逆流搜索](https://file1.kamacoder.com/i/algo/20250304174801.png)
+
+---
+
+## 6. 最终答案就是两个集合的交集
+
+设：
+
+- $F$：能够流向第一组边界的节点集合；
+- $S$：能够流向第二组边界的节点集合。
+
+题目要求的就是：
+
+$$
+F\cap S
+$$
+
+所以最后只需要扫描整个矩阵：
+
+```cpp
+if (first[i][j] && second[i][j]) {
+    cout << i << ' ' << j << '\n';
+}
+```
+
+这也是为什么两个 `visited` 数组就足够完成整个问题。
+
+---
+
+## 7. 一个容易混淆的方向问题
+
+这题最常见的错误是把“真实水流方向”和“算法搜索方向”混为一谈。
+
+### 真实水流
+
+从高处往低处或等高处流：
+
+$$
+h_{next}\le h_{cur}
+$$
+
+### 反向搜索
+
+从边界向能够流到边界的源头扩展：
+
+$$
+h_{next}\ge h_{cur}
+$$
+
+可以把它记成：
+
+```text
+真实水流：高 → 低
+反向搜索：低 → 高
+```
+
+<Callout type="tip" title="判断不等号是否写反的方法">
+
+假设边界高度是 `2`，旁边有个高度 `5` 的格子。
+
+真实世界里：
+
+```text
+5 → 2
+```
+
+显然水能从 `5` 流到这个边界。
+
+因此反向搜索从 `2` 出发时，必须能够走到 `5`。
+
+所以条件一定是：
+
+```text
+next >= current
+```
+
+</Callout>
+
+---
+
+## 8. DFS 搜索函数
+
+我们可以把搜索函数写成：
+
+```cpp
+void dfs(int x, int y, vector<vector<bool>>& visited) {
+    if (visited[x][y]) return;
+
+    visited[x][y] = true;
+
+    for (const auto& d : DIR) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        // 逆流搜索：只能从低/等高处走向高/等高处
+        if (grid[nx][ny] < grid[x][y]) {
+            continue;
+        }
+
+        dfs(nx, ny, visited);
+    }
+}
+```
+
+这里没有在递归调用前单独判断：
+
+```cpp
+if (visited[nx][ny])
+```
+
+因为函数入口已经有：
+
+```cpp
+if (visited[x][y]) return;
+```
+
+当然，把判断提前写在循环里也完全可以。
+
+---
+
+## 9. 多源搜索：边界上的每个格子都是起点
+
+第一组边界包含：
+
+```text
+(0, 0) ... (0, m-1)
+(0, 0) ... (n-1, 0)
+```
+
+第二组边界包含：
+
+```text
+(n-1, 0) ... (n-1, m-1)
+(0, m-1) ... (n-1, m-1)
+```
+
+因此初始化时：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    dfs(i, 0, first);
+    dfs(i, m - 1, second);
+}
+
+for (int j = 0; j < m; ++j) {
+    dfs(0, j, first);
+    dfs(n - 1, j, second);
+}
+```
+
+这实际上是一种 **多源搜索**。
+
+虽然代码表现为“对很多边界点调用 DFS”，但由于同一个 `visited` 被共享：
+
+> 一个节点在同一组搜索里最多真正处理一次。
+
+因此它不是“每个边界点都重新遍历整张图”。
+
+---
+
+## 10. C++ 推荐实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int DIR[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+
+int n, m;
+vector<vector<int>> grid;
+
+void dfs(int x, int y, vector<vector<bool>>& visited) {
+    if (visited[x][y]) {
+        return;
+    }
+
+    visited[x][y] = true;
+
+    for (const auto& d : DIR) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        // 反向搜索：从较低位置走向较高或等高位置
+        if (grid[nx][ny] < grid[x][y]) {
+            continue;
+        }
+
+        dfs(nx, ny, visited);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> m;
+    grid.assign(n, vector<int>(m));
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    vector<vector<bool>> first(n, vector<bool>(m, false));
+    vector<vector<bool>> second(n, vector<bool>(m, false));
+
+    // 左边界属于第一组，右边界属于第二组
+    for (int i = 0; i < n; ++i) {
+        dfs(i, 0, first);
+        dfs(i, m - 1, second);
+    }
+
+    // 上边界属于第一组，下边界属于第二组
+    for (int j = 0; j < m; ++j) {
+        dfs(0, j, first);
+        dfs(n - 1, j, second);
+    }
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (first[i][j] && second[i][j]) {
+                cout << i << ' ' << j << '\n';
+            }
+        }
+    }
+
+    return 0;
+}
+```
+
+---
+
+## 11. 为什么复杂度只有 $O(NM)$
+
+这部分非常容易误判。
+
+看到：
+
+```cpp
+for (...) dfs(...);
+for (...) dfs(...);
+```
+
+有人会以为每次 `dfs` 都可能搜索整张图，因此得到类似：
+
+$$
+O((N+M)NM)
+$$
+
+但这忽略了共享的 `visited`。
+
+对于 `first`：
+
+- 一旦某个节点被访问，`first[x][y]` 就变成 `true`；
+- 后续即使从其他边界起点再次遇到它，也会立即返回；
+- 因此每个节点最多被完整展开一次。
+
+所以第一组边界搜索总复杂度为：
+
+$$
+O(NM)
+$$
+
+第二组同理：
+
+$$
+O(NM)
+$$
+
+最后求交集再扫描一次：
+
+$$
+O(NM)
+$$
+
+总复杂度仍然是：
+
+$$
+O(NM)
+$$
+
+空间复杂度主要来自两个布尔矩阵：
+
+$$
+O(NM)
+$$
+
+递归 DFS 还需要最坏 $O(NM)$ 的调用栈。
+
+---
+
+## 12. 从图论角度：其实是在反图上做可达性
+
+可以把每个格子视为一个顶点。
+
+如果水能够从 $u$ 流向相邻格子 $v$，就在原图中建立一条有向边：
+
+$$
+u\rightarrow v
+$$
+
+条件是：
+
+$$
+h(v)\le h(u)
+$$
+
+题目要求的是：
+
+> 哪些顶点能到达第一组边界，同时也能到达第二组边界？
+
+一般图论里，“求哪些点能够到达目标集合”可以转换为：
+
+> **把所有边反向，然后从目标集合出发求可达点。**
+
+原边：
+
+$$
+u\rightarrow v
+$$
+
+反图中变成：
+
+$$
+v\rightarrow u
+$$
+
+因此本题的“逆流而上”并不是特殊技巧，本质就是标准的 **反图可达性**。
+
+<Callout type="info" title="这个思想比本题本身更重要">
+
+以后遇到：
+
+- 哪些状态能够最终到达某些终点？
+- 哪些节点可以通向出口？
+- 哪些点最终可以流向某个边界？
+
+都可以尝试：
+
+> 把转移关系反过来，从终点集合做一次多源搜索。
+
+</Callout>
+
+---
+
+## 13. 为什么“等高”必须允许
+
+题目允许水从某个格子流向高度 **小于或等于** 它的邻居。
+
+所以正向条件是：
+
+$$
+h(next)\le h(cur)
+$$
+
+反向条件自然是：
+
+$$
+h(next)\ge h(cur)
+$$
+
+这里必须包含等号。
+
+例如：
+
+```text
+3 3 3
+```
+
+水可以沿着等高区域传播，因此反向搜索也必须可以穿过整个等高连通块。
+
+如果误写成：
+
+```cpp
+grid[nx][ny] > grid[x][y]
+```
+
+就会错误阻断等高路径。
+
+---
+
+## 14. DFS 与 BFS 的选择
+
+这题不需要最短路，只需要可达性，因此 DFS 和 BFS 都可以。
+
+### DFS
+
+优点：
+
+- 代码短；
+- 递归结构直观。
+
+缺点：
+
+- 大矩阵可能导致递归栈较深。
+
+### BFS
+
+优点：
+
+- 无递归栈风险；
+- 多源 BFS 的结构尤其自然。
+
+BFS 可以直接把一整组边界作为初始队列，而不必逐个调用搜索函数。
+
+---
+
+## 15. 更统一的多源 BFS 写法
+
+先把所有第一组边界作为初始源点放入一个队列：
+
+```text
+上边界 + 左边界
+```
+
+再统一向上坡方向扩展。
+
+同理处理第二组边界。
+
+这种写法在“多个源点同时扩散”问题中更通用。
+
+伪代码：
+
+```text
+reverseBfs(all boundary sources):
+    将所有源点入队并标记
+
+    while queue 非空:
+        取出 current
+
+        for next in 四邻域:
+            if next 未访问 且 height[next] >= height[current]:
+                标记 next
+                next 入队
+```
+
+---
+
+## 16. 高频错误
+
+<Cards>
+  <Card title="不等号方向写反">
+    正向水流是 `next <= current`；从边界反向搜索必须写成 `next >= current`。
+  </Card>
+  <Card title="忘记等高可以流动">
+    条件必须允许等号，否则会把等高平台错误切断。
+  </Card>
+  <Card title="每个起点重新 new visited">
+    优化解的关键就是同一组边界共享一张 `visited`，让每个格子最多处理一次。
+  </Card>
+  <Card title="把两组边界混成一个 visited">
+    题目要求同时可达两组边界，必须分别记录两个可达集合，最后取交集。
+  </Card>
+</Cards>
+
+---
+
+## 17. 题型抽象：从终点反推所有合法起点
+
+这题可以抽象为：
+
+```text
+给定一套有向转移规则
+求哪些起点能够到达目标集合 A 和目标集合 B
+```
+
+标准套路：
+
+$$
+\text{Answer}
+=
+\text{Reach}_{G^R}(A)
+\cap
+\text{Reach}_{G^R}(B)
+$$
+
+其中 $G^R$ 表示原图 $G$ 的反图。
+
+在本题中：
+
+```text
+目标集合 A = 上边界 + 左边界
+目标集合 B = 下边界 + 右边界
+```
+
+因此只需在反图中做两次多源可达性搜索。
+
+---
+
+## 18. 一句话记忆
+
+> **从每个点往边界走会重复；从边界逆着边走，每个点只需要访问一次。**
+
+看到“一个点能否最终到达某类终点”的题目时，优先检查能否把边反过来。
+
+---
+
+## 19. 其他语言版本
+
+以下版本统一采用反向搜索：从两组边界分别向高度不降低的方向扩展，再取两个可达集合的交集。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+    };
+
+    static int n, m;
+    static int[][] grid;
+
+    static void dfs(int x, int y, boolean[][] visited) {
+        if (visited[x][y]) return;
+        visited[x][y] = true;
+
+        for (int[] d : DIR) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+            if (grid[nx][ny] < grid[x][y]) continue;
+
+            dfs(nx, ny, visited);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        grid = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; j++) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        boolean[][] first = new boolean[n][m];
+        boolean[][] second = new boolean[n][m];
+
+        for (int i = 0; i < n; i++) {
+            dfs(i, 0, first);
+            dfs(i, m - 1, second);
+        }
+
+        for (int j = 0; j < m; j++) {
+            dfs(0, j, first);
+            dfs(n - 1, j, second);
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (first[i][j] && second[i][j]) {
+                    out.append(i).append(' ').append(j).append('\n');
+                }
+            }
+        }
+
+        System.out.print(out);
+    }
+}
+```
+
+```python label="Python"
+import sys
+sys.setrecursionlimit(1_000_000)
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def dfs(x, y, visited):
+    if visited[x][y]:
+        return
+
+    visited[x][y] = True
+
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if not (0 <= nx < n and 0 <= ny < m):
+            continue
+        if grid[nx][ny] < grid[x][y]:
+            continue
+        dfs(nx, ny, visited)
+
+
+first = [[False] * m for _ in range(n)]
+second = [[False] * m for _ in range(n)]
+
+for i in range(n):
+    dfs(i, 0, first)
+    dfs(i, m - 1, second)
+
+for j in range(m):
+    dfs(0, j, first)
+    dfs(n - 1, j, second)
+
+for i in range(n):
+    for j in range(m):
+        if first[i][j] and second[i][j]:
+            print(i, j)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n, m int
+    grid [][]int
+    dir = [4][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+)
+
+func dfs(x, y int, visited [][]bool) {
+    if visited[x][y] {
+        return
+    }
+    visited[x][y] = true
+
+    for _, d := range dir {
+        nx, ny := x+d[0], y+d[1]
+        if nx < 0 || nx >= n || ny < 0 || ny >= m {
+            continue
+        }
+        if grid[nx][ny] < grid[x][y] {
+            continue
+        }
+        dfs(nx, ny, visited)
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    fmt.Fscan(in, &n, &m)
+    grid = make([][]int, n)
+
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    first := make([][]bool, n)
+    second := make([][]bool, n)
+    for i := 0; i < n; i++ {
+        first[i] = make([]bool, m)
+        second[i] = make([]bool, m)
+    }
+
+    for i := 0; i < n; i++ {
+        dfs(i, 0, first)
+        dfs(i, m-1, second)
+    }
+
+    for j := 0; j < m; j++ {
+        dfs(0, j, first)
+        dfs(n-1, j, second)
+    }
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if first[i][j] && second[i][j] {
+                fmt.Fprintln(out, i, j)
+            }
+        }
+    }
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => data[p++])
+);
+
+const dir = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+function reverseBfs(sources) {
+  const visited = Array.from({ length: n }, () => Array(m).fill(false));
+  const queue = [];
+  let head = 0;
+
+  for (const [x, y] of sources) {
+    if (visited[x][y]) continue;
+    visited[x][y] = true;
+    queue.push([x, y]);
+  }
+
+  while (head < queue.length) {
+    const [x, y] = queue[head++];
+
+    for (const [dx, dy] of dir) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+      if (visited[nx][ny]) continue;
+      if (grid[nx][ny] < grid[x][y]) continue;
+
+      visited[nx][ny] = true;
+      queue.push([nx, ny]);
+    }
+  }
+
+  return visited;
+}
+
+const firstSources = [];
+const secondSources = [];
+
+for (let i = 0; i < n; i++) {
+  firstSources.push([i, 0]);
+  secondSources.push([i, m - 1]);
+}
+
+for (let j = 0; j < m; j++) {
+  firstSources.push([0, j]);
+  secondSources.push([n - 1, j]);
+}
+
+const first = reverseBfs(firstSources);
+const second = reverseBfs(secondSources);
+
+const answer = [];
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (first[i][j] && second[i][j]) {
+      answer.push(`${i} ${j}`);
+    }
+  }
+}
+
+console.log(answer.join('\n'));
+```
+````

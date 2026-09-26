@@ -1,0 +1,719 @@
+---
+title: 最佳买卖股票时机含冷冻期
+sidebarTitle: 最佳买卖股票时机含冷冻期
+summary: 通过四状态状态机彻底拆解冷冻期股票问题，解释为什么“今天卖出”必须单独成状态，并进一步推导更紧凑的三状态与两状态等价模型。
+---
+
+# 309. 最佳买卖股票时机含冷冻期
+
+[LeetCode 309：最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
+
+给定每天的股票价格 `prices[i]`，可以进行任意多次交易，但满足：
+
+- 任意时刻最多只能持有一股股票；
+- 卖出股票后的 **下一天不能买入**；
+- 这个禁止买入的一天称为冷冻期。
+
+例如：
+
+```text
+prices = [1, 2, 3, 0, 2]
+```
+
+最优操作：
+
+```text
+第 0 天买入
+第 1 天卖出
+第 2 天冷冻
+第 3 天买入
+第 4 天卖出
+```
+
+最大利润：
+
+$$
+(2-1)+(2-0)=3
+$$
+
+<Callout type="info" title="本题真正新增的是“卖出后的时间约束”">
+如果没有冷冻期，只需要“持有 / 不持有”两个状态。一旦规定卖出后的下一天不能买入，就必须知道“不持有”究竟是因为今天刚卖出，还是早已卖出并已经度过冷冻期。
+</Callout>
+
+## 1. 为什么普通的两个状态不够
+
+无限次交易时常用：
+
+```text
+持有股票
+不持有股票
+```
+
+但本题中两个“不持有”状态的未来行为不同：
+
+```text
+今天刚卖出
+    ↓
+明天不能买
+
+已经卖出一段时间
+    ↓
+明天可以买
+```
+
+也就是说，冷冻期引入了 **时间记忆**。
+
+如果状态中不记录这个信息，就无法判断下一天是否允许买入。
+
+## 2. 四状态模型
+
+为了把逻辑讲得最清楚，可以定义四种状态。
+
+### 状态 0：持有股票
+
+可能是：
+
+- 今天刚买入；
+- 之前已经买入，今天继续持有。
+
+### 状态 1：保持不持有，可自由买入
+
+表示当前不持有股票，而且今天不是刚卖出，也不是冷冻日。
+
+下一天允许买入。
+
+### 状态 2：今天刚卖出
+
+这是一个非常关键的瞬时状态。
+
+只有前一天持有股票，今天执行卖出，才能进入这个状态。
+
+### 状态 3：今天处于冷冻期
+
+只有昨天刚卖出，今天才进入冷冻期。
+
+它只持续一天。
+
+原资料中的状态关系图：
+
+![含冷冻期股票问题的四状态关系](https://file1.kamacoder.com/i/algo/518d5baaf33f4b2698064f8efb42edbf.png)
+
+因此定义：
+
+$$
+dp[i][j]
+=
+\text{第 }i\text{ 天结束时处于状态 }j\text{ 的最大现金}
+$$
+
+## 3. 状态 0：持有股票
+
+第 $i$ 天结束时持有股票，有三种来源。
+
+### 3.1 昨天已经持有
+
+今天什么都不做：
+
+$$
+dp[i-1][0]
+$$
+
+### 3.2 昨天可以自由买入，今天买
+
+$$
+dp[i-1][1]-prices[i]
+$$
+
+### 3.3 昨天是冷冻期，今天买
+
+冷冻期限制的是“冷冻期当天不能买”，到了今天已经结束，因此：
+
+$$
+dp[i-1][3]-prices[i]
+$$
+
+综上：
+
+$$
+\boxed{
+dp[i][0]
+=
+\max\left(
+ dp[i-1][0],
+ dp[i-1][1]-prices[i],
+ dp[i-1][3]-prices[i]
+\right)
+}
+$$
+
+## 4. 状态 1：保持不持有且可买入
+
+第 $i$ 天处于这个状态，有两种来源。
+
+### 4.1 昨天已经是可买入状态
+
+继续什么都不做：
+
+$$
+dp[i-1][1]
+$$
+
+### 4.2 昨天是冷冻期
+
+冷冻期经过一天后自然结束：
+
+$$
+dp[i-1][3]
+$$
+
+所以：
+
+$$
+\boxed{
+dp[i][1]
+=
+\max(dp[i-1][1],dp[i-1][3])
+}
+$$
+
+## 5. 状态 2：今天刚卖出
+
+如果今天刚卖出，那么昨天一定持有股票。
+
+因此：
+
+$$
+\boxed{
+dp[i][2]
+=
+dp[i-1][0]+prices[i]
+}
+$$
+
+注意这里不能写成：
+
+$$
+\max(dp[i-1][2],\cdots)
+$$
+
+因为“今天刚卖出”不能从“昨天刚卖出”直接继承。
+
+这是一个 **当天事件状态**，不是可以持续保持的普通状态。
+
+## 6. 状态 3：今天是冷冻期
+
+今天处于冷冻期，说明昨天一定刚刚卖出：
+
+$$
+\boxed{
+dp[i][3]=dp[i-1][2]
+}
+$$
+
+同样，冷冻期只持续一天，因此不能从昨天的冷冻期直接继承。
+
+## 7. 四条完整转移
+
+整理得到：
+
+$$
+\boxed{
+dp[i][0]
+=
+\max(dp[i-1][0],dp[i-1][1]-prices[i],dp[i-1][3]-prices[i])
+}
+$$
+
+$$
+\boxed{
+dp[i][1]
+=
+\max(dp[i-1][1],dp[i-1][3])
+}
+$$
+
+$$
+\boxed{
+dp[i][2]
+=
+dp[i-1][0]+prices[i]
+}
+$$
+
+$$
+\boxed{
+dp[i][3]
+=
+dp[i-1][2]
+}
+$$
+
+可以把状态流理解成：
+
+```text
+          买入
+可买入 ───────→ 持有
+  ▲              │
+  │              │ 卖出
+  │              ▼
+冷冻期 ←────── 今天卖出
+   │
+   └──── 冷冻结束 ────→ 可买入
+```
+
+## 8. 初始化
+
+第 $0$ 天：
+
+### 持有股票
+
+只能当天买入：
+
+$$
+dp[0][0]=-prices[0]
+$$
+
+### 其他三个状态
+
+都可以初始化为 $0$：
+
+$$
+dp[0][1]=dp[0][2]=dp[0][3]=0
+$$
+
+这种初始化配合状态转移，可以正确表示“尚未获得任何利润”。
+
+## 9. 为什么最终答案不能只取某一个不持股状态
+
+最后一天结束时，只要 **不持有股票** 就是合法答案。
+
+因此可能处于：
+
+- 状态 1：已经卖出且可买；
+- 状态 2：今天刚卖出；
+- 状态 3：今天是冷冻期。
+
+所以答案是：
+
+$$
+\boxed{
+\max(dp[n-1][1],dp[n-1][2],dp[n-1][3])
+}
+$$
+
+而持有股票状态不能作为最终答案，因为手中的股票还没有兑现成利润。
+
+## 10. 示例推导
+
+对于：
+
+```text
+prices = [1, 2, 3, 0, 2]
+```
+
+原资料中的 DP 表如下：
+
+![最佳买卖股票时机含冷冻期 DP 推导](https://file1.kamacoder.com/i/algo/2021032317451040.png)
+
+最优过程：
+
+```text
+第 0 天：买入 1
+第 1 天：卖出 2，利润 1
+第 2 天：冷冻
+第 3 天：买入 0
+第 4 天：卖出 2，再赚 2
+```
+
+因此：
+
+$$
+1+2=3
+$$
+
+## 11. 四状态 C++ 实现
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0) return 0;
+
+        vector<vector<int>> dp(n, vector<int>(4, 0));
+        dp[0][0] = -prices[0];
+
+        for (int i = 1; i < n; ++i) {
+            dp[i][0] = max({
+                dp[i - 1][0],
+                dp[i - 1][1] - prices[i],
+                dp[i - 1][3] - prices[i]
+            });
+
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][3]);
+            dp[i][2] = dp[i - 1][0] + prices[i];
+            dp[i][3] = dp[i - 1][2];
+        }
+
+        return max({
+            dp[n - 1][1],
+            dp[n - 1][2],
+            dp[n - 1][3]
+        });
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+## 12. 为什么“今天卖出”必须单独成状态
+
+这是本题最值得掌握的状态设计思想。
+
+如果只写：
+
+```text
+持有
+不持有
+```
+
+那么 `不持有` 可能表示：
+
+- 今天刚卖出；
+- 昨天卖出，今天冷冻；
+- 更早就已经卖出。
+
+但这三者对“明天能不能买”的影响不同。
+
+因此：
+
+> 当未来的合法操作依赖“这个状态是如何到达的”时，就必须进一步拆分状态。
+
+这条原则不仅适用于股票 DP，也适用于大量带有限制条件的状态机 DP。
+
+## 13. 三状态模型：进一步合并
+
+四状态模型最适合理解，但实际上状态 1 与状态 3 都表示：
+
+```text
+当前不持有，而且今天没有卖出
+```
+
+可以进一步定义三个状态：
+
+```text
+hold：今天结束时持有股票
+sold：今天刚卖出股票
+rest：今天结束时不持有，且今天没有卖出
+```
+
+转移为：
+
+$$
+hold_i
+=
+\max(hold_{i-1},rest_{i-1}-price_i)
+$$
+
+$$
+sold_i
+=
+hold_{i-1}+price_i
+$$
+
+$$
+rest_i
+=
+\max(rest_{i-1},sold_{i-1})
+$$
+
+为什么买入只能从 `rest` 来？
+
+因为如果昨天是 `sold`，今天正好处于冷冻期，不能买。
+
+这三个状态的语义非常紧凑。
+
+## 14. 甚至可以压缩成两状态
+
+还可以定义：
+
+$$
+hold[i]
+=
+\text{第 }i\text{ 天结束时持有股票的最大利润}
+$$
+
+$$
+cash[i]
+=
+\text{第 }i\text{ 天结束时不持有股票的最大利润}
+$$
+
+卖出：
+
+$$
+cash[i]
+=
+\max(cash[i-1],hold[i-1]+prices[i])
+$$
+
+买入时必须保证昨天不是刚卖出。
+
+如果今天买，那么可使用的是两天前的不持有利润：
+
+$$
+hold[i]
+=
+\max(hold[i-1],cash[i-2]-prices[i])
+$$
+
+因此：
+
+$$
+\boxed{
+hold[i]
+=
+\max(hold[i-1],cash[i-2]-prices[i])
+}
+$$
+
+$$
+\boxed{
+cash[i]
+=
+\max(cash[i-1],hold[i-1]+prices[i])
+}
+$$
+
+<Callout type="success" title="两状态模型的本质">
+冷冻期并没有消失，而是被编码进了时间依赖：普通股票问题买入看 `cash[i-1]`，本题买入必须看 `cash[i-2]`。也就是说，“额外状态”和“更长历史依赖”可以互相转换。
+</Callout>
+
+## 15. O(1) 空间优化
+
+四状态模型每天只依赖前一天，因此可以只保存四个变量。
+
+```cpp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if (prices.empty()) return 0;
+
+        int hold = -prices[0];
+        int rest = 0;
+        int sold = 0;
+        int cooldown = 0;
+
+        for (int i = 1; i < prices.size(); ++i) {
+            int prevHold = hold;
+            int prevRest = rest;
+            int prevSold = sold;
+            int prevCooldown = cooldown;
+
+            hold = max({
+                prevHold,
+                prevRest - prices[i],
+                prevCooldown - prices[i]
+            });
+            rest = max(prevRest, prevCooldown);
+            sold = prevHold + prices[i];
+            cooldown = prevSold;
+        }
+
+        return max({rest, sold, cooldown});
+    }
+};
+```
+
+于是：
+
+$$
+T(n)=O(n)
+$$
+
+$$
+S(n)=O(1)
+$$
+
+## 16. 与其他股票题的区别
+
+| 题型 | 新增限制 | 状态设计变化 |
+| --- | --- | --- |
+| 最多一次交易 | 只能卖一次 | 持有 / 不持有 |
+| 无限次交易 | 可重复交易 | 买入可继承旧利润 |
+| 最多 $k$ 次交易 | 限制交易次数 | 增加交易阶段 |
+| 冷冻期 | 卖出后隔一天才能买 | 区分“刚卖出 / 冷冻 / 可买” |
+
+本题最重要的不是记住四个数字，而是理解：
+
+$$
+\boxed{
+\text{规则限制未来动作}
+\Longrightarrow
+\text{状态必须保存足够的信息}
+}
+$$
+
+## 17. 常见错误
+
+<Cards>
+<Card title="卖出后第二天仍允许买入">
+冷冻期恰好是卖出后的下一天。四状态模型中，昨天刚卖出只能转入今天冷冻期，不能直接转到持有状态。
+</Card>
+<Card title="把冷冻期当成可持续状态">
+冷冻期只有一天，因此 `dp[i][3]` 只能来自 `dp[i-1][2]`，不能从 `dp[i-1][3]` 继承。
+</Card>
+<Card title="最终答案只取普通不持有状态">
+最后一天可能恰好刚卖出或处于冷冻期，所以必须比较所有合法的不持股状态。
+</Card>
+<Card title="原地更新时覆盖旧状态">
+如果用四个变量压缩，必须先保存上一天的状态，否则后面的转移可能错误使用当天刚更新的值。
+</Card>
+</Cards>
+
+## 18. 最终记忆
+
+四状态版本：
+
+$$
+\boxed{
+\begin{aligned}
+hold_i &= \max(hold_{i-1},rest_{i-1}-p_i,cool_{i-1}-p_i)\\
+rest_i &= \max(rest_{i-1},cool_{i-1})\\
+sold_i &= hold_{i-1}+p_i\\
+cool_i &= sold_{i-1}
+\end{aligned}
+}
+$$
+
+真正应该记住的是：
+
+> 冷冻期限制的是“卖出后的下一次买入”，所以必须让状态能够区分“刚卖出”和“已经可以重新买入”。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        if (n == 0) return 0;
+
+        int[][] dp = new int[n][4];
+        dp[0][0] = -prices[0];
+
+        for (int i = 1; i < n; i++) {
+            dp[i][0] = Math.max(
+                dp[i - 1][0],
+                Math.max(dp[i - 1][1], dp[i - 1][3]) - prices[i]
+            );
+            dp[i][1] = Math.max(dp[i - 1][1], dp[i - 1][3]);
+            dp[i][2] = dp[i - 1][0] + prices[i];
+            dp[i][3] = dp[i - 1][2];
+        }
+
+        return Math.max(
+            dp[n - 1][1],
+            Math.max(dp[n - 1][2], dp[n - 1][3])
+        );
+    }
+}
+```
+
+```python label="Python"
+from typing import List
+
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        if not prices:
+            return 0
+
+        hold = -prices[0]
+        rest = 0
+        sold = 0
+        cooldown = 0
+
+        for price in prices[1:]:
+            prev_hold = hold
+            prev_rest = rest
+            prev_sold = sold
+            prev_cooldown = cooldown
+
+            hold = max(
+                prev_hold,
+                prev_rest - price,
+                prev_cooldown - price,
+            )
+            rest = max(prev_rest, prev_cooldown)
+            sold = prev_hold + price
+            cooldown = prev_sold
+
+        return max(rest, sold, cooldown)
+```
+
+```javascript label="JavaScript"
+var maxProfit = function(prices) {
+    if (prices.length === 0) return 0;
+
+    let hold = -prices[0];
+    let rest = 0;
+    let sold = 0;
+    let cooldown = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+        const prevHold = hold;
+        const prevRest = rest;
+        const prevSold = sold;
+        const prevCooldown = cooldown;
+
+        hold = Math.max(
+            prevHold,
+            prevRest - prices[i],
+            prevCooldown - prices[i]
+        );
+        rest = Math.max(prevRest, prevCooldown);
+        sold = prevHold + prices[i];
+        cooldown = prevSold;
+    }
+
+    return Math.max(rest, sold, cooldown);
+};
+```
+
+```go label="Go"
+func maxProfit(prices []int) int {
+    if len(prices) == 0 {
+        return 0
+    }
+
+    hold := -prices[0]
+    rest := 0
+    sold := 0
+    cooldown := 0
+
+    for i := 1; i < len(prices); i++ {
+        prevHold := hold
+        prevRest := rest
+        prevSold := sold
+        prevCooldown := cooldown
+
+        hold = max(prevHold, max(prevRest, prevCooldown)-prices[i])
+        rest = max(prevRest, prevCooldown)
+        sold = prevHold + prices[i]
+        cooldown = prevSold
+    }
+
+    return max(rest, max(sold, cooldown))
+}
+```
+````

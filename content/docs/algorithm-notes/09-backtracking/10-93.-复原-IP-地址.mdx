@@ -1,0 +1,730 @@
+---
+title: 93. 复原 IP 地址
+summary: 把固定四段的 IP 地址恢复问题建模为受约束的字符串切割，掌握段合法性、四段约束和剩余长度剪枝。
+description: LeetCode 93 复原 IP 地址：字符串切割、IPv4 段合法性、剩余长度剪枝、回溯模板、复杂度与多语言实现。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 93. 复原 IP 地址
+
+[LeetCode 题目链接](https://leetcode.cn/problems/restore-ip-addresses/)
+
+给定一个只包含数字的字符串 `s`，在其中插入三个 `.`，恢复所有可能的合法 IPv4 地址。
+
+合法 IPv4 地址必须满足：
+
+- 恰好由 **4 段**组成；
+- 每段取值范围为 `0 ~ 255`；
+- 除了单独的 `0`，任何段都不能有前导零。
+
+```text
+输入：s = "25525511135"
+输出：["255.255.11.135", "255.255.111.35"]
+```
+
+```text
+输入：s = "010010"
+输出：["0.10.0.10", "0.100.1.0"]
+```
+
+<Callout title="本题的本质：固定切成 4 段的字符串切割">
+
+「分割回文串」是在所有切割位置中寻找“每一段都是回文串”的方案；本题只是把局部合法条件换成“每一段都是合法 IPv4 段”，并额外规定最终必须正好得到 4 段。
+
+因此核心仍然是：**当前层枚举下一刀切在哪里。**
+
+</Callout>
+
+## 1. 搜索树如何建立？
+
+设当前还没有处理的字符串从 `startIndex` 开始，本层尝试让当前段结束在 `end`：
+
+```text
+s[startIndex ... end]
+```
+
+只要这一段合法，就把它加入 `path`，下一层从 `end + 1` 继续。
+
+![93.复原IP地址](https://file1.kamacoder.com/i/algo/20201123203735933.png)
+
+从根节点到一条合法叶子的路径，恰好对应四个 IP 段。
+
+推荐把节点状态理解为：
+
+```text
+(startIndex, path)
+```
+
+其中：
+
+- `startIndex`：下一段从哪里开始；
+- `path`：已经确定的 IP 段；
+- `path.size()`：已经切出了多少段。
+
+<Callout type="info" title="为什么不推荐直接往原字符串里插入点号？">
+
+原地插入 `.` 会改变字符串长度，递归下标必须额外跳过新增字符，回溯时还要恢复字符串，容易产生偏移错误。
+
+更稳妥的写法是：**原字符串不动，只在 `path` 中保存四个段，最后再用 `.` 拼接。**
+
+</Callout>
+
+## 2. 一个 IPv4 段什么时候合法？
+
+当前候选区间为 `[start, end]`。
+
+### 2.1 长度只能是 1～3
+
+一段最大为 `255`，所以最多三位：
+
+```cpp
+if (end - start + 1 > 3) return false;
+```
+
+### 2.2 不能出现前导零
+
+合法：
+
+```text
+0
+10
+100
+```
+
+非法：
+
+```text
+00
+01
+001
+```
+
+因此：
+
+```cpp
+if (start < end && s[start] == '0') return false;
+```
+
+### 2.3 数值不能超过 255
+
+```cpp
+int value = 0;
+for (int i = start; i <= end; ++i) {
+    value = value * 10 + (s[i] - '0');
+}
+return value <= 255;
+```
+
+题目保证 `s` 只包含数字，所以不需要额外检查非数字字符。
+
+## 3. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 递归参数
+
+```cpp
+void backtracking(const string& s, int startIndex)
+```
+
+同时维护：
+
+```cpp
+vector<string> path;
+vector<string> result;
+```
+
+</Step>
+<Step>
+
+### ② 终止条件
+
+当 `path.size() == 4` 时，只有字符也恰好全部使用完，才是一组答案：
+
+```cpp
+if (path.size() == 4) {
+    if (startIndex == s.size()) {
+        result.push_back(buildAddress());
+    }
+    return;
+}
+```
+
+因此必须同时满足：
+
+```text
+段数 = 4
+字符恰好用完
+```
+
+</Step>
+<Step>
+
+### ③ 单层搜索
+
+每段最多三位，所以当前层最多尝试三个结束位置：
+
+```cpp
+for (int end = startIndex;
+     end < s.size() && end < startIndex + 3;
+     ++end) {
+    if (!isValid(s, startIndex, end)) break;
+
+    path.push_back(s.substr(startIndex, end - startIndex + 1));
+    backtracking(s, end + 1);
+    path.pop_back();
+}
+```
+
+仍然是标准的：
+
+```text
+选择 → 递归 → 撤销选择
+```
+
+</Step>
+</Steps>
+
+## 4. 为什么某些非法段可以直接 `break`？
+
+原资料中的剪枝图很好地体现了这种单调性：
+
+![93.复原IP地址剪枝](https://file1.kamacoder.com/i/algo/20201123203735933-20230310132314109.png)
+
+固定 `startIndex` 后，随着 `end` 右移，当前段只会越来越长。
+
+如果已经得到：
+
+```text
+01
+```
+
+那么继续延长为 `010`、`0102` 仍然有前导零，所以可以直接结束本层。
+
+如果数值已经：
+
+```text
+256 > 255
+```
+
+再追加数字只会更大，同样可以直接 `break`。
+
+## 5. 最重要的剪枝：剩余字符上下界
+
+设：
+
+```text
+remainingChars = s.size() - startIndex
+remainingParts = 4 - path.size()
+```
+
+剩余每段至少需要 1 个字符，最多需要 3 个字符，因此必须满足：
+
+\[
+remainingParts \le remainingChars \le 3\times remainingParts
+\]
+
+否则当前分支一定失败：
+
+```cpp
+if (remainingChars < remainingParts ||
+    remainingChars > remainingParts * 3) {
+    return;
+}
+```
+
+这个技巧非常通用：**只要题目要求把剩余资源分配到固定数量的槽位，就可以先用每个槽位的最小值和最大值做上下界剪枝。**
+
+## 6. 手推 `010010`
+
+初始：
+
+```text
+path = []
+startIndex = 0
+```
+
+第一段只能取 `"0"`，因为 `"01"` 已经出现前导零。
+
+于是：
+
+```text
+path = ["0"]
+剩余 = "10010"
+```
+
+第二段可以尝试：
+
+```text
+"1"
+"10"
+"100"
+```
+
+不同分支继续搜索，最终得到：
+
+```text
+0.10.0.10
+0.100.1.0
+```
+
+这里可以看出：回溯不是无条件穷举，而是不断使用局部合法性和剩余长度约束提前剪掉不可能的子树。
+
+## 7. 推荐的 C++ 实现
+
+```cpp title="C++ · 不修改原字符串 + 剩余长度剪枝"
+class Solution {
+private:
+    vector<string> result;
+    vector<string> path;
+
+    bool isValid(const string& s, int start, int end) {
+        if (end - start + 1 > 3) return false;
+        if (start < end && s[start] == '0') return false;
+
+        int value = 0;
+        for (int i = start; i <= end; ++i) {
+            value = value * 10 + (s[i] - '0');
+        }
+        return value <= 255;
+    }
+
+    string buildAddress() {
+        return path[0] + "." + path[1] + "." + path[2] + "." + path[3];
+    }
+
+    void backtracking(const string& s, int startIndex) {
+        int remainingChars = static_cast<int>(s.size()) - startIndex;
+        int remainingParts = 4 - static_cast<int>(path.size());
+
+        if (remainingChars < remainingParts ||
+            remainingChars > remainingParts * 3) {
+            return;
+        }
+
+        if (path.size() == 4) {
+            if (startIndex == static_cast<int>(s.size())) {
+                result.push_back(buildAddress());
+            }
+            return;
+        }
+
+        for (int end = startIndex;
+             end < static_cast<int>(s.size()) && end < startIndex + 3;
+             ++end) {
+            if (!isValid(s, startIndex, end)) break;
+
+            path.push_back(s.substr(startIndex, end - startIndex + 1));
+            backtracking(s, end + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<string> restoreIpAddresses(string s) {
+        result.clear();
+        path.clear();
+        if (s.size() < 4 || s.size() > 12) return result;
+        backtracking(s, 0);
+        return result;
+    }
+};
+```
+
+## 8. 复杂度
+
+每个 IP 段只有三种可能长度：1、2、3，并且最多四层，因此搜索树由一个很小的常数上界限制，可粗略理解为：
+
+\[
+O(3^4)
+\]
+
+IPv4 有效输入长度最多 12，因此实际搜索规模很小。递归深度固定为 4，`path` 也最多保存 4 段。
+
+## 9. 高频易错点
+
+| 错误 | 后果 | 正确做法 |
+| --- | --- | --- |
+| 只检查 `<=255` | `01`、`001` 被误判合法 | 单独处理前导零 |
+| 四段后直接收集 | 可能还有字符没使用 | 同时检查 `startIndex == s.size()` |
+| 每段不限制三位 | 做大量无意义尝试 | `end < startIndex + 3` |
+| 修改原字符串后仍用旧下标 | 容易错位 | 推荐只维护 `path` |
+| 不检查剩余字符数量 | 搜索很多必败分支 | 使用剩余长度上下界 |
+
+## 10. 与「分割回文串」统一理解
+
+| 维度 | 131. 分割回文串 | 93. 复原 IP 地址 |
+| --- | --- | --- |
+| 当前层选择 | 下一段子串 | 下一段数字 |
+| 局部合法性 | 是否回文 | 无前导零且不超过 255 |
+| 段数 | 不固定 | 恰好 4 段 |
+| 状态推进 | `end + 1` | `end + 1` |
+| 收集答案 | 字符全部切完 | 四段且字符全部切完 |
+
+统一模板就是：
+
+```text
+枚举下一刀 → 验证当前段 → 递归剩余后缀 → 回溯
+```
+
+## 11. 其他语言实现
+
+<Tabs groupId="restore-ip-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private final List<String> ans = new ArrayList<>();
+    private final List<String> path = new ArrayList<>();
+
+    public List<String> restoreIpAddresses(String s) {
+        if (s.length() < 4 || s.length() > 12) return ans;
+        dfs(s, 0);
+        return ans;
+    }
+
+    private void dfs(String s, int start) {
+        int chars = s.length() - start;
+        int parts = 4 - path.size();
+        if (chars < parts || chars > parts * 3) return;
+        if (path.size() == 4) {
+            if (start == s.length()) ans.add(String.join(".", path));
+            return;
+        }
+
+        int value = 0;
+        for (int end = start; end < s.length() && end < start + 3; end++) {
+            if (end > start && s.charAt(start) == '0') break;
+            value = value * 10 + s.charAt(end) - '0';
+            if (value > 255) break;
+            path.add(s.substring(start, end + 1));
+            dfs(s, end + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        ans, path = [], []
+
+        def dfs(start: int) -> None:
+            chars = len(s) - start
+            parts = 4 - len(path)
+            if chars < parts or chars > parts * 3:
+                return
+            if len(path) == 4:
+                if start == len(s):
+                    ans.append('.'.join(path))
+                return
+
+            value = 0
+            for end in range(start, min(start + 3, len(s))):
+                if end > start and s[start] == '0':
+                    break
+                value = value * 10 + int(s[end])
+                if value > 255:
+                    break
+                path.append(s[start:end + 1])
+                dfs(end + 1)
+                path.pop()
+
+        if 4 <= len(s) <= 12:
+            dfs(0)
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func restoreIpAddresses(s string) []string {
+    ans := []string{}
+    path := []string{}
+    var dfs func(int)
+
+    dfs = func(start int) {
+        chars := len(s) - start
+        parts := 4 - len(path)
+        if chars < parts || chars > parts*3 { return }
+        if len(path) == 4 {
+            if start == len(s) { ans = append(ans, strings.Join(path, ".")) }
+            return
+        }
+
+        value := 0
+        for end := start; end < len(s) && end < start+3; end++ {
+            if end > start && s[start] == '0' { break }
+            value = value*10 + int(s[end]-'0')
+            if value > 255 { break }
+            path = append(path, s[start:end+1])
+            dfs(end + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    if len(s) >= 4 && len(s) <= 12 { dfs(0) }
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var restoreIpAddresses = function(s) {
+    const ans = [], path = [];
+    const dfs = (start) => {
+        const chars = s.length - start;
+        const parts = 4 - path.length;
+        if (chars < parts || chars > parts * 3) return;
+        if (path.length === 4) {
+            if (start === s.length) ans.push(path.join('.'));
+            return;
+        }
+
+        let value = 0;
+        for (let end = start; end < s.length && end < start + 3; end++) {
+            if (end > start && s[start] === '0') break;
+            value = value * 10 + Number(s[end]);
+            if (value > 255) break;
+            path.push(s.slice(start, end + 1));
+            dfs(end + 1);
+            path.pop();
+        }
+    };
+
+    if (s.length >= 4 && s.length <= 12) dfs(0);
+    return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function restoreIpAddresses(s: string): string[] {
+    const ans: string[] = [];
+    const path: string[] = [];
+
+    function dfs(start: number): void {
+        const chars = s.length - start;
+        const parts = 4 - path.length;
+        if (chars < parts || chars > parts * 3) return;
+        if (path.length === 4) {
+            if (start === s.length) ans.push(path.join('.'));
+            return;
+        }
+
+        let value = 0;
+        for (let end = start; end < s.length && end < start + 3; end++) {
+            if (end > start && s[start] === '0') break;
+            value = value * 10 + Number(s[end]);
+            if (value > 255) break;
+            path.push(s.slice(start, end + 1));
+            dfs(end + 1);
+            path.pop();
+        }
+    }
+
+    if (s.length >= 4 && s.length <= 12) dfs(0);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn restore_ip_addresses(s: String) -> Vec<String> {
+        fn dfs(s: &[u8], start: usize, path: &mut Vec<String>, ans: &mut Vec<String>) {
+            let chars = s.len() - start;
+            let parts = 4 - path.len();
+            if chars < parts || chars > parts * 3 { return; }
+            if path.len() == 4 {
+                if start == s.len() { ans.push(path.join(".")); }
+                return;
+            }
+
+            let mut value = 0u32;
+            for end in start..s.len().min(start + 3) {
+                if end > start && s[start] == b'0' { break; }
+                value = value * 10 + (s[end] - b'0') as u32;
+                if value > 255 { break; }
+                path.push(String::from_utf8(s[start..=end].to_vec()).unwrap());
+                dfs(s, end + 1, path, ans);
+                path.pop();
+            }
+        }
+
+        if s.len() < 4 || s.len() > 12 { return vec![]; }
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        dfs(s.as_bytes(), 0, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static void dfs(const char* s, int n, int start, int depth,
+                char parts[4][4], char*** ans, int* size) {
+    int chars = n - start;
+    int remain = 4 - depth;
+    if (chars < remain || chars > remain * 3) return;
+
+    if (depth == 4) {
+        if (start != n) return;
+        char* ip = (char*)malloc(16);
+        sprintf(ip, "%s.%s.%s.%s", parts[0], parts[1], parts[2], parts[3]);
+        (*ans)[(*size)++] = ip;
+        return;
+    }
+
+    int value = 0;
+    for (int end = start; end < n && end < start + 3; ++end) {
+        if (end > start && s[start] == '0') break;
+        value = value * 10 + s[end] - '0';
+        if (value > 255) break;
+
+        int len = end - start + 1;
+        memcpy(parts[depth], s + start, len);
+        parts[depth][len] = '\0';
+        dfs(s, n, end + 1, depth + 1, parts, ans, size);
+    }
+}
+
+char** restoreIpAddresses(char* s, int* returnSize) {
+    int n = strlen(s);
+    *returnSize = 0;
+    char** ans = (char**)malloc(sizeof(char*) * 100);
+    if (n < 4 || n > 12) return ans;
+    char parts[4][4] = {{0}};
+    dfs(s, n, 0, 0, parts, &ans, returnSize);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func restoreIpAddresses(_ s: String) -> [String] {
+        let chars = Array(s)
+        var ans = [String]()
+        var path = [String]()
+
+        func dfs(_ start: Int) {
+            let remainChars = chars.count - start
+            let remainParts = 4 - path.count
+            if remainChars < remainParts || remainChars > remainParts * 3 { return }
+            if path.count == 4 {
+                if start == chars.count { ans.append(path.joined(separator: ".")) }
+                return
+            }
+
+            var value = 0
+            for end in start..<min(chars.count, start + 3) {
+                if end > start && chars[start] == "0" { break }
+                value = value * 10 + Int(String(chars[end]))!
+                if value > 255 { break }
+                path.append(String(chars[start...end]))
+                dfs(end + 1)
+                path.removeLast()
+            }
+        }
+
+        if chars.count >= 4 && chars.count <= 12 { dfs(0) }
+        return ans
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def restoreIpAddresses(s: String): List[String] = {
+    val ans = scala.collection.mutable.ListBuffer[String]()
+    val path = scala.collection.mutable.ArrayBuffer[String]()
+
+    def dfs(start: Int): Unit = {
+      val chars = s.length - start
+      val parts = 4 - path.length
+      if (chars < parts || chars > parts * 3) return
+      if (path.length == 4) {
+        if (start == s.length) ans += path.mkString(".")
+        return
+      }
+
+      var end = start
+      var value = 0
+      while (end < s.length && end < start + 3) {
+        if (end > start && s(start) == '0') return
+        value = value * 10 + s(end) - '0'
+        if (value > 255) return
+        path += s.substring(start, end + 1)
+        dfs(end + 1)
+        path.remove(path.length - 1)
+        end += 1
+      }
+    }
+
+    if (s.length >= 4 && s.length <= 12) dfs(0)
+    ans.toList
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    private readonly IList<string> ans = new List<string>();
+    private readonly List<string> path = new List<string>();
+
+    public IList<string> RestoreIpAddresses(string s) {
+        if (s.Length < 4 || s.Length > 12) return ans;
+        Dfs(s, 0);
+        return ans;
+    }
+
+    private void Dfs(string s, int start) {
+        int chars = s.Length - start;
+        int parts = 4 - path.Count;
+        if (chars < parts || chars > parts * 3) return;
+        if (path.Count == 4) {
+            if (start == s.Length) ans.Add(string.Join(".", path));
+            return;
+        }
+
+        int value = 0;
+        for (int end = start; end < s.Length && end < start + 3; end++) {
+            if (end > start && s[start] == '0') break;
+            value = value * 10 + s[end] - '0';
+            if (value > 255) break;
+            path.Add(s.Substring(start, end - start + 1));
+            Dfs(s, end + 1);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,734 @@
+---
+title: 岛屿的周长
+subtitle: 不必搜索整座岛屿，直接统计暴露边或共享边
+summary: 通过卡码网 106 掌握网格周长的两种线性统计方法：逐格统计与水域/边界相邻的暴露边，以及利用“4 × 陆地数 − 2 × 共享边数”直接计算周长。
+---
+
+# 岛屿的周长
+
+> **卡码网 106. 岛屿的周长**
+>
+> 给定一个由 `0` 和 `1` 组成的 $N\times M$ 网格，`1` 表示陆地、`0` 表示水。网格中恰好有一座岛屿，且岛屿内部没有湖。每个格子的边长为 `1`，求岛屿周长。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1178)
+
+看到“岛屿”两个字，很容易条件反射地想到 DFS 或 BFS。
+
+但这道题真正考查的是另一件事：
+
+> **先判断题目到底需要“连通性”，还是只需要统计局部边界。**
+
+本题已经保证：
+
+- 只有一座岛屿；
+- 只要求周长；
+- 每一条周长边是否存在，只由当前陆地格和它四周的局部情况决定。
+
+因此完全不需要搜索整座岛屿。
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+5 5
+0 0 0 0 0
+0 1 0 1 0
+0 1 1 1 0
+0 1 1 1 0
+0 0 0 0 0
+```
+
+输出：
+
+```text
+14
+```
+
+原题示意图：
+
+![岛屿周长示意图](https://file1.kamacoder.com/i/algo/20240524115244.png)
+
+岛屿的总周长为 `14`。
+
+---
+
+## 2. 什么叫“周长边”
+
+每一个陆地格子本来有四条边。
+
+对于其中某一条边：
+
+- 如果边的另一侧是水，这条边属于岛屿周长；
+- 如果边的另一侧已经越出地图，这条边也属于岛屿周长；
+- 如果边的另一侧还是陆地，这条边位于岛屿内部，不属于周长。
+
+所以本题其实只是在问：
+
+> **所有陆地格子的四条边中，有多少条边暴露在水或地图外侧？**
+
+---
+
+## 3. 解法一：逐个统计暴露边
+
+遍历每一个格子。
+
+如果：
+
+```cpp
+grid[i][j] == 1
+```
+
+就检查上下左右四个方向。
+
+某个方向满足以下任意一个条件，就说明贡献一条周长：
+
+```text
+邻居越界
+或
+邻居是水
+```
+
+原题中的“陆地旁边是水”示意：
+
+![陆地与水相邻时贡献一条边](https://file1.kamacoder.com/i/algo/20240524115933.png)
+
+原题中的“陆地旁边越界”示意：
+
+![陆地与地图边界相邻时贡献一条边](https://file1.kamacoder.com/i/algo/20240524120105.png)
+
+因此核心判断只有一句：
+
+```cpp
+if (越界 || grid[nx][ny] == 0) {
+    ++perimeter;
+}
+```
+
+---
+
+## 4. 为什么这种方法不需要 visited
+
+我们并没有沿着陆地“走”过去，只是在对每个陆地格子的四条边做独立检查。
+
+一个格子被遍历一次后，不会递归扩展，也不存在“重复访问导致死循环”的问题。
+
+所以完全不需要：
+
+```text
+visited
+queue
+递归栈
+```
+
+这也是本题很好的训练点：
+
+<Callout type="tip" title="不要为了使用 DFS 而使用 DFS">
+
+网格题不等于搜索题。
+
+如果答案可以通过每个格子的局部关系直接累加，就优先做一次线性扫描。
+
+</Callout>
+
+---
+
+## 5. 解法一的 C++ 实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int DIR[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> grid(n, vector<int>(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    int perimeter = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] != 1) {
+                continue;
+            }
+
+            for (const auto& d : DIR) {
+                int nx = i + d[0];
+                int ny = j + d[1];
+
+                if (nx < 0 || nx >= n || ny < 0 || ny >= m ||
+                    grid[nx][ny] == 0) {
+                    ++perimeter;
+                }
+            }
+        }
+    }
+
+    cout << perimeter << '\n';
+    return 0;
+}
+```
+
+这种写法最直观，基本完全按照“周长”的定义实现。
+
+---
+
+## 6. 解法二：先算所有方格的总边数，再减共享边
+
+还有一种更加数学化的思路。
+
+假设岛屿一共有 $L$ 个陆地格子。
+
+如果这些格子彼此完全不相邻，那么每个格子贡献四条边，总边数为：
+
+$$
+4L
+$$
+
+但只要两个陆地格子上下或左右相邻，它们之间就产生一条 **共享边**。
+
+这条共享边原本在：
+
+```text
+左格子中算了一次
+右格子中也算了一次
+```
+
+而实际上它位于岛屿内部，对外部周长的贡献是 `0`。
+
+所以每出现一对相邻陆地，需要从总边数中减去：
+
+$$
+2
+$$
+
+原题共享边示意：
+
+![相邻陆地会产生一条共享边](https://file1.kamacoder.com/i/algo/20240524120855.png)
+
+如果相邻陆地对数为 $C$，那么：
+
+$$
+P=4L-2C
+$$
+
+其中：
+
+- $P$：周长；
+- $L$：陆地格子数量；
+- $C$：共享边数量。
+
+---
+
+## 7. 为什么只检查“上”和“左”
+
+如果对每个陆地格子都检查：
+
+```text
+上、下、左、右
+```
+
+那么同一条共享边会被数两次。
+
+例如两个水平相邻陆地：
+
+```text
+1 1
+```
+
+左格子的“右边”会统计一次，右格子的“左边”又会统计一次。
+
+因此只要固定检查两个方向即可，例如：
+
+```text
+上 + 左
+```
+
+这样每一对相邻陆地只会被统计一次。
+
+也可以选择：
+
+```text
+下 + 右
+```
+
+只要保持一致即可。
+
+---
+
+## 8. 解法二的 C++ 实现
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> grid(n, vector<int>(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    int land = 0;
+    int shared = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] != 1) {
+                continue;
+            }
+
+            ++land;
+
+            // 只统计上方和左方，保证每条共享边只计算一次
+            if (i > 0 && grid[i - 1][j] == 1) {
+                ++shared;
+            }
+            if (j > 0 && grid[i][j - 1] == 1) {
+                ++shared;
+            }
+        }
+    }
+
+    cout << 4 * land - 2 * shared << '\n';
+    return 0;
+}
+```
+
+---
+
+## 9. 用一个小例子理解公式
+
+考虑：
+
+```text
+1 1
+1 1
+```
+
+共有：
+
+$$
+L=4
+$$
+
+如果四个格子都独立，边数为：
+
+$$
+4L=16
+$$
+
+但实际存在四条共享边：
+
+- 第一行内部一条；
+- 第二行内部一条；
+- 第一列内部一条；
+- 第二列内部一条。
+
+所以：
+
+$$
+C=4
+$$
+
+最终周长：
+
+$$
+P=4\times 4-2\times 4=8
+$$
+
+与 $2\times2$ 正方形周长完全一致。
+
+---
+
+## 10. 两种解法其实在统计同一个东西
+
+### 解法一：从“外面”看
+
+统计所有满足：
+
+```text
+陆地 — 水
+陆地 — 地图外
+```
+
+的边。
+
+也就是直接数 **暴露边**。
+
+### 解法二：从“里面”看
+
+先假设所有格子的边都暴露：
+
+$$
+4L
+$$
+
+再把所有内部共享边删除：
+
+$$
+-2C
+$$
+
+所以最终仍然得到同一个周长。
+
+<Callout type="info" title="两种思维方式">
+
+很多计数题都可以尝试两条路线：
+
+```text
+直接统计合法贡献
+```
+
+或者：
+
+```text
+总量 - 非法/重复贡献
+```
+
+本题正好是这两种思想的标准示例。
+
+</Callout>
+
+---
+
+## 11. 复杂度分析
+
+无论使用哪一种方法，都只需要扫描整张地图一次。
+
+每个格子的工作量都是常数级，所以时间复杂度为：
+
+$$
+O(NM)
+$$
+
+除了输入网格本身，只使用常数个变量，因此额外空间复杂度为：
+
+$$
+O(1)
+$$
+
+如果把存储输入网格也计入空间，则总存储为：
+
+$$
+O(NM)
+$$
+
+---
+
+## 12. DFS/BFS 能做吗
+
+当然能。
+
+可以从某个陆地出发 DFS/BFS，每访问一个陆地就检查四条边，遇到水或越界就让答案加一。
+
+但题目已经保证只有一座岛屿，因此搜索并没有带来额外价值。
+
+如果写 DFS/BFS，反而多出：
+
+- `visited`；
+- 递归栈或队列；
+- 更多状态控制。
+
+所以最佳思路仍是一次扫描。
+
+---
+
+## 13. “内部没有水域”这个条件重要吗
+
+对于上面两种周长算法，其实即使岛屿内部存在湖泊，它们依然会把湖岸也统计进“陆地和水的交界边”。
+
+是否符合题目对“周长”的定义，要看题目是否把内部湖岸计入总周长。
+
+本题明确说明内部没有水域，因此不存在这种语义歧义。
+
+这也提醒我们：
+
+> 算法本身可能能处理更一般的输入，但最终统计含义仍然必须服从题目定义。
+
+---
+
+## 14. 高频错误
+
+<Cards>
+  <Card title="只统计相邻水，不统计越界">
+    地图外也被视为水域。位于网格边缘的陆地，朝地图外的一条边同样属于周长。
+  </Card>
+  <Card title="共享边减 1 而不是减 2">
+    一条共享边在 `4 × 陆地数` 中被两个格子各算一次，因此必须减 `2`。
+  </Card>
+  <Card title="四个方向都统计共享边">
+    若四个方向全检查，同一对陆地会被统计两次。应只检查上、左或下、右中的一组。
+  </Card>
+  <Card title="惯性套 DFS/BFS">
+    本题只需要局部边界统计，不需要解决可达性或连通块识别问题。
+  </Card>
+</Cards>
+
+---
+
+## 15. 更一般的图论解释：度数与边界
+
+把每一个陆地格子看作一个顶点。
+
+两个上下左右相邻的陆地之间连接一条无向边。
+
+设某个陆地格子在岛屿内部有 $d$ 个陆地邻居，那么它贡献给周长的边数就是：
+
+$$
+4-d
+$$
+
+因此总周长也可以写成：
+
+$$
+P=\sum_{v\in V}(4-\deg(v))
+$$
+
+根据无向图的握手定理：
+
+$$
+\sum_{v\in V}\deg(v)=2|E|
+$$
+
+于是：
+
+$$
+P=4|V|-2|E|
+$$
+
+这正是前面的：
+
+$$
+P=4L-2C
+$$
+
+其中：
+
+```text
+L = 陆地顶点数
+C = 陆地之间的相邻边数
+```
+
+<Callout type="tip" title="这是“网格题”与“图论公式”的连接点">
+
+表面上我们只是在数方格边，实际上也可以把它理解成：
+
+```text
+每个顶点初始有 4 条潜在外边
+每存在一条内部图边，就让总外边减少 2
+```
+
+</Callout>
+
+---
+
+## 16. 一句话记忆
+
+本题有两种最值得记住的写法：
+
+$$
+\boxed{\text{周长}=\text{所有陆地的暴露边数量}}
+$$
+
+或者：
+
+$$
+\boxed{P=4\times\text{陆地数}-2\times\text{共享边数}}
+$$
+
+如果题目只问网格图形的边界长度，先考虑“数边”，不要第一反应就做搜索。
+
+---
+
+## 17. 其他语言版本
+
+下面统一使用“统计暴露边”的直接写法，逻辑最接近周长定义。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+    };
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        int[][] grid = new int[n][m];
+        for (int i = 0; i < n; ++i) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; ++j) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        int perimeter = 0;
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] != 1) continue;
+
+                for (int[] d : DIR) {
+                    int nx = i + d[0];
+                    int ny = j + d[1];
+
+                    if (nx < 0 || nx >= n || ny < 0 || ny >= m ||
+                        grid[nx][ny] == 0) {
+                        ++perimeter;
+                    }
+                }
+            }
+        }
+
+        System.out.println(perimeter);
+    }
+}
+```
+
+```python label="Python"
+import sys
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+perimeter = 0
+
+for i in range(n):
+    for j in range(m):
+        if grid[i][j] != 1:
+            continue
+
+        for dx, dy in directions:
+            nx, ny = i + dx, j + dy
+
+            if not (0 <= nx < n and 0 <= ny < m) or grid[nx][ny] == 0:
+                perimeter += 1
+
+print(perimeter)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    grid := make([][]int, n)
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    dir := [4][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+    perimeter := 0
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] != 1 {
+                continue
+            }
+
+            for _, d := range dir {
+                nx, ny := i+d[0], j+d[1]
+
+                if nx < 0 || nx >= n || ny < 0 || ny >= m || grid[nx][ny] == 0 {
+                    perimeter++
+                }
+            }
+        }
+    }
+
+    fmt.Fprintln(out, perimeter)
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => data[p++])
+);
+
+const dir = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+];
+
+let perimeter = 0;
+
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] !== 1) continue;
+
+    for (const [dx, dy] of dir) {
+      const nx = i + dx;
+      const ny = j + dy;
+
+      if (
+        nx < 0 || nx >= n || ny < 0 || ny >= m ||
+        grid[nx][ny] === 0
+      ) {
+        perimeter++;
+      }
+    }
+  }
+}
+
+console.log(perimeter);
+```
+````

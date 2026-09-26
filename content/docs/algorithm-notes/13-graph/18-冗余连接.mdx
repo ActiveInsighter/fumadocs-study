@@ -1,0 +1,1023 @@
+---
+title: 冗余连接
+subtitle: 用并查集在线判环，找到无向树中最后出现的可删除边
+summary: 通过卡码网 108 掌握“树 + 一条额外无向边”的经典判环模型：把加边过程看成连通分量合并，一旦一条边的两个端点已经连通，该边就是当前生成环的边；进一步理解唯一环、输入顺序、正确性证明与并查集复杂度。
+---
+
+# 冗余连接
+
+> **卡码网 108. 冗余连接**
+>
+> 一棵含 $n$ 个节点、$n-1$ 条边的无向树中又加入了一条无向边，因此现在共有 $n$ 条边。删除一条边，使图重新变成树；如果有多条边都可以删除，输出输入中**最后出现**的那一条。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1181)
+
+这道题是并查集最典型的“**动态加边判环**”问题。
+
+看到题目后，真正需要抓住的不是“删除哪条边”，而是下面这句话：
+
+> 原图本来是一棵树，只额外加入了一条无向边。
+
+这意味着最终图中只会出现**一个环**。所有能够删除并重新得到树的边，恰好就是这个唯一环上的边。
+
+<Callout type="info" title="本题核心转换">
+
+按输入顺序一条一条加入边。
+
+对于当前边 $(u,v)$：
+
+- 如果 `u` 与 `v` 还不连通，这条边可以安全加入；
+- 如果 `u` 与 `v` 已经连通，说明之前已经存在一条从 `u` 到 `v` 的路径，此时再加入 $(u,v)$ 就会闭合成环。
+
+因此：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+时，当前边就是要找的冗余边。
+
+</Callout>
+
+---
+
+## 1. 先从“树”的性质出发
+
+无向树有两个最重要的等价特征：
+
+1. 连通；
+2. 无环。
+
+对于 $n$ 个节点的树，边数一定是：
+
+$$
+m=n-1
+$$
+
+原题中的树示意如下：
+
+![原始无向树](https://file1.kamacoder.com/i/algo/20240905163122.png)
+
+加入一条额外边以后：
+
+$$
+m=n
+$$
+
+此时会恰好产生一个环：
+
+![加入一条额外边后形成唯一环](https://file1.kamacoder.com/i/algo/20240905164721.png)
+
+为什么一定只有一个环？
+
+因为原来的树中任意两个节点之间本来就存在且只存在一条简单路径。
+
+假设额外加入：
+
+```text
+u -- v
+```
+
+树中原本已经存在唯一的一条：
+
+```text
+u ... v
+```
+
+于是新边与这条旧路径一起构成唯一环。
+
+这条结论非常重要，因为它直接解释了：
+
+> 为什么最终只有一次真正意义上的并查集合并失败。
+
+---
+
+## 2. 示例：为什么一条边会成为“冗余边”
+
+输入：
+
+```text
+3
+1 2
+2 3
+1 3
+```
+
+对应图：
+
+![示例中的三角形环](https://file1.kamacoder.com/i/algo/20240527110320.png)
+
+三条边分别是：
+
+```text
+1 -- 2
+2 -- 3
+1 -- 3
+```
+
+依次处理。
+
+### 加入 `1 2`
+
+开始时：
+
+```text
+{1} {2} {3}
+```
+
+`1` 和 `2` 不在同一个集合：
+
+```text
+union(1, 2)
+```
+
+得到：
+
+```text
+{1, 2} {3}
+```
+
+### 加入 `2 3`
+
+`2` 和 `3` 仍然不连通：
+
+```text
+union(2, 3)
+```
+
+得到：
+
+```text
+{1, 2, 3}
+```
+
+### 准备加入 `1 3`
+
+这时：
+
+```text
+find(1) == find(3)
+```
+
+说明不加入 `1 3`，`1` 和 `3` 之间也已经存在路径：
+
+```text
+1 -- 2 -- 3
+```
+
+再加入：
+
+```text
+1 -- 3
+```
+
+就会闭合成环。
+
+所以答案是：
+
+```text
+1 3
+```
+
+---
+
+## 3. 并查集为什么特别适合本题
+
+如果只问：
+
+```text
+加入一条边以后，会不会形成环？
+```
+
+其实根本不需要保存完整路径。
+
+只需要知道：
+
+```text
+u 与 v 之前是否已经连通
+```
+
+而并查集恰好支持：
+
+```text
+find(u)
+find(v)
+union(u, v)
+```
+
+典型结构：
+
+```text
+读入一条边 (u, v)
+        |
+        v
+find(u) == find(v) ?
+        |
+   +----+----+
+   |         |
+  是         否
+   |         |
+形成环      union
+输出当前边   继续
+```
+
+如果两个节点属于不同集合：
+
+![两个不同连通分量可以安全合并](https://file1.kamacoder.com/i/algo/20230604104720.png)
+
+那么加入一条连接它们的边只会把两个连通分量合并，不可能形成环。
+
+如果两个节点已经属于同一个集合：
+
+![同一连通分量内再加边会形成环](https://file1.kamacoder.com/i/algo/20230604104330.png)
+
+那么此前一定已经存在一条路径连接它们；再加一条边就一定产生环。
+
+---
+
+## 4. 一个必须彻底理解的判环结论
+
+对于无向图，逐条加入边时：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+等价于：
+
+> 当前边 $(u,v)$ 的加入会形成环。
+
+证明并不复杂。
+
+### 情况一：根不同
+
+如果：
+
+$$
+\operatorname{find}(u)\ne\operatorname{find}(v)
+$$
+
+说明 `u` 与 `v` 处于两个不同连通分量。
+
+两个连通分量之间原本不存在路径，因此增加一条连接它们的边，只会把两个分量连成一个更大的连通分量，不可能出现闭环。
+
+### 情况二：根相同
+
+如果：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+说明旧图中已经存在一条：
+
+```text
+u -> ... -> v
+```
+
+的无向路径。
+
+现在再加入 $(u,v)$，便得到：
+
+```text
+u -> ... -> v
+^           |
+|___________|
+```
+
+因此必然成环。
+
+<Callout type="tip" title="这是 Kruskal 也会反复使用的判断">
+
+以后学习最小生成树时，Kruskal 算法也会使用完全相同的条件：
+
+```cpp
+if (find(u) != find(v)) {
+    // 这条边不会形成环，可以选择
+}
+```
+
+所以本题不仅是并查集练习，也是最小生成树的重要铺垫。
+
+</Callout>
+
+---
+
+## 5. 为什么“第一次发现的冲突边”就是要求的最后一条边
+
+题目还有一个非常容易产生疑问的条件：
+
+> 如果有多条边都可以删除，输出输入中最后出现的那一条。
+
+例如三角形：
+
+```text
+1 -- 2
+ \  /
+   3
+```
+
+实际上删除环上的任意一条边都可以重新得到树。
+
+为什么从前往后扫描并在第一次 `find(u) == find(v)` 时立即输出，就一定符合“最后出现”要求？
+
+### 关键：只有唯一环
+
+由于原图是：
+
+```text
+树 + 一条额外边
+```
+
+最终只有一个环。
+
+设这个环上的边按输入位置排序为：
+
+$$
+e_{i_1},e_{i_2},\dots,e_{i_k}
+$$
+
+并且：
+
+$$
+i_1<i_2<\cdots<i_k
+$$
+
+当扫描到最后一条环边 $e_{i_k}$ 之前，其余 $k-1$ 条环边已经把这条环“缺一个口”地连成了一条路径。
+
+因此处理 $e_{i_k}$ 时，它的两个端点一定已经连通：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+所以并查集第一次拒绝的边，恰好就是：
+
+> **唯一环中输入位置最靠后的那条边。**
+
+而能删除的边恰好就是唯一环中的所有边，所以它自然满足题目要求。
+
+<Callout type="warning" title="不要误解成“整张图中最后一条输入边”">
+
+答案并不一定是第 $n$ 条边。
+
+准确说法是：
+
+> 答案是**唯一环上**输入顺序最后出现的那条边。
+
+如果环已经在输入中较早闭合，后面还可能出现连接其他节点的树边。
+
+</Callout>
+
+---
+
+## 6. 为什么不需要继续扫描寻找“第二条冗余边”
+
+对于一般无向图，当然可能存在多个环，也可能有多条边在加入时发生冲突。
+
+但本题有一个很强的前提：
+
+```text
+最终图 = 一棵树 + 1 条额外边
+```
+
+树原本有：
+
+$$
+n-1
+$$
+
+条边。
+
+只多了一条边，因此环空间只增加了一维，最终只有一个独立环。
+
+一旦找到闭合这个唯一环的那条边，答案已经确定，可以立即返回。
+
+---
+
+## 7. 标准解法
+
+算法步骤只有三步。
+
+<Steps>
+
+### 初始化并查集
+
+令每个节点一开始都是独立集合：
+
+```text
+parent[i] = i
+```
+
+### 按输入顺序扫描每一条边
+
+对于 `(u, v)`：
+
+```text
+如果 find(u) == find(v)
+    当前边就是答案
+否则
+    union(u, v)
+```
+
+### 输出并结束
+
+因为题目保证输入来自“树 + 一条额外边”，一定可以找到答案。
+
+</Steps>
+
+---
+
+## 8. C++ 实现
+
+这里使用：
+
+- 路径压缩；
+- 按集合大小合并。
+
+这样并查集模板以后可以直接复用到 Kruskal 等题目。
+
+```cpp
+#include <iostream>
+#include <numeric>
+#include <vector>
+using namespace std;
+
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n) : parent(n + 1), size(n + 1, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+
+    UnionFind uf(n);
+
+    for (int i = 0; i < n; ++i) {
+        int u, v;
+        cin >> u >> v;
+
+        // unite 返回 false，说明 u、v 之前已经连通。
+        if (!uf.unite(u, v)) {
+            cout << u << ' ' << v << '\n';
+            return 0;
+        }
+    }
+
+    return 0;
+}
+```
+
+### 为什么把“判同集合”和“合并”合成一个函数
+
+可以写成：
+
+```cpp
+if (uf.isSame(u, v)) {
+    ...
+} else {
+    uf.unite(u, v);
+}
+```
+
+也可以让：
+
+```cpp
+unite(u, v)
+```
+
+直接返回本次是否真的发生了合并。
+
+后者的好处是：
+
+```text
+false -> 已经同集合 -> 加边成环
+true  -> 成功合并两个集合
+```
+
+主流程会非常紧凑。
+
+---
+
+## 9. 手动模拟并查集
+
+以：
+
+```text
+5
+1 2
+2 3
+3 4
+1 4
+4 5
+```
+
+为例。
+
+注意唯一环是：
+
+```text
+1 - 2 - 3 - 4 - 1
+```
+
+虽然最后输入的边是：
+
+```text
+4 5
+```
+
+但它不在环上，因此答案不是 `4 5`。
+
+处理过程：
+
+| 输入边 | 加边前是否同集合 | 操作 |
+| --- | --- | --- |
+| `1 2` | 否 | 合并 |
+| `2 3` | 否 | 合并 |
+| `3 4` | 否 | 合并 |
+| `1 4` | 是 | 形成环，答案 |
+| `4 5` | 无需处理 | 已经找到答案 |
+
+最终输出：
+
+```text
+1 4
+```
+
+这个例子可以帮助你彻底区分：
+
+```text
+最后输入的边
+```
+
+和：
+
+```text
+所有可删除候选中最后输入的边
+```
+
+---
+
+## 10. 正确性证明
+
+可以把正确性分成两部分。
+
+### 结论一：算法输出的边一定可以删除
+
+设算法在边 $(u,v)$ 处发现：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(v)
+$$
+
+说明在此前已经接受的边中存在一条从 `u` 到 `v` 的路径。
+
+因此 $(u,v)$ 与这条路径组成一个环。
+
+本题最终图只有唯一环，所以 $(u,v)$ 位于唯一环上。
+
+删除环上的任意一条边都会破坏环，同时原图仍保持连通，因此剩余图是一棵树。
+
+### 结论二：算法输出的是最后出现的合法删除边
+
+所有合法删除边恰好是唯一环上的边。
+
+按输入顺序扫描时，环上最后出现的边加入前，它的两个端点已经通过环上的其余边相连，所以它必然成为第一次合并失败的边。
+
+因此算法输出的正是题目要求的那一条。
+
+---
+
+## 11. 复杂度分析
+
+共有 $n$ 条边。
+
+每条边至多执行常数次：
+
+```text
+find
+union
+```
+
+在路径压缩与按大小 / 按秩合并下，单次操作的均摊复杂度为：
+
+$$
+O(\alpha(n))
+$$
+
+其中 $\alpha(n)$ 是反阿克曼函数，在实际数据范围内可以看作非常接近常数。
+
+所以总时间复杂度为：
+
+$$
+O(n\alpha(n))
+$$
+
+空间复杂度为：
+
+$$
+O(n)
+$$
+
+用于保存 `parent` 与 `size` 数组。
+
+如果按照常见竞赛表述，也经常简化写成“接近 $O(n)$”。
+
+---
+
+## 12. DFS / BFS 能不能做
+
+当然可以。
+
+一种思路是逐条加边，在加入 $(u,v)$ 之前，用 DFS / BFS 判断 `u` 与 `v` 是否已经连通。
+
+但如果每次都重新搜索，最坏可能达到：
+
+$$
+O(n(n+m))
+$$
+
+在本题中 $m=O(n)$，就可能接近：
+
+$$
+O(n^2)
+$$
+
+而并查集就是专门为这种“不断合并 + 判断连通”设计的。
+
+<Cards>
+  <Card title="DFS / BFS">
+    更适合真正需要访问路径、遍历节点、计算距离或提取连通块内部信息的场景。
+  </Card>
+  <Card title="并查集">
+    更适合只关心“两个节点是否已经连通”，且边不断被加入的场景。
+  </Card>
+</Cards>
+
+---
+
+## 13. 高频错误
+
+### 错误一：先 union，再判断是不是同集合
+
+错误写法：
+
+```cpp
+uf.unite(u, v);
+if (uf.find(u) == uf.find(v)) {
+    // ...
+}
+```
+
+这样永远会相同，因为你已经主动把两个集合合并了。
+
+必须在真正合并之前知道它们是否已经属于同一集合。
+
+如果 `unite` 返回 `bool`，这个问题会自然消失。
+
+### 错误二：认为任何图都只有一条冲突边
+
+只有因为本题保证：
+
+```text
+树 + 一条额外边
+```
+
+才能找到一次冲突后立即退出。
+
+一般无向图可能含多个环，不能照搬这个结论。
+
+### 错误三：把 parent 数组理解成原图结构
+
+```text
+parent[x]
+```
+
+只是并查集内部用于表示集合关系的辅助结构。
+
+它不是原图的父子关系，也不需要还原原图的真实树形结构。
+
+### 错误四：忘记节点编号从 1 开始
+
+本题节点编号：
+
+$$
+1,2,\dots,n
+$$
+
+所以数组一般至少开到：
+
+```cpp
+n + 1
+```
+
+---
+
+## 14. 本题真正应该形成的算法反射
+
+看到：
+
+```text
+无向图
+不断加入边
+判断是否成环
+```
+
+第一反应应该是：
+
+```text
+并查集
+```
+
+再进一步：
+
+```text
+边 (u, v) 加入前
+u、v 已经连通
+        ↓
+加入该边一定成环
+```
+
+可以把它记成：
+
+$$
+\boxed{
+\text{无向图加边判环}
+\Longleftrightarrow
+\operatorname{find}(u)=\operatorname{find}(v)
+}
+$$
+
+<Callout type="success" title="一句话总结">
+
+**树中多一条无向边，就按输入顺序用并查集加边；第一次无法真正合并的边，就是唯一环中最后出现的边，也就是答案。**
+
+</Callout>
+
+---
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class UnionFind {
+        int[] parent;
+        int[] size;
+
+        UnionFind(int n) {
+            parent = new int[n + 1];
+            size = new int[n + 1];
+            for (int i = 1; i <= n; ++i) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        int find(int x) {
+            if (parent[x] != x) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        boolean union(int u, int v) {
+            int rootU = find(u);
+            int rootV = find(v);
+
+            if (rootU == rootV) {
+                return false;
+            }
+
+            if (size[rootU] < size[rootV]) {
+                int temp = rootU;
+                rootU = rootV;
+                rootV = temp;
+            }
+
+            parent[rootV] = rootU;
+            size[rootU] += size[rootV];
+            return true;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine().trim());
+
+        UnionFind uf = new UnionFind(n);
+
+        for (int i = 0; i < n; ++i) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+
+            if (!uf.union(u, v)) {
+                System.out.println(u + " " + v);
+                return;
+            }
+        }
+    }
+}
+```
+
+```python label="Python"
+import sys
+
+input = sys.stdin.readline
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n + 1))
+        self.size = [1] * (n + 1)
+
+    def find(self, x: int) -> int:
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, u: int, v: int) -> bool:
+        root_u = self.find(u)
+        root_v = self.find(v)
+
+        if root_u == root_v:
+            return False
+
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+        return True
+
+
+n = int(input())
+uf = UnionFind(n)
+
+for _ in range(n):
+    u, v = map(int, input().split())
+    if not uf.union(u, v):
+        print(u, v)
+        break
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+type UnionFind struct {
+    parent []int
+    size   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+
+    for i := 1; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+
+    return &UnionFind{parent: parent, size: size}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if uf.parent[x] != x {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(u, v int) bool {
+    rootU := uf.Find(u)
+    rootV := uf.Find(v)
+
+    if rootU == rootV {
+        return false
+    }
+
+    if uf.size[rootU] < uf.size[rootV] {
+        rootU, rootV = rootV, rootU
+    }
+
+    uf.parent[rootV] = rootU
+    uf.size[rootU] += uf.size[rootV]
+    return true
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n int
+    fmt.Fscan(in, &n)
+
+    uf := NewUnionFind(n)
+
+    for i := 0; i < n; i++ {
+        var u, v int
+        fmt.Fscan(in, &u, &v)
+
+        if !uf.Union(u, v) {
+            fmt.Fprintln(out, u, v)
+            return
+        }
+    }
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n + 1 }, (_, i) => i);
+    this.size = new Array(n + 1).fill(1);
+  }
+
+  find(x) {
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(u, v) {
+    let rootU = this.find(u);
+    let rootV = this.find(v);
+
+    if (rootU === rootV) return false;
+
+    if (this.size[rootU] < this.size[rootV]) {
+      [rootU, rootV] = [rootV, rootU];
+    }
+
+    this.parent[rootV] = rootU;
+    this.size[rootU] += this.size[rootV];
+    return true;
+  }
+}
+
+const uf = new UnionFind(n);
+
+for (let i = 0; i < n; ++i) {
+  const u = data[idx++];
+  const v = data[idx++];
+
+  if (!uf.union(u, v)) {
+    console.log(`${u} ${v}`);
+    break;
+  }
+}
+```
+````

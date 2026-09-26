@@ -1,0 +1,1231 @@
+---
+title: 四数相加 II
+description: 用“分组 + 两数和频次哈希”把四重枚举从 O(n^4) 降到 O(n^2)，掌握 Meet-in-the-Middle 与“和 → 出现次数”的统计模型。
+---
+
+# 454. 四数相加 II
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/4sum-ii/">
+    LeetCode 454 · 4Sum II
+  </Card>
+</Cards>
+
+给定四个整数数组：
+
+```text
+nums1
+nums2
+nums3
+nums4
+```
+
+统计满足下式的下标四元组数量：
+
+$$
+nums1[i]+nums2[j]+nums3[k]+nums4[l]=0
+$$
+
+注意：
+
+> 这里统计的是**下标四元组数量**，不要求返回具体四元组，也不需要去重。
+
+例如：
+
+```text
+nums1 = [1, 2]
+nums2 = [-2, -1]
+nums3 = [-1, 2]
+nums4 = [0, 2]
+```
+
+答案为：
+
+```text
+2
+```
+
+对应：
+
+$$
+1+(-2)+(-1)+2=0
+$$
+
+以及：
+
+$$
+2+(-1)+(-1)+0=0
+$$
+
+<Callout type="info" title="为什么这题比“三数之和 / 四数之和”更适合哈希">
+这里四个元素分别来自四个独立数组，并且只统计下标组合数量，不要求“结果四元组去重”。因此可以放心把组合压缩成“两两之和”的频次统计。
+</Callout>
+
+---
+
+## 1. 四重暴力枚举有多慢
+
+最直接的方法：
+
+```cpp
+for (int a : nums1)
+    for (int b : nums2)
+        for (int c : nums3)
+            for (int d : nums4)
+                if (a + b + c + d == 0)
+                    ++answer;
+```
+
+若四个数组长度都为 $n$，组合数量为：
+
+$$
+n^4
+$$
+
+时间复杂度：
+
+$$
+O(n^4)
+$$
+
+当：
+
+$$
+n=500
+$$
+
+时，组合数量约为：
+
+$$
+500^4=62\,500\,000\,000
+$$
+
+显然不可接受。
+
+所以必须减少枚举维度。
+
+---
+
+## 2. 把四个数拆成两组
+
+原式：
+
+$$
+a+b+c+d=0
+$$
+
+可以变形为：
+
+$$
+a+b=-(c+d)
+$$
+
+于是可以把问题拆成两部分：
+
+```text
+nums1 + nums2
+nums3 + nums4
+```
+
+先枚举所有：
+
+$$
+a+b
+$$
+
+再枚举所有：
+
+$$
+c+d
+$$
+
+对于每个：
+
+$$
+c+d=s
+$$
+
+只需要查询：
+
+$$
+-(c+d)=-s
+$$
+
+在前一组中出现了多少次。
+
+这就是本题最核心的降维。
+
+---
+
+## 3. 为什么 Map 的 value 必须是“出现次数”
+
+假设：
+
+```text
+nums1 = [1, 1]
+nums2 = [-1, -1]
+```
+
+那么：
+
+$$
+a+b=0
+$$
+
+一共会出现：
+
+$$
+2\times2=4
+$$
+
+次。
+
+如果 Map 只记录：
+
+```text
+0 -> 存在
+```
+
+就丢掉了这 4 种不同的下标组合。
+
+所以应该保存：
+
+```text
+两数之和 -> 该和出现的次数
+```
+
+也就是：
+
+$$
+sum\rightarrow count(sum)
+$$
+
+代码：
+
+```cpp
+unordered_map<int, int> freq;
+
+for (int a : nums1) {
+    for (int b : nums2) {
+        ++freq[a + b];
+    }
+}
+```
+
+<Callout type="tip" title="判断 value 应该存什么">
+两数之和中，找到匹配后需要返回“下标”，所以 value 存下标。  
+本题需要统计“多少种组合”，所以 value 存出现次数。
+
+同样是 Map，value 的含义完全取决于题目最终要求。
+</Callout>
+
+---
+
+## 4. 第二组为什么直接累加频次
+
+处理 `nums3` 和 `nums4` 时，枚举：
+
+$$
+s=c+d
+$$
+
+需要寻找：
+
+$$
+-s
+$$
+
+如果：
+
+```text
+freq[-s] = k
+```
+
+说明前两个数组中有 $k$ 种下标组合满足：
+
+$$
+a+b=-s
+$$
+
+那么当前这一组 `(c,d)` 就能和这 $k$ 组 `(a,b)` 分别组合。
+
+所以答案增加：
+
+$$
+k
+$$
+
+即：
+
+```cpp
+answer += freq[-(c + d)];
+```
+
+这一步非常重要：
+
+> 不是 `answer++`，而是加上匹配和的**出现次数**。
+
+---
+
+## 5. 示例完整推演
+
+考虑：
+
+```text
+nums1 = [1, 2]
+nums2 = [-2, -1]
+```
+
+两两之和：
+
+```text
+1 + (-2) = -1
+1 + (-1) = 0
+2 + (-2) = 0
+2 + (-1) = 1
+```
+
+因此：
+
+```text
+freq[-1] = 1
+freq[ 0] = 2
+freq[ 1] = 1
+```
+
+接下来：
+
+```text
+nums3 = [-1, 2]
+nums4 = [0, 2]
+```
+
+枚举：
+
+### `-1 + 0 = -1`
+
+需要：
+
+$$
+1
+$$
+
+而：
+
+```text
+freq[1] = 1
+```
+
+答案：
+
+```text
++1
+```
+
+### `-1 + 2 = 1`
+
+需要：
+
+$$
+-1
+$$
+
+有：
+
+```text
+freq[-1] = 1
+```
+
+答案再：
+
+```text
++1
+```
+
+其余组合没有匹配。
+
+最终：
+
+```text
+answer = 2
+```
+
+---
+
+## 6. 标准解法
+
+```cpp
+class Solution {
+public:
+    int fourSumCount(
+        vector<int>& nums1,
+        vector<int>& nums2,
+        vector<int>& nums3,
+        vector<int>& nums4
+    ) {
+        unordered_map<int, int> freq;
+
+        for (int a : nums1) {
+            for (int b : nums2) {
+                ++freq[a + b];
+            }
+        }
+
+        int answer = 0;
+
+        for (int c : nums3) {
+            for (int d : nums4) {
+                auto it = freq.find(-(c + d));
+
+                if (it != freq.end()) {
+                    answer += it->second;
+                }
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+---
+
+## 7. 为什么复杂度是 $O(n^2)$
+
+第一阶段枚举：
+
+```text
+nums1 × nums2
+```
+
+组合数量：
+
+$$
+n^2
+$$
+
+第二阶段枚举：
+
+```text
+nums3 × nums4
+```
+
+同样：
+
+$$
+n^2
+$$
+
+哈希查询平均：
+
+$$
+O(1)
+$$
+
+所以总时间：
+
+$$
+O(n^2)+O(n^2)=O(n^2)
+$$
+
+相较暴力：
+
+$$
+O(n^4)
+$$
+
+是数量级上的巨大优化。
+
+---
+
+## 8. 空间复杂度为什么是 $O(n^2)$
+
+第一组两两之和最多可能有：
+
+$$
+n^2
+$$
+
+个不同结果。
+
+因此哈希表最坏需要保存：
+
+$$
+O(n^2)
+$$
+
+个键值对。
+
+所以空间复杂度：
+
+$$
+O(n^2)
+$$
+
+这是又一个典型的：
+
+> **用空间换时间。**
+
+---
+
+## 9. 这其实是 Meet-in-the-Middle
+
+这类方法通常称为：
+
+> **Meet-in-the-Middle，折半搜索 / 中途相遇**
+
+四个变量：
+
+```text
+a, b, c, d
+```
+
+如果全部一起枚举，需要：
+
+$$
+O(n^4)
+$$
+
+但把它们分成：
+
+```text
+(a, b)
+(c, d)
+```
+
+分别预处理组合信息，就可以在中间通过哈希匹配。
+
+抽象过程：
+
+```text
+高维组合
+   ↓
+拆成两半
+   ↓
+枚举左半所有状态
+   ↓
+存入哈希表
+   ↓
+枚举右半状态
+   ↓
+查找互补状态
+```
+
+这是非常重要的算法降维思想。
+
+---
+
+## 10. 为什么要拆成 2 + 2，而不是 1 + 3
+
+也可以：
+
+- 存 `nums1`；
+- 枚举 `nums2 + nums3 + nums4`。
+
+那么复杂度约为：
+
+$$
+O(n^3)
+$$
+
+虽然比 $O(n^4)$ 好，但仍然没有充分利用问题结构。
+
+拆成最均衡的：
+
+$$
+2+2
+$$
+
+后，两侧复杂度都是：
+
+$$
+O(n^2)
+$$
+
+总复杂度最低。
+
+<Callout type="info" title="分组时尽量平衡">
+Meet-in-the-Middle 的核心经验之一就是：如果能够自由拆分，通常尽量让两边规模接近，从而降低最大枚举维度。
+</Callout>
+
+---
+
+## 11. 和“两数之和”有什么关系
+
+两数之和：
+
+$$
+a+b=target
+$$
+
+遍历 `b` 时查询：
+
+$$
+target-b
+$$
+
+四数相加 II：
+
+$$
+a+b+c+d=0
+$$
+
+先把：
+
+$$
+a+b
+$$
+
+整体看成一个“新元素”。
+
+再查询：
+
+$$
+-(c+d)
+$$
+
+所以本质上：
+
+> **四数相加 II = 把两个数组组合成一个“和频次表”，再做一次两数之和式匹配。**
+
+区别只是：
+
+### 两数之和
+
+Map：
+
+```text
+值 -> 下标
+```
+
+### 四数相加 II
+
+Map：
+
+```text
+两数和 -> 出现次数
+```
+
+---
+
+## 12. 为什么这题不用去重
+
+这一点必须和“三数之和”“四数之和”区分开。
+
+假设：
+
+```text
+nums1 = [0, 0]
+nums2 = [0, 0]
+nums3 = [0, 0]
+nums4 = [0, 0]
+```
+
+每个数组都有 2 个位置。
+
+总共有：
+
+$$
+2^4=16
+$$
+
+个下标四元组。
+
+虽然所有四元组对应的数值都一样：
+
+```text
+(0, 0, 0, 0)
+```
+
+但下标组合不同，因此都应该计数。
+
+所以本题完全不需要去重。
+
+而“三数之和”要求返回：
+
+```text
+不重复的数值三元组
+```
+
+那里的核心难点恰恰是去重，因此更适合排序 + 双指针。
+
+---
+
+## 13. 为什么不能只存所有 `a+b`
+
+如果使用 Set：
+
+```text
+a+b 是否出现
+```
+
+会丢掉出现次数。
+
+例如：
+
+```text
+a+b = 5
+```
+
+可能由 8 组不同 `(i,j)` 产生。
+
+如果只保存：
+
+```text
+5 -> true
+```
+
+那么后续匹配一次只能加 `1`，而正确答案应该加：
+
+$$
+8
+$$
+
+所以本题不是：
+
+```text
+sum -> 是否存在
+```
+
+而是：
+
+```text
+sum -> 出现次数
+```
+
+---
+
+## 14. 计数型 Map 是一个高频模板
+
+当题目问：
+
+```text
+多少组
+多少种
+出现多少次
+有几个方案
+```
+
+而又涉及哈希匹配时，Map 的 value 经常需要保存：
+
+```text
+count
+```
+
+经典模板：
+
+```cpp
+unordered_map<int, int> freq;
+
+for (...) {
+    ++freq[key];
+}
+
+for (...) {
+    answer += freq[need];
+}
+```
+
+这个模式还会出现在：
+
+- 前缀和计数；
+- 和为 $k$ 的子数组；
+- 差值计数；
+- 多数组组合计数；
+- 组合数匹配。
+
+---
+
+## 15. 正确性证明
+
+令：
+
+$$
+F(s)
+$$
+
+表示前两个数组中满足：
+
+$$
+a+b=s
+$$
+
+的下标对数量。
+
+即：
+
+$$
+F(s)
+=
+\#\{(i,j)\mid nums1[i]+nums2[j]=s\}
+$$
+
+对于固定的 `(k,l)`：
+
+$$
+c=nums3[k],\qquad d=nums4[l]
+$$
+
+要满足：
+
+$$
+a+b+c+d=0
+$$
+
+等价于：
+
+$$
+a+b=-(c+d)
+$$
+
+因此与当前 `(k,l)` 匹配的 `(i,j)` 数量恰好是：
+
+$$
+F(-(c+d))
+$$
+
+对所有 `(k,l)` 累加：
+
+$$
+answer
+=
+\sum_{k,l} F(-(nums3[k]+nums4[l]))
+$$
+
+这正是算法执行的内容。
+
+因此每个合法下标四元组都会被计数一次且仅一次。
+
+---
+
+## 16. 可以把目标值改成任意 target 吗
+
+当然可以。
+
+若题目改成：
+
+$$
+a+b+c+d=target
+$$
+
+则查询条件变成：
+
+$$
+a+b=target-(c+d)
+$$
+
+代码只需把：
+
+```cpp
+-(c + d)
+```
+
+改成：
+
+```cpp
+target - (c + d)
+```
+
+所以核心不是“凑 0”，而是：
+
+> **通过代数变形构造互补状态。**
+
+---
+
+## 17. 更一般的 $k$ Sum Count 思路
+
+如果有更多独立数组，例如 6 个数组：
+
+$$
+a+b+c+d+e+f=0
+$$
+
+也可以分成：
+
+$$
+(a+b+c)+(d+e+f)=0
+$$
+
+分别枚举三数组组合。
+
+若每个数组长度为 $n$，复杂度大约从：
+
+$$
+O(n^6)
+$$
+
+降到：
+
+$$
+O(n^3)
+$$
+
+这就是 Meet-in-the-Middle 的一般化。
+
+---
+
+## 18. 高频错误
+
+### 错误一：Map 只记录存在性
+
+必须记录：
+
+```text
+和 -> 出现次数
+```
+
+否则会漏掉不同下标组合。
+
+---
+
+### 错误二：匹配后只 `answer++`
+
+正确：
+
+```cpp
+answer += freq[need];
+```
+
+不是：
+
+```cpp
+++answer;
+```
+
+因为一种 `need` 可能对应多组 `(a,b)`。
+
+---
+
+### 错误三：误以为重复值需要去重
+
+本题统计下标四元组。
+
+重复值产生的不同下标组合都应该保留。
+
+---
+
+### 错误四：四重循环里套哈希
+
+如果仍然枚举：
+
+```text
+a, b, c
+```
+
+再哈希查 `d`，时间还是：
+
+$$
+O(n^3)
+$$
+
+还没有做到最优。
+
+---
+
+## 19. 思维模板
+
+遇到：
+
+```text
+多个独立数组
+组合求和
+只统计方案数量
+```
+
+可以优先尝试：
+
+```text
+把变量分成两组
+       ↓
+枚举左半组合结果
+       ↓
+Map<组合值, 出现次数>
+       ↓
+枚举右半
+       ↓
+查询互补值
+       ↓
+累加频次
+```
+
+对于本题：
+
+```text
+(a + b) + (c + d) = 0
+```
+
+所以：
+
+```text
+左半：a + b
+右半：c + d
+互补：-(c + d)
+```
+
+---
+
+## 20. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    int fourSumCount(
+        vector<int>& nums1,
+        vector<int>& nums2,
+        vector<int>& nums3,
+        vector<int>& nums4
+    ) {
+        unordered_map<int, int> freq;
+
+        for (int a : nums1) {
+            for (int b : nums2) {
+                ++freq[a + b];
+            }
+        }
+
+        int answer = 0;
+
+        for (int c : nums3) {
+            for (int d : nums4) {
+                auto it = freq.find(-(c + d));
+
+                if (it != freq.end()) {
+                    answer += it->second;
+                }
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int fourSumCount(
+        int[] nums1,
+        int[] nums2,
+        int[] nums3,
+        int[] nums4
+    ) {
+        Map<Integer, Integer> freq = new HashMap<>();
+
+        for (int a : nums1) {
+            for (int b : nums2) {
+                int sum = a + b;
+                freq.put(sum, freq.getOrDefault(sum, 0) + 1);
+            }
+        }
+
+        int answer = 0;
+
+        for (int c : nums3) {
+            for (int d : nums4) {
+                answer += freq.getOrDefault(-(c + d), 0);
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from collections import Counter
+from typing import List
+
+class Solution:
+    def fourSumCount(
+        self,
+        nums1: List[int],
+        nums2: List[int],
+        nums3: List[int],
+        nums4: List[int]
+    ) -> int:
+        freq = Counter(
+            a + b
+            for a in nums1
+            for b in nums2
+        )
+
+        answer = 0
+
+        for c in nums3:
+            for d in nums4:
+                answer += freq[-(c + d)]
+
+        return answer
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func fourSumCount(
+    nums1 []int,
+    nums2 []int,
+    nums3 []int,
+    nums4 []int,
+) int {
+    freq := make(map[int]int)
+
+    for _, a := range nums1 {
+        for _, b := range nums2 {
+            freq[a+b]++
+        }
+    }
+
+    answer := 0
+
+    for _, c := range nums3 {
+        for _, d := range nums4 {
+            answer += freq[-(c+d)]
+        }
+    }
+
+    return answer
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var fourSumCount = function(nums1, nums2, nums3, nums4) {
+    const freq = new Map();
+
+    for (const a of nums1) {
+        for (const b of nums2) {
+            const sum = a + b;
+            freq.set(sum, (freq.get(sum) ?? 0) + 1);
+        }
+    }
+
+    let answer = 0;
+
+    for (const c of nums3) {
+        for (const d of nums4) {
+            answer += freq.get(-(c + d)) ?? 0;
+        }
+    }
+
+    return answer;
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function fourSumCount(
+    nums1: number[],
+    nums2: number[],
+    nums3: number[],
+    nums4: number[]
+): number {
+    const freq = new Map<number, number>();
+
+    for (const a of nums1) {
+        for (const b of nums2) {
+            const sum = a + b;
+            freq.set(sum, (freq.get(sum) ?? 0) + 1);
+        }
+    }
+
+    let answer = 0;
+
+    for (const c of nums3) {
+        for (const d of nums4) {
+            answer += freq.get(-(c + d)) ?? 0;
+        }
+    }
+
+    return answer;
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 21. 本题总结
+
+这道题最值得掌握的是三层抽象：
+
+### 第一层：代数变形
+
+$$
+a+b+c+d=0
+$$
+
+变成：
+
+$$
+a+b=-(c+d)
+$$
+
+### 第二层：分组降维
+
+```text
+4 个变量
+   ↓
+2 + 2
+```
+
+把：
+
+$$
+O(n^4)
+$$
+
+降为：
+
+$$
+O(n^2)
+$$
+
+### 第三层：计数型哈希
+
+```text
+两数之和 -> 出现次数
+```
+
+然后：
+
+```text
+answer += 匹配和的频次
+```
+
+最终模板：
+
+```text
+左半组合
+  ↓
+统计 freq[sum]
+  ↓
+右半组合
+  ↓
+need = target - sum
+  ↓
+answer += freq[need]
+```
+
+这是“哈希 + 分组 + 计数”类问题最经典的模板之一。

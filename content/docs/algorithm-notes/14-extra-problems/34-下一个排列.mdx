@@ -1,0 +1,582 @@
+---
+title: 下一个排列
+description: 从字典序的“最小增量”出发推导标准三步法：寻找下降点、交换最小更大元素、反转后缀，在线性时间和常数空间内原地得到下一个排列。
+---
+
+# 31. 下一个排列
+
+[LeetCode 31：下一个排列](https://leetcode.cn/problems/next-permutation/)
+
+给定一个整数数组 `nums`，把它原地修改为 **字典序中紧邻当前排列的下一个更大排列**。
+
+如果当前排列已经是字典序最大的排列，则把它变成最小排列，也就是整体升序。
+
+例如：
+
+```text
+[1, 2, 3] -> [1, 3, 2]
+[1, 3, 2] -> [2, 1, 3]
+[3, 2, 1] -> [1, 2, 3]
+[1, 1, 5] -> [1, 5, 1]
+```
+
+题目还有两个非常重要的限制：
+
+- 必须 **原地修改**；
+- 只能使用 $O(1)$ 额外空间。
+
+> [!IMPORTANT]
+> 这道题真正考察的不是“会不会生成全排列”，而是：**怎样只做最小幅度的修改，就得到刚好比当前排列大的那个排列。**
+
+## 一、什么叫“下一个”排列
+
+字典序比较数组时，从左向右找到第一个不同的位置，谁在这个位置的值更大，谁的字典序就更大。
+
+因此如果想让排列“只变大一点点”，应该遵循两个原则：
+
+1. **尽量让更靠右的位置发生变化**；
+2. 在必须增大的位置上，**只换成刚好比它大的最小值**；
+3. 增大之后，右侧剩余部分要排列成 **尽可能小** 的顺序。
+
+这三个原则正好对应标准算法的三个步骤。
+
+## 二、第一步：从右向左找第一个下降点
+
+观察数组：
+
+```text
+[1, 2, 4, 3]
+```
+
+从右向左看：
+
+```text
+4 >= 3
+2 < 4
+```
+
+因此第一个满足
+
+$$
+nums[i] < nums[i+1]
+$$
+
+的位置是 `i = 1`，也就是元素 `2`。
+
+这个位置通常称为 **下降点** 或 **枢轴位置**。
+
+为什么必须从右向左找？
+
+因为我们希望尽可能保留左边的高位不变，只修改最靠右、仍然有机会变大的位置。
+
+### 一个关键性质
+
+当 `i` 是从右向左找到的第一个满足
+
+$$
+nums[i] < nums[i+1]
+$$
+
+的位置时，区间
+
+```text
+[i + 1, n - 1]
+```
+
+一定是 **非递增序列**：
+
+$$
+nums[i+1] \ge nums[i+2] \ge \cdots \ge nums[n-1]
+$$
+
+例如：
+
+```text
+[1, 2, 5, 4, 3]
+       ---------
+       非递增后缀
+```
+
+这说明当前后缀已经是“在固定前缀下能取得的最大排列”。要继续变大，只能提升 `nums[i]`。
+
+> [!TIP]
+> “找从右往左第一个 `nums[i] < nums[i+1]`”是这道题最核心的观察。只要理解了这个下降点，后面的交换和反转几乎都是自然推出来的。
+
+## 三、第二步：在后缀里找“刚好更大”的数
+
+现在我们要让 `nums[i]` 变大，但又不能变得太多。
+
+因此应在右侧寻找：
+
+$$
+nums[j] > nums[i]
+$$
+
+并且 `nums[j]` 要尽可能小。
+
+由于后缀本身是非递增的，所以只需要 **从右向左找到第一个大于 `nums[i]` 的元素**。
+
+例如：
+
+```text
+nums = [1, 2, 5, 4, 3]
+           ^
+           i
+```
+
+`nums[i] = 2`。
+
+从最右边开始找，第一个大于 `2` 的元素就是 `3`：
+
+```text
+[1, 2, 5, 4, 3]
+    ^        ^
+    i        j
+```
+
+交换后：
+
+```text
+[1, 3, 5, 4, 2]
+```
+
+这里为什么不能直接和 `5` 交换？
+
+因为：
+
+```text
+[1, 5, ...]
+```
+
+虽然也更大，但它不是“紧邻当前排列”的下一个排列；增幅太大了。
+
+## 四、第三步：把后缀反转成最小排列
+
+交换以后，前缀已经比原排列大了。
+
+接下来为了让整体字典序尽可能小，右侧部分必须改成 **升序**。
+
+交换前右侧是非递增的，交换之后依然可以通过一次反转得到升序。
+
+继续上面的例子：
+
+```text
+交换后： [1, 3, 5, 4, 2]
+反转后缀：[1, 3, 2, 4, 5]
+```
+
+因此答案是：
+
+```text
+[1, 3, 2, 4, 5]
+```
+
+整个过程可以概括成：
+
+```text
+1. 从右向左找第一个 nums[i] < nums[i + 1]
+2. 从右向左找第一个 nums[j] > nums[i]
+3. 交换 nums[i] 与 nums[j]
+4. 反转区间 [i + 1, n - 1]
+```
+
+## 五、完整推演：`[1, 2, 4, 3]`
+
+原数组：
+
+```text
+1 2 4 3
+```
+
+### 1. 找下降点
+
+从右往左：
+
+```text
+4 >= 3
+2 < 4
+```
+
+所以：
+
+```text
+i = 1
+nums[i] = 2
+```
+
+### 2. 找右侧刚好比 2 大的数
+
+从最右边扫描：
+
+```text
+3 > 2
+```
+
+因此 `j = 3`。
+
+### 3. 交换
+
+```text
+1 3 4 2
+```
+
+### 4. 反转后缀
+
+后缀：
+
+```text
+4 2
+```
+
+反转后：
+
+```text
+2 4
+```
+
+最终：
+
+```text
+1 3 2 4
+```
+
+这恰好是 `1243` 的下一个排列。
+
+![](https://file1.kamacoder.com/i/algo/31.下一个排列.png)
+
+## 六、为什么整个数组降序时要全部反转
+
+例如：
+
+```text
+[3, 2, 1]
+```
+
+从右向左找不到任何位置满足：
+
+$$
+nums[i] < nums[i+1]
+$$
+
+说明整个数组已经是非递增排列，也就是当前这些元素能组成的 **最大字典序排列**。
+
+因此不存在更大的排列。
+
+题目要求此时返回最小排列，所以只需要整体反转：
+
+```text
+[3, 2, 1] -> [1, 2, 3]
+```
+
+注意，这个逻辑其实可以和正常情况统一：
+
+如果下降点最终得到
+
+```text
+i = -1
+```
+
+那么直接反转区间：
+
+```text
+[0, n - 1]
+```
+
+即可。
+
+## 七、重复元素为什么也适用
+
+例如：
+
+```text
+[1, 5, 5, 4]
+```
+
+下降点是：
+
+```text
+1 < 5
+```
+
+即 `i = 0`。
+
+从右往左找第一个大于 `1` 的元素，会找到 `4`。
+
+交换：
+
+```text
+[4, 5, 5, 1]
+```
+
+再反转后缀：
+
+```text
+[4, 1, 5, 5]
+```
+
+即使存在重复值，“从右向左找第一个严格大于 `nums[i]` 的元素”依然保证找到可交换的最小更大值。
+
+## 八、标准 C++ 实现
+
+```cpp
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int n = nums.size();
+        int i = n - 2;
+
+        // 1. 找到最靠右的下降点：nums[i] < nums[i + 1]
+        while (i >= 0 && nums[i] >= nums[i + 1]) {
+            --i;
+        }
+
+        // 2. 如果存在下降点，在后缀中找到最靠右且大于 nums[i] 的元素
+        if (i >= 0) {
+            int j = n - 1;
+            while (nums[j] <= nums[i]) {
+                --j;
+            }
+            swap(nums[i], nums[j]);
+        }
+
+        // 3. 后缀原本非递增，反转后即为最小的非递减排列
+        reverse(nums.begin() + i + 1, nums.end());
+    }
+};
+```
+
+### 复杂度
+
+整个数组最多被扫描常数次：
+
+$$
+T(n)=O(n)
+$$
+
+反转操作也是线性的。
+
+只使用若干下标变量：
+
+$$
+S(n)=O(1)
+$$
+
+> [!WARNING]
+> 原始资料中的“双层循环寻找可交换元素”虽然也能通过部分实现，但最坏复杂度会达到 $O(n^2)$。标准写法应利用“后缀非递增”的性质，把寻找过程降为线性时间。
+
+## 九、为什么不能直接排序后缀
+
+在找到并交换 `i`、`j` 以后，当然可以把后缀排序成升序。
+
+但排序需要：
+
+$$
+O(k \log k)
+$$
+
+其中 $k$ 是后缀长度。
+
+而我们已经知道后缀具有特殊结构，因此只需反转：
+
+$$
+O(k)
+$$
+
+这体现了一类常见优化思路：
+
+> **不要把已知有序性的区间当成普通无序数组重新排序。**
+
+## 十、易错点总结
+
+> [!CAUTION]
+> 下面几处非常容易写错。
+
+### 1. 第一个比较必须是严格 `<`
+
+要找：
+
+```text
+nums[i] < nums[i + 1]
+```
+
+不能把相等当作可提升位置。
+
+### 2. 第二次寻找也必须严格 `>`
+
+要找：
+
+```text
+nums[j] > nums[i]
+```
+
+相等元素交换没有任何意义，也不会让排列变大。
+
+### 3. 后缀从 `i + 1` 开始反转
+
+不是从 `i` 开始。
+
+### 4. 没找到下降点并不需要单独排序
+
+直接让 `i = -1`，最后执行：
+
+```cpp
+reverse(nums.begin(), nums.end());
+```
+
+即可。
+
+## 十一、把它记成一句话
+
+可以把整个算法记成：
+
+> **从右找下降点，从右找刚好更大的数，交换，再把后缀变成最小。**
+
+或者更抽象地理解：
+
+```text
+尽量少改高位
+        ↓
+找到最靠右仍可增大的位置
+        ↓
+只增大到下一个可能值
+        ↓
+低位全部最小化
+```
+
+这正是“下一个字典序排列”的本质。
+
+## 十二、其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public void nextPermutation(int[] nums) {
+        int n = nums.length;
+        int i = n - 2;
+
+        while (i >= 0 && nums[i] >= nums[i + 1]) {
+            i--;
+        }
+
+        if (i >= 0) {
+            int j = n - 1;
+            while (nums[j] <= nums[i]) {
+                j--;
+            }
+            swap(nums, i, j);
+        }
+
+        reverse(nums, i + 1, n - 1);
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+    private void reverse(int[] nums, int left, int right) {
+        while (left < right) {
+            swap(nums, left++, right--);
+        }
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def nextPermutation(self, nums: List[int]) -> None:
+        n = len(nums)
+        i = n - 2
+
+        while i >= 0 and nums[i] >= nums[i + 1]:
+            i -= 1
+
+        if i >= 0:
+            j = n - 1
+            while nums[j] <= nums[i]:
+                j -= 1
+            nums[i], nums[j] = nums[j], nums[i]
+
+        left, right = i + 1, n - 1
+        while left < right:
+            nums[left], nums[right] = nums[right], nums[left]
+            left += 1
+            right -= 1
+```
+
+```go label="Go"
+func nextPermutation(nums []int) {
+    n := len(nums)
+    i := n - 2
+
+    for i >= 0 && nums[i] >= nums[i+1] {
+        i--
+    }
+
+    if i >= 0 {
+        j := n - 1
+        for nums[j] <= nums[i] {
+            j--
+        }
+        nums[i], nums[j] = nums[j], nums[i]
+    }
+
+    for left, right := i+1, n-1; left < right; left, right = left+1, right-1 {
+        nums[left], nums[right] = nums[right], nums[left]
+    }
+}
+```
+
+```javascript label="JavaScript"
+var nextPermutation = function(nums) {
+    let i = nums.length - 2;
+
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+        i--;
+    }
+
+    if (i >= 0) {
+        let j = nums.length - 1;
+        while (nums[j] <= nums[i]) {
+            j--;
+        }
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+
+    let left = i + 1;
+    let right = nums.length - 1;
+    while (left < right) {
+        [nums[left], nums[right]] = [nums[right], nums[left]];
+        left++;
+        right--;
+    }
+};
+```
+
+```typescript label="TypeScript"
+function nextPermutation(nums: number[]): void {
+    let i = nums.length - 2;
+
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+        i--;
+    }
+
+    if (i >= 0) {
+        let j = nums.length - 1;
+        while (nums[j] <= nums[i]) {
+            j--;
+        }
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+    }
+
+    let left = i + 1;
+    let right = nums.length - 1;
+    while (left < right) {
+        [nums[left], nums[right]] = [nums[right], nums[left]];
+        left++;
+        right--;
+    }
+}
+```
+````

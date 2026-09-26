@@ -1,0 +1,859 @@
+---
+title: 编辑距离
+sidebarTitle: 编辑距离
+summary: 系统讲解 LeetCode 72 编辑距离，从前缀状态、插入/删除/替换三类操作的等价关系出发推导二维 DP，并进一步解释最短路径视角、空间压缩和操作序列恢复。
+---
+
+# 72. 编辑距离
+
+[LeetCode 72：编辑距离](https://leetcode.cn/problems/edit-distance/)
+
+给定两个字符串 `word1` 和 `word2`，允许对 `word1` 执行三种操作：
+
+- 插入一个字符；
+- 删除一个字符；
+- 替换一个字符。
+
+求把 `word1` 转换成 `word2` 所需的**最少操作次数**。
+
+例如：
+
+```text
+word1 = "horse"
+word2 = "ros"
+```
+
+一种最优过程是：
+
+```text
+horse -> rorse   替换 h -> r
+rorse -> rose    删除 r
+rose  -> ros     删除 e
+```
+
+答案为：
+
+$$
+\boxed{3}
+$$
+
+<Callout type="info" title="编辑距离是字符串 DP 的核心模型">
+前面的“判断子序列”“不同的子序列”“两个字符串的删除操作”，都可以看作编辑距离模型在操作集合受限时的特例。真正理解本题后，很多二维字符串 DP 都可以统一到“两个前缀之间如何对齐”的视角下。
+</Callout>
+
+## 1. 为什么要用“前缀”定义状态
+
+如果只盯着两个完整字符串，很难判断一次编辑后问题会变成什么。
+
+但如果把问题改写成：
+
+> `word1` 的前 $i$ 个字符，变成 `word2` 的前 $j$ 个字符，最少需要多少步？
+
+那么每次只需要研究两个前缀的**最后一个字符**：
+
+```text
+word1[0 ... i-1]
+word2[0 ... j-1]
+              ^
+          当前最后字符
+```
+
+这正好能把大问题递归地拆到更短的前缀。
+
+## 2. 状态定义
+
+设：
+
+$$
+\boxed{
+dp[i][j]
+=
+\text{将 }word1[0\ldots i-1]
+\text{ 转换为 }word2[0\ldots j-1]
+\text{ 的最少编辑次数}
+}
+$$
+
+其中：
+
+$$
+0\le i\le n,
+\qquad
+0\le j\le m
+$$
+
+最终答案为：
+
+$$
+\boxed{dp[n][m]}
+$$
+
+这种定义把空字符串也自然纳入状态，是初始化能够非常简洁的关键。
+
+## 3. 当前字符相等：不需要操作
+
+如果：
+
+$$
+word1[i-1]=word2[j-1]
+$$
+
+最后一个字符已经相同，可以直接保留。
+
+于是只需要让前面的部分相同：
+
+$$
+word1[0\ldots i-2]
+\to
+word2[0\ldots j-2]
+$$
+
+因此：
+
+$$
+\boxed{dp[i][j]=dp[i-1][j-1]}
+$$
+
+例如：
+
+```text
+abc
+axc
+  ^
+最后一个字符都是 c
+```
+
+最后的 `c` 不需要处理，问题直接退化为：
+
+```text
+ab -> ax
+```
+
+<Callout type="tip" title="字符相等时为什么不考虑先删再插？">
+因为目标是最少操作。最后字符已经能够直接匹配时，保留它不会比“先破坏再修复”更差，所以最优解一定可以选择不动这两个字符。
+</Callout>
+
+## 4. 当前字符不相等：三种编辑操作
+
+如果：
+
+$$
+word1[i-1]\ne word2[j-1]
+$$
+
+最后两个字符无法直接对齐。
+
+此时只需要枚举最后一步是什么。
+
+### 4.1 删除 `word1[i-1]`
+
+删除 `word1` 的最后一个字符之后，需要解决：
+
+```text
+word1 前 i-1 个字符
+        ->
+word2 前 j 个字符
+```
+
+因此：
+
+$$
+\boxed{dp[i-1][j]+1}
+$$
+
+这里的 $+1$ 就是本次删除操作。
+
+### 4.2 在 `word1` 末尾插入 `word2[j-1]`
+
+插入之后，新字符可以直接和 `word2[j-1]` 匹配。
+
+插入之前，需要先把：
+
+```text
+word1 前 i 个字符
+        ->
+word2 前 j-1 个字符
+```
+
+所以：
+
+$$
+\boxed{dp[i][j-1]+1}
+$$
+
+### 4.3 替换 `word1[i-1]`
+
+把：
+
+```text
+word1[i-1]
+```
+
+替换为：
+
+```text
+word2[j-1]
+```
+
+最后两个字符就对齐了。
+
+此前只需要让两个更短前缀相同：
+
+$$
+\boxed{dp[i-1][j-1]+1}
+$$
+
+## 5. 为什么“插入”和“删除”会对应左右两个方向
+
+这是编辑距离中最容易混淆的地方。
+
+在状态：
+
+$$
+dp[i][j]
+$$
+
+中：
+
+- 从 `dp[i-1][j]` 来，相当于 `word1` 少一个字符，所以对应**删除 `word1`**；
+- 从 `dp[i][j-1]` 来，相当于目标字符串少一个字符，因此从目标角度看像“删除 `word2`”，从把 `word1` 变成 `word2` 的角度看就是**向 `word1` 插入一个字符**。
+
+可以记成：
+
+| 来源 | 最后一步 | 代价 |
+|---|---|---:|
+| `dp[i-1][j]` | 删除 `word1[i-1]` | $+1$ |
+| `dp[i][j-1]` | 插入 `word2[j-1]` | $+1$ |
+| `dp[i-1][j-1]` | 替换 `word1[i-1]` | $+1$ |
+
+本质上不是“公式硬记”，而是看：
+
+> 执行最后一步以后，剩余未解决的问题对应哪个更小的前缀状态？
+
+## 6. 状态转移方程
+
+因此完整转移为：
+
+$$
+\boxed{
+dp[i][j]=
+\begin{cases}
+dp[i-1][j-1],
+& word1[i-1]=word2[j-1]\\[6pt]
+1+\min\left(
+dp[i-1][j],
+dp[i][j-1],
+dp[i-1][j-1]
+\right),
+& word1[i-1]\ne word2[j-1]
+\end{cases}
+}
+$$
+
+其中三项分别对应：
+
+$$
+\boxed{
+\text{删除},\quad
+\text{插入},\quad
+\text{替换}
+}
+$$
+
+## 7. 初始化：空字符串是最重要的边界
+
+### 7.1 `word2` 为空
+
+把长度为 $i$ 的字符串变成空串，只能把所有字符删除：
+
+$$
+\boxed{dp[i][0]=i}
+$$
+
+### 7.2 `word1` 为空
+
+把空串变成长为 $j$ 的字符串，只能连续插入 $j$ 个字符：
+
+$$
+\boxed{dp[0][j]=j}
+$$
+
+因此第一行和第一列为：
+
+```text
+0 1 2 3 4 ...
+1
+2
+3
+4
+...
+```
+
+<Callout type="warning" title="初始化不是附属步骤">
+字符串 DP 中，`dp[i][0]` 和 `dp[0][j]` 往往直接表达“一个前缀与空串”的含义。状态定义一旦清楚，初始化通常就已经确定，不应该靠记忆模板硬填。
+</Callout>
+
+## 8. 遍历顺序
+
+当前状态依赖：
+
+- 左边 `dp[i][j-1]`；
+- 上边 `dp[i-1][j]`；
+- 左上角 `dp[i-1][j-1]`。
+
+原文中的依赖示意图：
+
+![编辑距离的状态依赖](https://file1.kamacoder.com/i/algo/20210114162113131.jpg)
+
+因此按：
+
+```text
+从上到下
+从左到右
+```
+
+遍历即可。
+
+## 9. 示例：`horse -> ros`
+
+完整状态表如下：
+
+![horse 到 ros 的编辑距离 DP 表](https://file1.kamacoder.com/i/algo/20210114162132300.jpg)
+
+最终右下角：
+
+$$
+\boxed{dp[5][3]=3}
+$$
+
+这意味着把：
+
+```text
+horse
+```
+
+变成：
+
+```text
+ros
+```
+
+至少需要 $3$ 次编辑。
+
+## 10. 用“网格最短路径”重新理解编辑距离
+
+把每个状态：
+
+$$
+(i,j)
+$$
+
+看成一个网格节点。
+
+从一个节点可以有三种前进方式：
+
+```text
+(i-1, j)   -> (i, j)     删除
+(i, j-1)   -> (i, j)     插入
+(i-1,j-1)  -> (i, j)     匹配 / 替换
+```
+
+如果最后字符相同，对角线代价为 $0$；否则对角线代价为 $1$。
+
+于是编辑距离本质上就是：
+
+$$
+\boxed{
+\text{从 }(0,0)
+\text{ 到 }(n,m)
+\text{ 的最短路径代价}
+}
+$$
+
+这个视角很重要，因为它解释了为什么：
+
+- DP 状态是二维前缀；
+- 三类操作对应三个方向；
+- 只要局部代价非负，就可以逐格求最优值。
+
+## 11. 二维 DP 标准实现
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        for (int i = 0; i <= n; ++i) {
+            dp[i][0] = i;
+        }
+
+        for (int j = 0; j <= m; ++j) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = 1 + min({
+                        dp[i - 1][j],
+                        dp[i][j - 1],
+                        dp[i - 1][j - 1]
+                    });
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+};
+```
+
+复杂度：
+
+$$
+\boxed{T=O(nm)}
+$$
+
+$$
+\boxed{S=O(nm)}
+$$
+
+## 12. 空间压缩到一维
+
+当前行只依赖：
+
+- 上一行当前列；
+- 当前行前一列；
+- 上一行前一列。
+
+因此可以把二维数组压缩成一维。
+
+设：
+
+```text
+dp[j]
+```
+
+在更新前表示上一行：
+
+$$
+dp[i-1][j]
+$$
+
+更新后表示当前行：
+
+$$
+dp[i][j]
+$$
+
+还需要额外变量 `prevDiagonal` 保存左上角：
+
+$$
+dp[i-1][j-1]
+$$
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        if (word1.size() < word2.size()) {
+            swap(word1, word2);
+        }
+
+        int n = word1.size();
+        int m = word2.size();
+
+        vector<int> dp(m + 1);
+        for (int j = 0; j <= m; ++j) {
+            dp[j] = j;
+        }
+
+        for (int i = 1; i <= n; ++i) {
+            int prevDiagonal = dp[0];
+            dp[0] = i;
+
+            for (int j = 1; j <= m; ++j) {
+                int oldTop = dp[j];
+
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[j] = prevDiagonal;
+                } else {
+                    dp[j] = 1 + min({
+                        oldTop,       // 删除
+                        dp[j - 1],    // 插入
+                        prevDiagonal  // 替换
+                    });
+                }
+
+                prevDiagonal = oldTop;
+            }
+        }
+
+        return dp[m];
+    }
+};
+```
+
+空间复杂度降为：
+
+$$
+\boxed{S=O(\min(n,m))}
+$$
+
+<Callout type="tip" title="为什么一维版本要额外保存左上角？">
+`dp[j-1]` 在当前行已经被覆盖，而替换操作需要的是上一行的 `dp[i-1][j-1]`。所以必须在覆盖前把它保存起来。
+</Callout>
+
+## 13. 如何恢复具体编辑操作
+
+如果只要求最少次数，只保留 `dp` 数值即可。
+
+如果题目还要求输出具体操作，可以从：
+
+$$
+(n,m)
+$$
+
+反向沿 DP 表回溯到：
+
+$$
+(0,0)
+$$
+
+### 回溯规则
+
+如果字符相等且：
+
+$$
+dp[i][j]=dp[i-1][j-1]
+$$
+
+则：
+
+```text
+匹配，不操作
+```
+
+如果：
+
+$$
+dp[i][j]=dp[i-1][j]+1
+$$
+
+则最后一步可以是：
+
+```text
+删除 word1[i-1]
+```
+
+如果：
+
+$$
+dp[i][j]=dp[i][j-1]+1
+$$
+
+则最后一步可以是：
+
+```text
+插入 word2[j-1]
+```
+
+如果：
+
+$$
+dp[i][j]=dp[i-1][j-1]+1
+$$
+
+则最后一步可以是：
+
+```text
+替换 word1[i-1] -> word2[j-1]
+```
+
+当多条路径同时最优时，编辑序列可能不唯一，但最少编辑次数相同。
+
+## 14. 和“两个字符串的删除操作”的关系
+
+上一题只允许：
+
+```text
+删除 word1 中字符
+删除 word2 中字符
+```
+
+本题新增了：
+
+```text
+替换
+```
+
+并把“删除目标字符串字符”的等价方向解释成了“向源字符串插入字符”。
+
+所以可以把标准编辑距离理解为：
+
+$$
+\boxed{
+\text{删除距离}
++
+\text{替换能力}
++
+\text{插入能力}
+}
+$$
+
+更准确地说，它们共享同一个二维前缀 DP 骨架，只是允许的转移边不同。
+
+## 15. 常见错误
+
+### 错误一：把 `dp[i][j]` 定义成下标 `i` 和 `j`
+
+如果直接定义为“到字符下标 `i`,`j`”，空字符串边界会变得很别扭。
+
+更推荐始终使用：
+
+$$
+\text{前 }i\text{ 个字符}
+$$
+
+这种前缀长度定义。
+
+### 错误二：字符不同时只考虑删除和替换
+
+插入操作是独立且必要的。
+
+例如：
+
+```text
+"a" -> "ab"
+```
+
+最优操作就是插入 `b`。
+
+### 错误三：把替换误写成两次操作
+
+替换是题目允许的一次原子操作：
+
+$$
+\boxed{dp[i-1][j-1]+1}
+$$
+
+而不是“删除 + 插入”的 $+2$。
+
+### 错误四：一维压缩时丢失左上角
+
+当前 `dp[j-1]` 已经是新值，不能再当作上一行左上角使用。
+
+必须额外保存旧值。
+
+## 16. 一眼识别编辑距离型 DP
+
+如果题目出现：
+
+- 两个字符串；
+- 对字符执行插入、删除、替换；
+- 求最少操作数 / 最小代价；
+
+首先考虑：
+
+$$
+\boxed{
+ dp[i][j]
+ =
+ \text{把第一个字符串前 }i\text{ 个字符变成第二个字符串前 }j\text{ 个字符的最小代价}
+}
+$$
+
+然后逐一问：
+
+1. 两个末尾字符相等时怎么办？
+2. 删除对应哪个来源状态？
+3. 插入对应哪个来源状态？
+4. 替换对应哪个来源状态？
+5. 每个操作的代价是否相同？
+
+如果不同操作具有不同权重，只需把统一的 $+1$ 改成各自代价即可。
+
+## 17. 其他语言版本
+
+<Tabs items={["C++", "Java", "Python", "Go", "JavaScript"]}>
+<Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n = word1.size(), m = word2.size();
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1));
+
+        for (int i = 0; i <= n; ++i) dp[i][0] = i;
+        for (int j = 0; j <= m; ++j) dp[0][j] = j;
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = 1 + min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]});
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+};
+```
+
+</Tab>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int n = word1.length();
+        int m = word2.length();
+        int[][] dp = new int[n + 1][m + 1];
+
+        for (int i = 0; i <= n; i++) dp[i][0] = i;
+        for (int j = 0; j <= m; j++) dp[0][j] = j;
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = 1 + Math.min(
+                        dp[i - 1][j - 1],
+                        Math.min(dp[i - 1][j], dp[i][j - 1])
+                    );
+                }
+            }
+        }
+
+        return dp[n][m];
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        n, m = len(word1), len(word2)
+        dp = [[0] * (m + 1) for _ in range(n + 1)]
+
+        for i in range(n + 1):
+            dp[i][0] = i
+        for j in range(m + 1):
+            dp[0][j] = j
+
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1]
+                else:
+                    dp[i][j] = 1 + min(
+                        dp[i - 1][j],
+                        dp[i][j - 1],
+                        dp[i - 1][j - 1],
+                    )
+
+        return dp[n][m]
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func minDistance(word1 string, word2 string) int {
+    n, m := len(word1), len(word2)
+    dp := make([][]int, n+1)
+
+    for i := 0; i <= n; i++ {
+        dp[i] = make([]int, m+1)
+        dp[i][0] = i
+    }
+    for j := 0; j <= m; j++ {
+        dp[0][j] = j
+    }
+
+    min3 := func(a, b, c int) int {
+        if a > b { a = b }
+        if a > c { a = c }
+        return a
+    }
+
+    for i := 1; i <= n; i++ {
+        for j := 1; j <= m; j++ {
+            if word1[i-1] == word2[j-1] {
+                dp[i][j] = dp[i-1][j-1]
+            } else {
+                dp[i][j] = 1 + min3(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+            }
+        }
+    }
+
+    return dp[n][m]
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var minDistance = function(word1, word2) {
+    const n = word1.length;
+    const m = word2.length;
+    const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+
+    for (let i = 0; i <= n; i++) dp[i][0] = i;
+    for (let j = 0; j <= m; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            if (word1[i - 1] === word2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = 1 + Math.min(
+                    dp[i - 1][j],
+                    dp[i][j - 1],
+                    dp[i - 1][j - 1]
+                );
+            }
+        }
+    }
+
+    return dp[n][m];
+};
+```
+
+</Tab>
+</Tabs>
+
+## 18. 本题总结
+
+编辑距离最重要的不是记住：
+
+```text
+min(左, 上, 左上) + 1
+```
+
+而是理解三个来源分别代表什么：
+
+$$
+\boxed{
+\begin{aligned}
+dp[i-1][j]   &\Rightarrow \text{删除}\\
+dp[i][j-1]   &\Rightarrow \text{插入}\\
+dp[i-1][j-1] &\Rightarrow \text{匹配或替换}
+\end{aligned}}
+$$
+
+当你能从“最后一步操作”自然推回这三个前驱状态时，编辑距离就不再是需要背诵的公式，而是一套可以迁移到大量字符串最优化问题中的通用建模方法。

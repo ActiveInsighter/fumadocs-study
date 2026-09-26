@@ -1,0 +1,733 @@
+---
+title: 01 背包理论基础：滚动数组
+description: 从二维 01 背包推导一维滚动数组，重点解释状态压缩为什么成立、容量为什么必须倒序，以及遍历顺序如何决定“每件物品只能使用一次”。
+icon: PanelsTopLeft
+---
+
+# 01 背包理论基础：滚动数组
+
+上一节使用二维状态：
+
+$$
+dp[i][j]
+$$
+
+表示从物品 $0\sim i$ 中任意选择、背包容量为 $j$ 时的最大价值。
+
+其状态转移为：
+
+$$
+dp[i][j]=\max\left(dp[i-1][j],\ dp[i-1][j-weight[i]]+value[i]\right)
+$$
+
+仔细观察可以发现：**第 $i$ 行只依赖第 $i-1$ 行**。
+
+这意味着我们没有必要一直保存整张二维表，可以把“上一行”直接复用成“当前行”，将空间压缩到一维。
+
+<Callout type="info" title="这一篇最重要的结论">
+一维 01 背包不仅是“少开一个维度”这么简单。空间压缩以后，**同一个数组同时承担上一层和当前层的角色**，因此遍历方向会直接决定状态是否被污染。
+</Callout>
+
+## 1. 示例仍然不变
+
+背包容量：
+
+$$
+W=4
+$$
+
+物品：
+
+| 物品 | 重量 | 价值 |
+| --- | ---: | ---: |
+| 物品 0 | 1 | 15 |
+| 物品 1 | 3 | 20 |
+| 物品 2 | 4 | 30 |
+
+目标仍是求不超过容量 $4$ 时的最大价值。
+
+## 2. 从二维状态压缩到一维
+
+二维状态转移：
+
+$$
+dp[i][j]=\max\left(dp[i-1][j],\ dp[i-1][j-weight[i]]+value[i]\right)
+$$
+
+计算第 $i$ 行时，我们只需要上一行，而更早的行已经没有用了。
+
+于是可以让一个一维数组：
+
+$$
+dp[j]
+$$
+
+始终保存“已经处理完当前这些物品以后，容量为 $j$ 的最大价值”。
+
+定义：
+
+$$
+\boxed{dp[j]=\text{容量为 }j\text{ 的背包能够取得的最大价值}}
+$$
+
+每处理一件新物品 $i$，就用它更新整条 `dp` 数组。
+
+## 3. 一维递推公式怎么得到
+
+对于容量 $j$，仍然只有两个选择。
+
+### 不选当前物品
+
+保持原来的：
+
+$$
+dp[j]
+$$
+
+### 选择当前物品
+
+需要先留下：
+
+$$
+weight[i]
+$$
+
+的空间，因此要从容量：
+
+$$
+j-weight[i]
+$$
+
+的最优解转移过来，再加当前价值：
+
+$$
+dp[j-weight[i]]+value[i]
+$$
+
+因此：
+
+$$
+\boxed{
+dp[j]=\max\left(dp[j],\ dp[j-weight[i]]+value[i]\right)
+}
+$$
+
+这正是二维公式去掉物品维度后的形式。
+
+<Callout type="tip" title="`dp[j]` 的两个身份">
+在一次物品循环开始时，`dp[j]` 表示“还没考虑当前物品时”的答案；更新完成后，它又变成“已经考虑当前物品时”的答案。滚动数组的本质就是让同一块内存依次扮演两层状态。
+</Callout>
+
+## 4. 初始化为什么全部设为 0
+
+由于状态定义是：
+
+$$
+dp[j]=\text{容量不超过 }j\text{ 时的最大价值}
+$$
+
+且这里默认物品价值均为非负数，所以最自然的初始状态是：
+
+$$
+\boxed{dp[j]=0}
+$$
+
+含义是：还没有处理任何物品时，所有容量下的最大价值都是 $0$。
+
+代码：
+
+```cpp
+vector<int> dp(W + 1, 0);
+```
+
+特别地：
+
+$$
+dp[0]=0
+$$
+
+也与“容量为 0 时无法获得正价值”完全一致。
+
+<Callout type="warning" title="不要把这个初始化迁移到所有背包题">
+如果状态改成“必须恰好装满容量 $j$ 的最大价值”，不可达状态通常不能初始化为 $0$，而要使用负无穷等哨兵值。初始化永远由状态语义决定。
+</Callout>
+
+## 5. 最关键的问题：为什么容量必须倒序遍历
+
+一维写法：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = W; j >= weight[i]; --j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+注意内层容量从大到小。
+
+这不是代码习惯，而是 01 背包成立的核心条件。
+
+## 6. 如果正序遍历会发生什么
+
+只看物品 0：
+
+$$
+weight[0]=1,
+\qquad
+value[0]=15
+$$
+
+初始：
+
+$$
+dp=[0,0,0,0,0]
+$$
+
+如果容量从小到大遍历：
+
+### 更新 $j=1$
+
+$$
+dp[1]=\max(dp[1],dp[0]+15)=15
+$$
+
+数组变成：
+
+$$
+[0,15,0,0,0]
+$$
+
+### 接着更新 $j=2$
+
+此时计算：
+
+$$
+dp[2]=\max(dp[2],dp[1]+15)
+$$
+
+但注意：这里的 $dp[1]$ 已经在**本轮**被物品 0 更新成 $15$。
+
+于是：
+
+$$
+dp[2]=30
+$$
+
+这相当于把物品 0 放了两次。
+
+继续正序更新甚至会得到：
+
+$$
+[0,15,30,45,60]
+$$
+
+这已经不再是 01 背包，而变成了“同一物品可以无限次使用”的效果。
+
+## 7. 倒序为什么能保证每件物品只使用一次
+
+仍然处理物品 0，但容量从大到小：
+
+$$
+j=4,3,2,1
+$$
+
+更新 $dp[4]$ 时，读取的是：
+
+$$
+dp[3]
+$$
+
+此时 $dp[3]$ 还没有在本轮被更新，所以它仍然属于“上一层状态”。
+
+同理：
+
+- 更新 $dp[3]$ 时，$dp[2]$ 仍是旧值；
+- 更新 $dp[2]$ 时，$dp[1]$ 仍是旧值；
+- 最后更新 $dp[1]$。
+
+因此同一轮中，右侧读取到的：
+
+$$
+dp[j-weight[i]]
+$$
+
+始终是“还没有使用当前物品 $i$”的旧状态。
+
+这就模拟了二维状态中的：
+
+$$
+dp[i-1][j-weight[i]]
+$$
+
+所以倒序更新后：
+
+$$
+\boxed{\text{每件物品最多被使用一次}}
+$$
+
+<Callout type="info" title="用一句话记住倒序的本质">
+01 背包倒序遍历不是为了“防止覆盖”本身，而是为了确保转移来源仍属于**上一层物品状态**。
+</Callout>
+
+## 8. 用二维状态解释倒序更加直观
+
+二维公式：
+
+$$
+dp[i][j]=\max\left(dp[i-1][j],dp[i-1][j-weight[i]]+value[i]\right)
+$$
+
+压成一维以后，我们希望右侧的：
+
+$$
+dp[j-weight[i]]
+$$
+
+仍然代表旧的第 $i-1$ 层。
+
+由于：
+
+$$
+j-weight[i]<j
+$$
+
+若从大到小更新，那么较小下标还没被当前物品更新；
+
+若从小到大更新，那么较小下标已经变成当前层，会导致当前物品被重复使用。
+
+这就是遍历方向背后的严格依赖关系。
+
+## 9. 外层为什么必须先遍历物品
+
+标准写法：
+
+```cpp
+for (int i = 0; i < n; ++i) {      // 物品
+    for (int j = W; j >= weight[i]; --j) { // 容量
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+一维 01 背包中，外层应遍历物品，内层倒序遍历容量。
+
+如果交换两层循环：
+
+```cpp
+for (int j = W; j >= 0; --j) {
+    for (int i = 0; i < n; ++i) {
+        ...
+    }
+}
+```
+
+那么“处理完一件物品以后，整条 `dp` 表从上一层滚到下一层”的语义就消失了。
+
+空间压缩依赖的是：
+
+> 一次完整的内层容量循环，完成一件物品对应的一整层状态更新。
+
+因此对于标准一维 01 背包：
+
+$$
+\boxed{\text{外层物品，内层容量倒序}}
+$$
+
+## 10. 手推数组
+
+初始：
+
+$$
+dp=[0,0,0,0,0]
+$$
+
+### 处理物品 0：重量 1，价值 15
+
+倒序更新后：
+
+$$
+dp=[0,15,15,15,15]
+$$
+
+### 处理物品 1：重量 3，价值 20
+
+- $j=4$：
+
+$$
+dp[4]=\max(15,dp[1]+20)=35
+$$
+
+- $j=3$：
+
+$$
+dp[3]=\max(15,dp[0]+20)=20
+$$
+
+得到：
+
+$$
+dp=[0,15,15,20,35]
+$$
+
+### 处理物品 2：重量 4，价值 30
+
+只有 $j=4$ 可以更新：
+
+$$
+dp[4]=\max(35,dp[0]+30)=35
+$$
+
+最终：
+
+$$
+\boxed{dp=[0,15,15,20,35]}
+$$
+
+答案：
+
+$$
+\boxed{35}
+$$
+
+原始一维状态推导图：
+
+![01 背包一维 DP 推导](https://file1.kamacoder.com/i/algo/20210110103614769.png)
+
+## 11. C++ 完整实现
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    int n, W;
+    cin >> n >> W;
+
+    vector<int> weight(n), value(n);
+    for (int &x : weight) cin >> x;
+    for (int &x : value) cin >> x;
+
+    vector<int> dp(W + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        // 必须倒序，保证当前物品只使用一次。
+        for (int j = W; j >= weight[i]; --j) {
+            dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+        }
+    }
+
+    cout << dp[W] << '\n';
+    return 0;
+}
+```
+
+这就是以后解决大量 01 背包应用题时最常用的模板。
+
+## 12. 二维与一维写法对照
+
+| 对比项 | 二维 DP | 一维滚动数组 |
+| --- | --- | --- |
+| 状态 | `dp[i][j]` | `dp[j]` |
+| 物品维度 | 显式保存 | 通过循环过程隐式表示 |
+| 转移来源 | 明确来自上一行 | 同一数组中的旧状态 |
+| 容量遍历方向 | 正序、倒序通常都可 | **必须倒序** |
+| 空间复杂度 | $O(nW)$ | $O(W)$ |
+| 理解难度 | 更直观 | 更依赖遍历顺序 |
+| 实战推荐 | 学原理 | 常用模板 |
+
+## 13. 为什么二维容量正序没问题，一维却不行
+
+二维状态中：
+
+$$
+dp[i][j]
+$$
+
+始终从上一行：
+
+$$
+dp[i-1][*]
+$$
+
+读取数据。
+
+因此当前行无论怎样更新，都不会改变上一行。
+
+一维状态则把两行压在同一个数组中：
+
+$$
+\text{旧 }dp[*]\longrightarrow\text{新 }dp[*]
+$$
+
+此时遍历顺序就是我们区分“旧值”和“新值”的唯一手段。
+
+因此：
+
+- 二维数组用额外空间隔离状态；
+- 一维数组用遍历方向隔离状态。
+
+这是理解滚动数组最重要的思想之一。
+
+## 14. 与完全背包的关键区别
+
+先提前给出一个极其重要的对照。
+
+### 01 背包
+
+每件物品只能选一次，所以容量：
+
+$$
+\boxed{\text{倒序}}
+$$
+
+```cpp
+for (int j = W; j >= weight[i]; --j)
+```
+
+### 完全背包
+
+每件物品可以重复选，因此希望本轮刚更新过的较小容量继续参与后面的转移，所以容量通常：
+
+$$
+\boxed{\text{正序}}
+$$
+
+```cpp
+for (int j = weight[i]; j <= W; ++j)
+```
+
+<Callout type="warning" title="背包题最常见的模板错误">
+看到背包就机械写循环非常危险。**容量正序还是倒序，本质上取决于当前物品能否重复使用。**
+</Callout>
+
+## 15. 高频错误排查
+
+### 错误 1：容量正序
+
+```cpp
+for (int j = weight[i]; j <= W; ++j)
+```
+
+这会让当前物品在同一轮被重复使用，语义接近完全背包。
+
+### 错误 2：`j` 从 `W` 一直减到 0
+
+虽然可以再在循环内部判断，但没有必要。只需要处理：
+
+$$
+j\ge weight[i]
+$$
+
+即可。
+
+### 错误 3：状态定义模糊
+
+必须始终明确：
+
+$$
+dp[j]=\text{当前已经处理的物品范围内，容量为 }j\text{ 的最大价值}
+$$
+
+“当前已经处理的物品范围”虽然不写在数组下标里，却仍然存在于外层循环中。
+
+### 错误 4：把“滚动数组”理解成单纯省空间
+
+空间优化只是结果。真正的本质是：
+
+> 当一个状态只依赖上一层时，可以复用上一层的存储空间；但必须保证更新顺序不会提前覆盖仍要读取的数据。
+
+## 16. 01 背包一维模板
+
+以后遇到“每个物品最多一次、求最大价值”的标准模型，可以快速写出：
+
+```cpp
+vector<int> dp(W + 1, 0);
+
+for (int i = 0; i < n; ++i) {
+    for (int j = W; j >= weight[i]; --j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+但真正应该记住的是三个语义：
+
+1. 外层每循环一次，表示“新加入一种只能使用一次的物品”；
+2. `dp[j - weight[i]]` 必须来自加入当前物品之前的旧状态；
+3. 倒序遍历正是为了保护这些旧状态。
+
+## 17. 复杂度
+
+物品数为 $n$，容量为 $W$。
+
+时间复杂度没有改变：
+
+$$
+\boxed{O(nW)}
+$$
+
+空间复杂度从二维的：
+
+$$
+O(nW)
+$$
+
+下降为：
+
+$$
+\boxed{O(W)}
+$$
+
+## 18. 本篇结论
+
+一维 01 背包的状态转移为：
+
+$$
+\boxed{
+dp[j]=\max\left(dp[j],dp[j-weight[i]]+value[i]\right)
+}
+$$
+
+标准遍历为：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = W; j >= weight[i]; --j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+其中最关键的不是公式，而是：
+
+$$
+\boxed{\text{容量倒序保证 }dp[j-weight[i]]\text{ 仍属于上一层状态}}
+$$
+
+理解了这一点，就真正理解了 01 背包的滚动数组，而不是只背下一段模板代码。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int W = sc.nextInt();
+
+        int[] weight = new int[n];
+        int[] value = new int[n];
+        for (int i = 0; i < n; i++) weight[i] = sc.nextInt();
+        for (int i = 0; i < n; i++) value[i] = sc.nextInt();
+
+        int[] dp = new int[W + 1];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = W; j >= weight[i]; j--) {
+                dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i]);
+            }
+        }
+
+        System.out.println(dp[W]);
+    }
+}
+```
+
+```python label="Python"
+n, W = map(int, input().split())
+weight = list(map(int, input().split()))
+value = list(map(int, input().split()))
+
+dp = [0] * (W + 1)
+
+for i in range(n):
+    for j in range(W, weight[i] - 1, -1):
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
+
+print(dp[W])
+```
+
+```go label="Go"
+package main
+
+import "fmt"
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
+func main() {
+    var n, W int
+    fmt.Scan(&n, &W)
+
+    weight := make([]int, n)
+    value := make([]int, n)
+    for i := range weight {
+        fmt.Scan(&weight[i])
+    }
+    for i := range value {
+        fmt.Scan(&value[i])
+    }
+
+    dp := make([]int, W+1)
+
+    for i := 0; i < n; i++ {
+        for j := W; j >= weight[i]; j-- {
+            dp[j] = max(dp[j], dp[j-weight[i]]+value[i])
+        }
+    }
+
+    fmt.Println(dp[W])
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+const n = data[p++];
+const W = data[p++];
+const weight = Array.from({ length: n }, () => data[p++]);
+const value = Array.from({ length: n }, () => data[p++]);
+
+const dp = Array(W + 1).fill(0);
+
+for (let i = 0; i < n; i++) {
+  for (let j = W; j >= weight[i]; j--) {
+    dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i]);
+  }
+}
+
+console.log(dp[W]);
+```
+
+```typescript label="TypeScript"
+import * as fs from 'fs';
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+const n = data[p++];
+const W = data[p++];
+const weight = Array.from({ length: n }, () => data[p++]);
+const value = Array.from({ length: n }, () => data[p++]);
+
+const dp: number[] = new Array(W + 1).fill(0);
+
+for (let i = 0; i < n; i++) {
+  for (let j = W; j >= weight[i]; j--) {
+    dp[j] = Math.max(dp[j], dp[j - weight[i]] + value[i]);
+  }
+}
+
+console.log(dp[W]);
+```
+````

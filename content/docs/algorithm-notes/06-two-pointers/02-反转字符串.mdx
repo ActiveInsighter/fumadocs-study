@@ -1,0 +1,947 @@
+---
+title: 反转字符串
+description: 用首尾相向双指针完成 O(1) 额外空间的原地反转，理解镜像位置、循环边界与“交换后向中间收缩”的通用模型。
+---
+
+# 344. 反转字符串
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/reverse-string/">
+    LeetCode 344 · Reverse String
+  </Card>
+</Cards>
+
+给定字符数组 `s`，要求：
+
+- 将字符顺序反转；
+- 必须**原地修改**；
+- 额外空间复杂度为 $O(1)$；
+- 不需要返回新的字符串。
+
+例如：
+
+```text
+["h", "e", "l", "l", "o"]
+```
+
+反转后：
+
+```text
+["o", "l", "l", "e", "h"]
+```
+
+再例如：
+
+```text
+["H", "a", "n", "n", "a", "h"]
+```
+
+反转后：
+
+```text
+["h", "a", "n", "n", "a", "H"]
+```
+
+<Callout type="info" title="本题是相向双指针最纯粹的模板">
+左指针从头开始，右指针从尾开始：
+
+```text
+交换
+→ 左指针右移
+→ 右指针左移
+```
+
+直到两者相遇。
+</Callout>
+
+---
+
+## 1. 为什么不需要额外数组
+
+最直观的反转方法可能是新建数组：
+
+```text
+原数组：h e l l o
+新数组：o l l e h
+```
+
+这样需要：
+
+$$
+O(n)
+$$
+
+额外空间。
+
+但反转其实只涉及一组组**镜像位置**交换。
+
+对于长度为 $n$ 的数组：
+
+```text
+0        ↔ n-1
+1        ↔ n-2
+2        ↔ n-3
+...
+```
+
+第 $i$ 个位置的镜像位置为：
+
+$$
+n-1-i
+$$
+
+因此完全可以直接在原数组中交换。
+
+---
+
+## 2. 相向双指针
+
+定义：
+
+```cpp
+int left = 0;
+int right = s.size() - 1;
+```
+
+然后重复：
+
+```cpp
+swap(s[left], s[right]);
+++left;
+--right;
+```
+
+直到：
+
+```cpp
+left >= right
+```
+
+原始动画：
+
+![反转字符串](https://file1.kamacoder.com/i/algo/344.%E5%8F%8D%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2.gif)
+
+---
+
+## 3. 以 `"hello"` 为例
+
+初始：
+
+```text
+h e l l o
+^       ^
+L       R
+```
+
+交换首尾：
+
+```text
+o e l l h
+  ^   ^
+  L   R
+```
+
+再次交换：
+
+```text
+o l l e h
+    ^
+   L/R
+```
+
+完成。
+
+注意中间字符：
+
+```text
+l
+```
+
+不需要处理。
+
+---
+
+## 4. 为什么循环条件是 `left < right`
+
+当：
+
+```text
+left == right
+```
+
+时，两指针指向同一个字符。
+
+交换自己没有意义。
+
+所以继续条件只需要：
+
+```cpp
+while (left < right)
+```
+
+---
+
+## 5. 奇数长度与偶数长度都不需要特殊判断
+
+### 奇数长度
+
+例如：
+
+```text
+a b c d e
+```
+
+交换：
+
+```text
+a ↔ e
+b ↔ d
+```
+
+最后：
+
+```text
+c
+```
+
+落在中间，保持不变。
+
+---
+
+### 偶数长度
+
+例如：
+
+```text
+a b c d
+```
+
+交换：
+
+```text
+a ↔ d
+b ↔ c
+```
+
+两指针交错后结束。
+
+因此统一使用：
+
+```cpp
+left < right
+```
+
+即可。
+
+---
+
+## 6. 标准解法
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left = 0;
+        int right = s.size() - 1;
+
+        while (left < right) {
+            swap(s[left], s[right]);
+
+            ++left;
+            --right;
+        }
+    }
+};
+```
+
+这就是最推荐的版本。
+
+---
+
+## 7. 也可以用 `for` 循环写
+
+因为只需要交换前一半位置：
+
+$$
+0\le i<\left\lfloor\frac n2\right\rfloor
+$$
+
+对应位置：
+
+$$
+n-1-i
+$$
+
+所以可以写：
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int n = s.size();
+
+        for (int i = 0; i < n / 2; ++i) {
+            swap(s[i], s[n - 1 - i]);
+        }
+    }
+};
+```
+
+这种写法本质上和双指针完全相同。
+
+只是把：
+
+```text
+left = i
+right = n - 1 - i
+```
+
+显式写成了镜像下标关系。
+
+---
+
+## 8. 正确性为什么成立
+
+数组下标：
+
+$$
+0,1,2,\dots,n-1
+$$
+
+反转后，原位置 $i$ 的字符应该移动到：
+
+$$
+n-1-i
+$$
+
+因此每一对：
+
+$$
+(i,\ n-1-i)
+$$
+
+只需要交换一次。
+
+算法从：
+
+```text
+(0, n-1)
+```
+
+开始，不断向中间移动：
+
+```text
+(1, n-2)
+(2, n-3)
+...
+```
+
+所有镜像位置都会恰好交换一次。
+
+所以最终数组就是原数组的逆序。
+
+---
+
+## 9. 时间复杂度
+
+一共交换约：
+
+$$
+\frac n2
+$$
+
+次。
+
+因此时间复杂度：
+
+$$
+O(n)
+$$
+
+额外只使用：
+
+```text
+left
+right
+临时交换变量
+```
+
+所以空间复杂度：
+
+$$
+O(1)
+$$
+
+---
+
+## 10. `swap` 能不能用
+
+可以。
+
+因为本题考查的核心是：
+
+```text
+如何确定应该交换哪些位置
+```
+
+而不是考查“如何手写变量交换”。
+
+`swap(a, b)` 本质上等价于：
+
+```cpp
+char temp = a;
+a = b;
+b = temp;
+```
+
+所以这里使用库函数不会掩盖核心算法。
+
+---
+
+## 11. 为什么不推荐 XOR 交换
+
+原资料中给出了：
+
+```cpp
+a ^= b;
+b ^= a;
+a ^= b;
+```
+
+这种位运算交换技巧。
+
+虽然对整数型数据在满足条件时可以工作，但实际算法代码中不推荐。
+
+原因包括：
+
+- 可读性差；
+- 容易误用；
+- 当两个引用指向同一对象时会出问题；
+- 编译器对普通临时变量交换已经可以很好优化。
+
+更推荐：
+
+```cpp
+swap(a, b);
+```
+
+或者：
+
+```cpp
+auto temp = a;
+a = b;
+b = temp;
+```
+
+<Callout type="warning" title="不要为了“省一个临时变量”牺牲可读性">
+算法题真正重要的是正确性、复杂度和思路清晰。XOR 交换通常没有实际收益。
+</Callout>
+
+---
+
+## 12. 为什么直接调用 `reverse` 不利于练习
+
+在工程代码中：
+
+```cpp
+reverse(s.begin(), s.end());
+```
+
+当然完全合理。
+
+但如果题目本身就在考：
+
+```text
+如何原地反转
+```
+
+那么直接调用 `reverse` 会绕过核心练习目标。
+
+一个实用原则是：
+
+> 如果某个库函数直接完成题目的核心算法，应确保自己已经能手写其核心逻辑。
+
+如果库函数只是辅助操作，比如：
+
+```cpp
+swap
+```
+
+则可以正常使用。
+
+---
+
+## 13. 相向双指针的本质
+
+本题中的两个指针职责非常对称：
+
+```text
+left  从左向右
+right 从右向左
+```
+
+每一轮处理的是：
+
+```text
+一对镜像位置
+```
+
+这类模型叫：
+
+> **相向双指针**
+
+典型结构：
+
+```cpp
+int left = 0;
+int right = n - 1;
+
+while (left < right) {
+    // 使用 / 比较 / 交换两端元素
+
+    ++left;
+    --right;
+}
+```
+
+---
+
+## 14. 相向双指针常见应用
+
+### 字符串反转
+
+```text
+首尾交换
+```
+
+### 判断回文
+
+```text
+首尾比较
+```
+
+### 有序数组两数之和
+
+```text
+根据两端和的大小决定移动方向
+```
+
+### 盛最多水的容器
+
+```text
+根据两端高度决定舍弃哪一侧
+```
+
+### 三数之和
+
+固定一个数后：
+
+```text
+left / right
+```
+
+在剩余有序区间中搜索。
+
+---
+
+## 15. 反转区间
+
+如果不是反转整个数组，而是只反转：
+
+```text
+[left, right]
+```
+
+也完全可以复用同一个模板：
+
+```cpp
+while (left < right) {
+    swap(s[left], s[right]);
+    ++left;
+    --right;
+}
+```
+
+所以常把它封装成函数：
+
+```cpp
+void reverseRange(
+    vector<char>& s,
+    int left,
+    int right
+) {
+    while (left < right) {
+        swap(s[left], s[right]);
+        ++left;
+        --right;
+    }
+}
+```
+
+这个区间反转函数在字符串题中非常常用。
+
+---
+
+## 16. 为什么“反转”常常可以分段完成
+
+例如：
+
+```text
+abcdefg
+```
+
+如果要实现某种局部重排，很多题会把目标拆成若干次：
+
+```text
+区间反转
+```
+
+因为反转具有很强的结构性。
+
+例如：
+
+```text
+整体反转
+局部反转
+```
+
+组合后可以实现：
+
+- 旋转字符串；
+- 单词顺序反转；
+- 区间翻转；
+- 字符串块交换。
+
+所以这一题虽然简单，但它实际上是很多复杂字符串操作的基础积木。
+
+---
+
+## 17. 回文判断与反转字符串的关系
+
+反转字符串：
+
+```text
+交换首尾
+```
+
+回文判断：
+
+```text
+比较首尾
+```
+
+二者的指针框架完全一致：
+
+```cpp
+int left = 0;
+int right = n - 1;
+
+while (left < right) {
+    ...
+    ++left;
+    --right;
+}
+```
+
+区别只在于中间操作：
+
+### 反转
+
+```cpp
+swap(...)
+```
+
+### 回文
+
+```cpp
+if (s[left] != s[right]) ...
+```
+
+所以学习双指针时，更应该记住“结构”，而不是题目名字。
+
+---
+
+## 18. 常见错误
+
+### 错误一：循环条件写成 `left <= right`
+
+虽然很多情况下交换中间字符自己也不会出错，但：
+
+```text
+left == right
+```
+
+时没有任何实际工作。
+
+所以更准确：
+
+```cpp
+left < right
+```
+
+---
+
+### 错误二：交换后忘记移动两个指针
+
+如果只移动一侧：
+
+```text
+会重复处理
+甚至死循环
+```
+
+---
+
+### 错误三：创建完整的新数组
+
+题目明确要求：
+
+$$
+O(1)
+$$
+
+额外空间。
+
+新建长度为 $n$ 的数组会变成：
+
+$$
+O(n)
+$$
+
+---
+
+### 错误四：对空数组直接计算无符号下标
+
+在 C++ 中：
+
+```cpp
+s.size()
+```
+
+类型通常是无符号整数。
+
+若直接写某些形式的：
+
+```cpp
+size_t right = s.size() - 1;
+```
+
+当数组为空时可能发生无符号下溢。
+
+LeetCode 本题通常输入非空，但工程代码中应注意这一点。
+
+使用：
+
+```cpp
+int right = static_cast<int>(s.size()) - 1;
+```
+
+或先判断空数组会更稳妥。
+
+---
+
+## 19. 双指针与镜像下标的两种思维
+
+本题可以有两种理解方式。
+
+### 方式一：两个指针
+
+```text
+left
+right
+```
+
+从两端向中间走。
+
+### 方式二：镜像映射
+
+对于任意：
+
+$$
+i
+$$
+
+交换：
+
+$$
+i\leftrightarrow n-1-i
+$$
+
+两种方法本质完全一致。
+
+在区间操作里，双指针通常更通用。
+
+---
+
+## 20. 一眼识别相向双指针
+
+如果题目出现：
+
+```text
+首尾
+两端
+反转
+回文
+有序数组
+从两边向中间
+```
+
+应优先考虑：
+
+```text
+left = 0
+right = n - 1
+
+while left < right:
+    根据两端状态处理
+    移动一个或两个指针
+```
+
+---
+
+## 21. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left = 0;
+        int right = static_cast<int>(s.size()) - 1;
+
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0;
+        int right = s.length - 1;
+
+        while (left < right) {
+            char temp = s[left];
+            s[left] = s[right];
+            s[right] = temp;
+
+            ++left;
+            --right;
+        }
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def reverseString(self, s: List[str]) -> None:
+        left = 0
+        right = len(s) - 1
+
+        while left < right:
+            s[left], s[right] = s[right], s[left]
+            left += 1
+            right -= 1
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func reverseString(s []byte) {
+    left := 0
+    right := len(s) - 1
+
+    for left < right {
+        s[left], s[right] = s[right], s[left]
+        left++
+        right--
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var reverseString = function(s) {
+    let left = 0;
+    let right = s.length - 1;
+
+    while (left < right) {
+        [s[left], s[right]] = [s[right], s[left]];
+        ++left;
+        --right;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function reverseString(s: string[]): void {
+    let left = 0;
+    let right = s.length - 1;
+
+    while (left < right) {
+        [s[left], s[right]] = [s[right], s[left]];
+        ++left;
+        --right;
+    }
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 22. 本题总结
+
+这道题最重要的是建立相向双指针模板：
+
+```text
+left 指向左端
+right 指向右端
+        ↓
+处理一对两端元素
+        ↓
+left++
+right--
+        ↓
+直到相遇
+```
+
+对于反转：
+
+```text
+处理 = swap
+```
+
+核心结论：
+
+1. 镜像位置满足 $i \leftrightarrow n-1-i$。
+2. 原地反转只需要 $O(1)$ 额外空间。
+3. 相向双指针可以统一处理奇数长度和偶数长度。
+4. `while (left < right)` 是最自然的循环边界。
+5. 这一模板还是回文、两数之和、三数之和等大量题目的基础。

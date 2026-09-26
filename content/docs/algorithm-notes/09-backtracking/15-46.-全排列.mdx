@@ -1,0 +1,1220 @@
+---
+title: 46. 全排列
+summary: 从组合/子集的 startIndex 模型切换到排列的 used 模型，理解“顺序重要”为什么会彻底改变搜索树的候选集合。
+description: LeetCode 46 全排列：排列与组合的本质区别、used 数组、搜索树、回溯三部曲、阶乘复杂度、正确性分析与多语言实现。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 46. 全排列
+
+[LeetCode 题目链接](https://leetcode.cn/problems/permutations/)
+
+给定一个由**互不相同整数**组成的数组 `nums`，返回它的所有可能全排列。
+
+```text title="示例"
+输入：nums = [1, 2, 3]
+输出：[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+```
+
+如果数组长度为 $n$，因为所有元素互不相同，所以全排列数量为：
+
+$$
+n!
+$$
+
+<Callout title="排列题最关键的模型切换">
+
+组合 / 子集里通常有：
+
+```text
+startIndex
+```
+
+因为 `[1,2]` 与 `[2,1]` 被视为同一种选择，所以搜索只能不断向右。
+
+排列里：
+
+```text
+[1,2] != [2,1]
+```
+
+每一层都必须重新检查**整个数组**。
+
+因此排列问题的核心状态从：
+
+```text
+startIndex
+```
+
+切换成：
+
+```text
+used[i]
+```
+
+</Callout>
+
+## 1. 组合与排列，真正区别不是“写法不同”
+
+假设有三个元素：
+
+```text
+[1, 2, 3]
+```
+
+如果求长度为 `2` 的组合：
+
+```text
+[1,2]
+[1,3]
+[2,3]
+```
+
+不会再出现：
+
+```text
+[2,1]
+[3,1]
+[3,2]
+```
+
+因为组合只关心：
+
+```text
+选了哪些元素
+```
+
+而排列关心：
+
+```text
+元素以什么顺序出现
+```
+
+数学上：
+
+$$
+\{1,2\} = \{2,1\}
+$$
+
+但序列：
+
+$$
+(1,2) \ne (2,1)
+$$
+
+所以搜索树的候选规则必须改变。
+
+## 2. 为什么排列不能使用 `startIndex`？
+
+假设第一步选了 `2`。
+
+当前路径：
+
+```text
+[2]
+```
+
+下一步必须允许选择：
+
+```text
+1 或 3
+```
+
+如果沿用组合模板：
+
+```cpp
+backtracking(nums, i + 1);
+```
+
+当 `2` 的下标为 `1` 时，下一层只能从下标 `2` 开始，于是只能选择 `3`：
+
+```text
+[2,3]
+```
+
+合法排列：
+
+```text
+[2,1,3]
+```
+
+就永远无法生成。
+
+因此排列每一层都必须：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i)
+```
+
+从整个数组中寻找“当前路径还没用过”的元素。
+
+## 3. 搜索树：每层都在填一个位置
+
+以 `[1,2,3]` 为例，原资料中的搜索树如下：
+
+![46. 全排列搜索树](https://file1.kamacoder.com/i/algo/20240803180318.png)
+
+可以把树的深度理解为：
+
+```text
+正在决定排列的第几个位置
+```
+
+### 第 0 层
+
+决定第一个位置：
+
+```text
+1 / 2 / 3
+```
+
+有 $3$ 种选择。
+
+### 第 1 层
+
+已经使用一个元素，还剩：
+
+$$
+3-1=2
+$$
+
+种选择。
+
+### 第 2 层
+
+只剩：
+
+$$
+1
+$$
+
+种选择。
+
+所以叶子数量正好是：
+
+$$
+3\times2\times1=3!=6
+$$
+
+一般地：
+
+$$
+n(n-1)(n-2)\cdots1=n!
+$$
+
+## 4. `used[i]` 到底记录的是什么？
+
+定义：
+
+```cpp
+vector<bool> used(nums.size(), false);
+```
+
+含义是：
+
+```text
+used[i] == true
+```
+
+表示：
+
+> `nums[i]` 对应的这个数组下标，已经出现在当前 `path` 中。
+
+例如：
+
+```text
+nums = [1,2,3]
+path = [2,1]
+```
+
+状态可能是：
+
+```text
+used = [true, true, false]
+```
+
+下一步只能选 `3`。
+
+<Callout type="info" title="这里标记的是下标，不只是数值">
+
+本题输入保证元素互不相同，所以按值或按下标判断都能工作。
+
+但更通用、更规范的理解是：
+
+```text
+used[i] 表示第 i 个位置是否已经被当前排列使用
+```
+
+这样才能自然迁移到下一题“含重复数字的全排列”。
+
+</Callout>
+
+## 5. 为什么 `used` 必须回溯恢复？
+
+假设当前正在搜索：
+
+```text
+[] → [1] → [1,2]
+```
+
+此时：
+
+```text
+used[0] = true
+used[1] = true
+```
+
+递归返回到：
+
+```text
+[1]
+```
+
+以后，`2` 必须重新变成可选，因为还要搜索兄弟分支：
+
+```text
+[1,3,2]
+```
+
+所以一次选择完整的状态变化必须成对出现：
+
+```cpp
+used[i] = true;
+path.push_back(nums[i]);
+
+backtracking(nums, used);
+
+path.pop_back();
+used[i] = false;
+```
+
+这就是回溯的本质：
+
+$$
+\boxed{\text{进入子树前修改状态，离开子树后恢复状态}}
+$$
+
+## 6. `used` 与前一题“每层 Set”有什么区别？
+
+这两个结构非常容易混淆。
+
+| 状态 | 生命周期 | 表示什么 |
+| --- | --- | --- |
+| `used[i]` | 沿当前树枝维护 | 当前路径是否已经使用下标 `i` |
+| `usedThisLevel` | 只属于当前树层 | 当前父节点下某个数值是否已经开过分支 |
+
+在 `46. 全排列` 中，数组元素互不相同，因此不需要树层按值去重，只需要防止当前排列重复使用同一个下标。
+
+后面的 `47. 全排列 II` 会把两者结合：
+
+```text
+树枝：used[i] 防止同一元素重复使用
+树层：重复值去重，防止生成相同排列
+```
+
+## 7. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 递归参数：不再需要 `startIndex`
+
+```cpp
+void backtracking(
+    const vector<int>& nums,
+    vector<bool>& used
+)
+```
+
+同时维护：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+每一层都从：
+
+```cpp
+i = 0
+```
+
+开始遍历整个数组。
+
+</Step>
+<Step>
+
+### ② 终止条件：排列长度达到 `n`
+
+当：
+
+```cpp
+path.size() == nums.size()
+```
+
+说明每个元素都恰好使用了一次，得到一个完整排列：
+
+```cpp
+result.push_back(path);
+return;
+```
+
+与子集不同，本题只收集叶子节点，不收集中间路径。
+
+</Step>
+<Step>
+
+### ③ 单层搜索：跳过当前路径已经使用的下标
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    if (used[i]) {
+        continue;
+    }
+
+    used[i] = true;
+    path.push_back(nums[i]);
+
+    backtracking(nums, used);
+
+    path.pop_back();
+    used[i] = false;
+}
+```
+
+每一次循环都是：
+
+```text
+为排列的“当前空位”选择一个还没使用的元素
+```
+
+</Step>
+</Steps>
+
+## 8. C++ 标准写法
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, vector<bool>& used) {
+        if (path.size() == nums.size()) {
+            result.push_back(path);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); ++i) {
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push_back(nums[i]);
+
+            backtracking(nums, used);
+
+            path.pop_back();
+            used[i] = false;
+        }
+    }
+
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<bool> used(nums.size(), false);
+        backtracking(nums, used);
+        return result;
+    }
+};
+```
+
+这份代码最值得记住的不是语法，而是：
+
+```text
+每层从 0 开始 + used 控制“当前路径是否已使用”
+```
+
+## 9. 手动模拟 `[1,2,3]`
+
+初始：
+
+```text
+path = []
+used = [F,F,F]
+```
+
+### 第一层选择 `1`
+
+```text
+path = [1]
+used = [T,F,F]
+```
+
+下一层仍然从 `i = 0` 开始。
+
+- `i = 0`：`used[0] = true`，跳过；
+- `i = 1`：选择 `2`；
+- `i = 2`：之后还会选择 `3`。
+
+先进入：
+
+```text
+[1,2]
+used = [T,T,F]
+```
+
+唯一可选元素是 `3`，得到：
+
+```text
+[1,2,3]
+```
+
+收集后回溯：
+
+```text
+[1,2,3]
+   ↓ pop 3
+[1,2]
+   ↓ pop 2，并 used[1] = false
+[1]
+```
+
+然后在 `[1]` 这一层选择 `3`：
+
+```text
+[1,3,2]
+```
+
+当以 `1` 开头的排列全部搜索完成，再把：
+
+```text
+used[0] = false
+```
+
+于是根节点可以继续生成：
+
+```text
+[2,1,3]
+[2,3,1]
+[3,1,2]
+[3,2,1]
+```
+
+## 10. 为什么不能用 `path` 中是否包含这个值来代替 `used`？
+
+本题元素互不相同，因此确实可以写：
+
+```cpp
+if (find(path.begin(), path.end(), nums[i]) != path.end()) {
+    continue;
+}
+```
+
+但不推荐。
+
+### `used` 查询
+
+```cpp
+used[i]
+```
+
+时间复杂度：
+
+$$
+O(1)
+$$
+
+### 在线性 `path` 中查找
+
+最坏：
+
+$$
+O(n)
+$$
+
+而这个判断发生在搜索树大量节点上，会造成额外开销。
+
+同时 `used` 更直接表达“下标是否被当前路径占用”，逻辑也更容易扩展到重复元素排列。
+
+## 11. 排列问题为什么没有剪枝上界公式？
+
+组合题常见这样的剪枝：
+
+```text
+剩余元素已经不足以凑够 k 个，就停止循环
+```
+
+因为组合只向右搜索，候选区间会逐渐缩短。
+
+但全排列中每一层的候选数量其实是确定的：
+
+$$
+n-|path|
+$$
+
+所有未使用元素都必须作为可能分支尝试，否则就会漏掉合法排列。
+
+因此 `46. 全排列` 的标准搜索几乎没有类似组合题那样的“范围剪枝”。
+
+它真正的约束就是：
+
+```cpp
+if (used[i]) continue;
+```
+
+## 12. 为什么结果只在叶子结点收集？
+
+路径：
+
+```text
+[1]
+[1,2]
+```
+
+都不是全排列，因为仍然缺少元素。
+
+只有：
+
+```text
+path.size() == nums.size()
+```
+
+时，才满足：
+
+```text
+所有元素全部出现且恰好一次
+```
+
+因此全排列的答案分布与子集完全不同：
+
+```text
+子集：树上每个节点都可能是答案
+全排列：只有深度 n 的叶子节点是答案
+```
+
+## 13. 从“槽位”角度理解会更简单
+
+还可以完全不把它理解成“选元素”，而把它理解为：
+
+```text
+依次填写排列的第 0、1、2、...、n-1 个位置
+```
+
+设当前：
+
+```text
+path.size() = d
+```
+
+表示：
+
+```text
+前 d 个位置已经确定
+```
+
+第 `d` 个位置可以放任何未使用元素。
+
+这个视角直接解释：
+
+- 为什么循环每层都从 `0` 开始；
+- 为什么需要 `used`；
+- 为什么深度达到 `n` 就得到答案。
+
+## 14. 正确性：为什么每个排列恰好生成一次？
+
+对于任意目标排列：
+
+$$
+p=(p_1,p_2,\dots,p_n)
+$$
+
+搜索树第 `1` 层选择 `p_1`，第 `2` 层选择 `p_2`，依次选择到 `p_n`，因此每个排列至少可以被生成一次。
+
+另一方面，`used[i]` 保证同一条路径中每个下标最多出现一次。
+
+而一条根到叶子的路径完整记录了一个确定的元素顺序，所以不同根到叶路径对应不同排列。
+
+因此：
+
+$$
+\boxed{\text{每个合法全排列恰好对应一片叶子}}
+$$
+
+## 15. 时间复杂度为什么不是简单的 $O(n!)$？
+
+搜索树有：
+
+$$
+n!
+$$
+
+个叶子。
+
+但把一个完整排列放入答案时，需要复制长度为 $n$ 的 `path`：
+
+$$
+O(n)
+$$
+
+因此若把输出构造成本算进去，更严格的时间复杂度为：
+
+$$
+O(n\cdot n!)
+$$
+
+有些题解写 $O(n!)$，通常是在强调搜索树叶子数量，或忽略了结果复制成本。
+
+不计最终输出本身，辅助空间包括：
+
+- 递归深度：$O(n)$；
+- `path`：$O(n)$；
+- `used`：$O(n)$。
+
+因此为：
+
+$$
+O(n)
+$$
+
+## 16. 搜索树一共有多少节点？
+
+第 $d$ 层（已经选择 $d$ 个元素）的节点数为排列数：
+
+$$
+P(n,d)=\frac{n!}{(n-d)!}
+$$
+
+因此总搜索节点数为：
+
+$$
+\sum_{d=0}^{n}P(n,d)
+=
+\sum_{d=0}^{n}\frac{n!}{(n-d)!}
+$$
+
+它与 $n!$ 同阶。
+
+这个表达式能更准确解释为什么排列搜索增长极快：
+
+```text
+n = 8  →  40320 个排列
+n = 9  →  362880 个排列
+n = 10 →  3628800 个排列
+```
+
+回溯不是把指数/阶乘问题“变快”，而是用结构化方式完整枚举必须枚举的答案空间。
+
+## 17. 与组合、子集、切割问题统一对照
+
+| 问题类型 | 每层候选范围 | 防止重复使用 | 答案位置 |
+| --- | --- | --- | --- |
+| 组合 | `i = startIndex ...` | `i + 1` 推进 | 满足长度/目标条件的节点 |
+| 子集 | `i = startIndex ...` | `i + 1` 推进 | 几乎所有节点 |
+| 切割 | 从当前切割起点向后枚举终点 | 新起点推进 | 切到字符串末尾 |
+| 排列 | `i = 0 ... n-1` | `used[i]` | 深度为 `n` 的叶子 |
+
+所以判断题型时，可以先问自己：
+
+> **“选择了较靠后的元素以后，下一层还能不能回来选择前面的未使用元素？”**
+
+如果答案是“能”，并且顺序不同算不同答案，通常就是排列模型。
+
+## 18. 常见错误清单
+
+<Callout type="warn" title="错误 1：继续使用 startIndex">
+
+这会删除 `[2,1,...]` 这类需要“回头选择前面元素”的排列。
+
+</Callout>
+
+<Callout type="warn" title="错误 2：递归回来后忘记 used[i] = false">
+
+元素会被错误地永久标记为使用过，后续兄弟分支无法选择它。
+
+</Callout>
+
+<Callout type="warn" title="错误 3：只恢复 used，不恢复 path">
+
+`path` 和 `used` 是同一次选择的两个状态，必须同步回溯。
+
+</Callout>
+
+<Callout type="warn" title="错误 4：在中间节点也加入结果">
+
+本题要的是全排列，不是所有排列前缀；只有长度达到 `n` 才收集。
+
+</Callout>
+
+<Callout type="warn" title="错误 5：把本题 used 与“树层去重”混淆">
+
+这里的 `used[i]` 是树枝状态：同一条排列路径中，下标 `i` 不能使用两次。
+
+本题输入没有重复值，所以还不需要额外的树层去重规则。
+
+</Callout>
+
+## 19. 一个可以长期复用的排列模板
+
+```cpp
+void backtracking(const vector<int>& nums, vector<bool>& used) {
+    if (path.size() == nums.size()) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int i = 0; i < nums.size(); ++i) {
+        if (used[i]) {
+            continue;
+        }
+
+        used[i] = true;
+        path.push_back(nums[i]);
+
+        backtracking(nums, used);
+
+        path.pop_back();
+        used[i] = false;
+    }
+}
+```
+
+记忆时不要死记整段代码，只记四句话：
+
+```text
+1. 每层从 0 开始枚举全部元素
+2. used[i] 为真就跳过
+3. 选中时 path 与 used 同步修改
+4. 回来时 path 与 used 同步恢复
+```
+
+于是本题的核心可以压缩为：
+
+$$
+\boxed{\text{排列 = 全范围候选 + 树枝 used}}
+$$
+
+## 20. 为下一题做准备：如果数组有重复值呢？
+
+如果输入变成：
+
+```text
+[1,1,2]
+```
+
+只使用当前模板，会把两个不同下标的 `1` 当成不同选择，于是产生重复排列。
+
+这时需要同时解决两件事：
+
+```text
+同一树枝：一个下标不能重复使用
+同一树层：相同数值不能重复启动等价分支
+```
+
+也就是下一题 `47. 全排列 II` 的核心。
+
+现在先牢牢记住本题中的 `used` 是**树枝状态**，后面再在此基础上叠加“树层去重”。
+
+## 21. 其他语言实现
+
+<Tabs groupId="permutations-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> permute(int[] nums) {
+        boolean[] used = new boolean[nums.length];
+        dfs(nums, used);
+        return ans;
+    }
+
+    private void dfs(int[] nums, boolean[] used) {
+        if (path.size() == nums.length) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.add(nums[i]);
+
+            dfs(nums, used);
+
+            path.remove(path.size() - 1);
+            used[i] = false;
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def permute(self, nums: list[int]) -> list[list[int]]:
+        ans: list[list[int]] = []
+        path: list[int] = []
+        used = [False] * len(nums)
+
+        def dfs() -> None:
+            if len(path) == len(nums):
+                ans.append(path[:])
+                return
+
+            for i in range(len(nums)):
+                if used[i]:
+                    continue
+
+                used[i] = True
+                path.append(nums[i])
+
+                dfs()
+
+                path.pop()
+                used[i] = False
+
+        dfs()
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func permute(nums []int) [][]int {
+    ans := [][]int{}
+    path := make([]int, 0, len(nums))
+    used := make([]bool, len(nums))
+
+    var dfs func()
+    dfs = func() {
+        if len(path) == len(nums) {
+            ans = append(ans, append([]int(nil), path...))
+            return
+        }
+
+        for i := 0; i < len(nums); i++ {
+            if used[i] {
+                continue
+            }
+
+            used[i] = true
+            path = append(path, nums[i])
+
+            dfs()
+
+            path = path[:len(path)-1]
+            used[i] = false
+        }
+    }
+
+    dfs()
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var permute = function(nums) {
+    const ans = [];
+    const path = [];
+    const used = Array(nums.length).fill(false);
+
+    function dfs() {
+        if (path.length === nums.length) {
+            ans.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push(nums[i]);
+
+            dfs();
+
+            path.pop();
+            used[i] = false;
+        }
+    }
+
+    dfs();
+    return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function permute(nums: number[]): number[][] {
+    const ans: number[][] = [];
+    const path: number[] = [];
+    const used: boolean[] = Array(nums.length).fill(false);
+
+    function dfs(): void {
+        if (path.length === nums.length) {
+            ans.push([...path]);
+            return;
+        }
+
+        for (let i = 0; i < nums.length; i++) {
+            if (used[i]) {
+                continue;
+            }
+
+            used[i] = true;
+            path.push(nums[i]);
+
+            dfs();
+
+            path.pop();
+            used[i] = false;
+        }
+    }
+
+    dfs();
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn permute(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn dfs(
+            nums: &[i32],
+            used: &mut [bool],
+            path: &mut Vec<i32>,
+            ans: &mut Vec<Vec<i32>>,
+        ) {
+            if path.len() == nums.len() {
+                ans.push(path.clone());
+                return;
+            }
+
+            for i in 0..nums.len() {
+                if used[i] {
+                    continue;
+                }
+
+                used[i] = true;
+                path.push(nums[i]);
+
+                dfs(nums, used, path, ans);
+
+                path.pop();
+                used[i] = false;
+            }
+        }
+
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        let mut used = vec![false; nums.len()];
+        dfs(&nums, &mut used, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static void dfs(
+    int* nums,
+    int numsSize,
+    bool* used,
+    int* path,
+    int depth,
+    int*** ans,
+    int* ansSize
+) {
+    if (depth == numsSize) {
+        int* permutation = (int*)malloc(sizeof(int) * numsSize);
+        memcpy(permutation, path, sizeof(int) * numsSize);
+        (*ans)[(*ansSize)++] = permutation;
+        return;
+    }
+
+    for (int i = 0; i < numsSize; i++) {
+        if (used[i]) {
+            continue;
+        }
+
+        used[i] = true;
+        path[depth] = nums[i];
+
+        dfs(nums, numsSize, used, path, depth + 1, ans, ansSize);
+
+        used[i] = false;
+    }
+}
+
+int** permute(
+    int* nums,
+    int numsSize,
+    int* returnSize,
+    int** returnColumnSizes
+) {
+    int total = 1;
+    for (int i = 2; i <= numsSize; i++) {
+        total *= i;
+    }
+
+    int** ans = (int**)malloc(sizeof(int*) * total);
+    int* path = (int*)malloc(sizeof(int) * numsSize);
+    bool* used = (bool*)calloc(numsSize, sizeof(bool));
+    int ansSize = 0;
+
+    dfs(nums, numsSize, used, path, 0, &ans, &ansSize);
+
+    int* colSizes = (int*)malloc(sizeof(int) * ansSize);
+    for (int i = 0; i < ansSize; i++) {
+        colSizes[i] = numsSize;
+    }
+
+    free(path);
+    free(used);
+
+    *returnSize = ansSize;
+    *returnColumnSizes = colSizes;
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func permute(_ nums: [Int]) -> [[Int]] {
+        var ans = [[Int]]()
+        var path = [Int]()
+        var used = [Bool](repeating: false, count: nums.count)
+
+        func dfs() {
+            if path.count == nums.count {
+                ans.append(path)
+                return
+            }
+
+            for i in 0..<nums.count {
+                if used[i] {
+                    continue
+                }
+
+                used[i] = true
+                path.append(nums[i])
+
+                dfs()
+
+                path.removeLast()
+                used[i] = false
+            }
+        }
+
+        dfs()
+        return ans
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def permute(nums: Array[Int]): List[List[Int]] = {
+    val ans = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ArrayBuffer[Int]()
+    val used = Array.fill(nums.length)(false)
+
+    def dfs(): Unit = {
+      if (path.length == nums.length) {
+        ans += path.toList
+        return
+      }
+
+      for (i <- nums.indices) {
+        if (!used(i)) {
+          used(i) = true
+          path += nums(i)
+
+          dfs()
+
+          path.remove(path.length - 1)
+          used(i) = false
+        }
+      }
+    }
+
+    dfs()
+    ans.toList
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public IList<IList<int>> Permute(int[] nums) {
+        var ans = new List<IList<int>>();
+        var path = new List<int>();
+        var used = new bool[nums.Length];
+
+        void Dfs() {
+            if (path.Count == nums.Length) {
+                ans.Add(new List<int>(path));
+                return;
+            }
+
+            for (int i = 0; i < nums.Length; i++) {
+                if (used[i]) {
+                    continue;
+                }
+
+                used[i] = true;
+                path.Add(nums[i]);
+
+                Dfs();
+
+                path.RemoveAt(path.Count - 1);
+                used[i] = false;
+            }
+        }
+
+        Dfs();
+        return ans;
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,521 @@
+---
+title: 替换数字：原地扩容、从后向前填充与字符存储差异
+description: 以“将数字字符替换为 number”为例，掌握字符串扩容后的双指针回填、为什么必须从后向前写，以及不同语言中字符串可变性对实现方式的影响。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 替换数字：原地扩容、从后向前填充与字符存储差异
+
+> 对应题目：[卡码网 54. 替换数字](https://kamacoder.com/problempage.php?pid=1064)
+
+给定一个只包含小写字母和数字字符的字符串 `s`，要求把每一个数字字符替换成字符串 `number`，字母保持不变。
+
+例如：
+
+```text
+输入：a1b2c3
+输出：anumberbnumbercnumber
+```
+
+这道题表面上只是“字符替换”，真正值得学习的是一种非常常见的线性表技巧：
+
+> 当一个元素需要扩展成多个元素时，先计算最终长度，再从后向前回填。
+
+---
+
+## 1. 为什么直接从前往后插入可能很慢
+
+假设当前字符串为：
+
+```text
+a5b
+```
+
+数字 `5` 要替换成 6 个字符：
+
+```text
+number
+```
+
+最终结果长度从 $3$ 变成 $8$。
+
+如果在原字符串中遇到数字后，直接在当前位置不断插入字符，那么后面的所有字符都可能被整体搬移。
+
+例如长度为 $n$ 的顺序存储结构中，一次中间插入的代价通常是 $O(n)$。若这种插入发生 $O(n)$ 次，总复杂度就可能退化为：
+
+$$
+O(n^2)
+$$
+
+<Callout title="顺序表中的插入要警惕搬移成本" type="warning">
+`insert`、`erase`、字符串中间拼接等操作表面上只写了一行代码，但底层往往需要移动后续大量元素。分析复杂度时不要只看代码行数。
+</Callout>
+
+---
+
+## 2. 先算最终长度
+
+设原字符串长度为 $n$，其中数字字符数量为 $d$。
+
+每个数字原本占 1 个字符，替换后 `number` 占 6 个字符，因此每出现一个数字，总长度增加 5。
+
+所以最终长度为：
+
+$$
+L=n+5d
+$$
+
+例如：
+
+```text
+s = a5b
+n = 3
+数字个数 d = 1
+L = 3 + 5 × 1 = 8
+```
+
+原始过程可以理解为：
+
+![字符串扩容示意图](https://file1.kamacoder.com/i/algo/20231030165201.png)
+
+---
+
+## 3. 为什么要从后向前填充
+
+扩容完成后，设置两个指针：
+
+- `oldIndex`：指向原字符串有效区间的末尾；
+- `newIndex`：指向扩容后字符串的末尾。
+
+然后从后向前处理。
+
+![从后向前双指针填充](https://file1.kamacoder.com/i/algo/20231030173058.png)
+
+如果 `s[oldIndex]` 是普通字母，只复制一个字符：
+
+```text
+s[newIndex] = s[oldIndex]
+```
+
+如果它是数字，就从后往前依次填入：
+
+```text
+r e b m u n
+```
+
+也就是最终形成 `number`。
+
+这种写法最大的优势是：
+
+> 新写入的区域永远位于还未读取的原始数据之后，因此不会覆盖尚未处理的字符。
+
+---
+
+## 4. 用不变量理解双指针
+
+假设处理过程中：
+
+```text
+oldIndex = i
+newIndex = j
+```
+
+可以维护如下不变量：
+
+> 区间 `(j, L - 1]` 已经是最终答案；区间 `[0, i]` 仍然保留尚未处理的原字符串内容。
+
+每轮只会把 `i` 对应的字符写入 `j` 及其左侧，因此：
+
+- 不会破坏 `[0, i-1]`；
+- 已经生成的后缀也不会被再次修改。
+
+这正是“从后往前扩展”的正确性基础。
+
+---
+
+## 5. C++ 原地实现
+
+C++ 的 `std::string` 可以通过 `resize` 调整长度，并修改指定位置字符，因此很适合演示原地回填。
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    string s;
+    cin >> s;
+
+    int digitCount = 0;
+    for (char c : s) {
+        if (c >= '0' && c <= '9') {
+            ++digitCount;
+        }
+    }
+
+    int oldIndex = static_cast<int>(s.size()) - 1;
+    s.resize(s.size() + digitCount * 5);
+    int newIndex = static_cast<int>(s.size()) - 1;
+
+    while (oldIndex >= 0) {
+        char c = s[oldIndex--];
+
+        if (c >= '0' && c <= '9') {
+            s[newIndex--] = 'r';
+            s[newIndex--] = 'e';
+            s[newIndex--] = 'b';
+            s[newIndex--] = 'm';
+            s[newIndex--] = 'u';
+            s[newIndex--] = 'n';
+        } else {
+            s[newIndex--] = c;
+        }
+    }
+
+    cout << s << '\n';
+    return 0;
+}
+```
+
+---
+
+## 6. 复杂度分析
+
+设原字符串长度为 $n$。
+
+第一次遍历统计数字：
+
+$$
+O(n)
+$$
+
+第二次从后向前回填。最终字符串长度最多是原字符串的常数倍，因此仍然是：
+
+$$
+O(n)
+$$
+
+总时间复杂度：
+
+$$
+O(n)
+$$
+
+对于支持原地扩容并修改字符的实现，除字符串自身扩容所需存储外，额外辅助空间为：
+
+$$
+O(1)
+$$
+
+不过不同语言中字符串的数据结构不同，所以空间复杂度不能机械照搬。
+
+---
+
+## 7. Java / Python 为什么通常需要新容器
+
+### Java
+
+`String` 是不可变对象，不能直接修改某个字符。通常使用：
+
+- `char[]`；
+- `StringBuilder`。
+
+### Python
+
+Python 的 `str` 同样不可变。
+
+如果循环中不断执行：
+
+```python
+ans += piece
+```
+
+理论上可能反复创建新字符串。更稳定的方式是把结果先放进 `list`，最后：
+
+```python
+''.join(result)
+```
+
+<Callout title="算法思想与语言实现要分开" type="info">
+题目的核心思想是“预估最终长度 + 从后向前写”。某些语言不能真正原地修改字符串，不代表这个思想失效，只是需要换成可变字符数组来承载。
+</Callout>
+
+---
+
+## 8. C 风格字符串与 C++ string 的区别
+
+字符串从抽象上看是字符序列，但不同语言的具体表示并不一样。
+
+### C 风格字符串
+
+C 语言通常依赖结尾的空字符：
+
+```text
+'\0'
+```
+
+例如：
+
+```cpp
+char a[5] = "asd";
+```
+
+实际内存中至少包含：
+
+```text
+a s d \0
+```
+
+遍历常写成：
+
+```cpp
+for (int i = 0; a[i] != '\0'; ++i) {
+    // ...
+}
+```
+
+### C++ `std::string`
+
+C++ 的 `std::string` 自己维护长度，可以直接使用：
+
+```cpp
+s.size()
+```
+
+因此算法题中一般不需要依赖 `\0` 判断逻辑结尾。
+
+---
+
+## 9. 这类题目的通用模式
+
+当你看到：
+
+> “把某一种元素替换成更长的一段内容”
+
+可以立刻考虑下面的套路。
+
+<Steps>
+<Step>
+
+### 第一步：统计扩展量
+
+算出替换完成后的最终长度。
+
+</Step>
+<Step>
+
+### 第二步：一次性扩容
+
+避免边扫描边插入。
+
+</Step>
+<Step>
+
+### 第三步：旧指针指向旧尾部
+
+保证还没读取的数据仍处于安全区域。
+
+</Step>
+<Step>
+
+### 第四步：新指针指向新尾部
+
+从右向左填入最终内容。
+
+</Step>
+</Steps>
+
+这种思想常见于：
+
+- URL 空格转义；
+- 字符编码扩展；
+- 数组中元素展开；
+- 顺序表原地扩容后的回填。
+
+---
+
+## 10. 常见错误
+
+<Cards>
+<Card title="边遍历边 insert">
+容易把线性算法写成 $O(n^2)$。
+</Card>
+<Card title="扩容后再记录旧长度">
+此时已经无法区分“原始有效区间”和“新增空间”。旧末尾下标必须在 `resize` 前保存。
+</Card>
+<Card title="数字判断条件写错">
+字符数字应判断 `'0' <= c && c <= '9'`，不要把字符和整数 0 混用。
+</Card>
+<Card title="从前向后覆盖原数据">
+扩容型原地写入通常应从后向前，否则新内容可能覆盖尚未读取的旧内容。
+</Card>
+</Cards>
+
+---
+
+## 11. 方法总结
+
+这道题最值得记住的并不是单词 `number`，而是一个非常通用的顺序表技巧：
+
+$$
+\boxed{\text{先扩容，再从后向前回填}}
+$$
+
+它解决的核心矛盾是：
+
+> 一个旧元素会变成更多新元素，而原数组前半部分的数据又不能提前被覆盖。
+
+只要看见类似的数据“膨胀”操作，就应该主动想到这种双指针写法。
+
+---
+
+## 其他语言版本
+
+<Tabs items={["C++", "Java", "Python", "Go"]}>
+<Tab value="C++">
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    string s;
+    cin >> s;
+
+    int count = 0;
+    for (char c : s) {
+        if ('0' <= c && c <= '9') {
+            ++count;
+        }
+    }
+
+    int oldIndex = static_cast<int>(s.size()) - 1;
+    s.resize(s.size() + count * 5);
+    int newIndex = static_cast<int>(s.size()) - 1;
+
+    while (oldIndex >= 0) {
+        if ('0' <= s[oldIndex] && s[oldIndex] <= '9') {
+            const string word = "number";
+            for (int i = 5; i >= 0; --i) {
+                s[newIndex--] = word[i];
+            }
+        } else {
+            s[newIndex--] = s[oldIndex];
+        }
+        --oldIndex;
+    }
+
+    cout << s << '\n';
+}
+```
+
+</Tab>
+<Tab value="Java">
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String s = sc.next();
+
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (Character.isDigit(s.charAt(i))) {
+                count++;
+            }
+        }
+
+        char[] result = new char[s.length() + count * 5];
+        int write = result.length - 1;
+
+        for (int read = s.length() - 1; read >= 0; read--) {
+            char c = s.charAt(read);
+            if (Character.isDigit(c)) {
+                String word = "number";
+                for (int i = word.length() - 1; i >= 0; i--) {
+                    result[write--] = word.charAt(i);
+                }
+            } else {
+                result[write--] = c;
+            }
+        }
+
+        System.out.println(new String(result));
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+def replace_number(s: str) -> str:
+    digit_count = sum(ch.isdigit() for ch in s)
+    result = [''] * (len(s) + digit_count * 5)
+
+    write = len(result) - 1
+
+    for read in range(len(s) - 1, -1, -1):
+        if s[read].isdigit():
+            for ch in reversed("number"):
+                result[write] = ch
+                write -= 1
+        else:
+            result[write] = s[read]
+            write -= 1
+
+    return ''.join(result)
+
+
+s = input().strip()
+print(replace_number(s))
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    var s string
+    fmt.Scan(&s)
+
+    digits := 0
+    for i := 0; i < len(s); i++ {
+        if s[i] >= '0' && s[i] <= '9' {
+            digits++
+        }
+    }
+
+    result := make([]byte, len(s)+digits*5)
+    write := len(result) - 1
+
+    for read := len(s) - 1; read >= 0; read-- {
+        if s[read] >= '0' && s[read] <= '9' {
+            word := "number"
+            for i := len(word) - 1; i >= 0; i-- {
+                result[write] = word[i]
+                write--
+            }
+        } else {
+            result[write] = s[read]
+            write--
+        }
+    }
+
+    fmt.Println(string(result))
+}
+```
+
+</Tab>
+</Tabs>

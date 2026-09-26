@@ -1,0 +1,1049 @@
+---
+title: 拓扑排序精讲
+subtitle: 从依赖关系、入度与 Kahn 算法理解 DAG 的线性化
+summary: 以卡码网 117「软件构建」为主线系统学习拓扑排序：建立依赖图模型，理解入度为 0 的含义，掌握 Kahn BFS 模板、环检测、结果不唯一、字典序最小拓扑序，以及 DFS 拓扑排序的基本思想。
+---
+
+# 拓扑排序精讲
+
+> **卡码网 117. 软件构建**
+>
+> 给定 $N$ 个文件与 $M$ 条依赖关系。若输入 `S T`，表示文件 `T` 依赖文件 `S`，也就是必须先处理 `S`，再处理 `T`。请给出一种合法的文件处理顺序；若存在循环依赖，输出 `-1`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1191)
+
+这类题目的表面背景可能是：
+
+- 软件包安装顺序；
+- 课程先修关系；
+- 工程构建依赖；
+- 任务调度；
+- 数据处理流水线。
+
+但它们的图论本质完全相同：
+
+> **给定一个有向依赖图，寻找一个满足所有先后约束的线性顺序。**
+
+这个顺序就是 **拓扑序（topological order）**，寻找拓扑序的过程叫 **拓扑排序（topological sorting）**。
+
+<Callout type="info" title="一句话抓住拓扑排序">
+
+若存在有向边：
+
+$$
+u\rightarrow v
+$$
+
+那么任何合法拓扑序中，$u$ 都必须出现在 $v$ 前面。
+
+拓扑排序不是把点按编号或大小“排序”，而是在满足所有有向边约束的前提下，把图中的顶点排成一个线性序列。
+
+</Callout>
+
+---
+
+## 1. 先把题目翻译成图
+
+输入一条依赖：
+
+```text
+S T
+```
+
+题意是：
+
+```text
+T 依赖 S
+```
+
+也就是：
+
+```text
+必须先处理 S，再处理 T
+```
+
+所以建边方向应当是：
+
+$$
+S\rightarrow T
+$$
+
+这个方向非常重要。
+
+<Callout type="warning" title="最常见建图错误">
+
+“`T` 依赖 `S`”并不意味着建边 `T -> S`。
+
+拓扑排序希望边表示“前置项指向后置项”，因此应该写成：
+
+```text
+S -> T
+```
+
+这样 `inDegree[T]++` 才表示 `T` 多了一个尚未完成的前置依赖。
+
+</Callout>
+
+题目示例：
+
+```text
+5 4
+0 1
+0 2
+1 3
+2 4
+```
+
+对应关系为：
+
+```text
+0 -> 1
+0 -> 2
+1 -> 3
+2 -> 4
+```
+
+原题示意图如下：
+
+![文件依赖关系示意图](https://file1.kamacoder.com/i/algo/20240510192157.png)
+
+一种合法顺序是：
+
+```text
+0 1 2 3 4
+```
+
+但这不是唯一答案，例如：
+
+```text
+0 2 4 1 3
+0 2 1 3 4
+```
+
+也都满足所有依赖关系。
+
+---
+
+## 2. 什么图才存在拓扑序
+
+拓扑排序只针对 **有向图**。
+
+更严格地说：
+
+> 一个有向图存在拓扑序，当且仅当它是 **有向无环图**（Directed Acyclic Graph, DAG）。
+
+为什么有环就不行？
+
+假设有：
+
+$$
+A\rightarrow B\rightarrow C\rightarrow A
+$$
+
+则依赖关系要求：
+
+```text
+A 在 B 前
+B 在 C 前
+C 又在 A 前
+```
+
+三者不可能同时成立。
+
+因此：
+
+<Cards>
+  <Card title="有拓扑序">
+    图一定是 DAG；可能有一个或多个合法拓扑序。
+  </Card>
+  <Card title="无拓扑序">
+    图中至少存在一个有向环，也就是出现循环依赖。
+  </Card>
+</Cards>
+
+这也意味着：
+
+> **拓扑排序本身就是判断有向图是否存在环的一种常用方法。**
+
+---
+
+## 3. 入度与出度
+
+对一个有向图中的顶点 $v$：
+
+- **入度**：有多少条边指向 $v$；
+- **出度**：有多少条边从 $v$ 指向其他顶点。
+
+记为：
+
+$$
+\deg^-(v)=\text{in-degree}
+$$
+
+$$
+\deg^+(v)=\text{out-degree}
+$$
+
+例如：
+
+```text
+A -> C
+B -> C
+C -> D
+```
+
+那么：
+
+```text
+inDegree[A] = 0
+inDegree[B] = 0
+inDegree[C] = 2
+inDegree[D] = 1
+```
+
+拓扑排序最关键的问题是：
+
+> **为什么每一轮都要找入度为 $0$ 的顶点？**
+
+因为一个顶点入度为 $0$，意味着当前没有任何尚未处理的节点必须排在它之前。
+
+所以它现在就可以被安全地安排到拓扑序的下一个位置。
+
+---
+
+## 4. Kahn 算法：最常用的 BFS 拓扑排序
+
+实现拓扑排序最经典的方法之一是 **Kahn 算法**。
+
+它通常使用队列，因此也常被称为“BFS 版拓扑排序”。
+
+原始示例图：
+
+![拓扑排序初始图](https://file1.kamacoder.com/i/algo/20240510110836.png)
+
+算法可以浓缩为两件事：
+
+1. 取出一个当前入度为 $0$ 的顶点；
+2. “删除”该顶点及其所有出边。
+
+重复以上过程，直到：
+
+- 所有顶点都被取出；或
+- 再也找不到入度为 $0$ 的顶点。
+
+<Callout type="tip" title="所谓“删除节点”并不需要真的修改图结构">
+
+如果删除顶点 `u`，本质上就是删除它的所有出边：
+
+$$
+u\rightarrow v
+$$
+
+因此只需对每个相邻点执行：
+
+```text
+inDegree[v]--
+```
+
+当某个 `v` 的入度减到 `0` 时，把它加入队列即可。
+
+</Callout>
+
+---
+
+## 5. 为什么队列一开始放所有入度为 0 的点
+
+初始化时遍历所有顶点：
+
+```cpp
+queue<int> q;
+for (int i = 0; i < n; ++i) {
+    if (inDegree[i] == 0) {
+        q.push(i);
+    }
+}
+```
+
+不能只找一个起点，因为一个 DAG 可能同时存在多个彼此独立的“源点”。
+
+例如：
+
+```text
+0 -> 2
+1 -> 2
+```
+
+初始时：
+
+```text
+inDegree[0] = 0
+inDegree[1] = 0
+```
+
+`0` 和 `1` 谁先处理都合法。
+
+因此队列中需要保存 **所有当前可处理节点**。
+
+---
+
+## 6. 手推 Kahn 算法
+
+### 第 1 轮：选择节点 0
+
+最开始只有节点 `0` 入度为 `0`，因此先把它加入结果。
+
+![选中第一个入度为 0 的节点](https://file1.kamacoder.com/i/algo/20240510113110.png)
+
+删除 `0` 的出边后：
+
+![删除节点 0 对应的出边](https://file1.kamacoder.com/i/algo/20240510113142.png)
+
+此时：
+
+```text
+inDegree[1] = 0
+inDegree[2] = 0
+```
+
+因此 `1` 和 `2` 都可以作为下一个节点。
+
+### 第 2 轮：例如选择节点 1
+
+![节点 1 与节点 2 均可选择](https://file1.kamacoder.com/i/algo/20240510113345.png)
+
+选择 `1` 后，删除它的出边：
+
+![删除节点 1 的出边](https://file1.kamacoder.com/i/algo/20240510113640.png)
+
+节点 `3` 的入度随之减为 `0`。
+
+### 第 3 轮：例如选择节点 2
+
+此时 `2` 与 `3` 都已经入度为 `0`：
+
+![继续选择入度为 0 的节点](https://file1.kamacoder.com/i/algo/20240510113853.png)
+
+选择 `2` 后：
+
+![删除节点 2 的出边](https://file1.kamacoder.com/i/algo/20240510114004.png)
+
+接下来 `3` 与 `4` 均可被处理。
+
+最终可以得到：
+
+```text
+0 1 2 3 4
+```
+
+也可能得到其他合法顺序。
+
+---
+
+## 7. 为什么拓扑序通常不唯一
+
+当队列中同时存在多个入度为 $0$ 的节点时，任选一个都不会违反已经存在的依赖关系。
+
+因此：
+
+```text
+队列中同时有多个候选节点
+          ↓
+存在多种合法选择
+          ↓
+拓扑序可能不唯一
+```
+
+<Callout type="info" title="如何判断拓扑序是否唯一">
+
+使用 Kahn 算法时，如果希望进一步判断拓扑序是否唯一，可以观察每一轮：
+
+```text
+当前入度为 0 的候选顶点数量
+```
+
+如果某一轮候选数大于 `1`，就存在至少两种不同选择，因此拓扑序不唯一。
+
+如果每一轮都恰好只有一个候选点，并最终处理完所有顶点，则拓扑序唯一。
+
+</Callout>
+
+---
+
+## 8. 环检测：为什么只需比较处理节点数
+
+考虑存在有向环的情况：
+
+![存在循环依赖的有向图](https://file1.kamacoder.com/i/algo/20240510115115.png)
+
+一开始可能仍有少量入度为 `0` 的顶点可以进入队列。
+
+但当处理到环时：
+
+```text
+A 依赖 C
+B 依赖 A
+C 依赖 B
+```
+
+环中的每个点都至少还有一个来自环内的入边，因此：
+
+```text
+没有任何一个点的入度能变为 0
+```
+
+队列会提前变空。
+
+所以只需记录最终加入结果的顶点数：
+
+$$
+\text{processed}=|\text{result}|
+$$
+
+若：
+
+$$
+|\text{result}|=N
+$$
+
+说明所有节点都成功被删除，图无环。
+
+若：
+
+$$
+|\text{result}|<N
+$$
+
+说明还有节点被困在至少一个有向环中。
+
+因此：
+
+```cpp
+if (result.size() != n) {
+    cout << -1 << '\n';
+}
+```
+
+就完成了环检测。
+
+---
+
+## 9. 从“物理删除”到“入度减一”
+
+很多初学者第一次写拓扑排序，会真的尝试：
+
+- 从邻接表中删除节点；
+- 删除相关边；
+- 重新扫描整个图寻找入度为 `0` 的点。
+
+这不仅麻烦，而且效率很差。
+
+实际代码只维护：
+
+```text
+adj[u]       u 指向哪些节点
+inDegree[v]  v 当前还有多少前置依赖
+```
+
+处理 `u` 时：
+
+```cpp
+for (int v : adj[u]) {
+    --inDegree[v];
+    if (inDegree[v] == 0) {
+        q.push(v);
+    }
+}
+```
+
+原资料通过下面两张图强调这一过程：
+
+![删除前，节点 1 和节点 2 仍有入边](https://file1.kamacoder.com/i/algo/20240510113110.png)
+
+![删除节点 0 后，对应后继节点入度减一](https://file1.kamacoder.com/i/algo/20240510113142.png)
+
+这里并没有必要真正删除邻接表中的边。
+
+---
+
+## 10. 正确性：为什么这个贪心过程一定成立
+
+Kahn 算法背后的关键事实是：
+
+> 任意非空 DAG 至少存在一个入度为 $0$ 的顶点。
+
+反证即可理解。
+
+假设一个有限 DAG 中每个顶点入度都至少为 $1$。
+
+任选一个顶点 $v_0$，沿着它的一条入边反向找到 $v_1$，再从 $v_1$ 找一个前驱 $v_2$……
+
+由于顶点数量有限，这个过程最终必然重复某个顶点，于是形成有向环。
+
+与“图是 DAG”矛盾。
+
+因此 DAG 中一定存在入度为 $0$ 的点。
+
+删除一个入度为 $0$ 的顶点及其出边后，剩余图仍然是 DAG，于是又可以重复同样的论证。
+
+这正是 Kahn 算法能够不断进行直到删光所有节点的原因。
+
+---
+
+## 11. 标准 C++ 模板
+
+本题最自然的存图方式是邻接表。
+
+```cpp
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n);
+    vector<int> inDegree(n, 0);
+
+    for (int i = 0; i < m; ++i) {
+        int s, t;
+        cin >> s >> t;
+
+        // t 依赖 s，因此建边 s -> t
+        graph[s].push_back(t);
+        ++inDegree[t];
+    }
+
+    queue<int> q;
+    for (int i = 0; i < n; ++i) {
+        if (inDegree[i] == 0) {
+            q.push(i);
+        }
+    }
+
+    vector<int> order;
+    order.reserve(n);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        order.push_back(u);
+
+        for (int v : graph[u]) {
+            --inDegree[v];
+            if (inDegree[v] == 0) {
+                q.push(v);
+            }
+        }
+    }
+
+    if (static_cast<int>(order.size()) != n) {
+        cout << -1 << '\n';
+        return 0;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        if (i) cout << ' ';
+        cout << order[i];
+    }
+    cout << '\n';
+
+    return 0;
+}
+```
+
+---
+
+## 12. 复杂度分析
+
+建立邻接表：
+
+$$
+O(V+E)
+$$
+
+Kahn 算法中：
+
+- 每个顶点最多入队、出队一次；
+- 每条边恰好在处理其起点时扫描一次。
+
+因此总时间复杂度：
+
+$$
+O(V+E)
+$$
+
+空间复杂度：
+
+$$
+O(V+E)
+$$
+
+其中邻接表占 $O(V+E)$，入度数组、队列与答案数组占 $O(V)$。
+
+<Callout type="tip" title="为什么不需要反复全图找入度为 0 的点">
+
+如果每删除一个点，都重新扫描全部 $V$ 个顶点找新的零入度点，最坏会额外产生 $O(V^2)$ 的开销。
+
+队列的价值就在于：某个点的入度只有在其前驱被删除时才会改变，所以当它第一次变成 `0` 时立即入队即可。
+
+</Callout>
+
+---
+
+## 13. 如果要求字典序最小的拓扑序
+
+普通队列只保证得到一个合法拓扑序，不保证编号最小。
+
+如果题目要求：
+
+> 在所有合法拓扑序中，输出字典序最小的一种。
+
+那么每一步都必须选择当前所有入度为 $0$ 的节点中编号最小的那个。
+
+将：
+
+```cpp
+queue<int> q;
+```
+
+替换为小根堆：
+
+```cpp
+priority_queue<int, vector<int>, greater<int>> q;
+```
+
+其余逻辑完全不变。
+
+此时时间复杂度约为：
+
+$$
+O((V+E)\log V)
+$$
+
+因为每个顶点需要进行优先队列的插入和删除。
+
+---
+
+## 14. DFS 也可以做拓扑排序
+
+拓扑排序并不等同于 BFS。
+
+另一种常见方法是 DFS：
+
+> 当一个节点的所有后继节点都处理完成后，再把当前节点加入答案。
+
+于是得到的是“后序序列”，最后反转即可得到拓扑序。
+
+伪代码：
+
+```text
+dfs(u):
+    标记 u 正在访问
+
+    for v in graph[u]:
+        if v 未访问:
+            dfs(v)
+
+    标记 u 已完成
+    order.push_back(u)
+
+reverse(order)
+```
+
+如果还要同时检测有向环，不能只使用简单 `visited`，而应使用三种状态：
+
+```text
+0 = 未访问
+1 = 正在当前 DFS 路径中
+2 = 已经完全处理完
+```
+
+若从 `u` 遇到一条指向状态 `1` 节点的边：
+
+```text
+u -> v，且 state[v] == 1
+```
+
+说明出现了 **回边**，存在有向环。
+
+<Callout type="info" title="考试 / 面试优先掌握哪个版本">
+
+如果只是要求拓扑序或判断有向环，优先掌握 Kahn 算法：
+
+```text
+入度数组 + 邻接表 + 队列
+```
+
+它的状态更直观，也更容易处理“拓扑序是否唯一”“字典序最小”等扩展问题。
+
+</Callout>
+
+---
+
+## 15. 常见错误
+
+### 错误一：把边方向建反
+
+若 `T` 依赖 `S`：
+
+```text
+正确：S -> T
+错误：T -> S
+```
+
+### 错误二：只把一个零入度点加入队列
+
+初始化必须检查所有顶点：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    if (inDegree[i] == 0) q.push(i);
+}
+```
+
+### 错误三：忘记判断结果长度
+
+即使队列正常结束，也不代表一定成功。
+
+必须检查：
+
+```cpp
+order.size() == n
+```
+
+否则无法发现有向环。
+
+### 错误四：邻接矩阵导致无谓开销
+
+当图较稀疏时，邻接表复杂度是：
+
+$$
+O(V+E)
+$$
+
+邻接矩阵则需要：
+
+$$
+O(V^2)
+$$
+
+空间，通常没有必要。
+
+### 错误五：误以为拓扑序必须唯一
+
+题目若只要求“一种合法顺序”，任何合法拓扑序都可以。
+
+---
+
+## 16. 拓扑排序常见题型识别
+
+看到以下关键词，应迅速想到拓扑排序：
+
+| 题目描述 | 图论翻译 |
+| --- | --- |
+| A 必须先于 B | $A\rightarrow B$ |
+| B 依赖 A | $A\rightarrow B$ |
+| 课程先修关系 | 课程依赖 DAG |
+| 软件包依赖 | 构建依赖 DAG |
+| 判断循环依赖 | 有向图判环 |
+| 安排全部任务顺序 | 求拓扑序 |
+| 找所有可立即执行任务 | 找零入度节点 |
+
+此外还有一些进阶变形：
+
+- 求字典序最小拓扑序；
+- 判断拓扑序是否唯一；
+- 求所有拓扑序；
+- 在 DAG 上做最长路 / 最短路 DP；
+- 统计完成全部任务的最短时间；
+- 根据拓扑序进行依赖传播。
+
+---
+
+## 17. 从拓扑排序过渡到 DAG 动态规划
+
+拓扑序真正强大的地方不仅是“排顺序”。
+
+若有一条边：
+
+$$
+u\rightarrow v
+$$
+
+拓扑序保证 `u` 一定先于 `v` 被处理。
+
+因此当我们处理 `v` 时，它的所有前驱状态都已经准备好。
+
+这使得很多 DAG 问题可以写成：
+
+```text
+先拓扑排序
+   ↓
+按拓扑序进行 DP / 状态转移
+```
+
+例如：
+
+$$
+dp[v]=\max_{u\rightarrow v}(dp[u]+w(u,v))
+$$
+
+就是典型的 DAG 最长路转移。
+
+所以拓扑排序既是一个独立算法，也是很多有向无环图 DP 的“前置工具”。
+
+---
+
+## 18. 一页速记
+
+<Cards>
+  <Card title="适用对象">
+    有向图；存在拓扑序当且仅当图是 DAG。
+  </Card>
+  <Card title="建边">
+    `T` 依赖 `S`，建边 `S -> T`，并令 `inDegree[T]++`。
+  </Card>
+  <Card title="核心容器">
+    邻接表、入度数组、零入度队列。
+  </Card>
+  <Card title="每轮动作">
+    弹出零入度点 → 加入答案 → 后继入度减一 → 新零入度点入队。
+  </Card>
+  <Card title="有环判断">
+    最终处理节点数 `< N`，说明存在有向环。
+  </Card>
+  <Card title="复杂度">
+    邻接表实现为 $O(V+E)$。
+  </Card>
+</Cards>
+
+核心模板最终可以压缩成：
+
+```text
+统计入度
+↓
+所有零入度点入队
+↓
+while 队列非空：
+    取点 u
+    记录 u
+    for v in adj[u]:
+        indegree[v]--
+        若变成 0：入队
+↓
+答案节点数 == V ? 成功 : 有环
+```
+
+---
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < n; ++i) {
+            graph.add(new ArrayList<>());
+        }
+
+        int[] inDegree = new int[n];
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(st.nextToken());
+            int t = Integer.parseInt(st.nextToken());
+            graph.get(s).add(t);
+            ++inDegree[t];
+        }
+
+        Queue<Integer> queue = new ArrayDeque<>();
+        for (int i = 0; i < n; ++i) {
+            if (inDegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        List<Integer> order = new ArrayList<>(n);
+
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            order.add(u);
+
+            for (int v : graph.get(u)) {
+                if (--inDegree[v] == 0) {
+                    queue.offer(v);
+                }
+            }
+        }
+
+        if (order.size() != n) {
+            System.out.println(-1);
+            return;
+        }
+
+        StringBuilder ans = new StringBuilder();
+        for (int i = 0; i < n; ++i) {
+            if (i > 0) ans.append(' ');
+            ans.append(order.get(i));
+        }
+        System.out.println(ans);
+    }
+}
+```
+
+```python label="Python"
+from collections import deque
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+graph = [[] for _ in range(n)]
+in_degree = [0] * n
+
+for _ in range(m):
+    s, t = map(int, input().split())
+    graph[s].append(t)
+    in_degree[t] += 1
+
+queue = deque(i for i in range(n) if in_degree[i] == 0)
+order = []
+
+while queue:
+    u = queue.popleft()
+    order.append(u)
+
+    for v in graph[u]:
+        in_degree[v] -= 1
+        if in_degree[v] == 0:
+            queue.append(v)
+
+if len(order) != n:
+    print(-1)
+else:
+    print(*order)
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+const m = data[idx++];
+
+const graph = Array.from({ length: n }, () => []);
+const inDegree = new Array(n).fill(0);
+
+for (let i = 0; i < m; ++i) {
+  const s = data[idx++];
+  const t = data[idx++];
+  graph[s].push(t);
+  ++inDegree[t];
+}
+
+const queue = [];
+let head = 0;
+
+for (let i = 0; i < n; ++i) {
+  if (inDegree[i] === 0) queue.push(i);
+}
+
+const order = [];
+
+while (head < queue.length) {
+  const u = queue[head++];
+  order.push(u);
+
+  for (const v of graph[u]) {
+    --inDegree[v];
+    if (inDegree[v] === 0) {
+      queue.push(v);
+    }
+  }
+}
+
+console.log(order.length === n ? order.join(' ') : '-1');
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    graph := make([][]int, n)
+    inDegree := make([]int, n)
+
+    for i := 0; i < m; i++ {
+        var s, t int
+        fmt.Fscan(in, &s, &t)
+        graph[s] = append(graph[s], t)
+        inDegree[t]++
+    }
+
+    queue := make([]int, 0, n)
+    for i := 0; i < n; i++ {
+        if inDegree[i] == 0 {
+            queue = append(queue, i)
+        }
+    }
+
+    order := make([]int, 0, n)
+    head := 0
+
+    for head < len(queue) {
+        u := queue[head]
+        head++
+        order = append(order, u)
+
+        for _, v := range graph[u] {
+            inDegree[v]--
+            if inDegree[v] == 0 {
+                queue = append(queue, v)
+            }
+        }
+    }
+
+    if len(order) != n {
+        fmt.Fprintln(out, -1)
+        return
+    }
+
+    for i, v := range order {
+        if i > 0 {
+            fmt.Fprint(out, " ")
+        }
+        fmt.Fprint(out, v)
+    }
+    fmt.Fprintln(out)
+}
+```
+````

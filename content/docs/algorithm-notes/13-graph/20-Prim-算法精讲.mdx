@@ -1,0 +1,1287 @@
+---
+title: Prim 算法精讲
+subtitle: 从“不断扩张一棵树”理解最小生成树与 cut property
+summary: 以卡码网 53「寻宝」为主线系统学习 Prim：先建立最小生成树模型，再理解 minDist 的精确定义、Prim 三步循环、正确性依据、断连判断、最小生成树边恢复，以及朴素版与堆优化版的适用场景。
+---
+
+# Prim 算法精讲
+
+> **卡码网 53. 寻宝**
+>
+> 给定一个无向带权图，用最小的公路总长度把所有岛屿连接起来，求所需的最小总权值。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1053)
+
+这是一道标准的 **最小生成树（Minimum Spanning Tree, MST）** 模板题。
+
+如果把岛屿看成顶点、公路看成无向边、公路长度看成边权，那么题目要求的是：
+
+> 从原图中选出一组边，使所有顶点连通、没有环，并且边权总和最小。
+
+Prim 的思考方式非常直观：
+
+> **先选一个顶点作为树的起点，然后每次把“离当前生成树最近”的一个新顶点接进来，直到覆盖所有顶点。**
+
+<Callout type="info" title="这一篇真正要掌握什么">
+
+Prim 不应该背成一大段代码。真正要记住的是两个东西：
+
+1. `minDist[v]` 的含义；
+2. 每轮固定执行的“选点 → 入树 → 更新”三步。
+
+只要这两个不变量理解清楚，代码几乎可以现场推出来。
+
+</Callout>
+
+---
+
+## 1. 最小生成树到底是什么
+
+设无向连通图为：
+
+$$
+G=(V,E)
+$$
+
+其中每条边 $e$ 有权值 $w(e)$。
+
+一个 **生成树** 是原图的一个子图，它满足：
+
+- 包含原图全部顶点；
+- 整体连通；
+- 不含环。
+
+若顶点数为 $|V|=n$，任何生成树都恰好包含：
+
+$$
+n-1
+$$
+
+条边。
+
+最小生成树就是所有生成树中边权和最小的那一个：
+
+$$
+\min_T \sum_{e\in T}w(e)
+$$
+
+原题示例图如下：
+
+![题目中的无向带权图](https://file1.kamacoder.com/i/algo/20231206164306.png)
+
+这里共有 $7$ 个顶点，因此最终的生成树一定只有：
+
+$$
+7-1=6
+$$
+
+条边。
+
+<Cards>
+  <Card title="连通">
+    所有顶点之间都能够通过生成树中的边互相到达。
+  </Card>
+  <Card title="无环">
+    只要出现环，就至少存在一条边可以删除而仍保持连通，因此不可能是必要的树边。
+  </Card>
+  <Card title="边数固定">
+    $n$ 个顶点的树一定恰好有 $n-1$ 条边。
+  </Card>
+  <Card title="目标">
+    在所有满足前三项的方案中，让边权总和最小。
+  </Card>
+</Cards>
+
+---
+
+## 2. Prim 的核心视角：维护“树内”和“树外”
+
+Prim 在运行过程中始终维护一个集合：
+
+$$
+S=\{\text{已经加入最小生成树的顶点}\}
+$$
+
+剩余顶点属于：
+
+$$
+V-S
+$$
+
+每一轮，我们都从跨越这两个集合的边中选一条权值最小的边，把它连接到的树外顶点加入 $S$。
+
+可以把整个过程想成：
+
+```text
+一小块已经修好的道路网络
+        ↓
+从边界上挑最便宜的一条路
+        ↓
+接进一个新岛屿
+        ↓
+道路网络继续向外扩张
+```
+
+这也是 Prim 和 Kruskal 最本质的视角差异：
+
+| 算法 | 主要维护对象 | 贪心动作 |
+| --- | --- | --- |
+| Prim | 已经长出来的一棵树 | 每次接入离树最近的顶点 |
+| Kruskal | 已选择的边 / 连通分量 | 每次尝试全局最小的未处理边 |
+
+---
+
+## 3. `minDist`：Prim 的灵魂
+
+Prim 中最关键的数组是：
+
+```text
+minDist[v]
+```
+
+它不是“起点到 `v` 的最短路”。
+
+它的准确含义是：
+
+> **顶点 `v` 到当前生成树中任意顶点的最小边权。**
+
+写成数学形式：
+
+$$
+\text{minDist}[v]
+=
+\min_{u\in S} w(u,v)
+$$
+
+如果当前不存在从树内顶点到 `v` 的边，则：
+
+$$
+\text{minDist}[v]=+\infty
+$$
+
+<Callout type="warning" title="不要把 minDist 当成 Dijkstra 的 dist">
+
+二者名字很像，但语义完全不同。
+
+Dijkstra 中：
+
+$$
+\text{dist}[v]=\text{源点到 }v\text{ 的最短路径长度}
+$$
+
+Prim 中：
+
+$$
+\text{minDist}[v]=\text{当前整棵树到 }v\text{ 的最小单边权值}
+$$
+
+Prim 不关心从起点走到 `v` 一共多远，只关心“现在用哪一条边把 `v` 接入树最便宜”。
+
+</Callout>
+
+---
+
+## 4. Prim 三步循环
+
+每一轮固定做三件事：
+
+<Steps>
+
+### 选择离生成树最近的树外顶点
+
+在所有 `isInTree[v] == false` 的顶点中，找：
+
+$$
+\text{minDist}[v]
+$$
+
+最小的那个顶点 `cur`。
+
+### 将 `cur` 加入生成树
+
+执行：
+
+```cpp
+isInTree[cur] = true;
+```
+
+此时树的顶点集合从 $S$ 扩张成：
+
+$$
+S\cup\{cur\}
+$$
+
+### 用新加入的 `cur` 更新其余树外顶点
+
+对于所有仍在树外的顶点 `v`：
+
+$$
+\text{minDist}[v]
+=
+\min(\text{minDist}[v], w(cur,v))
+$$
+
+因为树里刚刚多了 `cur`，原来离树最近的边可能因此发生变化。
+
+</Steps>
+
+可以浓缩为一句口诀：
+
+> **选最近点，加入树，用新点松弛树外距离。**
+
+这里的“松弛”和最短路里的松弛形式相似，但更新的物理含义不同。
+
+---
+
+## 5. 初始化：为什么任选一个起点都可以
+
+最小生成树需要覆盖所有顶点，所以无论最终得到的是哪一棵 MST，每个顶点最终都必须属于树。
+
+因此 Prim 可以任选一个顶点开始。
+
+通常直接选择 `1`：
+
+```cpp
+minDist[1] = 0;
+```
+
+其他顶点初始化为无穷大：
+
+```cpp
+minDist[v] = INF;
+```
+
+初始状态可以理解为：
+
+```text
+树内：空
+树外：1, 2, 3, ..., V
+```
+
+把 `minDist[1]` 设为 `0` 后，第一轮一定会先选到顶点 `1`。
+
+原资料中的初始示意：
+
+![Prim 初始状态](https://file1.kamacoder.com/i/algo/20231215105603.png)
+
+<Callout type="tip" title="推荐把起点 minDist 设为 0">
+
+也可以让所有 `minDist` 都是 `INF`，再依赖第一轮扫描“随便挑一个点”。
+
+但显式写：
+
+```cpp
+minDist[1] = 0;
+```
+
+语义更清晰，也更方便在循环里统一累加答案和检查图是否连通。
+
+</Callout>
+
+---
+
+## 6. 手推 Prim：第一轮
+
+第一轮选中顶点 `1`，将它加入生成树。
+
+随后只需要看从 `1` 出发的边：
+
+- `1 - 2` 权值为 `1`；
+- `1 - 3` 权值为 `1`；
+- `1 - 5` 权值为 `2`。
+
+于是：
+
+```text
+minDist[2] = 1
+minDist[3] = 1
+minDist[5] = 2
+```
+
+其他顶点仍然是 `INF`。
+
+![加入节点 1 后更新 minDist](https://file1.kamacoder.com/i/algo/20231222102048.png)
+
+此时：
+
+$$
+S=\{1\}
+$$
+
+注意：`minDist[2] = 1` 表示的是“顶点 `2` 可以通过一条权值为 `1` 的边接入当前生成树”。
+
+它并不是某条固定边永远不变的标签；随着树扩张，连接 `2` 的最佳树边也可能变化。
+
+---
+
+## 7. 第二轮：为什么只需要看最小的 `minDist`
+
+当前树外顶点中：
+
+```text
+2 -> 1
+3 -> 1
+5 -> 2
+其他 -> INF
+```
+
+所以顶点 `2` 和 `3` 都是合法的最优选择。
+
+若选择 `2`：
+
+$$
+S=\{1,2\}
+$$
+
+加入 `2` 后，只需要检查与 `2` 相连的树外顶点：
+
+- `2 - 3 = 2`，不优于原来的 `1`；
+- `2 - 4 = 2`，把 `minDist[4]` 从 `INF` 更新为 `2`；
+- `2 - 6 = 1`，把 `minDist[6]` 更新为 `1`。
+
+![加入节点 2 后更新 minDist](https://file1.kamacoder.com/i/algo/20231222102431.png)
+
+这里已经能看出 Prim 的局部贪心结构：
+
+> 每次只关心“当前树边界上最便宜的扩张方式”。
+
+原资料还用下面这张 `minDist` 快照强调“从树外顶点中选择当前最小值”的过程：
+
+![根据 minDist 选择离生成树最近的顶点](https://file1.kamacoder.com/i/algo/20231217213516.png)
+
+---
+
+## 8. 第三轮以后：`minDist` 会被更便宜的新边替换
+
+如果下一轮选择顶点 `3`，则：
+
+$$
+S=\{1,2,3\}
+$$
+
+原来顶点 `4` 到树的最好连接是：
+
+```text
+2 - 4 = 2
+```
+
+但顶点 `3` 入树后发现：
+
+```text
+3 - 4 = 1
+```
+
+所以：
+
+$$
+\text{minDist}[4]
+=
+\min(2,1)
+=1
+$$
+
+![加入节点 3 后，节点 4 获得更便宜的接入边](https://file1.kamacoder.com/i/algo/20231222102457.png)
+
+这是理解 Prim 最重要的一步：
+
+> `minDist[v]` 记录的是“到整棵当前生成树”的最小连接代价，因此树每扩张一次，它都可能被新加入的顶点刷新。
+
+接下来加入顶点 `4`：
+
+![加入节点 4 后更新](https://file1.kamacoder.com/i/algo/20231222102618.png)
+
+再加入顶点 `5`：
+
+![加入节点 5 后更新](https://file1.kamacoder.com/i/algo/20231222102646.png)
+
+继续加入顶点 `6`：
+
+![加入节点 6 后更新](https://file1.kamacoder.com/i/algo/20231222102732.png)
+
+最后将剩余顶点加入：
+
+![Prim 构造完成](https://file1.kamacoder.com/i/algo/20231222102820.png)
+
+最终恰好选择 $V-1$ 条连接边。
+
+---
+
+## 9. 为什么这样的贪心一定正确：Cut Property
+
+只背 Prim 三步还不够。要真正理解它为什么正确，需要知道最小生成树最重要的性质之一：**割性质（Cut Property）**。
+
+把顶点集合任意分成两个非空集合：
+
+$$
+S
+$$
+
+和：
+
+$$
+V-S
+$$
+
+所有一端在 $S$、另一端在 $V-S$ 的边称为跨越这个割的边。
+
+割性质告诉我们：
+
+> 对任意一个割，如果一条边是跨越该割的最小权边，那么至少存在一棵最小生成树包含这条边。
+
+Prim 的每一轮恰好做的是：
+
+```text
+S = 已在树中的顶点
+V-S = 尚未进入树的顶点
+```
+
+然后选择跨越这个割的最小权边。
+
+因此每次选择都可以安全地扩张某一棵最小生成树。
+
+<Callout type="info" title="Prim 的正确性不是因为“每次挑最小边”这么简单">
+
+“局部最小”本身并不能自动推出“全局最优”。
+
+Prim 能成立，是因为它挑的是：
+
+> **当前树集合与树外集合之间的最小跨割边。**
+
+这个选择受到 MST 的割性质保证。
+
+</Callout>
+
+---
+
+## 10. 为什么 `minDist[cur]` 就是新加入的 MST 边权
+
+除起点外，每个顶点 `cur` 第一次进入生成树时，都必须通过一条边和原来的树连接。
+
+而我们选择 `cur` 的依据正是：
+
+$$
+\text{minDist}[cur]
+$$
+
+因此这个值就是当前新加入生成树的那条边的权值。
+
+若起点满足：
+
+$$
+\text{minDist}[1]=0
+$$
+
+则可以在每次选中 `cur` 后直接累加：
+
+```cpp
+answer += minDist[cur];
+```
+
+最终：
+
+$$
+\text{answer}
+=
+\sum_{v\in V}\text{被选入时的 minDist}[v]
+$$
+
+起点贡献 `0`，其余 $V-1$ 个顶点各对应一条树边。
+
+这种写法比最后再把数组统一求和更稳健，因为它表达的是“每加入一个顶点，就确定一条 MST 边”。
+
+---
+
+## 11. 标准 C++：朴素 Prim
+
+下面使用邻接矩阵实现，适合学习 Prim 的核心状态。
+
+额外做了三个工程上的修正：
+
+- 起点 `minDist[1] = 0`；
+- 重边使用最小权值；
+- 如果某一轮找不到可达顶点，则判定原图不连通。
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <vector>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int V, E;
+    cin >> V >> E;
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+
+    vector<vector<long long>> graph(
+        V + 1,
+        vector<long long>(V + 1, INF)
+    );
+
+    for (int i = 1; i <= V; ++i) {
+        graph[i][i] = 0;
+    }
+
+    for (int i = 0; i < E; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+
+        graph[u][v] = min(graph[u][v], w);
+        graph[v][u] = min(graph[v][u], w);
+    }
+
+    vector<long long> minDist(V + 1, INF);
+    vector<bool> isInTree(V + 1, false);
+
+    minDist[1] = 0;
+    long long answer = 0;
+
+    for (int round = 1; round <= V; ++round) {
+        // 1. 选择距离当前生成树最近的树外顶点
+        int cur = -1;
+        for (int v = 1; v <= V; ++v) {
+            if (!isInTree[v] &&
+                (cur == -1 || minDist[v] < minDist[cur])) {
+                cur = v;
+            }
+        }
+
+        // 若最小值仍为 INF，说明剩余顶点无法与当前树连通
+        if (cur == -1 || minDist[cur] == INF) {
+            cout << -1 << '\n';
+            return 0;
+        }
+
+        // 2. 加入生成树
+        isInTree[cur] = true;
+        answer += minDist[cur];
+
+        // 3. 更新其他树外顶点到生成树的最近距离
+        for (int v = 1; v <= V; ++v) {
+            if (!isInTree[v] && graph[cur][v] < minDist[v]) {
+                minDist[v] = graph[cur][v];
+            }
+        }
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+对于题目样例，输出：
+
+```text
+6
+```
+
+---
+
+## 12. 复杂度分析
+
+邻接矩阵朴素 Prim 每轮需要线性扫描所有顶点寻找 `cur`：
+
+$$
+O(V)
+$$
+
+一共进行 $V$ 轮：
+
+$$
+O(V^2)
+$$
+
+每轮更新 `minDist` 又扫描一次所有顶点，仍然不会改变数量级。
+
+因此：
+
+$$
+\boxed{O(V^2)}
+$$
+
+邻接矩阵占用：
+
+$$
+\boxed{O(V^2)}
+$$
+
+空间。
+
+<Callout type="warning" title="不要把 Prim 的复杂度永远背成 O(V²)">
+
+$O(V^2)$ 是**朴素 Prim + 线性选点**的复杂度。
+
+如果图使用邻接表，并使用小根堆维护候选边，可以把复杂度优化为：
+
+$$
+O((V+E)\log V)
+$$
+
+通常简写为：
+
+$$
+O(E\log V)
+$$
+
+所以“Prim 只适合稠密图”也不是绝对结论；它取决于具体实现。
+
+</Callout>
+
+---
+
+## 13. 如何恢复最小生成树中的边
+
+只求总权值时，`minDist` 足够。
+
+如果还要输出 MST 中每条边，就需要再维护：
+
+```text
+parent[v]
+```
+
+定义：
+
+> `parent[v]` 表示当前让 `v` 以 `minDist[v]` 的代价接入生成树的那个树内顶点。
+
+因此当：
+
+```cpp
+graph[cur][v] < minDist[v]
+```
+
+时，同时更新：
+
+```cpp
+minDist[v] = graph[cur][v];
+parent[v] = cur;
+```
+
+原资料中生成出的最小生成树如下：
+
+![记录 parent 后得到的最小生成树](https://file1.kamacoder.com/i/algo/20231229115714.png)
+
+核心代码：
+
+```cpp
+vector<int> parent(V + 1, -1);
+
+for (int v = 1; v <= V; ++v) {
+    if (!isInTree[v] && graph[cur][v] < minDist[v]) {
+        minDist[v] = graph[cur][v];
+        parent[v] = cur;
+    }
+}
+```
+
+最终对于每个非起点顶点 `v`：
+
+```text
+parent[v] -- v
+```
+
+就是一条 MST 边。
+
+<Callout type="warning" title="parent 指向关系不是原图中的有向边">
+
+原图仍然是无向图。
+
+`parent[v] = u` 只是为了在算法中记录：
+
+> `v` 最终通过边 `(u,v)` 被接入生成树。
+
+不要因为数组里有“父子方向”，就误以为最小生成树变成了有向图。
+
+</Callout>
+
+---
+
+## 14. 为什么应该写 `parent[v] = cur`
+
+更新阶段可能出现：
+
+```text
+cur = 1
+```
+
+而多个顶点都通过 `1` 获得更优连接：
+
+```text
+2 <- 1
+3 <- 1
+5 <- 1
+```
+
+正确记录方式：
+
+```cpp
+parent[2] = 1;
+parent[3] = 1;
+parent[5] = 1;
+```
+
+如果错误写成：
+
+```cpp
+parent[cur] = v;
+```
+
+则会连续覆盖：
+
+```text
+parent[1] = 2
+parent[1] = 3
+parent[1] = 5
+```
+
+最后只能保留一个邻接关系。
+
+所以 `parent` 的下标必须是“等待接入树的顶点”。
+
+---
+
+## 15. 相同最小权值时，MST 可能不唯一
+
+示例中有很多权值相同的边。
+
+某一轮可能同时存在多个满足最小 `minDist` 的顶点，因此不同实现可能选择不同顶点。
+
+这会导致最终生成树的具体边集合不同，但只要算法正确，其总权值仍然相同。
+
+因此要区分：
+
+- **最小生成树的最小总权值**通常唯一；
+- **达到该最小权值的树结构**不一定唯一。
+
+若所有边权两两不同，则 MST 一定唯一。
+
+---
+
+## 16. 图不连通时发生什么
+
+“生成树”要求覆盖所有顶点并保持连通。
+
+如果原图本身不连通，就不存在覆盖全部顶点的生成树，只能得到多个连通分量各自的生成树，也就是**最小生成森林**。
+
+在 Prim 中，一个非常明确的信号是：
+
+```text
+还有顶点没有入树
+但所有树外顶点 minDist 都是 INF
+```
+
+这说明当前树无法再向外扩张。
+
+因此标准模板里最好显式判断：
+
+```cpp
+if (minDist[cur] == INF) {
+    // 原图不连通
+}
+```
+
+原题保证可以连通时可以省略，但模板最好保留这个意识。
+
+---
+
+## 17. Prim 与 Dijkstra 为什么长得这么像
+
+这两个算法确实非常像：
+
+```text
+每轮找一个当前最小值顶点
+        ↓
+固定它
+        ↓
+用它更新其他顶点
+```
+
+但它们维护的量完全不同。
+
+| 对比项 | Prim | Dijkstra |
+| --- | --- | --- |
+| 目标 | 最小生成树 | 单源最短路 |
+| `dist` 含义 | 顶点到“当前树”的最小单边代价 | 源点到顶点的最短路径长度 |
+| 更新公式 | `min(minDist[v], w(u,v))` | `min(dist[v], dist[u] + w(u,v))` |
+| 输出 | 一棵连接所有点的树 | 从源点到各点的最短距离 |
+| 是否允许负边 | MST 本身可含负边 | 标准 Dijkstra 不允许负权边 |
+
+Prim 更新：
+
+$$
+\text{minDist}[v]
+=
+\min(\text{minDist}[v],w(u,v))
+$$
+
+Dijkstra 更新：
+
+$$
+\text{dist}[v]
+=
+\min(\text{dist}[v],\text{dist}[u]+w(u,v))
+$$
+
+只差一个 `dist[u] +`，语义就完全不同。
+
+---
+
+## 18. Prim 能处理负权边吗
+
+可以。
+
+最小生成树只是在比较边权大小，不涉及“路径越走越短导致反复松弛”的问题。
+
+例如一条权值为 `-5` 的边，在 MST 中反而是非常有价值的候选边。
+
+因此 Prim 和 Kruskal 都可以处理负权边。
+
+前提仍然是：
+
+- 无向图；
+- 目标是生成树，而不是最短路径。
+
+---
+
+## 19. 稠密图与堆优化 Prim
+
+朴素 Prim：
+
+$$
+O(V^2)
+$$
+
+对于接近完全图的稠密图：
+
+$$
+E\approx V^2
+$$
+
+此时 $O(V^2)$ 非常自然，邻接矩阵也方便。
+
+如果图很稀疏，可以采用：
+
+```text
+邻接表 + 小根堆
+```
+
+维护候选的最小连接边。
+
+复杂度约为：
+
+$$
+O(E\log V)
+$$
+
+但需要注意：堆优化 Prim 不能简单理解为“把 `minDist` 数组塞进优先队列就结束了”。
+
+优先队列中可能存在旧状态，因此出堆时仍然要判断：
+
+```text
+这个顶点是否已经进入生成树
+```
+
+若已经进入，就跳过这条过期记录。
+
+---
+
+## 20. 高频错误
+
+### 错误一：把 `minDist` 当成起点最短路
+
+错误理解：
+
+```text
+minDist[v] = 1 到 v 的最短距离
+```
+
+正确理解：
+
+```text
+minDist[v] = 当前整棵树到 v 的最便宜连接边
+```
+
+### 错误二：更新时加上 `minDist[cur]`
+
+错误：
+
+```cpp
+minDist[v] = min(minDist[v], minDist[cur] + graph[cur][v]);
+```
+
+这是 Dijkstra 的思路。
+
+Prim 应该是：
+
+```cpp
+minDist[v] = min(minDist[v], graph[cur][v]);
+```
+
+### 错误三：已经入树的点还继续更新
+
+必须保证：
+
+```cpp
+!isInTree[v]
+```
+
+因为已经入树的顶点对应的 MST 接入边已经确定。
+
+### 错误四：忘记处理重边
+
+使用邻接矩阵时：
+
+```cpp
+graph[u][v] = w;
+```
+
+可能被后读入的更大权值覆盖。
+
+更稳健：
+
+```cpp
+graph[u][v] = min(graph[u][v], w);
+```
+
+### 错误五：图不连通时仍然累加 `INF`
+
+模板中应考虑：
+
+```cpp
+if (minDist[cur] == INF)
+```
+
+### 错误六：以为 MST 一定唯一
+
+权值相同的边可能导致多棵不同的最小生成树。
+
+---
+
+## 21. 做题时的固定检查清单
+
+<Steps>
+
+### 先判断是不是 MST 模型
+
+题目是否要求：
+
+> 用最小总代价把所有点连通。
+
+如果是，优先想到 Prim / Kruskal。
+
+### 明确图是否无向
+
+经典 MST 定义针对无向图。
+
+### 定义 `minDist`
+
+先用一句话写出：
+
+```text
+minDist[v] = v 到当前生成树的最小连接边权
+```
+
+### 写 Prim 三步
+
+```text
+选最近点
+→ 加入树
+→ 更新树外点
+```
+
+### 判断是否要记录边
+
+只求总权值：不必 `parent`。
+
+要输出 MST：维护 `parent[v]`。
+
+### 根据图规模决定实现
+
+```text
+稠密图 / V 不大：邻接矩阵 + O(V²)
+稀疏图 / E 较小：邻接表 + 小根堆
+```
+
+</Steps>
+
+---
+
+## 22. 一句话理解 Prim
+
+<Callout type="success" title="一句话总结">
+
+**Prim 始终维护一棵已经生成的树，并利用 `minDist[v]` 记录每个树外顶点接入这棵树的最低代价；每轮选择其中最小者接入，再用新顶点更新所有候选连接边。**
+
+</Callout>
+
+如果把整个算法压缩成伪代码，就是：
+
+```text
+minDist[start] = 0
+
+重复 V 次：
+    cur = 树外 minDist 最小的顶点
+    cur 加入树
+    answer += minDist[cur]
+
+    对每个与 cur 相邻的树外顶点 v：
+        minDist[v] = min(minDist[v], w(cur, v))
+```
+
+看到这里，Prim 就不应该再是一段需要死背的模板，而应该是一套非常稳定的“扩树”过程。
+
+---
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final long INF = Long.MAX_VALUE / 4;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int V = Integer.parseInt(st.nextToken());
+        int E = Integer.parseInt(st.nextToken());
+
+        long[][] graph = new long[V + 1][V + 1];
+        for (int i = 1; i <= V; ++i) {
+            Arrays.fill(graph[i], INF);
+            graph[i][i] = 0;
+        }
+
+        for (int i = 0; i < E; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+
+            graph[u][v] = Math.min(graph[u][v], w);
+            graph[v][u] = Math.min(graph[v][u], w);
+        }
+
+        long[] minDist = new long[V + 1];
+        Arrays.fill(minDist, INF);
+        boolean[] inTree = new boolean[V + 1];
+
+        minDist[1] = 0;
+        long answer = 0;
+
+        for (int round = 1; round <= V; ++round) {
+            int cur = -1;
+
+            for (int v = 1; v <= V; ++v) {
+                if (!inTree[v] &&
+                    (cur == -1 || minDist[v] < minDist[cur])) {
+                    cur = v;
+                }
+            }
+
+            if (cur == -1 || minDist[cur] == INF) {
+                System.out.println(-1);
+                return;
+            }
+
+            inTree[cur] = true;
+            answer += minDist[cur];
+
+            for (int v = 1; v <= V; ++v) {
+                if (!inTree[v] && graph[cur][v] < minDist[v]) {
+                    minDist[v] = graph[cur][v];
+                }
+            }
+        }
+
+        System.out.println(answer);
+    }
+}
+```
+
+```python label="Python"
+import sys
+
+input = sys.stdin.readline
+INF = 10**30
+
+V, E = map(int, input().split())
+
+graph = [[INF] * (V + 1) for _ in range(V + 1)]
+for i in range(1, V + 1):
+    graph[i][i] = 0
+
+for _ in range(E):
+    u, v, w = map(int, input().split())
+    graph[u][v] = min(graph[u][v], w)
+    graph[v][u] = min(graph[v][u], w)
+
+min_dist = [INF] * (V + 1)
+in_tree = [False] * (V + 1)
+
+min_dist[1] = 0
+answer = 0
+
+for _ in range(V):
+    cur = -1
+
+    for v in range(1, V + 1):
+        if not in_tree[v] and (cur == -1 or min_dist[v] < min_dist[cur]):
+            cur = v
+
+    if cur == -1 or min_dist[cur] == INF:
+        print(-1)
+        sys.exit(0)
+
+    in_tree[cur] = True
+    answer += min_dist[cur]
+
+    for v in range(1, V + 1):
+        if not in_tree[v] and graph[cur][v] < min_dist[v]:
+            min_dist[v] = graph[cur][v]
+
+print(answer)
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const V = data[idx++];
+const E = data[idx++];
+const INF = Number.POSITIVE_INFINITY;
+
+const graph = Array.from(
+  { length: V + 1 },
+  () => new Array(V + 1).fill(INF)
+);
+
+for (let i = 1; i <= V; ++i) {
+  graph[i][i] = 0;
+}
+
+for (let i = 0; i < E; ++i) {
+  const u = data[idx++];
+  const v = data[idx++];
+  const w = data[idx++];
+
+  graph[u][v] = Math.min(graph[u][v], w);
+  graph[v][u] = Math.min(graph[v][u], w);
+}
+
+const minDist = new Array(V + 1).fill(INF);
+const inTree = new Array(V + 1).fill(false);
+
+minDist[1] = 0;
+let answer = 0;
+
+for (let round = 1; round <= V; ++round) {
+  let cur = -1;
+
+  for (let v = 1; v <= V; ++v) {
+    if (!inTree[v] && (cur === -1 || minDist[v] < minDist[cur])) {
+      cur = v;
+    }
+  }
+
+  if (cur === -1 || minDist[cur] === INF) {
+    console.log(-1);
+    process.exit(0);
+  }
+
+  inTree[cur] = true;
+  answer += minDist[cur];
+
+  for (let v = 1; v <= V; ++v) {
+    if (!inTree[v] && graph[cur][v] < minDist[v]) {
+      minDist[v] = graph[cur][v];
+    }
+  }
+}
+
+console.log(answer);
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+const INF int64 = 1 << 60
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var V, E int
+    fmt.Fscan(in, &V, &E)
+
+    graph := make([][]int64, V+1)
+    for i := 0; i <= V; i++ {
+        graph[i] = make([]int64, V+1)
+        for j := 0; j <= V; j++ {
+            graph[i][j] = INF
+        }
+        graph[i][i] = 0
+    }
+
+    for i := 0; i < E; i++ {
+        var u, v int
+        var w int64
+        fmt.Fscan(in, &u, &v, &w)
+        if w < graph[u][v] {
+            graph[u][v] = w
+            graph[v][u] = w
+        }
+    }
+
+    minDist := make([]int64, V+1)
+    inTree := make([]bool, V+1)
+    for i := 1; i <= V; i++ {
+        minDist[i] = INF
+    }
+
+    minDist[1] = 0
+    var answer int64
+
+    for round := 1; round <= V; round++ {
+        cur := -1
+
+        for v := 1; v <= V; v++ {
+            if !inTree[v] && (cur == -1 || minDist[v] < minDist[cur]) {
+                cur = v
+            }
+        }
+
+        if cur == -1 || minDist[cur] == INF {
+            fmt.Fprintln(out, -1)
+            return
+        }
+
+        inTree[cur] = true
+        answer += minDist[cur]
+
+        for v := 1; v <= V; v++ {
+            if !inTree[v] && graph[cur][v] < minDist[v] {
+                minDist[v] = graph[cur][v]
+            }
+        }
+    }
+
+    fmt.Fprintln(out, answer)
+}
+```
+````

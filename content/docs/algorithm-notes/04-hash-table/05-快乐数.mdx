@@ -1,0 +1,882 @@
+---
+title: 快乐数
+description: 用哈希集合识别状态循环，并理解“有限状态 + 重复状态必成环”的通用判环思想。
+---
+
+# 202. 快乐数
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/happy-number/">
+    LeetCode 202 · Happy Number
+  </Card>
+</Cards>
+
+给定一个正整数 `n`，不断执行：
+
+> 将这个数替换为它各位数字的平方和。
+
+如果最终能够变成 `1`，那么 `n` 是**快乐数**。
+
+如果进入无限循环、始终无法到达 `1`，则不是快乐数。
+
+例如：
+
+```text
+n = 19
+```
+
+变换过程：
+
+$$
+1^2+9^2=82
+$$
+
+$$
+8^2+2^2=68
+$$
+
+$$
+6^2+8^2=100
+$$
+
+$$
+1^2+0^2+0^2=1
+$$
+
+因此：
+
+```text
+19 是快乐数
+```
+
+<Callout type="info" title="本题真正的突破口">
+关键词不是“平方和”，而是题目中的“无限循环”。一旦状态开始重复，就意味着后面会沿着相同轨迹再次重复，因此已经进入环。
+</Callout>
+
+---
+
+## 1. 先定义状态转移函数
+
+定义：
+
+$$
+f(n)
+=
+\text{n 的各位数字平方和}
+$$
+
+例如：
+
+$$
+f(19)=1^2+9^2=82
+$$
+
+于是题目其实是在研究序列：
+
+$$
+n,\ f(n),\ f(f(n)),\ f(f(f(n))),\dots
+$$
+
+对于 `19`：
+
+```text
+19 -> 82 -> 68 -> 100 -> 1
+```
+
+对于一个非快乐数，则会形成：
+
+```text
+n -> ... -> a -> b -> c -> ... -> a -> b -> c -> ...
+```
+
+也就是进入一个环。
+
+---
+
+## 2. 为什么出现重复状态就一定是死循环
+
+假设某次状态第一次到达：
+
+$$
+x
+$$
+
+经过若干次变换后，又回到：
+
+$$
+x
+$$
+
+由于状态转移函数 $f$ 是确定的：
+
+$$
+x\rightarrow f(x)
+$$
+
+无论什么时候遇到同一个 $x$，下一步一定还是同一个：
+
+$$
+f(x)
+$$
+
+所以之后整个序列都会重复。
+
+即：
+
+```text
+x -> a -> b -> c -> x
+     ↑              ↓
+     └──────────────┘
+```
+
+这意味着：
+
+> **只要某个中间状态第二次出现，并且还没有到 1，就一定已经进入无限循环。**
+
+因此我们只需要检测：
+
+```text
+这个状态之前是否出现过？
+```
+
+这正是哈希集合的经典用途。
+
+---
+
+## 3. 用 Set 记录访问过的状态
+
+维护：
+
+```cpp
+unordered_set<int> seen;
+```
+
+每轮：
+
+1. 如果 `n == 1`，返回 `true`；
+2. 如果 `n` 已经在 `seen` 中，说明成环，返回 `false`；
+3. 否则把 `n` 加入集合；
+4. 更新：
+
+$$
+n=f(n)
+$$
+
+伪代码：
+
+```text
+while n != 1:
+    if n 出现过:
+        return false
+
+    记录 n
+    n = 各位平方和
+
+return true
+```
+
+---
+
+## 4. 各位数字平方和怎么计算
+
+这是本题另一个基础技巧。
+
+对于十进制整数：
+
+```cpp
+digit = n % 10;
+```
+
+可以取出最低位。
+
+然后：
+
+```cpp
+n /= 10;
+```
+
+删掉最低位。
+
+例如：
+
+```text
+n = 123
+```
+
+第一轮：
+
+```text
+123 % 10 = 3
+123 / 10 = 12
+```
+
+第二轮：
+
+```text
+12 % 10 = 2
+12 / 10 = 1
+```
+
+第三轮：
+
+```text
+1 % 10 = 1
+1 / 10 = 0
+```
+
+于是平方和：
+
+$$
+1^2+2^2+3^2=14
+$$
+
+对应函数：
+
+```cpp
+int nextNumber(int n) {
+    int sum = 0;
+
+    while (n > 0) {
+        int digit = n % 10;
+        sum += digit * digit;
+        n /= 10;
+    }
+
+    return sum;
+}
+```
+
+---
+
+## 5. 标准哈希解法
+
+```cpp
+class Solution {
+public:
+    int nextNumber(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;
+            sum += digit * digit;
+            n /= 10;
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        unordered_set<int> seen;
+
+        while (n != 1) {
+            if (seen.count(n)) {
+                return false;
+            }
+
+            seen.insert(n);
+            n = nextNumber(n);
+        }
+
+        return true;
+    }
+};
+```
+
+---
+
+## 6. 为什么一定会“到 1”或者“进入环”
+
+这是本题中非常值得理解的一点。
+
+看起来 `n` 可以非常大，但经过一次“各位平方和”后，数值会迅速缩小。
+
+假设一个十进制数有 $d$ 位。
+
+每一位最大为 `9`，所以平方最大为：
+
+$$
+9^2=81
+$$
+
+因此：
+
+$$
+f(n)\le81d
+$$
+
+而 $d$ 只和：
+
+$$
+\log_{10}n
+$$
+
+同阶。
+
+也就是说，哪怕原数很大，做一次变换后也会快速落入一个很小的范围。
+
+例如一个 10 位数：
+
+$$
+f(n)\le 10\times81=810
+$$
+
+之后状态空间就很有限了。
+
+而在一个有限状态集合中不断执行确定性转移，最终只有两种可能：
+
+1. 到达 `1`；
+2. 某个状态重复，从而进入环。
+
+<Callout type="tip" title="这是一个很通用的结论">
+“有限状态 + 确定性转移”意味着序列最终一定进入循环。很多状态模拟题、函数迭代题、链式状态题都可以用这个模型思考。
+</Callout>
+
+---
+
+## 7. 时间复杂度怎么理解
+
+原始资料常把本题写成：
+
+$$
+O(\log n)
+$$
+
+但严格分析时需要更谨慎。
+
+一次计算各位平方和，需要处理十进制数字位数：
+
+$$
+O(\log n)
+$$
+
+而之后数值会迅速缩小并进入一个有限范围。
+
+所以对刷题而言，可以理解为：
+
+- 第一次状态变换需要 $O(\log n)$；
+- 后续状态数量受很小的常数范围限制。
+
+因此整体通常记作：
+
+$$
+O(\log n)
+$$
+
+空间复杂度取决于保存的状态数量。
+
+由于后续状态会落入有限范围，实际非常小；在常见题解中也常写为：
+
+$$
+O(\log n)
+$$
+
+更准确地说，它是“访问到的不同状态数”。
+
+---
+
+## 8. 为什么不能简单限制循环次数
+
+有些人可能会写：
+
+```cpp
+for (int i = 0; i < 100; ++i) {
+    ...
+}
+```
+
+然后认为 100 次还没到 1 就不是快乐数。
+
+这种写法的问题是：
+
+> `100` 是拍脑袋得到的常数，没有直接表达题目中的数学结构。
+
+而使用 Set：
+
+```text
+检测重复状态
+```
+
+是在直接利用：
+
+```text
+重复 -> 成环
+```
+
+因此更加可靠，也更有迁移价值。
+
+---
+
+## 9. 哈希表在本题中的作用不是“存答案”
+
+这里特别值得区分。
+
+前面的哈希题常用哈希表来：
+
+- 统计频次；
+- 判断数组元素是否存在；
+- 保存值对应的下标。
+
+而本题的哈希表保存的是：
+
+> **历史状态**
+
+即：
+
+```text
+状态 -> 是否访问过
+```
+
+这是一类非常重要的哈希应用：
+
+```text
+状态判重
+```
+
+常见于：
+
+- 图搜索；
+- BFS / DFS；
+- 游戏状态；
+- 字符串变换；
+- 数字迭代；
+- 模拟过程；
+- 检测循环。
+
+---
+
+## 10. 还可以用快慢指针
+
+本题实际上还可以看成一条“隐式链表”。
+
+每个状态只有唯一后继：
+
+$$
+n\rightarrow f(n)
+$$
+
+所以可以使用 Floyd 判环算法。
+
+定义：
+
+- `slow` 每次走一步；
+- `fast` 每次走两步。
+
+即：
+
+$$
+slow=f(slow)
+$$
+
+$$
+fast=f(f(fast))
+$$
+
+若存在环，则两者最终会在环内相遇。
+
+若 `fast` 到达 `1`，说明是快乐数。
+
+---
+
+## 11. 快慢指针版本
+
+```cpp
+class Solution {
+public:
+    int nextNumber(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;
+            sum += digit * digit;
+            n /= 10;
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        int slow = n;
+        int fast = nextNumber(n);
+
+        while (fast != 1 && slow != fast) {
+            slow = nextNumber(slow);
+            fast = nextNumber(nextNumber(fast));
+        }
+
+        return fast == 1;
+    }
+};
+```
+
+这个写法把额外空间降为：
+
+$$
+O(1)
+$$
+
+---
+
+## 12. 为什么“快乐数”也能套 Floyd 判环
+
+传统链表中：
+
+```text
+节点 -> next
+```
+
+本题中：
+
+```text
+数字 n -> f(n)
+```
+
+虽然没有显式创建链表节点，但数学结构完全一样：
+
+```text
+19 -> 82 -> 68 -> 100 -> 1 -> 1 -> ...
+```
+
+或者：
+
+```text
+x -> ... -> a -> b -> c -> a -> ...
+```
+
+所以这种结构称为：
+
+> **隐式链表 / 函数图**
+
+这也是“快乐数”非常值得掌握的深层模型。
+
+---
+
+## 13. 哈希法与快慢指针怎么选
+
+| 方法 | 时间 | 额外空间 | 特点 |
+| --- | ---: | ---: | --- |
+| Hash Set | 近似 $O(\log n)$ | 保存历史状态 | 最直观、容易理解 |
+| Floyd 快慢指针 | 近似 $O(\log n)$ | $O(1)$ | 更抽象，但省空间 |
+
+对刷题学习顺序建议：
+
+```text
+先掌握 Hash Set 判重
+        ↓
+再理解“状态序列其实是一条隐式链表”
+        ↓
+最后掌握 Floyd 判环
+```
+
+---
+
+## 14. 常见错误
+
+### 14.1 只记录 `sum`，却忘记更新 `n`
+
+必须有：
+
+```cpp
+n = nextNumber(n);
+```
+
+否则循环永远不会推进。
+
+---
+
+### 14.2 `getSum` 中误用原变量
+
+JavaScript 中尤其容易写成：
+
+```javascript
+const getSum = (num) => {
+    while (n) {
+        ...
+    }
+}
+```
+
+这里错误地使用了外部变量 `n`。
+
+应该始终操作参数：
+
+```javascript
+while (num) {
+    ...
+}
+```
+
+---
+
+### 14.3 重复状态检测放错位置
+
+最清晰的逻辑是：
+
+```text
+当前状态是否已经见过？
+   ↓
+是 → false
+否 → 记录
+   ↓
+计算下一个状态
+```
+
+这样语义最直观。
+
+---
+
+### 14.4 把这题当成纯数学题硬找规律
+
+实际上不需要记住“哪些数一定快乐”或者某个固定循环。
+
+题目本身已经给出了最重要的信息：
+
+```text
+可能无限循环
+```
+
+根据“循环”想到“状态判重”，就足够解决。
+
+---
+
+## 15. 本题的通用迁移模型
+
+本题可以抽象成：
+
+```text
+初始状态 x0
+   ↓
+确定性转移 f
+   ↓
+x1 = f(x0)
+x2 = f(x1)
+x3 = f(x2)
+...
+```
+
+如果目标是判断：
+
+```text
+是否最终到达某个终止状态？
+```
+
+同时题目又说：
+
+```text
+可能无限循环
+```
+
+那么优先考虑：
+
+### 方法一
+
+```text
+Hash Set 记录已访问状态
+```
+
+### 方法二
+
+如果每个状态只有一个后继：
+
+```text
+Floyd 快慢指针判环
+```
+
+这是非常高频的算法模式。
+
+---
+
+## 16. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    int nextNumber(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;
+            sum += digit * digit;
+            n /= 10;
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        unordered_set<int> seen;
+
+        while (n != 1) {
+            if (seen.count(n)) {
+                return false;
+            }
+
+            seen.insert(n);
+            n = nextNumber(n);
+        }
+
+        return true;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public boolean isHappy(int n) {
+        Set<Integer> seen = new HashSet<>();
+
+        while (n != 1) {
+            if (!seen.add(n)) {
+                return false;
+            }
+
+            n = nextNumber(n);
+        }
+
+        return true;
+    }
+
+    private int nextNumber(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;
+            sum += digit * digit;
+            n /= 10;
+        }
+
+        return sum;
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+class Solution:
+    def isHappy(self, n: int) -> bool:
+        seen = set()
+
+        while n != 1:
+            if n in seen:
+                return False
+
+            seen.add(n)
+            n = self.next_number(n)
+
+        return True
+
+    def next_number(self, n: int) -> int:
+        total = 0
+
+        while n:
+            n, digit = divmod(n, 10)
+            total += digit * digit
+
+        return total
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func isHappy(n int) bool {
+    seen := make(map[int]struct{})
+
+    for n != 1 {
+        if _, ok := seen[n]; ok {
+            return false
+        }
+
+        seen[n] = struct{}{}
+        n = nextNumber(n)
+    }
+
+    return true
+}
+
+func nextNumber(n int) int {
+    sum := 0
+
+    for n > 0 {
+        digit := n % 10
+        sum += digit * digit
+        n /= 10
+    }
+
+    return sum
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var isHappy = function(n) {
+    const seen = new Set();
+
+    const nextNumber = (num) => {
+        let sum = 0;
+
+        while (num > 0) {
+            const digit = num % 10;
+            sum += digit * digit;
+            num = Math.floor(num / 10);
+        }
+
+        return sum;
+    };
+
+    while (n !== 1) {
+        if (seen.has(n)) {
+            return false;
+        }
+
+        seen.add(n);
+        n = nextNumber(n);
+    }
+
+    return true;
+};
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 17. 本题总结
+
+本题最值得记住的是“状态判重”这个模型：
+
+```text
+不断生成新状态
+      ↓
+题目提示可能无限循环
+      ↓
+如果某状态重复出现
+      ↓
+后续轨迹必然重复
+      ↓
+使用 Set 判重
+```
+
+进一步还应掌握：
+
+1. 十进制拆位使用 `% 10` 和 `/ 10`。
+2. 哈希表不仅能查数组元素，也可以保存“访问过的状态”。
+3. 有限状态上的确定性转移最终一定会重复或进入终止状态。
+4. 当每个状态只有一个后继时，还可以把问题看成隐式链表，用 Floyd 快慢指针判环。

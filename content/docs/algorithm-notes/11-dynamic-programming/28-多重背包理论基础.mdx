@@ -1,0 +1,643 @@
+---
+title: 多重背包理论基础
+sidebarTitle: 多重背包理论基础
+summary: 系统讲解多重背包与 01/完全背包的区别、朴素三重循环、物品展开、二进制拆分优化，以及背包模型统一判断框架。
+---
+
+# 多重背包理论基础
+
+多重背包是 01 背包与完全背包之后的第三类经典背包模型。
+
+设有 $N$ 种物品，背包容量为 $V$。第 $i$ 种物品具有：
+
+- 重量 $w_i$；
+- 价值 $v_i$；
+- 数量上限 $s_i$。
+
+目标是在总重量不超过 $V$ 的前提下最大化总价值：
+
+$$
+\max \sum_{i=1}^{N}x_iv_i
+$$
+
+满足：
+
+$$
+\sum_{i=1}^{N}x_iw_i\le V
+$$
+
+并且：
+
+$$
+\boxed{0\le x_i\le s_i}
+$$
+
+<Callout type="info" title="一句话区分三类背包">
+01 背包：每种物品最多选 1 次；完全背包：每种物品可选无限次；多重背包：每种物品最多选指定次数。
+</Callout>
+
+## 1. 三种背包模型对比
+
+| 模型 | 每种物品可使用次数 | 一维 DP 常见容量方向 |
+| --- | ---: | --- |
+| 01 背包 | $0/1$ 次 | 倒序 |
+| 完全背包 | 无限次 | 正序 |
+| 多重背包 | $0\sim s_i$ 次 | 取决于实现方式 |
+
+本质差异就是：
+
+$$
+\boxed{\text{同一种物品允许被使用多少次}}
+$$
+
+## 2. 示例
+
+假设背包容量：
+
+$$
+V=10
+$$
+
+物品如下：
+
+| 物品 | 重量 | 价值 | 数量上限 |
+| --- | ---: | ---: | ---: |
+| 0 | 1 | 15 | 2 |
+| 1 | 3 | 20 | 3 |
+| 2 | 4 | 30 | 2 |
+
+例如物品 0 最多只能拿两件，不能无限拿，也不是只能拿一次。
+
+## 3. 朴素状态定义
+
+定义：
+
+$$
+\boxed{dp[j]=\text{容量不超过 }j\text{ 时能够获得的最大价值}}
+$$
+
+若当前处理第 $i$ 种物品，并决定拿 $k$ 件，则：
+
+$$
+0\le k\le s_i
+$$
+
+并且：
+
+$$
+kw_i\le j
+$$
+
+因此：
+
+$$
+\boxed{
+dp[j]=\max_{0\le k\le s_i,\,kw_i\le j}
+\left(dp_{old}[j-kw_i]+kv_i\right)
+}
+$$
+
+## 4. 朴素三重循环
+
+最直接的写法是在 01 背包外再枚举“当前物品取几件”：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = V; j >= weight[i]; --j) {
+        for (int k = 1;
+             k <= count[i] && k * weight[i] <= j;
+             ++k) {
+            dp[j] = max(
+                dp[j],
+                dp[j - k * weight[i]] + k * value[i]
+            );
+        }
+    }
+}
+```
+
+这里容量仍然倒序，是为了保证：
+
+```text
+dp[j - k * weight[i]]
+```
+
+来自“处理当前物品之前”的状态，避免本轮更新重复利用自己而突破数量限制。
+
+若平均数量上限约为 $S$，时间复杂度约为：
+
+$$
+\boxed{O(NVS)}
+$$
+
+## 5. 多重背包为什么可以转成 01 背包
+
+若某种物品：
+
+```text
+重量 = 3
+价值 = 20
+数量 = 3
+```
+
+可以展开成三件彼此独立的 01 物品：
+
+| 新物品 | 重量 | 价值 |
+| --- | ---: | ---: |
+| A1 | 3 | 20 |
+| A2 | 3 | 20 |
+| A3 | 3 | 20 |
+
+每件只能选一次，于是原问题就变成普通 01 背包。
+
+若展开后的总物品数为：
+
+$$
+M=\sum_{i=1}^{N}s_i
+$$
+
+那么复杂度为：
+
+$$
+O(MV)
+$$
+
+### 直接展开代码
+
+```cpp
+vector<int> allWeight;
+vector<int> allValue;
+
+for (int i = 0; i < n; ++i) {
+    for (int k = 0; k < count[i]; ++k) {
+        allWeight.push_back(weight[i]);
+        allValue.push_back(value[i]);
+    }
+}
+
+vector<int> dp(V + 1, 0);
+
+for (int i = 0; i < (int)allWeight.size(); ++i) {
+    for (int j = V; j >= allWeight[i]; --j) {
+        dp[j] = max(dp[j], dp[j - allWeight[i]] + allValue[i]);
+    }
+}
+```
+
+<Callout type="warning" title="直接展开主要用于理解模型">
+若某种物品有几十万件，逐件复制会造成大量时间和空间开销。更实用的优化方式是二进制拆分。
+</Callout>
+
+## 6. 数量上限什么时候已经没有意义
+
+若背包容量为 $V$，第 $i$ 种物品重量为 $w_i$，无论数量上限多大，最多也只能装：
+
+$$
+\left\lfloor\frac{V}{w_i}\right\rfloor
+$$
+
+件。
+
+所以若：
+
+$$
+s_i\ge\left\lfloor\frac{V}{w_i}\right\rfloor
+$$
+
+那么这个数量限制实际上已经失效，可以直接把该种物品按完全背包处理。
+
+这是多重背包优化时很实用的判断。
+
+## 7. 二进制拆分
+
+假设某种物品最多有：
+
+$$
+s_i=13
+$$
+
+逐件拆分需要 13 个 01 物品。
+
+二进制拆分可以改成：
+
+$$
+13=1+2+4+6
+$$
+
+于是构造 4 个新的 01 物品：
+
+```text
+1 件原物品组成的一组
+2 件原物品组成的一组
+4 件原物品组成的一组
+6 件原物品组成的一组
+```
+
+它们的重量、价值分别是：
+
+$$
+(w_i,v_i),
+(2w_i,2v_i),
+(4w_i,4v_i),
+(6w_i,6v_i)
+$$
+
+每组只能选择一次。
+
+### 为什么这样能表示所有合法数量
+
+因为二进制权值：
+
+$$
+1,2,4,8,\dots
+$$
+
+可以组合出连续范围内的所有整数，再用最后一个余数组补齐。
+
+例如：
+
+$$
+7=1+2+4
+$$
+
+$$
+10=4+6
+$$
+
+$$
+12=2+4+6
+$$
+
+因此仍然能够表达从 $0$ 到 $13$ 的任意合法使用数量。
+
+## 8. 二进制拆分模板
+
+```cpp
+vector<pair<int, int>> items;
+
+for (int i = 0; i < n; ++i) {
+    int remain = count[i];
+    int k = 1;
+
+    while (k <= remain) {
+        items.push_back({k * weight[i], k * value[i]});
+        remain -= k;
+        k <<= 1;
+    }
+
+    if (remain > 0) {
+        items.push_back({remain * weight[i], remain * value[i]});
+    }
+}
+```
+
+拆分完成后就是标准 01 背包：
+
+```cpp
+vector<int> dp(V + 1, 0);
+
+for (auto [w, val] : items) {
+    for (int j = V; j >= w; --j) {
+        dp[j] = max(dp[j], dp[j - w] + val);
+    }
+}
+```
+
+每种原始物品只产生：
+
+$$
+O(\log s_i)
+$$
+
+个新物品，因此总复杂度约为：
+
+$$
+\boxed{O\left(V\sum_{i=1}^{N}\log s_i\right)}
+$$
+
+若粗略用最大数量 $S$ 表示：
+
+$$
+\boxed{O(NV\log S)}
+$$
+
+相比朴素：
+
+$$
+O(NVS)
+$$
+
+通常有明显提升。
+
+## 9. 为什么拆分后容量一定要倒序
+
+二进制拆出的每一组，例如：
+
+```text
+4 件原物品组成的一组
+```
+
+本身只能选择一次，因此它就是一个 01 物品。
+
+所以必须：
+
+```cpp
+for (int j = V; j >= w; --j)
+```
+
+倒序更新。
+
+若正序更新，同一个拆分块会在同一轮中被重复利用，等于又突破了数量限制。
+
+## 10. 三种背包的统一模板
+
+### 01 背包
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = V; j >= weight[i]; --j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+核心：
+
+$$
+\boxed{j\text{ 倒序}}
+$$
+
+### 完全背包
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = weight[i]; j <= V; ++j) {
+        dp[j] = max(dp[j], dp[j - weight[i]] + value[i]);
+    }
+}
+```
+
+核心：
+
+$$
+\boxed{j\text{ 正序}}
+$$
+
+### 多重背包
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    for (int j = V; j >= weight[i]; --j) {
+        for (int k = 1;
+             k <= count[i] && k * weight[i] <= j;
+             ++k) {
+            dp[j] = max(
+                dp[j],
+                dp[j - k * weight[i]] + k * value[i]
+            );
+        }
+    }
+}
+```
+
+核心：
+
+$$
+\boxed{\text{额外枚举当前种类使用数量}}
+$$
+
+## 11. 背包题的统一判断流程
+
+### 第一步：每种物品可以使用几次？
+
+```text
+最多一次      → 01 背包
+无限次        → 完全背包
+最多 s[i] 次  → 多重背包
+```
+
+### 第二步：题目要求什么？
+
+常见目标：
+
+```text
+最大价值
+能否恰好装满
+方案数
+最少物品数
+```
+
+这决定 `dp` 的语义、初始化和转移运算。
+
+### 第三步：如果统计方案数，是否区分顺序？
+
+```text
+不区分顺序 → 组合
+区分顺序   → 排列
+```
+
+此时才需要进一步分析物品循环和容量循环的先后关系。
+
+## 12. 更进一步：单调队列优化
+
+二进制拆分通常可以把复杂度优化到：
+
+$$
+O(NV\log S)
+$$
+
+多重背包还可以利用“按 $j\bmod w_i$ 分组 + 单调队列”优化到近似：
+
+$$
+\boxed{O(NV)}
+$$
+
+其本质是把同余类中的转移改写成滑动窗口最大值问题。
+
+这属于更进阶的 DP 优化。学习优先级建议是：
+
+```text
+朴素多重背包
+→ 理解转成 01 背包
+→ 二进制拆分
+→ 单调队列优化
+```
+
+## 13. 常见错误
+
+### 把多重背包直接写成完全背包
+
+如果没有额外限制就正序更新容量，会让当前物品无限次使用。
+
+### 二进制拆分后仍正序更新
+
+每个拆分块只能使用一次，因此必须按 01 背包倒序更新。
+
+### 误以为二进制拆分只能表示 $2^k$ 件
+
+最后会保留一个余数组，因此能覆盖 $0\sim s_i$ 的所有合法数量。
+
+### 忽略数量上限已经失效
+
+如果：
+
+$$
+s_i\ge\left\lfloor\frac{V}{w_i}\right\rfloor
+$$
+
+该物品实际上等价于完全背包物品。
+
+## 14. 总结
+
+多重背包最重要的统一理解是：
+
+> **有限个相同物品，可以重新编码成若干个只能选择一次的物品。**
+
+直接拆分：
+
+$$
+s_i\text{ 件}\rightarrow s_i\text{ 个 01 物品}
+$$
+
+二进制拆分：
+
+$$
+s_i\text{ 件}\rightarrow O(\log s_i)\text{ 个 01 物品}
+$$
+
+于是三类基础背包可以统一为：
+
+$$
+\boxed{
+\begin{array}{c}
+\text{01 背包：0/1 次}\\
+\text{完全背包：无限次}\\
+\text{多重背包：有限次}
+\end{array}}
+$$
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int V = sc.nextInt();
+        int n = sc.nextInt();
+
+        int[] weight = new int[n];
+        int[] value = new int[n];
+        int[] count = new int[n];
+
+        for (int i = 0; i < n; i++) weight[i] = sc.nextInt();
+        for (int i = 0; i < n; i++) value[i] = sc.nextInt();
+        for (int i = 0; i < n; i++) count[i] = sc.nextInt();
+
+        int[] dp = new int[V + 1];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = V; j >= weight[i]; j--) {
+                for (int k = 1; k <= count[i] && k * weight[i] <= j; k++) {
+                    dp[j] = Math.max(dp[j], dp[j - k * weight[i]] + k * value[i]);
+                }
+            }
+        }
+
+        System.out.println(dp[V]);
+    }
+}
+```
+
+```python label="Python"
+V, n = map(int, input().split())
+weight = list(map(int, input().split()))
+value = list(map(int, input().split()))
+count = list(map(int, input().split()))
+
+dp = [0] * (V + 1)
+
+for i in range(n):
+    for j in range(V, weight[i] - 1, -1):
+        max_count = min(count[i], j // weight[i])
+        for k in range(1, max_count + 1):
+            dp[j] = max(dp[j], dp[j - k * weight[i]] + k * value[i])
+
+print(dp[V])
+```
+
+```go label="Go"
+package main
+
+import "fmt"
+
+func main() {
+    var V, n int
+    fmt.Scan(&V, &n)
+
+    weight := make([]int, n)
+    value := make([]int, n)
+    count := make([]int, n)
+
+    for i := range weight { fmt.Scan(&weight[i]) }
+    for i := range value { fmt.Scan(&value[i]) }
+    for i := range count { fmt.Scan(&count[i]) }
+
+    dp := make([]int, V+1)
+
+    for i := 0; i < n; i++ {
+        for j := V; j >= weight[i]; j-- {
+            for k := 1; k <= count[i] && k*weight[i] <= j; k++ {
+                candidate := dp[j-k*weight[i]] + k*value[i]
+                if candidate > dp[j] {
+                    dp[j] = candidate
+                }
+            }
+        }
+    }
+
+    fmt.Println(dp[V])
+}
+```
+
+```javascript label="JavaScript"
+function multiKnapsack(V, weight, value, count) {
+  const dp = new Array(V + 1).fill(0);
+
+  for (let i = 0; i < weight.length; i++) {
+    for (let j = V; j >= weight[i]; j--) {
+      const maxCount = Math.min(count[i], Math.floor(j / weight[i]));
+      for (let k = 1; k <= maxCount; k++) {
+        dp[j] = Math.max(dp[j], dp[j - k * weight[i]] + k * value[i]);
+      }
+    }
+  }
+
+  return dp[V];
+}
+```
+
+```typescript label="TypeScript"
+function multiKnapsack(
+  V: number,
+  weight: number[],
+  value: number[],
+  count: number[]
+): number {
+  const dp: number[] = new Array(V + 1).fill(0);
+
+  for (let i = 0; i < weight.length; i++) {
+    for (let j = V; j >= weight[i]; j--) {
+      const maxCount = Math.min(count[i], Math.floor(j / weight[i]));
+      for (let k = 1; k <= maxCount; k++) {
+        dp[j] = Math.max(dp[j], dp[j - k * weight[i]] + k * value[i]);
+      }
+    }
+  }
+
+  return dp[V];
+}
+```
+````

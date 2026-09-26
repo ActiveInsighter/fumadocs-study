@@ -1,0 +1,1008 @@
+---
+title: 完全二叉树的节点个数：从 O(n) 到 O(log² n)
+description: 以 LeetCode 222 为主线，从普通二叉树计数出发，利用完全二叉树与满二叉树的结构性质，将节点计数优化到 O(log² n)，并讲清左右极深度为何能够判定满二叉树。
+---
+
+# 完全二叉树的节点个数：从 $O(n)$ 到 $O(\log^2 n)$
+
+> LeetCode 222 · Count Complete Tree Nodes
+
+[题目链接](https://leetcode.cn/problems/count-complete-tree-nodes/)
+
+给定一棵**完全二叉树**，统计其中的节点个数。
+
+这道题很适合用来体会一个重要的算法思想：
+
+```text
+先写出对任意二叉树都正确的通用解法，
+再利用题目额外给出的结构性质做优化。
+```
+
+如果完全忽略“完全二叉树”这个条件，遍历所有节点即可得到答案，复杂度是 $O(n)$；但题目特意保证输入是一棵完全二叉树，就意味着我们可以利用它的结构，避免访问一部分节点。
+
+<Callout title="本题真正的考点" type="idea">
+
+不是“会不会数节点”，而是能否识别：**某些子树一旦能确定是满二叉树，就可以直接用公式计算，不再逐节点遍历。**
+
+</Callout>
+
+## 1. 先区分：满二叉树与完全二叉树
+
+理解优化解法之前，必须先把两个概念分清。
+
+### 满二叉树
+
+如果一棵二叉树的每一层都达到最大节点数，那么它是满二叉树。
+
+若根节点所在层记为第 $1$ 层，总高度为 $h$，则第 $i$ 层节点数为：
+
+$$
+2^{i-1}
+$$
+
+总节点数为等比数列之和：
+
+$$
+1+2+4+\cdots+2^{h-1}=2^h-1
+$$
+
+因此：
+
+$$
+\boxed{N=2^h-1}
+$$
+
+### 完全二叉树
+
+完全二叉树允许最后一层不满，但必须满足：
+
+- 除最后一层之外，其余各层全部填满；
+- 最后一层的节点从左到右连续排列；
+- 不允许中间出现空缺后，右侧又出现节点。
+
+典型结构如下：
+
+![完全二叉树示意](https://file1.kamacoder.com/i/algo/20200920221638903-20230310123444151.png)
+
+<Cards>
+  <Card title="满二叉树">每一层都满，可以直接用 $2^h-1$ 计算节点数。</Card>
+  <Card title="完全二叉树">只有最后一层可能不满，并且节点必须靠左连续排列。</Card>
+  <Card title="普通二叉树">没有上述结构保证，左右极深度相同也不能推出它是满二叉树。</Card>
+</Cards>
+
+## 2. 通用解法：把它当普通二叉树
+
+无论题目是不是完全二叉树，都有一个最直接的递推关系：
+
+$$
+N(u)=1+N(u.left)+N(u.right)
+$$
+
+其中空节点定义为：
+
+$$
+N(\varnothing)=0
+$$
+
+这就是典型的后序思路：
+
+```text
+先得到左子树节点数
+再得到右子树节点数
+最后合并当前节点
+```
+
+### 递归三步法
+
+<Steps>
+
+### 1. 定义返回值
+
+`countNodes(root)` 返回以 `root` 为根的整棵子树的节点个数。
+
+### 2. 确定终止条件
+
+空树没有节点：
+
+```cpp
+if (root == nullptr) return 0;
+```
+
+### 3. 处理当前节点
+
+```cpp
+int leftCount = countNodes(root->left);
+int rightCount = countNodes(root->right);
+return leftCount + rightCount + 1;
+```
+
+</Steps>
+
+```cpp title="通用递归解法"
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        int leftCount = countNodes(root->left);
+        int rightCount = countNodes(root->right);
+
+        return leftCount + rightCount + 1;
+    }
+};
+```
+
+### 复杂度
+
+每个节点恰好访问一次：
+
+$$
+T(n)=O(n)
+$$
+
+递归栈深度等于树高。对于完全二叉树：
+
+$$
+h=O(\log n)
+$$
+
+因此空间复杂度为：
+
+$$
+O(\log n)
+$$
+
+<Callout title="为什么先学这个版本" type="info">
+
+这个版本虽然没有利用完全二叉树性质，但它把最基本的树形 DP 关系表达得最清楚：**当前子树答案 = 左子树答案 + 右子树答案 + 当前节点。**
+
+</Callout>
+
+## 3. 迭代解法：层序遍历直接计数
+
+也可以使用 BFS，把每一个进入队列的节点计数一次。
+
+```cpp title="层序遍历计数"
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        queue<TreeNode*> q;
+        q.push(root);
+        int count = 0;
+
+        while (!q.empty()) {
+            TreeNode* node = q.front();
+            q.pop();
+            ++count;
+
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+
+        return count;
+    }
+};
+```
+
+这种方法仍然必须访问全部 $n$ 个节点，因此时间复杂度依旧是：
+
+$$
+O(n)
+$$
+
+最坏情况下队列可能同时保存最后一层的大量节点，因此空间复杂度为：
+
+$$
+O(n)
+$$
+
+## 4. 为什么完全二叉树还能更快
+
+完全二叉树具有一个非常特殊的性质：
+
+> 对任意一棵完全二叉子树，如果从根开始一路向左走得到的深度，与一路向右走得到的深度相同，那么这棵子树一定是满二叉树。
+
+这是本题优化的核心。
+
+先看满二叉树：
+
+![满二叉子树](https://file1.kamacoder.com/i/algo/20201124092543662.png)
+
+如果当前子树不是满的，最后一层会出现缺口：
+
+![非满的完全二叉树](https://file1.kamacoder.com/i/algo/20201124092634138.png)
+
+由于完全二叉树最后一层的节点必须**从左向右连续填充**，所以只要最右侧路径也能走到与最左侧相同的深度，就说明最后一层最右端已经存在节点。
+
+而在“从左连续填充”的前提下，最右端都存在，就意味着这一层没有任何缺口，于是整棵子树必然是满二叉树。
+
+## 5. 左右极深度为什么能判定满二叉树
+
+设当前根节点为 `root`。
+
+我们分别沿两条极端路径向下：
+
+```text
+leftDepth  : root -> left -> left -> left -> ...
+rightDepth : root -> right -> right -> right -> ...
+```
+
+示意如下：
+
+![左右极深度相同](https://file1.kamacoder.com/i/algo/20220829163554.png)
+
+如果：
+
+$$
+leftDepth=rightDepth
+$$
+
+那么在**完全二叉树**这一前提下，当前子树就是满二叉树。
+
+如果两者不同：
+
+![左右极深度不同](https://file1.kamacoder.com/i/algo/20220829163709.png)
+
+则当前子树一定不是满二叉树，需要继续拆成左右子树处理。
+
+### 一个非常重要的前提
+
+有人会构造如下结构，认为“左右极深度一样，但中间仍然缺节点”：
+
+![非完全二叉树反例](https://file1.kamacoder.com/i/algo/20220829163811.png)
+
+这个反例确实说明：
+
+```text
+左右极深度相同
+≠
+对任意二叉树都能推出满二叉树
+```
+
+但它并不能否定本题做法，因为图中的树**不是完全二叉树**。
+
+<Callout title="必须牢记的逻辑条件" type="warn">
+
+正确命题是：
+
+```text
+完全二叉树 + 左右极深度相同
+        ⇒
+当前子树是满二叉树
+```
+
+如果没有“完全二叉树”这个前提，这个判断不成立。
+
+</Callout>
+
+## 6. 满二叉树为什么能直接算节点数
+
+假设我们从当前根节点的左右孩子开始统计极深度：
+
+```cpp
+int leftDepth = 0;
+TreeNode* left = root->left;
+while (left) {
+    left = left->left;
+    ++leftDepth;
+}
+```
+
+这里的 `leftDepth` 没有把当前根节点算进去。
+
+如果：
+
+```text
+leftDepth = k
+```
+
+那么整棵满二叉树的高度实际上是：
+
+$$
+h=k+1
+$$
+
+于是节点数为：
+
+$$
+2^{k+1}-1
+$$
+
+可以写成：
+
+```cpp
+(1 << (leftDepth + 1)) - 1
+```
+
+原始写法中的：
+
+```cpp
+(2 << leftDepth) - 1
+```
+
+与它完全等价，因为：
+
+$$
+2\ll k=2\times 2^k=2^{k+1}
+$$
+
+不过为了让含义更直观，更推荐写：
+
+```cpp
+(1 << (leftDepth + 1)) - 1
+```
+
+<Callout title="位运算与公式对应" type="info">
+
+`1 << h` 等价于 $2^h$。所以满二叉树节点数可以直接表示为：
+
+$$
+(1\ll h)-1
+$$
+
+</Callout>
+
+## 7. 优化递归：遇到满子树就直接剪掉
+
+核心过程只有三步：
+
+<Steps>
+
+### 1. 空树直接返回 0
+
+```cpp
+if (root == nullptr) return 0;
+```
+
+### 2. 求当前子树的左右极深度
+
+```cpp
+TreeNode* left = root->left;
+TreeNode* right = root->right;
+int leftDepth = 0;
+int rightDepth = 0;
+
+while (left) {
+    left = left->left;
+    ++leftDepth;
+}
+
+while (right) {
+    right = right->right;
+    ++rightDepth;
+}
+```
+
+### 3. 满二叉树直接套公式，否则递归左右子树
+
+```cpp
+if (leftDepth == rightDepth) {
+    return (1 << (leftDepth + 1)) - 1;
+}
+
+return 1 + countNodes(root->left) + countNodes(root->right);
+```
+
+</Steps>
+
+完整代码：
+
+```cpp title="利用完全二叉树性质 · 推荐解法"
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        TreeNode* left = root->left;
+        TreeNode* right = root->right;
+        int leftDepth = 0;
+        int rightDepth = 0;
+
+        while (left != nullptr) {
+            left = left->left;
+            ++leftDepth;
+        }
+
+        while (right != nullptr) {
+            right = right->right;
+            ++rightDepth;
+        }
+
+        if (leftDepth == rightDepth) {
+            return (1 << (leftDepth + 1)) - 1;
+        }
+
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+};
+```
+
+## 8. 这段递归到底“省”在了哪里
+
+普通递归会一直拆到单个节点：
+
+```text
+root
+├─ left
+│  ├─ ...
+│  └─ ...
+└─ right
+   ├─ ...
+   └─ ...
+```
+
+优化递归则会不断检查：
+
+```text
+当前子树是不是满二叉树？
+```
+
+一旦答案是“是”，整棵子树就被公式直接计算：
+
+```text
+这个子树可能有几百、几千个节点，
+但不再逐个访问。
+```
+
+可以把它理解为一种基于结构性质的**剪枝**。
+
+## 9. 为什么时间复杂度是 $O(\log^2 n)$
+
+这部分很容易只背结论，不理解来源。
+
+对于一棵有 $n$ 个节点的完全二叉树，其高度为：
+
+$$
+h=O(\log n)
+$$
+
+每次递归时，要沿当前子树的最左链和最右链各走一次，因此一次深度检查需要：
+
+$$
+O(h)=O(\log n)
+$$
+
+而真正继续递归的路径不会像普通递归那样完整展开所有节点。
+
+对于完全二叉树，在每一层递归中，左右子树中至少有一边会很快被识别为满二叉树并直接计算，递归层数至多为树高：
+
+$$
+O(\log n)
+$$
+
+因此总时间复杂度为：
+
+$$
+O(\log n)\times O(\log n)
+=
+\boxed{O(\log^2 n)}
+$$
+
+递归栈高度为：
+
+$$
+\boxed{O(\log n)}
+$$
+
+<Callout title="复杂度直觉" type="success">
+
+可以把它想成：一共有大约 $\log n$ 层递归，每层最多花 $\log n$ 的时间测量极深度，因此得到 $O(\log^2 n)$。
+
+</Callout>
+
+## 10. 为什么不是所有节点都会被遍历
+
+考虑一棵完全二叉树：
+
+```text
+              1
+          /       \
+         2         3
+       /  \       / \
+      4    5     6   7
+     / \  /
+    8  9 10
+```
+
+根节点处不是满二叉树，于是继续拆。
+
+但进入某些子树后，很快会出现：
+
+```text
+左右极深度相同
+```
+
+这些子树就会被直接用公式计算，而不是继续访问每个叶子。
+
+因此它和普通 $O(n)$ DFS 最大的区别就是：
+
+```text
+普通 DFS：节点级遍历
+优化 DFS：尽量提升到“整棵满子树”级别统计
+```
+
+## 11. 一个容易忽略的问题：位移溢出
+
+LeetCode 222 的节点规模不大，使用 `int` 足够。
+
+但如果把这段模板迁移到节点规模更大的题目中，表达式：
+
+```cpp
+1 << height
+```
+
+使用的是 `int` 位移，`height` 较大时可能溢出。
+
+更稳妥的通用写法是：
+
+```cpp
+1LL << height
+```
+
+例如：
+
+```cpp
+long long nodes = (1LL << height) - 1;
+```
+
+这不是本题的核心，但属于写模板时值得养成的边界意识。
+
+## 12. 另一类经典做法：二分最后一层
+
+完全二叉树还有一种更“数组化”的理解。
+
+如果树高为 $h$，前 $h-1$ 层全部填满，则这些层的节点数已经确定：
+
+$$
+2^{h-1}-1
+$$
+
+最后一层最多有：
+
+$$
+2^{h-1}
+$$
+
+个节点。
+
+于是可以把最后一层的位置编号，通过二分搜索判断某个编号对应的节点是否存在。
+
+整体复杂度同样可以做到：
+
+$$
+O(\log^2 n)
+$$
+
+不过这需要把“编号的二进制位”映射为从根向左或向右走的路径，代码更长。
+
+对于学习二叉树递归，本篇的“识别满子树 + 公式计算”更加自然。
+
+## 13. 本题背后的通用思想
+
+这道题值得记住的不只是某段代码，而是下面几个方法论。
+
+### 13.1 先找通用递推，再找特殊性质
+
+先写：
+
+$$
+N(u)=N(u.left)+N(u.right)+1
+$$
+
+确保思路正确，再利用完全二叉树性质优化。
+
+### 13.2 遇到规则结构，优先想公式
+
+满二叉树节点数不是“需要遍历才能知道”的信息，而是由高度直接决定：
+
+$$
+N=2^h-1
+$$
+
+### 13.3 优化的本质是跳过重复劳动
+
+一旦已经知道某个子树是满二叉树，就没有必要再访问它内部的每个节点。
+
+### 13.4 结论成立往往依赖题目条件
+
+“左右极深度相等则为满二叉树”只在**当前树保证是完全二叉树**时成立。
+
+这类前提在算法证明中非常重要。
+
+## 14. 常见错误
+
+### 错误一：对普通二叉树也使用左右极深度判满
+
+这是最危险的错误。
+
+```text
+左右极深度相同
+```
+
+对普通二叉树并不足以说明中间没有缺口。
+
+### 错误二：公式少算或多算一层
+
+如果从 `root->left` 开始统计深度，则当前根没有计入。
+
+此时总高度为：
+
+$$
+leftDepth+1
+$$
+
+节点数应该是：
+
+$$
+2^{leftDepth+1}-1
+$$
+
+### 错误三：把完全二叉树理解成满二叉树
+
+完全二叉树的最后一层可以不满，只要求从左向右连续。
+
+### 错误四：只记住 $O(\log^2 n)$，却不知道为什么
+
+复杂度来自：
+
+$$
+\text{递归层数 } O(\log n)
+\times
+\text{每次测深 } O(\log n)
+$$
+
+## 15. 做题决策模板
+
+```text
+题目：统计二叉树节点数
+        ↓
+没有特殊结构？
+        ↓
+直接 DFS / BFS：O(n)
+        ↓
+题目保证完全二叉树？
+        ↓
+检查左右极深度
+        ↓
+相等 → 满二叉树 → 2^h - 1
+不等 → 继续递归左右子树
+```
+
+<Callout title="一句话记忆" type="success">
+
+**完全二叉树的优化核心：不断把问题递归切小，一旦某个子树被确认是满二叉树，就用 $2^h-1$ 一次性结算。**
+
+</Callout>
+
+## 16. 自测
+
+完成本篇后，尝试不看代码回答：
+
+- 满二叉树和完全二叉树有什么区别？
+- 高度为 $h$ 的满二叉树为什么有 $2^h-1$ 个节点？
+- 为什么普通 DFS 的递推式是 `left + right + 1`？
+- 为什么完全二叉树中左右极深度相等可以推出当前子树为满二叉树？
+- 为什么这个结论不能直接用于任意二叉树？
+- 从 `root->left` 开始计深度时，为什么公式中要使用 `leftDepth + 1`？
+- $O(\log^2 n)$ 中的两个 $\log n$ 分别来自哪里？
+- 本题优化本质上“跳过”了什么工作？
+
+如果这些问题都能解释清楚，就说明你已经不只是会写代码，而是理解了结构性质如何改变算法复杂度。
+
+## 其他语言实现
+
+下面统一给出“利用完全二叉树性质”的核心解法。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) return 0;
+
+        TreeNode left = root.left;
+        TreeNode right = root.right;
+        int leftDepth = 0;
+        int rightDepth = 0;
+
+        while (left != null) {
+            left = left.left;
+            leftDepth++;
+        }
+        while (right != null) {
+            right = right.right;
+            rightDepth++;
+        }
+
+        if (leftDepth == rightDepth) {
+            return (1 << (leftDepth + 1)) - 1;
+        }
+
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def countNodes(self, root):
+        if root is None:
+            return 0
+
+        left = root.left
+        right = root.right
+        left_depth = 0
+        right_depth = 0
+
+        while left is not None:
+            left = left.left
+            left_depth += 1
+
+        while right is not None:
+            right = right.right
+            right_depth += 1
+
+        if left_depth == right_depth:
+            return (1 << (left_depth + 1)) - 1
+
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func countNodes(root *TreeNode) int {
+    if root == nil {
+        return 0
+    }
+
+    left := root.Left
+    right := root.Right
+    leftDepth, rightDepth := 0, 0
+
+    for left != nil {
+        left = left.Left
+        leftDepth++
+    }
+    for right != nil {
+        right = right.Right
+        rightDepth++
+    }
+
+    if leftDepth == rightDepth {
+        return (1 << (leftDepth + 1)) - 1
+    }
+
+    return 1 + countNodes(root.Left) + countNodes(root.Right)
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var countNodes = function(root) {
+    if (root === null) return 0;
+
+    let left = root.left;
+    let right = root.right;
+    let leftDepth = 0;
+    let rightDepth = 0;
+
+    while (left !== null) {
+        left = left.left;
+        leftDepth++;
+    }
+    while (right !== null) {
+        right = right.right;
+        rightDepth++;
+    }
+
+    if (leftDepth === rightDepth) {
+        return 2 ** (leftDepth + 1) - 1;
+    }
+
+    return 1 + countNodes(root.left) + countNodes(root.right);
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function countNodes(root: TreeNode | null): number {
+    if (root === null) return 0;
+
+    let left: TreeNode | null = root.left;
+    let right: TreeNode | null = root.right;
+    let leftDepth = 0;
+    let rightDepth = 0;
+
+    while (left !== null) {
+        left = left.left;
+        leftDepth++;
+    }
+    while (right !== null) {
+        right = right.right;
+        rightDepth++;
+    }
+
+    if (leftDepth === rightDepth) {
+        return 2 ** (leftDepth + 1) - 1;
+    }
+
+    return 1 + countNodes(root.left) + countNodes(root.right);
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c title="C"
+int countNodes(struct TreeNode* root) {
+    if (root == NULL) return 0;
+
+    struct TreeNode* left = root->left;
+    struct TreeNode* right = root->right;
+    int leftDepth = 0;
+    int rightDepth = 0;
+
+    while (left != NULL) {
+        left = left->left;
+        leftDepth++;
+    }
+    while (right != NULL) {
+        right = right->right;
+        rightDepth++;
+    }
+
+    if (leftDepth == rightDepth) {
+        return (1 << (leftDepth + 1)) - 1;
+    }
+
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift title="Swift"
+class Solution {
+    func countNodes(_ root: TreeNode?) -> Int {
+        guard let root = root else { return 0 }
+
+        var left = root.left
+        var right = root.right
+        var leftDepth = 0
+        var rightDepth = 0
+
+        while left != nil {
+            left = left?.left
+            leftDepth += 1
+        }
+        while right != nil {
+            right = right?.right
+            rightDepth += 1
+        }
+
+        if leftDepth == rightDepth {
+            return (1 << (leftDepth + 1)) - 1
+        }
+
+        return 1 + countNodes(root.left) + countNodes(root.right)
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def countNodes(root: TreeNode): Int = {
+    if (root == null) return 0
+
+    var left = root.left
+    var right = root.right
+    var leftDepth = 0
+    var rightDepth = 0
+
+    while (left != null) {
+      left = left.left
+      leftDepth += 1
+    }
+    while (right != null) {
+      right = right.right
+      rightDepth += 1
+    }
+
+    if (leftDepth == rightDepth) {
+      (1 << (leftDepth + 1)) - 1
+    } else {
+      1 + countNodes(root.left) + countNodes(root.right)
+    }
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type Node = Option<Rc<RefCell<TreeNode>>>;
+
+impl Solution {
+    pub fn count_nodes(root: Node) -> i32 {
+        let Some(root_rc) = root else {
+            return 0;
+        };
+
+        let mut left = root_rc.borrow().left.clone();
+        let mut right = root_rc.borrow().right.clone();
+        let mut left_depth = 0;
+        let mut right_depth = 0;
+
+        while let Some(node) = left {
+            left = node.borrow().left.clone();
+            left_depth += 1;
+        }
+        while let Some(node) = right {
+            right = node.borrow().right.clone();
+            right_depth += 1;
+        }
+
+        if left_depth == right_depth {
+            return (1_i32 << (left_depth + 1)) - 1;
+        }
+
+        let node = root_rc.borrow();
+        1 + Self::count_nodes(node.left.clone())
+            + Self::count_nodes(node.right.clone())
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution {
+    public int CountNodes(TreeNode root) {
+        if (root == null) return 0;
+
+        TreeNode left = root.left;
+        TreeNode right = root.right;
+        int leftDepth = 0;
+        int rightDepth = 0;
+
+        while (left != null) {
+            left = left.left;
+            leftDepth++;
+        }
+        while (right != null) {
+            right = right.right;
+            rightDepth++;
+        }
+
+        if (leftDepth == rightDepth) {
+            return (1 << (leftDepth + 1)) - 1;
+        }
+
+        return 1 + CountNodes(root.left) + CountNodes(root.right);
+    }
+}
+```
+
+</Tab>
+</Tabs>

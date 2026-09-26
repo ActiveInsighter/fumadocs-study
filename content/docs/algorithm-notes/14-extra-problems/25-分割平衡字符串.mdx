@@ -1,0 +1,394 @@
+---
+title: 分割平衡字符串
+description: 用前缀差值刻画 L 与 R 的数量关系，理解“第一次恢复平衡立即切分”为什么一定得到最大分段数，并建立简单贪心的证明思路。
+---
+
+# 1221. 分割平衡字符串
+
+[LeetCode 1221：分割平衡字符串](https://leetcode.cn/problems/split-a-string-in-balanced-strings/)
+
+如果一个字符串中 `L` 和 `R` 的数量相同，那么它就是一个 **平衡字符串**。
+
+给定一个本身已经平衡的字符串 `s`，要求把它切成尽可能多的平衡子串，并返回最大分割数量。
+
+例如：
+
+```text
+s = "RLRRLLRLRL"
+```
+
+可以切成：
+
+```text
+"RL" | "RRLL" | "RL" | "RL"
+```
+
+因此答案为：
+
+```text
+4
+```
+
+## 一、核心建模：把字符变成 $+1$ 和 $-1$
+
+最自然的做法是维护一个差值 `balance`：
+
+```text
+遇到 R：balance += 1
+遇到 L：balance -= 1
+```
+
+于是对于当前扫描过的这一段：
+
+$$
+\text{balance}=\#R-\#L
+$$
+
+当：
+
+$$
+\text{balance}=0
+$$
+
+就说明当前这一段中：
+
+$$
+\#R=\#L
+$$
+
+也就是说，它已经形成一个合法平衡子串。
+
+## 二、为什么一恢复平衡就应该立即切分
+
+题目要求的是：
+
+> 分割出的平衡子串数量尽可能多。
+
+假设我们从某个起点开始扫描，第一次在位置 $i$ 处满足：
+
+$$
+\text{balance}=0
+$$
+
+那么区间：
+
+$$
+[l,i]
+$$
+
+已经是一个最短的可切平衡前缀。
+
+如果此时不切，而继续把后面的字符并进来，只会得到一个更长的平衡子串。
+
+但把两个本来可以独立成立的平衡段合并，并不会增加段数，只可能减少段数。
+
+因此：
+
+> **每次第一次恢复平衡时立即切分，一定不会让答案变差。**
+
+这就是本题贪心策略成立的关键。
+
+## 三、一个很直观的例子
+
+考虑：
+
+```text
+RLRRLL
+```
+
+逐字符维护 `balance`：
+
+| 字符 | balance | 是否切分 |
+| --- | ---: | --- |
+| `R` | 1 | 否 |
+| `L` | 0 | 是，得到 `RL` |
+| `R` | 1 | 否 |
+| `R` | 2 | 否 |
+| `L` | 1 | 否 |
+| `L` | 0 | 是，得到 `RRLL` |
+
+最终得到两个平衡子串。
+
+如果第一次出现 `balance = 0` 时不切，而把整个字符串保留为：
+
+```text
+RLRRLL
+```
+
+虽然它本身也是平衡字符串，但只能得到 $1$ 段，显然不如 $2$ 段。
+
+## 四、推荐解法：一次遍历 + 差值计数
+
+```cpp
+class Solution {
+public:
+    int balancedStringSplit(string s) {
+        int balance = 0;
+        int answer = 0;
+
+        for (char ch : s) {
+            if (ch == 'R') {
+                ++balance;
+            } else {
+                --balance;
+            }
+
+            if (balance == 0) {
+                ++answer;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+代码非常短，但其中实际上包含了两个关键思想：
+
+1. 用一个变量压缩两个字符的计数关系；
+2. 在最早可切位置立即切分。
+
+## 五、为什么不需要真的 `substr`
+
+题目只要求：
+
+```text
+最大分割数量
+```
+
+而不要求返回具体子串。
+
+因此完全没有必要执行：
+
+```cpp
+s.substr(...)
+```
+
+也不需要记录每一段的左右边界。
+
+只要在 `balance == 0` 时：
+
+```cpp
+answer++;
+```
+
+即可。
+
+这也是算法题中一个很常见的优化原则：
+
+> 如果只要求统计答案，就不要额外构造结果对象。
+
+## 六、复杂度分析
+
+字符串只扫描一次。
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(1)$
+
+其中 $n$ 为字符串长度。
+
+## 七、如何更严格地理解这个贪心
+
+设从当前位置开始，第一次恢复平衡的位置为 $i$。
+
+那么前缀：
+
+$$
+s[l\ldots i]
+$$
+
+已经是一个合法平衡子串。
+
+对于任意最优方案：
+
+- 如果它也在 $i$ 处分割，那么与贪心一致；
+- 如果它在更靠后的位置 $j>i$ 才切，那么 $[l,i]$ 与后续的一部分被合并成一个更大的平衡段。
+
+由于 $[l,i]$ 本身已经合法，我们可以把它单独拆出来，而不会破坏后面剩余部分中 `L` 与 `R` 的总平衡关系。
+
+因此，把第一次恢复平衡的位置提前切开：
+
+```text
+不会减少后续可形成的平衡段数量
+```
+
+却额外确定了当前这一段。
+
+所以最早切分是安全的。
+
+> [!IMPORTANT]
+> 本题之所以这么简单，是因为“平衡”只有一个可加的差值条件。后续部分是否平衡，只取决于它内部的 `L/R` 数量差，而不依赖前面如何分组。
+
+## 八、和“括号匹配”不要混淆
+
+这里的 `L` 和 `R` 只要求 **数量相同**。
+
+例如：
+
+```text
+LLRR
+```
+
+它仍然是平衡字符串。
+
+这和合法括号序列不同。
+
+若把 `L` 看成左括号、`R` 看成右括号，合法括号通常还要求任意前缀都满足某种非负约束；本题没有这个限制。
+
+所以本题判断一段是否合法只需要：
+
+$$
+\#L=\#R
+$$
+
+## 九、前缀差值是一类非常常见的技巧
+
+本题的 `balance` 本质上是前缀状态：
+
+$$
+prefix[i]=\#R_{[0,i]}-\#L_{[0,i]}
+$$
+
+遇到 $0$ 就表示当前前缀的两类字符数量相同。
+
+类似思想还经常用于：
+
+- `0` 与 `1` 数量相等的最长区间；
+- 正负贡献抵消；
+- 前缀和为某个目标值；
+- 两类元素数量差的统计问题。
+
+区别在于：
+
+- 本题只需要从左到右贪心切分；
+- 更复杂的问题可能需要哈希表记录某个前缀差值第一次出现的位置。
+
+## 十、常见错误
+
+### 1. 分别统计总数量后直接相除
+
+例如整个字符串有相同数量的 `L` 和 `R`，并不能直接推断最多能切成多少段。
+
+答案取决于字符排列顺序。
+
+### 2. 看到 `balance == 0` 却继续等待
+
+如果目标是最大化段数，第一次恢复平衡时就应该立即计数。
+
+### 3. 把题目误认为合法括号问题
+
+本题没有“任意前缀约束”，只关心每个最终子串中两类字符数量是否相同。
+
+## 十一、模板总结
+
+可以把本题记成下面这个最短模板：
+
+```text
+balance = 0
+answer = 0
+
+遍历字符：
+    R -> balance++
+    L -> balance--
+
+    如果 balance == 0：
+        answer++
+```
+
+它背后的核心不是代码本身，而是：
+
+> **把两类元素映射成相反贡献，再寻找贡献恰好抵消的位置。**
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int balancedStringSplit(String s) {
+        int balance = 0;
+        int answer = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == 'R') {
+                balance++;
+            } else {
+                balance--;
+            }
+
+            if (balance == 0) {
+                answer++;
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def balancedStringSplit(self, s: str) -> int:
+        balance = 0
+        answer = 0
+
+        for ch in s:
+            balance += 1 if ch == 'R' else -1
+            if balance == 0:
+                answer += 1
+
+        return answer
+```
+
+```go label="Go"
+func balancedStringSplit(s string) int {
+    balance := 0
+    answer := 0
+
+    for _, ch := range s {
+        if ch == 'R' {
+            balance++
+        } else {
+            balance--
+        }
+
+        if balance == 0 {
+            answer++
+        }
+    }
+
+    return answer
+}
+```
+
+```javascript label="JavaScript"
+var balancedStringSplit = function(s) {
+    let balance = 0;
+    let answer = 0;
+
+    for (const ch of s) {
+        balance += ch === 'R' ? 1 : -1;
+        if (balance === 0) {
+            answer++;
+        }
+    }
+
+    return answer;
+};
+```
+
+```typescript label="TypeScript"
+function balancedStringSplit(s: string): number {
+    let balance = 0;
+    let answer = 0;
+
+    for (const ch of s) {
+        balance += ch === 'R' ? 1 : -1;
+        if (balance === 0) {
+            answer++;
+        }
+    }
+
+    return answer;
+}
+```
+````

@@ -1,0 +1,1231 @@
+---
+title: 寻找存在的路径
+subtitle: 用并查集把“有没有路径”转化成“是否属于同一集合”
+summary: 通过卡码网 107 掌握并查集解决无向图连通性问题的完整套路：读边即合并、最终比较根节点，并理解它与 DFS/BFS 的区别、正确性证明、复杂度和高频边界条件。
+---
+
+# 寻找存在的路径
+
+> **卡码网 107. 寻找存在的路径**
+>
+> 给定一个包含 $n$ 个节点、$m$ 条边的无向图，节点编号为 $1\sim n$。判断从 `source` 到 `destination` 是否存在一条路径。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1179)
+
+如果存在路径，输出：
+
+```text
+1
+```
+
+否则输出：
+
+```text
+0
+```
+
+这是一道非常标准的并查集入门题。
+
+它真正训练的是把一句图论描述：
+
+```text
+source 能否到达 destination？
+```
+
+转化为集合问题：
+
+```text
+source 和 destination 是否属于同一个连通分量？
+```
+
+<Callout type="info" title="本题核心转换">
+
+因为图是**无向图**：
+
+$$
+source \text{ 与 } destination \text{ 之间存在路径}
+$$
+
+等价于：
+
+$$
+\operatorname{find}(source)=\operatorname{find}(destination)
+$$
+
+所以每读入一条边就 `union`，最后做一次 `isSame` 即可。
+
+</Callout>
+
+---
+
+## 1. 题目输入输出
+
+输入格式：
+
+```text
+N M
+s1 t1
+s2 t2
+...
+sM tM
+source destination
+```
+
+其中：
+
+- `N`：节点数量；
+- `M`：无向边数量；
+- `s t`：表示 `s` 与 `t` 之间存在一条无向边；
+- `source destination`：需要查询的起点与终点。
+
+示例：
+
+```text
+5 4
+1 2
+1 3
+2 4
+3 4
+1 4
+```
+
+输出：
+
+```text
+1
+```
+
+原题示意图：
+
+![卡码网 107 示例图](https://file1.kamacoder.com/i/algo/20240527104432.png)
+
+图中存在：
+
+```text
+1 -> 2 -> 4
+```
+
+也存在：
+
+```text
+1 -> 3 -> 4
+```
+
+所以 `1` 与 `4` 连通，答案为 `1`。
+
+---
+
+# 2. 为什么无向图“存在路径”等价于“属于同一集合”
+
+先回忆连通分量的定义。
+
+在无向图中，如果两个节点之间存在一条路径，那么它们属于同一个连通分量。
+
+例如：
+
+```text
+1 -- 2 -- 4
+|    |
+3 ---+
+
+5
+```
+
+可以分成两个集合：
+
+```text
+{1, 2, 3, 4}
+{5}
+```
+
+那么：
+
+```text
+1 与 4 有路径
+2 与 3 有路径
+1 与 5 无路径
+```
+
+因此本题根本不需要知道：
+
+```text
+具体走哪一条路径
+路径长度是多少
+经过了哪些节点
+```
+
+只需要知道：
+
+> 两个点最后是否被归并到了同一个连通分量。
+
+这正是并查集最擅长维护的信息。
+
+---
+
+# 3. 把每一条边看成一次集合合并
+
+假设读入一条无向边：
+
+```text
+u -- v
+```
+
+它意味着 `u` 和 `v` 一定属于同一个连通分量。
+
+于是直接执行：
+
+```cpp
+uf.unite(u, v);
+```
+
+全部边读取完以后，并查集内部已经把整张图划分成若干个集合。
+
+最后判断：
+
+```cpp
+uf.isSame(source, destination)
+```
+
+即可。
+
+算法流程可以压缩成：
+
+```text
+初始化 n 个集合
+        |
+        v
+依次读取 m 条无向边
+        |
+        v
+对每条边 union(u, v)
+        |
+        v
+读取 source、destination
+        |
+        v
+find(source) == find(destination) ?
+        |
+   +----+----+
+   |         |
+  是         否
+   |         |
+输出 1     输出 0
+```
+
+---
+
+# 4. 为什么不需要真的构造邻接表
+
+如果用 DFS / BFS，一般会先建图：
+
+```cpp
+vector<vector<int>> graph(n + 1);
+```
+
+每条无向边加入两次：
+
+```cpp
+graph[u].push_back(v);
+graph[v].push_back(u);
+```
+
+然后从 `source` 出发搜索。
+
+但并查集的思路不同。
+
+它不关心每个节点具体有哪些邻居，只关心：
+
+```text
+这些边最终把哪些节点连成了同一个集合
+```
+
+所以读取边时直接：
+
+```cpp
+uf.unite(u, v);
+```
+
+即可，不需要保存整个邻接表。
+
+<Callout type="tip" title="流式处理是并查集的优势之一">
+
+如果题目只要求连通性，并不需要之后再次遍历这些边，那么每条边读进来后可以立即合并：
+
+```text
+读一条 -> 合并一次 -> 不再保存
+```
+
+这样实现非常简洁。
+
+</Callout>
+
+---
+
+# 5. 并查集模板回顾
+
+本题需要三个核心操作。
+
+## 5.1 初始化
+
+```cpp
+for (int i = 1; i <= n; ++i) {
+    parent[i] = i;
+}
+```
+
+开始时每个节点自己就是一个连通分量。
+
+---
+
+## 5.2 find：寻找根节点
+
+```cpp
+int find(int x) {
+    if (x != parent[x]) {
+        parent[x] = find(parent[x]);
+    }
+    return parent[x];
+}
+```
+
+这里包含路径压缩。
+
+---
+
+## 5.3 union：合并两个集合
+
+```cpp
+void unite(int u, int v) {
+    int rootU = find(u);
+    int rootV = find(v);
+
+    if (rootU == rootV) {
+        return;
+    }
+
+    parent[rootV] = rootU;
+}
+```
+
+最重要的步骤是：
+
+```cpp
+rootU = find(u);
+rootV = find(v);
+```
+
+必须合并**根**，而不是直接连接普通节点。
+
+---
+
+# 6. 推荐实现：路径压缩 + 按大小合并
+
+虽然本题数据规模很小，但可以直接使用更标准的并查集模板：
+
+```cpp
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n)
+        : parent(n + 1), size(n + 1, 1) {
+        for (int i = 1; i <= n; ++i) {
+            parent[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+
+    bool isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+};
+```
+
+对于本题，`size` 不是必须的，但这个版本可以直接复用于后面的更多并查集题。
+
+---
+
+# 7. 完整 C++ 解法
+
+```cpp
+#include <iostream>
+#include <numeric>
+#include <vector>
+using namespace std;
+
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n)
+        : parent(n + 1), size(n + 1, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (x != parent[x]) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    void unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+    }
+
+    bool isSame(int u, int v) {
+        return find(u) == find(v);
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    UnionFind uf(n);
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+        uf.unite(u, v);
+    }
+
+    int source, destination;
+    cin >> source >> destination;
+
+    cout << (uf.isSame(source, destination) ? 1 : 0) << '\n';
+    return 0;
+}
+```
+
+---
+
+# 8. 用示例手动执行一遍
+
+输入边：
+
+```text
+1 2
+1 3
+2 4
+3 4
+```
+
+初始：
+
+```text
+{1} {2} {3} {4} {5}
+```
+
+处理：
+
+```text
+union(1, 2)
+```
+
+得到：
+
+```text
+{1, 2} {3} {4} {5}
+```
+
+再处理：
+
+```text
+union(1, 3)
+```
+
+得到：
+
+```text
+{1, 2, 3} {4} {5}
+```
+
+处理：
+
+```text
+union(2, 4)
+```
+
+得到：
+
+```text
+{1, 2, 3, 4} {5}
+```
+
+最后一条：
+
+```text
+union(3, 4)
+```
+
+此时 `3` 与 `4` 本来就已经属于同一集合，所以不需要再合并。
+
+最终查询：
+
+```text
+isSame(1, 4)
+```
+
+因为：
+
+```text
+find(1) == find(4)
+```
+
+所以输出：
+
+```text
+1
+```
+
+---
+
+# 9. 为什么最后一条边可能什么也不做
+
+在示例里，处理前三条边后：
+
+```text
+1、2、3、4
+```
+
+其实已经全部连通。
+
+这时再加入：
+
+```text
+3 -- 4
+```
+
+两个端点已经属于同一个集合。
+
+因此：
+
+```cpp
+if (rootU == rootV) {
+    return;
+}
+```
+
+直接返回即可。
+
+这个现象非常重要，因为它也是后面“冗余连接”的判断依据：
+
+> 如果一条无向边加入前，两端点已经连通，那么这条边会在当前连通分量里形成环。
+
+---
+
+# 10. 正确性证明
+
+可以把正确性分成两个方向。
+
+## 10.1 如果两点之间有路径，那么 find 一定相同
+
+假设存在路径：
+
+```text
+source = v0 -- v1 -- v2 -- ... -- vk = destination
+```
+
+处理边时依次执行：
+
+```text
+union(v0, v1)
+union(v1, v2)
+...
+union(v{k-1}, vk)
+```
+
+每一条边都会把相邻节点所在集合合并。
+
+因此整条路径上的所有节点最终都属于同一个集合。
+
+所以：
+
+$$
+\operatorname{find}(source)
+=
+\operatorname{find}(destination)
+$$
+
+---
+
+## 10.2 如果 find 相同，那么两点之间一定存在路径
+
+并查集只有在读到一条真实存在的无向边 `(u,v)` 时才会执行：
+
+```cpp
+unite(u, v);
+```
+
+因此两个原本独立的集合只有在图中存在连接它们的边时才会合并。
+
+如果最终：
+
+$$
+\operatorname{find}(source)
+=
+\operatorname{find}(destination)
+$$
+
+说明从一系列真实边的合并关系中，两点被归入了同一个连通分量。
+
+因此二者之间必然存在无向路径。
+
+于是两边合起来得到：
+
+$$
+source \leftrightsquigarrow destination
+\iff
+\operatorname{find}(source)=\operatorname{find}(destination)
+$$
+
+算法正确。
+
+---
+
+# 11. 复杂度分析
+
+设：
+
+- 节点数为 $N$；
+- 边数为 $M$。
+
+初始化并查集：
+
+$$
+O(N)
+$$
+
+每条边执行一次 `union`。
+
+使用路径压缩 + 按大小合并后，一次并查集操作的均摊复杂度为：
+
+$$
+O(\alpha(N))
+$$
+
+因此处理全部边：
+
+$$
+O(M\alpha(N))
+$$
+
+最终再查询一次：
+
+$$
+O(\alpha(N))
+$$
+
+总时间复杂度：
+
+$$
+O(N + M\alpha(N))
+$$
+
+由于 $\alpha(N)$ 增长极慢，工程上几乎可以看作线性：
+
+$$
+O(N+M)
+$$
+
+空间复杂度：
+
+$$
+O(N)
+$$
+
+并且本题无需额外保存全部边。
+
+---
+
+# 12. DFS / BFS 也能做，为什么还要学并查集
+
+这道题确实可以直接 DFS / BFS。
+
+例如 BFS：
+
+```text
+从 source 出发
+不断访问邻居
+如果能访问到 destination -> 1
+否则 -> 0
+```
+
+对于**单次查询**，DFS / BFS 完全合理。
+
+但并查集体现了另一种非常重要的建模方式：
+
+> 不去“搜索一条路径”，而是直接维护“谁和谁属于同一个连通分量”。
+
+比较如下：
+
+| 方法 | 是否需要存图 | 单次连通查询 | 多次动态合并后的查询 |
+| --- | --- | --- | --- |
+| DFS | 通常需要 | $O(N+M)$ | 通常要重复搜索 |
+| BFS | 通常需要 | $O(N+M)$ | 通常要重复搜索 |
+| 并查集 | 不一定 | 近似 $O(1)$ | 非常适合 |
+
+如果只有一次查询，并查集并不是“唯一正确答案”。
+
+但如果题目变成：
+
+```text
+加入一条边
+询问一对节点是否连通
+再加入一条边
+再询问...
+```
+
+并查集优势就非常明显。
+
+---
+
+# 13. 边界条件
+
+## 13.1 `source == destination`
+
+如果：
+
+```text
+source = destination
+```
+
+即使一条边都没有，该节点到自身也存在长度为 $0$ 的路径。
+
+并查集天然会得到：
+
+```cpp
+find(source) == find(destination)
+```
+
+因此输出：
+
+```text
+1
+```
+
+无需特殊判断。
+
+---
+
+## 13.2 图不连通
+
+例如：
+
+```text
+1 -- 2    3 -- 4
+```
+
+查询：
+
+```text
+1 4
+```
+
+最终：
+
+```text
+find(1) != find(4)
+```
+
+输出：
+
+```text
+0
+```
+
+---
+
+## 13.3 重复边
+
+例如：
+
+```text
+1 2
+1 2
+1 2
+```
+
+第一次已经完成合并。
+
+后两次：
+
+```cpp
+find(1) == find(2)
+```
+
+直接返回即可，不影响正确性。
+
+---
+
+## 13.4 自环
+
+如果输入：
+
+```text
+3 3
+```
+
+那么：
+
+```cpp
+find(3) == find(3)
+```
+
+`union` 什么也不做。
+
+同样不会影响结果。
+
+---
+
+# 14. 高频错误
+
+## 错误 1：把无向图当有向图
+
+对于 DFS / BFS，读入无向边通常需要双向建图。
+
+但并查集不需要分别存两个方向：
+
+```cpp
+uf.unite(u, v);
+```
+
+一次就已经表达：
+
+```text
+u 与 v 属于同一集合
+```
+
+---
+
+## 错误 2：union 时不先 find
+
+错误：
+
+```cpp
+parent[v] = u;
+```
+
+正确：
+
+```cpp
+int rootU = find(u);
+int rootV = find(v);
+parent[rootV] = rootU;
+```
+
+---
+
+## 错误 3：数组只开 n 个但节点编号到 n
+
+如果节点编号是：
+
+```text
+1 ~ n
+```
+
+那么数组一般至少需要：
+
+```cpp
+vector<int> parent(n + 1);
+```
+
+---
+
+## 错误 4：把本题方法直接套到有向图
+
+无向图中：
+
+```text
+在同一个连通分量
+```
+
+是对称关系。
+
+而有向图中：
+
+```text
+u 能到 v
+```
+
+不是对称关系。
+
+普通并查集不能保留方向信息，因此不能直接解决一般有向图可达性。
+
+<Callout type="warning" title="并查集适用条件必须先看图的方向">
+
+本题成立的关键是：**无向图**。
+
+如果题目改成有向图，通常要重新考虑 DFS / BFS、拓扑、强连通分量等算法，而不能只判断两个节点是否拥有同一个 DSU 根。
+
+</Callout>
+
+---
+
+# 15. 本题的最短思维模板
+
+以后看到类似题目，可以直接套下面的判断链：
+
+```text
+无向图
++
+只问两点是否存在路径
+        |
+        v
+是否只关心连通性？
+        |
+       是
+        |
+        v
+并查集
+        |
+        v
+每条边 union(u, v)
+        |
+        v
+find(source) == find(destination)
+```
+
+一句话记忆：
+
+> **无向图里，“有没有路径”可以转化为“是不是同一个连通分量”。**
+
+---
+
+# 16. 从这道题继续拓展
+
+这道题只用了并查集最基本的：
+
+```text
+合并集合
+判断同集合
+```
+
+接下来常见升级方向包括：
+
+### 1. 判断冗余边
+
+```text
+加边前已经连通
+=> 这条边形成环
+```
+
+### 2. 统计连通分量
+
+```text
+初始 components = n
+每成功 union 一次 components--
+```
+
+### 3. 最小生成树 Kruskal
+
+按照边权从小到大枚举边：
+
+```text
+如果两端不连通 -> 选这条边并 union
+如果已经连通 -> 跳过，避免成环
+```
+
+所以这道题是后续「冗余连接」和「Kruskal」的直接基础。
+
+---
+
+## 17. 其他语言版本
+
+下面都采用 **路径压缩 + 按大小合并**，并保持 ACM 输入输出格式。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class UnionFind {
+        private final int[] parent;
+        private final int[] size;
+
+        UnionFind(int n) {
+            parent = new int[n + 1];
+            size = new int[n + 1];
+            for (int i = 1; i <= n; ++i) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        int find(int x) {
+            if (x != parent[x]) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        void union(int u, int v) {
+            int rootU = find(u);
+            int rootV = find(v);
+
+            if (rootU == rootV) {
+                return;
+            }
+
+            if (size[rootU] < size[rootV]) {
+                int tmp = rootU;
+                rootU = rootV;
+                rootV = tmp;
+            }
+
+            parent[rootV] = rootU;
+            size[rootU] += size[rootV];
+        }
+
+        boolean isSame(int u, int v) {
+            return find(u) == find(v);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        UnionFind uf = new UnionFind(n);
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            uf.union(u, v);
+        }
+
+        st = new StringTokenizer(br.readLine());
+        int source = Integer.parseInt(st.nextToken());
+        int destination = Integer.parseInt(st.nextToken());
+
+        System.out.println(uf.isSame(source, destination) ? 1 : 0);
+    }
+}
+```
+
+```python label="Python"
+import sys
+
+input = sys.stdin.readline
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n + 1))
+        self.size = [1] * (n + 1)
+
+    def find(self, x: int) -> int:
+        if x != self.parent[x]:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, u: int, v: int) -> None:
+        root_u = self.find(u)
+        root_v = self.find(v)
+
+        if root_u == root_v:
+            return
+
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+
+    def is_same(self, u: int, v: int) -> bool:
+        return self.find(u) == self.find(v)
+
+
+n, m = map(int, input().split())
+uf = UnionFind(n)
+
+for _ in range(m):
+    u, v = map(int, input().split())
+    uf.union(u, v)
+
+source, destination = map(int, input().split())
+print(1 if uf.is_same(source, destination) else 0)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+type UnionFind struct {
+    parent []int
+    size   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+
+    for i := 1; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+
+    return &UnionFind{parent: parent, size: size}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if x != uf.parent[x] {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(u, v int) {
+    rootU := uf.Find(u)
+    rootV := uf.Find(v)
+
+    if rootU == rootV {
+        return
+    }
+
+    if uf.size[rootU] < uf.size[rootV] {
+        rootU, rootV = rootV, rootU
+    }
+
+    uf.parent[rootV] = rootU
+    uf.size[rootU] += uf.size[rootV]
+}
+
+func (uf *UnionFind) IsSame(u, v int) bool {
+    return uf.Find(u) == uf.Find(v)
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    uf := NewUnionFind(n)
+
+    for i := 0; i < m; i++ {
+        var u, v int
+        fmt.Fscan(in, &u, &v)
+        uf.Union(u, v)
+    }
+
+    var source, destination int
+    fmt.Fscan(in, &source, &destination)
+
+    if uf.IsSame(source, destination) {
+        fmt.Fprintln(out, 1)
+    } else {
+        fmt.Fprintln(out, 0)
+    }
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+const m = data[idx++];
+
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n + 1 }, (_, i) => i);
+    this.size = new Array(n + 1).fill(1);
+  }
+
+  find(x) {
+    if (x !== this.parent[x]) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(u, v) {
+    let rootU = this.find(u);
+    let rootV = this.find(v);
+
+    if (rootU === rootV) return;
+
+    if (this.size[rootU] < this.size[rootV]) {
+      [rootU, rootV] = [rootV, rootU];
+    }
+
+    this.parent[rootV] = rootU;
+    this.size[rootU] += this.size[rootV];
+  }
+
+  isSame(u, v) {
+    return this.find(u) === this.find(v);
+  }
+}
+
+const uf = new UnionFind(n);
+
+for (let i = 0; i < m; ++i) {
+  const u = data[idx++];
+  const v = data[idx++];
+  uf.union(u, v);
+}
+
+const source = data[idx++];
+const destination = data[idx++];
+
+console.log(uf.isSame(source, destination) ? 1 : 0);
+```
+````

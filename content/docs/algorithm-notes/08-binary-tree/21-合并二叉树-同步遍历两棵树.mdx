@@ -1,0 +1,776 @@
+---
+title: 合并二叉树：同步遍历两棵树
+---
+
+# 合并二叉树：同步遍历两棵树
+
+> LeetCode 617 · Merge Two Binary Trees
+
+[题目链接](https://leetcode.cn/problems/merge-two-binary-trees/)
+
+给定两棵二叉树 `root1` 和 `root2`。从根节点开始把它们重叠：
+
+- 两个位置都有节点：新节点值等于两者之和；
+- 只有一棵树在该位置有节点：保留这个节点；
+- 两棵树都为空：结果也为空。
+
+![合并二叉树示例](https://file1.kamacoder.com/i/algo/20230310000854.png)
+
+这道题最重要的价值，不是“相加”，而是第一次非常典型地训练：**如何同步遍历两棵二叉树。**
+
+<Callout title="核心模型" type="info">
+
+普通递归处理的是：
+
+```text
+一个节点 → 它的左右孩子
+```
+
+本题处理的是：
+
+```text
+一对节点 (node1, node2)
+→ (node1.left, node2.left)
+→ (node1.right, node2.right)
+```
+
+也就是把“一个节点”扩展成了“一个节点对”。
+
+</Callout>
+
+## 1. 先把四种位置关系想清楚
+
+对于同一个树位置，只可能出现四种情况：
+
+| `root1` | `root2` | 合并结果 |
+| --- | --- | --- |
+| 空 | 空 | 空 |
+| 非空 | 空 | `root1` |
+| 空 | 非空 | `root2` |
+| 非空 | 非空 | 节点值相加，并继续合并左右子树 |
+
+前面三种情况都可以直接结束当前递归。
+
+因此终止条件非常漂亮：
+
+```cpp
+if (root1 == nullptr) return root2;
+if (root2 == nullptr) return root1;
+```
+
+注意第一行已经覆盖：
+
+```text
+root1 == null && root2 == null
+```
+
+因为此时返回的 `root2` 本身就是 `null`。
+
+## 2. 递归函数到底表示什么
+
+推荐先写出函数语义：
+
+```cpp
+TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2)
+```
+
+它表示：
+
+> 合并以 `root1`、`root2` 为根的两棵子树，并返回合并后子树的根节点。
+
+于是递归关系几乎可以直接从定义推出：
+
+```text
+当前根 = 两个根节点合并
+当前左子树 = 两棵树左子树的合并结果
+当前右子树 = 两棵树右子树的合并结果
+```
+
+写成代码就是：
+
+```cpp
+root1->val += root2->val;
+root1->left = mergeTrees(root1->left, root2->left);
+root1->right = mergeTrees(root1->right, root2->right);
+return root1;
+```
+
+## 3. 为什么前序、中序、后序都能做
+
+很多二叉树题对遍历顺序有明确要求，例如：
+
+- 计算高度通常使用后序；
+- BST 有序性通常利用中序；
+- 构造树常体现前序式“先创建根”。
+
+但本题不同。
+
+当前节点的合并结果：
+
+```text
+root1.val + root2.val
+```
+
+和左右子树的合并结果**没有依赖关系**。
+
+所以可以：
+
+```text
+先处理中节点，再递归左右      → 前序
+先递归左边，再处理中，再右边  → 中序
+先递归左右，再处理中节点      → 后序
+```
+
+三种都正确。
+
+![合并二叉树递归过程](https://file1.kamacoder.com/i/algo/617.%E5%90%88%E5%B9%B6%E4%BA%8C%E5%8F%89%E6%A0%91.gif)
+
+<Callout title="如何判断遍历顺序是否重要" type="idea">
+
+问自己一句：
+
+> 当前节点的计算，是否依赖左右子树递归返回的结果？
+
+如果依赖，通常要考虑后序；如果不依赖，遍历顺序往往更自由。
+
+本题就是典型的“顺序不敏感”。
+
+</Callout>
+
+## 4. 推荐写法：原地合并到第一棵树
+
+```cpp
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        if (root1 == nullptr) return root2;
+        if (root2 == nullptr) return root1;
+
+        root1->val += root2->val;
+        root1->left = mergeTrees(root1->left, root2->left);
+        root1->right = mergeTrees(root1->right, root2->right);
+
+        return root1;
+    }
+};
+```
+
+这份代码非常短，但其中有两个关键点。
+
+### 4.1 为什么必须把递归结果重新赋给左右孩子
+
+不能只写：
+
+```cpp
+mergeTrees(root1->left, root2->left);
+```
+
+因为可能出现：
+
+```text
+root1.left = null
+root2.left = 某棵非空子树
+```
+
+此时递归会返回 `root2.left`。
+
+必须通过：
+
+```cpp
+root1->left = mergeTrees(...);
+```
+
+才能把这棵子树真正接到结果树上。
+
+### 4.2 这个写法会修改输入树
+
+它把结果直接写进 `root1`，所以：
+
+```text
+返回树和 root1 共享节点
+```
+
+而当 `root1` 某个位置为空、`root2` 非空时：
+
+```cpp
+return root2;
+```
+
+还会让结果树直接共享 `root2` 的那一整棵子树。
+
+因此这不是“深拷贝式”的全新树。
+
+## 5. 原地合并到底共享了哪些节点
+
+设两棵树局部结构是：
+
+```text
+root1:         root2:
+    1              2
+     \            /
+      3          4
+```
+
+合并后：
+
+```text
+      3
+     / \
+    4   3
+```
+
+其中：
+
+- 根节点直接复用了 `root1` 的根；
+- 左节点因为 `root1.left` 为空，所以直接复用了 `root2.left`；
+- 右节点直接复用了 `root1.right`。
+
+这意味着如果题目之后还要求原来的两棵树保持完全独立，就不能使用这种写法。
+
+<Callout title="原地修改还是新建结果树？" type="warning">
+
+做树结构题时，除了考虑算法，还要明确**所有权和共享关系**：
+
+```text
+允许修改输入 → 可以复用节点，代码更简洁
+禁止修改输入 → 应创建全新的节点
+```
+
+这在工程代码中比在算法题里更加重要。
+
+</Callout>
+
+## 6. 如果要求完全不修改原树
+
+真正严格的“不修改输入树”意味着：
+
+> 结果树中的每一个非空节点都应该新建，不能直接返回 `root1` 或 `root2` 的原节点。
+
+因此不能写：
+
+```cpp
+if (root1 == nullptr) return root2;
+if (root2 == nullptr) return root1;
+```
+
+因为这样仍然共享原树节点。
+
+可以写成：
+
+```cpp
+class Solution {
+public:
+    TreeNode* cloneTree(TreeNode* root) {
+        if (root == nullptr) return nullptr;
+
+        TreeNode* node = new TreeNode(root->val);
+        node->left = cloneTree(root->left);
+        node->right = cloneTree(root->right);
+        return node;
+    }
+
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        if (root1 == nullptr) return cloneTree(root2);
+        if (root2 == nullptr) return cloneTree(root1);
+
+        TreeNode* root = new TreeNode(root1->val + root2->val);
+        root->left = mergeTrees(root1->left, root2->left);
+        root->right = mergeTrees(root1->right, root2->right);
+        return root;
+    }
+};
+```
+
+这样结果树和输入树在节点层面完全独立。
+
+## 7. 迭代法：队列里存“节点对”
+
+如果不用递归，最自然的方法是 BFS。
+
+普通层序遍历队列中保存：
+
+```text
+node
+```
+
+本题则保存：
+
+```text
+(node1, node2)
+```
+
+每次从队列取出一对非空节点：
+
+```text
+1. node1.val += node2.val
+2. 两个左孩子都非空 → 把这一对加入队列
+3. 两个右孩子都非空 → 把这一对加入队列
+4. node1 某个孩子为空而 node2 对应孩子非空 → 直接接过去
+```
+
+推荐直接使用 `pair`，比“连续压入两个裸节点”更不容易把配对关系弄乱：
+
+```cpp
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        if (root1 == nullptr) return root2;
+        if (root2 == nullptr) return root1;
+
+        queue<pair<TreeNode*, TreeNode*>> que;
+        que.push({root1, root2});
+
+        while (!que.empty()) {
+            auto [node1, node2] = que.front();
+            que.pop();
+
+            node1->val += node2->val;
+
+            if (node1->left && node2->left) {
+                que.push({node1->left, node2->left});
+            } else if (!node1->left) {
+                node1->left = node2->left;
+            }
+
+            if (node1->right && node2->right) {
+                que.push({node1->right, node2->right});
+            } else if (!node1->right) {
+                node1->right = node2->right;
+            }
+        }
+
+        return root1;
+    }
+};
+```
+
+### 7.1 为什么只在“两边都非空”时继续入队
+
+如果：
+
+```text
+node1.left = null
+node2.left != null
+```
+
+那么这一整棵 `node2.left` 子树都不需要继续“合并”，直接挂到结果树即可：
+
+```cpp
+node1->left = node2->left;
+```
+
+因此没必要再把这棵子树中的节点逐个入队。
+
+这也是原地版本能保持 $O(n)$ 的原因之一。
+
+## 8. 手动走一遍递归
+
+假设：
+
+```text
+Tree 1:          Tree 2:
+      1               2
+     / \             / \
+    3   2           1   3
+   /                 \   \
+  5                   4   7
+```
+
+根节点：
+
+```text
+1 + 2 = 3
+```
+
+左子树合并：
+
+```text
+3 + 1 = 4
+```
+
+它们的下一层：
+
+```text
+5 与 null → 直接保留 5
+null 与 4 → 直接接入 4
+```
+
+右子树合并：
+
+```text
+2 + 3 = 5
+```
+
+最右侧：
+
+```text
+null 与 7 → 直接接入 7
+```
+
+最终得到：
+
+```text
+        3
+      /   \
+     4     5
+    / \     \
+   5   4     7
+```
+
+关键不是“同时完整遍历两棵树”，而是：
+
+> **只在两个位置都存在节点时继续同步递归；只剩一边时，整个剩余子树已经可以直接确定。**
+
+## 9. 正确性为什么成立
+
+可以从递归定义直接证明。
+
+对于任意一对位置 `(root1, root2)`：
+
+### 情况一：`root1` 为空
+
+结果按照题意就应该等于 `root2` 对应子树。
+
+### 情况二：`root2` 为空
+
+结果按照题意就应该等于 `root1` 对应子树。
+
+### 情况三：两者都非空
+
+当前节点值必须为：
+
+$$
+root1.val + root2.val
+$$
+
+而结果的左子树，根据同一规则，应当是：
+
+```text
+merge(root1.left, root2.left)
+```
+
+结果右子树同理。
+
+因此递归函数对当前节点和左右子问题都严格遵守题目定义，最终得到的整棵树就是正确合并结果。
+
+## 10. 复杂度分析
+
+设两棵树节点数分别为 $n_1$ 和 $n_2$。
+
+原地递归版本只会继续深入到“两棵树都存在节点”的重叠区域；遇到一边为空时会直接返回另一棵子树，而不会继续逐节点扫描。
+
+因此更精确地说，递归实际处理的“双非空节点对”数量记为 $k$，则：
+
+$$
+T = O(k)
+$$
+
+显然：
+
+$$
+k \le \min(n_1,n_2)
+$$
+
+如果用更宽松、常见的上界描述，也可以写成：
+
+$$
+O(n_1+n_2)
+$$
+
+递归额外空间由调用栈高度决定。若同步递归过程中最大深度为 $h$：
+
+$$
+S = O(h)
+$$
+
+最坏情况下链状树可达到：
+
+$$
+O(\min(n_1,n_2))
+$$
+
+BFS 版本的额外空间取决于同时保存在队列中的节点对数量。
+
+## 11. 这道题和“对称二叉树”的共同模型
+
+对称二叉树比较的是：
+
+```text
+(left.left, right.right)
+(left.right, right.left)
+```
+
+合并二叉树处理的是：
+
+```text
+(root1.left, root2.left)
+(root1.right, root2.right)
+```
+
+两者本质上都属于：
+
+```text
+同时处理两个节点
+```
+
+以后看到：
+
+- 比较两棵树是否相同；
+- 判断一棵树是否是另一棵的子结构；
+- 同步比较两棵树；
+- 合并两棵树；
+
+都可以优先考虑：
+
+```text
+递归参数传两个节点
+```
+
+或者：
+
+```text
+队列 / 栈中存节点对
+```
+
+## 12. 高频错误
+
+<Callout title="最容易写错的地方" type="warning">
+
+### 错误一：一棵树为空就直接返回 `nullptr`
+
+本题不是求交集。
+
+如果只有一棵树有节点，这个节点应该被保留。
+
+### 错误二：递归结果没有重新赋给左右孩子
+
+错误：
+
+```cpp
+mergeTrees(root1->left, root2->left);
+```
+
+正确：
+
+```cpp
+root1->left = mergeTrees(root1->left, root2->left);
+```
+
+### 错误三：声称“新建树”却直接返回原树子节点
+
+如果：
+
+```cpp
+if (!root1) return root2;
+```
+
+那么结果仍然和 `root2` 共享节点，并不是严格的深拷贝。
+
+### 错误四：迭代时失去节点配对关系
+
+使用：
+
+```cpp
+queue<pair<TreeNode*, TreeNode*>>
+```
+
+通常比把两个节点连续压入同一个队列更安全、更直观。
+
+</Callout>
+
+## 13. 解题模板：同步遍历两棵树
+
+以后遇到“双树问题”，可以先套下面这个思考框架：
+
+```text
+1. 定义函数：处理一对节点 (a, b)
+2. 列出 a/b 为空的所有情况
+3. 两者都非空时，处理当前这一对节点
+4. 决定左右子问题如何配对
+5. 明确是修改原树，还是构造全新的树
+```
+
+对本题：
+
+```text
+左子问题：(a.left, b.left)
+右子问题：(a.right, b.right)
+```
+
+对镜像问题则会变成：
+
+```text
+(a.left, b.right)
+(a.right, b.left)
+```
+
+这个“**节点如何配对**”就是双树递归的核心。
+
+## 14. 其他语言版本
+
+下面统一给出“原地合并到 `root1`”的递归写法。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public TreeNode mergeTrees(TreeNode root1, TreeNode root2) {
+        if (root1 == null) return root2;
+        if (root2 == null) return root1;
+
+        root1.val += root2.val;
+        root1.left = mergeTrees(root1.left, root2.left);
+        root1.right = mergeTrees(root1.right, root2.right);
+        return root1;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def mergeTrees(self, root1, root2):
+        if root1 is None:
+            return root2
+        if root2 is None:
+            return root1
+
+        root1.val += root2.val
+        root1.left = self.mergeTrees(root1.left, root2.left)
+        root1.right = self.mergeTrees(root1.right, root2.right)
+        return root1
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+    if root1 == nil {
+        return root2
+    }
+    if root2 == nil {
+        return root1
+    }
+
+    root1.Val += root2.Val
+    root1.Left = mergeTrees(root1.Left, root2.Left)
+    root1.Right = mergeTrees(root1.Right, root2.Right)
+    return root1
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var mergeTrees = function(root1, root2) {
+  if (root1 === null) return root2;
+  if (root2 === null) return root1;
+
+  root1.val += root2.val;
+  root1.left = mergeTrees(root1.left, root2.left);
+  root1.right = mergeTrees(root1.right, root2.right);
+  return root1;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function mergeTrees(
+  root1: TreeNode | null,
+  root2: TreeNode | null,
+): TreeNode | null {
+  if (root1 === null) return root2;
+  if (root2 === null) return root1;
+
+  root1.val += root2.val;
+  root1.left = mergeTrees(root1.left, root2.left);
+  root1.right = mergeTrees(root1.right, root2.right);
+  return root1;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def mergeTrees(root1: TreeNode, root2: TreeNode): TreeNode = {
+    if (root1 == null) return root2
+    if (root2 == null) return root1
+
+    root1.value += root2.value
+    root1.left = mergeTrees(root1.left, root2.left)
+    root1.right = mergeTrees(root1.right, root2.right)
+    root1
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn merge_trees(
+        root1: Option<Rc<RefCell<TreeNode>>>,
+        root2: Option<Rc<RefCell<TreeNode>>>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        match (root1, root2) {
+            (None, tree) => tree,
+            (tree, None) => tree,
+            (Some(node1), Some(node2)) => {
+                let (left1, right1, val2, left2, right2) = {
+                    let n1 = node1.borrow();
+                    let n2 = node2.borrow();
+                    (
+                        n1.left.clone(),
+                        n1.right.clone(),
+                        n2.val,
+                        n2.left.clone(),
+                        n2.right.clone(),
+                    )
+                };
+
+                {
+                    let mut n1 = node1.borrow_mut();
+                    n1.val += val2;
+                    n1.left = Self::merge_trees(left1, left2);
+                    n1.right = Self::merge_trees(right1, right2);
+                }
+
+                Some(node1)
+            }
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public TreeNode MergeTrees(TreeNode root1, TreeNode root2) {
+        if (root1 == null) return root2;
+        if (root2 == null) return root1;
+
+        root1.val += root2.val;
+        root1.left = MergeTrees(root1.left, root2.left);
+        root1.right = MergeTrees(root1.right, root2.right);
+        return root1;
+    }
+}
+```
+
+</Tab>
+</Tabs>

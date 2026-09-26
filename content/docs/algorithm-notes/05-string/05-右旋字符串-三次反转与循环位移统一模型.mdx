@@ -1,0 +1,641 @@
+---
+title: 右旋字符串：三次反转与循环位移统一模型
+description: 从卡码网右旋字符串出发，系统掌握“分段 + 三次反转”的原地旋转技巧，并推广到左旋、数组旋转与循环位移问题。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 右旋字符串：三次反转与循环位移统一模型
+
+> 对应题目：[卡码网 55. 右旋字符串](https://kamacoder.com/problempage.php?pid=1065)
+
+给定字符串 `s` 和正整数 `k`，将字符串末尾的 `k` 个字符移动到字符串开头。
+
+例如：
+
+```text
+s = "abcdefg", k = 2
+```
+
+右旋后：
+
+```text
+"fgabcde"
+```
+
+如果允许额外空间，直接切片拼接即可。但这道题真正值得掌握的是：
+
+> 如何只通过区间反转，在 $O(n)$ 时间、$O(1)$ 额外空间内完成循环位移。
+
+---
+
+## 1. 把字符串看成两个整体
+
+设字符串长度为 $n$，右旋 $k$ 位。
+
+将字符串划分为：
+
+$$
+A=s[0,n-k),\qquad B=s[n-k,n)
+$$
+
+原字符串为：
+
+$$
+AB
+$$
+
+目标是：
+
+$$
+BA
+$$
+
+例如：
+
+```text
+abcdefg
+^^^^^  ^^ 
+  A     B
+```
+
+其中：
+
+```text
+A = abcde
+B = fg
+```
+
+目标正是：
+
+```text
+fgabcde
+```
+
+![右旋字符串分段](https://file1.kamacoder.com/i/algo/20231106170143.png)
+
+---
+
+## 2. 三次反转为什么能交换两段
+
+定义 $R(X)$ 表示字符串 $X$ 的逆序。
+
+如果直接把整个字符串反转：
+
+$$
+R(AB)=R(B)R(A)
+$$
+
+此时两段的位置已经交换，但每一段内部也反了。
+
+![整体反转后的结构](https://file1.kamacoder.com/i/algo/20231106171557.png)
+
+再分别反转前后两段：
+
+$$
+R(R(B))R(R(A))=BA
+$$
+
+由于：
+
+$$
+R(R(X))=X
+$$
+
+所以三次反转即可完成右旋。
+
+![分别恢复两段内部顺序](https://file1.kamacoder.com/i/algo/20231106172058.png)
+
+<Callout title="真正需要记住的不是步骤，而是恒等式" type="success">
+只要看到“把两段 `A B` 变成 `B A`”，就可以尝试使用：
+
+$$
+AB \rightarrow R(B)R(A) \rightarrow BA
+$$
+
+这比机械记忆“先整体反转还是先局部反转”更可靠。
+</Callout>
+
+---
+
+## 3. 方法一：整体反转，再分别恢复两段
+
+以：
+
+```text
+abcdefg, k = 2
+```
+
+为例。
+
+<Steps>
+<Step>
+
+### 第一步：整体反转
+
+```text
+abcdefg
+↓
+gfedcba
+```
+
+</Step>
+
+<Step>
+
+### 第二步：反转前 `k` 个字符
+
+```text
+gf | edcba
+↓
+fg | edcba
+```
+
+</Step>
+
+<Step>
+
+### 第三步：反转剩余字符
+
+```text
+fg | edcba
+↓
+fg | abcde
+```
+
+得到：
+
+```text
+fgabcde
+```
+
+</Step>
+</Steps>
+
+C++：
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    int k;
+    string s;
+    cin >> k >> s;
+
+    int n = static_cast<int>(s.size());
+    k %= n;
+
+    reverse(s.begin(), s.end());
+    reverse(s.begin(), s.begin() + k);
+    reverse(s.begin() + k, s.end());
+
+    cout << s << '\n';
+}
+```
+
+---
+
+## 4. 方法二：先分别反转两段，再整体反转
+
+也可以先把原串：
+
+$$
+AB
+$$
+
+变成：
+
+$$
+R(A)R(B)
+$$
+
+最后整体反转：
+
+$$
+R(R(A)R(B))=BA
+$$
+
+对于右旋 $k$ 位：
+
+```cpp
+reverse(s.begin(), s.begin() + n - k);
+reverse(s.begin() + n - k, s.end());
+reverse(s.begin(), s.end());
+```
+
+原资料中的过程图也展示了这种写法：
+
+![先局部反转再整体反转](https://file1.kamacoder.com/i/algo/20231106172534.png)
+
+两种写法完全等价。
+
+<Callout title="如何避免记混区间" type="info">
+先确定分段：
+
+$$
+A=s[0,n-k),\qquad B=s[n-k,n)
+$$
+
+然后再决定使用：
+
+- `R(AB) → R(B)R(A) → BA`；
+- 或 `AB → R(A)R(B) → BA`。
+
+只要先写出 $A,B$，边界通常就不会错。
+</Callout>
+
+---
+
+## 5. 为什么复杂度是 $O(n)$
+
+每次反转一个长度为 $m$ 的区间，需要约：
+
+$$
+\frac{m}{2}
+$$
+
+次交换，因此是 $O(m)$。
+
+三次反转的总处理量为：
+
+$$
+O(n)+O(k)+O(n-k)=O(n)
+$$
+
+因此：
+
+- 时间复杂度：$O(n)$；
+- 额外空间复杂度：$O(1)$。
+
+注意：这里的 $O(1)$ 指原地修改字符数组或可变字符串的情况。
+
+Java、Python 的字符串本身不可变，因此转换为字符数组或重新构造字符串时，会产生额外空间。
+
+---
+
+## 6. `k` 为什么最好先取模
+
+如果题目允许：
+
+```text
+k >= n
+```
+
+那么旋转 $n$ 位等价于没有旋转。
+
+因此真正有效的位移量为：
+
+$$
+k'=k\bmod n
+$$
+
+例如：
+
+```text
+n = 7
+k = 16
+```
+
+则：
+
+$$
+16\bmod7=2
+$$
+
+所以右旋 16 位与右旋 2 位完全相同。
+
+<Callout title="工程习惯" type="warning">
+即使当前题目保证 $k<n$，写通用函数时仍建议先做 `k %= n`。同时应先处理空字符串，否则会出现对 0 取模的问题。
+</Callout>
+
+---
+
+## 7. 左旋与右旋其实是同一个问题
+
+### 左旋 `k` 位
+
+把：
+
+$$
+AB
+$$
+
+变为：
+
+$$
+BA
+$$
+
+其中：
+
+$$
+A=s[0,k),\qquad B=s[k,n)
+$$
+
+可以写成：
+
+```cpp
+reverse(s.begin(), s.begin() + k);
+reverse(s.begin() + k, s.end());
+reverse(s.begin(), s.end());
+```
+
+### 右旋 `k` 位
+
+等价于左旋：
+
+$$
+n-k
+$$
+
+位。
+
+所以：
+
+$$
+\boxed{\text{右旋 }k\text{ 位}=\text{左旋 }(n-k)\text{ 位}}
+$$
+
+这意味着只要实现一个通用的旋转函数，就能同时处理左右旋。
+
+---
+
+## 8. 与数组旋转问题的关系
+
+字符串本质上也是线性序列，因此“三次反转”同样适用于数组。
+
+例如数组：
+
+```text
+[1, 2, 3, 4, 5, 6, 7]
+```
+
+右旋 3 位：
+
+```text
+[5, 6, 7, 1, 2, 3, 4]
+```
+
+仍然可以：
+
+1. 整体反转；
+2. 反转前 3 个元素；
+3. 反转剩余元素。
+
+这就是 LeetCode 189「轮转数组」的经典原地解法之一。
+
+<Cards>
+<Card title="字符串右旋" description="把尾部一段移动到前面。" />
+<Card title="数组轮转" description="本质同样是 AB → BA。" />
+<Card title="翻转单词" description="整体反转 + 分段反转的另一种应用。" />
+<Card title="区间反转" description="许多原地重排问题的基本操作。" />
+</Cards>
+
+---
+
+## 9. 常见错误
+
+### 错误一：把 `n-k` 和 `k` 混淆
+
+右旋 $k$ 位时，两段是：
+
+```text
+[0, n-k) | [n-k, n)
+```
+
+而不是：
+
+```text
+[0, k) | [k, n)
+```
+
+后者对应左旋 $k$ 位时的分段。
+
+### 错误二：反转区间定义不统一
+
+STL 的 `reverse(first, last)` 使用左闭右开区间：
+
+$$
+[first,last)
+$$
+
+所以：
+
+```cpp
+reverse(s.begin(), s.begin() + k);
+```
+
+恰好反转下标：
+
+$$
+0,1,\ldots,k-1
+$$
+
+### 错误三：把“右旋”写成普通反转
+
+右旋要求保留每一段内部的顺序，只交换两段整体的位置。
+
+因此一次反转绝对不够。
+
+### 错误四：忽略空串
+
+通用函数如果写：
+
+```cpp
+k %= s.size();
+```
+
+而 `s.empty()`，会发生除零错误。
+
+---
+
+## 10. 一套通用记忆模型
+
+遇到旋转问题时，先问三个问题：
+
+1. 能否把序列拆成 $A+B$？
+2. 目标是否只是变成 $B+A$？
+3. 能否原地反转区间？
+
+如果答案都是“是”，三次反转通常就是最自然的解法。
+
+最终只需要记住：
+
+$$
+\boxed{AB\xrightarrow{\text{三次反转}}BA}
+$$
+
+而不是死记具体代码顺序。
+
+---
+
+## 11. 其他语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'C']}>
+<Tab value="C++">
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    int k;
+    string s;
+    cin >> k >> s;
+
+    if (s.empty()) {
+        cout << '\n';
+        return 0;
+    }
+
+    k %= static_cast<int>(s.size());
+
+    reverse(s.begin(), s.end());
+    reverse(s.begin(), s.begin() + k);
+    reverse(s.begin() + k, s.end());
+
+    cout << s << '\n';
+    return 0;
+}
+```
+
+</Tab>
+<Tab value="Java">
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    static void reverse(char[] a, int left, int right) {
+        while (left < right) {
+            char tmp = a[left];
+            a[left++] = a[right];
+            a[right--] = tmp;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int k = sc.nextInt();
+        String s = sc.next();
+
+        if (s.isEmpty()) {
+            System.out.println();
+            return;
+        }
+
+        char[] a = s.toCharArray();
+        k %= a.length;
+
+        reverse(a, 0, a.length - 1);
+        reverse(a, 0, k - 1);
+        reverse(a, k, a.length - 1);
+
+        System.out.println(new String(a));
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+k = int(input())
+s = input().strip()
+
+if s:
+    k %= len(s)
+    s = s[-k:] + s[:-k] if k else s
+
+print(s)
+```
+
+Python 字符串不可变，因此上面的切片会使用 $O(n)$ 额外空间。
+
+</Tab>
+<Tab value="Go">
+
+```go
+package main
+
+import "fmt"
+
+func reverse(a []byte, left, right int) {
+    for left < right {
+        a[left], a[right] = a[right], a[left]
+        left++
+        right--
+    }
+}
+
+func main() {
+    var k int
+    var s string
+    fmt.Scan(&k)
+    fmt.Scan(&s)
+
+    a := []byte(s)
+    if len(a) == 0 {
+        fmt.Println()
+        return
+    }
+
+    k %= len(a)
+    reverse(a, 0, len(a)-1)
+    reverse(a, 0, k-1)
+    reverse(a, k, len(a)-1)
+
+    fmt.Println(string(a))
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+void reverse(char *s, int left, int right) {
+    while (left < right) {
+        char tmp = s[left];
+        s[left] = s[right];
+        s[right] = tmp;
+        ++left;
+        --right;
+    }
+}
+
+int main(void) {
+    int k;
+    char s[10005];
+
+    scanf("%d", &k);
+    scanf("%10000s", s);
+
+    int n = (int)strlen(s);
+    if (n == 0) {
+        puts("");
+        return 0;
+    }
+
+    k %= n;
+    reverse(s, 0, n - 1);
+    reverse(s, 0, k - 1);
+    reverse(s, k, n - 1);
+
+    puts(s);
+    return 0;
+}
+```
+
+</Tab>
+</Tabs>

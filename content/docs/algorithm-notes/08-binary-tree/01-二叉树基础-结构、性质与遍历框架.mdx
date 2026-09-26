@@ -1,0 +1,581 @@
+---
+title: 二叉树基础：结构、性质与遍历框架
+description: 从树的基本概念出发，系统掌握满二叉树、完全二叉树、二叉搜索树、AVL 树、顺序与链式存储，以及 DFS / BFS 遍历框架。
+---
+
+# 二叉树基础：结构、性质与遍历框架
+
+二叉树是树形算法的核心数据结构之一。它本身并不复杂，但后续的**递归、回溯、二叉搜索树、堆、平衡树、树形动态规划**等内容，几乎都建立在本章的基本模型之上。
+
+![二叉树学习大纲](https://file1.kamacoder.com/i/algo/20210219190809451.png)
+
+<Callout title="本章学习目标" type="idea">
+
+学完这一篇，至少要能够回答下面几个问题：
+
+- 满二叉树、完全二叉树、二叉搜索树、平衡二叉搜索树分别是什么？
+- 为什么堆通常用数组存，而普通二叉树通常用链式结构存？
+- 前序、中序、后序中的“前 / 中 / 后”究竟指什么？
+- DFS 为什么常与栈或递归对应，BFS 为什么常与队列对应？
+- 给定数组下标，如何快速找到父节点、左孩子和右孩子？
+
+</Callout>
+
+## 1. 先建立二叉树的基本模型
+
+一棵二叉树由若干个节点组成。对任意节点来说，它最多拥有两个孩子：
+
+- 左孩子（left child）
+- 右孩子（right child）
+
+一个典型节点可以抽象成：
+
+```text
+        当前节点
+       /       \
+   左子树      右子树
+```
+
+树中常见的几个术语需要先统一：
+
+| 术语 | 含义 |
+| --- | --- |
+| 根节点 | 整棵树最上方的节点 |
+| 父节点 | 某节点的直接上级节点 |
+| 子节点 | 某节点直接连接的下级节点 |
+| 叶子节点 | 没有任何孩子的节点 |
+| 子树 | 以某个节点为根形成的一棵树 |
+| 深度 | 从根到该节点所经过的层级或边数，具体定义要看题目约定 |
+| 高度 | 从该节点到最深叶子节点的最长距离 |
+| 度 | 一个节点拥有的孩子数量；二叉树中只可能是 $0$、$1$、$2$ |
+
+<Callout title="注意层数、深度和高度的下标约定" type="warn">
+
+不同教材可能把根节点记作第 $0$ 层，也可能记作第 $1$ 层，因此看到 $2^h-1$、$2^{h+1}-1$ 之类的公式时，不要机械记忆，先确认题目中的层数定义。
+
+本文约定：**根节点位于第 $1$ 层**。
+
+</Callout>
+
+## 2. 常见二叉树类型
+
+二叉树题目中最常见的四类结构是：
+
+<Cards>
+  <Card title="满二叉树" href="#满二叉树">每一层都达到该层能够容纳的最大节点数。</Card>
+  <Card title="完全二叉树" href="#完全二叉树">除最后一层外全部填满，最后一层从左向右连续排列。</Card>
+  <Card title="二叉搜索树" href="#二叉搜索树">节点值具有有序性，中序遍历天然得到有序序列。</Card>
+  <Card title="平衡二叉搜索树" href="#平衡二叉搜索树">在搜索树基础上控制左右子树高度差。</Card>
+</Cards>
+
+### 满二叉树
+
+如果一棵二叉树满足：
+
+1. 每个非叶子节点都有两个孩子；
+2. 所有叶子节点都位于同一层；
+
+那么它就是满二叉树。
+
+![满二叉树示意图](https://file1.kamacoder.com/i/algo/20200806185805576.png)
+
+若满二叉树共有 $h$ 层，并且根节点位于第 $1$ 层，则第 $i$ 层最多有：
+
+$$
+2^{i-1}
+$$
+
+个节点。
+
+因此总节点数为：
+
+$$
+1+2+4+\cdots+2^{h-1}=2^h-1
+$$
+
+叶子节点数为：
+
+$$
+2^{h-1}
+$$
+
+<Callout title="一个很实用的判断" type="success">
+
+如果一棵二叉树有 $h$ 层，并且节点总数恰好为 $2^h-1$，那么它一定是满二叉树。
+
+</Callout>
+
+### 完全二叉树
+
+完全二叉树比满二叉树的条件宽松：
+
+- 除最后一层外，其余各层必须全部填满；
+- 最后一层可以不满，但节点必须**从左向右连续排列**，中间不能出现空缺。
+
+![完全二叉树判断示意图](https://file1.kamacoder.com/i/algo/20200920221638903.png)
+
+如果第 $h$ 层是最后一层，那么这一层的节点数范围为：
+
+$$
+1 \le n_h \le 2^{h-1}
+$$
+
+完全二叉树最重要的特点不是“看起来比较满”，而是它可以非常自然地映射到连续数组。
+
+这正是**二叉堆（Heap）**常用数组实现的原因。
+
+<Callout title="判断完全二叉树时的关键" type="warn">
+
+一旦在层序遍历中遇到第一个空位置，那么它后面就不能再出现非空节点。只要“空缺之后又出现节点”，就不是完全二叉树。
+
+</Callout>
+
+### 二叉搜索树
+
+二叉搜索树（Binary Search Tree，BST）是一种带有顺序约束的二叉树。
+
+在“不允许重复值”的常见定义下，对任意节点 `root`：
+
+- 左子树所有节点值都小于 `root.val`；
+- 右子树所有节点值都大于 `root.val`；
+- 左右子树本身也分别是二叉搜索树。
+
+![二叉搜索树示意图](https://file1.kamacoder.com/i/algo/20200806190304693.png)
+
+如果允许重复值，则必须额外规定重复值放在左边还是右边；不同题目可能采用不同约定。
+
+BST 最核心的性质是：
+
+> **对二叉搜索树进行中序遍历，可以得到一个单调有序序列。**
+
+因此，很多 BST 问题最终都会转化为“利用中序遍历维护有序关系”。
+
+### 平衡二叉搜索树
+
+平衡二叉搜索树是在 BST 的有序性基础上，进一步约束树的高度。
+
+以 AVL 树为例，对任意节点都有：
+
+$$
+|h_{left}-h_{right}| \le 1
+$$
+
+同时，它的左右子树也必须满足相同条件。
+
+![平衡二叉搜索树示意图](https://file1.kamacoder.com/i/algo/20200806190511967.png)
+
+为什么要“平衡”？因为普通 BST 在极端情况下可能退化成链表。
+
+例如依次插入：
+
+```text
+1, 2, 3, 4, 5
+```
+
+如果不进行任何平衡操作，就可能形成：
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+```
+
+此时树高接近 $n$，查找复杂度从理想的 $O(\log n)$ 退化到 $O(n)$。
+
+<Callout title="工程中的平衡树" type="info">
+
+很多语言的有序集合 / 有序映射都依赖平衡搜索树一类结构实现，但具体底层实现取决于语言和标准库。例如 C++ 的 `std::map` / `std::set` 通常采用红黑树，而不是 AVL 树。
+
+</Callout>
+
+## 3. 二叉树的两种存储方式
+
+二叉树主要有两类存储方式：
+
+1. **链式存储**：节点中保存左右孩子指针；
+2. **顺序存储**：直接使用数组表示节点关系。
+
+### 链式存储
+
+链式存储是普通二叉树最常见的表示方法。
+
+![二叉树链式存储](https://file1.kamacoder.com/i/algo/2020092019554618.png)
+
+每个节点只需要记录：
+
+- 当前节点的值；
+- 左孩子引用；
+- 右孩子引用。
+
+优点是结构灵活，不要求树必须紧凑。
+
+### 顺序存储
+
+如果树的结构比较紧凑，尤其是完全二叉树，可以直接用数组存储。
+
+![二叉树顺序存储](https://file1.kamacoder.com/i/algo/20200920200429452.png)
+
+假设数组采用 **0 下标**，当前节点下标为 $i$，则：
+
+| 关系 | 下标公式 |
+| --- | --- |
+| 左孩子 | $2i+1$ |
+| 右孩子 | $2i+2$ |
+| 父节点 | $\left\lfloor\frac{i-1}{2}\right\rfloor$，其中 $i>0$ |
+
+例如数组：
+
+```text
+index:  0  1  2  3  4  5  6
+value:  A  B  C  D  E  F  G
+```
+
+可以对应：
+
+```text
+        A(0)
+       /    \
+    B(1)   C(2)
+    / \     / \
+ D(3) E(4) F(5) G(6)
+```
+
+如果数组采用 **1 下标**，当前节点下标为 $i$，公式则变成：
+
+| 关系 | 下标公式 |
+| --- | --- |
+| 左孩子 | $2i$ |
+| 右孩子 | $2i+1$ |
+| 父节点 | $\left\lfloor\frac{i}{2}\right\rfloor$ |
+
+<Callout title="数组存储什么时候最合适？" type="idea">
+
+数组存储最适合**完全二叉树或近似完全二叉树**。如果树非常稀疏，大量不存在的节点会导致数组中出现很多空位置，空间利用率会明显下降。
+
+</Callout>
+
+## 4. 二叉树遍历：先分成 DFS 与 BFS
+
+学习二叉树时，最重要的不是孤立地背前序、中序、后序，而是先建立两大遍历框架：
+
+```text
+二叉树遍历
+├── 深度优先搜索 DFS
+│   ├── 前序遍历
+│   ├── 中序遍历
+│   └── 后序遍历
+└── 广度优先搜索 BFS
+    └── 层序遍历
+```
+
+### 深度优先搜索 DFS
+
+DFS 的特点是：**沿着一条路径尽可能向深处访问，直到不能继续，再回溯。**
+
+它通常有两种实现方式：
+
+- 递归；
+- 显式栈。
+
+前序、中序、后序都属于 DFS。
+
+### 广度优先搜索 BFS
+
+BFS 的特点是：**按照距离根节点的层数，一层一层访问。**
+
+它通常使用队列实现，因为队列的先进先出（FIFO）特性天然满足“先进入本层的节点先处理”。
+
+## 5. 前序、中序、后序到底怎么记
+
+“前 / 中 / 后”描述的并不是左右孩子的位置，而是**根节点在访问顺序中的位置**。
+
+| 遍历方式 | 顺序 | 记忆方式 |
+| --- | --- | --- |
+| 前序遍历 | 根 → 左 → 右 | 根在前 |
+| 中序遍历 | 左 → 根 → 右 | 根在中 |
+| 后序遍历 | 左 → 右 → 根 | 根在后 |
+
+![前序中序后序遍历示意图](https://file1.kamacoder.com/i/algo/20200806191109896.png)
+
+假设有一棵树：
+
+```text
+        1
+       / \
+      2   3
+     / \
+    4   5
+```
+
+那么：
+
+| 遍历 | 结果 |
+| --- | --- |
+| 前序 | `1 2 4 5 3` |
+| 中序 | `4 2 5 1 3` |
+| 后序 | `4 5 2 3 1` |
+| 层序 | `1 2 3 4 5` |
+
+<Callout title="不要只背口诀" type="idea">
+
+真正解题时，前中后序的区别往往对应“什么时候处理当前节点”：
+
+- **前序**：进入节点时就处理，适合自顶向下传递信息；
+- **中序**：处理完左子树后再处理当前节点，尤其适合 BST；
+- **后序**：左右子树都处理完后再处理当前节点，适合自底向上汇总信息。
+
+</Callout>
+
+## 6. 为什么递归、栈和队列如此重要
+
+### 递归与栈
+
+递归调用本质上依赖调用栈保存现场。
+
+例如递归遍历一个节点时，程序需要记住：
+
+- 当前函数执行到了哪里；
+- 当前节点是谁；
+- 左子树是否已经处理；
+- 返回后下一步应该处理什么。
+
+所以很多递归 DFS 都可以改写成显式栈版本。
+
+### BFS 与队列
+
+层序遍历要求：
+
+1. 先处理当前层所有节点；
+2. 再处理下一层节点。
+
+队列的 FIFO 恰好满足这一点：
+
+```text
+根入队
+  ↓
+取出根 → 把根的左右孩子入队
+  ↓
+依次取出下一层节点
+  ↓
+继续把它们的孩子加入队尾
+```
+
+## 7. 遍历复杂度的统一认识
+
+如果一棵树共有 $n$ 个节点，高度为 $h$，最大宽度为 $w$：
+
+| 方法 | 时间复杂度 | 额外空间复杂度 | 空间主要来自 |
+| --- | --- | --- | --- |
+| 递归 DFS | $O(n)$ | $O(h)$ | 递归调用栈 |
+| 迭代 DFS | $O(n)$ | 最坏 $O(n)$ | 显式栈 |
+| BFS | $O(n)$ | $O(w)$，最坏 $O(n)$ | 队列 |
+
+为什么时间复杂度通常都是 $O(n)$？
+
+因为完整遍历时，每个节点通常只会被访问常数次，所以总工作量与节点数线性相关。
+
+## 8. 二叉树节点的标准定义
+
+在算法题中，最常用的是链式二叉树节点。
+
+```cpp title="C++ 二叉树节点"
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+
+    explicit TreeNode(int x)
+        : val(x), left(nullptr), right(nullptr) {}
+};
+```
+
+结构只有三个核心字段：
+
+```text
+TreeNode
+├── val    当前节点值
+├── left   左孩子
+└── right  右孩子
+```
+
+这也是后续所有二叉树递归函数最常见的参数模型：
+
+```cpp
+void traversal(TreeNode* root) {
+    if (root == nullptr) return;
+
+    // 处理左子树、右子树、当前节点
+}
+```
+
+## 9. 一张表串起整个基础框架
+
+| 主题 | 核心结论 |
+| --- | --- |
+| 满二叉树 | 每层都满，$h$ 层共有 $2^h-1$ 个节点 |
+| 完全二叉树 | 最后一层从左到右连续，适合数组存储 |
+| 二叉搜索树 | 左小右大，中序遍历得到有序序列 |
+| 平衡搜索树 | 控制树高，避免搜索退化为 $O(n)$ |
+| 链式存储 | 通用、灵活，普通二叉树最常见 |
+| 顺序存储 | 完全二叉树非常高效，堆常这样实现 |
+| DFS | 递归或栈；包含前序、中序、后序 |
+| BFS | 队列；典型形式是层序遍历 |
+| 前序 | 根 → 左 → 右 |
+| 中序 | 左 → 根 → 右 |
+| 后序 | 左 → 右 → 根 |
+
+<Callout title="学习二叉树真正要形成的能力" type="success">
+
+看到一道二叉树题，优先思考的不是“这题属于哪个模板”，而是：
+
+1. 我需要**自顶向下传递信息**，还是**自底向上收集结果**？
+2. 当前节点应该在左、右子树之前处理，还是之后处理？
+3. 需要 DFS，还是必须按层处理的 BFS？
+4. 返回值应该表示“这棵子树的什么信息”？
+
+后续绝大多数二叉树题，本质上都围绕这几个问题展开。
+
+</Callout>
+
+## 10. 其他语言的节点定义
+
+下面使用 Fumadocs 的代码块 Tab 语法组织不同语言版本。切换语言时，各代码块表达的是同一个 `TreeNode` 数据结构。
+
+```cpp tab="C++" tab-group="binary-tree-node"
+struct TreeNode {
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+
+    explicit TreeNode(int x)
+        : val(x), left(nullptr), right(nullptr) {}
+};
+```
+
+```java tab="Java"
+public class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode() {}
+
+    TreeNode(int val) {
+        this.val = val;
+    }
+
+    TreeNode(int val, TreeNode left, TreeNode right) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+```
+
+```python tab="Python"
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+
+```go tab="Go"
+type TreeNode struct {
+    Val   int
+    Left  *TreeNode
+    Right *TreeNode
+}
+```
+
+```javascript tab="JavaScript"
+function TreeNode(val = 0, left = null, right = null) {
+    this.val = val;
+    this.left = left;
+    this.right = right;
+}
+```
+
+```typescript tab="TypeScript"
+class TreeNode {
+    val: number;
+    left: TreeNode | null;
+    right: TreeNode | null;
+
+    constructor(
+        val: number = 0,
+        left: TreeNode | null = null,
+        right: TreeNode | null = null,
+    ) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+```
+
+```swift tab="Swift"
+final class TreeNode {
+    var val: Int
+    var left: TreeNode?
+    var right: TreeNode?
+
+    init(_ val: Int, _ left: TreeNode? = nil, _ right: TreeNode? = nil) {
+        self.val = val
+        self.left = left
+        self.right = right
+    }
+}
+```
+
+```scala tab="Scala"
+class TreeNode(
+    var value: Int = 0,
+    var left: TreeNode = null,
+    var right: TreeNode = null
+)
+```
+
+```rust tab="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct TreeNode {
+    pub val: i32,
+    pub left: Option<Rc<RefCell<TreeNode>>>,
+    pub right: Option<Rc<RefCell<TreeNode>>>,
+}
+
+impl TreeNode {
+    pub fn new(val: i32) -> Self {
+        Self {
+            val,
+            left: None,
+            right: None,
+        }
+    }
+}
+```
+
+```csharp tab="C#"
+public class TreeNode
+{
+    public int val;
+    public TreeNode? left;
+    public TreeNode? right;
+
+    public TreeNode(int val = 0, TreeNode? left = null, TreeNode? right = null)
+    {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
+```

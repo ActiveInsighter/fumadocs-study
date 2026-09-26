@@ -1,0 +1,595 @@
+---
+title: 按奇偶排序数组 II
+description: 用奇偶位置双指针解决数组原地重排问题，理解“错位元素成对出现”、步长为 2 的索引扫描，以及为什么原地交换仍然是 O(n)。
+---
+
+# 922. 按奇偶排序数组 II
+
+[LeetCode 922：按奇偶排序数组 II](https://leetcode.cn/problems/sort-array-by-parity-ii/)
+
+给定一个长度为偶数的非负整数数组 `nums`，其中恰好一半元素为偶数、一半元素为奇数。要求重新排列数组，使得：
+
+- 偶数下标 `0, 2, 4, ...` 上放偶数；
+- 奇数下标 `1, 3, 5, ...` 上放奇数。
+
+返回任意一种满足要求的排列即可。
+
+例如：
+
+```text
+nums = [4, 2, 5, 7]
+```
+
+可以返回：
+
+```text
+[4, 5, 2, 7]
+```
+
+也可以返回：
+
+```text
+[2, 7, 4, 5]
+```
+
+> [!TIP]
+> 这道题并不是“排序”问题。真正要做的是按照**位置奇偶性**把元素放回正确的位置。
+
+## 一、先把问题看成两个位置集合
+
+数组下标天然可以分成两组：
+
+```text
+偶数位置：0, 2, 4, 6, ...
+奇数位置：1, 3, 5, 7, ...
+```
+
+而元素也分成两组：
+
+```text
+偶数元素：num % 2 == 0
+奇数元素：num % 2 == 1
+```
+
+因此题目只是要求建立如下匹配：
+
+```text
+偶数元素 -> 偶数位置
+奇数元素 -> 奇数位置
+```
+
+题目已经保证奇数、偶数元素数量相同，所以一定能完成匹配。
+
+## 二、方法一：额外数组直接放到对应位置
+
+最容易理解的方法是申请一个结果数组 `result`，再维护两个写入位置：
+
+```text
+evenIndex = 0
+oddIndex  = 1
+```
+
+遍历原数组：
+
+- 遇到偶数，就写入 `result[evenIndex]`，然后 `evenIndex += 2`；
+- 遇到奇数，就写入 `result[oddIndex]`，然后 `oddIndex += 2`。
+
+### 推演
+
+```text
+nums = [4, 2, 5, 7]
+```
+
+初始：
+
+```text
+evenIndex = 0
+oddIndex  = 1
+result    = [_, _, _, _]
+```
+
+读到 `4`：
+
+```text
+result = [4, _, _, _]
+evenIndex = 2
+```
+
+读到 `2`：
+
+```text
+result = [4, _, 2, _]
+evenIndex = 4
+```
+
+读到 `5`：
+
+```text
+result = [4, 5, 2, _]
+oddIndex = 3
+```
+
+读到 `7`：
+
+```text
+result = [4, 5, 2, 7]
+```
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    vector<int> sortArrayByParityII(vector<int>& nums) {
+        vector<int> result(nums.size());
+        int evenIndex = 0;
+        int oddIndex = 1;
+
+        for (int x : nums) {
+            if (x % 2 == 0) {
+                result[evenIndex] = x;
+                evenIndex += 2;
+            } else {
+                result[oddIndex] = x;
+                oddIndex += 2;
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+复杂度：
+
+$$
+T(n)=O(n)
+$$
+
+$$
+S(n)=O(n)
+$$
+
+> [!NOTE]
+> 这里不需要先把奇数和偶数分别存进两个数组。直接根据元素奇偶性写入对应下标即可。
+
+## 三、方法二：原地双指针交换
+
+如果要求进一步降低额外空间，可以直接在 `nums` 上修改。
+
+核心观察是：
+
+> 如果某个偶数位置放了奇数，那么必然还存在某个奇数位置放了偶数。
+
+因为题目保证奇数、偶数数量各占一半。
+
+于是我们只需要把这两个“错位元素”交换。
+
+### 两个指针分别只走一种下标
+
+定义：
+
+```text
+evenIndex = 0, 2, 4, ...
+oddIndex  = 1, 3, 5, ...
+```
+
+我们可以只枚举偶数位置：
+
+```cpp
+for (int evenIndex = 0; evenIndex < n; evenIndex += 2)
+```
+
+若：
+
+```cpp
+nums[evenIndex] % 2 == 0
+```
+
+说明当前位置已经正确，不做任何操作。
+
+若：
+
+```cpp
+nums[evenIndex] % 2 == 1
+```
+
+说明这里放错了一个奇数，需要去奇数位置中寻找一个放错的偶数。
+
+于是让：
+
+```cpp
+while (nums[oddIndex] % 2 == 1) {
+    oddIndex += 2;
+}
+```
+
+找到后交换：
+
+```cpp
+swap(nums[evenIndex], nums[oddIndex]);
+```
+
+## 四、为什么这个写法不是 $O(n^2)$
+
+很多人看到：
+
+```cpp
+for (...) {
+    while (...) {
+        ...
+    }
+}
+```
+
+会下意识认为复杂度是 $O(n^2)$。
+
+但复杂度不能只看“循环嵌套”，而要看每个指针一共移动多少次。
+
+`evenIndex` 只遍历：
+
+```text
+0, 2, 4, ...
+```
+
+最多移动约：
+
+$$
+\frac{n}{2}
+$$
+
+次。
+
+`oddIndex` 同样只会单调向右移动：
+
+```text
+1, 3, 5, ...
+```
+
+它不会因为外层循环重新回到 `1`，所以整个程序中也最多移动约：
+
+$$
+\frac{n}{2}
+$$
+
+次。
+
+因此总操作量是：
+
+$$
+\frac{n}{2}+\frac{n}{2}=n
+$$
+
+所以整体时间复杂度仍然是：
+
+$$
+O(n)
+$$
+
+而不是：
+
+$$
+O(n^2)
+$$
+
+> [!IMPORTANT]
+> 判断双指针复杂度时，要关注“指针总共前进了多少次”，而不是只看代码层面是否出现嵌套循环。
+
+## 五、最优原地写法
+
+```cpp
+class Solution {
+public:
+    vector<int> sortArrayByParityII(vector<int>& nums) {
+        int oddIndex = 1;
+
+        for (int evenIndex = 0; evenIndex < nums.size(); evenIndex += 2) {
+            if (nums[evenIndex] % 2 == 1) {
+                while (nums[oddIndex] % 2 == 1) {
+                    oddIndex += 2;
+                }
+
+                swap(nums[evenIndex], nums[oddIndex]);
+            }
+        }
+
+        return nums;
+    }
+};
+```
+
+复杂度：
+
+$$
+T(n)=O(n)
+$$
+
+$$
+S(n)=O(1)
+$$
+
+## 六、完整推演原地交换
+
+考虑：
+
+```text
+nums = [4, 1, 3, 2]
+```
+
+### `evenIndex = 0`
+
+```text
+nums[0] = 4
+```
+
+偶数放在偶数位置，正确。
+
+数组不变：
+
+```text
+[4, 1, 3, 2]
+```
+
+### `evenIndex = 2`
+
+```text
+nums[2] = 3
+```
+
+奇数出现在偶数位置，错误。
+
+此时从：
+
+```text
+oddIndex = 1
+```
+
+开始找奇数位置上的偶数。
+
+```text
+nums[1] = 1
+```
+
+仍然正确，所以：
+
+```text
+oddIndex = 3
+```
+
+此时：
+
+```text
+nums[3] = 2
+```
+
+偶数出现在奇数位置，恰好与 `nums[2]` 错位互补。
+
+交换：
+
+```text
+[4, 1, 2, 3]
+```
+
+完成。
+
+## 七、为什么错位一定可以成对修复
+
+设偶数位置总共有：
+
+$$
+\frac{n}{2}
+$$
+
+个。
+
+题目又保证数组中偶数元素恰好有：
+
+$$
+\frac{n}{2}
+$$
+
+个。
+
+因此如果某个偶数位置被奇数占据，就意味着至少有一个偶数没有待在偶数位置，只能出现在某个奇数位置。
+
+所以：
+
+```text
+偶数位置上的奇数
+```
+
+与：
+
+```text
+奇数位置上的偶数
+```
+
+数量一定相同。
+
+这也是原地交换方案正确性的基础。
+
+## 八、常见错误
+
+### 1. 两个指针都每次加 1
+
+如果这样写：
+
+```cpp
+evenIndex++;
+oddIndex++;
+```
+
+就失去了“一个指针只检查偶数位置、另一个只检查奇数位置”的语义。
+
+正确写法应为：
+
+```cpp
+evenIndex += 2;
+oddIndex += 2;
+```
+
+### 2. 找奇数位置时条件写反
+
+我们希望找到：
+
+```text
+奇数下标上的偶数
+```
+
+所以应该跳过那些已经正确的奇数：
+
+```cpp
+while (nums[oddIndex] % 2 == 1) {
+    oddIndex += 2;
+}
+```
+
+循环停止时：
+
+```cpp
+nums[oddIndex] % 2 == 0
+```
+
+正是需要交换的元素。
+
+### 3. 把“数组排序”理解成真正的大小排序
+
+题目不要求：
+
+```text
+1, 2, 3, 4
+```
+
+这样的升序结果。
+
+只要求：
+
+```text
+下标奇偶性 == 元素奇偶性
+```
+
+## 九、方法对比
+
+| 方法 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- |
+| 奇偶元素分别收集 | $O(n)$ | $O(n)$ | 最直观，但辅助结构较多 |
+| 结果数组双下标 | $O(n)$ | $O(n)$ | 简洁、稳定、容易写对 |
+| 原地奇偶双指针 | $O(n)$ | $O(1)$ | 空间最优，最值得掌握 |
+
+## 十、这道题真正要掌握的模板
+
+这类题的关键词通常是：
+
+```text
+不同类型元素
+必须放到不同类型位置
+允许任意合法排列
+```
+
+可以立刻考虑：
+
+1. 为不同位置类型分别设置指针；
+2. 每个指针只扫描属于自己的位置；
+3. 找到两个互补错位元素后直接交换。
+
+常见变形包括：
+
+- 正负数交替；
+- 0 / 1 元素分区；
+- 奇偶位置约束；
+- 两类元素原地重排。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int[] sortArrayByParityII(int[] nums) {
+        int oddIndex = 1;
+
+        for (int evenIndex = 0; evenIndex < nums.length; evenIndex += 2) {
+            if (nums[evenIndex] % 2 == 1) {
+                while (nums[oddIndex] % 2 == 1) {
+                    oddIndex += 2;
+                }
+
+                int temp = nums[evenIndex];
+                nums[evenIndex] = nums[oddIndex];
+                nums[oddIndex] = temp;
+            }
+        }
+
+        return nums;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def sortArrayByParityII(self, nums: List[int]) -> List[int]:
+        odd_index = 1
+
+        for even_index in range(0, len(nums), 2):
+            if nums[even_index] % 2 == 1:
+                while nums[odd_index] % 2 == 1:
+                    odd_index += 2
+
+                nums[even_index], nums[odd_index] = nums[odd_index], nums[even_index]
+
+        return nums
+```
+
+```go label="Go"
+func sortArrayByParityII(nums []int) []int {
+    oddIndex := 1
+
+    for evenIndex := 0; evenIndex < len(nums); evenIndex += 2 {
+        if nums[evenIndex]%2 == 1 {
+            for nums[oddIndex]%2 == 1 {
+                oddIndex += 2
+            }
+
+            nums[evenIndex], nums[oddIndex] = nums[oddIndex], nums[evenIndex]
+        }
+    }
+
+    return nums
+}
+```
+
+```javascript label="JavaScript"
+var sortArrayByParityII = function(nums) {
+    let oddIndex = 1;
+
+    for (let evenIndex = 0; evenIndex < nums.length; evenIndex += 2) {
+        if (nums[evenIndex] % 2 === 1) {
+            while (nums[oddIndex] % 2 === 1) {
+                oddIndex += 2;
+            }
+
+            [nums[evenIndex], nums[oddIndex]] = [nums[oddIndex], nums[evenIndex]];
+        }
+    }
+
+    return nums;
+};
+```
+
+```typescript label="TypeScript"
+function sortArrayByParityII(nums: number[]): number[] {
+    let oddIndex = 1;
+
+    for (let evenIndex = 0; evenIndex < nums.length; evenIndex += 2) {
+        if (nums[evenIndex] % 2 === 1) {
+            while (nums[oddIndex] % 2 === 1) {
+                oddIndex += 2;
+            }
+
+            [nums[evenIndex], nums[oddIndex]] = [nums[oddIndex], nums[evenIndex]];
+        }
+    }
+
+    return nums;
+}
+```
+````

@@ -1,0 +1,695 @@
+---
+title: 链表方法论总结：指针、哨兵节点、双指针与局部重连
+description: 系统回顾链表模块的核心模型与高频技巧，把移除元素、设计链表、反转、两两交换、删除倒数节点、链表相交和环形链表统一到“节点关系重构”的方法论中。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 链表方法论总结：指针、哨兵节点、双指针与局部重连
+
+链表题看起来变化很多，但真正反复出现的能力只有几类：
+
+- 看懂**节点身份、节点值和 `next` 指针**之间的区别；
+- 在修改链接前保存必要的后继节点；
+- 使用**虚拟头结点**统一头结点与普通节点的处理；
+- 使用**双指针**制造距离差、路径等长或速度差；
+- 把复杂操作拆成小范围的**局部重连**。
+
+![链表知识总结](https://file1.kamacoder.com/i/algo/%E9%93%BE%E8%A1%A8%E6%80%BB%E7%BB%93.png)
+
+这篇不再把每道题重新讲一遍，而是提炼成可以迁移到新题中的解题框架。
+
+---
+
+## 1. 链表最核心的抽象：节点 + 指向关系
+
+单链表节点可以抽象为：
+
+```cpp
+struct ListNode {
+    int val;
+    ListNode* next;
+};
+```
+
+与数组最大的不同是：
+
+```text
+数组：位置关系由连续下标隐式表达
+链表：位置关系由 next 指针显式表达
+```
+
+因此，链表题真正修改的通常不是“数据”，而是：
+
+```text
+谁的 next 应该指向谁？
+```
+
+<Callout title="链表题的第一原则" type="success">
+写任何修改指针的代码前，都先画出修改前后的箭头。只要能明确每条旧边要删除、每条新边要建立，代码通常只是把图翻译成若干次 `next` 赋值。
+</Callout>
+
+---
+
+## 2. 数组和链表的本质差异
+
+| 操作 | 数组 | 单链表 |
+| --- | --- | --- |
+| 按下标访问 | $O(1)$ | $O(n)$ |
+| 已知节点后插入 | 通常 $O(n)$ 搬移 | $O(1)$ |
+| 已知前驱后删除 | 通常 $O(n)$ 搬移 | $O(1)$ |
+| 内存布局 | 通常连续 | 通常分散 |
+| 缓存局部性 | 好 | 相对差 |
+| 额外指针开销 | 较少 | 每节点需要链接信息 |
+
+所以链表并不是“比数组高级”，而是一种针对动态插入、删除场景的不同权衡。
+
+---
+
+## 3. 第一类高频技巧：虚拟头结点
+
+链表最常见的麻烦之一是：**头结点没有前驱**。
+
+例如删除值为 `target` 的节点：
+
+```text
+普通节点：prev.next = cur.next
+头结点：head = head.next
+```
+
+如果直接操作原头结点，就必须单独写一套逻辑。
+
+加入虚拟头结点：
+
+```text
+dummy → head → ...
+```
+
+后，原来的头结点也变成了“有前驱的普通节点”。
+
+```cpp
+ListNode dummy(0, head);
+ListNode* cur = &dummy;
+```
+
+最终统一返回：
+
+```cpp
+return dummy.next;
+```
+
+### 哪些题几乎应该条件反射想到 dummy
+
+<Cards>
+  <Card title="删除节点">
+    目标节点可能就是头结点时，虚拟头结点通常能消除特判。
+  </Card>
+  <Card title="区间反转 / 局部重连">
+    操作区间可能从第一个真实节点开始时，`dummy` 提供稳定的前驱。
+  </Card>
+  <Card title="两两交换 / K 组反转">
+    每组都需要一个“组前驱”，虚拟头结点让第一组和后续组完全统一。
+  </Card>
+  <Card title="删除倒数节点">
+    让删除头结点的情况也能通过 `slow.next = slow.next.next` 统一完成。
+  </Card>
+</Cards>
+
+---
+
+## 4. 第二类高频技巧：修改前先保存后继
+
+反转链表中最危险的一句是：
+
+```cpp
+cur->next = prev;
+```
+
+因为执行后，原来 `cur->next` 指向的后半段链表就失去直接入口。
+
+所以必须先：
+
+```cpp
+ListNode* next = cur->next;
+```
+
+完整顺序：
+
+```cpp
+while (cur != nullptr) {
+    ListNode* next = cur->next;
+    cur->next = prev;
+    prev = cur;
+    cur = next;
+}
+```
+
+可以把链表修改的安全规则记成：
+
+> **凡是准备覆盖一个仍然有用的指针，先把旧值保存下来。**
+
+---
+
+## 5. 第三类高频技巧：局部重连
+
+两两交换节点时，不需要“重新构造整条链表”，只需要把局部：
+
+```text
+prev → A → B → next
+```
+
+改成：
+
+```text
+prev → B → A → next
+```
+
+对应三条关键新边：
+
+```cpp
+prev->next = B;
+B->next = A;
+A->next = next;
+```
+
+真正困难的地方不是语法，而是：
+
+1. 哪些旧链接会被覆盖；
+2. 哪些节点必须提前保存；
+3. 一轮结束后，下一轮的 `prev` 应该落在哪里。
+
+这类题可以统一使用“局部窗口”思维：
+
+```text
+组前驱 | 本组节点 | 下一段入口
+```
+
+---
+
+## 6. 第四类高频技巧：固定距离双指针
+
+删除倒数第 $N$ 个节点时，核心不是“从后往前数”，而是让两个指针保持固定距离。
+
+设 `fast` 先走 $N+1$ 步（从虚拟头结点开始），然后 `fast` 与 `slow` 同步前进。
+
+始终保持：
+
+$$
+\text{distance}(fast, slow)=N+1
+$$
+
+当 `fast == null` 时，`slow` 正好停在待删除节点的前驱。
+
+于是只需要：
+
+```cpp
+slow->next = slow->next->next;
+```
+
+这类技巧可以迁移到：
+
+- 找倒数第 $K$ 个节点；
+- 找链表中点；
+- 判断两个位置之间的固定间隔。
+
+---
+
+## 7. 第五类高频技巧：路径等长化
+
+链表相交问题中，两个链表长度可能不同。
+
+一种方法是先计算长度差；更优雅的方法是：
+
+```text
+pA: A → B
+pB: B → A
+```
+
+两者最终走过的总路径长度都为：
+
+$$
+|A|+|B|
+$$
+
+长度差被自动抵消。
+
+如果有公共后缀，两者会在第一个公共节点相遇；如果没有交点，两者最终会同时到 `null`。
+
+这背后的通用思想是：
+
+> **如果两个指针因为起点不同而不同步，可以通过补路径让总路程相同。**
+
+---
+
+## 8. 第六类高频技巧：速度差制造相遇
+
+环形链表 II 使用：
+
+```text
+slow：1 步 / 轮
+fast：2 步 / 轮
+```
+
+速度差为：
+
+$$
+2-1=1
+$$
+
+进入环后，`fast` 每轮相对 `slow` 接近一个节点，因此一定会相遇。
+
+第一次相遇解决的是：
+
+```text
+有没有环？
+```
+
+第二阶段再通过数学关系解决：
+
+```text
+入口在哪里？
+```
+
+这提醒我们：
+
+> 双指针不是一种固定模板，而是通过人为设计“距离关系、路径关系、速度关系”来得到可证明的同步条件。
+
+---
+
+## 9. 链表篇七类经典问题
+
+本模块的核心题可以这样归纳：
+
+| 题目 | 核心能力 | 关键技巧 |
+| --- | --- | --- |
+| 移除链表元素 | 删除节点 | 虚拟头结点 |
+| 设计链表 | 增删查 | 哨兵节点 + 索引定位 |
+| 反转链表 | 改变指向 | 保存 `next` + 三指针 |
+| 两两交换 | 局部重连 | 组前驱 + 临时节点 |
+| 删除倒数第 $N$ 个节点 | 后向位置定位 | 固定距离双指针 |
+| 链表相交 | 消除长度差 | 长度对齐 / 路径等长化 |
+| 环形链表 II | 判环 + 找入口 | Floyd 快慢指针 |
+
+---
+
+## 10. 做链表题时的统一解题流程
+
+<Steps>
+  <Step>
+
+**先判断题目是否会修改链表结构**
+
+如果只是查找，可以更多关注遍历策略；如果会修改链接，必须画箭头。
+
+  </Step>
+  <Step>
+
+**判断头结点是否可能被修改**
+
+如果可能，优先考虑：
+
+```text
+dummy → head
+```
+
+  </Step>
+  <Step>
+
+**确定操作需要哪些角色指针**
+
+常见角色包括：
+
+```text
+prev / cur / next
+fast / slow
+left / right
+```
+
+  </Step>
+  <Step>
+
+**写出一轮操作前后的局部结构**
+
+例如：
+
+```text
+prev → A → B → next
+```
+
+变成：
+
+```text
+prev → B → A → next
+```
+
+  </Step>
+  <Step>
+
+**检查被覆盖的链接是否提前保存**
+
+如果某个 `next` 即将被改写，先确认是否还需要旧后继。
+
+  </Step>
+  <Step>
+
+**最后检查边界**
+
+至少检查：
+
+```text
+空链表
+只有一个节点
+操作头结点
+操作尾结点
+长度刚好等于边界值
+```
+
+  </Step>
+</Steps>
+
+---
+
+## 11. 指针顺序为什么如此重要
+
+考虑反转：
+
+错误顺序：
+
+```cpp
+cur->next = prev;
+cur = cur->next;
+```
+
+第二句中的 `cur->next` 已经被改成 `prev`，于是指针会往回走，而不是进入原链表后半段。
+
+正确顺序：
+
+```cpp
+ListNode* next = cur->next;
+cur->next = prev;
+prev = cur;
+cur = next;
+```
+
+因此链表代码的一个基本检查方法是：
+
+> **每执行一条赋值，都问自己：这条赋值覆盖掉的信息以后还需要吗？**
+
+---
+
+## 12. 为什么“节点值相等”经常是陷阱
+
+链表题里经常同时存在两个层次：
+
+```text
+节点保存的值
+节点对象本身
+```
+
+以下题目判断的是节点对象：
+
+- 链表相交；
+- Floyd 快慢指针相遇；
+- 环入口；
+- 某些链表结构复制问题。
+
+所以：
+
+```cpp
+p->val == q->val
+```
+
+和：
+
+```cpp
+p == q
+```
+
+含义完全不同。
+
+<Callout title="结构题优先关注节点身份" type="warning">
+当题目问“是否相交”“是否相遇”“是不是同一个节点”时，通常比较的是指针 / 引用，而不是节点值。
+</Callout>
+
+---
+
+## 13. 复杂度分析的统一方法
+
+链表算法虽然经常出现嵌套阶段，但不要机械地看到两个 `while` 就写 $O(n^2)$。
+
+例如环形链表 II：
+
+```text
+第一阶段走 O(n)
+第二阶段走 O(n)
+```
+
+总计：
+
+$$
+O(n)+O(n)=O(n)
+$$
+
+而不是：
+
+$$
+O(n^2)
+$$
+
+同理，链表相交中先统计长度、再对齐、再同步遍历，仍然是线性级别。
+
+---
+
+## 14. 常见错误清单
+
+<Cards>
+  <Card title="忘记保存 next">
+    修改 `cur->next` 后丢失后半条链。
+  </Card>
+  <Card title="头结点特判过多">
+    没有想到使用虚拟头结点统一处理。
+  </Card>
+  <Card title="比较 val 而不是节点">
+    链表相交、环检测等结构问题会直接出错。
+  </Card>
+  <Card title="更新指针顺序错">
+    一条赋值覆盖了下一步仍然需要的信息。
+  </Card>
+  <Card title="边界差一位">
+    删除倒数节点、索引插入时最常见，应先明确指针最终要停在目标还是目标前驱。
+  </Card>
+  <Card title="只背模板不画图">
+    题型稍微变化就容易把 `prev`、`cur`、`next` 的角色写乱。
+  </Card>
+</Cards>
+
+---
+
+## 15. 一张方法论地图
+
+```text
+链表题
+├─ 是否修改结构？
+│  ├─ 否 → 遍历 / 双指针 / 判环
+│  └─ 是
+│     ├─ 头结点可能变化？ → dummy
+│     ├─ 局部反转/交换？ → 保存 next + 局部重连
+│     └─ 删除？ → 找目标前驱
+│
+├─ 是否涉及“从后往前”的位置？
+│  └─ 固定距离 fast / slow
+│
+├─ 两条链长度不同？
+│  └─ 长度对齐 / A+B 与 B+A
+│
+└─ 是否存在环？
+   └─ Floyd：速度差 → 相遇 → 入口定位
+```
+
+---
+
+## 16. 最值得记住的五个模板
+
+### 模板一：虚拟头结点
+
+```cpp
+ListNode dummy(0, head);
+ListNode* cur = &dummy;
+
+// ...
+
+return dummy.next;
+```
+
+### 模板二：反转链表
+
+```cpp
+ListNode* prev = nullptr;
+ListNode* cur = head;
+
+while (cur != nullptr) {
+    ListNode* next = cur->next;
+    cur->next = prev;
+    prev = cur;
+    cur = next;
+}
+```
+
+### 模板三：固定距离双指针
+
+```cpp
+for (int i = 0; i < gap; ++i) {
+    fast = fast->next;
+}
+
+while (fast != nullptr) {
+    fast = fast->next;
+    slow = slow->next;
+}
+```
+
+### 模板四：两链路径等长化
+
+```cpp
+while (pA != pB) {
+    pA = (pA == nullptr) ? headB : pA->next;
+    pB = (pB == nullptr) ? headA : pB->next;
+}
+```
+
+### 模板五：Floyd 判环
+
+```cpp
+while (fast != nullptr && fast->next != nullptr) {
+    slow = slow->next;
+    fast = fast->next->next;
+
+    if (slow == fast) {
+        // 有环
+    }
+}
+```
+
+---
+
+## 17. 一页速记
+
+| 看到的信号 | 优先想到 |
+| --- | --- |
+| 删除 / 插入可能发生在头部 | 虚拟头结点 |
+| 改变链表方向 | `prev-cur-next` 三指针 |
+| 两个节点成组交换 | 局部重连 |
+| 倒数第 $N$ 个 | 固定距离双指针 |
+| 两条链找交点 | 消除长度差 |
+| 判断环 | 快慢指针 |
+| 找环入口 | 第一次相遇 + 同速二次相遇 |
+| 指针赋值很多 | 先画图、先保存后继 |
+
+<Callout title="链表模块最终目标" type="success">
+不要把链表题记成七八套孤立代码。真正应该形成的能力是：看到结构后，能明确每个指针代表什么、每条边如何变化、为什么两指针最终会在目标位置形成可证明的关系。
+</Callout>
+
+---
+
+## 多语言基础模板
+
+下面给出最常用的“反转单链表”模板，便于对照不同语言中的节点引用写法。
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* cur = head;
+
+    while (cur != nullptr) {
+        ListNode* next = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+    }
+
+    return prev;
+}
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+public ListNode reverseList(ListNode head) {
+    ListNode prev = null;
+    ListNode cur = head;
+
+    while (cur != null) {
+        ListNode next = cur.next;
+        cur.next = prev;
+        prev = cur;
+        cur = next;
+    }
+
+    return prev;
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+def reverseList(head: Optional[ListNode]) -> Optional[ListNode]:
+    prev = None
+    cur = head
+
+    while cur is not None:
+        nxt = cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+
+    return prev
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func reverseList(head *ListNode) *ListNode {
+    var prev *ListNode
+    cur := head
+
+    for cur != nil {
+        next := cur.Next
+        cur.Next = prev
+        prev = cur
+        cur = next
+    }
+
+    return prev
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var reverseList = function (head) {
+  let prev = null;
+  let cur = head;
+
+  while (cur !== null) {
+    const next = cur.next;
+    cur.next = prev;
+    prev = cur;
+    cur = next;
+  }
+
+  return prev;
+};
+```
+
+  </Tab>
+</Tabs>

@@ -1,0 +1,517 @@
+---
+title: 长按键入
+description: 用双指针判断 typed 是否能由 name 通过长按得到，重点掌握“新字符必须匹配，额外字符只能重复前一个字符”的判定逻辑。
+---
+
+# 925. 长按键入
+
+[LeetCode 925：长按键入](https://leetcode.cn/problems/long-pressed-name/)
+
+朋友原本想输入字符串 `name`，但某些按键可能因为长按，被连续输入多次。给定实际输入 `typed`，判断它是否可能由 `name` 经过若干次长按得到。
+
+例如：
+
+```text
+name  = "alex"
+typed = "aaleex"
+```
+
+答案为 `true`，因为 `a` 和 `e` 都可能发生了长按。
+
+而：
+
+```text
+name  = "saeed"
+typed = "ssaaedd"
+```
+
+答案为 `false`。
+
+## 一、长按到底允许发生什么
+
+长按不会：
+
+- 改变字符顺序；
+- 插入一种新的字符；
+- 删除 `name` 中本来应该出现的字符。
+
+它唯一允许的事情是：
+
+> 把某一次字符输入，重复成连续的若干个相同字符。
+
+例如：
+
+```text
+name = "alex"
+```
+
+可以变成：
+
+```text
+alex
+aalex
+aleex
+aaleex
+alexxxx
+```
+
+但不能变成：
+
+```text
+axlex   // 顺序变化
+abex    // 出现新字符 b
+alx     // 少了 e
+```
+
+因此本题天然适合 **双指针顺序匹配**。
+
+## 二、最简双指针判定
+
+设：
+
+```text
+i 指向 name
+j 指向 typed
+```
+
+每次观察 `typed[j]`。
+
+### 情况 1：和当前 name 字符相同
+
+若：
+
+```cpp
+name[i] == typed[j]
+```
+
+说明 `typed[j]` 正常对应 `name[i]`，两个指针一起后移：
+
+```cpp
+++i;
+++j;
+```
+
+### 情况 2：不同，但 typed[j] 是长按产生的重复字符
+
+若：
+
+```cpp
+typed[j] != name[i]
+```
+
+它仍有可能合法，但只有一种情况：
+
+```text
+typed[j] == typed[j - 1]
+```
+
+也就是说，这个额外字符必须是前一个已经成功输入字符的重复。
+
+此时只移动 `j`：
+
+```cpp
+++j;
+```
+
+### 情况 3：既不能匹配 name，也不是前一字符的重复
+
+那么它不可能由长按产生，直接返回 `false`。
+
+> [!IMPORTANT]
+> 判断“长按字符”的关键不是看 `typed[j]` 后面还有没有同字符，而是看它是否等于 **typed 中前一个已经出现的字符**。
+
+## 三、推荐写法
+
+```cpp
+class Solution {
+public:
+    bool isLongPressedName(string name, string typed) {
+        int i = 0, j = 0;
+
+        while (j < typed.size()) {
+            if (i < name.size() && name[i] == typed[j]) {
+                // 正常匹配
+                ++i;
+                ++j;
+            } else if (j > 0 && typed[j] == typed[j - 1]) {
+                // typed 当前字符是前一个字符的长按重复
+                ++j;
+            } else {
+                return false;
+            }
+        }
+
+        return i == name.size();
+    }
+};
+```
+
+这比“遇到不匹配时一次性跳过所有重复字符”的写法更短，也更容易证明正确。
+
+## 四、用 `alex / aaleex` 走一遍
+
+```text
+name  = a l e x
+        i
+
+typed = a a l e e x
+        j
+```
+
+第一次：
+
+```text
+name[i] == typed[j] == 'a'
+```
+
+所以：
+
+```text
+i -> l
+j -> 第二个 a
+```
+
+此时：
+
+```text
+name[i] = 'l'
+typed[j] = 'a'
+```
+
+虽然不相等，但：
+
+```text
+typed[j] == typed[j - 1]
+```
+
+说明第二个 `a` 可以解释为长按，因此只移动 `j`。
+
+后面 `l` 正常匹配；第一个 `e` 正常匹配；第二个 `e` 又作为长按跳过；最后 `x` 正常匹配。
+
+最终：
+
+```text
+i == name.size()
+j == typed.size()
+```
+
+所以返回 `true`。
+
+原文动画：
+
+![](https://file1.kamacoder.com/i/algo/925.%E9%95%BF%E6%8C%89%E9%94%AE%E5%85%A5.gif)
+
+## 五、为什么 `saeed / ssaaedd` 不合法
+
+观察字符分组：
+
+```text
+name : s a ee d
+count: 1 1  2 1
+
+typed: ss aa e dd
+count:  2  2 1  2
+```
+
+长按只允许让某一组变长，所以对于每一段连续相同字符：
+
+```text
+typed 中的组长度 >= name 中对应组长度
+```
+
+但字符 `e`：
+
+```text
+name 里有 2 个
+typed 里只有 1 个
+```
+
+这不是长按能够造成的，因此一定不合法。
+
+## 六、另一种理解：按连续段比较
+
+也可以把字符串压成若干个连续字符段：
+
+```text
+name  = "alex"
+       a1 l1 e1 x1
+
+typed = "aaleex"
+       a2 l1 e2 x1
+```
+
+若要合法，必须满足两点：
+
+1. 两边连续段的字符序列完全相同；
+2. `typed` 每一段的长度不少于 `name` 对应段长度。
+
+数学上可以写成：
+
+$typedCount_k\ge nameCount_k$
+
+对所有对应字符段都成立。
+
+这种“分组计数”思路很直观，但实现代码通常比前面的双指针略长。
+
+## 七、双指针写法为什么正确
+
+对每一个 `typed[j]`，它只有两种合法来源：
+
+### 来源 1：对应 name 中尚未匹配的字符
+
+条件：
+
+```cpp
+name[i] == typed[j]
+```
+
+此时同时移动两个指针。
+
+### 来源 2：前一个已输入字符发生长按
+
+条件：
+
+```cpp
+typed[j] == typed[j - 1]
+```
+
+此时只移动 `j`。
+
+不存在第三种合法来源。
+
+因此，只要某个 `typed[j]` 两种情况都不满足，就可以立即判定失败。
+
+最后还必须检查：
+
+```cpp
+i == name.size()
+```
+
+否则可能 `typed` 已经处理完，但 `name` 还有字符没被输入。
+
+## 八、边界情况
+
+### 1. 完全相同
+
+```text
+name  = "laiden"
+typed = "laiden"
+```
+
+不发生长按也是允许的，所以结果是 `true`。
+
+### 2. typed 更短
+
+```text
+name  = "alex"
+typed = "ale"
+```
+
+最后 `name` 中的 `x` 没有匹配，返回 `false`。
+
+### 3. 开头多出不同字符
+
+```text
+name  = "alex"
+typed = "balex"
+```
+
+第一个 `b` 既不能匹配 `a`，又不存在前一个字符可以长按，因此立即返回 `false`。
+
+### 4. 末尾是合法重复
+
+```text
+name  = "alex"
+typed = "alexxxx"
+```
+
+`name` 匹配结束后，剩余 `x` 都和前一个字符相同，因此合法。
+
+### 5. 末尾出现新字符
+
+```text
+name  = "alex"
+typed = "alexxy"
+```
+
+最后的 `y` 既没有对应的 `name` 字符，也不等于前一个 `x`，因此非法。
+
+## 九、复杂度分析
+
+两个指针都只会向右移动，不会回退。
+
+设：
+
+```text
+m = name.length()
+n = typed.length()
+```
+
+主循环最多扫描 `typed` 一次，所以时间复杂度为：
+
+$O(n)$
+
+如果把 `name` 的匹配也一起考虑，可写成：
+
+$O(m+n)$
+
+额外只用了两个指针：
+
+$O(1)$
+
+## 十、常见错误
+
+### 错误 1：只检查 typed 是否包含 name
+
+子序列关系还不够。
+
+例如：
+
+```text
+name  = "abc"
+typed = "abxc"
+```
+
+`abc` 是 `abxc` 的子序列，但多出来的 `x` 不是任何字符的长按重复，所以结果应为 `false`。
+
+### 错误 2：name 匹配完就直接返回 true
+
+例如：
+
+```text
+name  = "alex"
+typed = "alexb"
+```
+
+虽然前四个字符已经匹配，但末尾 `b` 无法解释为长按，所以不能提前返回。
+
+### 错误 3：不判断 `j > 0`
+
+代码：
+
+```cpp
+typed[j] == typed[j - 1]
+```
+
+在 `j == 0` 时会越界，因此必须先保证：
+
+```cpp
+j > 0
+```
+
+## 十一、模板总结
+
+> [!TIP]
+> 本题最值得记住的不是某段具体代码，而是这个双指针判定模板：
+>
+> - 当前字符能正常匹配目标：两个指针一起走；
+> - 当前字符不能匹配，但能解释为“前一个字符的合法重复”：只移动源串指针；
+> - 两者都不是：失败。
+
+这类思想也常出现在：
+
+- 压缩字符串匹配；
+- 运行长度编码；
+- 带重复扩展的序列判断；
+- 双指针模拟类字符串问题。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean isLongPressedName(String name, String typed) {
+        int i = 0, j = 0;
+
+        while (j < typed.length()) {
+            if (i < name.length() && name.charAt(i) == typed.charAt(j)) {
+                i++;
+                j++;
+            } else if (j > 0 && typed.charAt(j) == typed.charAt(j - 1)) {
+                j++;
+            } else {
+                return false;
+            }
+        }
+
+        return i == name.length();
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def isLongPressedName(self, name: str, typed: str) -> bool:
+        i = j = 0
+
+        while j < len(typed):
+            if i < len(name) and name[i] == typed[j]:
+                i += 1
+                j += 1
+            elif j > 0 and typed[j] == typed[j - 1]:
+                j += 1
+            else:
+                return False
+
+        return i == len(name)
+```
+
+```javascript label="JavaScript"
+var isLongPressedName = function(name, typed) {
+    let i = 0;
+    let j = 0;
+
+    while (j < typed.length) {
+        if (i < name.length && name[i] === typed[j]) {
+            i++;
+            j++;
+        } else if (j > 0 && typed[j] === typed[j - 1]) {
+            j++;
+        } else {
+            return false;
+        }
+    }
+
+    return i === name.length;
+};
+```
+
+```typescript label="TypeScript"
+function isLongPressedName(name: string, typed: string): boolean {
+    let i = 0;
+    let j = 0;
+
+    while (j < typed.length) {
+        if (i < name.length && name[i] === typed[j]) {
+            i++;
+            j++;
+        } else if (j > 0 && typed[j] === typed[j - 1]) {
+            j++;
+        } else {
+            return false;
+        }
+    }
+
+    return i === name.length;
+}
+```
+
+```go label="Go"
+func isLongPressedName(name string, typed string) bool {
+    i, j := 0, 0
+
+    for j < len(typed) {
+        if i < len(name) && name[i] == typed[j] {
+            i++
+            j++
+        } else if j > 0 && typed[j] == typed[j-1] {
+            j++
+        } else {
+            return false
+        }
+    }
+
+    return i == len(name)
+}
+```
+````

@@ -1,0 +1,517 @@
+---
+title: 环形链表
+description: 从哈希集合到 Floyd 快慢指针，严格解释为什么有环时一定相遇，并建立链表环问题的相对速度模型。
+---
+
+# 141. 环形链表
+
+[LeetCode 141：环形链表](https://leetcode.cn/problems/linked-list-cycle/)
+
+给定一个单链表，判断链表中是否存在环。
+
+如果某个节点沿着 `next` 指针不断向后走，最终能够再次回到之前访问过的节点，那么链表中存在环。
+
+例如：
+
+![](https://file1.kamacoder.com/i/algo/20210727173600.png)
+
+题目中的 `pos` 只是用于描述测试数据中“尾节点连接到了哪个位置”，**它不会作为函数参数传入**。
+
+> [!NOTE]
+> 本题只要求判断“是否有环”。如果还需要找出环的入口，则是 LeetCode 142「环形链表 II」。
+
+## 一、最直接思路：记录访问过的节点
+
+如果一个链表没有环，那么从头结点开始沿 `next` 向后走，最终一定会遇到：
+
+```text
+nullptr
+```
+
+而如果存在环，则一定会重复访问某个节点。
+
+所以可以使用哈希集合记录已经访问过的**节点地址**：
+
+```cpp
+unordered_set<ListNode*> visited;
+```
+
+每访问一个节点：
+
+- 如果第一次出现，就加入集合；
+- 如果已经出现过，则说明存在环。
+
+### 代码
+
+```cpp
+class Solution {
+public:
+    bool hasCycle(ListNode* head) {
+        unordered_set<ListNode*> visited;
+
+        while (head != nullptr) {
+            if (visited.count(head)) return true;
+            visited.insert(head);
+            head = head->next;
+        }
+
+        return false;
+    }
+};
+```
+
+时间复杂度平均为 $O(n)$，额外空间复杂度为 $O(n)$。
+
+这种方法非常直观，但本题真正经典的解法是 **Floyd 快慢指针算法**。
+
+## 二、快慢指针：只用 O(1) 空间
+
+定义两个指针：
+
+```cpp
+ListNode* slow = head;
+ListNode* fast = head;
+```
+
+每轮：
+
+```cpp
+slow = slow->next;
+fast = fast->next->next;
+```
+
+也就是：
+
+- `slow` 每次走 $1$ 步；
+- `fast` 每次走 $2$ 步。
+
+如果链表没有环，`fast` 最终一定会到达链表末尾。
+
+如果链表有环，则 `fast` 与 `slow` 最终一定会在环中相遇。
+
+代码非常短：
+
+```cpp
+class Solution {
+public:
+    bool hasCycle(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) return true;
+        }
+
+        return false;
+    }
+};
+```
+
+## 三、为什么快指针不会“跨过”慢指针
+
+这是本题最关键的理解点。
+
+原文示意图：
+
+![](https://file1.kamacoder.com/i/algo/142环形链表1.png)
+
+以及动画：
+
+![141. 环形链表](https://file1.kamacoder.com/i/algo/141.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8.gif)
+
+很多人会产生疑问：
+
+> `fast` 一次走两步，`slow` 一次走一步，那么 `fast` 会不会每次都直接跨过 `slow`，永远无法落在同一个节点上？
+
+不会。
+
+关键是不要站在链表外部看两个指针，而要站在 `slow` 的参考系里看。
+
+### 相对速度
+
+每一轮：
+
+```text
+fast 前进 2 个节点
+slow 前进 1 个节点
+```
+
+因此 `fast` 相对于 `slow` 实际只前进：
+
+$$
+2-1=1
+$$
+
+个节点。
+
+也就是说，进入同一个环之后，它们之间的环上距离每轮只变化一个节点。
+
+因此 `fast` 并不是“以两格的间距跳过 slow”，而是在 `slow` 的视角中每轮靠近一格。
+
+## 四、用模运算严格解释“必然相遇”
+
+设环长为 $C$。
+
+两指针都进入环后，记某一时刻 `fast` 相对 `slow` 的距离为 $d$。
+
+因为每轮相对距离增加 $1$，所以经过 $k$ 轮后，相对位置满足：
+
+$$
+d+k \pmod C
+$$
+
+当：
+
+$$
+d+k \equiv 0 \pmod C
+$$
+
+时，两指针位于同一个节点。
+
+对于任意初始 $d$，总能找到：
+
+$$
+k=C-d
+$$
+
+使上式成立。
+
+因此只要两者都进入环中，最多再经过 $C$ 轮就一定相遇。
+
+> [!IMPORTANT]
+> Floyd 判环成立的核心并不是“快指针跑得比慢指针快”这么简单，而是：**在有限长度的环上，相对速度为 1，因此相对位置一定遍历所有可能的余数状态并到达 0。**
+
+## 五、为什么一定是在环内相遇
+
+在进入环之前，链表是普通的单向路径：
+
+```text
+head -> ... -> 环入口
+```
+
+在这段路径上：
+
+- 两个指针都只能向前；
+- `fast` 如果领先 `slow`，不可能回头；
+- 因此无法在非环区域重新追上 `slow`。
+
+只有当 `fast` 进入环之后，它才可能绕一圈从后方追上 `slow`。
+
+所以一旦出现：
+
+```cpp
+slow == fast
+```
+
+这个相遇点必然位于环中。
+
+## 六、无环时为什么能够正常退出
+
+循环条件必须写成：
+
+```cpp
+while (fast != nullptr && fast->next != nullptr)
+```
+
+因为循环体中需要执行：
+
+```cpp
+fast = fast->next->next;
+```
+
+必须保证：
+
+1. `fast` 本身不为空；
+2. `fast->next` 也不为空。
+
+如果链表没有环，`fast` 最终一定会走到：
+
+```text
+nullptr
+```
+
+或者它的下一个节点是 `nullptr`，于是循环退出并返回 `false`。
+
+## 七、手动模拟
+
+考虑：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+          ^         |
+          |_________|
+```
+
+也就是：
+
+```text
+5 -> 3
+```
+
+环为：
+
+```text
+3 -> 4 -> 5 -> 3
+```
+
+环长为 $3$。
+
+初始：
+
+```text
+slow = 1
+fast = 1
+```
+
+第一轮：
+
+```text
+slow = 2
+fast = 3
+```
+
+第二轮：
+
+```text
+slow = 3
+fast = 5
+```
+
+第三轮：
+
+```text
+slow = 4
+fast = 4
+```
+
+相遇，因此存在环。
+
+## 八、为什么速度通常选择 1 和 2
+
+理论上，也可以让两个指针采用其他速度，但 `1` 和 `2` 是最自然、最稳定的选择。
+
+它们的相对速度为：
+
+$$
+2-1=1
+$$
+
+因此不论环长是多少，相对位置都一定可以覆盖整个环。
+
+如果相对速度不是 $1$，是否一定相遇还会与环长的最大公约数有关。
+
+例如相对速度为 $2$ 时，若环长为偶数，某些初始相对位置可能只遍历环上的一部分余数状态。
+
+因此标准 Floyd 判环采用：
+
+```text
+slow: 1 步
+fast: 2 步
+```
+
+既简单又无需讨论额外条件。
+
+## 九、不要比较节点值
+
+判断相遇时必须比较：
+
+```cpp
+slow == fast
+```
+
+也就是比较**节点地址是否相同**。
+
+不能写成：
+
+```cpp
+slow->val == fast->val
+```
+
+因为两个不同节点完全可能保存相同的值：
+
+```text
+1 -> 2 -> 1 -> 3
+```
+
+值相同并不代表访问了同一个节点。
+
+> [!WARNING]
+> 链表判环判断的是“节点身份是否重复”，不是“节点值是否重复”。
+
+## 十、复杂度分析
+
+### 时间复杂度
+
+无环时，`fast` 最多扫描整个链表一次量级。
+
+有环时：
+
+- 先走到环附近；
+- 进入环后最多再经过一个环长量级即可相遇。
+
+因此总时间复杂度为：
+
+$$
+O(n)
+$$
+
+### 空间复杂度
+
+只使用两个指针：
+
+$$
+O(1)
+$$
+
+## 十一、与「环形链表 II」的关系
+
+本题解决：
+
+```text
+有没有环？
+```
+
+而 LeetCode 142 进一步要求：
+
+```text
+环的入口在哪里？
+```
+
+两题的第一阶段完全一致：
+
+```text
+fast 每次两步
+slow 每次一步
+        ↓
+找到环中的相遇点
+```
+
+142 再利用相遇点与头结点之间的距离关系推出环入口。
+
+因此本题最好把两个知识点牢牢记住：
+
+1. **相对速度为 1，所以有环必相遇**；
+2. **相遇只说明在环中，还不能直接说明相遇点就是环入口**。
+
+## 十二、模板总结
+
+链表题中如果看到：
+
+- 是否存在环；
+- 找环入口；
+- 判断某种周期结构；
+
+可以优先考虑快慢指针。
+
+判环核心模板只有：
+
+```cpp
+ListNode* slow = head;
+ListNode* fast = head;
+
+while (fast && fast->next) {
+    slow = slow->next;
+    fast = fast->next->next;
+
+    if (slow == fast) {
+        // 存在环
+    }
+}
+```
+
+真正需要理解的是模板背后的**相对运动模型**，而不是死记这几行代码。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (slow == fast) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -> bool:
+        slow = fast = head
+
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+
+            if slow is fast:
+                return True
+
+        return False
+```
+
+```go label="Go"
+func hasCycle(head *ListNode) bool {
+    slow, fast := head, head
+
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+
+        if slow == fast {
+            return true
+        }
+    }
+
+    return false
+}
+```
+
+```javascript label="JavaScript"
+var hasCycle = function(head) {
+    let slow = head;
+    let fast = head;
+
+    while (fast !== null && fast.next !== null) {
+        slow = slow.next;
+        fast = fast.next.next;
+
+        if (slow === fast) {
+            return true;
+        }
+    }
+
+    return false;
+};
+```
+
+```typescript label="TypeScript"
+function hasCycle(head: ListNode | null): boolean {
+    let slow: ListNode | null = head;
+    let fast: ListNode | null = head;
+
+    while (fast !== null && fast.next !== null) {
+        slow = slow!.next;
+        fast = fast.next.next;
+
+        if (slow === fast) {
+            return true;
+        }
+    }
+
+    return false;
+}
+```
+````

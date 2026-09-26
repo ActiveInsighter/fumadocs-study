@@ -1,0 +1,605 @@
+---
+title: 有效的山脉数组
+description: 用双指针和单次扫描理解山峰数组的严格单调结构，掌握边界、平台与纯单调数组的判定细节。
+---
+
+# 941. 有效的山脉数组
+
+[LeetCode 941：有效的山脉数组](https://leetcode.cn/problems/valid-mountain-array/)
+
+给定一个整数数组 `arr`，判断它是否构成一个**有效的山脉数组**。
+
+所谓山脉数组，需要存在一个峰顶下标 `peak`，满足：
+
+- 数组长度至少为 `3`；
+- `0 < peak < n - 1`；
+- 峰顶左侧严格递增；
+- 峰顶右侧严格递减。
+
+也就是：
+
+$$
+arr_0 < arr_1 < \cdots < arr_{peak}
+$$
+
+并且：
+
+$$
+arr_{peak} > arr_{peak+1} > \cdots > arr_{n-1}
+$$
+
+原笔记示意图：
+
+![有效山脉数组定义](https://file1.kamacoder.com/i/algo/20210729103604.png)
+
+## 题目示例
+
+```text
+输入：arr = [2, 1]
+输出：false
+```
+
+长度不足 `3`，不可能同时存在“上坡、峰顶、下坡”。
+
+```text
+输入：arr = [3, 5, 5]
+输出：false
+```
+
+`5 -> 5` 出现平台，不满足“严格”单调。
+
+```text
+输入：arr = [0, 3, 2, 1]
+输出：true
+```
+
+峰顶是 `3`，左侧严格上升，右侧严格下降。
+
+## 先抓住本质：必须经历“上坡 → 峰顶 → 下坡”
+
+这道题的关键并不在于找最大值，而在于检查整个数组的**形状**。
+
+一个合法山脉必须满足：
+
+```text
+严格上升若干步
+      ↓
+    峰顶
+      ↓
+严格下降若干步
+```
+
+并且上升和下降都至少发生一次。
+
+因此以下情况全部非法：
+
+```text
+[1, 2, 3, 4]      // 只有上升，没有下降
+[4, 3, 2, 1]      // 只有下降，没有上升
+[1, 2, 2, 1]      // 峰顶出现平台
+[1, 3, 2, 4]      // 下降后又再次上升
+[1, 1, 0]         // 一开始就有平台
+```
+
+> [!TIP]
+> 题目中的“严格递增 / 严格递减”非常重要。只要出现相邻元素相等，就无法跨过这个位置继续构成山坡。
+
+## 方法一：双指针从两端爬坡
+
+这是原笔记的核心思路，也是非常直观的解法。
+
+定义：
+
+- `left` 从左端出发，只要下一步仍然严格上升，就继续向右；
+- `right` 从右端出发，只要向左看仍然是严格上升，也就是从左往右看是严格下降，就继续向左。
+
+原笔记示意图：
+
+![双指针寻找共同峰顶](https://file1.kamacoder.com/i/algo/941.有效的山脉数组.png)
+
+### 左指针的移动规则
+
+```cpp
+while (left + 1 < n && arr[left] < arr[left + 1]) {
+    ++left;
+}
+```
+
+循环停止时，`left` 位于“从左边能够连续爬到的最高位置”。
+
+### 右指针的移动规则
+
+```cpp
+while (right > 0 && arr[right - 1] > arr[right]) {
+    --right;
+}
+```
+
+循环停止时，`right` 位于“从右边能够连续爬到的最高位置”。
+
+### 最后为什么要求 `left == right`
+
+如果整个数组确实只有一座山，那么左右两边分别沿山坡向上走，最终一定会在同一个峰顶相遇。
+
+因此需要：
+
+$$
+left = right
+$$
+
+但仅仅相等还不够。
+
+还必须保证峰顶不在两端：
+
+$$
+left \neq 0
+$$
+
+以及：
+
+$$
+right \neq n-1
+$$
+
+否则就意味着缺少上坡或下坡。
+
+### 完整 C++ 实现
+
+```cpp
+class Solution {
+public:
+    bool validMountainArray(vector<int>& arr) {
+        int n = arr.size();
+        if (n < 3) return false;
+
+        int left = 0;
+        int right = n - 1;
+
+        while (left + 1 < n && arr[left] < arr[left + 1]) {
+            ++left;
+        }
+
+        while (right > 0 && arr[right - 1] > arr[right]) {
+            --right;
+        }
+
+        return left == right && left != 0 && right != n - 1;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+两个指针总共最多扫描数组两遍。
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+## 为什么“纯递增数组”会被排除
+
+考虑：
+
+```text
+[1, 2, 3, 4]
+```
+
+左指针会一路走到：
+
+```text
+left = 3
+```
+
+右指针无法向左移动：
+
+```text
+right = 3
+```
+
+此时虽然：
+
+```text
+left == right
+```
+
+但峰顶位于最后一个位置：
+
+```text
+right == n - 1
+```
+
+说明只有上坡，没有下坡，因此必须返回 `false`。
+
+同理，纯递减数组最终会让峰顶落在下标 `0`，也要排除。
+
+## 为什么平台一定不合法
+
+考虑：
+
+```text
+[1, 3, 3, 2]
+```
+
+左边扫描：
+
+```text
+1 < 3    成立
+3 < 3    不成立
+```
+
+所以 `left` 停在第一个 `3`。
+
+右边扫描：
+
+```text
+3 > 2    成立
+3 > 3    不成立
+```
+
+所以 `right` 停在第二个 `3`。
+
+最终：
+
+```text
+left != right
+```
+
+自然返回 `false`。
+
+这正好体现了“严格单调”的限制。
+
+## 方法二：单指针一次扫描
+
+其实这道题并不一定需要两个指针。
+
+可以让一个指针先沿着上坡走，再沿着下坡走。
+
+### 第一阶段：走完上坡
+
+```cpp
+while (i + 1 < n && arr[i] < arr[i + 1]) {
+    ++i;
+}
+```
+
+走完以后，`i` 应该停在峰顶。
+
+但要注意：
+
+```cpp
+if (i == 0 || i == n - 1) return false;
+```
+
+因为峰顶不能在首尾。
+
+### 第二阶段：走完下坡
+
+```cpp
+while (i + 1 < n && arr[i] > arr[i + 1]) {
+    ++i;
+}
+```
+
+如果最终正好走到数组末尾，就说明整段都符合山峰结构。
+
+### 完整实现
+
+```cpp
+class Solution {
+public:
+    bool validMountainArray(vector<int>& arr) {
+        int n = arr.size();
+        if (n < 3) return false;
+
+        int i = 0;
+
+        while (i + 1 < n && arr[i] < arr[i + 1]) {
+            ++i;
+        }
+
+        if (i == 0 || i == n - 1) {
+            return false;
+        }
+
+        while (i + 1 < n && arr[i] > arr[i + 1]) {
+            ++i;
+        }
+
+        return i == n - 1;
+    }
+};
+```
+
+时间复杂度仍然是：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+## 两种写法怎么选
+
+| 方法 | 思维方式 | 优点 | 注意点 |
+| --- | --- | --- | --- |
+| 双指针 | 两端同时向峰顶爬 | 直观体现“左右山坡” | 最后要检查峰顶不能在边界 |
+| 单指针 | 先上坡，再下坡 | 状态过程更连续 | 必须确保两个阶段都真实存在 |
+
+两者本质完全一样，都是在验证：
+
+$$
+\text{严格递增段} + \text{严格递减段}
+$$
+
+## 一个容易误判的思路：只找最大值
+
+有些人会想到：
+
+1. 找到最大值的位置；
+2. 检查最大值左边是否递增；
+3. 检查右边是否递减。
+
+这种方法当然可以写，但本质上还是线性检查，并不会比双指针更简单。
+
+而且如果最大值出现多次，例如：
+
+```text
+[1, 3, 3, 2]
+```
+
+还需要额外处理“最大值不唯一”的问题。
+
+相比之下，严格比较相邻元素的扫描过程天然就会把平台排除掉。
+
+## 状态机视角
+
+这道题还可以理解成一个极简状态机。
+
+只有两个合法阶段：
+
+```text
+UP -> DOWN
+```
+
+不允许：
+
+```text
+DOWN -> UP
+```
+
+也不允许：
+
+```text
+EQUAL
+```
+
+可以把每对相邻元素的关系记作：
+
+- `UP`：`arr[i] < arr[i+1]`
+- `DOWN`：`arr[i] > arr[i+1]`
+- `FLAT`：`arr[i] == arr[i+1]`
+
+合法序列必须长成：
+
+```text
+UP UP ... UP DOWN DOWN ... DOWN
+```
+
+而且 `UP` 和 `DOWN` 都至少出现一次。
+
+这个视角很适合迁移到以后类似的“趋势判断”问题。
+
+## 常见错误
+
+### 1. 忘记数组长度至少为 3
+
+```text
+[1, 2]
+```
+
+虽然严格递增，但没有完整的“上坡 + 峰顶 + 下坡”。
+
+### 2. 把 `<=` / `>=` 当成合法
+
+山脉要求严格单调。
+
+错误：
+
+```cpp
+arr[left] <= arr[left + 1]
+```
+
+应该是：
+
+```cpp
+arr[left] < arr[left + 1]
+```
+
+### 3. 只判断左右指针是否相遇
+
+纯递增或纯递减数组也可能让它们在端点相遇。
+
+因此还必须检查：
+
+```cpp
+left != 0 && right != n - 1
+```
+
+### 4. 忽略数组越界
+
+错误写法：
+
+```cpp
+while (arr[left] < arr[left + 1])
+```
+
+如果 `left` 已经来到最后一个位置，`left + 1` 就越界了。
+
+应始终先检查边界：
+
+```cpp
+left + 1 < n
+```
+
+## 与“双指针”思想的联系
+
+这道题里的双指针并不是经典的“左右夹逼求答案”，而是：
+
+- 一个指针验证左半段的单调性；
+- 一个指针验证右半段的单调性；
+- 最终通过两者是否汇合验证结构是否完整。
+
+所以双指针并不是一种固定模板，而是一种“用多个位置变量协同描述数组结构”的思想。
+
+<details>
+<summary>快速复盘</summary>
+
+- 山脉数组必须同时存在严格上升段和严格下降段。
+- 峰顶必须位于数组内部，不能在首尾。
+- 相邻元素相等会破坏严格单调性。
+- 双指针写法：左边一路上升，右边一路上升到同一峰顶。
+- 单指针写法：先完整走完上坡，再完整走完下坡。
+- 两种方法的时间复杂度都是 $O(n)$，空间复杂度都是 $O(1)$。
+
+</details>
+
+## 其他语言版本
+
+以下统一使用“双指针从两端爬坡”的写法，便于横向对照。
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean validMountainArray(int[] arr) {
+        int n = arr.length;
+        if (n < 3) return false;
+
+        int left = 0;
+        int right = n - 1;
+
+        while (left + 1 < n && arr[left] < arr[left + 1]) {
+            left++;
+        }
+
+        while (right > 0 && arr[right - 1] > arr[right]) {
+            right--;
+        }
+
+        return left == right && left != 0 && right != n - 1;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def validMountainArray(self, arr: List[int]) -> bool:
+        n = len(arr)
+        if n < 3:
+            return False
+
+        left, right = 0, n - 1
+
+        while left + 1 < n and arr[left] < arr[left + 1]:
+            left += 1
+
+        while right > 0 and arr[right - 1] > arr[right]:
+            right -= 1
+
+        return left == right and left != 0 and right != n - 1
+```
+
+```go label="Go"
+func validMountainArray(arr []int) bool {
+    n := len(arr)
+    if n < 3 {
+        return false
+    }
+
+    left, right := 0, n-1
+
+    for left+1 < n && arr[left] < arr[left+1] {
+        left++
+    }
+
+    for right > 0 && arr[right-1] > arr[right] {
+        right--
+    }
+
+    return left == right && left != 0 && right != n-1
+}
+```
+
+```javascript label="JavaScript"
+var validMountainArray = function(arr) {
+    const n = arr.length;
+    if (n < 3) return false;
+
+    let left = 0;
+    let right = n - 1;
+
+    while (left + 1 < n && arr[left] < arr[left + 1]) {
+        left++;
+    }
+
+    while (right > 0 && arr[right - 1] > arr[right]) {
+        right--;
+    }
+
+    return left === right && left !== 0 && right !== n - 1;
+};
+```
+
+```typescript label="TypeScript"
+function validMountainArray(arr: number[]): boolean {
+    const n = arr.length;
+    if (n < 3) return false;
+
+    let left = 0;
+    let right = n - 1;
+
+    while (left + 1 < n && arr[left] < arr[left + 1]) {
+        left++;
+    }
+
+    while (right > 0 && arr[right - 1] > arr[right]) {
+        right--;
+    }
+
+    return left === right && left !== 0 && right !== n - 1;
+}
+```
+
+```rust label="Rust"
+impl Solution {
+    pub fn valid_mountain_array(arr: Vec<i32>) -> bool {
+        let n = arr.len();
+        if n < 3 {
+            return false;
+        }
+
+        let mut left = 0usize;
+        let mut right = n - 1;
+
+        while left + 1 < n && arr[left] < arr[left + 1] {
+            left += 1;
+        }
+
+        while right > 0 && arr[right - 1] > arr[right] {
+            right -= 1;
+        }
+
+        left == right && left != 0 && right != n - 1
+    }
+}
+```
+````

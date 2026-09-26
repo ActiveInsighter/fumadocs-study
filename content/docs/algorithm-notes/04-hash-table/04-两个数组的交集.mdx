@@ -1,0 +1,789 @@
+---
+title: 两个数组的交集
+description: 从集合去重、哈希查找和数组哈希三个角度理解“集合交集”问题，并掌握 Set 与定长数组的选择原则。
+---
+
+# 349. 两个数组的交集
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/intersection-of-two-arrays/">
+    LeetCode 349 · Intersection of Two Arrays
+  </Card>
+</Cards>
+
+给定两个整数数组 `nums1` 和 `nums2`，返回它们的**交集**。
+
+要求：
+
+- 结果中的每个元素必须唯一；
+- 返回顺序任意。
+
+例如：
+
+```text
+nums1 = [1, 2, 2, 1]
+nums2 = [2, 2]
+
+输出：[2]
+```
+
+再例如：
+
+```text
+nums1 = [4, 9, 5]
+nums2 = [9, 4, 9, 8, 4]
+
+输出：[9, 4]
+```
+
+原始题目示意图：
+
+![两个数组的交集](https://file1.kamacoder.com/i/algo/20200818193523911.png)
+
+<Callout type="info" title="本题真正要学什么">
+这道题不只是“会不会用 `unordered_set`”，而是训练一个更重要的判断：**什么时候应该用数组做哈希，什么时候应该改用 Set。**
+</Callout>
+
+---
+
+## 1. 先看暴力解法为什么不理想
+
+最直接的做法是：
+
+- 遍历 `nums1` 中每个元素；
+- 再去 `nums2` 中寻找它；
+- 找到后加入答案；
+- 同时还要额外去重。
+
+若：
+
+$$
+|nums1|=n,\qquad |nums2|=m
+$$
+
+暴力查找最坏需要：
+
+$$
+O(nm)
+$$
+
+如果两个数组长度都约为 $n$，就退化为：
+
+$$
+O(n^2)
+$$
+
+问题的核心是：
+
+> **能不能把“另一个数组里有没有这个数”的查询，从线性扫描降到近似常数时间？**
+
+这正是哈希结构擅长的场景。
+
+---
+
+## 2. 题目其实包含两个需求
+
+本题需要同时满足：
+
+### 需求一：快速判断元素是否存在
+
+对于 `nums2` 中的每个元素 `x`，希望快速回答：
+
+```text
+x 是否在 nums1 中出现过？
+```
+
+### 需求二：结果不能重复
+
+即使：
+
+```text
+nums2 = [2, 2, 2]
+```
+
+最终也只能输出一个 `2`。
+
+所以集合非常自然，因为 Set 同时具备：
+
+- 快速存在性查询；
+- 自动去重。
+
+---
+
+## 3. 为什么 `unordered_set` 很适合
+
+可以把 `nums1` 先放进一个哈希集合：
+
+```cpp
+unordered_set<int> numsSet(nums1.begin(), nums1.end());
+```
+
+然后遍历 `nums2`。
+
+若当前元素：
+
+```cpp
+num
+```
+
+存在于 `numsSet` 中，就把它加入结果集合：
+
+```cpp
+resultSet.insert(num);
+```
+
+由于结果本身也是集合，因此无需额外处理重复元素。
+
+原始资料中的示意图：
+
+![使用 Set 求两个数组交集](https://file1.kamacoder.com/i/algo/20220707173513.png)
+
+整体逻辑：
+
+```text
+nums1
+  ↓
+建立哈希集合
+  ↓
+遍历 nums2
+  ↓
+是否存在于集合？
+  ├─ 否 → 跳过
+  └─ 是 → 加入结果集合
+                ↓
+              自动去重
+```
+
+---
+
+## 4. 标准 Set 解法
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> numsSet(nums1.begin(), nums1.end());
+        unordered_set<int> resultSet;
+
+        for (int x : nums2) {
+            if (numsSet.count(x)) {
+                resultSet.insert(x);
+            }
+        }
+
+        return vector<int>(resultSet.begin(), resultSet.end());
+    }
+};
+```
+
+---
+
+## 5. 为什么不能直接把结果放进 `vector`
+
+假设：
+
+```text
+nums1 = [1, 2]
+nums2 = [2, 2, 2]
+```
+
+如果写成：
+
+```cpp
+if (numsSet.count(x)) {
+    result.push_back(x);
+}
+```
+
+会得到：
+
+```text
+[2, 2, 2]
+```
+
+这不符合题目要求。
+
+所以你有两种常见处理方法。
+
+### 方法一：结果也使用 Set
+
+```cpp
+unordered_set<int> resultSet;
+```
+
+自动去重。
+
+### 方法二：找到后立即从集合中删除
+
+更进一步，可以只维护一个集合：
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> numsSet(nums1.begin(), nums1.end());
+        vector<int> result;
+
+        for (int x : nums2) {
+            if (numsSet.erase(x)) {
+                result.push_back(x);
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+这里：
+
+```cpp
+numsSet.erase(x)
+```
+
+如果删除成功，会返回非零值。
+
+删除后，后续相同的 `x` 就不会再次命中。
+
+<Callout type="tip" title="这个写法很值得记">
+当一个元素“匹配一次后就不应该再匹配”，可以在成功处理后直接从 Set 中删除。这样既去重，也减少后续无效查询。
+</Callout>
+
+---
+
+## 6. 时间复杂度
+
+设：
+
+$$
+|nums1|=n,\qquad |nums2|=m
+$$
+
+建立哈希集合平均需要：
+
+$$
+O(n)
+$$
+
+遍历第二个数组平均需要：
+
+$$
+O(m)
+$$
+
+因此总时间复杂度：
+
+$$
+O(n+m)
+$$
+
+这是基于哈希集合平均查询、插入复杂度为：
+
+$$
+O(1)
+$$
+
+的前提。
+
+额外空间复杂度为：
+
+$$
+O(n)
+$$
+
+如果结果集合也单独使用 Set，则还要加上结果规模，不过渐近意义上仍可写为：
+
+$$
+O(n+m)
+$$
+
+或者根据实现写作：
+
+$$
+O(n)
+$$
+
+其中 $n$ 表示被存入哈希集合的元素数量。
+
+---
+
+## 7. 为什么有时数组比 Set 更好
+
+这一点非常重要。
+
+如果题目明确给出：
+
+```text
+0 <= nums1[i], nums2[i] <= 1000
+```
+
+那么值域只有：
+
+$$
+1001
+$$
+
+个可能值。
+
+此时完全可以用数组做哈希：
+
+```cpp
+bool exists[1001] = {false};
+```
+
+映射关系直接就是：
+
+$$
+hash(x)=x
+$$
+
+于是：
+
+```cpp
+for (int x : nums1) {
+    exists[x] = true;
+}
+```
+
+遍历 `nums2` 时：
+
+```cpp
+if (exists[x]) {
+    ...
+}
+```
+
+这比通用哈希表更简单，也没有哈希冲突。
+
+---
+
+## 8. 数组哈希版本
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        bool exists[1001] = {false};
+        bool added[1001] = {false};
+
+        for (int x : nums1) {
+            exists[x] = true;
+        }
+
+        vector<int> result;
+
+        for (int x : nums2) {
+            if (exists[x] && !added[x]) {
+                result.push_back(x);
+                added[x] = true;
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+也可以在命中后直接把：
+
+```cpp
+exists[x] = false;
+```
+
+这样省掉第二个数组：
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        bool exists[1001] = {false};
+
+        for (int x : nums1) {
+            exists[x] = true;
+        }
+
+        vector<int> result;
+
+        for (int x : nums2) {
+            if (exists[x]) {
+                result.push_back(x);
+                exists[x] = false;
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+这个写法非常干净。
+
+---
+
+## 9. Set 和数组到底怎么选
+
+可以用下面的判断框架。
+
+### 值域小、连续、明确
+
+例如：
+
+```text
+0 ~ 1000
+'a' ~ 'z'
+ASCII
+```
+
+优先数组。
+
+### 值域巨大或非常稀疏
+
+例如：
+
+```text
+1
+1000000000
+-2000000000
+```
+
+如果为了这几个值创建超大数组，就会造成严重空间浪费。
+
+此时优先：
+
+```text
+unordered_set
+```
+
+所以核心不是：
+
+> “哈希题都用 Set。”
+
+而是：
+
+> **根据 key 的值域大小和稠密程度选择存储结构。**
+
+---
+
+## 10. 为什么大跨度数据不适合数组哈希
+
+假设只有三个值：
+
+```text
+1
+100000000
+999999999
+```
+
+如果使用直接索引数组，就可能需要接近：
+
+$$
+10^9
+$$
+
+规模的空间。
+
+但实际只存 3 个元素。
+
+这种情况下空间利用率极低。
+
+因此：
+
+```text
+元素很少 + 值域很大 + 分布稀疏
+```
+
+往往更适合哈希集合。
+
+<Callout type="warning" title="数组哈希的隐含成本">
+数组访问快，但前提是你愿意为整个值域分配空间。不要只看访问复杂度 $O(1)$，还要看值域规模。
+</Callout>
+
+---
+
+## 11. `set` 和 `unordered_set` 有什么区别
+
+C++ 中常见三种 Set：
+
+| 容器 | 底层结构 | 是否有序 | 是否允许重复 | 查询复杂度 |
+| --- | --- | --- | --- | --- |
+| `set` | 红黑树 | 是 | 否 | $O(\log n)$ |
+| `multiset` | 红黑树 | 是 | 是 | $O(\log n)$ |
+| `unordered_set` | 哈希表 | 否 | 否 | 平均 $O(1)$ |
+
+本题：
+
+- 不要求有序；
+- 不允许重复；
+- 只关心快速查询。
+
+所以更自然的是：
+
+```cpp
+unordered_set
+```
+
+---
+
+## 12. 还有一个更简洁的 Python 思路
+
+Python 原生集合支持交集运算：
+
+```python
+set(nums1) & set(nums2)
+```
+
+所以：
+
+```python
+return list(set(nums1) & set(nums2))
+```
+
+本质上直接表达了数学集合：
+
+$$
+A\cap B
+$$
+
+这说明本题从数学抽象上就是：
+
+> **两个集合求交集。**
+
+---
+
+## 13. 和“查找常用字符”的区别
+
+前一篇“查找常用字符”也是求交集，但它求的是：
+
+> **多重集合交集**
+
+重复次数有意义，因此：
+
+$$
+count_{\text{answer}}(x)
+=
+\min(count_A(x),count_B(x))
+$$
+
+而本题只要求：
+
+```text
+出现 / 不出现
+```
+
+因此属于普通集合交集。
+
+例如：
+
+```text
+A = [2, 2, 2]
+B = [2, 2]
+```
+
+本题答案：
+
+```text
+[2]
+```
+
+而多重集合交集会是：
+
+```text
+[2, 2]
+```
+
+这是两类题最重要的区别。
+
+---
+
+## 14. 常见错误
+
+### 14.1 把重复元素全部加入答案
+
+题目明确要求结果唯一，因此必须去重。
+
+---
+
+### 14.2 不分析值域就无脑开数组
+
+如果数据范围是：
+
+$$
+-10^9\sim10^9
+$$
+
+数组并不现实。
+
+---
+
+### 14.3 为了去重使用 `sort + unique`
+
+当然可以，但会引入排序复杂度：
+
+$$
+O(n\log n)
+$$
+
+如果只是存在性判断，哈希集合通常更直接。
+
+---
+
+### 14.4 使用 `multiset`
+
+本题结果不需要重复元素，所以 `multiset` 不符合需求。
+
+---
+
+## 15. 一套通用识别模板
+
+看到这种题，可以快速问自己：
+
+```text
+是否要求判断“有没有”？
+        ↓
+       是
+        ↓
+是否要求结果唯一？
+        ↓
+       是
+        ↓
+Set 很自然
+        ↓
+再判断 key 的值域是否很小
+   ├─ 是 → 数组可能更优
+   └─ 否 → unordered_set
+```
+
+---
+
+## 16. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> numsSet(nums1.begin(), nums1.end());
+        vector<int> result;
+
+        for (int x : nums2) {
+            if (numsSet.erase(x)) {
+                result.push_back(x);
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.*;
+
+class Solution {
+    public int[] intersection(int[] nums1, int[] nums2) {
+        Set<Integer> set = new HashSet<>();
+
+        for (int x : nums1) {
+            set.add(x);
+        }
+
+        List<Integer> result = new ArrayList<>();
+
+        for (int x : nums2) {
+            if (set.remove(x)) {
+                result.add(x);
+            }
+        }
+
+        return result.stream().mapToInt(Integer::intValue).toArray();
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def intersection(self, nums1: List[int], nums2: List[int]) -> List[int]:
+        return list(set(nums1) & set(nums2))
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func intersection(nums1 []int, nums2 []int) []int {
+    set := make(map[int]struct{})
+
+    for _, x := range nums1 {
+        set[x] = struct{}{}
+    }
+
+    result := make([]int, 0)
+
+    for _, x := range nums2 {
+        if _, ok := set[x]; ok {
+            result = append(result, x)
+            delete(set, x)
+        }
+    }
+
+    return result
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var intersection = function(nums1, nums2) {
+    const set = new Set(nums1);
+    const result = [];
+
+    for (const x of nums2) {
+        if (set.has(x)) {
+            result.push(x);
+            set.delete(x);
+        }
+    }
+
+    return result;
+};
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 17. 本题总结
+
+本题最重要的不是记住一段 `unordered_set` 代码，而是建立数据结构选择意识：
+
+1. **只关心元素是否存在**：优先想到 Set。
+2. **结果必须唯一**：Set 天然适合去重。
+3. **值域小且连续**：数组哈希通常更快、更简单。
+4. **值域大且稀疏**：通用哈希集合更加节省空间。
+5. 普通集合交集与多重集合交集必须区分。
+
+可以把选择过程记成：
+
+```text
+存在性查询
+   ↓
+值域小且连续？
+ ├─ 是 → 数组
+ └─ 否 → unordered_set
+```

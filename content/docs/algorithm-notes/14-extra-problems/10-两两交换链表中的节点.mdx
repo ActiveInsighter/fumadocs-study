@@ -1,0 +1,597 @@
+---
+title: 两两交换链表中的节点
+description: 用虚拟头结点和局部三节点视角掌握链表成对交换，重点理解断链前保存后继、指针修改顺序与递归结构。
+---
+
+# 24. 两两交换链表中的节点
+
+[LeetCode 24：两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
+
+给定一个单链表，将相邻节点两两交换，并返回交换后的链表头结点。
+
+例如：
+
+```text
+1 -> 2 -> 3 -> 4
+```
+
+交换后：
+
+```text
+2 -> 1 -> 4 -> 3
+```
+
+如果节点个数为奇数，最后一个节点保持不动：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+
+        ↓
+
+2 -> 1 -> 4 -> 3 -> 5
+```
+
+![两两交换链表中的节点题意](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9-%E9%A2%98%E6%84%8F.jpg)
+
+> [!IMPORTANT]
+> 题目要求交换的是**节点本身**，不能只交换 `val`。因此核心是重新连接 `next` 指针。
+
+## 一、为什么推荐虚拟头结点
+
+如果直接从 `head` 开始处理，第一组节点交换以后，链表头会发生变化：
+
+```text
+1 -> 2 -> 3 -> 4
+```
+
+第一组交换后：
+
+```text
+2 -> 1 -> 3 -> 4
+^
+新的 head
+```
+
+这会迫使我们对第一组节点做特殊处理。
+
+更自然的办法是在真正的头结点前增加一个虚拟节点 `dummy`：
+
+```text
+dummy -> 1 -> 2 -> 3 -> 4
+  ^
+ cur
+```
+
+这样无论交换的是第一组、第二组还是后续任意一组，都可以统一看成：
+
+> 已知当前组前面的节点 `cur`，交换 `cur->next` 与 `cur->next->next`。
+
+因此虚拟头结点本质上是在消除“头结点没有前驱”这个边界特例。
+
+## 二、局部只看四个位置
+
+假设当前结构为：
+
+```text
+cur -> first -> second -> nextPair
+```
+
+交换后希望得到：
+
+```text
+cur -> second -> first -> nextPair
+```
+
+其中：
+
+```text
+first    = cur->next
+second   = cur->next->next
+nextPair = second->next
+```
+
+![两两交换链表中的节点步骤一](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B91.png)
+
+> [!TIP]
+> 做链表指针题时，不要一上来盯着整条链表。先把要修改的局部结构画成 `前驱 + 两个待处理节点 + 后继`，问题会简单很多。
+
+## 三、三次改指针
+
+我们已经保存：
+
+```cpp
+ListNode* first = cur->next;
+ListNode* second = first->next;
+```
+
+接下来只需要三步。
+
+### 第 1 步：前驱指向第二个节点
+
+```cpp
+cur->next = second;
+```
+
+局部关系变为：
+
+```text
+cur -----> second
+          |
+first ----+
+```
+
+### 第 2 步：第一个节点接到下一组
+
+原本：
+
+```text
+first -> second -> nextPair
+```
+
+需要让 `first` 跳过 `second`：
+
+```cpp
+first->next = second->next;
+```
+
+此时：
+
+```text
+first -> nextPair
+```
+
+### 第 3 步：第二个节点指向第一个节点
+
+```cpp
+second->next = first;
+```
+
+于是最终得到：
+
+```text
+cur -> second -> first -> nextPair
+```
+
+![两两交换链表中的节点步骤二](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B92.png)
+
+整体过程可以直观看成：
+
+![两两交换链表中的节点完整过程](https://file1.kamacoder.com/i/algo/24.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B93.png)
+
+## 四、为什么指针修改顺序很重要
+
+链表题最常见的错误不是“不会交换”，而是：
+
+> 先修改了某条 `next`，导致后面的节点地址丢失。
+
+例如如果先执行：
+
+```cpp
+second->next = first;
+```
+
+那么原来 `second->next` 指向的 `nextPair` 就会被覆盖。
+
+当然可以提前保存：
+
+```cpp
+ListNode* nextPair = second->next;
+```
+
+但更简洁的写法是先让：
+
+```cpp
+first->next = second->next;
+```
+
+把后继接好，再做：
+
+```cpp
+second->next = first;
+```
+
+因此一个非常实用的链表操作原则是：
+
+> **凡是某条指针即将被覆盖，都先确认它原来指向的节点是否还需要使用。**
+
+## 五、迭代写法
+
+```cpp
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode dummy(0, head);
+        ListNode* cur = &dummy;
+
+        while (cur->next != nullptr && cur->next->next != nullptr) {
+            ListNode* first = cur->next;
+            ListNode* second = first->next;
+
+            cur->next = second;
+            first->next = second->next;
+            second->next = first;
+
+            // first 已经变成这一组交换后的尾节点
+            cur = first;
+        }
+
+        return dummy.next;
+    }
+};
+```
+
+### 循环条件为什么是两个判断
+
+只有同时存在两个待交换节点时才能继续：
+
+```cpp
+cur->next != nullptr
+```
+
+表示第一个节点存在。
+
+```cpp
+cur->next->next != nullptr
+```
+
+表示第二个节点也存在。
+
+如果链表最后只剩一个节点：
+
+```text
+... -> cur -> 5
+```
+
+它不需要交换，循环自然结束。
+
+## 六、`cur` 为什么移动到 `first`
+
+交换前：
+
+```text
+cur -> first -> second -> ...
+```
+
+交换后：
+
+```text
+cur -> second -> first -> ...
+```
+
+此时下一组待交换节点位于 `first` 后面，因此新的“前驱节点”应该是：
+
+```cpp
+cur = first;
+```
+
+而不是简单地写：
+
+```cpp
+cur = cur->next;
+```
+
+因为 `cur->next` 此时是 `second`，它位于当前交换组内部。
+
+## 七、完整示例推演
+
+对于：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+```
+
+加入虚拟头结点：
+
+```text
+dummy -> 1 -> 2 -> 3 -> 4 -> 5
+  ^
+ cur
+```
+
+第一轮：
+
+```text
+first  = 1
+second = 2
+```
+
+交换后：
+
+```text
+dummy -> 2 -> 1 -> 3 -> 4 -> 5
+                 ^
+                cur
+```
+
+第二轮：
+
+```text
+first  = 3
+second = 4
+```
+
+交换后：
+
+```text
+dummy -> 2 -> 1 -> 4 -> 3 -> 5
+                           ^
+                          cur
+```
+
+此时 `cur->next = 5`，但 `cur->next->next = nullptr`，无法组成一对，循环结束。
+
+最终：
+
+```text
+2 -> 1 -> 4 -> 3 -> 5
+```
+
+## 八、递归为什么也很自然
+
+考虑链表：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+```
+
+对于最前面的两个节点，我们只需要解决：
+
+```text
+1 -> 2
+```
+
+剩余部分：
+
+```text
+3 -> 4 -> 5 -> 6
+```
+
+本质上仍然是一个完全相同的“两两交换”问题。
+
+因此可以写成递归关系：
+
+```text
+swapPairs(head)
+=
+第二个节点
+-> 第一个节点
+-> swapPairs(第三个节点开始的链表)
+```
+
+对应代码：
+
+```cpp
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) {
+            return head;
+        }
+
+        ListNode* second = head->next;
+
+        head->next = swapPairs(second->next);
+        second->next = head;
+
+        return second;
+    }
+};
+```
+
+### 递归终止条件
+
+如果剩余链表：
+
+- 没有节点；
+- 只有一个节点；
+
+都不需要交换：
+
+```cpp
+if (head == nullptr || head->next == nullptr) {
+    return head;
+}
+```
+
+## 九、迭代与递归如何选择
+
+| 方法 | 时间复杂度 | 额外空间 | 特点 |
+|---|---:|---:|---|
+| 迭代 | $O(n)$ | $O(1)$ | 更适合链表原地操作模板 |
+| 递归 | $O(n)$ | $O(n)$ | 结构简洁，但消耗调用栈 |
+
+两种方法都会访问每个节点常数次，所以时间复杂度都是：
+
+$$
+O(n)
+$$
+
+迭代只使用常数个指针：
+
+$$
+O(1)
+$$
+
+递归深度约为：
+
+$$
+\frac{n}{2}
+$$
+
+因此栈空间仍为：
+
+$$
+O(n)
+$$
+
+## 十、常见错误
+
+### 1. 只交换节点值
+
+```cpp
+swap(first->val, second->val);
+```
+
+这并不符合题意，因为节点的连接关系没有改变。
+
+### 2. 忘记虚拟头结点
+
+可以不用 `dummy`，但第一组节点就必须单独处理，代码更容易出现边界错误。
+
+### 3. 覆盖后继指针
+
+下面这种顺序如果没有提前保存后继，就可能丢失链表：
+
+```cpp
+second->next = first;
+```
+
+必须先确保原来的 `second->next` 已经保存或接到正确位置。
+
+### 4. `cur` 只前进一步
+
+每轮处理两个节点，因此下一轮的前驱应该移动到交换后的组尾，即原来的 `first`。
+
+## 十一、链表指针题的通用思维
+
+这道题真正值得掌握的是一种通用操作框架：
+
+```text
+1. 引入 dummy，统一头结点边界
+2. 明确局部参与修改的节点
+3. 修改 next 前先保存仍需使用的后继
+4. 完成局部重连
+5. 把工作指针移动到下一组前驱
+```
+
+以后遇到：
+
+- K 个一组翻转链表；
+- 删除连续节点；
+- 链表区间反转；
+- 合并多个局部结构；
+
+都可以沿用这种“**局部结构 + 前驱节点**”思维。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode dummy = new ListNode(0, head);
+        ListNode cur = dummy;
+
+        while (cur.next != null && cur.next.next != null) {
+            ListNode first = cur.next;
+            ListNode second = first.next;
+
+            cur.next = second;
+            first.next = second.next;
+            second.next = first;
+
+            cur = first;
+        }
+
+        return dummy.next;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def swapPairs(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        dummy = ListNode(0, head)
+        cur = dummy
+
+        while cur.next and cur.next.next:
+            first = cur.next
+            second = first.next
+
+            cur.next = second
+            first.next = second.next
+            second.next = first
+
+            cur = first
+
+        return dummy.next
+```
+
+```go label="Go"
+func swapPairs(head *ListNode) *ListNode {
+    dummy := &ListNode{Next: head}
+    cur := dummy
+
+    for cur.Next != nil && cur.Next.Next != nil {
+        first := cur.Next
+        second := first.Next
+
+        cur.Next = second
+        first.Next = second.Next
+        second.Next = first
+
+        cur = first
+    }
+
+    return dummy.Next
+}
+```
+
+```rust label="Rust"
+impl Solution {
+    pub fn swap_pairs(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
+        match head {
+            Some(mut first) => match first.next.take() {
+                Some(mut second) => {
+                    first.next = Self::swap_pairs(second.next.take());
+                    second.next = Some(first);
+                    Some(second)
+                }
+                None => Some(first),
+            },
+            None => None,
+        }
+    }
+}
+```
+
+```javascript label="JavaScript"
+var swapPairs = function(head) {
+    const dummy = new ListNode(0, head);
+    let cur = dummy;
+
+    while (cur.next !== null && cur.next.next !== null) {
+        const first = cur.next;
+        const second = first.next;
+
+        cur.next = second;
+        first.next = second.next;
+        second.next = first;
+
+        cur = first;
+    }
+
+    return dummy.next;
+};
+```
+
+```typescript label="TypeScript"
+function swapPairs(head: ListNode | null): ListNode | null {
+    const dummy = new ListNode(0, head);
+    let cur: ListNode = dummy;
+
+    while (cur.next !== null && cur.next.next !== null) {
+        const first: ListNode = cur.next;
+        const second: ListNode = first.next!;
+
+        cur.next = second;
+        first.next = second.next;
+        second.next = first;
+
+        cur = first;
+    }
+
+    return dummy.next;
+}
+```
+````

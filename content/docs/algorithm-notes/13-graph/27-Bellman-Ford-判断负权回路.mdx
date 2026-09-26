@@ -1,0 +1,770 @@
+---
+title: Bellman-Ford 判断负权回路
+subtitle: 为什么第 n 轮仍能松弛就意味着最短路可以无限下降
+summary: 以卡码网 95「城市间货物运输 II」为主线，理解负权回路如何破坏最短路、Bellman-Ford 第 n 轮判环原理、源点可达性的边界，以及 SPFA 中用路径边数检测负环的稳健写法。
+---
+
+# Bellman-Ford 判断负权回路
+
+> **卡码网 95. 城市间货物运输 II**
+>
+> 有向带权图中允许负权边，并且可能出现负权回路。求城市 $1$ 到城市 $n$ 的最低运输成本；若存在题意要求检测的负权回路，输出 `circle`；不可达输出 `unconnected`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1153)
+
+这篇题是在 Bellman-Ford 基础上继续追问：
+
+> **如果图中存在一个可以让路径越绕越短的环，算法怎样发现它？**
+
+最经典的答案是：
+
+> **先做 $n-1$ 轮松弛，再多扫描一轮；如果第 $n$ 轮仍然能让某个从源点可达的点变短，就存在源点可达的负权回路。**
+
+---
+
+## 1. 什么是负权回路
+
+一个有向环：
+
+```text
+v1 -> v2 -> ... -> vk -> v1
+```
+
+如果环上所有边权总和满足：
+
+$$
+W_{cycle}<0
+$$
+
+它就是负权回路。
+
+例如：
+
+```text
+1 -> 2 = -1
+2 -> 3 =  1
+3 -> 1 = -1
+```
+
+一圈权值：
+
+$$
+-1+1-1=-1
+$$
+
+每多绕一圈，总成本再减少 $1$。绕 $k$ 圈后额外减少：
+
+$$
+-k
+$$
+
+当 $k\to\infty$ 时，路径成本趋向：
+
+$$
+-\infty
+$$
+
+所以负环带来的问题不是“最短路很小”，而是：
+
+> **有限意义上的最短路根本不存在。**
+
+---
+
+## 2. 示例中的负环
+
+原资料示例图：
+
+![城市间货物运输 II 示例图](https://file1.kamacoder.com/i/algo/20240705161426.png)
+
+如果只走：
+
+```text
+1 -> 2 -> 3 -> 4
+```
+
+成本为：
+
+$$
+-1+1+1=1
+$$
+
+但 `1 -> 2 -> 3 -> 1` 构成负环：
+
+![示例中的负权回路](https://file1.kamacoder.com/i/algo/20240402103712.png)
+
+每绕一圈都能让总代价继续下降，因此不存在有限最小值。
+
+---
+
+## 3. 负权边不等于负权回路
+
+<Callout type="warning" title="两个概念必须分清">
+
+单独一条边满足：
+
+$$
+w<0
+$$
+
+完全可以存在正常的有限最短路。
+
+真正让最短路失去下界的是：
+
+$$
+\text{可以反复经过且总权值}<0\text{ 的环}
+$$
+
+Bellman-Ford 本来就允许负权边；负环才是需要额外检测的异常结构。
+
+</Callout>
+
+---
+
+## 4. 回忆：为什么普通 Bellman-Ford 最多需要 n-1 轮
+
+若图中不存在负权回路，某条最短路径总能取成简单路径，也就是不重复顶点。
+
+有 $n$ 个顶点时，一条简单路径最多经过：
+
+$$
+n
+$$
+
+个顶点，因此最多包含：
+
+$$
+n-1
+$$
+
+条边。
+
+这就是 Bellman-Ford 最多做 $n-1$ 轮全边松弛的根本原因。
+
+---
+
+## 5. 为什么第 n 轮还能更新就说明有负环
+
+完成 $n-1$ 轮以后，再扫描所有边。
+
+如果某条边 $u\rightarrow v$ 仍满足：
+
+$$
+dist[u]+w<dist[v]
+$$
+
+说明还找到了一条更短路径。
+
+但没有负环时，最短路完全可以用不超过 $n-1$ 条边的简单路径表示。
+
+此时竟然还需要“继续向后传播”才能变短，意味着改进路径中必须出现重复顶点，也就是包含一个环。
+
+而这个环被加入路径后还能使总代价继续降低，因此它的总权值必然小于 $0$。
+
+所以得到经典判据：
+
+$$
+\boxed{\text{第 }n\text{ 轮仍能成功松弛}\Rightarrow\text{存在源点可达负环}}
+$$
+
+反过来，只要存在源点可达负环，围绕它不断走就能让某些距离持续下降，因此第 $n$ 轮也一定还能产生更新。
+
+---
+
+## 6. 为什么必须先判断 from 是否可达
+
+判定不能只写：
+
+```cpp
+dist[u] + w < dist[v]
+```
+
+而应该保证：
+
+```cpp
+dist[u] != INF
+```
+
+否则一个与源点完全断开的负环也会被混进当前单源最短路问题。
+
+标准 Bellman-Ford 从某个源点运行时，实际检测的是：
+
+> **从源点能够到达的负权回路。**
+
+而不是整张图任意位置的负环。
+
+---
+
+## 7. 三种“负环问题”要分清
+
+### 情况一：源点可达区域里是否有负环
+
+只要：
+
+```text
+source -> negative cycle
+```
+
+就判存在。
+
+### 情况二：源点到终点的最短路是否为 -∞
+
+还必须满足：
+
+```text
+source -> negative cycle -> target
+```
+
+如果负环在一条永远到不了终点的支路上，它不会破坏 `source -> target` 的有限最短路。
+
+### 情况三：整张图任意位置是否有负环
+
+这时不能只从一个普通源点出发。
+
+常见做法是添加超级源点 `S`：
+
+```text
+S -> 1 = 0
+S -> 2 = 0
+...
+S -> n = 0
+```
+
+让所有点都可达后再运行 Bellman-Ford。
+
+<Callout type="info" title="做题前先看判定范围">
+
+“图中存在负环”和“这个负环会让当前终点最短路变成 $-\infty$”并不等价。
+
+真正高质量的实现必须让检测范围与题意一致。
+
+</Callout>
+
+---
+
+## 8. Bellman-Ford 判负环标准模板
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int from;
+    int to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<Edge> edges;
+    edges.reserve(m);
+
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        edges.push_back({u, v, w});
+    }
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+    vector<long long> dist(n + 1, INF);
+    dist[1] = 0;
+
+    bool hasNegativeCycle = false;
+
+    for (int round = 1; round <= n; ++round) {
+        bool updated = false;
+
+        for (const auto& e : edges) {
+            if (dist[e.from] == INF) continue;
+
+            long long candidate = dist[e.from] + e.weight;
+            if (candidate < dist[e.to]) {
+                dist[e.to] = candidate;
+                updated = true;
+
+                if (round == n) {
+                    hasNegativeCycle = true;
+                }
+            }
+        }
+
+        if (!updated) break;
+    }
+
+    if (hasNegativeCycle) cout << "circle\n";
+    else if (dist[n] == INF) cout << "unconnected\n";
+    else cout << dist[n] << '\n';
+}
+```
+
+这里前 $n-1$ 轮负责正常求最短路，第 $n$ 轮只承担一个额外任务：
+
+```text
+检查是否还能继续变短
+```
+
+---
+
+## 9. 也可以明确写成“两阶段”
+
+为了让代码和理论更一一对应，可以写成：
+
+### 第一阶段：做 n-1 轮
+
+```cpp
+for (int round = 1; round <= n - 1; ++round) {
+    for (const auto& e : edges) {
+        if (dist[e.from] != INF &&
+            dist[e.from] + e.weight < dist[e.to]) {
+            dist[e.to] = dist[e.from] + e.weight;
+        }
+    }
+}
+```
+
+### 第二阶段：额外扫描一次
+
+```cpp
+bool hasNegativeCycle = false;
+
+for (const auto& e : edges) {
+    if (dist[e.from] != INF &&
+        dist[e.from] + e.weight < dist[e.to]) {
+        hasNegativeCycle = true;
+        break;
+    }
+}
+```
+
+这种写法尤其适合刚学习时记忆：
+
+```text
+n-1 轮求答案
+第 n 轮查异常
+```
+
+---
+
+## 10. 为什么可以提前结束
+
+如果某一整轮：
+
+```cpp
+updated == false
+```
+
+说明所有 `dist` 已经稳定。
+
+后续在完全相同的图上继续扫描，也不可能凭空出现新更新。
+
+所以可以立刻：
+
+```cpp
+break;
+```
+
+而且此时也不可能存在从源点可达、能够持续降低距离的负环。
+
+---
+
+## 11. 为什么不能只看终点是否在第 n 轮变小
+
+错误思路：
+
+```text
+只要 dist[n] 第 n 轮没有变化，就认为没有负环
+```
+
+不可靠。
+
+负环可能先影响其他点；或者题目本身要求检测整个源点可达区域。
+
+因此经典判据应检查：
+
+> 第 $n$ 轮是否存在 **任何源点可达的边** 还能成功松弛。
+
+---
+
+## 12. 如果只关心“会影响终点的负环”
+
+这时可以在反图上从终点 `n` 做一次 DFS / BFS。
+
+定义：
+
+```cpp
+canReachTarget[v]
+```
+
+表示 `v` 是否可以到达终点。
+
+若第 $n$ 轮某个点继续被松弛，并且它还能到达 `n`，才说明：
+
+$$
+source\leadsto negative\ cycle\leadsto target
+$$
+
+此时 `source -> target` 的最短路才真正变成 $-\infty$。
+
+这是比“看到负环就报错”更精确的判定方式。
+
+---
+
+## 13. SPFA 也可以判断负权回路
+
+队列优化版本中，若存在源点可达负环，某些距离会持续下降，所以更新链会越来越长。
+
+一种容易证明的稳健写法是维护：
+
+```cpp
+edgeCount[v]
+```
+
+表示当前这次把 `dist[v]` 改小的路径用了多少条边。
+
+如果通过边 $u\rightarrow v$ 更新：
+
+$$
+dist[v]=dist[u]+w
+$$
+
+同时令：
+
+$$
+edgeCount[v]=edgeCount[u]+1
+$$
+
+若某次得到：
+
+$$
+edgeCount[v]\ge n
+$$
+
+说明当前改进路径已经使用至少 $n$ 条边。
+
+但一条简单路径最多只有 $n-1$ 条边，所以路径中必然重复顶点，即包含环；而这条含环路径又确实让距离继续下降，所以出现了负权回路。
+
+---
+
+## 14. SPFA 判负环模板
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Edge {
+    int to;
+    long long weight;
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<Edge>> graph(n + 1);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        long long w;
+        cin >> u >> v >> w;
+        graph[u].push_back({v, w});
+    }
+
+    const long long INF = numeric_limits<long long>::max() / 4;
+    vector<long long> dist(n + 1, INF);
+    vector<int> edgeCount(n + 1, 0);
+    vector<bool> inQueue(n + 1, false);
+    queue<int> q;
+
+    dist[1] = 0;
+    q.push(1);
+    inQueue[1] = true;
+
+    bool hasNegativeCycle = false;
+
+    while (!q.empty() && !hasNegativeCycle) {
+        int u = q.front();
+        q.pop();
+        inQueue[u] = false;
+
+        for (const auto& e : graph[u]) {
+            int v = e.to;
+            long long candidate = dist[u] + e.weight;
+
+            if (candidate < dist[v]) {
+                dist[v] = candidate;
+                edgeCount[v] = edgeCount[u] + 1;
+
+                if (edgeCount[v] >= n) {
+                    hasNegativeCycle = true;
+                    break;
+                }
+
+                if (!inQueue[v]) {
+                    q.push(v);
+                    inQueue[v] = true;
+                }
+            }
+        }
+    }
+
+    if (hasNegativeCycle) cout << "circle\n";
+    else if (dist[n] == INF) cout << "unconnected\n";
+    else cout << dist[n] << '\n';
+}
+```
+
+这里三个数组职责完全不同：
+
+```text
+dist[v]       当前最短距离
+inQueue[v]    当前是否已经在队列中
+edgeCount[v]  当前改进路径使用的边数
+```
+
+不要混用它们的语义。
+
+---
+
+## 15. 为什么不建议只凭“入队次数”死记判环
+
+不少资料会用：
+
+```text
+某个点入队达到 n 次
+```
+
+来判断负环。
+
+这种写法在竞赛资料中非常常见，但从学习与证明角度，更推荐直接维护“当前改进路径的边数”。因为它和 Bellman-Ford 的理论完全对应：
+
+$$
+\text{简单路径最多 }n-1\text{ 条边}
+$$
+
+一旦改进路径使用到第 $n$ 条边，重复顶点已经无法避免。
+
+原资料也展示了一个与队列状态统计相关的易错示例：
+
+![SPFA 判环时必须正确维护队列状态](https://file1.kamacoder.com/i/algo/2025-06-03_16-12-41.jpg)
+
+因此实现时最好把：
+
+```text
+是否在队列
+路径用了多少条边
+```
+
+分别用独立变量维护。
+
+---
+
+## 16. Bellman-Ford 与 SPFA 判环怎么选
+
+<Cards>
+  <Card title="Bellman-Ford">
+    逻辑稳定、证明简单，第 $n$ 轮判断非常直接，最坏复杂度明确为 $O(VE)$。
+  </Card>
+  <Card title="SPFA">
+    只传播发生变化的点，在部分稀疏数据上更快，但最坏仍可退化到 $O(VE)$。
+  </Card>
+</Cards>
+
+如果题目规模允许，标准 Bellman-Ford 往往是最不容易写错的负环检测方案。
+
+---
+
+## 17. 时间与空间复杂度
+
+标准 Bellman-Ford 最多做 $n$ 轮扫描，每轮访问 $E$ 条边：
+
+$$
+O(VE)
+$$
+
+辅助距离数组为：
+
+$$
+O(V)
+$$
+
+若算上边表：
+
+$$
+O(V+E)
+$$
+
+SPFA 的最坏复杂度同样可退化到：
+
+$$
+O(VE)
+$$
+
+因此它没有更好的最坏理论上界。
+
+---
+
+## 18. 高频易错点
+
+1. **看到负权边就判负环**：错误，单独负边完全可以正常求最短路。
+2. **第 $n-1$ 轮仍更新就判负环**：错误，第 $n-1$ 轮本来就可能是必要的最后一轮。
+3. **忘记 `dist[from] != INF`**：会把源点不可达区域也混进单源问题。
+4. **只看终点第 $n$ 轮是否更新**：标准判法应检查所有可达边。
+5. **题目问整图负环却只从 1 出发**：应使用超级源点或等价初始化。
+6. **题目只问负环是否影响终点，却见到任何可达负环就输出**：还需判断负环是否能到终点。
+7. **SPFA 把 `inQueue` 当永久 visited**：出队后必须恢复 `false`。
+8. **直接用 `INT_MAX + w`**：可能溢出，建议用 `long long` 和安全 `INF`。
+
+---
+
+## 19. 一张表记住三类判定
+
+| 问题 | 需要满足的范围 | 常用做法 |
+| --- | --- | --- |
+| 源点可达区域是否有负环 | `source -> cycle` | 普通 Bellman-Ford 第 $n$ 轮判定 |
+| 整张图是否有任意负环 | 任意位置 | 超级源点连接所有点 |
+| `s -> t` 是否为 $-\infty$ | `s -> cycle -> t` | Bellman-Ford + 反图可达性 |
+
+---
+
+## 20. 最终记忆框架
+
+Bellman-Ford 判负环的核心推理是：
+
+$$
+\text{无负环}
+\Rightarrow
+\text{最短路可取简单路径}
+\Rightarrow
+\text{最多 }n-1\text{ 条边}
+$$
+
+所以：
+
+$$
+\text{第 }n\text{ 轮仍能变短}
+\Rightarrow
+\text{路径必须重复顶点}
+\Rightarrow
+\text{经过了环}
+\Rightarrow
+\text{这个环使距离继续下降}
+\Rightarrow
+\text{负权回路}
+$$
+
+最后只记一句：
+
+> **$n-1$ 轮负责求有限最短路，第 $n$ 轮负责暴露“还能无限变短”的负环。**
+
+---
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class Edge {
+        int from, to;
+        long weight;
+        Edge(int from, int to, long weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            edges.add(new Edge(u, v, w));
+        }
+
+        long INF = Long.MAX_VALUE / 4;
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, INF);
+        dist[1] = 0;
+
+        boolean hasNegativeCycle = false;
+
+        for (int round = 1; round <= n; ++round) {
+            boolean updated = false;
+
+            for (Edge e : edges) {
+                if (dist[e.from] == INF) continue;
+                long candidate = dist[e.from] + e.weight;
+
+                if (candidate < dist[e.to]) {
+                    dist[e.to] = candidate;
+                    updated = true;
+                    if (round == n) hasNegativeCycle = true;
+                }
+            }
+
+            if (!updated) break;
+        }
+
+        if (hasNegativeCycle) System.out.println("circle");
+        else if (dist[n] == INF) System.out.println("unconnected");
+        else System.out.println(dist[n]);
+    }
+}
+```
+
+```python label="Python"
+from math import inf
+
+n, m = map(int, input().split())
+edges = []
+
+for _ in range(m):
+    u, v, w = map(int, input().split())
+    edges.append((u, v, w))
+
+dist = [inf] * (n + 1)
+dist[1] = 0
+has_negative_cycle = False
+
+for round_id in range(1, n + 1):
+    updated = False
+
+    for u, v, w in edges:
+        if dist[u] == inf:
+            continue
+
+        candidate = dist[u] + w
+        if candidate < dist[v]:
+            dist[v] = candidate
+            updated = True
+            if round_id == n:
+                has_negative_cycle = True
+
+    if not updated:
+        break
+
+if has_negative_cycle:
+    print("circle")
+elif dist[n] == inf:
+    print("unconnected")
+else:
+    print(dist[n])
+```
+````

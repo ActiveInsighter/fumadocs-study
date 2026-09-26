@@ -1,0 +1,684 @@
+---
+title: 使用最小花费爬楼梯
+description: 从路径计数过渡到最优化型动态规划，掌握状态定义、转移来源、虚拟楼顶与空间压缩。
+icon: TrendingUp
+---
+
+# 使用最小花费爬楼梯
+
+> LeetCode 746：Min Cost Climbing Stairs
+
+给定整数数组 `cost`，其中 `cost[i]` 表示**从第 $i$ 级台阶向上迈步时需要支付的费用**。支付费用后，可以向上走 $1$ 级或 $2$ 级。
+
+你可以从第 $0$ 级或第 $1$ 级台阶开始，目标是到达楼顶，求最小总花费。
+
+例如：
+
+```text
+cost = [10, 15, 20]
+```
+
+可以直接从第 $1$ 级开始，支付 $15$，然后跨两级到达楼顶，因此答案为：
+
+$$
+15
+$$
+
+<Callout type="info" title="这道题比“爬楼梯”多了什么？">
+“爬楼梯”求的是**方案数**，因此不同来源的方案要相加；本题求的是**最小代价**，因此不同来源中要取最小值。两道题的状态依赖结构几乎相同，但聚合方式从“加法”变成了“最小值”。
+</Callout>
+
+## 1. 先把“楼顶”建模成一个状态
+
+假设 `cost` 的长度为 $n$。
+
+真正有费用的台阶下标是：
+
+$$
+0,1,2,\dots,n-1
+$$
+
+而楼顶可以看成一个额外的虚拟位置：
+
+$$
+n
+$$
+
+于是我们定义：
+
+$$
+dp[i]=\text{到达位置 }i\text{ 时的最小总花费}
+$$
+
+特别地：
+
+$$
+dp[n]
+$$
+
+就是到达楼顶的最小花费。
+
+这个定义有一个非常重要的细节：
+
+> `dp[i]` 记录的是**已经到达位置 $i$** 时的花费，而 `cost[i]` 表示**从位置 $i$ 离开时**才需要支付的费用。
+
+因此，到达第 $0$ 级和第 $1$ 级本身都不需要付费。
+
+## 2. 动态规划五步分析
+
+### 2.1 状态定义
+
+定义：
+
+$$
+dp[i]=\text{到达第 }i\text{ 个位置的最小花费}
+$$
+
+其中 $i=n$ 表示楼顶。
+
+最终答案：
+
+$$
+dp[n]
+$$
+
+### 2.2 状态转移
+
+想要到达位置 $i$，最后一步只有两种来源：
+
+- 从 $i-1$ 走 $1$ 级；
+- 从 $i-2$ 走 $2$ 级。
+
+如果从 $i-1$ 出发，需要先以最小代价到达 $i-1$，再支付 `cost[i-1]`：
+
+$$
+dp[i-1]+cost[i-1]
+$$
+
+如果从 $i-2$ 出发，则代价为：
+
+$$
+dp[i-2]+cost[i-2]
+$$
+
+为了让总花费最小，选择两者中更小的：
+
+$$
+\boxed{dp[i]=\min\left(dp[i-1]+cost[i-1],\ dp[i-2]+cost[i-2]\right)}
+$$
+
+这就是本题的核心状态转移。
+
+<Callout type="tip" title="从“最后一步”推导最优化 DP">
+以后遇到“最少花费、最短路径、最少次数”一类题目，也可以先问：**当前状态最后一步可能从哪里来？** 如果不同来源都能到达当前状态，就分别计算代价，再取最优值。
+</Callout>
+
+### 2.3 初始化
+
+题目允许直接从第 $0$ 级或第 $1$ 级开始，因此：
+
+$$
+dp[0]=0
+$$
+
+$$
+dp[1]=0
+$$
+
+注意这里不是说 `cost[0]` 或 `cost[1]` 不存在，而是：
+
+> **站到起始台阶上免费，只有从该台阶继续向上走时才支付费用。**
+
+### 2.4 遍历顺序
+
+因为：
+
+$$
+dp[i]
+$$
+
+只依赖：
+
+$$
+dp[i-1],\quad dp[i-2]
+$$
+
+所以必须从小到大计算：
+
+```text
+2 -> 3 -> 4 -> ... -> n
+```
+
+### 2.5 手工推导
+
+以：
+
+```text
+cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+```
+
+为例。
+
+![](https://file1.kamacoder.com/i/algo/20221026175104.png)
+
+开始时：
+
+$$
+dp[0]=0,\qquad dp[1]=0
+$$
+
+然后依次计算：
+
+$$
+dp[2]=\min(0+100,0+1)=1
+$$
+
+$$
+dp[3]=\min(1+1,0+100)=2
+$$
+
+$$
+dp[4]=\min(2+1,1+1)=2
+$$
+
+继续递推，最终得到：
+
+$$
+dp[10]=6
+$$
+
+因此最小花费为 $6$。
+
+## 3. 标准实现
+
+```cpp
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int n = cost.size();
+        vector<int> dp(n + 1, 0);
+
+        dp[0] = 0;
+        dp[1] = 0;
+
+        for (int i = 2; i <= n; ++i) {
+            dp[i] = min(
+                dp[i - 1] + cost[i - 1],
+                dp[i - 2] + cost[i - 2]
+            );
+        }
+
+        return dp[n];
+    }
+};
+```
+
+### 复杂度
+
+一共计算 $n-1$ 个状态，每个状态只做常数次运算：
+
+$$
+O(n)
+$$
+
+使用长度为 $n+1$ 的数组：
+
+$$
+O(n)
+$$
+
+## 4. 为什么 `cost` 的下标总是比 `dp` 小 1？
+
+这是本题最容易写错的地方之一。
+
+状态转移写成：
+
+$$
+dp[i-1]+cost[i-1]
+$$
+
+而不是：
+
+$$
+dp[i-1]+cost[i]
+$$
+
+原因是费用属于“**从哪个台阶起跳**”，不是“落到哪个台阶”。
+
+例如，从第 $i-1$ 级走到第 $i$ 级：
+
+```text
+站在 i-1
+   ↓ 支付 cost[i-1]
+向上走 1 级
+   ↓
+到达 i
+```
+
+因此费用一定对应出发位置。
+
+<Callout type="warning" title="高频错误">
+如果你把 `cost[i]` 加进转移，就相当于把费用理解成“到达某台阶时收费”。这与当前状态定义不一致，并且当 $i=n$ 时还会访问不存在的 `cost[n]`。
+</Callout>
+
+## 5. 为什么答案不是 `dp[n-1]`？
+
+因为第 $n-1$ 级仍然只是最后一级真实台阶，不是楼顶。
+
+本题允许从倒数第一或倒数第二级直接跨到楼顶，所以最好把楼顶单独建模为状态 $n$：
+
+```text
+... -> n-2 -> n
+        |
+        └----> n-1 -> n
+```
+
+这样最终答案可以直接写成：
+
+```cpp
+return dp[n];
+```
+
+而不需要在最后额外判断。
+
+这也是**增加虚拟状态以统一边界处理**的典型技巧。
+
+## 6. 另一种完全正确的状态定义
+
+还可以定义：
+
+$$
+f[i]=\text{真正踩上第 }i\text{ 级台阶时的最小总花费}
+$$
+
+此时踩上第 $0$、$1$ 级就要计费：
+
+$$
+f[0]=cost[0]
+$$
+
+$$
+f[1]=cost[1]
+$$
+
+状态转移为：
+
+$$
+f[i]=\min(f[i-1],f[i-2])+cost[i]
+$$
+
+最后楼顶本身不收费，因此：
+
+$$
+\boxed{\min(f[n-1],f[n-2])}
+$$
+
+对应代码：
+
+```cpp
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int n = cost.size();
+        vector<int> dp(n);
+
+        dp[0] = cost[0];
+        dp[1] = cost[1];
+
+        for (int i = 2; i < n; ++i) {
+            dp[i] = min(dp[i - 1], dp[i - 2]) + cost[i];
+        }
+
+        return min(dp[n - 1], dp[n - 2]);
+    }
+};
+```
+
+### 两种定义为什么都能做对？
+
+两种写法只是把“支付费用”的时机放在了不同的位置：
+
+| 状态语义 | 初始化 | 转移中支付谁的费用 | 最终答案 |
+| --- | --- | --- | --- |
+| 到达位置 $i$ 的最小费用 | `dp[0]=dp[1]=0` | 出发台阶 `cost[i-1] / cost[i-2]` | `dp[n]` |
+| 踩上台阶 $i$ 的最小费用 | `dp[0]=cost[0]`, `dp[1]=cost[1]` | 当前台阶 `cost[i]` | `min(dp[n-1], dp[n-2])` |
+
+<Callout type="info" title="比记公式更重要的结论">
+动态规划中没有脱离状态定义的“固定初始化”和“固定公式”。只要**状态含义、初始化、转移和答案位置彼此一致**，不同定义都可能正确。
+</Callout>
+
+## 7. 空间压缩
+
+观察状态转移：
+
+$$
+dp[i]=\min(dp[i-1]+cost[i-1],dp[i-2]+cost[i-2])
+$$
+
+计算当前状态只需要前两个状态，因此不必保存完整数组。
+
+令：
+
+```text
+prev2 = dp[i-2]
+prev1 = dp[i-1]
+```
+
+当前值：
+
+$$
+cur=\min(prev1+cost[i-1],\ prev2+cost[i-2])
+$$
+
+然后滚动更新即可。
+
+```cpp
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int prev2 = 0;
+        int prev1 = 0;
+
+        for (int i = 2; i <= cost.size(); ++i) {
+            int cur = min(
+                prev1 + cost[i - 1],
+                prev2 + cost[i - 2]
+            );
+            prev2 = prev1;
+            prev1 = cur;
+        }
+
+        return prev1;
+    }
+};
+```
+
+空间复杂度降为：
+
+$$
+O(1)
+$$
+
+时间复杂度仍然是：
+
+$$
+O(n)
+$$
+
+## 8. 与前两题的联系
+
+前三道入门题可以放在一起看：
+
+| 题目 | 状态转移 | 问题类型 |
+| --- | --- | --- |
+| 斐波那契数 | $dp[i]=dp[i-1]+dp[i-2]$ | 数值递推 |
+| 爬楼梯 | $dp[i]=dp[i-1]+dp[i-2]$ | 方案计数 |
+| 最小花费爬楼梯 | $dp[i]=\min(dp[i-1]+c_{i-1},dp[i-2]+c_{i-2})$ | 最优化 |
+
+共同点是：
+
+```text
+当前状态只依赖前两个状态
+```
+
+区别在于如何组合前驱状态：
+
+- 求方案数：相加；
+- 求最小代价：取最小值；
+- 求最大收益：通常取最大值。
+
+这正是动态规划中非常重要的抽象：
+
+$$
+\text{状态} + \text{转移来源} + \text{聚合规则}
+$$
+
+## 9. 常见错误
+
+### 错误一：初始化成 `cost[0]`、`cost[1]`，却仍使用第一种转移
+
+例如：
+
+```cpp
+// 状态语义已经混乱
+vector<int> dp(n + 1);
+dp[0] = cost[0];
+dp[1] = cost[1];
+```
+
+然后又写：
+
+```cpp
+dp[i] = min(dp[i - 1] + cost[i - 1],
+            dp[i - 2] + cost[i - 2]);
+```
+
+这会把费用重复计算。
+
+### 错误二：返回 `dp[n-1]`
+
+第 $n-1$ 级并不是楼顶。
+
+### 错误三：转移时加 `cost[i]`
+
+当 $i=n$ 时，`cost[n]` 已经越界，而且费用归属也与状态定义不符。
+
+### 错误四：只背递推式，不解释 `dp[i]`
+
+动态规划代码最容易出现的问题并不是公式不会写，而是状态语义在写代码过程中悄悄改变。
+
+## 10. 一眼识别这类题
+
+如果题目具有以下特征：
+
+- 状态沿一个线性序列向前推进；
+- 每次只能从前若干个固定位置转移；
+- 每次转移带有一个代价；
+- 要求总代价最小或最大；
+
+通常可以尝试定义：
+
+$$
+dp[i]=\text{到达位置 }i\text{ 的最优代价}
+$$
+
+再枚举能够转移到 $i$ 的所有前驱状态。
+
+更一般地，如果每次最多可以跨 $m$ 步，并且从第 $j$ 个位置出发的费用为 $cost[j]$，那么可以写成：
+
+$$
+dp[i]=\min_{1\le k\le m}\left(dp[i-k]+cost[i-k]\right)
+$$
+
+其中只考虑合法的 $i-k$。
+
+这就是本题从“两个前驱状态”推广到“多个前驱状态”的形式。
+
+## 11. 本题复盘
+
+<Tabs items={["状态", "转移", "初始化", "顺序", "复杂度"]}>
+<Tab value="状态">
+
+$$
+dp[i]=\text{到达位置 }i\text{ 的最小花费}
+$$
+
+楼顶建模为虚拟位置 $n$。
+
+</Tab>
+<Tab value="转移">
+
+$$
+dp[i]=\min(dp[i-1]+cost[i-1],\ dp[i-2]+cost[i-2])
+$$
+
+</Tab>
+<Tab value="初始化">
+
+$$
+dp[0]=0,\qquad dp[1]=0
+$$
+
+</Tab>
+<Tab value="顺序">
+
+从 $i=2$ 到 $i=n$ 正序遍历。
+
+</Tab>
+<Tab value="复杂度">
+
+标准 DP：
+
+$$
+O(n)\text{ 时间},\qquad O(n)\text{ 空间}
+$$
+
+空间压缩后：
+
+$$
+O(n)\text{ 时间},\qquad O(1)\text{ 空间}
+$$
+
+</Tab>
+</Tabs>
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int minCostClimbingStairs(int[] cost) {
+        int n = cost.length;
+        int[] dp = new int[n + 1];
+
+        dp[0] = 0;
+        dp[1] = 0;
+
+        for (int i = 2; i <= n; i++) {
+            dp[i] = Math.min(
+                dp[i - 1] + cost[i - 1],
+                dp[i - 2] + cost[i - 2]
+            );
+        }
+
+        return dp[n];
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def minCostClimbingStairs(self, cost: List[int]) -> int:
+        n = len(cost)
+        dp = [0] * (n + 1)
+
+        for i in range(2, n + 1):
+            dp[i] = min(
+                dp[i - 1] + cost[i - 1],
+                dp[i - 2] + cost[i - 2],
+            )
+
+        return dp[n]
+```
+
+```go label="Go"
+func minCostClimbingStairs(cost []int) int {
+    n := len(cost)
+    dp := make([]int, n+1)
+
+    for i := 2; i <= n; i++ {
+        a := dp[i-1] + cost[i-1]
+        b := dp[i-2] + cost[i-2]
+        if a < b {
+            dp[i] = a
+        } else {
+            dp[i] = b
+        }
+    }
+
+    return dp[n]
+}
+```
+
+```javascript label="JavaScript"
+var minCostClimbingStairs = function(cost) {
+  const n = cost.length;
+  const dp = new Array(n + 1).fill(0);
+
+  for (let i = 2; i <= n; i++) {
+    dp[i] = Math.min(
+      dp[i - 1] + cost[i - 1],
+      dp[i - 2] + cost[i - 2]
+    );
+  }
+
+  return dp[n];
+};
+```
+
+```typescript label="TypeScript"
+function minCostClimbingStairs(cost: number[]): number {
+  const n = cost.length;
+  const dp: number[] = new Array(n + 1).fill(0);
+
+  for (let i = 2; i <= n; i++) {
+    dp[i] = Math.min(
+      dp[i - 1] + cost[i - 1],
+      dp[i - 2] + cost[i - 2]
+    );
+  }
+
+  return dp[n];
+}
+```
+
+```rust label="Rust"
+impl Solution {
+    pub fn min_cost_climbing_stairs(cost: Vec<i32>) -> i32 {
+        let n = cost.len();
+        let mut dp = vec![0; n + 1];
+
+        for i in 2..=n {
+            dp[i] = (dp[i - 1] + cost[i - 1])
+                .min(dp[i - 2] + cost[i - 2]);
+        }
+
+        dp[n]
+    }
+}
+```
+
+```c label="C"
+int minCostClimbingStairs(int* cost, int costSize) {
+    int dp[costSize + 1];
+    dp[0] = 0;
+    dp[1] = 0;
+
+    for (int i = 2; i <= costSize; ++i) {
+        int a = dp[i - 1] + cost[i - 1];
+        int b = dp[i - 2] + cost[i - 2];
+        dp[i] = a < b ? a : b;
+    }
+
+    return dp[costSize];
+}
+```
+
+```csharp label="C#"
+public class Solution {
+    public int MinCostClimbingStairs(int[] cost) {
+        int n = cost.Length;
+        int[] dp = new int[n + 1];
+
+        for (int i = 2; i <= n; i++) {
+            dp[i] = Math.Min(
+                dp[i - 1] + cost[i - 1],
+                dp[i - 2] + cost[i - 2]
+            );
+        }
+
+        return dp[n];
+    }
+}
+```
+````

@@ -1,0 +1,1024 @@
+---
+title: 深度优先搜索 DFS 理论基础
+description: 从搜索过程、递归与回溯、visited 的不同语义，到递归与迭代模板，系统掌握图论 DFS 的核心框架与常见陷阱。
+---
+
+# 深度优先搜索 DFS 理论基础
+
+深度优先搜索（Depth-First Search，DFS）是图论中最基础的搜索算法之一。
+
+它的核心思想可以概括成一句话：
+
+> **沿一个方向尽可能向深处搜索，走不下去时回退到最近还有其他选择的位置，再继续搜索。**
+
+这与回溯算法非常接近。事实上，很多“回溯题”就是在一棵隐式搜索树上执行 DFS。
+
+<Callout type="info" title="DFS 真正需要掌握的不是一份代码">
+
+要把下面四件事分清：
+
+1. DFS 的搜索顺序；
+2. 递归为什么天然适合 DFS；
+3. `visited` 到底应该永久标记还是回溯撤销；
+4. “遍历整张图”和“枚举所有路径”为什么代码看起来相似，语义却完全不同。
+
+</Callout>
+
+## 1. DFS 和 BFS 的直觉区别
+
+DFS 与 BFS 都是在“从当前状态扩展下一个状态”，但扩展顺序完全不同。
+
+<Cards>
+  <Card title="DFS：先走到底">
+    优先沿一个分支不断深入；当前分支走不通后，再回退到分叉点寻找其他方向。
+  </Card>
+  <Card title="BFS：一层一层扩展">
+    先访问离起点一步的所有节点，再访问两步、三步……通常使用队列。
+  </Card>
+</Cards>
+
+可以把 DFS 想象成走迷宫：
+
+```text
+选择一个岔路
+   ↓
+一直往前走
+   ↓
+遇到死路 / 到达目标
+   ↓
+退回最近一个岔路口
+   ↓
+尝试另一个方向
+```
+
+而 BFS 更像水波从起点向外一圈一圈扩散。
+
+---
+
+## 2. DFS 的完整搜索过程
+
+考虑下面这个无向图，从节点 `1` 出发寻找通往节点 `6` 的路径。
+
+![图一](https://file1.kamacoder.com/i/algo/20220707093643.png)
+
+假设 DFS 首先沿默认顺序不断深入，并找到节点 `6`：
+
+![图二](https://file1.kamacoder.com/i/algo/20220707093807.png)
+
+到达终点后，当前分支已经完成。
+
+如果题目要求寻找**所有路径**，就不能直接结束整个搜索，而要回到之前的分叉位置，再尝试其他方向：
+
+![图三](https://file1.kamacoder.com/i/algo/20220707094011.png)
+
+这里“撤销上一条选择，再尝试下一条边”的过程，就是回溯。
+
+继续回退和换方向：
+
+![图四](https://file1.kamacoder.com/i/algo/20220707094322.png)
+
+某些分支会到达已经走过的节点，从而形成环或重复路径：
+
+![图五](https://file1.kamacoder.com/i/algo/20220707094813.png)
+
+当当前节点的所有出边都已经尝试完，就继续向上回退：
+
+![图六](https://file1.kamacoder.com/i/algo/20220707095232.png)
+
+整个过程可以概括成两个动作：
+
+1. **向下搜索**：选择一个尚可继续的邻居；
+2. **向上回退**：当前分支完成后，撤销选择并返回上一层。
+
+这就是 DFS 与回溯之间最核心的联系。
+
+---
+
+## 3. 为什么递归天然适合 DFS
+
+递归调用栈本身就保存了“我是从哪里走过来的”。
+
+例如：
+
+```text
+dfs(1)
+  └─ dfs(2)
+       └─ dfs(4)
+            └─ dfs(6)
+```
+
+当 `dfs(6)` 返回时，程序会自动恢复到 `dfs(4)`；
+
+`dfs(4)` 返回后，又恢复到 `dfs(2)`。
+
+因此递归栈天然完成了“回到上一层”的动作。
+
+最简化的 DFS 骨架是：
+
+```cpp
+void dfs(int u) {
+    处理当前节点 u;
+
+    for (int v : graph[u]) {
+        if (v 可以继续搜索) {
+            dfs(v);
+        }
+    }
+}
+```
+
+如果还维护了路径，则通常变成：
+
+```cpp
+void dfs(int u) {
+    if (满足终止条件) {
+        记录答案;
+        return;
+    }
+
+    for (int v : graph[u]) {
+        if (v 可以选择) {
+            path.push_back(v);   // 做选择
+            dfs(v);              // 递归
+            path.pop_back();     // 撤销选择
+        }
+    }
+}
+```
+
+<Callout title="递归下面那一行为什么经常是回溯">
+
+`dfs(v)` 返回，意味着“以 `v` 为起点的这一整棵搜索子树已经处理完”。
+
+如果当前状态是**路径专属状态**，就应该恢复到进入 `v` 之前的样子，再尝试兄弟分支。
+
+所以：
+
+```text
+做选择 → 递归 → 撤销选择
+```
+
+是枚举型 DFS 最常见的结构。
+
+</Callout>
+
+---
+
+## 4. 深搜三部曲
+
+写递归 DFS 时，可以固定按三步思考。
+
+## 第一步：确定 DFS 的含义和参数
+
+先用一句自然语言定义函数：
+
+> `dfs(u)` 表示什么？
+
+例如：
+
+- `dfs(u)`：从节点 `u` 出发，把所有可达节点标记为已访问；
+- `dfs(u)`：从节点 `u` 出发，枚举到终点 `n` 的所有简单路径；
+- `dfs(r, c)`：从网格位置 `(r,c)` 出发，淹没整个连通陆地区域；
+- `dfs(u, parent)`：在无向树 / 图中，从 `u` 出发，并记住父节点 `parent`。
+
+函数语义一旦清楚，参数往往自然就出来了。
+
+例如路径枚举：
+
+```cpp
+vector<vector<int>> result;
+vector<int> path;
+
+void dfs(int u, const vector<vector<int>>& graph) {
+    // ...
+}
+```
+
+## 第二步：确定终止条件
+
+典型终止条件包括：
+
+```cpp
+if (u == target) {
+    result.push_back(path);
+    return;
+}
+```
+
+或者：
+
+```cpp
+if (越界 || 不满足继续条件) {
+    return;
+}
+```
+
+还有一些 DFS 没有显式“目标终止条件”，因为循环里已经阻止了非法递归：
+
+```cpp
+for (int v : graph[u]) {
+    if (!visited[v]) {
+        dfs(v);
+    }
+}
+```
+
+当没有未访问邻居时，函数自然返回。
+
+## 第三步：枚举当前节点的下一步选择
+
+图论中通常就是遍历邻接表：
+
+```cpp
+for (int v : graph[u]) {
+    // 判断是否可以走向 v
+}
+```
+
+完整的枚举型框架：
+
+```cpp
+void dfs(int u) {
+    if (终止条件) {
+        记录答案;
+        return;
+    }
+
+    for (int v : graph[u]) {
+        if (可以选择 v) {
+            做选择;
+            dfs(v);
+            撤销选择;
+        }
+    }
+}
+```
+
+![图七](https://file1.kamacoder.com/i/algo/20220708093544.png)
+
+上图中从一条路径撤销，再切换到另一条路径，正对应：
+
+```text
+push / mark
+   ↓
+dfs
+   ↓
+pop / unmark
+```
+
+---
+
+## 5. DFS 中最容易混淆的问题：visited 要不要撤销
+
+这是图论 DFS 最重要的分界之一。
+
+很多代码错误并不是 DFS 不会写，而是没有理解 `visited` 表示什么。
+
+### 情况 A：只判断可达性 / 遍历连通块
+
+如果目标是：
+
+- 从起点能到哪些节点；
+- 统计连通分量；
+- 岛屿染色；
+- 只需要每个节点处理一次；
+
+那么 `visited[u]` 的语义是：
+
+> **这个节点在整个搜索过程中已经处理过。**
+
+此时一旦标记，就不应该撤销。
+
+```cpp
+void dfs(int u) {
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            dfs(v);
+        }
+    }
+}
+```
+
+这叫**全局访问标记**。
+
+### 情况 B：枚举所有简单路径
+
+如果目标是枚举从 `source` 到 `target` 的所有**简单路径**，那么 `visited[u]` 更像：
+
+> **这个节点是否已经出现在当前这条路径中。**
+
+此时进入节点要标记，离开节点必须撤销：
+
+```cpp
+visited[v] = true;
+path.push_back(v);
+
+dfs(v);
+
+path.pop_back();
+visited[v] = false;
+```
+
+否则某条路径访问过节点 `v` 后，后续其他合法路径也永远不能再经过 `v`，会漏答案。
+
+<Callout type="warn" title="一句话区分两种 visited">
+
+- **遍历整张图**：访问过一次就永久跳过，不撤销；
+- **枚举当前路径**：只防止当前路径内部成环，回溯时撤销。
+
+一定先确定 `visited` 的语义，再决定是否回溯。
+
+</Callout>
+
+### 情况 C：DAG 中枚举路径
+
+如果题目明确保证是 DAG（有向无环图），从源点向终点枚举路径时通常甚至不需要 `visited`，因为不存在环，不会无限递归。
+
+这也是为什么同样是“所有路径”，不同题目的 DFS 模板可能不同。
+
+---
+
+## 6. DFS 不等于“必须回溯”
+
+这也是一个非常常见的误区。
+
+### 连通性 DFS
+
+```cpp
+void dfs(int u) {
+    visited[u] = true;
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            dfs(v);
+        }
+    }
+}
+```
+
+这里没有任何撤销操作，因为我们就是要永久记录已经访问过的节点。
+
+### 路径枚举 DFS
+
+```cpp
+void dfs(int u) {
+    if (u == target) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            path.push_back(v);
+
+            dfs(v);
+
+            path.pop_back();
+            visited[v] = false;
+        }
+    }
+}
+```
+
+这里有回溯，因为 `path` 和当前路径访问状态只属于当前递归分支。
+
+所以更准确的关系是：
+
+```text
+DFS 是搜索顺序
+回溯是状态恢复机制
+```
+
+某些 DFS 需要回溯，某些不需要。
+
+---
+
+## 7. 有环图为什么必须小心
+
+看最简单的无向边：
+
+```text
+1 ----- 2
+```
+
+如果不维护任何访问状态：
+
+```text
+dfs(1)
+  → dfs(2)
+      → dfs(1)
+          → dfs(2)
+              → ...
+```
+
+会无限递归直到栈溢出。
+
+因此在一般图中，DFS 通常至少需要以下一种机制：
+
+- `visited` 数组；
+- 父节点 `parent`；
+- 当前路径集合；
+- 三色标记。
+
+### 无向图里为什么有时传 parent
+
+例如检测无向图环时：
+
+```cpp
+bool dfs(int u, int parent) {
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            if (dfs(v, u)) return true;
+        } else if (v != parent) {
+            return true;
+        }
+    }
+
+    return false;
+}
+```
+
+因为无向边会存两个方向，从 `u` 走到 `v` 后，`v` 的邻接表里必然还有 `u`。这个“返回父节点的反向边”不能被误判成环。
+
+---
+
+## 8. 三色 DFS：有向图判环的重要思想
+
+有向图中常用三种状态：
+
+| 状态 | 含义 |
+| --- | --- |
+| `0` / White | 从未访问 |
+| `1` / Gray | 已进入递归，但还没有退出 |
+| `2` / Black | 该节点及其后续已经处理完成 |
+
+DFS 过程中如果从当前节点走到一个 **Gray 节点**，说明出现了指向当前递归路径祖先的边，即存在有向环。
+
+```cpp
+bool dfs(int u) {
+    state[u] = 1;
+
+    for (int v : graph[u]) {
+        if (state[v] == 1) {
+            return true;
+        }
+        if (state[v] == 0 && dfs(v)) {
+            return true;
+        }
+    }
+
+    state[u] = 2;
+    return false;
+}
+```
+
+这套思想会在：
+
+- 课程安排；
+- 拓扑排序；
+- 有向图环检测；
+
+中反复出现。
+
+<Callout type="info" title="Gray 的本质">
+
+Gray 不是“访问过”，而是“**还在当前递归调用链上**”。
+
+因此它能区分：
+
+- 指向已经彻底处理完节点的边；
+- 指向当前祖先的回边。
+
+后者才意味着有向环。
+
+</Callout>
+
+---
+
+## 9. DFS 的时间复杂度
+
+如果使用邻接表：
+
+$$
+O(V+E)
+$$
+
+为什么？
+
+- 每个节点最多被正式访问一次；
+- 每条有向边最多被检查一次；
+- 无向边虽然存两次，也只是 $2E$，仍然是 $O(E)$。
+
+因此总复杂度：
+
+$$
+O(V+E)
+$$
+
+如果使用邻接矩阵，则枚举每个节点邻居都要扫描一整行，共 $V$ 行：
+
+$$
+O(V^2)
+$$
+
+### 递归空间复杂度
+
+递归栈深度最坏可以达到 $V$：
+
+$$
+O(V)
+$$
+
+例如图退化成一条链：
+
+```text
+1 → 2 → 3 → 4 → ... → n
+```
+
+递归深度就是 $n$。
+
+因此当 $V$ 很大时，要注意递归栈溢出问题。
+
+---
+
+## 10. 递归 DFS 与迭代 DFS
+
+DFS 并不等于递归。
+
+递归只是最自然的写法，真正的 DFS 本质是“后进先出”的搜索顺序，因此可以手动使用栈。
+
+### 递归版
+
+```cpp
+void dfs(int u) {
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            dfs(v);
+        }
+    }
+}
+```
+
+### 迭代版
+
+```cpp
+stack<int> st;
+st.push(start);
+visited[start] = true;
+
+while (!st.empty()) {
+    int u = st.top();
+    st.pop();
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            st.push(v);
+        }
+    }
+}
+```
+
+两者都能完成深度优先遍历，但访问节点的**具体顺序**可能不同，因为栈中邻居压入顺序会影响谁先弹出。
+
+如果题目只关心可达性或连通分量，通常无所谓；如果要求固定字典序，就必须控制邻接表排序和入栈顺序。
+
+---
+
+## 11. 为什么“所有路径”的复杂度不能写成 $O(V+E)$
+
+这是一个非常重要的复杂度区分。
+
+遍历整张图时，每个节点只处理一次，所以是：
+
+$$
+O(V+E)
+$$
+
+但如果题目要求**枚举所有路径**，同一个节点可能在不同路径中被反复进入。
+
+此时复杂度至少与答案数量有关。
+
+假设一共有 $P$ 条答案路径，每条路径最长为 $V$，仅把所有路径复制进答案数组就可能需要：
+
+$$
+O(PV)
+$$
+
+而 $P$ 在某些图中可能呈指数级增长。
+
+<Callout type="warn" title="不要机械套 DFS = O(V+E)">
+
+只有在“每个节点 / 边被有限次处理”的普通图遍历中，才直接使用 $O(V+E)$。
+
+一旦题目要求枚举组合、路径、方案，复杂度通常由搜索树大小或答案数量决定。
+
+</Callout>
+
+---
+
+## 12. 图 DFS 和网格 DFS 是同一件事
+
+二维网格里，一个格子 `(r,c)` 可以看作一个节点。
+
+如果只允许上下左右移动，那么它最多有四个邻居：
+
+$$
+(r-1,c),\quad (r+1,c),\quad (r,c-1),\quad (r,c+1)
+$$
+
+于是网格 DFS：
+
+```cpp
+const int dirs[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+```
+
+本质上只是“不显式建立邻接表，而是在搜索时动态生成邻居”。
+
+这也是后面岛屿系列题的统一理解方式：
+
+```text
+陆地格子 = 节点
+相邻陆地 = 边
+一整座岛 = 一个连通分量
+```
+
+因此学会普通图 DFS 后，网格 DFS 不应该再被当成一种全新的算法。
+
+---
+
+## 13. DFS 常见应用
+
+DFS 的用途远不止“遍历”。
+
+| 问题类型 | DFS 的作用 |
+| --- | --- |
+| 可达性 | 判断从 $s$ 是否能到 $t$ |
+| 连通分量 | 每次从未访问节点出发染色一个分量 |
+| 岛屿问题 | 在二维网格中遍历一整块陆地 |
+| 路径枚举 | 枚举所有简单路径 / DAG 路径 |
+| 环检测 | 借助 visited、parent 或三色标记 |
+| 拓扑排序 | DFS 后序可生成拓扑序 |
+| 强连通分量 | Tarjan / Kosaraju 都以 DFS 为核心 |
+| 树上问题 | 子树统计、深度、路径状态等 |
+| 回溯问题 | 在隐式状态图 / 搜索树上进行 DFS |
+
+这说明 DFS 更像一种基础的“搜索范式”。
+
+---
+
+## 14. 写 DFS 前的 30 秒自检
+
+开始敲代码前，先回答：
+
+- [ ] `dfs(...)` 的一句话语义是什么？
+- [ ] 当前节点什么时候算处理完成？
+- [ ] 终止条件是什么？
+- [ ] 当前节点的“下一步选择”有哪些？
+- [ ] 图中是否可能存在环？
+- [ ] `visited` 表示全局访问，还是当前路径访问？
+- [ ] `visited` 是否需要回溯撤销？
+- [ ] 是否需要维护 `path`？
+- [ ] 是否需要 `parent`？
+- [ ] 邻接表的顺序是否会影响题目要求的输出顺序？
+- [ ] 最大递归深度是否可能造成栈溢出？
+
+如果这几个问题都能明确，DFS 代码通常已经完成了一大半。
+
+---
+
+## 15. 多语言 DFS 模板：遍历所有可达节点
+
+下面统一使用邻接表，并把 `visited` 定义为**全局访问标记**。
+
+```cpp tab="C++" tab-group="dfs-reachability-template"
+#include <bits/stdc++.h>
+using namespace std;
+
+void dfs(int u,
+         const vector<vector<int>>& graph,
+         vector<bool>& visited) {
+    visited[u] = true;
+
+    // 在这里处理节点 u
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            dfs(v, graph, visited);
+        }
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n + 1);
+    for (int i = 0; i < m; ++i) {
+        int u, v;
+        cin >> u >> v;
+        graph[u].push_back(v);
+        graph[v].push_back(u); // 无向图
+    }
+
+    vector<bool> visited(n + 1, false);
+    dfs(1, graph, visited);
+
+    return 0;
+}
+```
+
+```java tab="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static List<List<Integer>> graph;
+    static boolean[] visited;
+
+    static void dfs(int u) {
+        visited[u] = true;
+
+        // 在这里处理节点 u
+
+        for (int v : graph.get(u)) {
+            if (!visited[v]) {
+                dfs(v);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        int n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        graph = new ArrayList<>(n + 1);
+        for (int i = 0; i <= n; ++i) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+
+        visited = new boolean[n + 1];
+        dfs(1);
+    }
+}
+```
+
+```python tab="Python"
+import sys
+
+sys.setrecursionlimit(1_000_000)
+input = sys.stdin.readline
+
+
+def dfs(u: int) -> None:
+    visited[u] = True
+
+    # 在这里处理节点 u
+
+    for v in graph[u]:
+        if not visited[v]:
+            dfs(v)
+
+
+n, m = map(int, input().split())
+graph = [[] for _ in range(n + 1)]
+
+for _ in range(m):
+    u, v = map(int, input().split())
+    graph[u].append(v)
+    graph[v].append(u)
+
+visited = [False] * (n + 1)
+dfs(1)
+```
+
+```go tab="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+
+    var n, m int
+    fmt.Fscan(in, &n, &m)
+
+    graph := make([][]int, n+1)
+    for i := 0; i < m; i++ {
+        var u, v int
+        fmt.Fscan(in, &u, &v)
+        graph[u] = append(graph[u], v)
+        graph[v] = append(graph[v], u)
+    }
+
+    visited := make([]bool, n+1)
+
+    var dfs func(int)
+    dfs = func(u int) {
+        visited[u] = true
+
+        // 在这里处理节点 u
+
+        for _, v := range graph[u] {
+            if !visited[v] {
+                dfs(v)
+            }
+        }
+    }
+
+    dfs(1)
+}
+```
+
+## 16. 多语言 DFS 模板：枚举所有简单路径
+
+这里展示另一种 `visited` 语义：**只表示当前路径中是否已经出现该节点**，因此递归返回后必须撤销。
+
+```cpp tab="C++" tab-group="dfs-all-simple-paths-template"
+vector<vector<int>> result;
+vector<int> path;
+vector<bool> onPath;
+
+void dfs(int u, int target, const vector<vector<int>>& graph) {
+    if (u == target) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int v : graph[u]) {
+        if (onPath[v]) continue;
+
+        onPath[v] = true;
+        path.push_back(v);
+
+        dfs(v, target, graph);
+
+        path.pop_back();
+        onPath[v] = false;
+    }
+}
+
+// 调用前：
+// path.push_back(source);
+// onPath[source] = true;
+// dfs(source, target, graph);
+```
+
+```java tab="Java"
+static List<List<Integer>> result = new ArrayList<>();
+static List<Integer> path = new ArrayList<>();
+static boolean[] onPath;
+static List<List<Integer>> graph;
+
+static void dfs(int u, int target) {
+    if (u == target) {
+        result.add(new ArrayList<>(path));
+        return;
+    }
+
+    for (int v : graph.get(u)) {
+        if (onPath[v]) continue;
+
+        onPath[v] = true;
+        path.add(v);
+
+        dfs(v, target);
+
+        path.remove(path.size() - 1);
+        onPath[v] = false;
+    }
+}
+
+// 调用前：
+// path.add(source);
+// onPath[source] = true;
+// dfs(source, target);
+```
+
+```python tab="Python"
+result = []
+path = []
+on_path = [False] * (n + 1)
+
+
+def dfs(u: int, target: int) -> None:
+    if u == target:
+        result.append(path.copy())
+        return
+
+    for v in graph[u]:
+        if on_path[v]:
+            continue
+
+        on_path[v] = True
+        path.append(v)
+
+        dfs(v, target)
+
+        path.pop()
+        on_path[v] = False
+
+
+# 调用前：
+# path.append(source)
+# on_path[source] = True
+# dfs(source, target)
+```
+
+```go tab="Go"
+var (
+    result [][]int
+    path   []int
+    onPath []bool
+    graph  [][]int
+)
+
+func dfs(u, target int) {
+    if u == target {
+        snapshot := append([]int(nil), path...)
+        result = append(result, snapshot)
+        return
+    }
+
+    for _, v := range graph[u] {
+        if onPath[v] {
+            continue
+        }
+
+        onPath[v] = true
+        path = append(path, v)
+
+        dfs(v, target)
+
+        path = path[:len(path)-1]
+        onPath[v] = false
+    }
+}
+
+// 调用前：
+// path = append(path, source)
+// onPath[source] = true
+// dfs(source, target)
+```
+
+## 总结
+
+DFS 可以用下面这条主线理解：
+
+```text
+从当前节点出发
+   ↓
+枚举一个邻居
+   ↓
+满足条件就深入递归
+   ↓
+当前分支结束
+   ↓
+必要时恢复状态
+   ↓
+继续下一个邻居
+```
+
+真正要牢记的不是某一份固定模板，而是先区分题目属于哪一类：
+
+```text
+遍历 / 可达性
+→ visited 是全局状态，不撤销
+
+枚举所有简单路径
+→ visited 是当前路径状态，需要回溯
+
+DAG 路径枚举
+→ 因为无环，通常可以不使用 visited
+```
+
+只要把这三类语义分清，绝大多数 DFS 写法就不会再混乱。

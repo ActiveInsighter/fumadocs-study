@@ -1,0 +1,963 @@
+---
+title: 左叶子之和：学会从父节点识别子节点身份
+description: 以 LeetCode 404 为主线，彻底区分左节点、左叶子与最左节点，学习为什么左叶子必须借助父节点识别，并系统掌握递归、栈迭代与层序遍历三种写法。
+---
+
+# 左叶子之和：学会从父节点识别子节点身份
+
+> LeetCode 404 · Sum of Left Leaves
+
+[题目链接](https://leetcode.cn/problems/sum-of-left-leaves/)
+
+给定一棵二叉树，计算所有**左叶子节点**的值之和。
+
+![404 左叶子之和示例](https://file1.kamacoder.com/i/algo/20210204151927654.png)
+
+这道题代码并不长，但非常适合训练一个容易被忽视的能力：
+
+> **当前节点的某些“身份”，不能只看当前节点本身，而要结合它与父节点的关系判断。**
+
+<Callout title="先抓住本题唯一真正的难点" type="idea">
+
+“叶子”是节点自身的结构属性；
+
+“左叶子”则同时包含两层条件：
+
+1. 它是叶子；
+2. 它还是父节点的左孩子。
+
+因此，仅站在当前节点自己身上，并不能知道自己是不是“左叶子”。
+
+</Callout>
+
+## 1. 什么才叫左叶子
+
+设节点 $u$ 的左孩子为 $v$。
+
+$v$ 是左叶子，当且仅当：
+
+$$
+u.left=v
+$$
+
+并且：
+
+$$
+v.left=\varnothing \land v.right=\varnothing
+$$
+
+换成代码就是：
+
+```cpp
+if (node->left != nullptr
+    && node->left->left == nullptr
+    && node->left->right == nullptr) {
+    // node->left 是左叶子
+}
+```
+
+注意判断主体是：
+
+```text
+当前节点 node 的左孩子
+```
+
+而不是：
+
+```text
+当前节点 node 自己
+```
+
+## 2. 左叶子 ≠ 左节点 ≠ 最左节点
+
+这是本题最容易混淆的三个概念。
+
+### 2.1 左节点
+
+只要一个节点是父节点的左孩子，就可以称它处在左孩子位置。
+
+但它可能还有孩子，所以不一定是叶子。
+
+### 2.2 左叶子
+
+必须同时满足：
+
+```text
+是父节点的左孩子
+且
+自己没有任何孩子
+```
+
+### 2.3 最左节点
+
+“最左”描述的是整棵树中的位置，而不是父子关系。
+
+下面这棵树的最左侧能看到很多节点，但左叶子之和仍可能为 $0$：
+
+![没有左叶子的示例](https://file1.kamacoder.com/i/algo/20210204151949672.png)
+
+而下面这棵树中，则可以根据“父节点的左孩子是否为叶子”逐一识别：
+
+![左叶子判断示例](https://file1.kamacoder.com/i/algo/20220902165805.png)
+
+<Callout title="一句话判定" type="warning">
+
+不要问：
+
+> “这个节点是不是左叶子？”
+
+而要问：
+
+> “这个节点的左孩子是不是叶子？”
+
+这样最不容易写错。
+
+</Callout>
+
+## 3. 为什么不能只在当前节点处判断
+
+假设当前递归到了节点 `x`：
+
+```text
+      parent
+      /   \
+     x    ...
+```
+
+从 `x` 本身只能看到：
+
+```text
+x.left
+x.right
+```
+
+因此可以判断：
+
+```text
+x 是否是叶子
+```
+
+但看不到：
+
+```text
+x 是 parent 的左孩子还是右孩子
+```
+
+也就是说，“左”这个属性来自**父子边**，不来自节点自身。
+
+这就是为什么最自然的写法是在父节点处判断：
+
+```cpp
+if (root->left
+    && root->left->left == nullptr
+    && root->left->right == nullptr) {
+    // root->left 是左叶子
+}
+```
+
+### 3.1 另一种思路：把身份从父节点传下来
+
+当然，也可以给递归函数额外增加一个状态：
+
+```cpp
+void dfs(TreeNode* node, bool isLeft)
+```
+
+这样当前节点就能知道自己是不是左孩子。
+
+例如：
+
+```cpp
+int dfs(TreeNode* node, bool isLeft) {
+    if (node == nullptr) return 0;
+
+    if (node->left == nullptr && node->right == nullptr) {
+        return isLeft ? node->val : 0;
+    }
+
+    return dfs(node->left, true)
+         + dfs(node->right, false);
+}
+```
+
+这个写法完全正确，而且非常有启发性：
+
+> 如果节点自身缺少判断所需的信息，就可以考虑把信息作为递归参数从父节点向下传递。
+
+后面大量 DFS、回溯题都会用到这种设计。
+
+## 4. 解法一：递归——让每棵子树返回自己的左叶子之和
+
+定义函数：
+
+```cpp
+int sumOfLeftLeaves(TreeNode* root)
+```
+
+它的语义是：
+
+> 返回以 `root` 为根的这棵子树中，所有左叶子节点的值之和。
+
+这句话一旦确定，递归关系就很自然。
+
+## 5. 递归三部曲
+
+### 5.1 第一步：参数与返回值
+
+参数只需要当前子树根节点：
+
+```cpp
+TreeNode* root
+```
+
+返回值是当前子树中的左叶子之和：
+
+```cpp
+int
+```
+
+### 5.2 第二步：终止条件
+
+空树显然没有左叶子：
+
+```cpp
+if (root == nullptr) return 0;
+```
+
+可以额外写：
+
+```cpp
+if (root->left == nullptr && root->right == nullptr) return 0;
+```
+
+因为如果当前节点本身已经是叶子，那么它的子树内部不可能再有左叶子。
+
+不过这一条不是必须的，省略后结果仍然正确。
+
+### 5.3 第三步：单层递归逻辑
+
+先计算左右子树中的答案：
+
+```cpp
+int leftValue = sumOfLeftLeaves(root->left);
+int rightValue = sumOfLeftLeaves(root->right);
+```
+
+然后判断当前节点的左孩子本身是否为左叶子：
+
+```cpp
+if (root->left != nullptr
+    && root->left->left == nullptr
+    && root->left->right == nullptr) {
+    leftValue = root->left->val;
+}
+```
+
+最后合并：
+
+```cpp
+return leftValue + rightValue;
+```
+
+完整代码：
+
+```cpp title="递归：显式展示后序逻辑"
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if (root == nullptr) return 0;
+        if (root->left == nullptr && root->right == nullptr) return 0;
+
+        int leftValue = sumOfLeftLeaves(root->left);   // 左
+
+        if (root->left != nullptr
+            && root->left->left == nullptr
+            && root->left->right == nullptr) {
+            leftValue = root->left->val;
+        }
+
+        int rightValue = sumOfLeftLeaves(root->right); // 右
+
+        return leftValue + rightValue;                 // 中
+    }
+};
+```
+
+## 6. 为什么说这里是后序思维
+
+在上面的写法中，当前节点最终返回答案之前，先获得了：
+
+```text
+左子树答案
+右子树答案
+```
+
+然后再在当前层进行合并。
+
+逻辑顺序是：
+
+```text
+左 → 右 → 中
+```
+
+因此属于后序思维。
+
+不过要注意：
+
+> 遍历顺序描述的是“处理逻辑的依赖关系”，不是看代码里哪个 `if` 恰好写在前面。
+
+精简以后代码可以写成：
+
+```cpp title="递归：精简版"
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        int current = 0;
+
+        if (root->left != nullptr
+            && root->left->left == nullptr
+            && root->left->right == nullptr) {
+            current = root->left->val;
+        }
+
+        return current
+             + sumOfLeftLeaves(root->left)
+             + sumOfLeftLeaves(root->right);
+    }
+};
+```
+
+这段代码更短，但递归结构反而不如展开版直观。
+
+## 7. 用数学递推式理解
+
+设 $S(u)$ 表示以 $u$ 为根的子树中所有左叶子的值之和。
+
+空节点：
+
+$$
+S(\varnothing)=0
+$$
+
+定义：
+
+$$
+L(u)=
+\begin{cases}
+u.left.val, & u.left\text{ 是叶子}\cr
+0, & \text{否则}
+\end{cases}
+$$
+
+那么：
+
+$$
+S(u)=L(u)+S(u.left)+S(u.right)
+$$
+
+这正是精简递归代码在做的事情。
+
+## 8. 一个容易疑惑的细节：会不会把同一个左叶子算两次
+
+假设：
+
+```text
+      A
+     /
+    B
+```
+
+并且 `B` 是叶子。
+
+在 `A` 这一层：
+
+```cpp
+current = B->val;
+```
+
+同时程序还会调用：
+
+```cpp
+sumOfLeftLeaves(B)
+```
+
+会不会再次加上 `B`？
+
+不会。
+
+因为：
+
+```text
+B 自己是一片叶子
+```
+
+但函数 `sumOfLeftLeaves(B)` 的语义是：
+
+```text
+统计 B 这棵子树内部的“左叶子”
+```
+
+`B` 没有孩子，所以返回 $0$。
+
+也就是说：
+
+> `B` 作为“左叶子”的身份是在父节点 `A` 那一层确认的，而不是在 `B` 自己那一层确认的。
+
+这再次体现了本题的核心。
+
+## 9. 解法二：显式栈 DFS
+
+递归可以改成栈迭代。
+
+每弹出一个节点，就检查：
+
+```text
+它的左孩子是不是叶子
+```
+
+如果是就累加。
+
+```cpp title="栈迭代"
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        stack<TreeNode*> st;
+        st.push(root);
+
+        int result = 0;
+
+        while (!st.empty()) {
+            TreeNode* node = st.top();
+            st.pop();
+
+            if (node->left != nullptr
+                && node->left->left == nullptr
+                && node->left->right == nullptr) {
+                result += node->left->val;
+            }
+
+            if (node->right != nullptr) st.push(node->right);
+            if (node->left != nullptr) st.push(node->left);
+        }
+
+        return result;
+    }
+};
+```
+
+这里采用的是前序风格 DFS，但事实上只要整棵树都被访问到，前序、中序、后序都可以完成统计。
+
+因为本题不要求节点按特定顺序产生结果。
+
+## 10. 解法三：BFS 层序遍历
+
+也可以使用队列逐层扫描。
+
+```cpp title="队列层序遍历"
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+        if (root == nullptr) return 0;
+
+        queue<TreeNode*> que;
+        que.push(root);
+
+        int result = 0;
+
+        while (!que.empty()) {
+            TreeNode* node = que.front();
+            que.pop();
+
+            if (node->left != nullptr
+                && node->left->left == nullptr
+                && node->left->right == nullptr) {
+                result += node->left->val;
+            }
+
+            if (node->left != nullptr) que.push(node->left);
+            if (node->right != nullptr) que.push(node->right);
+        }
+
+        return result;
+    }
+};
+```
+
+这里甚至不需要像“按层统计”题那样记录：
+
+```cpp
+int size = que.size();
+```
+
+因为我们并不关心节点属于第几层，只需要遍历全部节点。
+
+## 11. 三种写法怎么选
+
+| 方法 | 核心状态 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- | --- |
+| 递归 DFS | 子树左叶子和 | $O(n)$ | $O(h)$ | 最贴近递归定义 |
+| 栈 DFS | 当前待访问节点 | $O(n)$ | $O(h)$ 到 $O(n)$ | 避免系统递归栈 |
+| 队列 BFS | 当前待访问节点 | $O(n)$ | $O(w)$ | 写法直观，但不需要真正按层 |
+
+其中：
+
+- $n$：节点总数；
+- $h$：树高；
+- $w$：树的最大宽度。
+
+最坏情况下空间都可能达到：
+
+$$
+O(n)
+$$
+
+## 12. 为什么“从父节点判断孩子”是一类重要技巧
+
+平时很多题的判断形式是：
+
+```text
+看 node.left 和 node.right
+判断 node 自己是什么
+```
+
+例如：
+
+```cpp
+bool isLeaf = node->left == nullptr && node->right == nullptr;
+```
+
+本题则相反：
+
+```text
+站在 node
+判断 node.left 是什么
+```
+
+这种视角在很多树题里都很重要。
+
+例如未来可能遇到：
+
+```text
+判断某节点是不是左孩子 / 右孩子
+计算父子边贡献
+判断兄弟节点关系
+统计某类父子结构
+维护从父节点传下来的状态
+```
+
+所以本题虽然简单，却能训练“节点信息不一定只来自节点自身”的意识。
+
+## 13. 常见错误一：把“左叶子”理解成“所有左孩子”
+
+错误写法：
+
+```cpp
+if (node->left != nullptr) {
+    result += node->left->val;
+}
+```
+
+这会把所有左孩子都计入，包括非叶子节点。
+
+必须额外检查：
+
+```cpp
+node->left->left == nullptr
+&& node->left->right == nullptr
+```
+
+## 14. 常见错误二：把“最左边的叶子”当成“左叶子”
+
+题目并不是求：
+
+```text
+每一层最左边节点
+```
+
+也不是求：
+
+```text
+整棵树最左下角节点
+```
+
+而是求所有满足：
+
+```text
+父节点的左孩子 + 叶子节点
+```
+
+的节点之和。
+
+因此这道题和“找树左下角的值”虽然名字都带“左”，问题结构完全不同。
+
+## 15. 常见错误三：只判断叶子，却丢失左右身份
+
+例如：
+
+```cpp
+if (!node->left && !node->right) {
+    result += node->val;
+}
+```
+
+这里只知道 `node` 是叶子，却不知道它是父节点的左孩子还是右孩子。
+
+修正方式有两种：
+
+```text
+方法 A：在父节点处检查左孩子
+方法 B：递归参数额外携带 isLeft
+```
+
+这两种写法对应两种常见状态设计策略：
+
+```text
+向上看一层
+或
+把上下文向下传
+```
+
+## 16. 用 `isLeft` 参数重写：理解“上下文状态”
+
+这一版不是最短答案，但非常值得掌握：
+
+```cpp title="携带节点身份的 DFS"
+class Solution {
+public:
+    int dfs(TreeNode* node, bool isLeft) {
+        if (node == nullptr) return 0;
+
+        if (node->left == nullptr && node->right == nullptr) {
+            return isLeft ? node->val : 0;
+        }
+
+        return dfs(node->left, true)
+             + dfs(node->right, false);
+    }
+
+    int sumOfLeftLeaves(TreeNode* root) {
+        return dfs(root, false);
+    }
+};
+```
+
+这里 `isLeft` 表示：
+
+```text
+当前 node 是否是它父节点的左孩子
+```
+
+注意根节点没有父节点，所以初始传：
+
+```cpp
+false
+```
+
+这种“把路径上下文作为参数传入 DFS”的模式非常通用。
+
+## 17. 手动模拟一次
+
+假设：
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+逐个站在父节点检查：
+
+### 节点 `3`
+
+左孩子是 `9`：
+
+```text
+9.left = null
+9.right = null
+```
+
+因此 `9` 是左叶子：
+
+$$
+result=9
+$$
+
+### 节点 `20`
+
+左孩子是 `15`，并且 `15` 没有孩子，因此：
+
+$$
+result=9+15=24
+$$
+
+### 右叶子 `7`
+
+虽然 `7` 是叶子，但它是 `20` 的右孩子，不计入。
+
+最终：
+
+$$
+\boxed{24}
+$$
+
+## 18. 本题的真正迁移价值
+
+这道题最后真正应该留下的不是下面这行判断：
+
+```cpp
+root->left && !root->left->left && !root->left->right
+```
+
+而是三条方法论：
+
+1. **先精确定义目标节点。** “左叶子”是“关系 + 结构”的组合属性。
+2. **当前节点缺少信息时，考虑父节点视角或递归参数。**
+3. **递归函数必须有明确语义。** 一旦定义为“返回当前子树左叶子之和”，递推式自然出现。
+
+<Callout title="记忆模板" type="success">
+
+以后遇到“某种特殊孩子节点”的统计题，可以优先尝试：
+
+```text
+遍历每个父节点
+    ↓
+检查目标孩子是否满足条件
+    ↓
+满足则处理
+    ↓
+继续遍历左右子树
+```
+
+</Callout>
+
+## 19. 其他语言版本
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null) return 0;
+
+        int current = 0;
+        if (root.left != null
+                && root.left.left == null
+                && root.left.right == null) {
+            current = root.left.val;
+        }
+
+        return current
+                + sumOfLeftLeaves(root.left)
+                + sumOfLeftLeaves(root.right);
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def sumOfLeftLeaves(self, root):
+        if root is None:
+            return 0
+
+        current = 0
+        if root.left and root.left.left is None and root.left.right is None:
+            current = root.left.val
+
+        return (
+            current
+            + self.sumOfLeftLeaves(root.left)
+            + self.sumOfLeftLeaves(root.right)
+        )
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func sumOfLeftLeaves(root *TreeNode) int {
+    if root == nil {
+        return 0
+    }
+
+    current := 0
+    if root.Left != nil && root.Left.Left == nil && root.Left.Right == nil {
+        current = root.Left.Val
+    }
+
+    return current + sumOfLeftLeaves(root.Left) + sumOfLeftLeaves(root.Right)
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var sumOfLeftLeaves = function(root) {
+  if (root === null) return 0;
+
+  let current = 0;
+  if (root.left && root.left.left === null && root.left.right === null) {
+    current = root.left.val;
+  }
+
+  return current
+    + sumOfLeftLeaves(root.left)
+    + sumOfLeftLeaves(root.right);
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function sumOfLeftLeaves(root: TreeNode | null): number {
+    if (root === null) return 0;
+
+    let current = 0;
+    if (
+        root.left !== null &&
+        root.left.left === null &&
+        root.left.right === null
+    ) {
+        current = root.left.val;
+    }
+
+    return current
+        + sumOfLeftLeaves(root.left)
+        + sumOfLeftLeaves(root.right);
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+func sumOfLeftLeaves(_ root: TreeNode?) -> Int {
+    guard let root = root else { return 0 }
+
+    var current = 0
+    if let left = root.left,
+       left.left == nil,
+       left.right == nil {
+        current = left.val
+    }
+
+    return current
+        + sumOfLeftLeaves(root.left)
+        + sumOfLeftLeaves(root.right)
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+int sumOfLeftLeaves(struct TreeNode* root) {
+    if (root == NULL) return 0;
+
+    int current = 0;
+    if (root->left != NULL
+        && root->left->left == NULL
+        && root->left->right == NULL) {
+        current = root->left->val;
+    }
+
+    return current
+        + sumOfLeftLeaves(root->left)
+        + sumOfLeftLeaves(root->right);
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def sumOfLeftLeaves(root: TreeNode): Int = {
+    if (root == null) return 0
+
+    val current =
+      if (root.left != null && root.left.left == null && root.left.right == null)
+        root.left.value
+      else
+        0
+
+    current + sumOfLeftLeaves(root.left) + sumOfLeftLeaves(root.right)
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn sum_of_left_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        let Some(node) = root else {
+            return 0;
+        };
+
+        let (left, right, current) = {
+            let node_ref = node.borrow();
+            let left = node_ref.left.clone();
+            let right = node_ref.right.clone();
+
+            let current = match &left {
+                Some(left_node) => {
+                    let left_ref = left_node.borrow();
+                    if left_ref.left.is_none() && left_ref.right.is_none() {
+                        left_ref.val
+                    } else {
+                        0
+                    }
+                }
+                None => 0,
+            };
+
+            (left, right, current)
+        };
+
+        current
+            + Self::sum_of_left_leaves(left)
+            + Self::sum_of_left_leaves(right)
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public int SumOfLeftLeaves(TreeNode root) {
+        if (root == null) return 0;
+
+        int current = 0;
+        if (root.left != null
+            && root.left.left == null
+            && root.left.right == null) {
+            current = root.left.val;
+        }
+
+        return current
+            + SumOfLeftLeaves(root.left)
+            + SumOfLeftLeaves(root.right);
+    }
+}
+```
+
+</Tab>
+</Tabs>

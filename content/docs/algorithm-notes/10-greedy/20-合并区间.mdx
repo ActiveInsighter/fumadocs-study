@@ -1,0 +1,1283 @@
+---
+title: 合并区间
+summary: 按左端点排序后，只需维护当前合并区间的最远右端点；新区间若与当前区间相交就扩张右边界，否则结算当前区间并开启下一段。
+description: LeetCode 56 合并区间。系统讲解左端点排序、扫描不变量、区间合并正确性、闭区间边界、与射气球/无重叠区间/划分字母区间的统一视角、常见错误、复杂度和多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 56. 合并区间
+
+[LeetCode 56. Merge Intervals](https://leetcode.cn/problems/merge-intervals/)
+
+给定若干闭区间：
+
+$$
+[l_1,r_1],[l_2,r_2],\ldots,[l_n,r_n]
+$$
+
+要求把所有发生重叠的区间合并，并返回最终互不重叠的区间集合。
+
+例如：
+
+```text
+输入：[[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+```
+
+因为：
+
+$$
+[1,3]\cap[2,6]\neq\varnothing
+$$
+
+所以前两个区间合并为：
+
+$$
+[1,6]
+$$
+
+另一个很重要的边界样例：
+
+```text
+输入：[[1,4],[4,5]]
+输出：[[1,5]]
+```
+
+因为题目中的区间是闭区间，端点 $4$ 同时属于两个区间，因此二者视为重叠。
+
+---
+
+## 1. 这道题真正难在哪里
+
+如果区间已经按照左端点排好序，那么合并本身其实非常自然。
+
+难点在于先意识到：
+
+> **区间顺序混乱时，很难只通过局部信息判断“当前区间究竟应该和谁合并”；先排序，才能把二维关系压缩成一次线性扫描。**
+
+例如：
+
+```text
+[8,10] [1,3] [15,18] [2,6]
+```
+
+直接扫描几乎没有意义。
+
+按左端点升序后变成：
+
+```text
+[1,3] [2,6] [8,10] [15,18]
+```
+
+此时只需要不断问一个问题：
+
+> 当前区间的左端点，是否已经超过“正在合并的区间”的右端点？
+
+于是问题立刻变成线性的。
+
+<Callout type="info" title="区间题最常见的第一步">
+当题目要求处理“重叠、覆盖、交集、删除、合并”时，优先考虑先按左端点或右端点排序。排序的目的不是为了好看，而是让后续决策只依赖当前维护的一个边界。
+</Callout>
+
+---
+
+## 2. 为什么按左端点排序最自然
+
+假设已经按左端点升序排序：
+
+$$
+l_1\le l_2\le\cdots\le l_n
+$$
+
+当前已经合并出一个区间：
+
+$$
+[L,R]
+$$
+
+接下来考察新区间：
+
+$$
+[l_i,r_i]
+$$
+
+由于左端点已经有序，一定有：
+
+$$
+L\le l_i
+$$
+
+因此两区间是否重叠，只需要比较：
+
+$$
+l_i\le R
+$$
+
+### 情况一：发生重叠
+
+如果：
+
+$$
+l_i\le R
+$$
+
+那么两个闭区间相交。
+
+合并后左端点仍然是 $L$，右端点扩张为：
+
+$$
+R=\max(R,r_i)
+$$
+
+即：
+
+$$
+[L,R]\cup[l_i,r_i]
+=
+[L,\max(R,r_i)]
+$$
+
+### 情况二：完全断开
+
+如果：
+
+$$
+l_i>R
+$$
+
+说明当前新区间已经无法与正在维护的区间发生重叠。
+
+更重要的是，因为后续区间左端点只会更大，所以当前区间：
+
+$$
+[L,R]
+$$
+
+以后也**绝不可能再被后面的区间连接回来**。
+
+因此它已经可以安全地加入答案。
+
+这就是整道题最关键的“结算时机”。
+
+---
+
+## 3. 原图怎么读
+
+原资料中的示意图：
+
+![56. 合并区间](https://file1.kamacoder.com/i/algo/20201223200632791.png)
+
+看图时不要把注意力放在“画了几个区间”上，而要看两个状态：
+
+```text
+当前已合并区间：[L, R]
+当前扫描区间：  [l, r]
+```
+
+只有两种转移：
+
+```text
+l <= R
+    ↓
+发生重叠
+    ↓
+R = max(R, r)
+```
+
+或者：
+
+```text
+l > R
+    ↓
+当前合并段已经结束
+    ↓
+把 [L, R] 加入答案
+    ↓
+从 [l, r] 开启下一段
+```
+
+可以把整个算法理解成：
+
+> **不断延长当前连通块；一旦出现断点，就把当前连通块结算。**
+
+---
+
+## 4. 最重要的扫描不变量
+
+设结果数组 `result` 中已经保存若干完成合并的区间。
+
+扫描过程中，始终保持：
+
+> `result.back()` 表示“所有已经扫描但尚未彻底结算的区间合并后的结果”。
+
+换句话说，假设当前：
+
+```text
+result.back() = [L, R]
+```
+
+那么 $R$ 必须等于当前这一组所有相互连通区间中的最大右端点：
+
+$$
+R=\max(r_j)
+$$
+
+只要下一个区间左端点：
+
+$$
+l_i\le R
+$$
+
+它就属于同一组，继续扩张右端点即可。
+
+一旦：
+
+$$
+l_i>R
+$$
+
+当前连通组就彻底结束。
+
+<Callout type="info" title="真正应该记住的是不变量">
+不是机械记忆 `result.back()[1] = max(...)`，而是记住：扫描过程中始终维护“当前已经连成一片的区间并集”。代码只是这个不变量的直接翻译。
+</Callout>
+
+---
+
+## 5. 完整算法流程
+
+<Steps>
+<Step>
+
+### 按左端点升序排序
+
+把所有区间按：
+
+$$
+l_i
+$$
+
+从小到大排序。
+
+若左端点相同，右端点的相对顺序并不影响正确性。
+
+</Step>
+<Step>
+
+### 把第一个区间放入结果
+
+初始化：
+
+```text
+result = [intervals[0]]
+```
+
+此时它既是第一个答案候选，也是当前正在维护的合并区间。
+
+</Step>
+<Step>
+
+### 从第二个区间开始扫描
+
+设：
+
+```text
+last = result.back()
+cur  = intervals[i]
+```
+
+若：
+
+$$
+cur.left\le last.right
+$$
+
+则二者重叠，更新：
+
+$$
+last.right=\max(last.right,cur.right)
+$$
+
+</Step>
+<Step>
+
+### 遇到断点时开启新区间
+
+若：
+
+$$
+cur.left>last.right
+$$
+
+说明当前区间与前一组已经彻底分离。
+
+直接：
+
+```text
+result.push_back(cur)
+```
+
+之后这个新区间就成为新的 `result.back()`。
+
+</Step>
+</Steps>
+
+---
+
+## 6. 经典样例逐步推演
+
+考虑：
+
+```text
+[[1,3],[2,6],[8,10],[15,18]]
+```
+
+本身已经按左端点排序。
+
+### 初始状态
+
+```text
+result = [[1,3]]
+```
+
+当前维护：
+
+$$
+[1,3]
+$$
+
+### 扫描 `[2,6]`
+
+因为：
+
+$$
+2\le3
+$$
+
+发生重叠。
+
+更新右边界：
+
+$$
+R=\max(3,6)=6
+$$
+
+得到：
+
+```text
+result = [[1,6]]
+```
+
+### 扫描 `[8,10]`
+
+因为：
+
+$$
+8>6
+$$
+
+出现断点。
+
+所以 `[1,6]` 已经彻底完成，新增一个区间：
+
+```text
+result = [[1,6],[8,10]]
+```
+
+### 扫描 `[15,18]`
+
+因为：
+
+$$
+15>10
+$$
+
+再次出现断点：
+
+```text
+result = [[1,6],[8,10],[15,18]]
+```
+
+最终答案即为上述三个区间。
+
+---
+
+## 7. 为什么这种局部合并一定正确
+
+这个算法看起来像“能合就合”，但它的正确性来自排序后的结构，而不是直觉。
+
+假设当前已经形成：
+
+$$
+[L,R]
+$$
+
+并且下一个区间为：
+
+$$
+[l,r]
+$$
+
+### 当 $l\le R$ 时
+
+两个区间有交集。
+
+由于 $L\le l$，它们的并集一定是一个连续区间：
+
+$$
+[L,\max(R,r)]
+$$
+
+此时把右端点扩张到最大值不会遗漏任何点，也不会错误引入两区间之外的“断层”。
+
+因此合并是唯一合理的结果。
+
+### 当 $l>R$ 时
+
+当前区间与新区间之间存在真实空隙：
+
+$$
+(R,l)
+$$
+
+又因为已经按左端点排序，所以以后所有区间的左端点满足：
+
+$$
+l_{future}\ge l>R
+$$
+
+因此任何后续区间都不可能再与 `[L,R]` 相交。
+
+于是 `[L,R]` 可以立刻结算。
+
+这说明扫描过程中每一步都不会影响未来的正确决策。
+
+---
+
+## 8. 为什么边界条件必须是 `<=`
+
+题目中的区间是闭区间。
+
+例如：
+
+```text
+[1,4]
+[4,5]
+```
+
+两区间共同包含点：
+
+$$
+4
+$$
+
+因此它们相交：
+
+$$
+[1,4]\cap[4,5]=\{4\}
+$$
+
+所以判断重叠必须写成：
+
+```cpp
+if (intervals[i][0] <= result.back()[1])
+```
+
+而不是：
+
+```cpp
+if (intervals[i][0] < result.back()[1])
+```
+
+<Callout type="warning" title="区间题最容易错的不是算法，而是端点定义">
+遇到 `[a,b]` 与 `[b,c]` 时，先确认题目把它们算“相交”还是“不相交”。不同题目的 `>`、`>=`、`<`、`<=` 往往只差这一个端点语义。
+</Callout>
+
+---
+
+## 9. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        if (intervals.empty()) {
+            return {};
+        }
+
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[0] < b[0];
+             });
+
+        vector<vector<int>> result;
+        result.push_back(intervals[0]);
+
+        for (int i = 1; i < intervals.size(); ++i) {
+            if (intervals[i][0] <= result.back()[1]) {
+                result.back()[1] = max(result.back()[1], intervals[i][1]);
+            } else {
+                result.push_back(intervals[i]);
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+这份代码最值得理解的是：
+
+```cpp
+result.back()
+```
+
+它不是“上一个原始区间”，而是：
+
+> **当前已经合并后的整段区间。**
+
+这是很多错误代码的分水岭。
+
+---
+
+## 10. 为什么不能只和 `intervals[i - 1]` 比
+
+一种常见误区是：
+
+```cpp
+if (intervals[i][0] <= intervals[i - 1][1])
+```
+
+然后只依据原数组中的相邻区间做判断。
+
+问题在于，前面的多个区间可能已经扩张出一个更大的右边界。
+
+例如：
+
+```text
+[1,10], [2,3], [9,12]
+```
+
+如果只看 `[2,3]` 和 `[9,12]`：
+
+$$
+9>3
+$$
+
+看起来不重叠。
+
+但 `[1,10]` 与 `[2,3]` 合并后仍然是：
+
+$$
+[1,10]
+$$
+
+而：
+
+$$
+9\le10
+$$
+
+所以 `[9,12]` 实际上必须继续合并，最终得到：
+
+$$
+[1,12]
+$$
+
+因此真正应该比较的是：
+
+```text
+当前区间左端点
+vs
+当前合并结果的右端点
+```
+
+也就是：
+
+```cpp
+intervals[i][0] <= result.back()[1]
+```
+
+---
+
+## 11. 可以不用 `result.back()` 吗
+
+可以。
+
+也可以显式维护：
+
+```text
+left
+right
+```
+
+表示当前合并区间。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        if (intervals.empty()) return {};
+
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[0] < b[0];
+             });
+
+        vector<vector<int>> result;
+
+        int left = intervals[0][0];
+        int right = intervals[0][1];
+
+        for (int i = 1; i < intervals.size(); ++i) {
+            if (intervals[i][0] <= right) {
+                right = max(right, intervals[i][1]);
+            } else {
+                result.push_back({left, right});
+                left = intervals[i][0];
+                right = intervals[i][1];
+            }
+        }
+
+        result.push_back({left, right});
+        return result;
+    }
+};
+```
+
+两种写法本质完全相同。
+
+区别只是：
+
+```text
+写法 A：让 result.back() 直接承担“当前合并区间”
+写法 B：用 left/right 单独维护，断开时再写入 result
+```
+
+通常写法 A 更简洁，写法 B 更方便初学阶段理解“什么时候结算一个区间”。
+
+---
+
+## 12. 一个很重要的细节：最后一段为什么不会漏
+
+如果使用 `left/right` 写法，只在“遇到断点”时加入结果：
+
+```cpp
+result.push_back({left, right});
+```
+
+那么循环结束时，最后一个合并区间并没有机会再遇到“下一个断点”。
+
+所以必须额外补一次：
+
+```cpp
+result.push_back({left, right});
+```
+
+这是典型的“扫描结算”问题。
+
+类似场景还有：
+
+- 连续字符分组；
+- 游程编码；
+- 连续相同元素统计；
+- 区间分段；
+- 滑动扫描中的最后一个块。
+
+如果使用 `result.back()` 原地更新，则不会有这个问题，因为当前区间从一开始就已经存在于答案中。
+
+---
+
+## 13. 时间与空间复杂度
+
+设区间数量为 $n$。
+
+排序：
+
+$$
+O(n\log n)
+$$
+
+线性扫描：
+
+$$
+O(n)
+$$
+
+因此总时间复杂度：
+
+$$
+\boxed{O(n\log n)}
+$$
+
+结果数组最坏情况下需要保存全部 $n$ 个区间，因此若把返回结果空间也计算在内：
+
+$$
+O(n)
+$$
+
+如果只讨论算法额外工作空间，则主要取决于排序实现。
+
+例如某些标准库排序会使用：
+
+$$
+O(\log n)
+$$
+
+级别的递归栈或辅助空间。
+
+<Callout type="info" title="复杂度分析要区分结果空间与额外空间">
+输出本身可能就需要 $O(n)$ 空间，这通常不能因为“题目要求返回结果”就和排序的辅助空间混为一谈。写题解时最好明确自己统计的是哪一种。
+</Callout>
+
+---
+
+## 14. 和前面三道区间题到底是什么关系
+
+这一组题非常值得放在一起理解。
+
+| 题目 | 排序后维护什么 | 遇到重叠时做什么 | 最终目标 |
+| --- | --- | --- | --- |
+| 452. 最少箭引爆气球 | 当前公共交集/最早结束位置 | 尽量共用一支箭 | 最少分组 |
+| 435. 无重叠区间 | 当前保留区间的最小右边界 | 淘汰结束更晚者 | 最少删除 |
+| 763. 划分字母区间 | 当前字符集合要求覆盖的最远位置 | 扩张片段右边界 | 尽可能多切分 |
+| 56. 合并区间 | 当前并集的最远右边界 | 扩张并集 | 输出所有连通区间 |
+
+它们看起来题意完全不同，但共同结构是：
+
+```text
+先建立一个有序扫描方向
+        ↓
+维护一个“当前有效边界”
+        ↓
+新区间/新元素到来时更新边界
+        ↓
+判断当前结构还能否继续延伸
+        ↓
+不能延伸时结算
+```
+
+这比单独背四份代码更重要。
+
+---
+
+## 15. 与 452「最少箭」的区别
+
+在最少箭问题中，如果多个气球要由同一支箭解决，我们维护的是它们的**公共交集**。
+
+因此右边界会取：
+
+$$
+\min(R,r_i)
+$$
+
+因为共同可射击范围只能越来越小。
+
+而合并区间维护的是多个区间的**并集**。
+
+因此右边界取：
+
+$$
+\max(R,r_i)
+$$
+
+因为覆盖范围只能越来越大。
+
+两题最关键的差异可以记成：
+
+```text
+求交集 → 右端点取 min
+求并集 → 右端点取 max
+```
+
+这是一组非常值得对照记忆的题。
+
+---
+
+## 16. 与 435「无重叠区间」的区别
+
+无重叠区间的目标是：
+
+> 发生冲突时只保留一个，并且应该保留结束更早的那个。
+
+因此冲突时倾向于：
+
+$$
+R=\min(R,r_i)
+$$
+
+合并区间则完全相反：
+
+> 发生冲突时两个都属于答案的一部分，要把它们覆盖的范围全部保留下来。
+
+因此：
+
+$$
+R=\max(R,r_i)
+$$
+
+所以判断“重叠”虽然一样，重叠后的动作却完全由题目目标决定。
+
+---
+
+## 17. 与 763「划分字母区间」的统一视角
+
+划分字母区间虽然输入是字符串，但本质也可以看成区间问题。
+
+对于每个字符 $c$，记：
+
+$$
+[first(c),last(c)]
+$$
+
+表示它第一次和最后一次出现的位置。
+
+同一个片段中出现的字符区间必须全部合并成一个整体。
+
+因此扫描字符串时不断更新：
+
+$$
+right=\max(right,last(s[i]))
+$$
+
+这与合并区间中的：
+
+$$
+R=\max(R,r_i)
+$$
+
+本质非常接近。
+
+区别只是：
+
+```text
+56：区间已经直接给出
+763：区间隐藏在字符的首尾出现位置里
+```
+
+这也是为什么做完一组区间题后，会发现很多题目的“外壳”虽然不同，内部状态机却高度相似。
+
+---
+
+## 18. 常见错误
+
+### 错误一：不排序直接合并
+
+区间顺序任意时，局部相邻并不代表空间上相邻。
+
+必须先建立有序关系。
+
+### 错误二：只和上一个原始区间比较
+
+错误：
+
+```cpp
+intervals[i][0] <= intervals[i - 1][1]
+```
+
+正确应该比较当前已经合并后的右边界。
+
+### 错误三：重叠时把右端点直接改成当前值
+
+错误：
+
+```cpp
+right = intervals[i][1];
+```
+
+例如：
+
+```text
+[1,10], [2,3]
+```
+
+这样会错误地把右端点从 $10$ 缩到 $3$。
+
+正确是：
+
+$$
+right=\max(right,intervals[i][1])
+$$
+
+### 错误四：把端点相接判成不重叠
+
+本题闭区间中：
+
+```text
+[1,4] 与 [4,5]
+```
+
+必须合并。
+
+### 错误五：`left/right` 写法忘记加入最后一个区间
+
+循环内只有在遇到断点时才结算，因此结束后必须补一次最后区间。
+
+---
+
+## 19. 一眼识别这类题的模板
+
+以后看到类似题，可以先尝试套下面的思考框架：
+
+<Steps>
+<Step>
+
+### 第一步：找排序维度
+
+通常考虑：
+
+```text
+按左端点升序
+或
+按右端点升序
+```
+
+</Step>
+<Step>
+
+### 第二步：定义当前边界的语义
+
+问自己：
+
+```text
+我现在维护的 right 到底表示什么？
+```
+
+可能是：
+
+- 当前并集最远右端点；
+- 当前交集最小右端点；
+- 当前保留区间的结束位置；
+- 当前片段必须覆盖的最远位置。
+
+</Step>
+<Step>
+
+### 第三步：写出继续条件
+
+例如本题：
+
+$$
+l_i\le R
+$$
+
+表示新区间仍然与当前并集相连。
+
+</Step>
+<Step>
+
+### 第四步：写出边界更新公式
+
+本题：
+
+$$
+R=\max(R,r_i)
+$$
+
+如果这一步的 `min/max` 语义能解释清楚，代码基本就不会写错。
+
+</Step>
+</Steps>
+
+---
+
+## 20. 一句话记忆
+
+<Callout type="info" title="核心结论">
+按左端点排序。若新区间左端点不超过当前合并区间右端点，就把右端点扩张到两者最大值；否则当前合并区间已经永久结束，开启下一段。
+</Callout>
+
+公式化就是：
+
+$$
+\boxed{
+R=\max(R,r_i),\quad l_i\le R
+}
+$$
+
+以及断点条件：
+
+$$
+\boxed{l_i>R}
+$$
+
+---
+
+## 21. 其他语言版本
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
+
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public int[][] merge(int[][] intervals) {
+        if (intervals.length == 0) {
+            return new int[0][];
+        }
+
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+
+        List<int[]> result = new ArrayList<>();
+        result.add(new int[]{intervals[0][0], intervals[0][1]});
+
+        for (int i = 1; i < intervals.length; i++) {
+            int[] last = result.get(result.size() - 1);
+            int[] cur = intervals[i];
+
+            if (cur[0] <= last[1]) {
+                last[1] = Math.max(last[1], cur[1]);
+            } else {
+                result.add(new int[]{cur[0], cur[1]});
+            }
+        }
+
+        return result.toArray(new int[result.size()][]);
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        if not intervals:
+            return []
+
+        intervals.sort(key=lambda interval: interval[0])
+        result = [intervals[0][:]]
+
+        for left, right in intervals[1:]:
+            if left <= result[-1][1]:
+                result[-1][1] = max(result[-1][1], right)
+            else:
+                result.append([left, right])
+
+        return result
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+import "sort"
+
+func merge(intervals [][]int) [][]int {
+    if len(intervals) == 0 {
+        return [][]int{}
+    }
+
+    sort.Slice(intervals, func(i, j int) bool {
+        return intervals[i][0] < intervals[j][0]
+    })
+
+    result := make([][]int, 0, len(intervals))
+    result = append(result, []int{intervals[0][0], intervals[0][1]})
+
+    for i := 1; i < len(intervals); i++ {
+        last := result[len(result)-1]
+        cur := intervals[i]
+
+        if cur[0] <= last[1] {
+            if cur[1] > last[1] {
+                last[1] = cur[1]
+            }
+        } else {
+            result = append(result, []int{cur[0], cur[1]})
+        }
+    }
+
+    return result
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn merge(mut intervals: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        if intervals.is_empty() {
+            return vec![];
+        }
+
+        intervals.sort_by_key(|interval| interval[0]);
+
+        let mut result: Vec<Vec<i32>> = Vec::new();
+        result.push(intervals[0].clone());
+
+        for interval in intervals.into_iter().skip(1) {
+            let last = result.last_mut().unwrap();
+
+            if interval[0] <= last[1] {
+                last[1] = last[1].max(interval[1]);
+            } else {
+                result.push(interval);
+            }
+        }
+
+        result
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var merge = function(intervals) {
+    if (intervals.length === 0) return [];
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    const result = [[intervals[0][0], intervals[0][1]]];
+
+    for (let i = 1; i < intervals.length; i++) {
+        const cur = intervals[i];
+        const last = result[result.length - 1];
+
+        if (cur[0] <= last[1]) {
+            last[1] = Math.max(last[1], cur[1]);
+        } else {
+            result.push([cur[0], cur[1]]);
+        }
+    }
+
+    return result;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function merge(intervals: number[][]): number[][] {
+    if (intervals.length === 0) return [];
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    const result: number[][] = [[intervals[0][0], intervals[0][1]]];
+
+    for (let i = 1; i < intervals.length; i++) {
+        const cur = intervals[i];
+        const last = result[result.length - 1];
+
+        if (cur[0] <= last[1]) {
+            last[1] = Math.max(last[1], cur[1]);
+        } else {
+            result.push([cur[0], cur[1]]);
+        }
+    }
+
+    return result;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    const int* x = *(const int**)a;
+    const int* y = *(const int**)b;
+
+    if (x[0] < y[0]) return -1;
+    if (x[0] > y[0]) return 1;
+    return 0;
+}
+
+int** merge(int** intervals,
+            int intervalsSize,
+            int* intervalsColSize,
+            int* returnSize,
+            int** returnColumnSizes) {
+    (void)intervalsColSize;
+
+    if (intervalsSize == 0) {
+        *returnSize = 0;
+        *returnColumnSizes = NULL;
+        return NULL;
+    }
+
+    qsort(intervals, intervalsSize, sizeof(int*), cmp);
+
+    int** result = malloc(sizeof(int*) * intervalsSize);
+    *returnColumnSizes = malloc(sizeof(int) * intervalsSize);
+
+    int count = 0;
+
+    for (int i = 0; i < intervalsSize; ++i) {
+        int left = intervals[i][0];
+        int right = intervals[i][1];
+
+        if (count == 0 || left > result[count - 1][1]) {
+            result[count] = malloc(sizeof(int) * 2);
+            result[count][0] = left;
+            result[count][1] = right;
+            (*returnColumnSizes)[count] = 2;
+            ++count;
+        } else if (right > result[count - 1][1]) {
+            result[count - 1][1] = right;
+        }
+    }
+
+    *returnSize = count;
+    return result;
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+using System;
+using System.Collections.Generic;
+
+public class Solution
+{
+    public int[][] Merge(int[][] intervals)
+    {
+        if (intervals.Length == 0)
+            return Array.Empty<int[]>();
+
+        Array.Sort(intervals, (a, b) => a[0].CompareTo(b[0]));
+
+        var result = new List<int[]>
+        {
+            new int[] { intervals[0][0], intervals[0][1] }
+        };
+
+        for (int i = 1; i < intervals.Length; i++)
+        {
+            int[] last = result[result.Count - 1];
+            int[] cur = intervals[i];
+
+            if (cur[0] <= last[1])
+            {
+                last[1] = Math.Max(last[1], cur[1]);
+            }
+            else
+            {
+                result.Add(new int[] { cur[0], cur[1] });
+            }
+        }
+
+        return result.ToArray();
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,1265 @@
+---
+title: 491. 非递减子序列
+summary: 在不能排序的前提下完成子序列去重，掌握“保持原数组顺序 + 同层去重 + 非递减约束”的回溯模型。
+description: LeetCode 491 非递减子序列：子序列搜索树、startIndex、树层去重、局部 Set、定长数组哈希、为什么不能排序、正确性与复杂度分析、多语言实现。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 491. 非递减子序列
+
+[LeetCode 题目链接](https://leetcode.cn/problems/non-decreasing-subsequences/)
+
+给定整数数组 `nums`，找出所有长度至少为 `2` 的**非递减子序列**。答案中不能出现重复子序列。
+
+```text title="示例"
+输入：nums = [4, 6, 7, 7]
+输出：[
+  [4,6], [4,7], [4,6,7], [4,6,7,7],
+  [6,7], [6,7,7], [7,7], [4,7,7]
+]
+```
+
+这里的“递增”实际允许相等，因此更准确地说是**非递减**：
+
+$$
+a_1 \le a_2 \le \cdots \le a_k
+$$
+
+并且子序列必须保持原数组中的相对顺序。
+
+<Callout title="本题最重要的警告">
+
+这道题非常像 `90. 子集 II`，但不能照搬“先排序再去重”。
+
+原因是：**子集只关心选了哪些元素，而子序列还关心这些元素在原数组中的相对位置。**
+
+因此本题的核心不是“排序 + 相邻去重”，而是：
+
+$$
+\boxed{\text{保持原顺序}} +
+\boxed{\text{路径非递减}} +
+\boxed{\text{每一树层按值去重}}
+$$
+
+</Callout>
+
+## 1. 先区分：子集与子序列到底差在哪里？
+
+假设原数组为：
+
+```text
+[4, 7, 6, 7]
+```
+
+如果只考虑“集合里有哪些数”，排序成：
+
+```text
+[4, 6, 7, 7]
+```
+
+似乎更方便去重。
+
+但子序列要求所选下标满足：
+
+$$
+i_1 < i_2 < \cdots < i_k
+$$
+
+例如原数组中：
+
+```text
+7(下标1) 在 6(下标2) 前面
+```
+
+所以 `[7,6]` 虽然保持了原数组顺序，却不是非递减序列；而排序以后，原本不存在的下标关系会被改写。
+
+也就是说：
+
+> **排序会改变“能不能构成某个子序列”这一事实。**
+
+这就是本题不能排序的根本原因。
+
+## 2. 搜索树应该怎么画？
+
+为了避免示例 `[4,6,7,7]` 本身已经有序而产生误导，更适合观察：
+
+```text
+nums = [4, 7, 6, 7]
+```
+
+原资料中的搜索树如下：
+
+![491. 非递减子序列搜索树](https://file1.kamacoder.com/i/algo/20201124200229824.png)
+
+搜索时仍然遵循：
+
+```text
+只能从当前下标之后继续选
+```
+
+所以需要 `startIndex`。
+
+但与普通子集不同，每选择一个新元素，还要同时满足：
+
+```text
+nums[i] >= path.back()
+```
+
+即加入后仍保持非递减。
+
+## 3. 这道题其实有两个完全不同的“跳过条件”
+
+单层循环中的候选元素，可能因为两种原因被跳过。
+
+### 条件一：破坏非递减性
+
+如果当前路径为：
+
+```text
+[4, 7]
+```
+
+而接下来遇到：
+
+```text
+6
+```
+
+由于：
+
+$$
+6 < 7
+$$
+
+不能选。
+
+代码就是：
+
+```cpp
+if (!path.empty() && nums[i] < path.back()) {
+    continue;
+}
+```
+
+### 条件二：当前树层已经用过这个值
+
+即使数值满足非递减，也可能生成重复序列。
+
+例如：
+
+```text
+nums = [4, 7, 6, 7]
+```
+
+在根节点这一层有两个值为 `7` 的位置。
+
+如果两个 `7` 都作为当前层的起点继续搜索，就会产生重复的：
+
+```text
+[7]
+[7, ...]
+```
+
+所以同一个递归节点的 `for` 循环中，同一个**数值**只能尝试一次。
+
+## 4. 为什么 `90. 子集 II` 的相邻去重在这里失效？
+
+`90. 子集 II` 可以先排序，因此重复值会变成相邻元素：
+
+```text
+[..., 2, 2, ...]
+```
+
+于是可以用：
+
+```cpp
+if (i > startIndex && nums[i] == nums[i - 1]) {
+    continue;
+}
+```
+
+但本题不能排序。
+
+重复值可能像这样分散：
+
+```text
+[4, 7, 6, 7]
+    ^     ^
+```
+
+它们并不相邻，所以：
+
+```cpp
+nums[i] == nums[i - 1]
+```
+
+无法判断这一层是否已经用过当前值。
+
+因此需要显式维护：
+
+```text
+这一层已经尝试过哪些数值
+```
+
+最自然的数据结构就是集合。
+
+## 5. “每层一个 Set”到底是什么意思？
+
+核心代码：
+
+```cpp
+unordered_set<int> usedThisLevel;
+
+for (int i = startIndex; i < nums.size(); ++i) {
+    if (usedThisLevel.count(nums[i])) {
+        continue;
+    }
+
+    usedThisLevel.insert(nums[i]);
+    ...
+}
+```
+
+这里的 `usedThisLevel` 有一个非常重要的生命周期：
+
+$$
+\boxed{\text{它只属于当前这一次递归调用}}
+$$
+
+例如当前递归节点是：
+
+```text
+path = [4]
+```
+
+那么这个集合记录的是：
+
+```text
+“在 [4] 这个父节点下，当前层已经用哪些值开过分支？”
+```
+
+递归进入：
+
+```text
+path = [4, 6]
+```
+
+时，会创建一个**全新的** `usedThisLevel`。
+
+所以不同树层可以再次使用相同数值。
+
+<Callout type="info" title="为什么 Set 不需要回溯删除？">
+
+`path` 表示的是**当前树枝状态**，离开树枝时必须撤销：
+
+```cpp
+path.pop_back();
+```
+
+而 `usedThisLevel` 表示的是**当前父节点这一整层已经尝试过的值**。
+
+某个值只要在本层尝试过一次，后面的兄弟分支就必须一直记住它，因此不能在一次递归返回后删除。
+
+下一层递归会重新创建自己的集合，所以也不存在跨层污染。
+
+</Callout>
+
+## 6. 树层去重与树枝约束不要混为一谈
+
+可以把本题的两个状态分别理解为：
+
+| 状态 | 作用范围 | 解决的问题 |
+| --- | --- | --- |
+| `path.back()` | 当前树枝 | 新元素是否保持非递减 |
+| `usedThisLevel` | 当前树层 | 相同数值是否重复启动等价分支 |
+
+因此本题不是单纯的“去重题”。
+
+它同时维护：
+
+```text
+纵向约束：路径必须非递减
+横向约束：同层相同值只能选一次
+```
+
+原资料对这一点给出了更直观的树形图：
+
+![491. 非递减子序列同层去重](https://file1.kamacoder.com/i/algo/20201124200229824-20230310131640070.png)
+
+## 7. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 递归参数：仍然需要 `startIndex`
+
+```cpp
+void backtracking(const vector<int>& nums, int startIndex)
+```
+
+为什么？
+
+因为每个数组下标只能使用一次，而且子序列必须保持原有相对顺序。
+
+选择 `nums[i]` 后，下一层只能从：
+
+```cpp
+i + 1
+```
+
+继续。
+
+</Step>
+<Step>
+
+### ② 结果收集：路径长度至少为 2
+
+```cpp
+if (path.size() >= 2) {
+    result.push_back(path);
+}
+```
+
+注意这里**不能 `return`**。
+
+例如当前已经得到：
+
+```text
+[4, 6]
+```
+
+它是一个答案，但还可能继续扩展成：
+
+```text
+[4, 6, 7]
+```
+
+因此应当：
+
+```text
+收集当前节点，然后继续向下搜索
+```
+
+</Step>
+<Step>
+
+### ③ 单层搜索：同时检查递增与去重
+
+```cpp
+unordered_set<int> usedThisLevel;
+
+for (int i = startIndex; i < nums.size(); ++i) {
+    if (!path.empty() && nums[i] < path.back()) {
+        continue;
+    }
+
+    if (usedThisLevel.count(nums[i])) {
+        continue;
+    }
+
+    usedThisLevel.insert(nums[i]);
+
+    path.push_back(nums[i]);
+    backtracking(nums, i + 1);
+    path.pop_back();
+}
+```
+
+整个过程仍然是：
+
+```text
+判断候选 → 做选择 → 递归 → 撤销选择
+```
+
+只是“判断候选”比普通子集多了两层约束。
+
+</Step>
+</Steps>
+
+## 8. C++ 标准写法：局部哈希集合
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, int startIndex) {
+        if (path.size() >= 2) {
+            result.push_back(path);
+        }
+
+        unordered_set<int> usedThisLevel;
+
+        for (int i = startIndex; i < nums.size(); ++i) {
+            // 纵向约束：必须保持非递减
+            if (!path.empty() && nums[i] < path.back()) {
+                continue;
+            }
+
+            // 横向约束：同一树层相同数值只能尝试一次
+            if (usedThisLevel.count(nums[i])) {
+                continue;
+            }
+
+            usedThisLevel.insert(nums[i]);
+
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+这版最容易迁移到“数值范围未知”的同类问题中。
+
+## 9. 手动模拟 `[4,7,6,7]`
+
+从根节点开始：
+
+```text
+path = []
+startIndex = 0
+usedThisLevel = {}
+```
+
+### 第一个分支：选 `4`
+
+根层记住：
+
+```text
+usedThisLevel = {4}
+```
+
+路径：
+
+```text
+[4]
+```
+
+下一层从下标 `1` 开始。
+
+### 在 `[4]` 这一层先选第一个 `7`
+
+```text
+[4,7]
+```
+
+这是合法答案。
+
+继续向后看 `6`：
+
+```text
+6 < 7
+```
+
+跳过。
+
+再看最后一个 `7`：
+
+```text
+7 >= 7
+```
+
+于是得到：
+
+```text
+[4,7,7]
+```
+
+### 回到 `[4]`，再尝试 `6`
+
+因为 `[4]` 这一层自己的集合目前记录了：
+
+```text
+{7}
+```
+
+`6` 尚未使用，可以得到：
+
+```text
+[4,6]
+```
+
+继续还能得到：
+
+```text
+[4,6,7]
+```
+
+### 回到 `[4]`，遇到最后一个 `7`
+
+此时当前层集合已经有：
+
+```text
+{7,6}
+```
+
+所以最后这个 `7` 被直接跳过。
+
+否则会再次生成以：
+
+```text
+[4,7]
+```
+
+为前缀的重复子树。
+
+这就是“同一树层按值去重”的完整含义。
+
+## 10. 为什么记录的是“值”，而不是“下标”？
+
+两个相同值可能来自不同下标：
+
+```text
+nums[i] == nums[j], i != j
+```
+
+在同一父节点下，如果分别选择它们作为下一步，得到的路径值完全相同。
+
+题目要求的是：
+
+```text
+不同的数值序列
+```
+
+而不是：
+
+```text
+不同的下标选择方案
+```
+
+因此同层去重要按**值**判断。
+
+这也是：
+
+```cpp
+unordered_set<int>
+```
+
+里存 `nums[i]` 而不是存 `i` 的原因。
+
+## 11. 为什么不能使用一个全局 Set？
+
+假设把集合定义成全局：
+
+```cpp
+unordered_set<int> used;
+```
+
+然后只要某个值用过一次，以后所有层都不能再选。
+
+那么合法序列：
+
+```text
+[7,7]
+```
+
+就会被错误删除。
+
+因为第一个 `7` 在父层已经进入全局集合，第二层就无法再次选 `7`。
+
+所以去重集合必须满足：
+
+$$
+\boxed{\text{每个递归节点独立一份}}
+$$
+
+同层去重，不等于全局禁用。
+
+## 12. 利用数值范围优化：数组代替哈希集合
+
+题目给出：
+
+$$
+-100 \le nums[i] \le 100
+$$
+
+总共只有：
+
+$$
+201
+$$
+
+种可能值。
+
+因此可以把：
+
+```cpp
+unordered_set<int> usedThisLevel;
+```
+
+替换为：
+
+```cpp
+bool used[201] = {};
+```
+
+把数值映射到下标：
+
+$$
+index = nums[i] + 100
+$$
+
+于是：
+
+```cpp
+if (used[nums[i] + 100]) {
+    continue;
+}
+used[nums[i] + 100] = true;
+```
+
+完整写法：
+
+```cpp
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, int startIndex) {
+        if (path.size() >= 2) {
+            result.push_back(path);
+        }
+
+        bool used[201] = {};
+
+        for (int i = startIndex; i < nums.size(); ++i) {
+            if (!path.empty() && nums[i] < path.back()) {
+                continue;
+            }
+
+            int key = nums[i] + 100;
+            if (used[key]) {
+                continue;
+            }
+
+            used[key] = true;
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+<Callout type="info" title="为什么数组版通常更快？">
+
+固定范围数组可以通过一次下标访问完成查询与标记，不需要哈希计算、桶管理和动态扩容。
+
+当值域很小时，通常优先考虑：
+
+```text
+数组 / 位图 > 哈希集合
+```
+
+但如果题目没有给出足够小的值域，仍应使用 `Set` / `unordered_set`。
+
+</Callout>
+
+## 13. 一个非常容易写错的顺序
+
+推荐先检查两个条件，再标记本层已用：
+
+```cpp
+if (!path.empty() && nums[i] < path.back()) {
+    continue;
+}
+if (usedThisLevel.count(nums[i])) {
+    continue;
+}
+
+usedThisLevel.insert(nums[i]);
+```
+
+不要把“不满足非递减”的候选提前记录成已使用值。
+
+虽然在本题很多情况下仍不会改变最终答案，但从状态语义上看：
+
+```text
+usedThisLevel
+```
+
+应该精确表示：
+
+```text
+“本层已经真正展开过哪些数值的分支”
+```
+
+这样最清晰，也最不容易在变式题里出错。
+
+## 14. 为什么答案在递归入口收集，而不是叶子结点收集？
+
+全排列的答案只出现在固定深度：
+
+```text
+path.size() == nums.size()
+```
+
+但本题长度为：
+
+```text
+2, 3, 4, ...
+```
+
+都可能是答案。
+
+例如：
+
+```text
+[4,6]
+[4,6,7]
+```
+
+对应搜索树中的父子节点，两者都要收集。
+
+所以本题与子集类问题一样：
+
+$$
+\boxed{\text{答案分布在搜索树的多个中间节点}}
+$$
+
+只不过空路径和长度为 `1` 的路径不满足题意，不加入结果。
+
+## 15. 和前面几类回溯题统一比较
+
+| 问题 | 下一层起点 | 是否排序 | 是否同层去重 | 什么时候收集 |
+| --- | --- | --- | --- | --- |
+| `78. 子集` | `i + 1` | 不需要 | 不需要 | 每个节点 |
+| `90. 子集 II` | `i + 1` | 需要 | 相邻重复值 | 每个节点 |
+| `40. 组合总和 II` | `i + 1` | 需要 | 相邻重复值 | 和为目标值 |
+| `491. 非递减子序列` | `i + 1` | **不能排序** | 每层 `Set` | 路径长度至少 2 |
+
+这一张表要重点记住：
+
+> `startIndex` 控制“下标是否可以重复使用”；排序与 `Set` 控制的是“值是否产生重复分支”。它们解决的是不同问题。
+
+## 16. 正确性：为什么这套搜索不会漏解？
+
+任意一个合法非递减子序列都对应一组严格递增的下标：
+
+$$
+i_1 < i_2 < \cdots < i_k
+$$
+
+并满足：
+
+$$
+nums[i_1] \le nums[i_2] \le \cdots \le nums[i_k]
+$$
+
+搜索过程：
+
+1. `startIndex` 保证只能向右选择，因此不会破坏下标顺序；
+2. `nums[i] >= path.back()` 保证路径始终非递减；
+3. 每层只删除“相同数值启动的等价分支”，而至少保留其中一个代表分支。
+
+因此所有不同的合法值序列都可以被搜索到，而重复值序列只保留一次。
+
+## 17. 复杂度分析
+
+设数组长度为 $n$。
+
+不考虑去重时，每个下标都有“选 / 不选”两种可能，搜索规模上界与子集类似：
+
+$$
+O(2^n)
+$$
+
+每次把 `path` 拷贝进答案，最坏需要 $O(n)$，所以包括输出构造在内，通常写为：
+
+$$
+O(n2^n)
+$$
+
+使用固定 `201` 长度数组做树层去重时，递归深度最多为 $n$，每层局部数组大小为常数，因此不计结果空间的辅助空间为：
+
+$$
+O(n)
+$$
+
+若使用一般的哈希集合，并把值域也视为随 $n$ 增长，则递归栈上可能同时保留多层集合；严格按最坏情况估计，集合占用可能高于 $O(n)$。本题值域固定，因此数组版的空间界更清晰。
+
+## 18. 常见错误清单
+
+<Callout type="warn" title="错误 1：先排序">
+
+排序会破坏子序列的原始下标关系，本题不能使用。
+
+</Callout>
+
+<Callout type="warn" title="错误 2：用 i > startIndex && nums[i] == nums[i - 1] 去重">
+
+原数组没有排序，重复值不一定相邻，这个条件无法完成本题的同层去重。
+
+</Callout>
+
+<Callout type="warn" title="错误 3：找到长度 2 的答案后 return">
+
+长度大于 `2` 的序列仍然可能合法，应当继续搜索。
+
+</Callout>
+
+<Callout type="warn" title="错误 4：Set 设成全局">
+
+会把不同树层合法使用的相同数值也禁掉，例如 `[7,7]`。
+
+</Callout>
+
+<Callout type="warn" title="错误 5：忘记 i + 1">
+
+子序列中的同一个数组下标不能重复使用，递归必须从当前下标之后继续。
+
+</Callout>
+
+## 19. 看到什么关键词，就应该想到这套模型？
+
+如果题目同时出现：
+
+```text
+保持原顺序
+所有子序列 / 路径
+答案不能重复
+数组本身可能有重复元素
+```
+
+优先考虑：
+
+```text
+startIndex + path + 每层局部 Set
+```
+
+如果还有单调性要求，则在“选择候选”前额外加入：
+
+```text
+与 path.back() 的关系判断
+```
+
+本题最终可以压缩成一句模板：
+
+$$
+\boxed{
+\text{顺序靠 } startIndex,
+\quad
+\text{单调靠 } path.back(),
+\quad
+\text{去重靠本层 Set}
+}
+$$
+
+## 20. 其他语言实现
+
+<Tabs groupId="non-decreasing-subsequences-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> findSubsequences(int[] nums) {
+        dfs(nums, 0);
+        return ans;
+    }
+
+    private void dfs(int[] nums, int start) {
+        if (path.size() >= 2) {
+            ans.add(new ArrayList<>(path));
+        }
+
+        boolean[] usedThisLevel = new boolean[201];
+
+        for (int i = start; i < nums.length; i++) {
+            if (!path.isEmpty() && nums[i] < path.get(path.size() - 1)) {
+                continue;
+            }
+
+            int key = nums[i] + 100;
+            if (usedThisLevel[key]) {
+                continue;
+            }
+            usedThisLevel[key] = true;
+
+            path.add(nums[i]);
+            dfs(nums, i + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def findSubsequences(self, nums: list[int]) -> list[list[int]]:
+        ans: list[list[int]] = []
+        path: list[int] = []
+
+        def dfs(start: int) -> None:
+            if len(path) >= 2:
+                ans.append(path[:])
+
+            used_this_level: set[int] = set()
+
+            for i in range(start, len(nums)):
+                if path and nums[i] < path[-1]:
+                    continue
+                if nums[i] in used_this_level:
+                    continue
+
+                used_this_level.add(nums[i])
+                path.append(nums[i])
+                dfs(i + 1)
+                path.pop()
+
+        dfs(0)
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func findSubsequences(nums []int) [][]int {
+    ans := [][]int{}
+    path := []int{}
+
+    var dfs func(int)
+    dfs = func(start int) {
+        if len(path) >= 2 {
+            ans = append(ans, append([]int(nil), path...))
+        }
+
+        usedThisLevel := [201]bool{}
+
+        for i := start; i < len(nums); i++ {
+            if len(path) > 0 && nums[i] < path[len(path)-1] {
+                continue
+            }
+
+            key := nums[i] + 100
+            if usedThisLevel[key] {
+                continue
+            }
+            usedThisLevel[key] = true
+
+            path = append(path, nums[i])
+            dfs(i + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(0)
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var findSubsequences = function(nums) {
+    const ans = [];
+    const path = [];
+
+    function dfs(start) {
+        if (path.length >= 2) {
+            ans.push([...path]);
+        }
+
+        const usedThisLevel = new Set();
+
+        for (let i = start; i < nums.length; i++) {
+            if (path.length > 0 && nums[i] < path[path.length - 1]) {
+                continue;
+            }
+            if (usedThisLevel.has(nums[i])) {
+                continue;
+            }
+
+            usedThisLevel.add(nums[i]);
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function findSubsequences(nums: number[]): number[][] {
+    const ans: number[][] = [];
+    const path: number[] = [];
+
+    function dfs(start: number): void {
+        if (path.length >= 2) {
+            ans.push([...path]);
+        }
+
+        const usedThisLevel = new Set<number>();
+
+        for (let i = start; i < nums.length; i++) {
+            if (path.length > 0 && nums[i] < path[path.length - 1]) {
+                continue;
+            }
+            if (usedThisLevel.has(nums[i])) {
+                continue;
+            }
+
+            usedThisLevel.add(nums[i]);
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::collections::HashSet;
+
+impl Solution {
+    pub fn find_subsequences(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn dfs(
+            nums: &[i32],
+            start: usize,
+            path: &mut Vec<i32>,
+            ans: &mut Vec<Vec<i32>>,
+        ) {
+            if path.len() >= 2 {
+                ans.push(path.clone());
+            }
+
+            let mut used_this_level = HashSet::new();
+
+            for i in start..nums.len() {
+                if path.last().is_some_and(|&last| nums[i] < last) {
+                    continue;
+                }
+                if !used_this_level.insert(nums[i]) {
+                    continue;
+                }
+
+                path.push(nums[i]);
+                dfs(nums, i + 1, path, ans);
+                path.pop();
+            }
+        }
+
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        dfs(&nums, 0, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static void dfs(
+    int* nums,
+    int numsSize,
+    int start,
+    int* path,
+    int pathSize,
+    int*** ans,
+    int** colSizes,
+    int* ansSize,
+    int* capacity
+) {
+    if (pathSize >= 2) {
+        if (*ansSize == *capacity) {
+            *capacity *= 2;
+            *ans = (int**)realloc(*ans, sizeof(int*) * (*capacity));
+            *colSizes = (int*)realloc(*colSizes, sizeof(int) * (*capacity));
+        }
+
+        int* copy = (int*)malloc(sizeof(int) * pathSize);
+        memcpy(copy, path, sizeof(int) * pathSize);
+        (*ans)[*ansSize] = copy;
+        (*colSizes)[*ansSize] = pathSize;
+        (*ansSize)++;
+    }
+
+    bool usedThisLevel[201] = {false};
+
+    for (int i = start; i < numsSize; i++) {
+        if (pathSize > 0 && nums[i] < path[pathSize - 1]) {
+            continue;
+        }
+
+        int key = nums[i] + 100;
+        if (usedThisLevel[key]) {
+            continue;
+        }
+        usedThisLevel[key] = true;
+
+        path[pathSize] = nums[i];
+        dfs(nums, numsSize, i + 1, path, pathSize + 1,
+            ans, colSizes, ansSize, capacity);
+    }
+}
+
+int** findSubsequences(
+    int* nums,
+    int numsSize,
+    int* returnSize,
+    int** returnColumnSizes
+) {
+    int capacity = 32;
+    int ansSize = 0;
+    int** ans = (int**)malloc(sizeof(int*) * capacity);
+    int* colSizes = (int*)malloc(sizeof(int) * capacity);
+    int* path = (int*)malloc(sizeof(int) * numsSize);
+
+    dfs(nums, numsSize, 0, path, 0,
+        &ans, &colSizes, &ansSize, &capacity);
+
+    free(path);
+    *returnSize = ansSize;
+    *returnColumnSizes = colSizes;
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func findSubsequences(_ nums: [Int]) -> [[Int]] {
+        var ans = [[Int]]()
+        var path = [Int]()
+
+        func dfs(_ start: Int) {
+            if path.count >= 2 {
+                ans.append(path)
+            }
+
+            var usedThisLevel = Set<Int>()
+
+            for i in start..<nums.count {
+                if let last = path.last, nums[i] < last {
+                    continue
+                }
+                if usedThisLevel.contains(nums[i]) {
+                    continue
+                }
+
+                usedThisLevel.insert(nums[i])
+                path.append(nums[i])
+                dfs(i + 1)
+                path.removeLast()
+            }
+        }
+
+        dfs(0)
+        return ans
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def findSubsequences(nums: Array[Int]): List[List[Int]] = {
+    val ans = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ArrayBuffer[Int]()
+
+    def dfs(start: Int): Unit = {
+      if (path.length >= 2) {
+        ans += path.toList
+      }
+
+      val usedThisLevel = scala.collection.mutable.Set[Int]()
+
+      for (i <- start until nums.length) {
+        val violatesOrder = path.nonEmpty && nums(i) < path.last
+
+        if (!violatesOrder && !usedThisLevel.contains(nums(i))) {
+          usedThisLevel += nums(i)
+          path += nums(i)
+          dfs(i + 1)
+          path.remove(path.length - 1)
+        }
+      }
+    }
+
+    dfs(0)
+    ans.toList
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public IList<IList<int>> FindSubsequences(int[] nums) {
+        var ans = new List<IList<int>>();
+        var path = new List<int>();
+
+        void Dfs(int start) {
+            if (path.Count >= 2) {
+                ans.Add(new List<int>(path));
+            }
+
+            var usedThisLevel = new HashSet<int>();
+
+            for (int i = start; i < nums.Length; i++) {
+                if (path.Count > 0 && nums[i] < path[^1]) {
+                    continue;
+                }
+                if (!usedThisLevel.Add(nums[i])) {
+                    continue;
+                }
+
+                path.Add(nums[i]);
+                Dfs(i + 1);
+                path.RemoveAt(path.Count - 1);
+            }
+        }
+
+        Dfs(0);
+        return ans;
+    }
+}
+```
+
+</Tab>
+</Tabs>

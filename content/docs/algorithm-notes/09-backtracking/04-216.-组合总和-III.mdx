@@ -1,0 +1,1021 @@
+---
+title: 216. 组合总和 III
+summary: 在固定集合 1～9 中选择恰好 k 个互不重复的数字，使其和为 n；重点掌握“组合 + 目标和”双约束以及多层剪枝。
+description: LeetCode 216 组合总和 III：搜索树建模、回溯三部曲、数量剪枝、和剪枝、最小/最大可达和剪枝与复杂度分析。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 216. 组合总和 III
+
+> 在 $1$ 到 $9$ 中选择 **恰好 $k$ 个互不重复的数字**，使它们的和等于 $n$，返回所有合法组合。
+
+例如：
+
+```text title="示例 1"
+输入：k = 3, n = 7
+输出：[[1, 2, 4]]
+```
+
+```text title="示例 2"
+输入：k = 3, n = 9
+输出：[[1, 2, 6], [1, 3, 5], [2, 3, 4]]
+```
+
+<Callout title="和 77. 组合相比，只多了一个约束">
+
+`77. 组合`要求从 $1\sim n$ 中选 $k$ 个数；本题把候选集合固定成 $1\sim9$，同时要求路径元素之和为目标值 $n$。
+
+因此本题不是全新的回溯类型，而是：
+
+$$
+\text{组合问题}+\text{路径和约束}
+$$
+
+前面学到的 `startIndex`、严格递增路径、数量剪枝都可以直接迁移过来。
+
+</Callout>
+
+## 1. 先把问题画成搜索树
+
+例如 $k=2,n=4$。根节点表示“还没有选择任何数字”，每向下一层就选择一个新的数字。
+
+![216.组合总和III](https://file1.kamacoder.com/i/algo/20201123195717975.png)
+
+因为数字不能重复，而且组合不考虑顺序，所以路径始终保持严格递增：
+
+$$
+1\rightarrow3
+$$
+
+会产生组合 $[1,3]$，而不会再生成 $[3,1]$。
+
+这仍然依赖同一个规则：下一层从 `i + 1` 开始搜索。
+
+### 搜索树中的两个维度
+
+- **树的深度**：最多为 $k$，因为恰好选择 $k$ 个数；
+- **树的宽度**：由当前还能选择的 $1\sim9$ 中的数字决定。
+
+所以可以把一个节点描述成：
+
+$$
+(path,\ sum,\ startIndex)
+$$
+
+其中：
+
+- `path`：当前已经选择的数字；
+- `sum`：`path` 中数字之和；
+- `startIndex`：下一层允许选择的最小数字。
+
+## 2. 为什么必须使用 `startIndex`？
+
+假设已经选择了 $2$。
+
+下一层如果仍然允许从 $1$ 开始，那么会出现：
+
+```text
+[2, 1]
+[2, 2]
+```
+
+前者与 `[1, 2]` 属于同一个组合的不同排列，后者还重复使用了数字 $2$。
+
+因此选择 $i$ 后，下一层必须从：
+
+$$
+i+1
+$$
+
+开始。
+
+这样路径天然满足：
+
+$$
+a_1<a_2<\cdots<a_k
+$$
+
+于是同时解决两个问题：
+
+1. 同一个数字不会被重复使用；
+2. 同一个组合不会因为顺序不同而被重复枚举。
+
+## 3. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 递归状态
+
+最直接的状态是：
+
+```cpp
+void backtracking(int targetSum, int k, int sum, int startIndex)
+```
+
+其中 `path` 与 `result` 可以放在成员变量中。
+
+从状态设计角度看，真正决定后续搜索空间的是：
+
+$$
+(|path|,\ sum,\ startIndex)
+$$
+
+</Step>
+<Step>
+
+### ② 终止条件
+
+当已经选满 $k$ 个数时，这条路径不能再继续向下：
+
+```cpp
+if (path.size() == k) {
+    if (sum == targetSum) {
+        result.push_back(path);
+    }
+    return;
+}
+```
+
+注意：`path.size() == k` 只表示“数量满足”，还必须检查 `sum == targetSum`。
+
+</Step>
+<Step>
+
+### ③ 单层搜索
+
+本层枚举当前要选择的数字 $i$：
+
+```cpp
+for (int i = startIndex; i <= 9; ++i) {
+    path.push_back(i);
+    sum += i;
+
+    backtracking(targetSum, k, sum, i + 1);
+
+    sum -= i;
+    path.pop_back();
+}
+```
+
+“选择”和“撤销选择”必须严格成对出现。
+
+</Step>
+</Steps>
+
+![216.组合总和III](https://file1.kamacoder.com/i/algo/20201123195717975-20230310113546003.png)
+
+## 4. 第一层剪枝：当前和已经超过目标值
+
+所有候选数字都是正整数，并且后面继续选择只会让 `sum` 更大。
+
+因此一旦：
+
+$$
+sum>n
+$$
+
+就不可能再回到 $n$，可以直接返回：
+
+```cpp
+if (sum > targetSum) {
+    return;
+}
+```
+
+![216.组合总和III1](https://file1.kamacoder.com/i/algo/2020112319580476.png)
+
+这类剪枝成立的关键是：**后续增量始终为正**。
+
+<Callout type="warn" title="不要机械套用 sum > target 就剪枝">
+
+如果候选集合中允许出现负数，那么后续选择可能把总和重新减下来，此时 `sum > target` 并不能证明当前分支无解。
+
+剪枝必须建立在题目约束上，而不是背模板。
+
+</Callout>
+
+## 5. 第二层剪枝：剩余数字必须足够凑满 k 个
+
+这一点和上一篇 `77. 组合剪枝优化` 完全一样。
+
+当前已经选择了 $|path|$ 个数，还需要：
+
+$$
+r=k-|path|
+$$
+
+个数。
+
+如果当前准备从 $i$ 开始，那么区间 $[i,9]$ 中一共有：
+
+$$
+9-i+1
+$$
+
+个候选。
+
+必须满足：
+
+$$
+9-i+1\ge r
+$$
+
+所以：
+
+$$
+i\le 9-r+1
+$$
+
+代入 $r=k-|path|$：
+
+$$
+\boxed{i\le 9-(k-|path|)+1}
+$$
+
+因此循环可以写成：
+
+```cpp
+for (int i = startIndex;
+     i <= 9 - (k - path.size()) + 1;
+     ++i) {
+    // ...
+}
+```
+
+## 6. 更进一步：利用“最小可达和”直接剪枝
+
+仅判断 `sum > n` 还不够强。
+
+假设当前：
+
+```text
+path = [1]
+startIndex = 7
+k = 4
+n = 10
+```
+
+现在还需要选择：
+
+$$
+r=4-1=3
+$$
+
+个数字。
+
+即使选择接下来最小的三个候选：
+
+$$
+7+8+9=24
+$$
+
+也已经远大于剩余目标：
+
+$$
+10-1=9
+$$
+
+这个节点甚至没有必要进入下一层。
+
+### 最小可达和
+
+若还需要选择 $r$ 个数，当前最小可选数字为 `startIndex`，那么能补出的最小和是：
+
+$$
+startIndex+(startIndex+1)+\cdots+(startIndex+r-1)
+$$
+
+这是等差数列：
+
+$$
+minAdd=\frac{r(2\cdot startIndex+r-1)}{2}
+$$
+
+如果：
+
+$$
+sum+minAdd>n
+$$
+
+说明即使总选最小的数也会超出目标，整个子树都可以剪掉。
+
+## 7. 还可以利用“最大可达和”剪枝
+
+同理，如果还需要 $r$ 个数字，那么从 $1\sim9$ 中能选择的最大 $r$ 个数为：
+
+$$
+9,8,\dots,10-r
+$$
+
+它们的和为：
+
+$$
+maxAdd=\frac{r(19-r)}{2}
+$$
+
+如果：
+
+$$
+sum+maxAdd<n
+$$
+
+说明即使把能选的最大数字都拿上，也达不到目标值 $n$，当前节点同样必然无解。
+
+<Callout title="剪枝的本质">
+
+剪枝不是“凭感觉少搜一点”，而是在证明：
+
+$$
+\text{当前节点能达到的所有结果范围都不包含目标值}
+$$
+
+只要证明成立，删除整棵子树就不会漏解。
+
+</Callout>
+
+## 8. 推荐写法：边界清晰、剪枝完整
+
+下面这版保留 `sum`，便于理解状态变化，同时加入数量和总和剪枝。
+
+```cpp title="C++：推荐实现"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(int k, int target, int sum, int startIndex) {
+        if (sum > target) return;
+
+        if (path.size() == k) {
+            if (sum == target) {
+                result.push_back(path);
+            }
+            return;
+        }
+
+        int remain = k - static_cast<int>(path.size());
+
+        // 从 startIndex 开始，至少还要能找到 remain 个数字。
+        for (int i = startIndex; i <= 9 - remain + 1; ++i) {
+            // 当前层按 i 递增枚举；若加上 i 已超过 target，
+            // 后面的更大数字也一定超过，可直接结束本层循环。
+            if (sum + i > target) break;
+
+            path.push_back(i);
+            backtracking(k, target, sum + i, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        result.clear();
+        path.clear();
+        backtracking(k, n, 0, 1);
+        return result;
+    }
+};
+```
+
+### 为什么这里可以使用 `break` 而不只是 `continue`？
+
+因为本层的 $i$ 是递增的。
+
+若当前已经有：
+
+$$
+sum+i>target
+$$
+
+那么后面的 $i+1,i+2,\dots$ 只会更大，所以全部不可能合法。
+
+因此：
+
+```cpp
+break;
+```
+
+比 `continue` 更彻底。
+
+## 9. 更强剪枝版：先判断当前节点是否仍有机会
+
+如果想把“最小可达和 / 最大可达和”也编码进去，可以在每次递归入口先判断：
+
+```cpp title="C++：上下界剪枝"
+class Solution {
+private:
+    vector<vector<int>> ans;
+    vector<int> path;
+
+    void dfs(int k, int target, int sum, int start) {
+        int remain = k - static_cast<int>(path.size());
+
+        if (remain == 0) {
+            if (sum == target) ans.push_back(path);
+            return;
+        }
+
+        if (10 - start < remain) return;
+
+        // 能补出的最小和：start + ... + (start + remain - 1)
+        int minAdd = remain * (2 * start + remain - 1) / 2;
+        if (sum + minAdd > target) return;
+
+        // 1~9 中任取 remain 个数所能达到的理论最大和。
+        int maxAdd = remain * (19 - remain) / 2;
+        if (sum + maxAdd < target) return;
+
+        for (int x = start; x <= 9; ++x) {
+            if (sum + x > target) break;
+
+            path.push_back(x);
+            dfs(k, target, sum + x, x + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        dfs(k, n, 0, 1);
+        return ans;
+    }
+};
+```
+
+这里的 `maxAdd` 是一个**宽松上界**：它没有额外考虑 `start`，但只要这个宽松上界都达不到 `target`，当前节点就一定不可能成功，因此剪枝仍然正确。
+
+## 10. 为什么 `sum` 可以换成“剩余目标值”？
+
+另一种常见写法是不记录当前和，而记录还差多少：
+
+$$
+remainTarget=n-sum
+$$
+
+选择 $i$ 后递归：
+
+```cpp
+backtracking(k, remainTarget - i, i + 1);
+```
+
+于是终止时判断：
+
+```cpp
+if (path.size() == k && remainTarget == 0)
+```
+
+两种状态完全等价：
+
+$$
+sum=n-remainTarget
+$$
+
+前者更直观地表示“已经选了多少”，后者更适合把问题理解成“还差多少”。
+
+## 11. 正确性：为什么不会重、不漏？
+
+任意合法答案都可以唯一写成严格递增序列：
+
+$$
+a_1<a_2<\cdots<a_k
+$$
+
+搜索过程中，每一层从上一次选择值的下一个数字开始，所以恰好存在唯一一条路径：
+
+$$
+a_1\rightarrow a_2\rightarrow\cdots\rightarrow a_k
+$$
+
+生成这个答案。
+
+因此：
+
+- 每个合法组合至少被访问一次，所以不会漏；
+- 每个合法组合只有一种严格递增表示，所以不会重复。
+
+所有剪枝条件又都只删除**可以数学证明不可能得到合法解**的子树，因此不会破坏完备性。
+
+## 12. 复杂度怎么理解？
+
+候选集合固定为 9 个不同数字，因此搜索空间本身是常数规模。
+
+如果从更一般的“从 $m$ 个不同数字中选择 $k$ 个”来理解，组合型搜索最多会访问：
+
+$$
+\sum_{d=0}^{k}\binom{m}{d}
+$$
+
+个前缀状态，而合法答案最多有：
+
+$$
+\binom{m}{k}
+$$
+
+个。
+
+本题 $m=9$，所以从渐进意义上看时间和额外空间都可以视为常数；但从算法结构上看：
+
+- 递归深度最多为 $k$；
+- 当前路径额外空间为 $O(k)$；
+- 输出空间由答案数量决定。
+
+<Callout title="做题时真正应该记住的迁移关系">
+
+从 `77. 组合` 到 `216. 组合总和 III`，搜索树骨架没有变化，只是在每个节点多维护了一个“路径和状态”，并因此多出一类“目标和剪枝”。
+
+以后看到“选固定个数 + 满足某个数值约束”的题目，可以优先从这个模型出发。
+
+</Callout>
+
+## 其他语言版本
+
+<Tabs groupId="combination-sum-iii-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+	List<List<Integer>> result = new ArrayList<>();
+	LinkedList<Integer> path = new LinkedList<>();
+
+	public List<List<Integer>> combinationSum3(int k, int n) {
+		backTracking(n, k, 1, 0);
+		return result;
+	}
+
+	private void backTracking(int targetSum, int k, int startIndex, int sum) {
+		// 减枝
+		if (sum > targetSum) {
+			return;
+		}
+
+		if (path.size() == k) {
+			if (sum == targetSum) result.add(new ArrayList<>(path));
+			return;
+		}
+
+		// 减枝 9 - (k - path.size()) + 1
+		for (int i = startIndex; i <= 9 - (k - path.size()) + 1; i++) {
+			path.add(i);
+			sum += i;
+			backTracking(targetSum, k, i + 1, sum);
+			//回溯
+			path.removeLast();
+			//回溯
+			sum -= i;
+		}
+	}
+}
+
+// 上面剪枝 i <= 9 - (k - path.size()) + 1; 如果还是不清楚
+// 也可以改为 if (path.size() > k) return; 执行效率上是一样的
+class Solution {
+    LinkedList<Integer> path = new LinkedList<>();
+    List<List<Integer>> ans = new ArrayList<>();
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        build(k, n, 1, 0);
+        return ans;
+    }
+
+    private void build(int k, int n, int startIndex, int sum) {
+
+        if (sum > n) return;
+
+        if (path.size() > k) return;
+
+        if (sum == n && path.size() == k) {
+            ans.add(new ArrayList<>(path));
+            return;
+        }
+
+        for(int i = startIndex; i <= 9; i++) {
+            path.add(i);
+            sum += i;
+            build(k, n, i + 1, sum);
+            sum -= i;
+            path.removeLast();
+        }
+    }
+}
+
+class Solution {
+    List<List<Integer>> res = new ArrayList<>();
+    List<Integer> list = new ArrayList<>();
+
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        res.clear();
+        list.clear();
+        backtracking(k, n, 9);
+        return res;
+    }
+
+    private void backtracking(int k, int n, int maxNum) {
+        if (k == 0 && n == 0) {
+            res.add(new ArrayList<>(list));
+            return;
+        }
+
+        // 因为不能重复，并且单个数字最大值是maxNum，所以sum最大值为
+        // （maxNum + (maxNum - 1) + ... + (maxNum - k + 1)） == k * maxNum - k*(k - 1) / 2
+        if (maxNum == 0
+                || n > k * maxNum - k * (k - 1) / 2
+                || n < (1 + k) * k / 2) {
+            return;
+        }
+        list.add(maxNum);
+        backtracking(k - 1, n - maxNum, maxNum - 1);
+        list.remove(list.size() - 1);
+        backtracking(k, n, maxNum - 1);
+    }
+
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        result = []  # 存放结果集
+        self.backtracking(n, k, 0, 1, [], result)
+        return result
+
+    def backtracking(self, targetSum, k, currentSum, startIndex, path, result):
+        if currentSum > targetSum:  # 剪枝操作
+            return  # 如果currentSum已经超过targetSum，则直接返回
+        if len(path) == k:
+            if currentSum == targetSum:
+                result.append(path[:])
+            return
+        for i in range(startIndex, 9 - (k - len(path)) + 2):  # 剪枝
+            currentSum += i  # 处理
+            path.append(i)  # 处理
+            self.backtracking(targetSum, k, currentSum, i + 1, path, result)  # 注意i+1调整startIndex
+            currentSum -= i  # 回溯
+            path.pop()  # 回溯
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+var (
+    res [][]int
+    path  []int
+)
+func combinationSum3(k int, n int) [][]int {
+    res, path = make([][]int, 0), make([]int, 0, k)
+    dfs(k, n, 1, 0)
+    return res
+}
+
+func dfs(k, n int, start int, sum int) {
+    if len(path) == k {
+        if sum == n {
+            tmp := make([]int, k)
+            copy(tmp, path)
+            res = append(res, tmp)
+        }
+        return
+    }
+    for i := start; i <= 9; i++ {
+        if sum + i > n || 9-i+1 < k-len(path) {
+            break
+        }
+        path = append(path, i)
+        dfs(k, n, i+1, sum+i)
+        path = path[:len(path)-1]
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+/**
+ * @param {number} k
+ * @param {number} n
+ * @return {number[][]}
+ */
+var combinationSum3 = function (k, n) {
+  // 回溯法
+  let result = [],
+    path = [];
+  const backtracking = (_k, targetSum, sum, startIndex) => {
+    // 终止条件
+    if (path.length === _k) {
+      if (sum === targetSum) {
+        result.push(path.slice());
+      }
+      // 如果总和不相等，就直接返回
+      return;
+    }
+
+    // 循环当前节点，因为只使用数字1到9，所以最大是9
+    for (let i = startIndex; i <= 9; i++) {
+      path.push(i);
+      sum += i;
+      // 回调函数
+      backtracking(_k, targetSum, sum, i + 1);
+      // 回溯
+      sum -= i;
+      path.pop();
+    }
+  };
+  backtracking(k, n, 0, 1);
+  return result;
+};
+
+/**
+ * @param {number} k
+ * @param {number} n
+ * @return {number[][]}
+ */
+var combinationSum3 = function (k, n) {
+  // 回溯法
+  let result = [],
+    path = [];
+  const backtracking = (_k, targetSum, sum, startIndex) => {
+    if (sum > targetSum) {
+      return;
+    }
+    // 终止条件
+    if (path.length === _k) {
+      if (sum === targetSum) {
+        result.push(path.slice());
+      }
+      // 如果总和不相等，就直接返回
+      return;
+    }
+
+    // 循环当前节点，因为只使用数字1到9，所以最大是9
+    for (let i = startIndex; i <= 9 - (_k - path.length) + 1; i++) {
+      path.push(i);
+      sum += i;
+      // 回调函数
+      backtracking(_k, targetSum, sum, i + 1);
+      // 回溯
+      sum -= i;
+      path.pop();
+    }
+  };
+  backtracking(k, n, 0, 1);
+  return result;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function combinationSum3(k: number, n: number): number[][] {
+    const resArr: number[][] = [];
+    function backTracking(k: number, n: number, sum: number, startIndex: number, tempArr: number[]): void {
+        if (sum > n) return;
+        if (tempArr.length === k) {
+            if (sum === n) {
+                resArr.push(tempArr.slice());
+            }
+            return;
+        }
+        for (let i = startIndex; i <= 9 - (k - tempArr.length) + 1; i++) {
+            tempArr.push(i);
+            backTracking(k, n, sum + i, i + 1, tempArr);
+            tempArr.pop();
+        }
+    }
+    backTracking(k, n, 0, 1, []);
+    return resArr;
+};
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn combination_sum3(k: i32, n: i32) -> Vec<Vec<i32>> {
+        let mut result = vec![];
+        let mut path = vec![];
+        Self::backtrace(&mut result, &mut path, n, k, 0, 1);
+        result
+    }
+    pub fn backtrace(
+        result: &mut Vec<Vec<i32>>,
+        path: &mut Vec<i32>,
+        target_sum: i32,
+        k: i32,
+        sum: i32,
+        start_index: i32,
+    ) {
+        if sum > target_sum {
+            return;
+        }
+        let len = path.len() as i32;
+        if len == k {
+            if sum == target_sum {
+                result.push(path.to_vec());
+            }
+            return;
+        }
+        for i in start_index..=9 - (k - len) + 1 {
+            path.push(i);
+            Self::backtrace(result, path, target_sum, k, sum + i, i + 1);
+            path.pop();
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+int* path;
+int pathTop;
+int** ans;
+int ansTop;
+int getPathSum() {
+    int i;
+    int sum = 0;
+    for(i = 0; i < pathTop; i++) {
+        sum += path[i];
+    }
+    return sum;
+}
+
+void backtracking(int targetSum, int k, int sum, int startIndex) {
+    if(pathTop == k) {
+        if(sum == targetSum) {
+            int* tempPath = (int*)malloc(sizeof(int) * k);
+            int j;
+            for(j = 0; j < k; j++)
+                tempPath[j] = path[j];
+            ans[ansTop++] = tempPath;
+        }
+        // 如果path.size() == k 但sum != targetSum 直接返回
+        return;
+    }
+    int i;
+    //从startIndex开始遍历，一直遍历到9
+    for (i = startIndex; i <= 9; i++) {
+        sum += i; // 处理
+        path[pathTop++] = i; // 处理
+        backtracking(targetSum, k, sum, i + 1); // 注意i+1调整startIndex
+        sum -= i; // 回溯
+        pathTop--;; // 回溯
+    }
+}
+
+int** combinationSum3(int k, int n, int* returnSize, int** returnColumnSizes){
+    //初始化辅助变量
+    path = (int*)malloc(sizeof(int) * k);
+    ans = (int**)malloc(sizeof(int*) * 20);
+    pathTop = ansTop = 0;
+
+    backtracking(n, k, 0, 1);
+
+    //设置返回的二维数组中元素个数为ansTop
+    *returnSize = ansTop;
+    //设置二维数组中每个元素个数的大小为k
+    *returnColumnSizes = (int*)malloc(sizeof(int) * ansTop);
+    int i;
+    for(i = 0; i < ansTop; i++) {
+        (*returnColumnSizes)[i] = k;
+    }
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+func combinationSum3(_ count: Int, _ targetSum: Int) -> [[Int]] {
+    var result = [[Int]]()
+    var path = [Int]()
+    func backtracking(sum: Int, start: Int) {
+        // 剪枝
+        if sum > targetSum { return }
+        // 终止条件
+        if path.count == count {
+            if sum == targetSum {
+                result.append(path)
+            }
+            return
+        }
+
+        // 单层逻辑
+        let end = 9
+        guard start <= end else { return }
+        for i in start ... end {
+            path.append(i) // 处理
+            backtracking(sum: sum + i, start: i + 1)
+            path.removeLast() // 回溯
+        }
+    }
+
+    backtracking(sum: 0, start: 1)
+    return result
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  import scala.collection.mutable
+  def combinationSum3(k: Int, n: Int): List[List[Int]] = {
+    var result = mutable.ListBuffer[List[Int]]()
+    var path = mutable.ListBuffer[Int]()
+
+    def backtracking(k: Int, n: Int, sum: Int, startIndex: Int): Unit = {
+      if (sum > n) return // 剪枝，如果sum>目标和，就返回
+      if (sum == n && path.size == k) {
+        result.append(path.toList)
+        return
+      }
+      // 剪枝
+      for (i <- startIndex to (9 - (k - path.size) + 1)) {
+        path.append(i)
+        backtracking(k, n, sum + i, i + 1)
+        path = path.take(path.size - 1)
+      }
+    }
+
+    backtracking(k, n, 0, 1) // 调用递归方法
+    result.toList // 最终返回结果集的List形式
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution
+{
+    public IList<IList<int>> res = new List<IList<int>>();
+    public IList<int> path = new List<int>();
+    public IList<IList<int>> CombinationSum3(int k, int n)
+    {
+        BackTracking(k, n, 0, 1);
+        return res;
+    }
+    public void BackTracking(int k, int n, int sum, int start)
+    {
+        if (path.Count == k)
+        {
+            if (sum == n)
+                res.Add(new List<int>(path));
+            return;
+        }
+        for (int i = start; i <= 9; i++)
+        {
+            sum += i;
+            path.Add(i);
+            BackTracking(k, n, sum, i + 1);
+            sum -= i;
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+// 剪枝
+public class Solution
+{
+    public IList<IList<int>> res = new List<IList<int>>();
+    public IList<int> path = new List<int>();
+    public IList<IList<int>> CombinationSum3(int k, int n)
+    {
+        BackTracking(k, n, 0, 1);
+        return res;
+    }
+    public void BackTracking(int k, int n, int sum, int start)
+    {
+        if (sum > n)
+            return;
+        if (path.Count == k)
+        {
+            if (sum == n)
+                res.Add(new List<int>(path));
+            return;
+        }
+        for (int i = start; i <= 9 - (k - path.Count) + 1; i++)
+        {
+            sum += i;
+            path.Add(i);
+            BackTracking(k, n, sum, i + 1);
+            sum -= i;
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+}
+```
+
+</Tab>
+</Tabs>

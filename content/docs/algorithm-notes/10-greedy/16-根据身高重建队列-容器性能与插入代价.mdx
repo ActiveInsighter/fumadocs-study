@@ -1,0 +1,913 @@
+---
+title: 根据身高重建队列：容器性能与插入代价
+summary: 从 LeetCode 406 的按位置插入继续深入：解释 vector 的 size/capacity、扩容与元素搬移，比较 vector、list 和预留容量方案，并建立“复杂度不等于实际耗时”的性能分析框架。
+description: 贪心算法进阶补充。围绕根据身高重建队列中的插入操作，系统讲解 std::vector 与 std::list 的底层差异、reserve、扩容、缓存局部性、复杂度与常数因素，并给出多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 根据身高重建队列：容器性能与插入代价
+
+在上一节「根据身高重建队列」中，我们已经得到核心贪心策略：
+
+```text
+先按身高降序、同身高按 k 升序排序
+然后把每个人插入当前队列的下标 k
+```
+
+算法思想并不复杂，但真正写成程序后会出现一个很值得研究的问题：
+
+> **“插入到第 k 个位置”究竟应该使用什么容器？**
+
+这看似只是语言层面的实现细节，实际上会直接影响程序的常数、内存访问方式，甚至在相同渐进复杂度下产生明显的运行时间差异。
+
+本节不再讨论贪心正确性，而是借这道题建立一套更通用的**算法实现性能分析方法**。
+
+---
+
+## 1. 先回顾：为什么会频繁发生中间插入
+
+核心代码通常写成：
+
+```cpp
+vector<vector<int>> queue;
+
+for (const auto& person : people) {
+    int position = person[1];
+    queue.insert(queue.begin() + position, person);
+}
+```
+
+假设当前数组长度为 $m$，要在下标 $k$ 插入一个元素，那么原来位于区间
+
+$$
+[k,m-1]
+$$
+
+中的元素都要向后移动一位。
+
+需要移动的元素数量约为：
+
+$$
+m-k
+$$
+
+因此一次任意位置插入的最坏时间复杂度为：
+
+$$
+O(m)
+$$
+
+进行 $n$ 次插入后，最坏情况下总移动量为：
+
+$$
+1+2+rac{}{}\cdots+(n-1)
+$$
+
+即：
+
+$$
+\frac{n(n-1)}{2}=O(n^2)
+$$
+
+所以，排序之后的重建过程本身最坏是：
+
+$$
+O(n^2)
+$$
+
+而排序为：
+
+$$
+O(n\log n)
+$$
+
+整体由二次项主导：
+
+$$
+\boxed{O(n^2)}
+$$
+
+<Callout type="info" title="先分清算法瓶颈">
+这道题最终不是被排序限制，而是被“按下标插入”限制。分析复杂度时不要只看到 `sort` 就条件反射写成 $O(n\log n)$。
+</Callout>
+
+---
+
+## 2. 原始 vector 版本
+
+最常见的 C++ 写法如下：
+
+```cpp
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b) {
+        if (a[0] == b[0]) {
+            return a[1] < b[1];
+        }
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        vector<vector<int>> queue;
+        for (const auto& person : people) {
+            queue.insert(queue.begin() + person[1], person);
+        }
+
+        return queue;
+    }
+};
+```
+
+原资料中的一次运行结果如下：
+
+![vector insert 的一次运行结果](https://file1.kamacoder.com/i/algo/20201218203611181.png)
+
+这里只能把它理解为一个**特定环境下的测量样本**，不能仅凭一次在线评测耗时就得出“vector 一定慢于 list”的普遍结论。
+
+原因在于在线评测还会受到：
+
+- 机器负载；
+- 编译器版本；
+- 标准库实现；
+- 测试数据分布；
+- CPU 缓存命中；
+- 内存分配器；
+- 单次测量波动；
+
+等因素影响。
+
+真正可靠的判断要先从数据结构本身开始。
+
+---
+
+## 3. vector 的底层：size 与 capacity
+
+`std::vector` 可以把它理解成一个**自动管理容量的连续数组**。
+
+它至少存在两个重要概念：
+
+- `size()`：当前实际保存了多少个元素；
+- `capacity()`：当前已经申请的存储空间最多能容纳多少个元素。
+
+因此通常有：
+
+$$
+\text{size}\le \text{capacity}
+$$
+
+例如：
+
+```cpp
+vector<int> v;
+
+v.push_back(1);
+v.push_back(2);
+v.push_back(3);
+```
+
+逻辑上有 3 个元素，所以：
+
+```text
+size = 3
+```
+
+但底层可能已经预留了更多空间，例如：
+
+```text
+capacity = 4
+```
+
+具体扩容倍数属于标准库实现细节，C++ 标准并没有规定必须“严格翻倍”。
+
+<Callout type="warning" title="不要把实现策略当成语言规范">
+很多教材会说 vector “每次扩容为原来的 2 倍”。这可以帮助理解动态数组，但它不是 C++ 标准保证。不同标准库实现可以选择不同增长策略。
+</Callout>
+
+---
+
+## 4. 为什么 vector 能不断 push_back
+
+当：
+
+$$
+\text{size}<\text{capacity}
+$$
+
+时，尾部仍有空闲位置，追加元素通常只需要直接构造在尾部。
+
+而当：
+
+$$
+\text{size}=\text{capacity}
+$$
+
+又需要继续增长时，旧空间已经放不下新元素。
+
+典型过程如下。
+
+<Steps>
+<Step>
+
+### 申请一块更大的连续内存
+
+新的容量通常会按照某种增长因子扩大，而不是每次只增加 1。
+
+</Step>
+<Step>
+
+### 把旧元素搬到新空间
+
+对于可移动类型通常优先移动，否则可能需要复制。
+
+因此扩容不是简单地“在原数组后面接一块空间”。
+
+</Step>
+<Step>
+
+### 释放旧空间
+
+完成搬移以后，原来的连续内存被释放。
+
+所以扩容可能导致原有元素地址变化，也会使指向这些元素的迭代器、指针和引用失效。
+
+</Step>
+</Steps>
+
+原资料使用下面的图展示这一过程：
+
+![vector 扩容原理](https://file1.kamacoder.com/i/algo/20201218185902217.png)
+
+图中最重要的不是某个具体容量数字，而是：
+
+$$
+\boxed{\text{动态数组扩容需要重新获得一块连续空间，并搬移已有元素}}
+$$
+
+---
+
+## 5. 但本题真正昂贵的，不只是扩容
+
+这里特别容易产生一个误区：
+
+> vector 版本慢，是不是主要因为扩容？
+
+不完全是。
+
+即使我们一次性把容量预留够：
+
+```cpp
+vector<vector<int>> queue;
+queue.reserve(people.size());
+```
+
+从此不再因为容量不足而重新分配，**中间插入仍然需要移动插入点后面的元素**。
+
+例如：
+
+```text
+[ A, B, C, D ]
+```
+
+要在下标 1 插入 `X`：
+
+```text
+[ A, X, B, C, D ]
+```
+
+至少需要把：
+
+```text
+B, C, D
+```
+
+整体向后移动。
+
+所以 `reserve` 可以消除容量增长造成的重分配，但不能改变：
+
+$$
+\boxed{\text{vector 中间插入最坏仍是 }O(n)}
+$$
+
+这也是分析容器性能时必须区分的两个成本：
+
+| 成本 | 产生原因 | `reserve` 能否避免 |
+| --- | --- | --- |
+| 重新分配整块内存 | capacity 不足 | 可以显著减少/避免 |
+| 插入点之后元素后移 | 连续数组必须腾位置 | 不能 |
+
+---
+
+## 6. 一个更合理的 vector 优化：reserve
+
+如果已经知道最终最多会放入 $n$ 个元素，那么比“自己实现固定数组插入”更自然的做法是：
+
+```cpp
+vector<vector<int>> queue;
+queue.reserve(people.size());
+```
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b) {
+        if (a[0] == b[0]) {
+            return a[1] < b[1];
+        }
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        vector<vector<int>> queue;
+        queue.reserve(people.size());
+
+        for (const auto& person : people) {
+            queue.insert(queue.begin() + person[1], person);
+        }
+
+        return queue;
+    }
+};
+```
+
+这段代码仍然是：
+
+$$
+O(n^2)
+$$
+
+但它明确告诉容器：
+
+> 最终容量至少需要 `people.size()`，请尽量一次申请够。
+
+因此可以避免由于 `queue` 逐渐增长而发生的额外重新分配。
+
+<Callout type="info" title="复杂度没变，不代表优化没有意义">
+`reserve` 不会把 $O(n^2)$ 变成 $O(n\log n)$，但它可以减少内存重新分配和元素搬移次数。工程优化经常是在“同阶复杂度”下改善常数。
+</Callout>
+
+---
+
+## 7. list 版本为什么看起来更适合插入
+
+链表节点不要求连续存储。
+
+如果已经拿到了插入位置的迭代器：
+
+```cpp
+queue.insert(it, person);
+```
+
+修改几个指针就可以完成插入，所以这一步本身可以视为：
+
+$$
+O(1)
+$$
+
+原资料中的链表实现为：
+
+```cpp
+class Solution {
+public:
+    static bool cmp(const vector<int>& a, const vector<int>& b) {
+        if (a[0] == b[0]) {
+            return a[1] < b[1];
+        }
+        return a[0] > b[0];
+    }
+
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(), people.end(), cmp);
+
+        list<vector<int>> queue;
+
+        for (const auto& person : people) {
+            int position = person[1];
+            auto it = queue.begin();
+
+            while (position--) {
+                ++it;
+            }
+
+            queue.insert(it, person);
+        }
+
+        return vector<vector<int>>(queue.begin(), queue.end());
+    }
+};
+```
+
+原资料中的一次运行结果：
+
+![使用链表的一次运行结果](https://file1.kamacoder.com/i/algo/20201218200756257.png)
+
+但这里要特别注意：
+
+> **本题并不能做到真正的 $O(1)$ 插入定位。**
+
+因为题目给我们的是一个整数下标 $k$，而 `std::list` 不支持随机访问。
+
+为了走到第 $k$ 个位置，仍要：
+
+```cpp
+while (position--) {
+    ++it;
+}
+```
+
+这一过程需要：
+
+$$
+O(k)
+$$
+
+最坏仍然是：
+
+$$
+O(n)
+$$
+
+因此 $n$ 次重建仍然是：
+
+$$
+\boxed{O(n^2)}
+$$
+
+---
+
+## 8. vector 与 list：为什么同为 O(n²)，实际速度仍可能不同
+
+渐进复杂度只描述输入规模足够大时的增长阶，不会告诉你所有硬件层面的常数。
+
+两者的差异可以拆成下面几个维度。
+
+| 维度 | `vector` | `list` |
+| --- | --- | --- |
+| 存储 | 连续 | 节点离散 |
+| 随机访问 | $O(1)$ | $O(n)$ |
+| 已知迭代器后的插入 | 仍需移动后续元素 | $O(1)$ |
+| 找到第 $k$ 个位置 | $O(1)$ | $O(k)$ |
+| 缓存局部性 | 通常很好 | 通常较差 |
+| 单元素额外内存 | 较少 | 需要前后指针等 |
+| 内存分配 | 成块申请 | 往往逐节点申请 |
+
+这说明一个很重要的事实：
+
+$$
+\boxed{\text{同一个 }O(n^2)\text{，常数可能非常不同}}
+$$
+
+但不能进一步武断地推出：
+
+```text
+链表一定比 vector 快
+```
+
+因为现代 CPU 对连续内存访问非常友好，而链表遍历存在：
+
+- 指针追踪；
+- 缓存未命中；
+- 节点分配开销；
+- 更大的内存占用；
+
+这些成本。
+
+所以在真实工程中，`vector` 经常比“理论上少搬元素”的链表更快。
+
+<Callout type="warning" title="复杂度只能回答一部分性能问题">
+数据结构选择既要看渐进复杂度，也要看访问模式、缓存局部性、元素大小、分配次数和输入规模。不要把“大 O 相同”理解成“运行时间相同”，也不要把某次评测结果推广为普遍规律。
+</Callout>
+
+---
+
+## 9. 固定大小 vector 手动搬移为什么没有本质改善
+
+原资料还给出了一种思路：
+
+```cpp
+vector<vector<int>> queue(people.size(), vector<int>(2, -1));
+```
+
+提前把数组建到最终大小，再手动把插入点之后的内容往后搬。
+
+原运行截图如下：
+
+![固定大小 vector 手动模拟插入](https://file1.kamacoder.com/i/algo/20201218200626718.png)
+
+这种方案避免了“容量不够后重新申请更大数组”，但没有避免真正的大头：
+
+$$
+\text{插入点之后的元素移动}
+$$
+
+手动实现类似：
+
+```cpp
+for (int j = currentSize - 1; j >= position; --j) {
+    queue[j + 1] = queue[j];
+}
+```
+
+仍然需要线性移动。
+
+并且它还带来额外问题：
+
+- 代码更复杂；
+- 更容易写出边界错误；
+- 必须自己维护“当前有效长度”；
+- 可读性明显不如标准容器接口。
+
+因此如果只是为了避免扩容，优先考虑：
+
+```cpp
+queue.reserve(n);
+```
+
+而不是重新实现一个低层版 `insert`。
+
+---
+
+## 10. 一个重要概念：摊还复杂度
+
+`push_back` 的某一次操作可能触发扩容，因此那一次可能需要搬移全部元素：
+
+$$
+O(n)
+$$
+
+但为什么我们仍然说 `vector::push_back` 的**摊还时间复杂度**是：
+
+$$
+O(1)
+$$
+
+因为合理的几何增长策略不会每次追加都扩容。
+
+假设容量按近似倍增增长：
+
+```text
+1 → 2 → 4 → 8 → 16 → ...
+```
+
+把 $n$ 个元素追加进去时，历史扩容搬移总量近似：
+
+$$
+1+2+4+\cdots+\frac{n}{2}
+$$
+
+这是一个等比数列，其和小于：
+
+$$
+n
+$$
+
+所以总追加成本仍然是：
+
+$$
+O(n)
+$$
+
+平均到每次 `push_back`：
+
+$$
+O(1)
+$$
+
+但是本题不是只在尾部追加，而是**任意位置插入**。
+
+中间插入的元素平移无法靠摊还分析消掉，因此依旧是：
+
+$$
+O(n^2)
+$$
+
+---
+
+## 11. 从这道题学会区分三种“移动”
+
+以后看到动态数组性能问题，可以先问三个问题。
+
+### 11.1 是否因为扩容而搬移整个数组？
+
+如果是，可以尝试：
+
+```cpp
+reserve()
+```
+
+### 11.2 是否因为中间插入/删除而移动尾部元素？
+
+这属于连续数组的结构性成本，`reserve` 无法消除。
+
+### 11.3 元素本身是否很重？
+
+如果元素复制很昂贵，移动成本可能更加明显。
+
+本题的元素是：
+
+```cpp
+vector<int>
+```
+
+虽然每个人只包含两个整数，但对象本身仍是一个动态数组对象。
+
+如果数据结构能更轻量，例如：
+
+```cpp
+array<int, 2>
+```
+
+或自定义小结构体：
+
+```cpp
+struct Person {
+    int h;
+    int k;
+};
+```
+
+则可能进一步减小常数。
+
+---
+
+## 12. 为什么“语言功底”属于算法能力的一部分
+
+算法题通常分成两层：
+
+```text
+第一层：算法思想是否正确
+第二层：实现这个思想的数据结构是否合适
+```
+
+例如：
+
+- 需要随机访问，却选择链表；
+- 需要大量头部删除，却一直用普通数组搬移；
+- 已知最终大小，却不断动态扩容；
+- 频繁拼接字符串却每次都制造新对象；
+
+都可能让一个理论正确的算法出现明显的实现损耗。
+
+因此真正完整的算法分析不应只写：
+
+```text
+时间复杂度 O(n²)
+空间复杂度 O(n)
+```
+
+还应该继续问：
+
+```text
+这个 O(n²) 到底在做什么？
+是比较？复制？移动？内存分配？指针追踪？
+```
+
+这一步往往决定你能否从“会做题”进入“会写高质量程序”。
+
+---
+
+## 13. 本题三种方案应该怎么评价
+
+### 方案一：vector + insert
+
+```cpp
+vector<vector<int>> queue;
+```
+
+优点：
+
+- 写法最直接；
+- 随机定位插入点是 $O(1)$；
+- 内存连续，局部性好；
+- 代码简洁。
+
+缺点：
+
+- 中间插入需要搬移元素；
+- 未预留容量时还可能发生重分配。
+
+### 方案二：vector + reserve + insert
+
+```cpp
+vector<vector<int>> queue;
+queue.reserve(people.size());
+```
+
+通常是 C++ 中值得优先考虑的改进版：
+
+- 保留简单写法；
+- 避免容量增长导致的重分配；
+- 仍然承担中间插入的线性搬移。
+
+复杂度依旧：
+
+$$
+O(n^2)
+$$
+
+### 方案三：list
+
+优点：
+
+- 拿到位置后插入本身是 $O(1)$；
+- 不需要移动大量后续节点。
+
+缺点：
+
+- 找第 $k$ 个位置需要 $O(k)$；
+- 节点额外内存更大；
+- 缓存局部性较差；
+- 最后通常还要转换回 `vector`。
+
+总体仍然：
+
+$$
+O(n^2)
+$$
+
+---
+
+## 14. 面试与考试应该怎么回答
+
+如果被问到：
+
+> 为什么使用 vector 插入会慢？
+
+推荐回答：
+
+1. `vector` 是连续存储；
+2. 中间插入需要把插入点后的元素整体后移，因此单次最坏 $O(n)$；
+3. 如果容量不足，还可能重新分配并搬移已有元素；
+4. 可以用 `reserve(n)` 避免容量增长造成的重分配，但无法消除中间插入的 $O(n)$ 搬移；
+5. 本题共执行 $n$ 次位置插入，因此重建阶段最坏 $O(n^2)$。
+
+如果继续问：
+
+> 换成 list 是否能降到 $O(n)$？
+
+答案是：不能。
+
+因为题目提供的是下标 $k$，`list` 找到第 $k$ 个位置仍然需要线性遍历，所以整体仍是：
+
+$$
+O(n^2)
+$$
+
+---
+
+## 15. 一页总结
+
+记住下面这组关系：
+
+```text
+vector：随机访问快，中间插入要搬元素
+list：插入节点快，但按下标定位慢
+```
+
+对于本题：
+
+$$
+\boxed{\text{vector 与 list 的重建阶段最坏都为 }O(n^2)}
+$$
+
+真正不同的是：
+
+```text
+vector 的主要成本：元素搬移 + 可能的扩容
+list 的主要成本：线性定位 + 节点分配 + 指针访问
+```
+
+如果使用 `vector`，已知最终元素数时可以：
+
+```cpp
+queue.reserve(people.size());
+```
+
+减少扩容开销。
+
+最重要的学习目标不是记住“哪一个容器更快”，而是掌握：
+
+$$
+\boxed{\text{数据结构的访问模式必须和算法操作模式匹配}}
+$$
+
+---
+
+## 16. 其他语言版本
+
+不同语言的动态数组实现细节不同，但“连续数组中间插入需要移动后续元素”这一核心规律基本一致。
+
+<Tabs items={['Rust', 'Go', 'Python', 'Java']}>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn reconstruct_queue(mut people: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+        people.sort_by(|a, b| {
+            if a[0] == b[0] {
+                a[1].cmp(&b[1])
+            } else {
+                b[0].cmp(&a[0])
+            }
+        });
+
+        // 预先申请足够容量，避免 Vec 因增长而反复重新分配。
+        // 但 Vec::insert 仍需要移动插入位置之后的元素。
+        let mut queue = Vec::with_capacity(people.len());
+
+        for person in people {
+            queue.insert(person[1] as usize, person);
+        }
+
+        queue
+    }
+}
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+import "sort"
+
+func reconstructQueue(people [][]int) [][]int {
+    sort.Slice(people, func(i, j int) bool {
+        if people[i][0] == people[j][0] {
+            return people[i][1] < people[j][1]
+        }
+        return people[i][0] > people[j][0]
+    })
+
+    // capacity 一次预留为最终规模。
+    queue := make([][]int, 0, len(people))
+
+    for _, person := range people {
+        k := person[1]
+
+        // 先扩展长度，再把 [k:] 整体右移一位。
+        queue = append(queue, nil)
+        copy(queue[k+1:], queue[k:])
+        queue[k] = person
+    }
+
+    return queue
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def reconstructQueue(self, people: List[List[int]]) -> List[List[int]]:
+        people.sort(key=lambda p: (-p[0], p[1]))
+
+        queue: List[List[int]] = []
+
+        for person in people:
+            # list.insert 会移动插入位置之后的元素，
+            # 因此单次最坏仍然是 O(n)。
+            queue.insert(person[1], person)
+
+        return queue
+```
+
+</Tab>
+<Tab value="Java">
+
+```java
+import java.util.*;
+
+class Solution {
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people, (a, b) -> {
+            if (a[0] == b[0]) {
+                return Integer.compare(a[1], b[1]);
+            }
+            return Integer.compare(b[0], a[0]);
+        });
+
+        List<int[]> queue = new ArrayList<>(people.length);
+
+        for (int[] person : people) {
+            // ArrayList 在中间插入时需要移动后续元素。
+            queue.add(person[1], person);
+        }
+
+        return queue.toArray(new int[people.length][]);
+    }
+}
+```
+
+</Tab>
+</Tabs>

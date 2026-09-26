@@ -1,0 +1,597 @@
+---
+title: 分发饼干
+summary: 用排序与双指针理解最经典的贪心匹配：为什么“小饼干优先满足小胃口”能够得到最大匹配数。
+description: LeetCode 455 分发饼干。系统讲解贪心策略、交换论证、双指针实现、遍历方向陷阱与多语言代码。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 455. 分发饼干
+
+[LeetCode 455. 分发饼干](https://leetcode.cn/problems/assign-cookies/)
+
+这是一道非常适合作为贪心入门的题目。它看起来只是两个数组的匹配，但真正值得学习的是：**如何通过排序建立决策顺序，再证明每一次局部匹配都不会损害全局最优解。**
+
+## 1. 题目模型
+
+有两类对象：
+
+- 孩子 $i$ 的胃口值为 $g_i$；
+- 饼干 $j$ 的尺寸为 $s_j$。
+
+只有满足
+
+$$
+s_j \ge g_i
+$$
+
+时，饼干 $j$ 才能满足孩子 $i$。
+
+每个孩子最多获得一块饼干，每块饼干也最多使用一次。目标是：
+
+> **最大化被满足的孩子数量。**
+
+例如：
+
+```text
+孩子胃口：g = [1, 2, 3]
+饼干尺寸：s = [1, 1]
+```
+
+最终最多只能满足 $1$ 个孩子。
+
+而：
+
+```text
+孩子胃口：g = [1, 2]
+饼干尺寸：s = [1, 2, 3]
+```
+
+可以满足全部 $2$ 个孩子。
+
+<Callout type="info" title="先抽象成匹配问题">
+本题不是要让某个孩子吃到“尽量大的饼干”，而是要让成功匹配的孩子数量最多。因此，真正应该避免的是：**用一块本可以留给更难满足孩子的大饼干，去满足一个本来用小饼干就够的孩子。**
+</Callout>
+
+## 2. 贪心策略：最小可用饼干匹配最小胃口
+
+最自然的一种思路是：
+
+1. 将孩子胃口从小到大排序；
+2. 将饼干尺寸从小到大排序；
+3. 从最小饼干开始尝试；
+4. 当前饼干如果能满足当前胃口最小的孩子，就立即匹配；
+5. 如果连胃口最小的孩子都满足不了，那么这块饼干也不可能满足后面的孩子，直接丢弃。
+
+这就是典型的：
+
+$$
+\text{排序} + \text{双指针} + \text{贪心匹配}
+$$
+
+原始资料中的示意图很好地体现了“不要浪费大饼干”的思想：
+
+![分发饼干示意图](https://file1.kamacoder.com/i/algo/20230405225628.png)
+
+### 为什么先处理小胃口
+
+假设当前尚未匹配的最小胃口为 $g_i$，当前最小饼干为 $s_j$。
+
+如果：
+
+$$
+s_j < g_i
+$$
+
+那么因为后续孩子满足
+
+$$
+g_{i+1} \ge g_i
+$$
+
+所以一定也有：
+
+$$
+s_j < g_{i+1}
+$$
+
+因此这块饼干不可能满足任何剩余孩子，可以直接跳过。
+
+如果：
+
+$$
+s_j \ge g_i
+$$
+
+那么用这块当前最小的可用饼干满足当前最小胃口，是最“节省资源”的选择。更大的饼干继续保留给后面胃口更大的孩子。
+
+这就是本题最重要的局部最优：
+
+> **能用较小资源完成当前匹配，就不要消耗更大的资源。**
+
+## 3. 为什么这个贪心一定正确
+
+只靠“看起来不浪费”还不够，最好能够给出交换论证。
+
+假设所有孩子和饼干都已经升序排列，现在考察当前胃口最小的孩子 $g_i$。
+
+若存在能够满足他的饼干，那么设当前最小的可行饼干是 $s_j$：
+
+$$
+s_j \ge g_i
+$$
+
+假设某个最优方案没有把 $s_j$ 分给 $g_i$，而是：
+
+- 用更大的饼干 $s_k$ 满足 $g_i$；
+- 或者让 $s_j$ 去满足另一个胃口更大的孩子。
+
+由于：
+
+$$
+s_k \ge s_j
+$$
+
+我们可以把分配关系进行交换：
+
+- $s_j$ 用来满足 $g_i$；
+- 原先更大的饼干 $s_k$ 留给其他孩子。
+
+交换之后，成功匹配的孩子数量不会减少。
+
+因此，总存在一个最优解，其中当前最小可行饼干被分给当前最小胃口。
+
+<Callout type="success" title="交换论证的结论">
+“小饼干优先满足小胃口”不会破坏任何最优解。每完成一次匹配，问题就缩小成剩余孩子与剩余饼干的同类问题，因此可以持续贪心。
+</Callout>
+
+## 4. 双指针如何工作
+
+设：
+
+- `child` 指向当前还未满足的最小胃口；
+- `cookie` 指向当前最小的未使用饼干。
+
+<Steps>
+<Step>
+
+### 比较当前孩子和当前饼干
+
+如果：
+
+```text
+s[cookie] < g[child]
+```
+
+说明这块饼干太小。
+
+</Step>
+<Step>
+
+### 饼干太小：只移动饼干指针
+
+因为当前孩子已经是剩余孩子中胃口最小的，这块饼干连他都满足不了，更不可能满足后面的孩子。
+
+所以：
+
+```text
+cookie++
+```
+
+</Step>
+<Step>
+
+### 可以满足：完成一次匹配
+
+如果：
+
+```text
+s[cookie] >= g[child]
+```
+
+则当前饼干就是最小的可行饼干，直接分配：
+
+```text
+child++
+cookie++
+```
+
+</Step>
+<Step>
+
+### 结束条件
+
+当孩子已经全部满足，或饼干已经全部使用时结束。
+
+最终 `child` 本身就是成功匹配的孩子数。
+
+</Step>
+</Steps>
+
+## 5. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+
+        int child = 0;
+
+        for (int cookie = 0; cookie < static_cast<int>(s.size()); ++cookie) {
+            if (child < static_cast<int>(g.size()) && s[cookie] >= g[child]) {
+                ++child;
+            }
+        }
+
+        return child;
+    }
+};
+```
+
+### 复杂度
+
+设孩子数为 $n$，饼干数为 $m$。
+
+排序复杂度为：
+
+$$
+O(n\log n + m\log m)
+$$
+
+排序后的扫描复杂度为：
+
+$$
+O(n+m)
+$$
+
+因此总时间复杂度为：
+
+$$
+O(n\log n + m\log m)
+$$
+
+若忽略排序函数自身使用的栈空间，额外空间复杂度可记为：
+
+$$
+O(1)
+$$
+
+## 6. 另一种完全等价的贪心：大饼干匹配大胃口
+
+也可以反过来：
+
+- 孩子从大胃口向小胃口遍历；
+- 饼干从大尺寸向小尺寸遍历；
+- 若当前最大饼干能够满足当前最大胃口，则完成匹配；
+- 若不能满足当前最大胃口，则这个孩子只能放弃，继续看胃口更小的孩子。
+
+```cpp
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+
+        int cookie = static_cast<int>(s.size()) - 1;
+        int answer = 0;
+
+        for (int child = static_cast<int>(g.size()) - 1; child >= 0; --child) {
+            if (cookie >= 0 && s[cookie] >= g[child]) {
+                ++answer;
+                --cookie;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+这两种写法本质相同：
+
+| 写法 | 局部策略 | 不匹配时丢弃谁 |
+| --- | --- | --- |
+| 从小到大 | 最小可行饼干满足最小胃口 | 丢弃过小饼干 |
+| 从大到小 | 最大饼干优先尝试最大胃口 | 放弃过大胃口 |
+
+## 7. 最容易写错的地方：遍历方向必须和策略一致
+
+原始资料特别强调了一个常见错误：**不能随意交换外层遍历对象。**
+
+例如你采用“从大到小，大饼干匹配大胃口”的策略时，如果固定胃口指针不动，却不断让饼干从大到小移动，就可能出现：
+
+![错误遍历方向示意图](https://file1.kamacoder.com/i/algo/20230112102848.png)
+
+假设当前孩子胃口是 $10$，当前饼干尺寸是 $9$。
+
+因为 $9<10$，如果你继续把饼干变得更小：
+
+$$
+9,8,7,6,\ldots
+$$
+
+就永远不可能满足胃口为 $10$ 的孩子。
+
+真正应该做的是：**放弃这个胃口过大的孩子，保留当前大饼干去尝试更小的胃口。**
+
+反过来，从小到大时也是一样：如果当前饼干连最小胃口都满足不了，就应该丢掉饼干，而不是丢掉孩子。
+
+<Callout type="warn" title="双指针不是机械移动">
+双指针题真正需要判断的是：当当前状态失败时，哪一侧可以被安全淘汰。能证明“这个对象以后再也不可能产生贡献”，才能移动对应指针。
+</Callout>
+
+## 8. 一次完整模拟
+
+假设：
+
+```text
+g = [1, 2, 4]
+s = [1, 2, 3, 5]
+```
+
+排序后不变。
+
+| 当前孩子 | 当前饼干 | 判断 | 操作 | 已满足人数 |
+| --- | --- | --- | --- | ---: |
+| $1$ | $1$ | $1\ge1$ | 匹配 | 1 |
+| $2$ | $2$ | $2\ge2$ | 匹配 | 2 |
+| $4$ | $3$ | $3<4$ | 丢弃饼干 3 | 2 |
+| $4$ | $5$ | $5\ge4$ | 匹配 | 3 |
+
+最终答案为 $3$。
+
+这里尤其要注意第三步：尺寸为 $3$ 的饼干无法满足当前最小剩余胃口 $4$，因此它再也没有任何用途，可以直接淘汰。
+
+## 9. 这道题真正应该掌握什么
+
+这道题的价值远不止会写两根指针。
+
+### 9.1 排序是为了建立决策顺序
+
+原始输入顺序并不重要。排序后，剩余对象的大小关系变得单调，我们才能确定哪些对象已经“永远无用”。
+
+### 9.2 贪心通常和“资源不浪费”有关
+
+本题的资源是饼干尺寸。一个大的资源可以覆盖更广的需求，因此应该尽量让更小的资源处理更小的需求。
+
+### 9.3 匹配问题经常可以从两端思考
+
+看到两组对象存在：
+
+```text
+资源 >= 需求
+```
+
+这样的单调约束时，可以优先考虑：
+
+- 小需求配小资源；
+- 或大资源配大需求。
+
+只要能够证明失败时某一侧可以安全淘汰，就很可能形成双指针贪心。
+
+### 9.4 证明比模板更重要
+
+本题代码非常短，但真正可以迁移到其他题目的能力是：
+
+> **为什么当前匹配能够被固定下来，而无需回溯？**
+
+答案就是交换论证：即使最优解原本不是这样匹配，也能交换成这样，而且不会让答案变差。
+
+<Callout type="info" title="记忆一句话">
+最小需求，用最小的可行资源满足；资源若连最小需求都不够，就可以直接淘汰。
+</Callout>
+
+## 10. 其他语言版本
+
+下面统一采用更容易理解的“**小饼干优先满足小胃口**”写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
+
+```java
+import java.util.Arrays;
+
+class Solution {
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+
+        int child = 0;
+
+        for (int cookie = 0; cookie < s.length && child < g.length; cookie++) {
+            if (s[cookie] >= g[child]) {
+                child++;
+            }
+        }
+
+        return child;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def findContentChildren(self, g: list[int], s: list[int]) -> int:
+        g.sort()
+        s.sort()
+
+        child = 0
+
+        for cookie in s:
+            if child < len(g) and cookie >= g[child]:
+                child += 1
+
+        return child
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+import "sort"
+
+func findContentChildren(g []int, s []int) int {
+    sort.Ints(g)
+    sort.Ints(s)
+
+    child := 0
+
+    for _, cookie := range s {
+        if child < len(g) && cookie >= g[child] {
+            child++
+        }
+    }
+
+    return child
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn find_content_children(mut g: Vec<i32>, mut s: Vec<i32>) -> i32 {
+        g.sort_unstable();
+        s.sort_unstable();
+
+        let mut child = 0usize;
+
+        for cookie in s {
+            if child < g.len() && cookie >= g[child] {
+                child += 1;
+            }
+        }
+
+        child as i32
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var findContentChildren = function (g, s) {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+
+  let child = 0;
+
+  for (const cookie of s) {
+    if (child < g.length && cookie >= g[child]) {
+      child++;
+    }
+  }
+
+  return child;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function findContentChildren(g: number[], s: number[]): number {
+  g.sort((a, b) => a - b);
+  s.sort((a, b) => a - b);
+
+  let child = 0;
+
+  for (const cookie of s) {
+    if (child < g.length && cookie >= g[child]) {
+      child++;
+    }
+  }
+
+  return child;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    int x = *(const int*)a;
+    int y = *(const int*)b;
+    return (x > y) - (x < y);
+}
+
+int findContentChildren(int* g, int gSize, int* s, int sSize) {
+    qsort(g, gSize, sizeof(int), cmp);
+    qsort(s, sSize, sizeof(int), cmp);
+
+    int child = 0;
+
+    for (int cookie = 0; cookie < sSize && child < gSize; ++cookie) {
+        if (s[cookie] >= g[child]) {
+            ++child;
+        }
+    }
+
+    return child;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def findContentChildren(g: Array[Int], s: Array[Int]): Int = {
+    val children = g.sorted
+    val cookies = s.sorted
+
+    var child = 0
+    var cookie = 0
+
+    while (cookie < cookies.length && child < children.length) {
+      if (cookies(cookie) >= children(child)) {
+        child += 1
+      }
+      cookie += 1
+    }
+
+    child
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution
+{
+    public int FindContentChildren(int[] g, int[] s)
+    {
+        Array.Sort(g);
+        Array.Sort(s);
+
+        int child = 0;
+
+        for (int cookie = 0; cookie < s.Length && child < g.Length; cookie++)
+        {
+            if (s[cookie] >= g[child])
+            {
+                child++;
+            }
+        }
+
+        return child;
+    }
+}
+```
+
+</Tab>
+</Tabs>

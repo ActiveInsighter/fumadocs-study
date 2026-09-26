@@ -1,0 +1,1057 @@
+---
+title: 移除元素
+description: 从数组“不能真正删除元素”的底层事实出发，系统掌握快慢指针原地覆盖模型，并理解相向双指针在“不要求保持顺序”时的优化思路。
+---
+
+# 27. 移除元素
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/remove-element/">
+    LeetCode 27 · Remove Element
+  </Card>
+</Cards>
+
+给定整数数组 `nums` 和整数 `val`，要求：
+
+- **原地**移除所有等于 `val` 的元素；
+- 返回移除后数组的新长度；
+- 额外空间复杂度必须为 $O(1)$；
+- 新长度之外的元素无需考虑。
+
+例如：
+
+```text
+nums = [3, 2, 2, 3]
+val  = 3
+```
+
+处理后，数组前两个位置应为：
+
+```text
+[2, 2]
+```
+
+返回：
+
+```text
+2
+```
+
+再例如：
+
+```text
+nums = [0, 1, 2, 2, 3, 0, 4, 2]
+val  = 2
+```
+
+处理后前五个位置可以是：
+
+```text
+[0, 1, 3, 0, 4]
+```
+
+返回：
+
+```text
+5
+```
+
+<Callout type="info" title="本题真正要理解的不是“删除”">
+数组内存连续，不能像链表那样通过断开指针真正删除中间节点。所谓“原地移除”，本质上是：
+
+> **把需要保留的元素覆盖到数组前部。**
+</Callout>
+
+---
+
+## 1. 为什么数组里的“删除”通常是覆盖
+
+数组的元素在内存中连续排列。
+
+假设：
+
+```text
+[1, 2, 3, 4, 5]
+```
+
+删除中间的 `3` 后，如果仍要求逻辑上变成：
+
+```text
+[1, 2, 4, 5]
+```
+
+那么后面的元素需要向前移动。
+
+原始资料中的暴力过程：
+
+![移除元素暴力解法](https://file1.kamacoder.com/i/algo/27.%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0-%E6%9A%B4%E5%8A%9B%E8%A7%A3%E6%B3%95.gif)
+
+所以数组删除通常不是“把某个存储单元拿掉”，而是：
+
+```text
+逻辑长度缩短
++
+后续元素覆盖前移
+```
+
+---
+
+## 2. 暴力解法
+
+发现：
+
+```cpp
+nums[i] == val
+```
+
+后，把：
+
+```text
+i+1, i+2, ..., n-1
+```
+
+全部向前移动一位。
+
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int size = nums.size();
+
+        for (int i = 0; i < size; ++i) {
+            if (nums[i] == val) {
+                for (int j = i + 1; j < size; ++j) {
+                    nums[j - 1] = nums[j];
+                }
+
+                --i;
+                --size;
+            }
+        }
+
+        return size;
+    }
+};
+```
+
+---
+
+## 3. 为什么删除后要 `--i`
+
+例如：
+
+```text
+nums = [2, 2, 3]
+val = 2
+```
+
+第一次在：
+
+```text
+i = 0
+```
+
+发现 `2`。
+
+整体左移后：
+
+```text
+[2, 3, ...]
+```
+
+此时新的：
+
+```text
+nums[0]
+```
+
+仍然是 `2`。
+
+如果循环直接执行：
+
+```text
+i++
+```
+
+就会跳过它。
+
+所以暴力解法中要：
+
+```cpp
+--i;
+```
+
+让下一轮继续检查当前位置。
+
+---
+
+## 4. 暴力法复杂度为什么是 $O(n^2)$
+
+外层最多扫描：
+
+$$
+O(n)
+$$
+
+每次删除又可能搬移：
+
+$$
+O(n)
+$$
+
+个元素。
+
+因此最坏：
+
+$$
+O(n^2)
+$$
+
+额外空间：
+
+$$
+O(1)
+$$
+
+问题在于：
+
+> 同一个元素可能被反复搬移很多次。
+
+---
+
+# 5. 快慢指针：一次扫描完成“筛选 + 覆盖”
+
+双指针法的关键不是“同时放两个变量”，而是：
+
+> **让两个指针承担不同职责。**
+
+定义：
+
+### 快指针 `fast`
+
+负责：
+
+```text
+扫描原数组
+寻找应该保留的元素
+```
+
+### 慢指针 `slow`
+
+负责：
+
+```text
+指向下一个应该写入的位置
+```
+
+原始动画：
+
+![移除元素双指针法](https://file1.kamacoder.com/i/algo/27.%E7%A7%BB%E9%99%A4%E5%85%83%E7%B4%A0-%E5%8F%8C%E6%8C%87%E9%92%88%E6%B3%95.gif)
+
+---
+
+## 6. 最重要的不变量
+
+在处理任意一个 `fast` 之前，都可以认为：
+
+> 区间 `[0, slow)` 中已经全部是需要保留的元素，并且它们保持原来的相对顺序。
+
+这就是本题的核心不变量。
+
+如果：
+
+```cpp
+nums[fast] != val
+```
+
+说明当前元素应该保留。
+
+于是写到：
+
+```cpp
+nums[slow]
+```
+
+然后：
+
+```cpp
+++slow;
+```
+
+如果：
+
+```cpp
+nums[fast] == val
+```
+
+则直接跳过，`slow` 不动。
+
+---
+
+## 7. 过程演示
+
+例如：
+
+```text
+nums = [0, 1, 2, 2, 3, 0, 4, 2]
+val  = 2
+```
+
+初始：
+
+```text
+slow = 0
+fast = 0
+```
+
+### `fast = 0`
+
+```text
+nums[0] = 0 != 2
+```
+
+保留：
+
+```text
+nums[slow] = 0
+slow = 1
+```
+
+---
+
+### `fast = 1`
+
+```text
+nums[1] = 1 != 2
+```
+
+保留：
+
+```text
+nums[1] = 1
+slow = 2
+```
+
+---
+
+### `fast = 2`
+
+```text
+nums[2] = 2
+```
+
+跳过：
+
+```text
+slow 不动
+```
+
+---
+
+### `fast = 3`
+
+仍然是 `2`：
+
+```text
+跳过
+```
+
+---
+
+### `fast = 4`
+
+```text
+nums[4] = 3
+```
+
+写到：
+
+```text
+nums[2] = 3
+```
+
+此时前部有效区域：
+
+```text
+[0, 1, 3]
+```
+
+---
+
+继续执行后，最终前五个位置为：
+
+```text
+[0, 1, 3, 0, 4]
+```
+
+而：
+
+```text
+slow = 5
+```
+
+正好就是新长度。
+
+---
+
+## 8. 标准快慢指针解法
+
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int slow = 0;
+
+        for (int fast = 0; fast < nums.size(); ++fast) {
+            if (nums[fast] != val) {
+                nums[slow] = nums[fast];
+                ++slow;
+            }
+        }
+
+        return slow;
+    }
+};
+```
+
+也可以写得更紧凑：
+
+```cpp
+if (nums[fast] != val) {
+    nums[slow++] = nums[fast];
+}
+```
+
+---
+
+## 9. 为什么 `slow` 最终就是新长度
+
+`slow` 的语义是：
+
+> 下一个合法元素应该写入的位置。
+
+同时也意味着：
+
+> 当前已经写入了多少个合法元素。
+
+例如最终：
+
+```text
+slow = 5
+```
+
+说明合法元素占据：
+
+```text
+[0, 5)
+```
+
+一共：
+
+$$
+5
+$$
+
+个。
+
+因此：
+
+```cpp
+return slow;
+```
+
+即可。
+
+---
+
+## 10. 正确性证明
+
+设当前扫描到 `fast`。
+
+维护不变量：
+
+> `[0, slow)` 中恰好保存已经扫描区间内所有不等于 `val` 的元素，且相对顺序不变。
+
+### 若：
+
+```text
+nums[fast] == val
+```
+
+它本来就不应该进入结果。
+
+不写入，`slow` 不变，不变量继续成立。
+
+### 若：
+
+```text
+nums[fast] != val
+```
+
+它应该成为下一个合法元素。
+
+写：
+
+```cpp
+nums[slow] = nums[fast];
+```
+
+然后：
+
+```cpp
+++slow;
+```
+
+于是新的 `[0, slow)` 又恰好包含所有应保留元素。
+
+遍历结束后，整个原数组都处理完，因此：
+
+```text
+nums[0 ... slow-1]
+```
+
+正好是最终有效数组。
+
+---
+
+## 11. 时间与空间复杂度
+
+`fast` 从头到尾只走一次：
+
+$$
+O(n)
+$$
+
+每个元素最多进行一次写入。
+
+额外只使用两个索引：
+
+$$
+O(1)
+$$
+
+所以：
+
+- 时间复杂度：$O(n)$；
+- 空间复杂度：$O(1)$。
+
+相比暴力法：
+
+$$
+O(n^2)\rightarrow O(n)
+$$
+
+---
+
+## 12. 快慢指针为什么能替代双重循环
+
+暴力法做的是：
+
+```text
+发现无效元素
+      ↓
+把后面所有元素整体左移
+```
+
+这种“整体移动”会造成大量重复工作。
+
+快慢指针则改成：
+
+```text
+fast 扫描整个数组
+slow 只记录下一次写哪里
+```
+
+于是每个合法元素只被搬一次。
+
+可以理解成：
+
+> **把“每次删除后整体搬家”，改成“扫描过程中一次性压缩”。**
+
+---
+
+# 13. 相向双指针：当顺序不重要时还能换一种思路
+
+题目明确说：
+
+> 元素顺序可以改变。
+
+这意味着还可以使用：
+
+```text
+left 从左找要删除的元素
+right 从右提供可保留元素
+```
+
+发现：
+
+```text
+nums[left] == val
+```
+
+时，直接把：
+
+```text
+nums[right]
+```
+
+覆盖到左边，然后：
+
+```text
+right--
+```
+
+这样就不需要维持原相对顺序。
+
+---
+
+## 14. 相向双指针版本
+
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int left = 0;
+        int right = nums.size() - 1;
+
+        while (left <= right) {
+            if (nums[left] == val) {
+                nums[left] = nums[right];
+                --right;
+            } else {
+                ++left;
+            }
+        }
+
+        return left;
+    }
+};
+```
+
+---
+
+## 15. 为什么覆盖后不能立刻 `left++`
+
+这是相向版本最重要的细节。
+
+假设：
+
+```text
+nums[left] == val
+```
+
+于是：
+
+```cpp
+nums[left] = nums[right];
+--right;
+```
+
+但右边搬过来的元素：
+
+```text
+nums[right_old]
+```
+
+也可能等于 `val`。
+
+所以此时不能保证新的：
+
+```text
+nums[left]
+```
+
+已经合法。
+
+因此：
+
+```text
+覆盖后 left 不动
+```
+
+下一轮继续检查当前 `left`。
+
+只有当：
+
+```text
+nums[left] != val
+```
+
+时，才能：
+
+```cpp
+++left;
+```
+
+---
+
+## 16. 两种双指针方案的差别
+
+| 方法 | 指针形式 | 是否保持相对顺序 | 时间 | 空间 |
+| --- | --- | --- | --- | --- |
+| 快慢指针 | 同向 | 是 | $O(n)$ | $O(1)$ |
+| 相向双指针 | 两端向中间 | 否 | $O(n)$ | $O(1)$ |
+
+### 快慢指针适合
+
+题目要求：
+
+```text
+保留元素相对顺序
+```
+
+或者后续希望数组前部仍然稳定。
+
+### 相向双指针适合
+
+题目明确：
+
+```text
+顺序无所谓
+```
+
+此时可以从尾部拿元素覆盖前面的无效位置。
+
+---
+
+## 17. 快慢指针的通用抽象
+
+本题可以抽象为：
+
+```text
+fast：读指针
+slow：写指针
+```
+
+也叫：
+
+> read pointer / write pointer
+
+通用模板：
+
+```cpp
+int slow = 0;
+
+for (int fast = 0; fast < n; ++fast) {
+    if (nums[fast] 满足保留条件) {
+        nums[slow++] = nums[fast];
+    }
+}
+```
+
+这不是只适用于“删除元素”。
+
+它实际上是一个：
+
+> **原地过滤（in-place filter）**
+
+模板。
+
+---
+
+## 18. 这个模板还能解决哪些题
+
+### 删除排序数组中的重复项
+
+保留条件：
+
+```text
+当前元素与最后一个保留元素不同
+```
+
+---
+
+### 移动零
+
+先把非零元素全部压到前面，再把后部填 0。
+
+---
+
+### 删除特定字符
+
+对字符数组：
+
+```text
+保留所有不等于目标字符的元素
+```
+
+---
+
+### 压缩有效数据
+
+只保留满足某个谓词：
+
+```text
+predicate(x) == true
+```
+
+的元素。
+
+---
+
+## 19. 快慢指针的本质：读写分离
+
+很多初学者把双指针理解成：
+
+```text
+两个变量同时移动
+```
+
+其实真正重要的是职责拆分。
+
+在本题中：
+
+```text
+fast = 原数组读取位置
+slow = 新逻辑数组写入位置
+```
+
+当“读位置”和“写位置”不再绑定后，就可以做到：
+
+```text
+一边读
+一边筛选
+一边原地重写
+```
+
+这正是快慢指针最典型的应用。
+
+---
+
+## 20. 常见错误
+
+### 错误一：遇到 `val` 就真的调用删除操作
+
+例如对 `vector` 频繁执行：
+
+```cpp
+erase(...)
+```
+
+虽然代码能写，但中间删除会导致后续元素搬移，整体可能退化成：
+
+$$
+O(n^2)
+$$
+
+---
+
+### 错误二：无论元素是否有效都移动 `slow`
+
+错误：
+
+```cpp
+++slow;
+```
+
+如果无效元素也推进 `slow`，就无法完成压缩。
+
+---
+
+### 错误三：覆盖后还纠结尾部旧值
+
+题目明确：
+
+> 新长度之外的元素无需考虑。
+
+所以最终只看：
+
+```text
+nums[0 ... slow - 1]
+```
+
+后面的旧值是什么完全不重要。
+
+---
+
+### 错误四：把“原地”误解成“一个元素都不能赋值覆盖”
+
+原地算法允许：
+
+```text
+在原数组内部覆盖
+```
+
+只是不允许额外开一个与输入规模同阶的新数组。
+
+---
+
+## 21. 一眼识别快慢指针
+
+如果题目出现：
+
+```text
+原地修改
+删除 / 过滤某类元素
+返回新长度
+保持其余元素
+O(1) 额外空间
+```
+
+几乎应该立刻想到：
+
+```text
+fast 负责扫描
+slow 负责写入
+```
+
+模板：
+
+```text
+for fast:
+    if 当前元素应该保留:
+        nums[slow] = nums[fast]
+        slow++
+```
+
+---
+
+## 22. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int slow = 0;
+
+        for (int fast = 0; fast < nums.size(); ++fast) {
+            if (nums[fast] != val) {
+                nums[slow++] = nums[fast];
+            }
+        }
+
+        return slow;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        int slow = 0;
+
+        for (int fast = 0; fast < nums.length; ++fast) {
+            if (nums[fast] != val) {
+                nums[slow++] = nums[fast];
+            }
+        }
+
+        return slow;
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def removeElement(self, nums: List[int], val: int) -> int:
+        slow = 0
+
+        for fast in range(len(nums)):
+            if nums[fast] != val:
+                nums[slow] = nums[fast]
+                slow += 1
+
+        return slow
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func removeElement(nums []int, val int) int {
+    slow := 0
+
+    for fast := 0; fast < len(nums); fast++ {
+        if nums[fast] != val {
+            nums[slow] = nums[fast]
+            slow++
+        }
+    }
+
+    return slow
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var removeElement = function(nums, val) {
+    let slow = 0;
+
+    for (let fast = 0; fast < nums.length; ++fast) {
+        if (nums[fast] !== val) {
+            nums[slow++] = nums[fast];
+        }
+    }
+
+    return slow;
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function removeElement(nums: number[], val: number): number {
+    let slow = 0;
+
+    for (let fast = 0; fast < nums.length; ++fast) {
+        if (nums[fast] !== val) {
+            nums[slow++] = nums[fast];
+        }
+    }
+
+    return slow;
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 23. 本题总结
+
+本题最重要的不是记住代码，而是理解：
+
+```text
+数组不能真正删除中间位置
+       ↓
+删除 = 逻辑长度缩短 + 覆盖
+       ↓
+fast 读原数组
+slow 写新数组
+       ↓
+一次扫描完成原地过滤
+```
+
+核心模板：
+
+```cpp
+int slow = 0;
+
+for (int fast = 0; fast < n; ++fast) {
+    if (应该保留 nums[fast]) {
+        nums[slow++] = nums[fast];
+    }
+}
+```
+
+这是整个双指针章节最基础、最重要的模板之一。

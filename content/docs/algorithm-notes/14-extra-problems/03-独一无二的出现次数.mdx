@@ -1,0 +1,746 @@
+---
+title: 独一无二的出现次数
+description: 用两层哈希理解“值去重”和“频率去重”，并利用有限值域把哈希表进一步优化成计数数组。
+---
+
+# 1207. 独一无二的出现次数
+
+[LeetCode 1207：独一无二的出现次数](https://leetcode.cn/problems/unique-number-of-occurrences/)
+
+给定整数数组 `arr`，统计每个不同数字的出现次数。
+
+如果**任意两个不同数字的出现次数都不相同**，返回 `true`；否则返回 `false`。
+
+## 题目示例
+
+```text
+输入：arr = [1, 2, 2, 1, 1, 3]
+输出：true
+```
+
+频率统计为：
+
+```text
+1 -> 3 次
+2 -> 2 次
+3 -> 1 次
+```
+
+频率集合是：
+
+```text
+{3, 2, 1}
+```
+
+没有重复，因此返回 `true`。
+
+```text
+输入：arr = [1, 2]
+输出：false
+```
+
+因为：
+
+```text
+1 -> 1 次
+2 -> 1 次
+```
+
+两个不同数字拥有相同频率 `1`。
+
+## 本题真正检查的是什么
+
+这道题有两个层次：
+
+1. 先统计“每个值出现了几次”；
+2. 再判断“这些次数之间是否重复”。
+
+也就是说，我们不是判断数组元素是否重复，而是在判断：
+
+$$
+\{freq(x)\}
+$$
+
+这个频率集合是否存在重复值。
+
+例如：
+
+```text
+arr = [5, 5, 8, 8, 8, 9]
+```
+
+第一层统计：
+
+```text
+5 -> 2
+8 -> 3
+9 -> 1
+```
+
+第二层检查：
+
+```text
+2, 3, 1
+```
+
+全部唯一，因此答案为 `true`。
+
+> [!TIP]
+> 本题非常适合训练“哈希两次”的思维：第一次从元素映射到频率，第二次从频率判断是否已经出现过。
+
+## 方法一：哈希表 + 哈希集合
+
+这是最通用、最自然的写法。
+
+### 第一步：统计每个元素的频率
+
+定义：
+
+```cpp
+unordered_map<int, int> count;
+```
+
+遍历数组：
+
+```cpp
+for (int x : arr) {
+    ++count[x];
+}
+```
+
+此时建立了映射：
+
+$$
+value \rightarrow frequency
+$$
+
+### 第二步：判断频率是否重复
+
+再定义一个集合：
+
+```cpp
+unordered_set<int> usedFreq;
+```
+
+遍历所有频率：
+
+```cpp
+for (auto [value, freq] : count) {
+    if (usedFreq.count(freq)) {
+        return false;
+    }
+    usedFreq.insert(freq);
+}
+```
+
+如果某个频率已经出现过，就说明至少两个不同元素拥有相同出现次数。
+
+### 完整 C++ 实现
+
+```cpp
+class Solution {
+public:
+    bool uniqueOccurrences(vector<int>& arr) {
+        unordered_map<int, int> count;
+
+        for (int x : arr) {
+            ++count[x];
+        }
+
+        unordered_set<int> usedFreq;
+
+        for (auto [value, freq] : count) {
+            if (usedFreq.count(freq)) {
+                return false;
+            }
+            usedFreq.insert(freq);
+        }
+
+        return true;
+    }
+};
+```
+
+设数组长度为 $n$，不同元素数量为 $m$。
+
+平均时间复杂度：
+
+$$
+O(n)
+$$
+
+额外空间复杂度：
+
+$$
+O(m)
+$$
+
+这是最值得掌握的通用解法，因为它不依赖题目给出的具体数值范围。
+
+## 一个更简洁的判定公式
+
+如果把所有频率放进 `set`，集合会自动去重。
+
+因此可以直接比较：
+
+$$
+\text{不同元素个数}
+=
+\text{不同频率个数}
+$$
+
+如果相等，说明没有频率重复。
+
+例如：
+
+```text
+count.size() = 3
+freqSet.size() = 3
+```
+
+说明三个元素对应三个不同频率。
+
+如果：
+
+```text
+count.size() = 3
+freqSet.size() = 2
+```
+
+就一定有至少两个元素频率相同。
+
+这个思想在 Python / JavaScript 中尤其简洁。
+
+## 方法二：利用值域，使用计数数组
+
+题目给出了很强的范围限制：
+
+```text
+-1000 <= arr[i] <= 1000
+```
+
+因此元素值一共只有：
+
+$$
+2001
+$$
+
+种可能。
+
+这意味着我们完全可以不用 `unordered_map`，直接用数组完成频率统计。
+
+### 为什么要整体偏移 1000
+
+数组下标不能为负数。
+
+原值范围：
+
+```text
+-1000 ... 0 ... 1000
+```
+
+统一加上 `1000`：
+
+```text
+0 ... 1000 ... 2000
+```
+
+于是：
+
+$$
+index = arr[i] + 1000
+$$
+
+即可把任意元素映射到合法数组下标。
+
+定义：
+
+```cpp
+int count[2001] = {};
+```
+
+统计：
+
+```cpp
+for (int x : arr) {
+    ++count[x + 1000];
+}
+```
+
+## 第二层频率为什么最多只需要 `n`
+
+某个元素的出现次数最小是 `1`，最大不会超过整个数组长度 `n`。
+
+因此频率范围一定是：
+
+$$
+1 \le freq \le n
+$$
+
+题目给出：
+
+```text
+1 <= arr.length <= 1000
+```
+
+所以可以定义：
+
+```cpp
+bool usedFreq[1001] = {};
+```
+
+下标 `k` 表示“频率 `k` 是否已经出现过”。
+
+原笔记示意图保留如下：
+
+![数组计数与频率去重](https://file1.kamacoder.com/i/algo/1207.独一无二的出现次数.png)
+
+### 完整实现
+
+```cpp
+class Solution {
+public:
+    bool uniqueOccurrences(vector<int>& arr) {
+        int count[2001] = {};
+
+        for (int x : arr) {
+            ++count[x + 1000];
+        }
+
+        bool usedFreq[1001] = {};
+
+        for (int i = 0; i <= 2000; ++i) {
+            int freq = count[i];
+
+            if (freq == 0) {
+                continue;
+            }
+
+            if (usedFreq[freq]) {
+                return false;
+            }
+
+            usedFreq[freq] = true;
+        }
+
+        return true;
+    }
+};
+```
+
+由于 `2001` 和 `1001` 都是固定常数，严格来说时间复杂度可以写成：
+
+$$
+O(n + V)
+$$
+
+其中 $V=2001$ 是值域大小。
+
+在本题约束下，可以近似视为：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(V+n)
+$$
+
+但因为上下界固定，也常视为常数空间：
+
+$$
+O(1)
+$$
+
+## 为什么不能把出现次数为 0 也拿去判重
+
+这一点非常容易忽略。
+
+`count` 数组中绝大多数位置可能都是 `0`，它们代表对应数字**没有在原数组出现**。
+
+例如：
+
+```text
+arr = [1, 1, 2]
+```
+
+对于很多不存在的值：
+
+```text
+count[x] = 0
+```
+
+如果把这些 `0` 也放进“频率去重”逻辑，那么第二个 `0` 就会被误判为重复频率。
+
+但题目只关心**实际出现过的数字**。
+
+因此必须先过滤：
+
+```cpp
+if (freq == 0) continue;
+```
+
+## 方法三：排序频率后检查相邻项
+
+还有一种通用方法：
+
+1. 先用哈希表统计频率；
+2. 把所有频率取出来；
+3. 排序；
+4. 看相邻频率是否相同。
+
+```cpp
+class Solution {
+public:
+    bool uniqueOccurrences(vector<int>& arr) {
+        unordered_map<int, int> count;
+        for (int x : arr) {
+            ++count[x];
+        }
+
+        vector<int> freq;
+        for (auto [value, c] : count) {
+            freq.push_back(c);
+        }
+
+        sort(freq.begin(), freq.end());
+
+        for (int i = 1; i < freq.size(); ++i) {
+            if (freq[i] == freq[i - 1]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+```
+
+若不同元素个数为 $m$，时间复杂度为：
+
+$$
+O(n + m\log m)
+$$
+
+空间复杂度：
+
+$$
+O(m)
+$$
+
+它比 `HashSet` 方案多了排序步骤，但有时在“需要进一步处理频率顺序”时会更方便。
+
+## 三种方法对比
+
+| 方法 | 第一层统计 | 第二层判重 | 时间复杂度 | 适用场景 |
+| --- | --- | --- | ---: | --- |
+| HashMap + HashSet | 哈希表 | 哈希集合 | 平均 $O(n)$ | 最通用，首选 |
+| 计数数组 + 布尔数组 | 固定数组 | 固定数组 | $O(n+V)$ | 值域较小时非常合适 |
+| HashMap + 排序 | 哈希表 | 排序后比较相邻项 | $O(n+m\log m)$ | 还需要有序频率时 |
+
+## 从集合大小理解“唯一”
+
+假设有 $m$ 个不同元素。
+
+它们的频率序列是：
+
+$$
+f_1,f_2,\ldots,f_m
+$$
+
+如果所有频率都不同，那么放入集合之后不会丢失任何元素：
+
+$$
+|\{f_1,f_2,\ldots,f_m\}| = m
+$$
+
+反之，只要有任意：
+
+$$
+f_i = f_j,\quad i\neq j
+$$
+
+集合去重后大小就会变小。
+
+因此本题本质上是在判断一个映射：
+
+$$
+value \rightarrow frequency
+$$
+
+是否在频率这一侧保持唯一性。
+
+也可以理解为：频率是否构成一组互不相同的值。
+
+## 常见错误
+
+### 1. 只统计频率，却没有再次去重
+
+例如得到：
+
+```text
+1 -> 2
+2 -> 2
+3 -> 1
+```
+
+不能只看 `count` 是否正确，还必须检查 `2` 是否重复出现。
+
+### 2. 负数直接作为数组下标
+
+错误：
+
+```cpp
+count[arr[i]]++;
+```
+
+当 `arr[i] = -5` 时下标非法。
+
+正确做法：
+
+```cpp
+count[arr[i] + 1000]++;
+```
+
+### 3. 忘记过滤 `0` 次
+
+数组计数法中，`count[i] == 0` 代表该元素根本没有出现。
+
+这些 `0` 不应该参与频率唯一性判断。
+
+### 4. 第二个数组开得太小
+
+频率最大可能等于：
+
+$$
+n
+$$
+
+因此若 `n <= 1000`，就至少要支持下标 `1000`。
+
+所以应开：
+
+```cpp
+bool usedFreq[1001];
+```
+
+而不是 `1000`。
+
+### 5. 把“元素唯一”与“频率唯一”混淆
+
+本题允许元素重复，而且正是要统计重复次数。
+
+真正要求唯一的是：
+
+```text
+各个不同元素的出现次数
+```
+
+例如：
+
+```text
+[1, 1, 2, 2, 2]
+```
+
+元素当然重复，但频率是 `2` 和 `3`，互不相同，所以答案仍然是 `true`。
+
+## 与哈希表经典题的联系
+
+这道题把几种常见哈希结构串联在了一起。
+
+### 数组作为哈希表
+
+当值域小且固定时：
+
+```text
+值 -> 数组下标
+```
+
+通常比真正的哈希表更轻量。
+
+### Map 统计频率
+
+当值域大或不固定时：
+
+```text
+元素 -> 出现次数
+```
+
+是最经典的 `map` 使用场景。
+
+### Set 判重
+
+只关心“是否已经出现过”，不关心映射关系时，优先想到 `set`。
+
+本题第二阶段恰好就是：
+
+```text
+某个频率以前出现过吗？
+```
+
+所以 `set` 非常合适。
+
+## 一题多解后的通用结论
+
+### 看到“出现次数”先想到频率表
+
+常见关键词：
+
+- 出现次数；
+- 频率；
+- 最常见；
+- 是否重复；
+- 出现次数是否相等。
+
+通常都要先建立：
+
+$$
+value \rightarrow count
+$$
+
+### 看到小值域，考虑数组替代哈希表
+
+例如本题：
+
+```text
+-1000 <= arr[i] <= 1000
+```
+
+值域只有 `2001`，完全适合直接索引。
+
+### “唯一性”通常可以用 Set 检测
+
+如果只需要判断某组值是否重复：
+
+```text
+逐个插入 Set
+若已存在 -> 重复
+```
+
+是非常稳定的模板。
+
+<details>
+<summary>快速复盘</summary>
+
+- 第一次哈希：统计每个数字出现多少次。
+- 第二次哈希：判断这些“次数”是否重复。
+- 最通用写法：`HashMap + HashSet`。
+- 本题值域只有 `[-1000, 1000]`，可用长度 `2001` 的计数数组。
+- 负数通过 `+1000` 偏移为合法下标。
+- 频率最大不超过数组长度，所以第二层标记数组只需覆盖 `1 ~ n`。
+- `count[i] == 0` 的元素没有出现，不能参与频率判重。
+
+</details>
+
+## 其他语言版本
+
+以下优先展示“Map + Set”的通用写法；无需依赖具体值域。
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean uniqueOccurrences(int[] arr) {
+        Map<Integer, Integer> count = new HashMap<>();
+
+        for (int x : arr) {
+            count.put(x, count.getOrDefault(x, 0) + 1);
+        }
+
+        Set<Integer> usedFreq = new HashSet<>();
+
+        for (int freq : count.values()) {
+            if (!usedFreq.add(freq)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def uniqueOccurrences(self, arr: List[int]) -> bool:
+        count = {}
+
+        for x in arr:
+            count[x] = count.get(x, 0) + 1
+
+        frequencies = list(count.values())
+        return len(frequencies) == len(set(frequencies))
+```
+
+```go label="Go"
+func uniqueOccurrences(arr []int) bool {
+    count := make(map[int]int)
+
+    for _, x := range arr {
+        count[x]++
+    }
+
+    usedFreq := make(map[int]struct{})
+
+    for _, freq := range count {
+        if _, exists := usedFreq[freq]; exists {
+            return false
+        }
+        usedFreq[freq] = struct{}{}
+    }
+
+    return true
+}
+```
+
+```javascript label="JavaScript"
+var uniqueOccurrences = function(arr) {
+    const count = new Map();
+
+    for (const x of arr) {
+        count.set(x, (count.get(x) ?? 0) + 1);
+    }
+
+    const freqSet = new Set(count.values());
+    return freqSet.size === count.size;
+};
+```
+
+```typescript label="TypeScript"
+function uniqueOccurrences(arr: number[]): boolean {
+    const count = new Map<number, number>();
+
+    for (const x of arr) {
+        count.set(x, (count.get(x) ?? 0) + 1);
+    }
+
+    const freqSet = new Set<number>(count.values());
+    return freqSet.size === count.size;
+}
+```
+
+```rust label="Rust"
+use std::collections::{HashMap, HashSet};
+
+impl Solution {
+    pub fn unique_occurrences(arr: Vec<i32>) -> bool {
+        let mut count: HashMap<i32, i32> = HashMap::new();
+
+        for x in arr {
+            *count.entry(x).or_insert(0) += 1;
+        }
+
+        let mut used_freq: HashSet<i32> = HashSet::new();
+
+        for freq in count.values() {
+            if !used_freq.insert(*freq) {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+```
+````

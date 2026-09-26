@@ -1,0 +1,889 @@
+---
+title: 最大子序和
+summary: 从“负贡献前缀必须舍弃”出发理解 Kadane 算法，掌握最大连续子数组的贪心不变量、全负数边界、区间恢复以及与动态规划的统一视角。
+description: LeetCode 53 最大子数组和。系统讲解暴力枚举、线性贪心、正确性证明、常见误区、区间恢复、动态规划等价形式与多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 53. 最大子序和
+
+[LeetCode 53. 最大子数组和](https://leetcode.cn/problems/maximum-subarray/)
+
+给定整数数组 `nums`，要求找到一个**至少包含一个元素的连续子数组**，使其元素和最大，并返回这个最大和。
+
+例如：
+
+```text
+nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+```
+
+最大连续子数组为：
+
+```text
+[4, -1, 2, 1]
+```
+
+其和为：
+
+$$
+4-1+2+1=6
+$$
+
+因此答案是 $6$。
+
+<Callout type="info" title="先抓住两个关键词">
+这道题要求的是“连续子数组”，不是可以任意跳过元素的“子序列”。一旦选择了区间左端点和右端点，中间所有元素都必须保留。
+</Callout>
+
+## 1. 暴力思路：枚举所有连续区间
+
+最直接的方法是枚举每一个起点 $i$，再向右枚举终点 $j$，累计区间：
+
+$$
+nums[i]+nums[i+1]+\\cdots+nums[j]
+$$
+
+并不断更新最大值。
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int answer = INT_MIN;
+
+        for (int left = 0; left < static_cast<int>(nums.size()); ++left) {
+            int sum = 0;
+            for (int right = left; right < static_cast<int>(nums.size()); ++right) {
+                sum += nums[right];
+                answer = max(answer, sum);
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+时间复杂度为：
+
+$$
+O(n^2)
+$$
+
+额外空间复杂度为：
+
+$$
+O(1)
+$$
+
+暴力法最值得保留的不是代码，而是它暴露出的关键问题：
+
+> **有没有办法在扫描过程中判断“某个旧起点已经绝不可能成为最优答案”，从而直接把它淘汰？**
+
+这正是贪心切入点。
+
+## 2. 贪心到底贪在哪里
+
+假设扫描到某个位置时，从当前候选起点累积得到：
+
+$$
+sum<0
+$$
+
+接下来准备加入新元素 $x$。
+
+如果继续保留这段负和前缀，那么新连续和是：
+
+$$
+sum+x
+$$
+
+由于：
+
+$$
+sum<0
+$$
+
+所以一定有：
+
+$$
+sum+x<x
+$$
+
+也就是说：
+
+> 对任何后续元素 $x$，一个已经为负的前缀都只会拖累结果，绝不会帮助后面的连续区间取得更大和。
+
+因此，一旦当前累计和变成负数，就可以安全舍弃此前整段区间，从下一个位置重新开始。
+
+这就是本题最核心的贪心选择。
+
+### 局部最优
+
+当当前累计和为负时，立即抛弃它，不让负贡献继续影响后续元素。
+
+### 全局最优
+
+在扫描过程中，记录所有候选连续区间曾经达到过的最大和。
+
+<Callout type="success" title="一句话记忆">
+不是“遇到负数就重开”，而是“当前连续和已经为负时，才把整段前缀丢掉”。单个负数完全可能属于最优区间。
+</Callout>
+
+## 3. 为什么 `-1` 可能必须保留
+
+考虑：
+
+```text
+[4, -1, 2, 1]
+```
+
+扫描到 `4` 时：
+
+$$
+sum=4
+$$
+
+再加入 `-1`：
+
+$$
+sum=3
+$$
+
+虽然这一轮加入了负数，累计和从 $4$ 下降到 $3$，但它仍然是正数。
+
+继续加入 `2` 和 `1`：
+
+$$
+3+2+1=6
+$$
+
+最终反而超过了单独的 $4$。
+
+因此错误策略是：
+
+> “只要当前元素是负数，就立即从下一位重新开始。”
+
+正确策略是判断**整个当前前缀的累计贡献**：
+
+```text
+如果 sum < 0：丢弃这段前缀
+否则：继续保留
+```
+
+这里体现了一个非常重要的贪心思想：
+
+> 单个局部元素好不好并不重要，重要的是“当前已经形成的状态”对未来到底是正贡献还是负贡献。
+
+## 4. 为什么必须先更新答案，再决定清零
+
+标准扫描逻辑是：
+
+```cpp
+sum += nums[i];
+answer = max(answer, sum);
+if (sum < 0) {
+    sum = 0;
+}
+```
+
+顺序不能随意改。
+
+考虑数组：
+
+```text
+[-5, -2, -7]
+```
+
+正确答案是：
+
+$$
+-2
+$$
+
+因为题目要求子数组至少包含一个元素，不能返回空数组的和 $0$。
+
+如果一看到负数就先把 `sum` 清零，再更新答案，那么所有负数都会消失，最终很容易错误得到 $0$。
+
+正确做法是：
+
+1. 当前元素先真正进入候选区间；
+2. 用当前和更新全局答案；
+3. 再判断这段前缀是否还有资格影响未来。
+
+这三个步骤分别对应：
+
+- **当前元素必须被考虑**；
+- **当前区间可能就是最优答案**；
+- **只决定它是否值得继续向右延伸**。
+
+## 5. 最终线性贪心算法
+
+<Steps>
+<Step>
+
+### 初始化答案
+
+因为数组可能全部为负数，所以不能把答案初始化为 $0$。
+
+可以写成：
+
+```cpp
+int answer = INT_MIN;
+```
+
+当前连续和从 $0$ 开始：
+
+```cpp
+int sum = 0;
+```
+
+</Step>
+<Step>
+
+### 加入当前元素
+
+```cpp
+sum += nums[i];
+```
+
+此时 `sum` 表示当前候选起点到位置 $i$ 的连续区间和。
+
+</Step>
+<Step>
+
+### 立即更新全局答案
+
+```cpp
+answer = max(answer, sum);
+```
+
+即使 `sum` 是负数，它也可能是全负数组中的最优答案。
+
+</Step>
+<Step>
+
+### 丢弃负贡献前缀
+
+如果：
+
+$$
+sum<0
+$$
+
+那么：
+
+```cpp
+sum = 0;
+```
+
+表示下一轮从新的位置重新开始。
+
+</Step>
+</Steps>
+
+对应原始资料中的过程动画：
+
+![最大子数组和贪心过程](https://file1.kamacoder.com/i/algo/53.%E6%9C%80%E5%A4%A7%E5%AD%90%E5%BA%8F%E5%92%8C.gif)
+
+## 6. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int answer = INT_MIN;
+        int sum = 0;
+
+        for (int num : nums) {
+            sum += num;
+            answer = max(answer, sum);
+
+            if (sum < 0) {
+                sum = 0;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+### 复杂度
+
+数组只扫描一次：
+
+$$
+O(n)
+$$
+
+只维护两个变量：
+
+$$
+O(1)
+$$
+
+## 7. 一次完整模拟
+
+仍以：
+
+```text
+[-2, 1, -3, 4, -1, 2, 1, -5, 4]
+```
+
+为例。
+
+| 当前元素 | 加入后的 `sum` | 更新后的 `answer` | 是否丢弃当前前缀 | 下一轮 `sum` |
+| ---: | ---: | ---: | --- | ---: |
+| $-2$ | $-2$ | $-2$ | 是 | $0$ |
+| $1$ | $1$ | $1$ | 否 | $1$ |
+| $-3$ | $-2$ | $1$ | 是 | $0$ |
+| $4$ | $4$ | $4$ | 否 | $4$ |
+| $-1$ | $3$ | $4$ | 否 | $3$ |
+| $2$ | $5$ | $5$ | 否 | $5$ |
+| $1$ | $6$ | $6$ | 否 | $6$ |
+| $-5$ | $1$ | $6$ | 否 | $1$ |
+| $4$ | $5$ | $6$ | 否 | $5$ |
+
+最终：
+
+$$
+answer=6
+$$
+
+注意加入 `-5` 后：
+
+$$
+sum=1>0
+$$
+
+所以仍然不需要重开。虽然 `-5` 很大程度降低了当前和，但这段前缀对未来依然是正贡献。
+
+## 8. 正确性：为什么负前缀可以永久删除
+
+这是这道题最应该真正证明清楚的地方。
+
+假设某一段连续前缀 $P$ 的和为：
+
+$$
+S(P)<0
+$$
+
+设后续任意一段连续区间 $Q$ 的和为：
+
+$$
+S(Q)
+$$
+
+如果强行把 $P$ 接在 $Q$ 前面，那么总和为：
+
+$$
+S(P)+S(Q)
+$$
+
+因为：
+
+$$
+S(P)<0
+$$
+
+所以：
+
+$$
+S(P)+S(Q)<S(Q)
+$$
+
+这说明任何包含这段负前缀的未来候选区间，都严格不如“直接从 $Q$ 开始”的区间。
+
+因此 $P$ 不可能出现在任何未来最优解的必要前缀中，可以永久舍弃。
+
+这不是经验判断，而是一个严格的支配关系：
+
+> 同样的后缀下，带着负前缀的方案永远比不带它更差。
+
+这就是贪心选择安全性的来源。
+
+## 9. `sum < 0` 和 `sum <= 0` 有区别吗
+
+如果只要求返回最大和，那么二者通常都可以得到正确答案。
+
+当：
+
+$$
+sum=0
+$$
+
+对未来元素 $x$ 来说：
+
+$$
+0+x=x
+$$
+
+所以保留这个零和前缀与直接从下一元素开始，在“最终最大和”上没有区别。
+
+因此下面两种写法都能通过本题：
+
+```cpp
+if (sum < 0) sum = 0;
+```
+
+或者：
+
+```cpp
+if (sum <= 0) sum = 0;
+```
+
+不过如果还要恢复具体区间，不同处理会影响在多个最优答案之间选择哪一段，例如：
+
+- 更早的起点；
+- 更短的区间；
+- 更长的区间。
+
+所以只求数值时可以宽松，恢复方案时必须明确自己的平局规则。
+
+## 10. 如何恢复最大子数组的左右端点
+
+如果题目不只要求最大和，还要求具体区间，可以额外维护：
+
+- `start`：当前候选区间起点；
+- `bestLeft`、`bestRight`：历史最优区间端点。
+
+```cpp
+class Solution {
+public:
+    tuple<long long, int, int> maxSubArrayWithRange(const vector<int>& nums) {
+        long long sum = 0;
+        long long answer = LLONG_MIN;
+
+        int start = 0;
+        int bestLeft = 0;
+        int bestRight = 0;
+
+        for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
+            sum += nums[i];
+
+            if (sum > answer) {
+                answer = sum;
+                bestLeft = start;
+                bestRight = i;
+            }
+
+            if (sum < 0) {
+                sum = 0;
+                start = i + 1;
+            }
+        }
+
+        return {answer, bestLeft, bestRight};
+    }
+};
+```
+
+例如原示例最终得到：
+
+```text
+bestLeft  = 3
+bestRight = 6
+```
+
+对应：
+
+```text
+[4, -1, 2, 1]
+```
+
+## 11. 与动态规划的关系：Kadane 算法的另一张脸
+
+本题也可以定义：
+
+$$
+dp[i]=\text{以 }nums[i]\text{ 结尾的最大连续子数组和}
+$$
+
+注意必须“以 $i$ 结尾”，否则状态转移无法保证连续性。
+
+到达 $i$ 时只有两种选择：
+
+1. 接在以前的连续区间后面；
+2. 从 `nums[i]` 自己重新开始。
+
+因此：
+
+$$
+dp[i]=\max(dp[i-1]+nums[i],\ nums[i])
+$$
+
+最终答案为：
+
+$$
+\max_i dp[i]
+$$
+
+标准 DP 写法：
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        vector<int> dp(nums.size());
+        dp[0] = nums[0];
+
+        int answer = dp[0];
+
+        for (int i = 1; i < static_cast<int>(nums.size()); ++i) {
+            dp[i] = max(nums[i], dp[i - 1] + nums[i]);
+            answer = max(answer, dp[i]);
+        }
+
+        return answer;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+空间复杂度：
+
+$$
+O(n)
+$$
+
+由于 `dp[i]` 只依赖 `dp[i-1]`，还可以压缩为一个变量，最终写成：
+
+```cpp
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int bestEndingHere = nums[0];
+        int answer = nums[0];
+
+        for (int i = 1; i < static_cast<int>(nums.size()); ++i) {
+            bestEndingHere = max(nums[i], bestEndingHere + nums[i]);
+            answer = max(answer, bestEndingHere);
+        }
+
+        return answer;
+    }
+};
+```
+
+空间复杂度再次降为：
+
+$$
+O(1)
+$$
+
+### 贪心与 DP 为什么完全等价
+
+动态规划判断：
+
+$$
+dp[i-1]+nums[i]\quad\text{和}\quad nums[i]
+$$
+
+谁更大。
+
+如果：
+
+$$
+dp[i-1]<0
+$$
+
+那么：
+
+$$
+dp[i-1]+nums[i]<nums[i]
+$$
+
+所以应该重新开始。
+
+这正是贪心中“负贡献前缀必须丢弃”的数学表达。
+
+<Callout type="info" title="理解到这里就够了">
+贪心写法强调“什么时候旧前缀可以被永久舍弃”；DP 写法强调“以当前位置结尾的最优状态如何转移”。两种视角最终得到同一个 Kadane 算法。
+</Callout>
+
+## 12. 高频错误
+
+### 错误一：遇到负元素就重开
+
+例如：
+
+```text
+[4, -1, 2, 1]
+```
+
+`-1` 虽然是负数，但前缀和仍然为正，不应该删除。
+
+### 错误二：答案初始化为 `0`
+
+对于：
+
+```text
+[-8, -3, -5]
+```
+
+正确答案是：
+
+$$
+-3
+$$
+
+初始化为 $0$ 会把并不存在的“空子数组”误当成答案。
+
+### 错误三：清零后才更新答案
+
+会丢失全负数组中的最佳负数。
+
+### 错误四：把“最大子序和”误解成非连续子序列
+
+如果允许不连续，那么只要把所有正数取出来即可；本题真正困难的原因正是“连续”限制。
+
+### 错误五：恢复区间时忘记更新新起点
+
+一旦负前缀被舍弃，下一轮候选区间起点应更新为：
+
+```text
+i + 1
+```
+
+## 13. 从这道题抽象出的贪心模型
+
+本题可以抽象为一种非常常见的状态淘汰模式：
+
+> 如果旧状态对未来所有选择都只会造成负贡献，那么它已经被新状态严格支配，可以永久删除。
+
+在最大子数组和中：
+
+```text
+负的累计前缀  <  空前缀
+```
+
+因此负前缀可以被淘汰。
+
+以后遇到类似题目，可以主动问：
+
+1. 当前状态对未来是正贡献、零贡献还是负贡献？
+2. 是否存在一个更简单的新状态，在任何未来选择下都不比旧状态差？
+3. 如果存在，是否可以立即丢弃旧状态而无需回溯？
+
+这类“支配关系”往往就是贪心或状态压缩的入口。
+
+## 14. 其他语言版本
+
+下面统一给出 $O(n)$ 时间、$O(1)$ 额外空间的 Kadane / 贪心写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int answer = Integer.MIN_VALUE;
+        int sum = 0;
+
+        for (int num : nums) {
+            sum += num;
+            answer = Math.max(answer, sum);
+
+            if (sum < 0) {
+                sum = 0;
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def maxSubArray(self, nums: list[int]) -> int:
+        answer = float('-inf')
+        current_sum = 0
+
+        for num in nums:
+            current_sum += num
+            answer = max(answer, current_sum)
+
+            if current_sum < 0:
+                current_sum = 0
+
+        return answer
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func maxSubArray(nums []int) int {
+    answer := nums[0]
+    sum := 0
+
+    for _, num := range nums {
+        sum += num
+        if sum > answer {
+            answer = sum
+        }
+        if sum < 0 {
+            sum = 0
+        }
+    }
+
+    return answer
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn max_sub_array(nums: Vec<i32>) -> i32 {
+        let mut answer = i32::MIN;
+        let mut sum = 0;
+
+        for num in nums {
+            sum += num;
+            answer = answer.max(sum);
+
+            if sum < 0 {
+                sum = 0;
+            }
+        }
+
+        answer
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var maxSubArray = function (nums) {
+  let answer = -Infinity;
+  let sum = 0;
+
+  for (const num of nums) {
+    sum += num;
+    answer = Math.max(answer, sum);
+
+    if (sum < 0) {
+      sum = 0;
+    }
+  }
+
+  return answer;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function maxSubArray(nums: number[]): number {
+  let answer = -Infinity;
+  let sum = 0;
+
+  for (const num of nums) {
+    sum += num;
+    answer = Math.max(answer, sum);
+
+    if (sum < 0) {
+      sum = 0;
+    }
+  }
+
+  return answer;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <limits.h>
+
+int maxSubArray(int* nums, int numsSize) {
+    int answer = INT_MIN;
+    int sum = 0;
+
+    for (int i = 0; i < numsSize; ++i) {
+        sum += nums[i];
+
+        if (sum > answer) {
+            answer = sum;
+        }
+
+        if (sum < 0) {
+            sum = 0;
+        }
+    }
+
+    return answer;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def maxSubArray(nums: Array[Int]): Int = {
+    var answer = Int.MinValue
+    var sum = 0
+
+    for (num <- nums) {
+      sum += num
+      answer = math.max(answer, sum)
+
+      if (sum < 0) {
+        sum = 0
+      }
+    }
+
+    answer
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution
+{
+    public int MaxSubArray(int[] nums)
+    {
+        int answer = int.MinValue;
+        int sum = 0;
+
+        foreach (int num in nums)
+        {
+            sum += num;
+            answer = Math.Max(answer, sum);
+
+            if (sum < 0)
+            {
+                sum = 0;
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+</Tab>
+</Tabs>

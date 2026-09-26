@@ -1,0 +1,1374 @@
+---
+title: 监控二叉树
+summary: 用后序遍历从叶子向根传播三种状态：未覆盖、有摄像头、已覆盖。当任一孩子未覆盖时，当前节点立即放摄像头；这是树形贪心中“尽量把摄像头上移一层”的核心。
+description: LeetCode 968 监控二叉树。系统讲解后序遍历、三状态设计、空节点状态、四类转移、根节点补处理、贪心正确性、与树形 DP 的区别、常见错误、复杂度和多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 968. 监控二叉树
+
+[LeetCode 968. Binary Tree Cameras](https://leetcode.cn/problems/binary-tree-cameras/)
+
+给定一棵二叉树，可以在某些节点安装摄像头。
+
+一个摄像头能够监控：
+
+- 当前节点；
+- 当前节点的父节点；
+- 当前节点的直接左、右孩子。
+
+要求监控树中所有节点，并使摄像头数量最少。
+
+示例 1：
+
+![968. 监控二叉树示例一](https://file1.kamacoder.com/i/algo/20201229175736596.png)
+
+```text
+输入：[0,0,null,0,0]
+输出：1
+```
+
+示例 2：
+
+![968. 监控二叉树示例二](https://file1.kamacoder.com/i/algo/2020122917584449.png)
+
+```text
+输入：[0,0,null,0,null,0,null,null,0]
+输出：2
+```
+
+这道题是贪心算法中非常特别的一题：
+
+> 它不是在线性数组上做选择，也不是在区间上排序，而是在树上通过后序遍历做局部最优决策。
+
+真正的关键只有一句话：
+
+$$
+\boxed{\text{如果一个孩子还没有被覆盖，摄像头应放在它的父节点}}
+$$
+
+但要把这句话写成正确代码，需要非常精确地设计节点状态。
+
+---
+
+## 1. 为什么摄像头通常不应该放在叶子节点
+
+考虑一个叶子节点。
+
+如果把摄像头直接放在叶子上，它最多可以覆盖：
+
+```text
+叶子自己
++
+它的父节点
+```
+
+因为叶子没有孩子。
+
+而如果把同一个摄像头向上移动一层，放到叶子的父节点，它通常可以覆盖：
+
+```text
+父节点自己
++
+它的父节点
++
+它的所有直接孩子
+```
+
+覆盖能力明显更强。
+
+因此对最底层结构来说，局部最优选择是：
+
+> **不要急着在叶子节点装摄像头，而是尽量让叶子的父节点安装。**
+
+这就是本题贪心策略的起点。
+
+<Callout type="info" title="树形贪心的方向">
+摄像头的决策依赖孩子是否已经被覆盖，因此必须先知道左右子树的状态，再决定当前节点做什么。也就是说，决策方向应该是从下往上。
+</Callout>
+
+---
+
+## 2. 为什么必须使用后序遍历
+
+二叉树常见遍历顺序：
+
+```text
+前序：中 -> 左 -> 右
+中序：左 -> 中 -> 右
+后序：左 -> 右 -> 中
+```
+
+本题当前节点的决策依赖：
+
+```text
+左孩子状态
+右孩子状态
+```
+
+只有先处理孩子，才能决定父节点是否应该安装摄像头。
+
+所以天然对应：
+
+```text
+左
+↓
+右
+↓
+当前节点
+```
+
+即后序遍历。
+
+递归框架：
+
+```cpp
+int traversal(TreeNode* node) {
+    if (node == nullptr) {
+        // 空节点状态
+    }
+
+    int left = traversal(node->left);
+    int right = traversal(node->right);
+
+    // 根据 left、right 决定 node 的状态
+}
+```
+
+本题的“贪心”其实发生在后序遍历的回溯阶段。
+
+---
+
+## 3. 三种状态是整道题的核心
+
+对任意真实节点，只需要区分三种状态。
+
+定义：
+
+| 状态 | 含义 |
+| ---: | --- |
+| `0` | 当前节点**未被覆盖** |
+| `1` | 当前节点**安装了摄像头** |
+| `2` | 当前节点**已被覆盖，但自身没有摄像头** |
+
+记作：
+
+$$
+S(u)\in\{0,1,2\}
+$$
+
+这三种状态已经足够表达父节点做决策所需的全部信息。
+
+为什么不需要第四种“没有摄像头”？
+
+因为“没有摄像头”已经被拆成：
+
+```text
+没有摄像头 + 未覆盖 -> 0
+没有摄像头 + 已覆盖 -> 2
+```
+
+父节点真正关心的不是“孩子有没有摄像头”这么一个布尔值，而是：
+
+> 孩子是否还需要我去覆盖？
+
+这就是状态 `0` 存在的意义。
+
+---
+
+## 4. 最容易想错的一点：空节点是什么状态
+
+递归一定会遇到：
+
+```text
+node == nullptr
+```
+
+空节点究竟应该返回什么？
+
+### 不能返回 `0`：未覆盖
+
+如果空节点被认为未覆盖，那么叶子节点看到自己的空孩子状态为 `0`，就会被迫在叶子节点安装摄像头。
+
+这违背了我们“尽量把摄像头放到叶子父节点”的策略。
+
+### 不能返回 `1`：有摄像头
+
+空节点显然不存在，更不可能真的安装摄像头。
+
+而且如果空节点被认为有摄像头，那么叶子会被空孩子“覆盖”，叶子的父节点决策也会被扭曲。
+
+### 因此返回 `2`：已覆盖
+
+```cpp
+if (node == nullptr) {
+    return 2;
+}
+```
+
+把空节点视为“已经覆盖、不需要处理”，会使真实叶子节点在左右空孩子都是 `2` 时返回 `0`：
+
+```text
+空(2)    空(2)
+   \      /
+     叶子
+      ↓
+    未覆盖(0)
+```
+
+于是叶子的父节点看到孩子未覆盖，就会安装摄像头。
+
+这恰好实现我们的贪心目标。
+
+<Callout type="info" title="空节点返回 2 是人为设计的边界条件">
+不是说“空节点真的被摄像头照到了”，而是为了表达：空节点无需额外覆盖，也不应该迫使真实叶子安装摄像头。
+</Callout>
+
+---
+
+## 5. 三状态如何转移
+
+设：
+
+```text
+left  = 左孩子状态
+right = 右孩子状态
+```
+
+父节点只需要处理三类核心情况。
+
+---
+
+## 6. 情况一：两个孩子都已经覆盖
+
+如果：
+
+```text
+left = 2
+right = 2
+```
+
+说明两个孩子：
+
+- 都安全；
+- 自己都没有摄像头。
+
+此时当前节点没有被孩子摄像头覆盖。
+
+为了尽量少装摄像头，我们不应该主动在当前节点安装，而应该先让它处于：
+
+```text
+未覆盖
+```
+
+即：
+
+```cpp
+if (left == 2 && right == 2) {
+    return 0;
+}
+```
+
+原资料中的示意图：
+
+![968. 两个孩子均已覆盖时当前节点未覆盖](https://file1.kamacoder.com/i/algo/20201229203710729.png)
+
+这一步体现的贪心是：
+
+> **能暂时不装就先不装，把安装机会留给父节点。**
+
+为什么留给父节点更划算？
+
+因为父节点上的摄像头不仅能覆盖当前节点，还可能继续覆盖更高一层和兄弟方向。
+
+---
+
+## 7. 情况二：任一孩子未覆盖
+
+只要：
+
+```text
+left == 0
+```
+
+或：
+
+```text
+right == 0
+```
+
+说明至少有一个孩子正在等待父节点覆盖。
+
+此时当前节点必须安装摄像头：
+
+```cpp
+if (left == 0 || right == 0) {
+    ++cameraCount;
+    return 1;
+}
+```
+
+所有组合包括：
+
+```text
+(0, 0)
+(0, 1)
+(0, 2)
+(1, 0)
+(2, 0)
+```
+
+为什么是“必须”？
+
+因为一个未覆盖孩子能被摄像头覆盖的位置只有：
+
+```text
+孩子自身
+当前节点（它的父节点）
+孩子的孩子
+```
+
+但孩子的子树已经在后序遍历中处理完成。
+
+如果此时不在当前节点安装，再往上走到祖父节点，祖父节点与这个孩子距离为 $2$，已经无法覆盖它。
+
+所以：
+
+$$
+\boxed{\text{孩子状态为 0 时，当前节点是最后一个能补救的位置}}
+$$
+
+这使得这个局部选择不仅“看起来划算”，而且是强制的。
+
+原资料中容易混淆的一类状态：
+
+![968. 孩子未覆盖时父节点安装摄像头](https://file1.kamacoder.com/i/algo/2020122920362355.png)
+
+---
+
+## 8. 情况三：至少一个孩子有摄像头
+
+若没有孩子状态为 `0`，同时至少有一个孩子状态为 `1`：
+
+```text
+(1, 1)
+(1, 2)
+(2, 1)
+```
+
+说明当前节点一定已经被孩子的摄像头覆盖。
+
+因此：
+
+```cpp
+if (left == 1 || right == 1) {
+    return 2;
+}
+```
+
+此时当前节点不需要再放摄像头。
+
+这一步的含义非常直接：
+
+```text
+孩子有摄像头
+    ↓
+父节点已被覆盖
+    ↓
+父节点状态 = 2
+```
+
+---
+
+## 9. 三类转移的优先级不能写错
+
+代码通常写成：
+
+```cpp
+if (left == 2 && right == 2) {
+    return 0;
+}
+
+if (left == 0 || right == 0) {
+    ++cameraCount;
+    return 1;
+}
+
+if (left == 1 || right == 1) {
+    return 2;
+}
+```
+
+更紧凑的写法也可以：
+
+```cpp
+if (left == 0 || right == 0) {
+    ++cameraCount;
+    return 1;
+}
+
+if (left == 1 || right == 1) {
+    return 2;
+}
+
+return 0;
+```
+
+这个顺序之所以安全，是因为：
+
+1. 先处理最紧急的“孩子未覆盖”；
+2. 再处理“孩子有摄像头”；
+3. 剩余只能是 `(2,2)`。
+
+尤其要注意组合：
+
+```text
+(0,1)
+```
+
+虽然有一个孩子有摄像头，但另一个孩子没有覆盖。
+
+必须优先按照：
+
+```text
+存在 0
+```
+
+处理，当前节点仍然要安装摄像头。
+
+所以条件优先级是：
+
+$$
+0 > 1 > 2
+$$
+
+这里的 `>` 不是数值大小，而是**决策优先级**。
+
+---
+
+## 10. 最后还差一个根节点特判
+
+普通节点如果最终返回 `0`，还可以指望它的父节点安装摄像头。
+
+但根节点没有父节点。
+
+因此递归全部结束后，如果：
+
+```cpp
+traversal(root) == 0
+```
+
+说明根节点仍未覆盖。
+
+必须再补一台摄像头：
+
+```cpp
+if (traversal(root) == 0) {
+    ++cameraCount;
+}
+```
+
+原资料中的根节点未覆盖情形：
+
+![968. 根节点最终未覆盖](https://file1.kamacoder.com/i/algo/20201229203742446.png)
+
+这是整个状态机的最后一个边界。
+
+<Callout type="warn" title="最常见漏点">
+递归内部处理的是“当前节点可以交给父节点”的一般情况，但根节点没有父节点。因此根节点状态为 `0` 时必须额外安装一台摄像头。
+</Callout>
+
+---
+
+## 11. 完整状态机
+
+可以把所有逻辑压缩成：
+
+```text
+空节点
+  ↓
+状态 2：已覆盖
+```
+
+对于真实节点：
+
+```text
+只要任一孩子是 0
+        ↓
+当前节点放摄像头
+        ↓
+返回 1
+```
+
+否则：
+
+```text
+只要任一孩子是 1
+        ↓
+当前节点被孩子覆盖
+        ↓
+返回 2
+```
+
+否则两个孩子只能都是 `2`：
+
+```text
+(2, 2)
+  ↓
+当前节点暂时未覆盖
+  ↓
+返回 0
+```
+
+最后：
+
+```text
+如果根节点返回 0
+    ↓
+根节点补一台摄像头
+```
+
+这就是整道题。
+
+---
+
+## 12. 用一条链手推状态
+
+考虑最简单的链：
+
+```text
+A
+|
+B
+|
+C
+|
+D
+```
+
+假设 `D` 是叶子。
+
+### 节点 D
+
+左右都是空节点：
+
+```text
+(2,2)
+```
+
+所以：
+
+```text
+D -> 0
+```
+
+即 D 未覆盖。
+
+### 节点 C
+
+看到孩子 D 为 `0`：
+
+```text
+C 放摄像头
+```
+
+因此：
+
+```text
+C -> 1
+cameraCount = 1
+```
+
+### 节点 B
+
+孩子 C 为 `1`：
+
+```text
+B 被覆盖
+```
+
+所以：
+
+```text
+B -> 2
+```
+
+### 节点 A
+
+孩子 B 为 `2`，另一个空孩子也是 `2`：
+
+```text
+A -> 0
+```
+
+递归结束，根节点 A 未覆盖，于是补一台：
+
+```text
+cameraCount = 2
+```
+
+最终摄像头放在：
+
+```text
+A
+C
+```
+
+共两台。
+
+这恰好呈现出“从下往上、每隔大约两层放一台”的直观规律。
+
+不过代码不能直接按层数 `% 3` 处理，因为真实二叉树分支形态并不规则；必须依靠三状态递归。
+
+---
+
+## 13. 为什么这个贪心是正确的
+
+本题正确性可以从“未覆盖孩子”的强制选择出发。
+
+### 13.1 若孩子未覆盖，父节点必须放摄像头
+
+假设孩子节点 $v$ 状态为 `0`。
+
+后序遍历意味着 $v$ 的整棵子树已经处理完毕。
+
+现在还能覆盖 $v$ 的新摄像头位置只可能是：
+
+- $v$ 自己；
+- $v$ 的父节点 $u$。
+
+但如果摄像头放在 $v$ 自己，它只能向上覆盖到 $u$；
+
+如果放在 $u$，它可以同时覆盖：
+
+- $v$；
+- $u$；
+- $u$ 的父节点；
+- $u$ 的另一个孩子。
+
+因此把摄像头放在 $u$ 不会比放在 $v$ 更差，而且通常覆盖更多节点。
+
+所以当子节点未覆盖时，在父节点放摄像头是最优局部选择。
+
+### 13.2 若两个孩子都已覆盖，就不急着在当前节点放
+
+如果孩子状态都是 `2`，当前节点虽然暂时未覆盖，但此时直接装摄像头不一定最优。
+
+把“覆盖当前节点”的责任延迟给父节点，有机会让父节点的一台摄像头同时覆盖：
+
+```text
+当前节点
++
+父节点
++
+当前节点的兄弟
+```
+
+因此先返回 `0`，相当于：
+
+> **把安装位置尽可能上移，提升单个摄像头的利用率。**
+
+### 13.3 后序遍历保证局部决策不会破坏已完成子树
+
+当处理节点 $u$ 时，左右子树内部已经全部满足覆盖要求。
+
+我们只需要决定：
+
+```text
+u 是否需要父节点帮助
+u 是否安装摄像头
+u 是否已被孩子覆盖
+```
+
+不会再回头改动子树内部方案。
+
+因此每一步局部选择都可以安全固定。
+
+---
+
+## 14. 这到底是贪心还是树形 DP
+
+这道题经常让人产生疑问：
+
+> 有三种状态、有后序状态转移，看起来不是动态规划吗？
+
+从形式上看，它确实很像树形 DP。
+
+区别在于这里没有为每个状态维护一个“最优值表”，也没有写类似：
+
+$$
+dp[u][s]
+$$
+
+然后在多种方案中取最小。
+
+当前节点状态几乎由孩子状态**确定性地推出**：
+
+```text
+有孩子未覆盖 -> 当前必须放摄像头
+否则有孩子有摄像头 -> 当前已覆盖
+否则 -> 当前未覆盖
+```
+
+核心决策是：
+
+> 当一个节点必须被补覆盖时，把摄像头尽量放在它的父节点。
+
+因此更合适的理解是：
+
+> **后序遍历承载状态，贪心规则决定状态转移。**
+
+当然，本题也可以使用正式树形 DP 求解，但会维护更复杂的状态和代价。本题这套三状态贪心写法更简洁。
+
+---
+
+## 15. C++ 推荐实现
+
+```cpp
+class Solution {
+private:
+    enum State {
+        UNCOVERED = 0,
+        CAMERA = 1,
+        COVERED = 2
+    };
+
+    int cameras = 0;
+
+    State dfs(TreeNode* node) {
+        if (node == nullptr) {
+            return COVERED;
+        }
+
+        State left = dfs(node->left);
+        State right = dfs(node->right);
+
+        // 任一孩子未覆盖：当前节点必须放摄像头
+        if (left == UNCOVERED || right == UNCOVERED) {
+            ++cameras;
+            return CAMERA;
+        }
+
+        // 任一孩子有摄像头：当前节点已被覆盖
+        if (left == CAMERA || right == CAMERA) {
+            return COVERED;
+        }
+
+        // 两个孩子都已覆盖但都没有摄像头
+        return UNCOVERED;
+    }
+
+public:
+    int minCameraCover(TreeNode* root) {
+        if (dfs(root) == UNCOVERED) {
+            ++cameras;
+        }
+        return cameras;
+    }
+};
+```
+
+相比直接写 `0 / 1 / 2`，使用枚举：
+
+```cpp
+UNCOVERED
+CAMERA
+COVERED
+```
+
+更容易减少状态写反的问题。
+
+---
+
+## 16. 为什么精简版只有几行
+
+原始逻辑看起来有很多组合：
+
+```text
+(0,0)
+(0,1)
+(0,2)
+(1,0)
+(1,1)
+(1,2)
+(2,0)
+(2,1)
+(2,2)
+```
+
+一共 $9$ 种。
+
+但可以按“是否存在某类状态”进行归并。
+
+### 第一组：存在 `0`
+
+```text
+(0,0)
+(0,1)
+(0,2)
+(1,0)
+(2,0)
+```
+
+统一：
+
+```text
+当前放摄像头 -> 1
+```
+
+### 第二组：不存在 `0`，但存在 `1`
+
+```text
+(1,1)
+(1,2)
+(2,1)
+```
+
+统一：
+
+```text
+当前已覆盖 -> 2
+```
+
+### 第三组：既没有 `0`，也没有 `1`
+
+只剩：
+
+```text
+(2,2)
+```
+
+统一：
+
+```text
+当前未覆盖 -> 0
+```
+
+于是：
+
+$$
+9\text{ 种组合}
+\longrightarrow
+3\text{ 条规则}
+$$
+
+这就是精简代码背后的逻辑压缩。
+
+---
+
+## 17. 复杂度分析
+
+每个节点只会被 DFS 访问一次，并且每个节点只做常数次判断。
+
+设节点数为 $n$，时间复杂度：
+
+$$
+O(n)
+$$
+
+递归栈深度等于树高 $h$，额外空间复杂度更精确地写为：
+
+$$
+O(h)
+$$
+
+最坏情况下二叉树退化成链：
+
+$$
+h=n
+$$
+
+于是最坏空间复杂度：
+
+$$
+O(n)
+$$
+
+若树较平衡：
+
+$$
+h=O(\log n)
+$$
+
+则递归栈大致为：
+
+$$
+O(\log n)
+$$
+
+<Callout type="info" title="空间复杂度不要机械写 O(n)">
+递归算法的辅助空间首先应该按树高写成 $O(h)$；只有在最坏退化树情况下，才进一步得到 $O(n)$。
+</Callout>
+
+---
+
+## 18. 常见错误
+
+### 错误一：空节点返回 `0`
+
+这样会迫使叶子节点安装摄像头，破坏贪心策略。
+
+正确：
+
+```cpp
+if (node == nullptr) {
+    return COVERED;
+}
+```
+
+### 错误二：使用前序遍历
+
+当前节点还不知道孩子是否被覆盖，就提前决定是否安装摄像头，信息不足。
+
+本题必须：
+
+```text
+左 -> 右 -> 中
+```
+
+### 错误三：看到一个孩子有摄像头就立即返回 `2`
+
+例如：
+
+```text
+left = 1
+right = 0
+```
+
+虽然左孩子有摄像头，但右孩子未覆盖。
+
+此时当前节点仍必须安装摄像头。
+
+所以应先判断：
+
+```cpp
+left == 0 || right == 0
+```
+
+再判断：
+
+```cpp
+left == 1 || right == 1
+```
+
+### 错误四：漏掉根节点
+
+递归返回 `0` 的普通节点可以交给父节点，但根节点不行。
+
+必须最后：
+
+```cpp
+if (dfs(root) == UNCOVERED) {
+    ++cameras;
+}
+```
+
+### 错误五：把状态 `2` 理解成“子树全部已经结束”
+
+状态 `2` 只表示：
+
+> 当前节点已经被覆盖，且当前节点自己没有摄像头。
+
+它并不意味着父节点也被覆盖。
+
+状态含义必须严格对应“当前节点”。
+
+---
+
+## 19. 与前面贪心题的统一视角
+
+到这里可以看到，贪心并不等于“排序”。
+
+前面几类题分别在维护：
+
+| 题型 | 贪心核心 |
+| --- | --- |
+| 分发饼干 | 小资源优先满足小需求 |
+| 跳跃游戏 | 维护最远可达边界 |
+| 加油站 | 失败前缀整体淘汰 |
+| 区间题 | 排序后维护最右/最早结束边界 |
+| 单调递增数字 | 高位最小退让，后缀最大化 |
+| 监控二叉树 | 未覆盖节点尽量由父节点放摄像头 |
+
+共同点始终是：
+
+$$
+\boxed{\text{找到一个可以被证明“不会让未来更差”的局部选择}}
+$$
+
+本题的局部选择是：
+
+$$
+\boxed{\text{摄像头尽可能放在未覆盖节点的父节点，而不是节点自身}}
+$$
+
+---
+
+## 20. 一页记忆
+
+```text
+状态：
+0 = 未覆盖
+1 = 有摄像头
+2 = 已覆盖
+
+空节点：
+2
+
+后序遍历：
+左 -> 右 -> 中
+
+转移：
+有孩子 0 -> 当前放摄像头 -> 1
+否则有孩子 1 -> 当前被覆盖 -> 2
+否则 (2,2) -> 当前未覆盖 -> 0
+
+最后：
+根节点若为 0，再加一台摄像头
+```
+
+最值得背下来的不是代码，而是：
+
+$$
+\boxed{
+\text{后序三状态：
+子未覆盖我装相机，
+子有相机我被覆盖，
+否则我未覆盖}
+}
+$$
+
+---
+
+## 21. 其他语言版本
+
+下面所有实现都采用同一套三状态后序贪心。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    private static final int UNCOVERED = 0;
+    private static final int CAMERA = 1;
+    private static final int COVERED = 2;
+
+    private int cameras = 0;
+
+    public int minCameraCover(TreeNode root) {
+        if (dfs(root) == UNCOVERED) {
+            cameras++;
+        }
+        return cameras;
+    }
+
+    private int dfs(TreeNode node) {
+        if (node == null) {
+            return COVERED;
+        }
+
+        int left = dfs(node.left);
+        int right = dfs(node.right);
+
+        if (left == UNCOVERED || right == UNCOVERED) {
+            cameras++;
+            return CAMERA;
+        }
+
+        if (left == CAMERA || right == CAMERA) {
+            return COVERED;
+        }
+
+        return UNCOVERED;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    UNCOVERED = 0
+    CAMERA = 1
+    COVERED = 2
+
+    def minCameraCover(self, root: TreeNode) -> int:
+        self.cameras = 0
+
+        def dfs(node: TreeNode | None) -> int:
+            if node is None:
+                return self.COVERED
+
+            left = dfs(node.left)
+            right = dfs(node.right)
+
+            if left == self.UNCOVERED or right == self.UNCOVERED:
+                self.cameras += 1
+                return self.CAMERA
+
+            if left == self.CAMERA or right == self.CAMERA:
+                return self.COVERED
+
+            return self.UNCOVERED
+
+        if dfs(root) == self.UNCOVERED:
+            self.cameras += 1
+
+        return self.cameras
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func minCameraCover(root *TreeNode) int {
+    const (
+        uncovered = 0
+        camera    = 1
+        covered   = 2
+    )
+
+    cameras := 0
+
+    var dfs func(*TreeNode) int
+    dfs = func(node *TreeNode) int {
+        if node == nil {
+            return covered
+        }
+
+        left := dfs(node.Left)
+        right := dfs(node.Right)
+
+        if left == uncovered || right == uncovered {
+            cameras++
+            return camera
+        }
+
+        if left == camera || right == camera {
+            return covered
+        }
+
+        return uncovered
+    }
+
+    if dfs(root) == uncovered {
+        cameras++
+    }
+
+    return cameras
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn min_camera_cover(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        const UNCOVERED: i32 = 0;
+        const CAMERA: i32 = 1;
+        const COVERED: i32 = 2;
+
+        fn dfs(
+            node: &Option<Rc<RefCell<TreeNode>>>,
+            cameras: &mut i32,
+        ) -> i32 {
+            let Some(rc) = node else {
+                return COVERED;
+            };
+
+            let node = rc.borrow();
+            let left = dfs(&node.left, cameras);
+            let right = dfs(&node.right, cameras);
+
+            if left == UNCOVERED || right == UNCOVERED {
+                *cameras += 1;
+                return CAMERA;
+            }
+
+            if left == CAMERA || right == CAMERA {
+                return COVERED;
+            }
+
+            UNCOVERED
+        }
+
+        let mut cameras = 0;
+
+        if dfs(&root, &mut cameras) == UNCOVERED {
+            cameras += 1;
+        }
+
+        cameras
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var minCameraCover = function(root) {
+    const UNCOVERED = 0;
+    const CAMERA = 1;
+    const COVERED = 2;
+
+    let cameras = 0;
+
+    const dfs = (node) => {
+        if (node === null) {
+            return COVERED;
+        }
+
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+
+        if (left === UNCOVERED || right === UNCOVERED) {
+            cameras++;
+            return CAMERA;
+        }
+
+        if (left === CAMERA || right === CAMERA) {
+            return COVERED;
+        }
+
+        return UNCOVERED;
+    };
+
+    if (dfs(root) === UNCOVERED) {
+        cameras++;
+    }
+
+    return cameras;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function minCameraCover(root: TreeNode | null): number {
+    const UNCOVERED = 0;
+    const CAMERA = 1;
+    const COVERED = 2;
+
+    let cameras = 0;
+
+    function dfs(node: TreeNode | null): number {
+        if (node === null) {
+            return COVERED;
+        }
+
+        const left = dfs(node.left);
+        const right = dfs(node.right);
+
+        if (left === UNCOVERED || right === UNCOVERED) {
+            cameras++;
+            return CAMERA;
+        }
+
+        if (left === CAMERA || right === CAMERA) {
+            return COVERED;
+        }
+
+        return UNCOVERED;
+    }
+
+    if (dfs(root) === UNCOVERED) {
+        cameras++;
+    }
+
+    return cameras;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+enum State {
+    UNCOVERED = 0,
+    CAMERA = 1,
+    COVERED = 2
+};
+
+int dfs(struct TreeNode* node, int* cameras) {
+    if (node == NULL) {
+        return COVERED;
+    }
+
+    int left = dfs(node->left, cameras);
+    int right = dfs(node->right, cameras);
+
+    if (left == UNCOVERED || right == UNCOVERED) {
+        (*cameras)++;
+        return CAMERA;
+    }
+
+    if (left == CAMERA || right == CAMERA) {
+        return COVERED;
+    }
+
+    return UNCOVERED;
+}
+
+int minCameraCover(struct TreeNode* root) {
+    int cameras = 0;
+
+    if (dfs(root, &cameras) == UNCOVERED) {
+        cameras++;
+    }
+
+    return cameras;
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    private const int Uncovered = 0;
+    private const int Camera = 1;
+    private const int Covered = 2;
+
+    private int cameras = 0;
+
+    public int MinCameraCover(TreeNode root) {
+        if (Dfs(root) == Uncovered) {
+            cameras++;
+        }
+        return cameras;
+    }
+
+    private int Dfs(TreeNode node) {
+        if (node == null) {
+            return Covered;
+        }
+
+        int left = Dfs(node.left);
+        int right = Dfs(node.right);
+
+        if (left == Uncovered || right == Uncovered) {
+            cameras++;
+            return Camera;
+        }
+
+        if (left == Camera || right == Camera) {
+            return Covered;
+        }
+
+        return Uncovered;
+    }
+}
+```
+
+</Tab>
+</Tabs>

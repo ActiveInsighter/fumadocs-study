@@ -1,0 +1,550 @@
+---
+title: 最长连续递增序列
+sidebarTitle: 最长连续递增序列
+summary: 系统讲解 LeetCode 674 最长连续递增序列，重点理解“连续”约束如何把 LIS 的全局前驱枚举压缩为仅依赖前一个位置，并比较 DP 与 O(1) 空间扫描写法。
+---
+
+# 674. 最长连续递增序列
+
+[LeetCode 674：最长连续递增序列](https://leetcode.cn/problems/longest-continuous-increasing-subsequence/)
+
+给定整数数组 `nums`，求其中**最长严格连续递增子数组**的长度。
+
+例如：
+
+```text
+nums = [1, 3, 5, 4, 7]
+```
+
+最长连续递增片段是：
+
+```text
+[1, 3, 5]
+```
+
+因此答案为：
+
+$$
+\boxed{3}
+$$
+
+<Callout type="warning" title="本题最重要的关键词：连续">
+`[1, 3, 5, 7]` 虽然保持递增关系，但它不是连续子数组，因为 `5` 和 `7` 之间隔着 `4`。本题和最长递增子序列的根本区别就在这里。
+</Callout>
+
+## 1. 和最长递增子序列到底差在哪里
+
+上一题最长递增子序列允许“跳过元素”。
+
+例如：
+
+```text
+[1, 3, 5, 4, 7]
+```
+
+对于最长递增子序列，可以选：
+
+```text
+[1, 3, 5, 7]
+```
+
+但本题要求元素在原数组中连续，所以只能检查相邻关系：
+
+$$
+nums[i-1] < nums[i]
+$$
+
+这会直接改变状态转移结构：
+
+- LIS：`dp[i]` 可能依赖所有 `dp[j]`，其中 $j<i$；
+- LCIS：`dp[i]` 只依赖 `dp[i-1]`。
+
+<Callout type="info" title="连续性会让状态依赖局部化">
+很多“最长连续……”问题，都比对应的“最长子序列……”问题更简单，因为连续条件禁止跨位置跳转，状态通常只依赖相邻位置。
+</Callout>
+
+## 2. DP 状态设计
+
+定义：
+
+$$
+\boxed{
+dp[i]=\text{以 }nums[i]\text{ 结尾的最长连续严格递增子数组长度}
+}
+$$
+
+注意仍然是“**以 `nums[i]` 结尾**”。
+
+例如：
+
+```text
+nums = [1, 3, 5, 4, 7]
+```
+
+则：
+
+```text
+dp = [1, 2, 3, 1, 2]
+```
+
+因为：
+
+- 以 `1` 结尾：长度 1；
+- 以 `3` 结尾：`[1,3]`，长度 2；
+- 以 `5` 结尾：`[1,3,5]`，长度 3；
+- 到 `4` 时递增关系中断，只能重新从 `4` 开始；
+- 到 `7` 时形成 `[4,7]`。
+
+## 3. 状态转移
+
+如果：
+
+$$
+nums[i] > nums[i-1]
+$$
+
+那么以 `nums[i]` 结尾的连续递增段，一定可以接在以 `nums[i-1]` 结尾的连续递增段后面：
+
+$$
+\boxed{dp[i]=dp[i-1]+1}
+$$
+
+如果：
+
+$$
+nums[i] \le nums[i-1]
+$$
+
+连续递增关系被打断，因此：
+
+$$
+\boxed{dp[i]=1}
+$$
+
+所以完整转移可以写成：
+
+$$
+dp[i]=
+\begin{cases}
+dp[i-1]+1, & nums[i]>nums[i-1] \\
+1, & nums[i]\le nums[i-1]
+\end{cases}
+$$
+
+## 4. 初始化
+
+每个元素自己都能构成长度为 1 的连续递增子数组，因此：
+
+$$
+\boxed{dp[i]=1}
+$$
+
+可以直接初始化整张表：
+
+```cpp
+vector<int> dp(nums.size(), 1);
+```
+
+若数组为空，答案为 0。
+
+## 5. 遍历顺序
+
+因为：
+
+$$
+dp[i]\leftarrow dp[i-1]
+$$
+
+所以只需要从左到右扫描一次：
+
+```text
+1 -> 2 -> 3 -> ... -> n-1
+```
+
+时间复杂度自然降为：
+
+$$
+O(n)
+$$
+
+这也是它和 LIS 的 $O(n^2)$ 基础 DP 最大的结构差异。
+
+## 6. 示例推导
+
+对于：
+
+```text
+nums = [1, 3, 5, 4, 7]
+```
+
+状态变化如下：
+
+![674. 最长连续递增序列状态示意](https://file1.kamacoder.com/i/algo/20210204103529742.jpg)
+
+逐项推导：
+
+| $i$ | `nums[i]` | 与前一项比较 | `dp[i]` |
+|---:|---:|---|---:|
+| 0 | 1 | 起点 | 1 |
+| 1 | 3 | $3>1$ | 2 |
+| 2 | 5 | $5>3$ | 3 |
+| 3 | 4 | $4\le5$ | 1 |
+| 4 | 7 | $7>4$ | 2 |
+
+最终取：
+
+$$
+\max_i dp[i]=3
+$$
+
+## 7. 为什么答案不是 `dp[n - 1]`
+
+`dp[n-1]` 只表示：
+
+> 必须以最后一个元素结尾的最长连续递增子数组长度。
+
+但全局最长片段可能早已在数组中间结束。
+
+因此答案必须是：
+
+$$
+\boxed{\max(dp)}
+$$
+
+例如上面的数组：
+
+```text
+dp = [1, 2, 3, 1, 2]
+```
+
+最后一个状态是 2，但正确答案是 3。
+
+## 8. 标准 DP 实现
+
+```cpp
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        if (nums.empty()) return 0;
+
+        vector<int> dp(nums.size(), 1);
+        int ans = 1;
+
+        for (int i = 1; i < nums.size(); ++i) {
+            if (nums[i] > nums[i - 1]) {
+                dp[i] = dp[i - 1] + 1;
+            }
+            ans = max(ans, dp[i]);
+        }
+
+        return ans;
+    }
+};
+```
+
+复杂度：
+
+$$
+\text{时间复杂度}=O(n)
+$$
+
+$$
+\text{空间复杂度}=O(n)
+$$
+
+## 9. 为什么可以压缩到 $O(1)$ 空间
+
+`dp[i]` 只依赖：
+
+$$
+dp[i-1]
+$$
+
+因此根本不需要保存整张 `dp` 数组。
+
+只要维护：
+
+- `cur`：当前连续递增段长度；
+- `ans`：历史最大长度。
+
+如果当前元素大于前一个元素：
+
+```text
+cur++
+```
+
+否则：
+
+```text
+cur = 1
+```
+
+代码：
+
+```cpp
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        if (nums.empty()) return 0;
+
+        int cur = 1;
+        int ans = 1;
+
+        for (int i = 1; i < nums.size(); ++i) {
+            if (nums[i] > nums[i - 1]) {
+                ++cur;
+            } else {
+                cur = 1;
+            }
+            ans = max(ans, cur);
+        }
+
+        return ans;
+    }
+};
+```
+
+此时：
+
+$$
+\text{空间复杂度}=O(1)
+$$
+
+<Callout type="tip" title="这里的“贪心”本质上就是压缩后的 DP">
+有些题解会把后一种写法称为贪心，但从状态依赖角度看，它也可以理解为把 `dp[i]` 压缩成一个变量后的动态规划。两种理解都可以，关键是看懂状态只依赖前一项。
+</Callout>
+
+## 10. 和 LIS 的对照表
+
+| 对比项 | 最长递增子序列 LIS | 最长连续递增序列 LCIS |
+|---|---|---|
+| 是否要求连续 | 否 | 是 |
+| `dp[i]` 含义 | 以 `nums[i]` 结尾的 LIS 长度 | 以 `nums[i]` 结尾的连续递增长度 |
+| 前驱范围 | 所有 $j<i$ | 只有 $i-1$ |
+| 基础 DP 时间 | $O(n^2)$ | $O(n)$ |
+| 是否可轻松压缩空间 | 不直接 | 可以 |
+
+最值得记住的是：
+
+$$
+\boxed{
+\text{不连续} \Rightarrow \text{枚举历史前驱}
+}
+$$
+
+而：
+
+$$
+\boxed{
+\text{连续} \Rightarrow \text{只检查相邻位置}
+}
+$$
+
+## 11. 高频错误
+
+### 错误一：写成 `>=`
+
+题目要求严格递增，所以必须是：
+
+```cpp
+nums[i] > nums[i - 1]
+```
+
+不是：
+
+```cpp
+nums[i] >= nums[i - 1]
+```
+
+例如：
+
+```text
+[2, 2, 2]
+```
+
+答案只能是 1。
+
+### 错误二：仍然套 LIS 的双层循环
+
+如果写成枚举所有 `j < i`，就已经忽略了“连续”的限制。
+
+本题只允许从：
+
+$$
+i-1 \rightarrow i
+$$
+
+转移。
+
+### 错误三：忘记断开后重置为 1
+
+一旦：
+
+$$
+nums[i]\le nums[i-1]
+$$
+
+当前连续段必须重新开始。
+
+## 12. 一眼识别这类题
+
+当题目出现：
+
+- 最长连续递增；
+- 最长连续相同；
+- 最长连续满足某关系；
+
+优先思考：
+
+> 当前状态是否只依赖前一个位置？
+
+如果答案是是，那么往往可以在线性时间内完成。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int findLengthOfLCIS(int[] nums) {
+        if (nums.length == 0) return 0;
+
+        int cur = 1;
+        int ans = 1;
+
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] > nums[i - 1]) {
+                cur++;
+            } else {
+                cur = 1;
+            }
+            ans = Math.max(ans, cur);
+        }
+
+        return ans;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def findLengthOfLCIS(self, nums: List[int]) -> int:
+        if not nums:
+            return 0
+
+        cur = 1
+        ans = 1
+
+        for i in range(1, len(nums)):
+            if nums[i] > nums[i - 1]:
+                cur += 1
+            else:
+                cur = 1
+            ans = max(ans, cur)
+
+        return ans
+```
+
+```javascript label="JavaScript"
+var findLengthOfLCIS = function(nums) {
+    if (nums.length === 0) return 0;
+
+    let cur = 1;
+    let ans = 1;
+
+    for (let i = 1; i < nums.length; i++) {
+        if (nums[i] > nums[i - 1]) {
+            cur++;
+        } else {
+            cur = 1;
+        }
+        ans = Math.max(ans, cur);
+    }
+
+    return ans;
+};
+```
+
+```typescript label="TypeScript"
+function findLengthOfLCIS(nums: number[]): number {
+    if (nums.length === 0) return 0;
+
+    let cur = 1;
+    let ans = 1;
+
+    for (let i = 1; i < nums.length; i++) {
+        if (nums[i] > nums[i - 1]) cur++;
+        else cur = 1;
+
+        ans = Math.max(ans, cur);
+    }
+
+    return ans;
+}
+```
+
+```go label="Go"
+func findLengthOfLCIS(nums []int) int {
+    if len(nums) == 0 {
+        return 0
+    }
+
+    cur, ans := 1, 1
+    for i := 1; i < len(nums); i++ {
+        if nums[i] > nums[i-1] {
+            cur++
+        } else {
+            cur = 1
+        }
+        if cur > ans {
+            ans = cur
+        }
+    }
+
+    return ans
+}
+```
+
+```c label="C"
+int findLengthOfLCIS(int* nums, int numsSize) {
+    if (numsSize == 0) return 0;
+
+    int cur = 1;
+    int ans = 1;
+
+    for (int i = 1; i < numsSize; ++i) {
+        if (nums[i] > nums[i - 1]) {
+            ++cur;
+        } else {
+            cur = 1;
+        }
+        if (cur > ans) ans = cur;
+    }
+
+    return ans;
+}
+```
+
+```rust label="Rust"
+impl Solution {
+    pub fn find_length_of_lcis(nums: Vec<i32>) -> i32 {
+        if nums.is_empty() {
+            return 0;
+        }
+
+        let mut cur = 1;
+        let mut ans = 1;
+
+        for i in 1..nums.len() {
+            if nums[i] > nums[i - 1] {
+                cur += 1;
+            } else {
+                cur = 1;
+            }
+            ans = ans.max(cur);
+        }
+
+        ans
+    }
+}
+```
+````

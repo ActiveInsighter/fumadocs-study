@@ -1,0 +1,931 @@
+---
+title: 查找常用字符
+description: 用频次数组的逐元素最小值求多个字符串的多重集合交集，掌握“公共频次”的通用模型。
+---
+
+# 1002. 查找常用字符
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/find-common-characters/">
+    LeetCode 1002 · Find Common Characters
+  </Card>
+</Cards>
+
+给定一个字符串数组 `words`，找出**每个字符串中都出现的字符**。
+
+注意：重复字符也要重复输出。
+
+例如：
+
+```text
+输入：
+["bella", "label", "roller"]
+
+输出：
+["e", "l", "l"]
+```
+
+因为：
+
+- `e` 在三个单词中至少都出现 1 次；
+- `l` 在三个单词中至少都出现 2 次。
+
+另一个例子：
+
+```text
+输入：
+["cool", "lock", "cook"]
+
+输出：
+["c", "o"]
+```
+
+<Callout type="info" title="这不是普通集合求交集">
+由于重复次数不能丢失，本题求的是**多重集合（Multiset）的交集**，而不是普通集合的交集。
+</Callout>
+
+---
+
+## 1. 先把题意转换成“频次问题”
+
+设字符 $c$ 在第 $i$ 个字符串中出现次数为：
+
+$$
+f_i(c)
+$$
+
+一个字符要出现在最终答案中，它必须在所有字符串中都出现。
+
+而且能出现多少次，取决于所有字符串里该字符出现次数的最小值：
+
+$$
+f_{\text{answer}}(c)
+=
+\min_{1\le i\le m} f_i(c)
+$$
+
+这就是本题最核心的公式。
+
+例如：
+
+```text
+"bella"  中 l 出现 2 次
+"label"  中 l 出现 2 次
+"roller" 中 l 出现 2 次
+```
+
+所以：
+
+$$
+\min(2,2,2)=2
+$$
+
+答案中就应该放入两个 `"l"`。
+
+---
+
+## 2. 为什么数组哈希最合适
+
+题目说明：
+
+```text
+words[i] 只包含小写英文字母
+```
+
+因此只需要维护 26 个字符的频次。
+
+建立映射：
+
+$$
+index=c-'a'
+$$
+
+然后使用长度为 26 的数组：
+
+```cpp
+int minFreq[26];
+```
+
+其中：
+
+```text
+minFreq[i]
+```
+
+表示：
+
+> 到目前为止，第 $i$ 个字母在所有已经处理过的字符串中，最多能公共出现多少次。
+
+---
+
+## 3. 初始化为什么用第一个字符串
+
+我们需要计算多个频次数组的逐元素最小值。
+
+对于每个字符：
+
+$$
+\min(f_1,f_2,\dots,f_m)
+$$
+
+最自然的做法是：
+
+1. 用第一个字符串的频次初始化 `minFreq`；
+2. 从第二个字符串开始逐个统计；
+3. 每处理一个字符串，都做一次逐元素取最小值。
+
+即：
+
+$$
+minFreq[c]
+\leftarrow
+\min(minFreq[c], current[c])
+$$
+
+这其实就是一个不断“收紧上限”的过程。
+
+---
+
+## 4. 图示理解
+
+原始资料中的示意图：
+
+![查找常用字符](https://file1.kamacoder.com/i/algo/1002.%E6%9F%A5%E6%89%BE%E5%B8%B8%E7%94%A8%E5%AD%97%E7%AC%A6.png)
+
+以：
+
+```text
+["bella", "label", "roller"]
+```
+
+为例。
+
+先统计第一个字符串：
+
+```text
+bella
+
+a -> 1
+b -> 1
+e -> 1
+l -> 2
+```
+
+得到：
+
+```text
+minFreq = freq("bella")
+```
+
+处理 `"label"` 后：
+
+```text
+a : min(1, 1) = 1
+b : min(1, 1) = 1
+e : min(1, 1) = 1
+l : min(2, 2) = 2
+```
+
+再处理 `"roller"`：
+
+```text
+a : min(1, 0) = 0
+b : min(1, 0) = 0
+e : min(1, 1) = 1
+l : min(2, 2) = 2
+```
+
+最终：
+
+```text
+e -> 1
+l -> 2
+```
+
+因此答案为：
+
+```text
+["e", "l", "l"]
+```
+
+---
+
+## 5. 核心代码拆解
+
+### 5.1 统计第一个字符串
+
+```cpp
+int minFreq[26] = {0};
+
+for (char c : words[0]) {
+    ++minFreq[c - 'a'];
+}
+```
+
+此时：
+
+```text
+minFreq
+```
+
+保存的是第一个字符串的完整频次。
+
+---
+
+### 5.2 统计后续字符串
+
+每次都创建一个新的局部频次数组：
+
+```cpp
+int current[26] = {0};
+
+for (char c : words[i]) {
+    ++current[c - 'a'];
+}
+```
+
+注意这里必须对每个字符串重新清零。
+
+---
+
+### 5.3 逐元素取最小值
+
+```cpp
+for (int j = 0; j < 26; ++j) {
+    minFreq[j] = min(minFreq[j], current[j]);
+}
+```
+
+这一行就是整个算法的核心。
+
+它表达的是：
+
+$$
+\text{公共频次}
+=
+\min(\text{历史公共频次},\text{当前字符串频次})
+$$
+
+---
+
+### 5.4 还原答案
+
+若：
+
+```text
+minFreq[i] = k
+```
+
+表示字符：
+
+```cpp
+'a' + i
+```
+
+需要进入答案 $k$ 次。
+
+因此：
+
+```cpp
+while (minFreq[i] > 0) {
+    result.push_back(string(1, 'a' + i));
+    --minFreq[i];
+}
+```
+
+---
+
+## 6. 标准解法
+
+```cpp
+class Solution {
+public:
+    vector<string> commonChars(vector<string>& words) {
+        vector<string> result;
+
+        int minFreq[26] = {0};
+
+        for (char c : words[0]) {
+            ++minFreq[c - 'a'];
+        }
+
+        for (int i = 1; i < words.size(); ++i) {
+            int current[26] = {0};
+
+            for (char c : words[i]) {
+                ++current[c - 'a'];
+            }
+
+            for (int j = 0; j < 26; ++j) {
+                minFreq[j] = min(minFreq[j], current[j]);
+            }
+        }
+
+        for (int i = 0; i < 26; ++i) {
+            while (minFreq[i] > 0) {
+                result.push_back(string(1, 'a' + i));
+                --minFreq[i];
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+## 7. 正确性证明
+
+设共有 $m$ 个字符串。
+
+对于任意字符 $c$，算法最终得到：
+
+$$
+minFreq(c)
+=
+\min\{f_1(c),f_2(c),\dots,f_m(c)\}
+$$
+
+### 为什么答案最多只能包含这么多次
+
+若答案中字符 $c$ 出现 $k$ 次，那么每个字符串都至少要包含 $k$ 个 $c$。
+
+因此：
+
+$$
+k\le f_i(c)
+$$
+
+对任意 $i$ 成立。
+
+所以：
+
+$$
+k\le \min_i f_i(c)
+$$
+
+### 为什么可以恰好包含这么多次
+
+设：
+
+$$
+k=\min_i f_i(c)
+$$
+
+那么每个字符串中都至少有 $k$ 个字符 $c$。
+
+因此这 $k$ 个 $c$ 确实属于所有字符串的公共部分。
+
+所以：
+
+$$
+f_{\text{answer}}(c)=\min_i f_i(c)
+$$
+
+算法得到的结果正确。
+
+---
+
+## 8. 时间复杂度
+
+设：
+
+- 字符串数量为 $m$；
+- 第 $i$ 个字符串长度为 $n_i$。
+
+统计所有字符总共需要：
+
+$$
+O\left(\sum_{i=1}^{m} n_i\right)
+$$
+
+每处理一个字符串，还需要扫描一次长度为 26 的数组：
+
+$$
+O(26m)
+$$
+
+因此总复杂度：
+
+$$
+O\left(\sum_{i=1}^{m}n_i+26m\right)
+$$
+
+因为 26 是常数，所以通常写为：
+
+$$
+O\left(\sum_{i=1}^{m}n_i\right)
+$$
+
+若每个字符串平均长度为 $n$，则可以写作：
+
+$$
+O(mn)
+$$
+
+---
+
+## 9. 空间复杂度
+
+我们只维护两个长度为 26 的数组：
+
+```text
+minFreq[26]
+current[26]
+```
+
+因此额外空间：
+
+$$
+O(1)
+$$
+
+注意最终返回的答案空间通常不计入辅助空间。
+
+---
+
+## 10. 为什么普通 `set` 不够
+
+假设：
+
+```text
+["ll", "ll", "ll"]
+```
+
+正确答案应该是：
+
+```text
+["l", "l"]
+```
+
+如果把每个字符串转换为集合：
+
+```text
+{"l"}
+```
+
+重复次数就丢失了。
+
+所以本题不能只求：
+
+```text
+字符种类的交集
+```
+
+而必须求：
+
+```text
+字符频次的交集
+```
+
+也就是多重集合交集。
+
+---
+
+## 11. 和上一题“有效的字母异位词”的联系
+
+两道题都使用长度为 26 的频次数组，但操作完全不同。
+
+### 有效的字母异位词
+
+关心的是两个频次数组是否相等：
+
+$$
+f_s(c)=f_t(c)
+$$
+
+可以写成频次差：
+
+$$
+f_s(c)-f_t(c)=0
+$$
+
+### 查找常用字符
+
+关心的是多个频次数组的公共部分：
+
+$$
+f_{\text{common}}(c)
+=
+\min_i f_i(c)
+$$
+
+因此可以把两个题型区分为：
+
+| 问题 | 数学操作 |
+| --- | --- |
+| 两个频次是否完全相同 | 做差并检查是否为 $0$ |
+| 多个频次的公共部分 | 逐元素取最小值 |
+
+<Callout type="tip" title="频次数组不是只会做加减">
+对刷题来说，数组里的每个位置都代表一个独立的状态。除了加减，还经常会做 `min`、`max`、比较、窗口更新等操作。
+</Callout>
+
+---
+
+## 12. 更抽象的理解：多重集合交集
+
+普通集合交集关注的是：
+
+```text
+有没有
+```
+
+例如：
+
+$$
+\{a,b,c\}\cap\{b,c,d\}=\{b,c\}
+$$
+
+多重集合还关注：
+
+```text
+有几个
+```
+
+例如：
+
+```text
+A = {a, a, b, b, b}
+B = {a, b, b, c}
+```
+
+那么交集为：
+
+```text
+{a, b, b}
+```
+
+因为：
+
+$$
+count_A(a)=2,\quad count_B(a)=1
+$$
+
+所以交集中：
+
+$$
+count(a)=\min(2,1)=1
+$$
+
+对 `b`：
+
+$$
+count(b)=\min(3,2)=2
+$$
+
+因此本题本质上就是：
+
+> 对多个字符多重集合求交集。
+
+---
+
+## 13. 可以用哈希表吗
+
+当然可以。
+
+如果字符范围不固定，可以维护：
+
+```text
+字符 -> 最小出现次数
+```
+
+但本题只有 26 个小写字母，所以数组显然更合适。
+
+数组方案具备：
+
+- 更简单的索引；
+- 更低的常数；
+- 不需要哈希；
+- 不存在冲突；
+- 空间固定。
+
+---
+
+## 14. Python 中 `Counter` 为什么很自然
+
+Python 的：
+
+```python
+collections.Counter
+```
+
+本质上就是一个“元素 -> 频次”的映射。
+
+而两个 `Counter` 使用 `&` 时，恰好表示频次取最小值。
+
+例如：
+
+```python
+Counter("bella") & Counter("label")
+```
+
+对每个字符得到：
+
+$$
+\min(freq_1,freq_2)
+$$
+
+所以可以直接写：
+
+```python
+common &= Counter(word)
+```
+
+这正好对应本题的数学定义。
+
+---
+
+## 15. 常见错误
+
+### 15.1 忘记清空当前字符串的频次数组
+
+错误：
+
+```cpp
+int current[26] = {0};
+
+for (...) {
+    // 不清零，继续累计
+}
+```
+
+这样统计到的就不再是“当前字符串”，而是多个字符串的总频次。
+
+正确做法是每轮重新创建：
+
+```cpp
+int current[26] = {0};
+```
+
+---
+
+### 15.2 取最大值而不是最小值
+
+公共字符的重复次数受到“最少的那个字符串”限制。
+
+所以必须是：
+
+$$
+\min
+$$
+
+不是：
+
+$$
+\max
+$$
+
+---
+
+### 15.3 最后每种字符只输出一次
+
+例如：
+
+```text
+l -> 2
+```
+
+必须输出：
+
+```text
+"l", "l"
+```
+
+不能只输出一个 `"l"`。
+
+---
+
+### 15.4 把题目理解成“至少出现在两个字符串中”
+
+题目要求的是：
+
+> 在 **每一个** 字符串中都出现。
+
+所以它是所有字符串共同的交集，而不是任意两个字符串的交集。
+
+---
+
+## 16. 高频迁移模型：逐元素聚合
+
+本题可以进一步抽象为：
+
+```text
+多个固定维度状态向量
+        ↓
+逐维度聚合
+```
+
+这里每个字符串都对应一个 26 维向量：
+
+$$
+F_i=
+(f_i(a),f_i(b),\dots,f_i(z))
+$$
+
+最终答案是：
+
+$$
+F=
+\min(F_1,F_2,\dots,F_m)
+$$
+
+这里的 `min` 是逐元素进行。
+
+这种“固定维度向量 + 逐元素聚合”的思路还会出现在：
+
+- 多个集合的公共频次；
+- 多个区间约束取交；
+- 多份资源限制取瓶颈；
+- 字符串匹配中的频次上界；
+- 多源统计中的逐项最值。
+
+---
+
+## 17. 一套做题思维模板
+
+遇到“多个字符串共同拥有的字符”时，可以直接按下面分析：
+
+```text
+是否关心重复次数？
+        ↓
+       是
+        ↓
+不能只用 Set
+        ↓
+统计每个对象的频次
+        ↓
+公共部分能出现几次？
+        ↓
+取所有对象频次的最小值
+        ↓
+按最小频次还原答案
+```
+
+---
+
+## 18. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    vector<string> commonChars(vector<string>& words) {
+        int minFreq[26] = {0};
+
+        for (char c : words[0]) {
+            ++minFreq[c - 'a'];
+        }
+
+        for (int i = 1; i < words.size(); ++i) {
+            int current[26] = {0};
+
+            for (char c : words[i]) {
+                ++current[c - 'a'];
+            }
+
+            for (int j = 0; j < 26; ++j) {
+                minFreq[j] = min(minFreq[j], current[j]);
+            }
+        }
+
+        vector<string> result;
+
+        for (int i = 0; i < 26; ++i) {
+            for (int k = 0; k < minFreq[i]; ++k) {
+                result.push_back(string(1, 'a' + i));
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+class Solution {
+    public List<String> commonChars(String[] words) {
+        int[] minFreq = new int[26];
+
+        for (char c : words[0].toCharArray()) {
+            ++minFreq[c - 'a'];
+        }
+
+        for (int i = 1; i < words.length; ++i) {
+            int[] current = new int[26];
+
+            for (char c : words[i].toCharArray()) {
+                ++current[c - 'a'];
+            }
+
+            for (int j = 0; j < 26; ++j) {
+                minFreq[j] = Math.min(minFreq[j], current[j]);
+            }
+        }
+
+        List<String> result = new ArrayList<>();
+
+        for (int i = 0; i < 26; ++i) {
+            for (int k = 0; k < minFreq[i]; ++k) {
+                result.add(String.valueOf((char) ('a' + i)));
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from collections import Counter
+from typing import List
+
+class Solution:
+    def commonChars(self, words: List[str]) -> List[str]:
+        common = Counter(words[0])
+
+        for word in words[1:]:
+            common &= Counter(word)
+
+        result = []
+
+        for char, count in common.items():
+            result.extend([char] * count)
+
+        return result
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var commonChars = function(words) {
+    const base = 'a'.charCodeAt(0);
+    const minFreq = new Array(26).fill(0);
+
+    for (const c of words[0]) {
+        ++minFreq[c.charCodeAt(0) - base];
+    }
+
+    for (let i = 1; i < words.length; ++i) {
+        const current = new Array(26).fill(0);
+
+        for (const c of words[i]) {
+            ++current[c.charCodeAt(0) - base];
+        }
+
+        for (let j = 0; j < 26; ++j) {
+            minFreq[j] = Math.min(minFreq[j], current[j]);
+        }
+    }
+
+    const result = [];
+
+    for (let i = 0; i < 26; ++i) {
+        for (let k = 0; k < minFreq[i]; ++k) {
+            result.push(String.fromCharCode(base + i));
+        }
+    }
+
+    return result;
+};
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 19. 本题总结
+
+这道题可以浓缩成一句话：
+
+> **一个字符能在所有字符串中共同出现多少次，取决于它在所有字符串中的最小出现次数。**
+
+对应公式：
+
+$$
+f_{\text{common}}(c)
+=
+\min_i f_i(c)
+$$
+
+需要掌握的迁移点：
+
+1. 只包含 26 个小写字母时，用数组做哈希最合适。
+2. 重复次数有意义时，不能简单使用普通集合。
+3. 多重集合交集的频次等于各集合频次的最小值。
+4. 多个固定维度频次数组可以通过逐元素 `min` 进行聚合。
+5. 这类题的本质不是“字符串技巧”，而是**频次向量的运算**。

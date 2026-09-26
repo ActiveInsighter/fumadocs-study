@@ -1,0 +1,1158 @@
+---
+title: 所有可达路径：DFS 路径枚举模板
+description: 以有向无环图从 1 到 n 的所有路径为主线，掌握邻接表与邻接矩阵建图、DFS 路径枚举、回溯恢复现场、输出格式，以及 DAG 与一般图在 visited 设计上的关键区别。
+---
+
+# 所有可达路径：DFS 路径枚举模板
+
+这是一道非常典型的 **“图上的回溯 / DFS 路径枚举”** 题。
+
+题目给定一个有向无环图（DAG），要求输出从节点 `1` 到节点 `n` 的 **所有可达路径**。它看起来只是 DFS 的入门题，但真正值得掌握的是一套可以迁移到大量图论题中的完整流程：
+
+> **读入边 → 建图 → 维护当前路径 → DFS 枚举下一节点 → 到达终点记录答案 → 回溯恢复路径。**
+
+<Callout type="info" title="这道题最重要的三个知识点">
+
+1. **路径枚举不是普通遍历**：同一个节点可能出现在不同合法路径中，不能随意用全局 `visited` 剪掉。
+2. **DAG 天然不存在环**：本题从路径角度不需要 `visited`，沿边递归一定会终止。
+3. **回溯恢复的是 path，而不是图**：进入下一节点前 `push_back`，递归返回后 `pop_back`。
+
+</Callout>
+
+## 1. 题目描述
+
+给定一个有 $n$ 个节点、$m$ 条边的 **有向无环图**，节点编号为 $1,2,\dots,n$。
+
+请找出所有从节点 `1` 到节点 `n` 的路径，并逐行输出。
+
+### 输入格式
+
+第一行：
+
+```text
+n m
+```
+
+之后 $m$ 行，每行两个整数：
+
+```text
+s t
+```
+
+表示存在一条有向边：
+
+$$
+s \to t
+$$
+
+### 输出格式
+
+每条路径独占一行，节点之间用一个空格分隔。
+
+如果不存在任何从 `1` 到 `n` 的路径，输出：
+
+```text
+-1
+```
+
+<Callout type="warning" title="ACM 输出细节">
+
+最后一个节点后面不要额外输出空格。
+
+例如应该输出：
+
+```text
+1 3 5
+```
+
+而不是在 `5` 后继续输出一个空格。
+
+</Callout>
+
+## 2. 示例
+
+输入：
+
+```text
+5 5
+1 3
+3 5
+1 2
+2 4
+4 5
+```
+
+输出可以是：
+
+```text
+1 3 5
+1 2 4 5
+```
+
+也可以交换两条路径的顺序。
+
+![](https://file1.kamacoder.com/i/algo/20240514103953.png)
+
+从图中可以看到，从 `1` 到 `5` 一共有两条路径：
+
+$$
+1 \to 3 \to 5
+$$
+
+以及
+
+$$
+1 \to 2 \to 4 \to 5
+$$
+
+题目只要求输出全部路径，并不要求字典序，因此路径之间的输出顺序通常由邻接表中的边顺序决定。
+
+---
+
+## 3. 为什么这是 DFS，而不是普通“访问节点”
+
+普通图遍历常见目标是：
+
+> 每个可达节点访问一次即可。
+
+而这道题的目标完全不同：
+
+> 要枚举 **每一条不同的路径**。
+
+例如：
+
+```text
+1 → 2 → 4 → 6
+ \      ↑
+  → 3 ──┘
+```
+
+节点 `4` 可以分别通过：
+
+```text
+1 → 2 → 4
+```
+
+和：
+
+```text
+1 → 3 → 4
+```
+
+到达。
+
+如果把 `4` 第一次访问后永久标记为 `visited`，第二条路径就会被错误剪掉。
+
+因此一定要先区分两类 DFS。
+
+| 目标 | `visited` 的典型语义 | 是否回溯 |
+| --- | --- | --- |
+| 遍历整张图 | 节点是否曾经访问过 | 通常不撤销 |
+| 枚举所有路径 | 节点是否在当前路径上 | 需要时撤销 |
+
+本题更特殊：它明确保证是 **DAG**，根本不会形成环，因此连“当前路径上的 visited”也可以省略。
+
+<Callout type="warning" title="不要把 DAG 结论机械套到一般有向图">
+
+如果题目改成普通有向图，图中可能存在：
+
+```text
+1 → 2 → 3
+    ↑   ↓
+    └── 4
+```
+
+此时没有任何判环措施就可能无限递归。
+
+但也不能简单使用“全局 visited”。枚举所有简单路径时，通常应该维护 **当前递归路径状态** `onPath`：进入节点时标记，回溯时撤销。
+
+</Callout>
+
+---
+
+## 4. 图应该怎样存
+
+这道题可以使用：
+
+- 邻接矩阵；
+- 邻接表。
+
+两种方法都应该会写，但实际算法题更推荐邻接表。
+
+## 4.1 邻接矩阵
+
+建立一个 $(n+1)\times(n+1)$ 的二维数组：
+
+```cpp
+vector<vector<int>> graph(n + 1, vector<int>(n + 1, 0));
+```
+
+如果存在：
+
+$$
+s \to t
+$$
+
+则：
+
+```cpp
+graph[s][t] = 1;
+```
+
+注意这里只设置一个方向，因为题目是 **有向图**。
+
+例如：
+
+```cpp
+for (int i = 0; i < m; ++i) {
+    int s, t;
+    cin >> s >> t;
+    graph[s][t] = 1;
+}
+```
+
+邻接矩阵寻找 `x` 的所有出边时，需要扫描整行：
+
+```cpp
+for (int y = 1; y <= n; ++y) {
+    if (graph[x][y]) {
+        // x -> y
+    }
+}
+```
+
+因此它的特点是：
+
+- 判断任意边是否存在：$O(1)$；
+- 存储空间：$O(n^2)$；
+- 枚举一个节点的邻居：$O(n)$。
+
+---
+
+## 4.2 邻接表
+
+邻接表直接记录每个节点能够到达哪些节点。
+
+例如：
+
+![](https://file1.kamacoder.com/i/algo/20240223103713.png)
+
+可以理解为：
+
+```text
+1: 3, 5
+2: 4, 3, 5
+3: 4
+4: 1
+```
+
+C++ 中最常用：
+
+```cpp
+vector<vector<int>> graph(n + 1);
+```
+
+读入一条：
+
+$$
+s \to t
+$$
+
+就执行：
+
+```cpp
+graph[s].push_back(t);
+```
+
+完整建图：
+
+```cpp
+for (int i = 0; i < m; ++i) {
+    int s, t;
+    cin >> s >> t;
+    graph[s].push_back(t);
+}
+```
+
+此时枚举 `x` 的所有出边非常自然：
+
+```cpp
+for (int y : graph[x]) {
+    // x -> y
+}
+```
+
+邻接表的特点：
+
+- 存储空间：$O(n+m)$；
+- 枚举节点 `x` 的邻居：$O(\deg^+(x))$；
+- 对稀疏图通常明显优于邻接矩阵。
+
+<Callout title="本题推荐邻接表">
+
+题目的本质是不断“枚举当前节点所有出边”，因此邻接表与 DFS 的访问模式天然匹配。
+
+邻接矩阵仍然值得练，因为 ACM 题经常要求你自己完成建图，而不是像 LeetCode 一样直接提供 `graph`。
+
+</Callout>
+
+---
+
+## 5. DFS 状态应该怎样设计
+
+本题至少需要维护两类状态：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+其中：
+
+- `path`：当前递归分支上的路径；
+- `result`：已经找到的所有完整路径。
+
+初始时从节点 `1` 出发：
+
+```cpp
+path.push_back(1);
+dfs(1);
+```
+
+这里有一个很重要的状态语义：
+
+> 进入 `dfs(x)` 时，`path.back()` 应该就是 `x`。
+
+也就是说：
+
+```text
+dfs(1) 时：path = [1]
+dfs(3) 时：path = [1, 3]
+dfs(5) 时：path = [1, 3, 5]
+```
+
+这个不变量保持住之后，代码会非常稳定。
+
+---
+
+## 6. 深搜三部曲
+
+## 6.1 第一步：定义递归函数含义
+
+定义：
+
+> `dfs(x)`：当前已经走到节点 `x`，继续枚举所有从 `x` 到节点 `n` 的路径。
+
+如果使用邻接表：
+
+```cpp
+void dfs(int x, int n, const vector<vector<int>>& graph) {
+    // ...
+}
+```
+
+因为 `path` 和 `result` 可以作为全局变量，所以不一定要作为参数传递。
+
+---
+
+## 6.2 第二步：确定终止条件
+
+只要：
+
+```cpp
+x == n
+```
+
+就说明找到了一条完整路径。
+
+此时记录：
+
+```cpp
+if (x == n) {
+    result.push_back(path);
+    return;
+}
+```
+
+为什么这里可以直接 `return`？
+
+因为当前节点已经是目标节点 `n`，这条路径已经完成，不需要再继续向后扩展。
+
+---
+
+## 6.3 第三步：枚举下一步
+
+遍历 `x` 的所有出边：
+
+```cpp
+for (int y : graph[x]) {
+    path.push_back(y);
+    dfs(y, n, graph);
+    path.pop_back();
+}
+```
+
+三行分别表示：
+
+```text
+path.push_back(y)   做选择
+        ↓
+dfs(y)              深入当前选择
+        ↓
+path.pop_back()     撤销选择
+```
+
+这正是最经典的回溯结构。
+
+<Callout type="info" title="为什么一定要 pop_back">
+
+假设已经搜索完：
+
+```text
+1 → 3 → 5
+```
+
+此时 `path = [1, 3, 5]`。
+
+递归返回到节点 `3` 后，必须撤销 `5`：
+
+```text
+[1, 3, 5] → [1, 3]
+```
+
+再返回到节点 `1` 时，还要撤销 `3`：
+
+```text
+[1, 3] → [1]
+```
+
+这样才能继续尝试：
+
+```text
+1 → 2 → 4 → 5
+```
+
+否则上一条路径的节点会残留在下一条路径中。
+
+</Callout>
+
+---
+
+## 7. 手动模拟一次递归
+
+对于：
+
+```text
+1 → 3 → 5
+1 → 2 → 4 → 5
+```
+
+递归过程可以写成：
+
+```text
+path = [1]
+dfs(1)
+│
+├─ 选择 3
+│  path = [1, 3]
+│  dfs(3)
+│  │
+│  └─ 选择 5
+│     path = [1, 3, 5]
+│     dfs(5)
+│     → 记录 [1, 3, 5]
+│
+│  回溯：删除 5
+│  path = [1, 3]
+│
+回溯：删除 3
+path = [1]
+│
+└─ 选择 2
+   path = [1, 2]
+   dfs(2)
+   │
+   └─ 选择 4
+      path = [1, 2, 4]
+      dfs(4)
+      │
+      └─ 选择 5
+         path = [1, 2, 4, 5]
+         → 记录答案
+```
+
+可以看出：
+
+> DFS 控制“往哪里走”，`path` 记录“当前已经走了什么”，回溯负责“恢复到上一个岔路口”。
+
+---
+
+## 8. 推荐实现：邻接表
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<vector<int>> result;
+vector<int> path;
+
+void dfs(int x, int n, const vector<vector<int>>& graph) {
+    if (x == n) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int y : graph[x]) {
+        path.push_back(y);
+        dfs(y, n, graph);
+        path.pop_back();
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n + 1);
+
+    for (int i = 0; i < m; ++i) {
+        int s, t;
+        cin >> s >> t;
+        graph[s].push_back(t);
+    }
+
+    path.push_back(1);
+    dfs(1, n, graph);
+
+    if (result.empty()) {
+        cout << -1 << '\n';
+        return 0;
+    }
+
+    for (const auto& p : result) {
+        for (int i = 0; i < static_cast<int>(p.size()); ++i) {
+            if (i) cout << ' ';
+            cout << p[i];
+        }
+        cout << '\n';
+    }
+
+    return 0;
+}
+```
+
+### 输出为什么推荐这样写
+
+相比：
+
+```cpp
+for (int i = 0; i < p.size() - 1; ++i) {
+    cout << p[i] << ' ';
+}
+cout << p.back() << '\n';
+```
+
+下面这种形式更不容易出现下标问题：
+
+```cpp
+for (int i = 0; i < p.size(); ++i) {
+    if (i) cout << ' ';
+    cout << p[i];
+}
+```
+
+逻辑是：
+
+- 第一个元素前不输出空格；
+- 后续元素前输出一个空格。
+
+这是一种非常通用的 ACM 输出技巧。
+
+---
+
+## 9. 邻接矩阵版本
+
+如果需要练习邻接矩阵，可以写成：
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<vector<int>> result;
+vector<int> path;
+
+void dfs(int x, int n, const vector<vector<int>>& graph) {
+    if (x == n) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int y = 1; y <= n; ++y) {
+        if (graph[x][y] == 0) continue;
+
+        path.push_back(y);
+        dfs(y, n, graph);
+        path.pop_back();
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<vector<int>> graph(n + 1, vector<int>(n + 1, 0));
+
+    for (int i = 0; i < m; ++i) {
+        int s, t;
+        cin >> s >> t;
+        graph[s][t] = 1;
+    }
+
+    path.push_back(1);
+    dfs(1, n, graph);
+
+    if (result.empty()) {
+        cout << -1 << '\n';
+        return 0;
+    }
+
+    for (const auto& p : result) {
+        for (int i = 0; i < static_cast<int>(p.size()); ++i) {
+            if (i) cout << ' ';
+            cout << p[i];
+        }
+        cout << '\n';
+    }
+}
+```
+
+---
+
+## 10. 为什么本题不需要 visited
+
+这是本题最容易产生疑问的地方。
+
+### 原因 1：图是 DAG
+
+DAG 的全称是：
+
+> Directed Acyclic Graph，有向无环图。
+
+既然不存在有向环，就不可能出现：
+
+```text
+1 → 2 → 3 → 1 → 2 → 3 → ...
+```
+
+因此 DFS 一定会在有限步内到达出度为 $0$ 的节点或终点。
+
+### 原因 2：全局 visited 会破坏“所有路径”
+
+考虑：
+
+```text
+1 → 2 → 4 → 5
+ \      ↑
+  → 3 ──┘
+```
+
+如果 `4` 第一次被 `1 → 2 → 4` 访问后永久标记，那么：
+
+```text
+1 → 3 → 4 → 5
+```
+
+就会被错误跳过。
+
+所以：
+
+<Cards>
+  <Card title="DAG 枚举路径">
+    通常不需要 `visited`，直接 DFS + 回溯即可。
+  </Card>
+  <Card title="一般图枚举简单路径">
+    使用“当前路径状态” `onPath`，进入时标记、退出时撤销。
+  </Card>
+  <Card title="普通可达性遍历">
+    使用全局 `visited`，访问过以后通常永久保留。
+  </Card>
+</Cards>
+
+---
+
+## 11. 如果题目不是 DAG，应该怎么改
+
+假设要求在普通有向图中枚举从 `1` 到 `n` 的所有 **简单路径**，也就是一条路径中不能重复经过同一个节点。
+
+可以这样写：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+vector<bool> onPath;
+
+void dfs(int x, int n, const vector<vector<int>>& graph) {
+    if (x == n) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int y : graph[x]) {
+        if (onPath[y]) continue;
+
+        onPath[y] = true;
+        path.push_back(y);
+
+        dfs(y, n, graph);
+
+        path.pop_back();
+        onPath[y] = false;
+    }
+}
+```
+
+初始化：
+
+```cpp
+path.push_back(1);
+onPath[1] = true;
+dfs(1, n, graph);
+```
+
+这里的 `onPath` 与普通 `visited` 有本质区别：
+
+```text
+进入递归分支：true
+离开递归分支：false
+```
+
+它只阻止 **当前路径形成环**，不会阻止其他路径再次使用同一节点。
+
+---
+
+## 12. 复杂度分析：这类题不能只写 O(n+m)
+
+很多初学者会直接写：
+
+$$
+O(n+m)
+$$
+
+但这是普通图遍历“每个节点 / 每条边只处理常数次”时的复杂度。
+
+本题要求输出 **所有路径**，路径数量本身可能是指数级。
+
+设从 `1` 到 `n` 一共有 $P$ 条路径，第 $i$ 条路径长度为 $L_i$，仅仅把答案复制到 `result` 中，就至少需要：
+
+$$
+\Omega\left(\sum_{i=1}^{P}L_i\right)
+$$
+
+因此这是典型的 **输出敏感（output-sensitive）** 问题。
+
+在极端 DAG 中，路径数可能达到指数级，所以最坏时间复杂度也可能是指数级。
+
+### 空间复杂度
+
+如果只计算递归栈和当前路径：
+
+$$
+O(n)
+$$
+
+如果还保存全部答案，则需要额外：
+
+$$
+O\left(\sum_{i=1}^{P}L_i\right)
+$$
+
+邻接表本身空间：
+
+$$
+O(n+m)
+$$
+
+邻接矩阵本身空间：
+
+$$
+O(n^2)
+$$
+
+<Callout type="info" title="复杂度题的关键思维">
+
+当题目要求“输出所有组合 / 所有排列 / 所有路径”时，答案数量往往已经不是多项式级别。
+
+这时不要机械写“DFS 是 $O(V+E)$”，而要先问：**一个状态会不会因为不同路径被重复进入？最终要输出多少份答案？**
+
+</Callout>
+
+---
+
+## 13. 常见错误
+
+### 错误 1：忘记把起点加入 path
+
+错误：
+
+```cpp
+dfs(1, n, graph);
+```
+
+却没有：
+
+```cpp
+path.push_back(1);
+```
+
+这样得到的路径会缺少起点 `1`。
+
+---
+
+### 错误 2：递归后忘记回溯
+
+错误：
+
+```cpp
+path.push_back(y);
+dfs(y, n, graph);
+```
+
+正确：
+
+```cpp
+path.push_back(y);
+dfs(y, n, graph);
+path.pop_back();
+```
+
+否则不同分支的节点会混在一起。
+
+---
+
+### 错误 3：使用全局 visited
+
+```cpp
+if (visited[y]) continue;
+visited[y] = true;
+dfs(y);
+```
+
+如果不撤销，这种写法会把“节点去重”错误地当成“路径去重”，从而漏答案。
+
+---
+
+### 错误 4：把有向边建成双向边
+
+错误：
+
+```cpp
+graph[s].push_back(t);
+graph[t].push_back(s);
+```
+
+本题是有向图，只应该写：
+
+```cpp
+graph[s].push_back(t);
+```
+
+---
+
+### 错误 5：输出最后多一个空格
+
+推荐统一写：
+
+```cpp
+for (int i = 0; i < p.size(); ++i) {
+    if (i) cout << ' ';
+    cout << p[i];
+}
+cout << '\n';
+```
+
+---
+
+## 14. 从这道题提炼出的通用模板
+
+以后看到下面这些关键词：
+
+- 所有路径；
+- 所有方案；
+- 枚举从起点到终点；
+- 输出全部可行序列；
+
+就可以优先考虑：
+
+```cpp
+void dfs(当前状态) {
+    if (达到目标) {
+        记录当前路径;
+        return;
+    }
+
+    for (下一个选择 : 所有合法选择) {
+        做选择;
+        dfs(下一个状态);
+        撤销选择;
+    }
+}
+```
+
+图论版就是：
+
+```cpp
+void dfs(int x) {
+    if (x == target) {
+        result.push_back(path);
+        return;
+    }
+
+    for (int y : graph[x]) {
+        path.push_back(y);
+        dfs(y);
+        path.pop_back();
+    }
+}
+```
+
+### 一句话记忆
+
+> **当前节点决定“从哪里继续”，邻接表决定“能去哪里”，path 决定“已经怎么走过来”，回溯保证“不同分支互不污染”。**
+
+---
+
+## 15. 与 LeetCode 797 的对应关系
+
+这道题与 LeetCode 797「所有可能的路径」本质相同。
+
+区别主要在输入输出层面：
+
+| ACM 模式 | LeetCode 核心代码模式 |
+| --- | --- |
+| 自己读取 $n,m$ 和边 | `graph` 已经给好 |
+| 自己建邻接表 / 邻接矩阵 | 不需要建图 |
+| 自己控制输出格式 | 返回二维数组即可 |
+| 更接近笔试与真实程序 | 更聚焦算法核心 |
+
+因此这道题非常适合用来补齐从“会写 DFS”到“能完整解决 ACM 图论题”的最后一环。
+
+---
+
+## 16. 其他语言版本
+
+下面均使用 **邻接表 + DFS + 回溯**，逻辑与正文 C++ 推荐版本一致。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static List<List<Integer>> graph;
+    static List<Integer> path = new ArrayList<>();
+    static List<List<Integer>> result = new ArrayList<>();
+    static int n;
+
+    static void dfs(int x) {
+        if (x == n) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        for (int y : graph.get(x)) {
+            path.add(y);
+            dfs(y);
+            path.remove(path.size() - 1);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        int m = Integer.parseInt(st.nextToken());
+
+        graph = new ArrayList<>();
+        for (int i = 0; i <= n; ++i) {
+            graph.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < m; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(st.nextToken());
+            int t = Integer.parseInt(st.nextToken());
+            graph.get(s).add(t);
+        }
+
+        path.add(1);
+        dfs(1);
+
+        StringBuilder out = new StringBuilder();
+        if (result.isEmpty()) {
+            out.append(-1).append('\n');
+        } else {
+            for (List<Integer> p : result) {
+                for (int i = 0; i < p.size(); ++i) {
+                    if (i > 0) out.append(' ');
+                    out.append(p.get(i));
+                }
+                out.append('\n');
+            }
+        }
+
+        System.out.print(out);
+    }
+}
+```
+
+```python label="Python"
+import sys
+
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+graph = [[] for _ in range(n + 1)]
+
+for _ in range(m):
+    s, t = map(int, input().split())
+    graph[s].append(t)
+
+path = [1]
+result = []
+
+
+def dfs(x: int) -> None:
+    if x == n:
+        result.append(path.copy())
+        return
+
+    for y in graph[x]:
+        path.append(y)
+        dfs(y)
+        path.pop()
+
+
+dfs(1)
+
+if not result:
+    print(-1)
+else:
+    for p in result:
+        print(*p)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n      int
+    graph  [][]int
+    path   []int
+    result [][]int
+)
+
+func dfs(x int) {
+    if x == n {
+        p := append([]int(nil), path...)
+        result = append(result, p)
+        return
+    }
+
+    for _, y := range graph[x] {
+        path = append(path, y)
+        dfs(y)
+        path = path[:len(path)-1]
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var m int
+    fmt.Fscan(in, &n, &m)
+
+    graph = make([][]int, n+1)
+    for i := 0; i < m; i++ {
+        var s, t int
+        fmt.Fscan(in, &s, &t)
+        graph[s] = append(graph[s], t)
+    }
+
+    path = []int{1}
+    dfs(1)
+
+    if len(result) == 0 {
+        fmt.Fprintln(out, -1)
+        return
+    }
+
+    for _, p := range result {
+        for i, x := range p {
+            if i > 0 {
+                fmt.Fprint(out, " ")
+            }
+            fmt.Fprint(out, x)
+        }
+        fmt.Fprintln(out)
+    }
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const n = data[idx++];
+const m = data[idx++];
+
+const graph = Array.from({ length: n + 1 }, () => []);
+
+for (let i = 0; i < m; i++) {
+  const s = data[idx++];
+  const t = data[idx++];
+  graph[s].push(t);
+}
+
+const path = [1];
+const result = [];
+
+function dfs(x) {
+  if (x === n) {
+    result.push([...path]);
+    return;
+  }
+
+  for (const y of graph[x]) {
+    path.push(y);
+    dfs(y);
+    path.pop();
+  }
+}
+
+dfs(1);
+
+if (result.length === 0) {
+  console.log('-1');
+} else {
+  console.log(result.map(path => path.join(' ')).join('\n'));
+}
+```
+````

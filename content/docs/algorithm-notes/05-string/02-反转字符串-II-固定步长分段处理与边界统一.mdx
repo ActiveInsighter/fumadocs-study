@@ -1,0 +1,633 @@
+---
+title: 反转字符串 II：固定步长分段处理与边界统一
+description: 以 LeetCode 541 为主线，掌握每 2k 个字符处理一段的模拟思想、步长遍历、统一右边界写法，以及字符串分块题的通用模板。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 反转字符串 II：固定步长分段处理与边界统一
+
+> 对应题目：[LeetCode 541. 反转字符串 II](https://leetcode.cn/problems/reverse-string-ii/)
+
+给定字符串 `s` 和正整数 `k`。从字符串开头开始，每计数到 $2k$ 个字符，就反转这一段中的前 $k$ 个字符。
+
+若最后不足 $2k$ 个字符：
+
+- 剩余字符少于 $k$ 个：全部反转；
+- 剩余字符不少于 $k$ 个：只反转前 $k$ 个。
+
+例如：
+
+```text
+s = "abcdefg", k = 2
+```
+
+按长度 $2k=4$ 分组：
+
+```text
+abcd | efg
+```
+
+每组只反转前 $k=2$ 个：
+
+```text
+bacd | feg
+```
+
+因此答案是：
+
+```text
+"bacdfeg"
+```
+
+---
+
+## 1. 题目真正考察的不是“反转”，而是“分段处理”
+
+上一题已经掌握了任意区间反转。
+
+这道题新增的核心是：
+
+> 如何按照固定规律，把一个线性序列分成若干段，并只处理每段中的某个子区间。
+
+最直接的观察是：每一大段长度都是 $2k$，因此所有需要开始反转的位置依次为：
+
+$$
+0,\ 2k,\ 4k,\ 6k,\ldots
+$$
+
+所以循环根本不需要额外计数器：
+
+```cpp
+for (int start = 0; start < n; start += 2 * k) {
+    // 处理从 start 开始的这一段
+}
+```
+
+<Callout title="固定周期问题：优先把周期写进步长" type="success">
+如果题目要求“每隔固定长度处理一次”，不要先默认写逐字符遍历再额外计数。直接让循环变量按周期跳跃，通常更接近题意，也更不容易产生状态错误。
+</Callout>
+
+---
+
+## 2. 最关键的边界可以压缩成一个公式
+
+每一段开始位置是 `start`。
+
+理论上需要反转：
+
+```text
+[start, start + k - 1]
+```
+
+但最后一段可能不足 $k$ 个字符，因此真正的右端点应该是：
+
+$$
+\min(start+k-1,\ n-1)
+$$
+
+也就是：
+
+```cpp
+int end = min(start + k - 1, n - 1);
+```
+
+于是原题的三种文字分类：
+
+1. 剩余至少 $2k$ 个；
+2. 剩余在 $[k,2k)$；
+3. 剩余不足 $k$；
+
+实际上都可以统一为一句：
+
+> 从 `start` 开始，反转最多 $k$ 个字符，但不能越过字符串末尾。
+
+---
+
+## 3. 为什么这个统一公式一定正确
+
+设剩余字符数为：
+
+$$
+r=n-start
+$$
+
+### 情况一：$r\ge k$
+
+说明至少还存在 $k$ 个字符。
+
+此时：
+
+$$
+start+k-1\le n-1
+$$
+
+所以：
+
+$$
+end=start+k-1
+$$
+
+恰好反转前 $k$ 个字符。
+
+### 情况二：$r<k$
+
+说明剩余不足 $k$ 个字符。
+
+此时：
+
+$$
+start+k-1>n-1
+$$
+
+于是：
+
+$$
+end=n-1
+$$
+
+正好把剩余字符全部反转。
+
+因此 `min` 自动覆盖两种边界，无需再写复杂分支。
+
+---
+
+## 4. 用区间反转模板实现
+
+先准备上一题的闭区间反转函数：
+
+```cpp
+void reverseRange(string& s, int left, int right) {
+    while (left < right) {
+        swap(s[left], s[right]);
+        ++left;
+        --right;
+    }
+}
+```
+
+主逻辑只负责“找每段起点”和“确定右端点”：
+
+```cpp
+class Solution {
+public:
+    void reverseRange(string& s, int left, int right) {
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+
+    string reverseStr(string s, int k) {
+        int n = static_cast<int>(s.size());
+
+        for (int start = 0; start < n; start += 2 * k) {
+            int end = min(start + k - 1, n - 1);
+            reverseRange(s, start, end);
+        }
+
+        return s;
+    }
+};
+```
+
+这比把三种情况分别写成三套逻辑更稳定。
+
+---
+
+## 5. 手动模拟一次
+
+设：
+
+```text
+s = abcdefghijk
+k = 3
+```
+
+周期：
+
+$$
+2k=6
+$$
+
+### 第一段
+
+```text
+abcdef
+^^^
+```
+
+反转 `[0,2]`：
+
+```text
+cbadef
+```
+
+### 第二段
+
+剩余：
+
+```text
+ghijk
+^^^
+```
+
+虽然剩余不足 $2k=6$，但还有至少 $k=3$ 个字符，所以只反转前三个：
+
+```text
+ihgjk
+```
+
+最终：
+
+```text
+cbadefihgjk
+```
+
+---
+
+## 6. 用 `<algorithm>` 的 reverse 是否可以
+
+可以。
+
+本题的核心已经从“如何反转”迁移到：
+
+- 如何定位每个 $2k$ 块；
+- 如何处理最后不足一整块的边界。
+
+所以已经理解区间反转后，可以直接使用：
+
+```cpp
+reverse(s.begin() + start, s.begin() + endExclusive);
+```
+
+注意 C++ 标准库 `reverse(first, last)` 使用的是**左闭右开区间**：
+
+$$
+[first,last)
+$$
+
+因此可以写：
+
+```cpp
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int n = static_cast<int>(s.size());
+
+        for (int start = 0; start < n; start += 2 * k) {
+            int end = min(start + k, n);
+            reverse(s.begin() + start, s.begin() + end);
+        }
+
+        return s;
+    }
+};
+```
+
+这里的 `end` 是“不参与反转的第一个位置”，因此是：
+
+$$
+\min(start+k,n)
+$$
+
+而不是闭区间版本里的：
+
+$$
+\min(start+k-1,n-1)
+$$
+
+<Callout title="闭区间与半开区间不要混用" type="warning">
+手写双指针常用 `[left, right]`；C++ 迭代器算法通常使用 `[first, last)`。同一个 `end` 变量在两种写法中含义不同，必须明确。
+</Callout>
+
+---
+
+## 7. 时间复杂度为什么仍然是 $O(n)$
+
+表面上看：
+
+- 外层循环每次跳 $2k$；
+- 内层每次最多反转 $k$ 个字符。
+
+大约会处理：
+
+$$
+\left\lceil \frac{n}{2k} \right\rceil
+$$
+
+个分组。
+
+每组交换次数不超过：
+
+$$
+\frac{k}{2}
+$$
+
+所以总操作量约为：
+
+$$
+\frac{n}{2k}\cdot k=\frac n2
+$$
+
+因此：
+
+$$
+T(n)=O(n)
+$$
+
+如果语言中的字符串本身可原地修改，只需常数个变量：
+
+$$
+S(n)=O(1)
+$$
+
+如果语言字符串不可变，需要先转成字符数组，则实现层面可能产生：
+
+$$
+O(n)
+$$
+
+额外空间。
+
+---
+
+## 8. 为什么不需要显式判断“剩余是否小于 2k”
+
+很多初始写法会写成：
+
+```text
+if 剩余 >= 2k
+else if 剩余 >= k
+else
+```
+
+但实际上：
+
+- 是否存在下一段，由 `start += 2*k` 控制；
+- 当前段反转多长，由 `min(start+k, n)` 控制。
+
+于是“是否不足 $2k$”根本不是必要信息。
+
+这是一种非常重要的算法简化能力：
+
+> 不要照着题目文字逐句翻译成分支；先寻找能统一多个分支的数学边界。
+
+---
+
+## 9. 固定分块题的通用模板
+
+这类题可以抽象成：
+
+> 每长度为 $B$ 的块，处理前 $P$ 个元素。
+
+通用框架：
+
+```cpp
+for (int start = 0; start < n; start += B) {
+    int end = min(start + P, n);
+    process(start, end);
+}
+```
+
+本题中：
+
+$$
+B=2k,\qquad P=k
+$$
+
+因此：
+
+```cpp
+for (int start = 0; start < n; start += 2 * k) {
+    int end = min(start + k, n);
+    // 处理 [start, end)
+}
+```
+
+这个结构也可以迁移到：
+
+- 固定窗口压缩；
+- 分块编码；
+- 周期性修改数组；
+- 每组处理前若干元素；
+- 模拟题中的周期规则。
+
+---
+
+## 10. 常见错误
+
+<Cards>
+  <Card title="错误 1：start 每次只加 k">
+    题意是“每 2k 个字符反转前 k 个”，下一次开始位置必须跳过完整的 $2k$ 块。
+  </Card>
+  <Card title="错误 2：最后一段不足 k 时什么也不做">
+    题目要求不足 $k$ 时把剩余字符全部反转。
+  </Card>
+  <Card title="错误 3：end 越界">
+    `start + k` 可能超过 `n`，必须使用 `min` 或等价边界判断。
+  </Card>
+  <Card title="错误 4：把 [l,r] 和 [l,r) 混在一起">
+    手写反转和标准库反转常采用不同区间约定，最容易产生 off-by-one 错误。
+  </Card>
+</Cards>
+
+---
+
+## 11. 与反转字符串 I 的关系
+
+<Steps>
+  <Step>
+
+**第一层：学会原地反转区间**
+
+```text
+reverseRange(l, r)
+```
+
+  </Step>
+  <Step>
+
+**第二层：学会定位需要处理的区间**
+
+```text
+start = 0, 2k, 4k, ...
+```
+
+  </Step>
+  <Step>
+
+**第三层：统一尾部边界**
+
+```text
+end = min(start + k - 1, n - 1)
+```
+
+  </Step>
+  <Step>
+
+**第四层：抽象为固定步长分块模板**
+
+以后遇到周期性字符串或数组模拟题，可以直接复用。
+
+  </Step>
+</Steps>
+
+---
+
+## 12. 一页速记
+
+| 项目 | 结论 |
+| --- | --- |
+| 大块长度 | $2k$ |
+| 每块处理范围 | 前 $k$ 个字符 |
+| 起点序列 | $0,2k,4k,\ldots$ |
+| 闭区间右端点 | $\min(start+k-1,n-1)$ |
+| 半开区间右端点 | $\min(start+k,n)$ |
+| 时间复杂度 | $O(n)$ |
+| 核心迁移能力 | 固定步长分块 + 统一尾部边界 |
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int n = static_cast<int>(s.size());
+
+        for (int start = 0; start < n; start += 2 * k) {
+            int end = min(start + k, n);
+            reverse(s.begin() + start, s.begin() + end);
+        }
+
+        return s;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+class Solution {
+    public String reverseStr(String s, int k) {
+        char[] chars = s.toCharArray();
+
+        for (int start = 0; start < chars.length; start += 2 * k) {
+            int left = start;
+            int right = Math.min(start + k - 1, chars.length - 1);
+
+            while (left < right) {
+                char temp = chars[left];
+                chars[left] = chars[right];
+                chars[right] = temp;
+                left++;
+                right--;
+            }
+        }
+
+        return new String(chars);
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def reverseStr(self, s: str, k: int) -> str:
+        chars = list(s)
+
+        for start in range(0, len(chars), 2 * k):
+            left = start
+            right = min(start + k - 1, len(chars) - 1)
+
+            while left < right:
+                chars[left], chars[right] = chars[right], chars[left]
+                left += 1
+                right -= 1
+
+        return ''.join(chars)
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func reverseStr(s string, k int) string {
+    chars := []byte(s)
+
+    for start := 0; start < len(chars); start += 2 * k {
+        left := start
+        right := start + k - 1
+        if right >= len(chars) {
+            right = len(chars) - 1
+        }
+
+        for left < right {
+            chars[left], chars[right] = chars[right], chars[left]
+            left++
+            right--
+        }
+    }
+
+    return string(chars)
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var reverseStr = function(s, k) {
+    const chars = s.split('');
+
+    for (let start = 0; start < chars.length; start += 2 * k) {
+        let left = start;
+        let right = Math.min(start + k - 1, chars.length - 1);
+
+        while (left < right) {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+
+    return chars.join('');
+};
+```
+
+  </Tab>
+  <Tab value="TypeScript">
+
+```typescript
+function reverseStr(s: string, k: number): string {
+    const chars = s.split('');
+
+    for (let start = 0; start < chars.length; start += 2 * k) {
+        let left = start;
+        let right = Math.min(start + k - 1, chars.length - 1);
+
+        while (left < right) {
+            [chars[left], chars[right]] = [chars[right], chars[left]];
+            left++;
+            right--;
+        }
+    }
+
+    return chars.join('');
+}
+```
+
+  </Tab>
+</Tabs>

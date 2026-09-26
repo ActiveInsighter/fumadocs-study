@@ -1,0 +1,1001 @@
+---
+title: 有序数组的平方：从有序性发现相向双指针
+description: 以 LeetCode 977 为例，掌握“平方后局部失序”的结构特征，理解为什么最大平方一定来自数组两端，并用相向双指针把 O(n log n) 优化到 O(n)。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 有序数组的平方：从有序性发现相向双指针
+
+题目：LeetCode 977「有序数组的平方」。
+
+给定一个按**非递减顺序**排列的整数数组 `nums`，返回每个元素平方后仍按非递减顺序排列的新数组。
+
+例如：
+
+```text
+输入：[-4, -1, 0, 3, 10]
+平方：[16, 1, 0, 9, 100]
+排序：[0, 1, 9, 16, 100]
+```
+
+最终输出：
+
+```text
+[0, 1, 9, 16, 100]
+```
+
+---
+
+## 1. 为什么原数组有序，平方后却不一定有序
+
+函数：
+
+$$
+f(x)=x^2
+$$
+
+在整个实数范围上并不是单调递增函数。
+
+当：
+
+$$
+x<0
+$$
+
+时，随着 $x$ 增大并接近 $0$，$x^2$ 反而减小。
+
+例如：
+
+$$
+-5<-2
+$$
+
+但：
+
+$$
+(-5)^2=25>4=(-2)^2
+$$
+
+所以：
+
+```text
+[-5, -2, 0, 3]
+```
+
+平方后变成：
+
+```text
+[25, 4, 0, 9]
+```
+
+原本的有序性被破坏了。
+
+---
+
+## 2. 暴力思路：全部平方后重新排序
+
+最直接的做法：
+
+<Steps>
+<Step>
+
+将每个元素平方。
+
+</Step>
+<Step>
+
+对整个数组重新排序。
+
+</Step>
+</Steps>
+
+```cpp
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        for (int& x : nums) {
+            x *= x;
+        }
+
+        sort(nums.begin(), nums.end());
+        return nums;
+    }
+};
+```
+
+平方需要：
+
+$$
+O(n)
+$$
+
+排序需要：
+
+$$
+O(n\log n)
+$$
+
+总时间复杂度：
+
+$$
+O(n)+O(n\log n)=O(n\log n)
+$$
+
+如果排序算法需要额外辅助空间，其空间复杂度还取决于具体排序实现。
+
+---
+
+## 3. 真正关键的问题：平方后的最大值会在哪里
+
+虽然平方之后整体可能无序，但原数组仍然有一个非常强的结构：
+
+```text
+nums[0] <= nums[1] <= ... <= nums[n-1]
+```
+
+平方后大小只取决于绝对值：
+
+$$
+x^2=|x|^2
+$$
+
+因此问题等价于：
+
+> 当前还没处理的元素里，谁的绝对值最大？
+
+对于一个有序区间：
+
+```text
+nums[left ... right]
+```
+
+绝对值最大的元素一定来自：
+
+```text
+nums[left]
+```
+
+或：
+
+```text
+nums[right]
+```
+
+而不可能藏在中间。
+
+---
+
+## 4. 为什么最大绝对值一定在两端
+
+考虑任意：
+
+$$
+left < i < right
+$$
+
+因为数组有序：
+
+$$
+nums[left]\le nums[i]\le nums[right]
+$$
+
+有三种情况。
+
+### 情况一：区间全部非负
+
+如果：
+
+$$
+0\le nums[left]\le nums[i]\le nums[right]
+$$
+
+那么：
+
+$$
+|nums[i]|\le |nums[right]|
+$$
+
+最大值在右端。
+
+### 情况二：区间全部非正
+
+如果：
+
+$$
+nums[left]\le nums[i]\le nums[right]\le 0
+$$
+
+那么越靠左绝对值越大：
+
+$$
+|nums[i]|\le |nums[left]|
+$$
+
+最大值在左端。
+
+### 情况三：区间跨过零
+
+例如：
+
+```text
+[-7, -3, -1, 2, 4, 6]
+```
+
+越接近 $0$ 的数绝对值越小。
+
+因此绝对值最大的候选仍然只可能是区间两端。
+
+<Callout title="这就是双指针成立的结构依据" type="info">
+双指针不是因为“这题看起来像双指针”才使用，而是因为每一轮最大平方只可能来自当前区间的左端或右端。只要能在两个端点之间做决策，就有机会用相向双指针线性解决。
+</Callout>
+
+---
+
+## 5. 为什么应该从结果数组的末尾开始填
+
+当前区间中，我们很容易找到的是：
+
+> 最大平方值。
+
+但最终结果要求：
+
+```text
+从小到大
+```
+
+所以最自然的做法不是把最大值放到结果开头，而是：
+
+```text
+从结果数组最后一个位置向前填
+```
+
+定义：
+
+```text
+left  -> 原数组左端
+right -> 原数组右端
+k     -> 结果数组最后一个待填位置
+```
+
+每轮比较：
+
+```cpp
+nums[left] * nums[left]
+```
+
+与：
+
+```cpp
+nums[right] * nums[right]
+```
+
+较大的那个放入：
+
+```cpp
+result[k]
+```
+
+然后相应指针向中间移动。
+
+![有序数组平方：相向双指针](https://file1.kamacoder.com/i/algo/977.%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E5%B9%B3%E6%96%B9.gif)
+
+---
+
+## 6. 手动模拟
+
+设：
+
+```text
+nums = [-4, -1, 0, 3, 10]
+```
+
+初始：
+
+```text
+left  = 0   -> -4
+right = 4   -> 10
+k     = 4
+```
+
+### 第 1 轮
+
+```text
+(-4)^2 = 16
+10^2   = 100
+```
+
+因此：
+
+```text
+result[4] = 100
+right--
+```
+
+### 第 2 轮
+
+```text
+(-4)^2 = 16
+3^2    = 9
+```
+
+因此：
+
+```text
+result[3] = 16
+left++
+```
+
+### 第 3 轮
+
+```text
+(-1)^2 = 1
+3^2    = 9
+```
+
+因此：
+
+```text
+result[2] = 9
+right--
+```
+
+### 第 4 轮
+
+```text
+(-1)^2 = 1
+0^2    = 0
+```
+
+因此：
+
+```text
+result[1] = 1
+left++
+```
+
+### 第 5 轮
+
+只剩：
+
+```text
+0
+```
+
+填入：
+
+```text
+result[0] = 0
+```
+
+最终：
+
+```text
+[0, 1, 9, 16, 100]
+```
+
+---
+
+## 7. 标准双指针代码
+
+```cpp
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> result(n);
+
+        int left = 0;
+        int right = n - 1;
+        int k = n - 1;
+
+        while (left <= right) {
+            int leftSquare = nums[left] * nums[left];
+            int rightSquare = nums[right] * nums[right];
+
+            if (leftSquare > rightSquare) {
+                result[k] = leftSquare;
+                ++left;
+            } else {
+                result[k] = rightSquare;
+                --right;
+            }
+
+            --k;
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+## 8. 为什么循环条件必须是 `left <= right`
+
+这里维护的是闭区间：
+
+$$
+[left,right]
+$$
+
+当：
+
+```text
+left == right
+```
+
+区间中仍然还有一个没有处理的元素。
+
+因此它必须再参与一次循环。
+
+如果写成：
+
+```cpp
+while (left < right)
+```
+
+最后一个元素就会漏掉。
+
+这和二分查找里的“闭区间循环不变量”是同一种思维：
+
+> 先明确当前区间定义，再确定循环条件。
+
+---
+
+## 9. 正确性可以怎样理解
+
+每一轮都维护两个事实：
+
+### 不变量一
+
+尚未处理的原数组元素恰好位于：
+
+$$
+[left,right]
+$$
+
+### 不变量二
+
+结果数组：
+
+```text
+result[k+1 ... n-1]
+```
+
+已经放好了最终答案中最大的那一部分，并且位置完全正确。
+
+由于当前未处理区间的最大平方必定位于两端，所以每一轮都能正确确定：
+
+```text
+result[k]
+```
+
+然后问题规模减一。
+
+当：
+
+```text
+left > right
+```
+
+说明所有元素都已经处理完毕。
+
+---
+
+## 10. 时间复杂度为什么是 $O(n)$
+
+每次循环至少会执行：
+
+```text
+left++
+```
+
+或：
+
+```text
+right--
+```
+
+因此每个元素只会被处理一次。
+
+循环总次数恰好为 $n$ 级别：
+
+$$
+T(n)=O(n)
+$$
+
+结果数组需要保存 $n$ 个元素，所以额外空间复杂度为：
+
+$$
+S(n)=O(n)
+$$
+
+这里的 $O(n)$ 空间主要来自题目要求返回新的结果数组。
+
+---
+
+## 11. 为什么这里不能简单原地从后往前写
+
+有人可能会想到：
+
+> 既然结果也是长度 $n$，能不能直接把答案写回 `nums`？
+
+如果直接从尾部覆盖原数组，就可能破坏尚未读取的元素。
+
+例如：
+
+```text
+nums = [-4, -1, 0, 3, 10]
+```
+
+若先写：
+
+```text
+nums[4] = 100
+```
+
+原来的 `10` 已经处理完，没问题。
+
+但后续某些覆盖顺序稍有变化，就可能把仍需比较的端点数据覆盖掉。
+
+为了让算法逻辑清晰、安全，标准解法通常使用独立结果数组。
+
+<Callout title="不要为了追求“原地”牺牲算法清晰度" type="warning">
+本题本来就要求返回一个新数组，因此申请长度为 $n$ 的结果数组完全符合题意。空间复杂度是算法分析的一部分，并不是所有题都必须强行做到 $O(1)$。
+</Callout>
+
+---
+
+## 12. 一个更抽象的视角：两个单调序列的合并
+
+原数组可以大致分成：
+
+```text
+负数部分 | 非负数部分
+```
+
+例如：
+
+```text
+[-7, -3, -1 | 2, 4, 6]
+```
+
+平方后：
+
+```text
+[49, 9, 1 | 4, 16, 36]
+```
+
+负数部分平方后相当于**逆序**：
+
+```text
+1, 9, 49
+```
+
+非负部分平方后仍然正序：
+
+```text
+4, 16, 36
+```
+
+从另一个角度看，这道题其实也可以理解成：
+
+> 将两个有序序列进行归并。
+
+只不过相向双指针从“两端找最大值”会更直接，也无需额外寻找正负分界点。
+
+---
+
+## 13. 为什么比较绝对值也可以
+
+因为：
+
+$$
+a^2>b^2
+$$
+
+等价于：
+
+$$
+|a|>|b|
+$$
+
+因此代码也可以写成：
+
+```cpp
+if (abs(nums[left]) > abs(nums[right])) {
+    result[k--] = nums[left] * nums[left];
+    ++left;
+} else {
+    result[k--] = nums[right] * nums[right];
+    --right;
+}
+```
+
+但直接比较平方值通常更直观。
+
+---
+
+## 14. 一个常见但不必要的“技巧”
+
+有时会看到利用：
+
+```cpp
+nums[left] + nums[right]
+```
+
+来判断两端绝对值大小。
+
+例如当：
+
+```text
+nums[left] <= 0 <= nums[right]
+```
+
+时：
+
+$$
+|nums[left]|\ge |nums[right]|
+$$
+
+等价于：
+
+$$
+nums[left]+nums[right]\le 0
+$$
+
+这个变形虽然数学上成立，但可读性通常不如直接比较平方或绝对值。
+
+在算法题中应优先选择：
+
+> 正确、清晰、易证明、易维护的表达。
+
+而不是为了少一次乘法写出更晦涩的判断。
+
+---
+
+## 15. 整数溢出问题
+
+如果题目没有明确保证数据范围，需要注意：
+
+```cpp
+nums[i] * nums[i]
+```
+
+可能发生整型溢出。
+
+例如 32 位有符号整数最大值约为：
+
+$$
+2.147\times 10^9
+$$
+
+平方时，如果：
+
+$$
+|nums[i]|>\sqrt{2^{31}-1}\approx 46340
+$$
+
+就可能超过 `int` 范围。
+
+更稳妥的写法可以使用：
+
+```cpp
+long long x = nums[i];
+long long square = x * x;
+```
+
+不过 LeetCode 977 的输入范围足以让 `int` 平方安全，因此标准解法可以直接使用 `int`。
+
+---
+
+## 16. 常见错误
+
+### 错误一：从结果数组头部开始填最大值
+
+如果每次取最大平方，却写到：
+
+```cpp
+result[0], result[1], ...
+```
+
+最终会得到降序数组。
+
+正确方向应为：
+
+```text
+最大值 -> 从结果末尾向前放
+```
+
+---
+
+### 错误二：循环条件写成 `left < right`
+
+这样会漏掉 `left == right` 时的最后一个元素。
+
+正确：
+
+```cpp
+while (left <= right)
+```
+
+---
+
+### 错误三：只比较原值大小
+
+不能比较：
+
+```cpp
+nums[left] > nums[right]
+```
+
+因为真正需要比较的是平方值或绝对值。
+
+例如：
+
+```text
+-10 < 3
+```
+
+但：
+
+```text
+100 > 9
+```
+
+---
+
+### 错误四：认为排序后的运行时间一定比双指针“慢很多”
+
+从渐进复杂度看：
+
+$$
+O(n\log n) > O(n)
+$$
+
+但在线评测中的单次毫秒数还会受：
+
+- 编译器优化；
+- 测试数据；
+- 服务器负载；
+- 标准库实现；
+- 缓存行为；
+
+等因素影响。
+
+因此学习时应该优先比较**算法复杂度和结构**，不要把某次提交“击败多少用户”当作算法优劣的核心证据。
+
+---
+
+## 17. 这一题真正训练的能力
+
+### ① 不要轻易丢掉输入的有序性
+
+原数组虽然平方后不再整体有序，但“有序”仍然给出了非常强的信息：
+
+> 最大绝对值一定出现在两端。
+
+### ② 当答案的最大值只能来自两端时，考虑相向双指针
+
+典型结构：
+
+```text
+left ->          <- right
+```
+
+每轮从两端选一个更优者。
+
+### ③ 从答案的“确定方向”反向构造
+
+本题容易确定最大值，所以从结果末尾向前填。
+
+类似思想还会出现在：
+
+- 合并两个有序数组；
+- 双指针夹逼；
+- 回文串判断；
+- 盛最多水的容器；
+- 两数之和的有序数组版本。
+
+---
+
+## 18. 一眼识别模板
+
+当你看到：
+
+- 输入已经排序；
+- 两端元素具有特殊意义；
+- 每一步可以排除一端；
+
+就应该尝试：
+
+```text
+相向双指针
+```
+
+模板：
+
+```cpp
+int left = 0;
+int right = n - 1;
+
+while (left <= right) {
+    if (左端更优) {
+        // 使用左端
+        ++left;
+    } else {
+        // 使用右端
+        --right;
+    }
+}
+```
+
+具体题目中，“更优”可能代表：
+
+- 更大；
+- 更小；
+- 更接近目标；
+- 满足某个约束。
+
+---
+
+## 19. 其他语言版本
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int[] sortedSquares(int[] nums) {
+        int n = nums.length;
+        int[] result = new int[n];
+
+        int left = 0;
+        int right = n - 1;
+        int k = n - 1;
+
+        while (left <= right) {
+            int leftSquare = nums[left] * nums[left];
+            int rightSquare = nums[right] * nums[right];
+
+            if (leftSquare > rightSquare) {
+                result[k--] = leftSquare;
+                left++;
+            } else {
+                result[k--] = rightSquare;
+                right--;
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def sortedSquares(self, nums: list[int]) -> list[int]:
+        n = len(nums)
+        result = [0] * n
+
+        left, right = 0, n - 1
+        k = n - 1
+
+        while left <= right:
+            left_square = nums[left] * nums[left]
+            right_square = nums[right] * nums[right]
+
+            if left_square > right_square:
+                result[k] = left_square
+                left += 1
+            else:
+                result[k] = right_square
+                right -= 1
+
+            k -= 1
+
+        return result
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func sortedSquares(nums []int) []int {
+    n := len(nums)
+    result := make([]int, n)
+
+    left, right := 0, n-1
+    k := n - 1
+
+    for left <= right {
+        leftSquare := nums[left] * nums[left]
+        rightSquare := nums[right] * nums[right]
+
+        if leftSquare > rightSquare {
+            result[k] = leftSquare
+            left++
+        } else {
+            result[k] = rightSquare
+            right--
+        }
+
+        k--
+    }
+
+    return result
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn sorted_squares(nums: Vec<i32>) -> Vec<i32> {
+        let n = nums.len();
+        let mut result = vec![0; n];
+
+        let mut left = 0usize;
+        let mut right = n - 1;
+        let mut k = n;
+
+        while left <= right {
+            let left_square = nums[left] * nums[left];
+            let right_square = nums[right] * nums[right];
+            k -= 1;
+
+            if left_square > right_square {
+                result[k] = left_square;
+                left += 1;
+            } else {
+                result[k] = right_square;
+                if right == 0 {
+                    break;
+                }
+                right -= 1;
+            }
+        }
+
+        result
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var sortedSquares = function(nums) {
+    const n = nums.length;
+    const result = new Array(n).fill(0);
+
+    let left = 0;
+    let right = n - 1;
+    let k = n - 1;
+
+    while (left <= right) {
+        const leftSquare = nums[left] * nums[left];
+        const rightSquare = nums[right] * nums[right];
+
+        if (leftSquare > rightSquare) {
+            result[k--] = leftSquare;
+            left++;
+        } else {
+            result[k--] = rightSquare;
+            right--;
+        }
+    }
+
+    return result;
+};
+```
+
+</Tab>
+</Tabs>

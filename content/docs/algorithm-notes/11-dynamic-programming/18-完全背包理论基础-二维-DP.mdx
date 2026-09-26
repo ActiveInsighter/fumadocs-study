@@ -1,0 +1,899 @@
+---
+title: 完全背包理论基础：二维 DP
+description: 从二维状态出发推导完全背包，重点理解“选择当前物品后为什么仍停留在当前行”，并对比 01 背包的状态转移与遍历依赖。
+icon: PackageOpen
+---
+
+# 完全背包理论基础：二维 DP
+
+完全背包是背包问题体系中的第二个基础模型。
+
+它和 01 背包最大的区别只有一句话：
+
+> **01 背包中每件物品最多选择一次；完全背包中每种物品可以选择无限次。**
+
+但就是这个差异，会直接改变状态转移中“选择当前物品”时所依赖的位置。
+
+<Callout type="info" title="本篇先用二维 DP 讲原理">
+二维状态虽然空间更大，但最容易看清完全背包与 01 背包的本质区别。下一篇再把二维状态压缩成一维，并解释为什么完全背包容量要正序遍历。
+</Callout>
+
+## 1. 标准问题模型
+
+有 $N$ 种物品和一个容量为 $W$ 的背包。
+
+第 $i$ 种物品具有：
+
+- 重量 $weight[i]$；
+- 价值 $value[i]$；
+- 数量无限。
+
+目标是在总重量不超过 $W$ 的前提下，使总价值最大。
+
+本篇使用下面的数据作为贯穿示例：
+
+| 物品 | 重量 | 价值 |
+| --- | ---: | ---: |
+| 物品 0 | 1 | 15 |
+| 物品 1 | 3 | 20 |
+| 物品 2 | 4 | 30 |
+
+背包容量：
+
+$$
+W=4
+$$
+
+因为每种物品都可以无限选择，所以例如物品 0 可以装入 $1$ 次、$2$ 次、$3$ 次甚至 $4$ 次，只要不超过背包容量即可。
+
+## 2. 与 01 背包究竟差在哪里
+
+先回忆 01 背包。
+
+如果每件物品只能选一次，二维状态通常定义为：
+
+$$
+dp[i][j]=\text{只考虑 }0\sim i\text{ 号物品，容量为 }j\text{ 时的最大价值}
+$$
+
+对于当前物品 $i$：
+
+- 不选它：来自上一行 `dp[i-1][j]`；
+- 选它：剩余容量中不能再次选择物品 $i$，因此来自 `dp[i-1][j-weight[i]]`。
+
+所以 01 背包的二维转移为：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i-1][j-weight[i]]+value[i]
+\right)
+}
+$$
+
+而完全背包允许再次选择当前物品。
+
+因此，“选择当前物品”以后，剩余容量仍然可以继续考虑物品 $i$。
+
+这就是完全背包最核心的变化。
+
+## 3. 状态定义
+
+定义：
+
+$$
+\boxed{dp[i][j]=\text{只考虑 }0\sim i\text{ 号物品，每种可无限选，容量为 }j\text{ 时的最大价值}}
+$$
+
+最终答案为：
+
+$$
+\boxed{dp[N-1][W]}
+$$
+
+这个状态定义与二维 01 背包几乎完全一样，区别并不在状态，而在转移。
+
+## 4. 状态转移：关键就在“仍然是第 i 行”
+
+以：
+
+$$
+dp[1][4]
+$$
+
+为例。
+
+它表示：
+
+> 只考虑物品 0 和物品 1，在容量为 4 的背包中能够得到的最大价值。
+
+有两种决策。
+
+### 4.1 不选择物品 1
+
+如果不选择物品 1，那么只能使用物品 0。
+
+所以：
+
+$$
+\text{不选物品 1}=dp[0][4]
+$$
+
+状态依赖方向如下：
+
+![完全背包：不选择当前物品](https://file1.kamacoder.com/i/algo/20241126112952.png)
+
+### 4.2 选择物品 1
+
+物品 1 的重量为：
+
+$$
+weight[1]=3
+$$
+
+容量 $4$ 中放入一个物品 1 后，还剩：
+
+$$
+4-3=1
+$$
+
+关键问题来了：
+
+> 剩余容量 $1$ 中，还能不能继续使用物品 1？
+
+答案是：**可以。**
+
+因为完全背包中每种物品都可以无限次使用。
+
+因此剩余容量的最优状态不是：
+
+$$
+dp[0][1]
+$$
+
+而是：
+
+$$
+\boxed{dp[1][1]}
+$$
+
+也就是仍然停留在当前这一行。
+
+所以：
+
+$$
+\text{选择物品 1}=dp[1][1]+value[1]
+$$
+
+状态依赖方向如下：
+
+![完全背包：选择当前物品](https://file1.kamacoder.com/i/algo/20241126113104.png)
+
+最终：
+
+$$
+dp[1][4]
+=
+\max\left(dp[0][4],dp[1][1]+20\right)
+$$
+
+## 5. 推广到一般形式
+
+对于物品 $i$ 和容量 $j$：
+
+### 不选择物品 $i$
+
+$$
+dp[i-1][j]
+$$
+
+### 至少选择一个物品 $i$
+
+先放入一个物品 $i$，剩余容量为：
+
+$$
+j-weight[i]
+$$
+
+由于物品 $i$ 还可以继续使用，所以剩余容量仍然允许考虑 $0\sim i$ 号物品：
+
+$$
+dp[i][j-weight[i]]
+$$
+
+再加上当前这个物品的价值：
+
+$$
+dp[i][j-weight[i]]+value[i]
+$$
+
+于是：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i][j-weight[i]]+value[i]
+\right)
+}
+$$
+
+<Callout type="warning" title="完全背包与 01 背包只差一个 i，却代表完全不同的约束">
+01 背包选择当前物品后依赖 `dp[i-1][...]`，意味着当前物品不能再次出现；完全背包依赖 `dp[i][...]`，意味着当前物品仍然可以继续使用。这一个下标差异就是两类背包的核心。
+</Callout>
+
+## 6. 用一张表对比两种背包
+
+| 模型 | 当前物品最多使用次数 | 选择物品 $i$ 后依赖 | 二维转移 |
+| --- | ---: | --- | --- |
+| 01 背包 | $1$ | 上一行 | $dp[i-1][j-w_i]+v_i$ |
+| 完全背包 | 无限 | 当前行 | $dp[i][j-w_i]+v_i$ |
+
+因此可以用一句话记忆：
+
+$$
+\boxed{\text{能不能继续用当前物品，决定“选它”时回到上一行还是留在当前行}}
+$$
+
+## 7. 初始化
+
+初始化必须严格服从状态定义。
+
+### 7.1 容量为 0
+
+当：
+
+$$
+j=0
+$$
+
+背包无法放入任何正重量物品，因此：
+
+$$
+\boxed{dp[i][0]=0}
+$$
+
+### 7.2 第一行如何初始化
+
+`dp[0][j]` 表示：
+
+> 只允许使用物品 0，而且物品 0 可以使用无限次。
+
+如果：
+
+$$
+j<weight[0]
+$$
+
+一个物品 0 都放不进去，因此：
+
+$$
+dp[0][j]=0
+$$
+
+如果：
+
+$$
+j\ge weight[0]
+$$
+
+就可以继续在前一个容量状态的基础上再装一个物品 0：
+
+$$
+\boxed{dp[0][j]=dp[0][j-weight[0]]+value[0]}
+$$
+
+对应代码：
+
+```cpp
+vector<vector<int>> dp(
+    n,
+    vector<int>(bagWeight + 1, 0)
+);
+
+for (int j = weight[0]; j <= bagWeight; ++j) {
+    dp[0][j] = dp[0][j - weight[0]] + value[0];
+}
+```
+
+注意这里的容量必须正序增长，因为当前行的更大容量依赖当前行已经算好的更小容量。
+
+初始化效果如下：
+
+![完全背包初始化](https://file1.kamacoder.com/i/algo/20241114161608.png)
+
+## 8. 为什么第一行本质上是在不断重复物品 0
+
+假设：
+
+$$
+weight[0]=1,\quad value[0]=15
+$$
+
+那么：
+
+$$
+dp[0][1]=15
+$$
+
+$$
+dp[0][2]=dp[0][1]+15=30
+$$
+
+$$
+dp[0][3]=dp[0][2]+15=45
+$$
+
+$$
+dp[0][4]=dp[0][3]+15=60
+$$
+
+也就是：
+
+$$
+dp[0][j]
+=
+\left\lfloor\frac{j}{weight[0]}\right\rfloor value[0]
+$$
+
+这正体现了“物品 0 可以无限使用”。
+
+## 9. 遍历顺序为什么能正常工作
+
+采用下面的代码：
+
+```cpp
+for (int i = 1; i < n; ++i) {
+    for (int j = 0; j <= bagWeight; ++j) {
+        if (j < weight[i]) {
+            dp[i][j] = dp[i - 1][j];
+        } else {
+            dp[i][j] = max(
+                dp[i - 1][j],
+                dp[i][j - weight[i]] + value[i]
+            );
+        }
+    }
+}
+```
+
+观察依赖关系：
+
+$$
+dp[i][j]
+$$
+
+需要：
+
+$$
+dp[i-1][j]
+$$
+
+和：
+
+$$
+dp[i][j-weight[i]]
+$$
+
+前者位于上一行，早已计算完成；后者位于当前行左侧，因此要求当前行必须从小容量向大容量计算。
+
+也就是说：
+
+$$
+\boxed{j\text{ 必须正序}}
+$$
+
+这也是下一篇压缩成一维数组后，完全背包容量仍然正序遍历的根本原因。
+
+<Callout type="tip" title="不要死记“完全背包正序”">
+真正应该记住的是状态依赖：当前状态需要使用“当前物品已经更新过的较小容量状态”。既然依赖左边，就必须从左到右，也就是容量正序。
+</Callout>
+
+## 10. 完整状态表
+
+对于示例：
+
+| 物品 | 重量 | 价值 |
+| --- | ---: | ---: |
+| 物品 0 | 1 | 15 |
+| 物品 1 | 3 | 20 |
+| 物品 2 | 4 | 30 |
+
+背包容量：
+
+$$
+W=4
+$$
+
+最终二维 DP 状态如下：
+
+![完全背包二维 DP 表](https://file1.kamacoder.com/i/algo/20241126113752.png)
+
+由于物品 0 的单位重量价值最高：
+
+$$
+\frac{15}{1}=15
+$$
+
+因此在这个特定样例中，容量允许时不断选择物品 0 会得到最大价值：
+
+$$
+4\times15=60
+$$
+
+但要注意：
+
+> 完全背包不能普遍使用“单位价值最高就一直选”的贪心策略。
+
+某些重量组合下，局部单位价值最高的物品可能导致容量浪费，因此仍需要动态规划保证全局最优。
+
+## 11. 完整 C++ 实现
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int main() {
+    int n, bagWeight;
+    cin >> n >> bagWeight;
+
+    vector<int> weight(n);
+    vector<int> value(n);
+
+    for (int i = 0; i < n; ++i) {
+        cin >> weight[i] >> value[i];
+    }
+
+    vector<vector<int>> dp(
+        n,
+        vector<int>(bagWeight + 1, 0)
+    );
+
+    // 只允许使用物品 0，但它可以使用无限次。
+    for (int j = weight[0]; j <= bagWeight; ++j) {
+        dp[0][j] = dp[0][j - weight[0]] + value[0];
+    }
+
+    for (int i = 1; i < n; ++i) {
+        for (int j = 0; j <= bagWeight; ++j) {
+            if (j < weight[i]) {
+                dp[i][j] = dp[i - 1][j];
+            } else {
+                dp[i][j] = max(
+                    dp[i - 1][j],
+                    dp[i][j - weight[i]] + value[i]
+                );
+            }
+        }
+    }
+
+    cout << dp[n - 1][bagWeight] << '\n';
+    return 0;
+}
+```
+
+## 12. 更统一的理解：当前物品到底能不能再次出现
+
+很多背包问题都可以从这个问题出发：
+
+> 当我已经选择一次当前物品以后，剩余问题里还能不能继续出现当前物品？
+
+### 01 背包
+
+不能。
+
+所以剩余状态回到：
+
+$$
+i-1
+$$
+
+即：
+
+$$
+dp[i-1][j-weight[i]]
+$$
+
+### 完全背包
+
+能。
+
+所以剩余状态仍然留在：
+
+$$
+i
+$$
+
+即：
+
+$$
+dp[i][j-weight[i]]
+$$
+
+这一点比机械背诵公式更重要。
+
+## 13. 另一种直接枚举件数的转移
+
+完全背包还可以从更朴素的角度理解。
+
+对于第 $i$ 种物品，可以选：
+
+$$
+0,1,2,\dots,k
+$$
+
+件，其中：
+
+$$
+k\cdot weight[i]\le j
+$$
+
+因此理论上可以写：
+
+$$
+dp[i][j]
+=
+\max_{k\ge0}
+\left(
+  dp[i-1][j-k\cdot weight[i]]
+  +k\cdot value[i]
+\right)
+$$
+
+这个公式最直观地体现了“无限件”。
+
+但如果直接枚举 $k$，时间复杂度会更高。
+
+前面的优化转移：
+
+$$
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i][j-weight[i]]+value[i]
+\right)
+$$
+
+实际上利用动态规划，把“枚举选 1 件、2 件、3 件……”的过程递归地吸收进当前行，从而避免显式枚举数量。
+
+这是理解完全背包优化的一个非常重要的视角。
+
+## 14. 与 01 背包二维状态的并排对比
+
+### 01 背包
+
+$$
+\boxed{
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i-1][j-weight[i]]+value[i]
+\right)
+}
+$$
+
+依赖：
+
+```text
+上一行同列
+上一行左侧
+```
+
+### 完全背包
+
+$$
+\boxed{
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i][j-weight[i]]+value[i]
+\right)
+}
+$$
+
+依赖：
+
+```text
+上一行同列
+当前行左侧
+```
+
+这也直接决定了状态压缩后的遍历方向：
+
+| 模型 | 一维容量遍历 |
+| --- | --- |
+| 01 背包 | 从大到小 |
+| 完全背包 | 从小到大 |
+
+下一篇的一维完全背包，本质就是把这里的二维依赖压缩掉。
+
+## 15. 复杂度分析
+
+二维 DP 需要计算：
+
+$$
+N\times(W+1)
+$$
+
+个状态。
+
+每个状态只做常数次比较，所以时间复杂度为：
+
+$$
+\boxed{O(NW)}
+$$
+
+状态表大小同样为：
+
+$$
+\boxed{O(NW)}
+$$
+
+后续压缩成一维后，空间复杂度可以降为：
+
+$$
+O(W)
+$$
+
+而时间复杂度仍然保持：
+
+$$
+O(NW)
+$$
+
+## 16. 常见错误
+
+### 错误一：完全照搬 01 背包转移
+
+如果写成：
+
+$$
+dp[i-1][j-weight[i]]+value[i]
+$$
+
+就意味着当前物品最多只能被选一次，模型已经退化成 01 背包。
+
+### 错误二：当前行容量倒序
+
+二维状态中：
+
+$$
+dp[i][j]
+$$
+
+需要当前行左侧的：
+
+$$
+dp[i][j-weight[i]]
+$$
+
+如果倒序遍历，左侧状态尚未按“允许重复使用当前物品”的规则更新，就无法正确体现无限次选择。
+
+### 错误三：以为单位价值最高的物品一定最优
+
+样例中物品 0 恰好最优，不代表完全背包都能贪心。
+
+例如容量组合经常会导致：
+
+> 单位价值略低但重量更匹配的若干物品，反而产生更高总价值。
+
+因此一般问题仍应使用 DP。
+
+### 错误四：把“无限件”理解成必须选很多件
+
+“无限件”只表示上限不受物品数量限制，并不表示必须选择当前物品。
+
+所以转移中仍然要保留：
+
+$$
+dp[i-1][j]
+$$
+
+即“不选择当前物品”的分支。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int n = scanner.nextInt();
+        int bagWeight = scanner.nextInt();
+
+        int[] weight = new int[n];
+        int[] value = new int[n];
+
+        for (int i = 0; i < n; ++i) {
+            weight[i] = scanner.nextInt();
+            value[i] = scanner.nextInt();
+        }
+
+        int[][] dp = new int[n][bagWeight + 1];
+
+        for (int j = weight[0]; j <= bagWeight; ++j) {
+            dp[0][j] = dp[0][j - weight[0]] + value[0];
+        }
+
+        for (int i = 1; i < n; ++i) {
+            for (int j = 0; j <= bagWeight; ++j) {
+                if (j < weight[i]) {
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    dp[i][j] = Math.max(
+                        dp[i - 1][j],
+                        dp[i][j - weight[i]] + value[i]
+                    );
+                }
+            }
+        }
+
+        System.out.println(dp[n - 1][bagWeight]);
+        scanner.close();
+    }
+}
+```
+
+```python label="Python"
+def complete_knapsack(n: int, bag_weight: int,
+                      weight: list[int], value: list[int]) -> int:
+    dp = [[0] * (bag_weight + 1) for _ in range(n)]
+
+    for j in range(weight[0], bag_weight + 1):
+        dp[0][j] = dp[0][j - weight[0]] + value[0]
+
+    for i in range(1, n):
+        for j in range(bag_weight + 1):
+            if j < weight[i]:
+                dp[i][j] = dp[i - 1][j]
+            else:
+                dp[i][j] = max(
+                    dp[i - 1][j],
+                    dp[i][j - weight[i]] + value[i]
+                )
+
+    return dp[n - 1][bag_weight]
+
+
+n, bag_weight = map(int, input().split())
+weight = []
+value = []
+
+for _ in range(n):
+    w, v = map(int, input().split())
+    weight.append(w)
+    value.append(v)
+
+print(complete_knapsack(n, bag_weight, weight, value))
+```
+
+```go label="Go"
+package main
+
+import "fmt"
+
+func main() {
+    var n, bagWeight int
+    fmt.Scan(&n, &bagWeight)
+
+    weight := make([]int, n)
+    value := make([]int, n)
+
+    for i := 0; i < n; i++ {
+        fmt.Scan(&weight[i], &value[i])
+    }
+
+    dp := make([][]int, n)
+    for i := range dp {
+        dp[i] = make([]int, bagWeight+1)
+    }
+
+    for j := weight[0]; j <= bagWeight; j++ {
+        dp[0][j] = dp[0][j-weight[0]] + value[0]
+    }
+
+    for i := 1; i < n; i++ {
+        for j := 0; j <= bagWeight; j++ {
+            if j < weight[i] {
+                dp[i][j] = dp[i-1][j]
+            } else {
+                notTake := dp[i-1][j]
+                take := dp[i][j-weight[i]] + value[i]
+                if take > notTake {
+                    dp[i][j] = take
+                } else {
+                    dp[i][j] = notTake
+                }
+            }
+        }
+    }
+
+    fmt.Println(dp[n-1][bagWeight])
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = input[p++];
+const bagWeight = input[p++];
+
+const weight = new Array(n);
+const value = new Array(n);
+
+for (let i = 0; i < n; ++i) {
+    weight[i] = input[p++];
+    value[i] = input[p++];
+}
+
+const dp = Array.from(
+    { length: n },
+    () => new Array(bagWeight + 1).fill(0)
+);
+
+for (let j = weight[0]; j <= bagWeight; ++j) {
+    dp[0][j] = dp[0][j - weight[0]] + value[0];
+}
+
+for (let i = 1; i < n; ++i) {
+    for (let j = 0; j <= bagWeight; ++j) {
+        if (j < weight[i]) {
+            dp[i][j] = dp[i - 1][j];
+        } else {
+            dp[i][j] = Math.max(
+                dp[i - 1][j],
+                dp[i][j - weight[i]] + value[i]
+            );
+        }
+    }
+}
+
+console.log(dp[n - 1][bagWeight]);
+```
+````
+
+## 总结
+
+完全背包二维 DP 最重要的不是背下一条新公式，而是理解：
+
+> 选择当前物品后，剩余问题是否仍然允许继续使用当前物品？
+
+完全背包的答案是“允许”，因此：
+
+$$
+\boxed{dp[i][j-weight[i]]}
+$$
+
+仍然停留在当前行。
+
+最终转移为：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max\left(
+  dp[i-1][j],
+  dp[i][j-weight[i]]+value[i]
+\right)
+}
+$$
+
+这一行中的 `i` 正是整个完全背包模型的核心。
+
+理解它以后，下一步的一维压缩就会非常自然：既然当前状态依赖本行左侧已经更新过的状态，那么容量就应当从小到大遍历。

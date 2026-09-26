@@ -1,0 +1,636 @@
+---
+title: 买卖股票的最佳时机 IV
+sidebarTitle: 买卖股票的最佳时机 IV
+summary: 将“最多两笔交易”的四阶段状态机推广到最多 k 笔交易，统一推导 2k+1 个状态、初始化方式、时间空间复杂度，并给出 O(k) 空间优化与大 k 情况的理解。
+---
+
+# 188. 买卖股票的最佳时机 IV
+
+[LeetCode 188：买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
+
+给定每天的股票价格 `prices[i]`，最多可以完成 $k$ 笔交易。任意时刻最多只能持有一股股票，也就是说必须先卖出，才能再次买入。
+
+例如：
+
+```text
+k = 2
+prices = [3, 2, 6, 5, 0, 3]
+```
+
+一种最优方案是：
+
+- $2$ 买入，$6$ 卖出，利润 $4$；
+- $0$ 买入，$3$ 卖出，利润 $3$。
+
+最终最大利润：
+
+$$
+4+3=7
+$$
+
+<Callout type="info" title="本题不是一套新模型">
+它就是“买卖股票的最佳时机 III”从固定两笔交易推广到任意 $k$ 笔交易。真正要掌握的是：如何把重复的“买入 / 卖出”阶段批量编码成状态。
+</Callout>
+
+## 1. 从两笔交易推广到 k 笔交易
+
+在“最多两笔交易”中，我们定义：
+
+```text
+0：未操作
+1：第一次买入后持有
+2：第一次卖出后不持有
+3：第二次买入后持有
+4：第二次卖出后不持有
+```
+
+如果允许最多 $k$ 笔交易，只需要继续延伸：
+
+```text
+0：未操作
+1：第 1 次买入
+2：第 1 次卖出
+3：第 2 次买入
+4：第 2 次卖出
+...
+2k-1：第 k 次买入
+2k：第 k 次卖出
+```
+
+规律非常清楚：
+
+- 奇数状态：买入后的“持有”状态；
+- 偶数状态：卖出后的“不持有”状态。
+
+因此一共需要：
+
+$$
+2k+1
+$$
+
+个状态。
+
+## 2. 状态定义
+
+定义：
+
+$$
+dp[i][j]
+=
+\text{第 }i\text{ 天结束时处于状态 }j\text{ 的最大现金}
+$$
+
+其中：
+
+$$
+0\le j\le 2k
+$$
+
+<Callout type="warning" title="状态不等于“今天执行了这个动作”">
+例如 `dp[i][3]` 表示“第 $i$ 天结束时处于第二次买入后的持有状态”，并不代表一定在第 $i$ 天进行了第二次买入。它也可能是更早已经买入，今天只是继续持有。
+</Callout>
+
+## 3. 一组交易如何转移
+
+设第 $t$ 笔交易对应：
+
+- 买入状态：$2t-1$；
+- 卖出状态：$2t$。
+
+### 3.1 第 t 次买入
+
+到达第 $2t-1$ 个状态只有两种可能。
+
+**情况 A：昨天就已经处于该持有状态。**
+
+$$
+dp[i-1][2t-1]
+$$
+
+**情况 B：今天执行第 t 次买入。**
+
+买入之前必须处于上一阶段的卖出状态：
+
+$$
+dp[i-1][2t-2]
+$$
+
+买入股票后现金减少 `prices[i]`：
+
+$$
+dp[i-1][2t-2]-prices[i]
+$$
+
+所以：
+
+$$
+\boxed{
+dp[i][2t-1]
+=
+\max\left(
+ dp[i-1][2t-1],
+ dp[i-1][2t-2]-prices[i]
+\right)
+}
+$$
+
+### 3.2 第 t 次卖出
+
+同理：
+
+- 昨天已经卖出，今天不操作；
+- 昨天处于第 $t$ 次买入后的持有状态，今天卖出。
+
+所以：
+
+$$
+\boxed{
+dp[i][2t]
+=
+\max\left(
+ dp[i-1][2t],
+ dp[i-1][2t-1]+prices[i]
+\right)
+}
+$$
+
+## 4. 用统一循环写出所有转移
+
+如果令 `j` 指向每组交易之前的卖出状态：
+
+```text
+j = 0, 2, 4, ..., 2k-2
+```
+
+那么：
+
+```cpp
+for (int j = 0; j < 2 * k; j += 2) {
+    dp[i][j + 1] = max(dp[i - 1][j + 1],
+                       dp[i - 1][j] - prices[i]);
+
+    dp[i][j + 2] = max(dp[i - 1][j + 2],
+                       dp[i - 1][j + 1] + prices[i]);
+}
+```
+
+这里实际上就是重复执行：
+
+```text
+上一阶段卖出 → 本阶段买入 → 本阶段卖出
+```
+
+这正是状态机 DP 的核心。
+
+## 5. 初始化为什么所有买入状态都是 -prices[0]
+
+第 $0$ 天：
+
+$$
+dp[0][0]=0
+$$
+
+对于任意奇数状态：
+
+$$
+dp[0][1]=dp[0][3]=\cdots=dp[0][2k-1]=-prices[0]
+$$
+
+乍看之下，“第 0 天怎么可能已经进行到第 $k$ 次买入？”
+
+关键在于题目要求的是 **至多** $k$ 笔交易。
+
+可以把同一天的“买入再卖出”视为零利润交易，因此：
+
+```text
+第 1 次买入  → -prices[0]
+第 1 次卖出  → 0
+第 2 次买入  → -prices[0]
+第 2 次卖出  → 0
+...
+```
+
+这样初始化后，各状态在统一递推中都具有合法的基准值。
+
+```cpp
+for (int j = 1; j < 2 * k; j += 2) {
+    dp[0][j] = -prices[0];
+}
+```
+
+所有卖出状态保持 $0$ 即可。
+
+## 6. 示例推导
+
+以：
+
+```text
+k = 2
+prices = [1, 2, 3, 4, 5]
+```
+
+为例。
+
+原资料中的状态表如下：
+
+![买卖股票的最佳时机 IV 状态推导](https://file1.kamacoder.com/i/algo/20201229100358221.png)
+
+状态为：
+
+```text
+0  未操作
+1  第一次买入
+2  第一次卖出
+3  第二次买入
+4  第二次卖出
+```
+
+最后一天的最大利润出现在最后一个卖出状态：
+
+$$
+dp[n-1][2k]
+$$
+
+对于这个例子答案为：
+
+$$
+5-1=4
+$$
+
+虽然最多允许两笔交易，但并不强迫一定交易两次。
+
+## 7. 为什么答案可以取 dp[n-1][2k]
+
+题目是“至多 $k$ 笔交易”，看起来最优解可能只完成 $1$ 笔、$2$ 笔，甚至 $0$ 笔交易。
+
+但按照上述初始化方式，后面的卖出状态允许通过零利润的虚拟交易继承前面的最优利润，因此：
+
+$$
+dp[n-1][2k]
+$$
+
+不会小于此前任何一个卖出状态。
+
+所以可以直接返回：
+
+```cpp
+return dp[n - 1][2 * k];
+```
+
+## 8. 二维 DP 实现
+
+```cpp
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0 || k == 0) return 0;
+
+        vector<vector<int>> dp(n, vector<int>(2 * k + 1, 0));
+
+        for (int j = 1; j < 2 * k; j += 2) {
+            dp[0][j] = -prices[0];
+        }
+
+        for (int i = 1; i < n; ++i) {
+            for (int j = 0; j < 2 * k; j += 2) {
+                dp[i][j + 1] = max(
+                    dp[i - 1][j + 1],
+                    dp[i - 1][j] - prices[i]
+                );
+
+                dp[i][j + 2] = max(
+                    dp[i - 1][j + 2],
+                    dp[i - 1][j + 1] + prices[i]
+                );
+            }
+        }
+
+        return dp[n - 1][2 * k];
+    }
+};
+```
+
+复杂度：
+
+$$
+T(n)=O(nk)
+$$
+
+$$
+S(n)=O(nk)
+$$
+
+## 9. 空间压缩到 O(k)
+
+因为第 $i$ 天只依赖第 $i-1$ 天，所以可以只保存一行状态：
+
+$$
+dp[j]
+=
+\text{当前处理到这一天时，状态 }j\text{ 的最大现金}
+$$
+
+初始化：
+
+```cpp
+vector<int> dp(2 * k + 1, 0);
+for (int j = 1; j < 2 * k; j += 2) {
+    dp[j] = -prices[0];
+}
+```
+
+然后逐日更新。
+
+```cpp
+class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        if (prices.empty() || k == 0) return 0;
+
+        vector<int> dp(2 * k + 1, 0);
+        for (int j = 1; j < 2 * k; j += 2) {
+            dp[j] = -prices[0];
+        }
+
+        for (int i = 1; i < prices.size(); ++i) {
+            for (int j = 1; j <= 2 * k; ++j) {
+                if (j % 2 == 1) {
+                    dp[j] = max(dp[j], dp[j - 1] - prices[i]);
+                } else {
+                    dp[j] = max(dp[j], dp[j - 1] + prices[i]);
+                }
+            }
+        }
+
+        return dp[2 * k];
+    }
+};
+```
+
+空间复杂度变为：
+
+$$
+S(n)=O(k)
+$$
+
+<Callout type="warning" title="一维原地更新为什么仍然可行？">
+从左到右更新时，`dp[j]` 可能使用已经更新过的 `dp[j-1]`。这相当于允许“同一天卖出后立刻进入下一阶段买入”或“同一天买入后卖出”，这些零时间交易不会创造额外利润，因此不会改变最优值。若希望状态含义最严格，可以复制上一天数组后再更新。
+</Callout>
+
+## 10. 当 k 很大时发生了什么
+
+一笔完整交易至少需要一次买入和一次卖出。
+
+在 $n$ 天中，有意义的交易次数最多不会超过：
+
+$$
+\left\lfloor\frac{n}{2}\right\rfloor
+$$
+
+因此当：
+
+$$
+k\ge \frac{n}{2}
+$$
+
+交易次数限制已经失效，本题退化为“可以买卖任意多次”的股票问题。
+
+此时可以直接累加所有正向差值：
+
+$$
+\sum_{i=1}^{n-1}\max(0,prices[i]-prices[i-1])
+$$
+
+这可以把极大 $k$ 时的复杂度从 $O(nk)$ 降到 $O(n)$。
+
+```cpp
+if (k >= prices.size() / 2) {
+    int ans = 0;
+    for (int i = 1; i < prices.size(); ++i) {
+        ans += max(0, prices[i] - prices[i - 1]);
+    }
+    return ans;
+}
+```
+
+## 11. 股票问题的统一状态模板
+
+到目前为止，可以把股票题统一理解为：
+
+```text
+交易规则
+   ↓
+确定必须区分哪些状态
+   ↓
+每天在状态之间转移
+   ↓
+求最终合法不持股状态的最大现金
+```
+
+本题增加的限制只有：
+
+```text
+交易次数 ≤ k
+```
+
+因此只需要给状态增加“第几次交易”的维度。
+
+<Tabs items={["121 一笔", "122 无限笔", "123 两笔", "188 k 笔"]}>
+<Tab value="121 一笔">
+
+```text
+状态数：2
+持有 / 不持有
+```
+
+</Tab>
+<Tab value="122 无限笔">
+
+```text
+状态数：2
+持有 / 不持有
+买入可以继承前一次卖出的利润
+```
+
+</Tab>
+<Tab value="123 两笔">
+
+```text
+状态数：5
+0 + 两组 买入/卖出
+```
+
+</Tab>
+<Tab value="188 k 笔">
+
+```text
+状态数：2k + 1
+0 + k 组 买入/卖出
+```
+
+</Tab>
+</Tabs>
+
+## 12. 常见错误
+
+<Cards>
+<Card title="把状态理解成今天必须发生动作">
+`dp[i][j]` 表示“第 i 天结束时处于状态 j”，状态可以从昨天直接继承。
+</Card>
+<Card title="第二次以后买入时直接写 -prices[i]">
+第 $t$ 次买入前已经允许获得前 $t-1$ 笔交易的利润，所以必须从前一个卖出状态转移。
+</Card>
+<Card title="状态数量少写一个">
+除了 $k$ 组买卖状态，还需要状态 0，因此总数是 $2k+1$。
+</Card>
+<Card title="把交易次数当成买卖动作次数">
+一笔交易包含一次买入和一次卖出，所以 $k$ 笔交易对应 $2k$ 个动作阶段。
+</Card>
+</Cards>
+
+## 13. 最终记忆模板
+
+对于“最多 $k$ 笔交易”：
+
+$$
+\boxed{
+\text{状态编号：}
+0,1,2,\ldots,2k
+}
+$$
+
+奇数买入：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max(dp[i-1][j],dp[i-1][j-1]-prices[i])
+}
+$$
+
+偶数卖出：
+
+$$
+\boxed{
+dp[i][j]
+=
+\max(dp[i-1][j],dp[i-1][j-1]+prices[i])
+}
+$$
+
+复杂度：
+
+$$
+\boxed{O(nk)}
+$$
+
+这就是“有限交易次数股票 DP”的通用模型。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int maxProfit(int k, int[] prices) {
+        if (prices.length == 0 || k == 0) return 0;
+
+        int n = prices.length;
+        int[][] dp = new int[n][2 * k + 1];
+
+        for (int j = 1; j < 2 * k; j += 2) {
+            dp[0][j] = -prices[0];
+        }
+
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < 2 * k; j += 2) {
+                dp[i][j + 1] = Math.max(
+                    dp[i - 1][j + 1],
+                    dp[i - 1][j] - prices[i]
+                );
+                dp[i][j + 2] = Math.max(
+                    dp[i - 1][j + 2],
+                    dp[i - 1][j + 1] + prices[i]
+                );
+            }
+        }
+
+        return dp[n - 1][2 * k];
+    }
+}
+```
+
+```python label="Python"
+from typing import List
+
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        if not prices or k == 0:
+            return 0
+
+        dp = [0] * (2 * k + 1)
+        for j in range(1, 2 * k, 2):
+            dp[j] = -prices[0]
+
+        for price in prices[1:]:
+            prev = dp[:]
+            for j in range(1, 2 * k + 1):
+                if j % 2 == 1:
+                    dp[j] = max(prev[j], prev[j - 1] - price)
+                else:
+                    dp[j] = max(prev[j], prev[j - 1] + price)
+
+        return dp[2 * k]
+```
+
+```javascript label="JavaScript"
+var maxProfit = function(k, prices) {
+    if (prices.length === 0 || k === 0) return 0;
+
+    const dp = new Array(2 * k + 1).fill(0);
+    for (let j = 1; j < 2 * k; j += 2) {
+        dp[j] = -prices[0];
+    }
+
+    for (let i = 1; i < prices.length; i++) {
+        const prev = dp.slice();
+        for (let j = 1; j <= 2 * k; j++) {
+            if (j % 2 === 1) {
+                dp[j] = Math.max(prev[j], prev[j - 1] - prices[i]);
+            } else {
+                dp[j] = Math.max(prev[j], prev[j - 1] + prices[i]);
+            }
+        }
+    }
+
+    return dp[2 * k];
+};
+```
+
+```go label="Go"
+func maxProfit(k int, prices []int) int {
+    if len(prices) == 0 || k == 0 {
+        return 0
+    }
+
+    dp := make([]int, 2*k+1)
+    for j := 1; j < 2*k; j += 2 {
+        dp[j] = -prices[0]
+    }
+
+    for i := 1; i < len(prices); i++ {
+        prev := append([]int(nil), dp...)
+        for j := 1; j <= 2*k; j++ {
+            if j%2 == 1 {
+                dp[j] = max(prev[j], prev[j-1]-prices[i])
+            } else {
+                dp[j] = max(prev[j], prev[j-1]+prices[i])
+            }
+        }
+    }
+
+    return dp[2*k]
+}
+```
+````

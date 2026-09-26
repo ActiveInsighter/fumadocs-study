@@ -1,0 +1,760 @@
+---
+title: 最长递增子序列的个数
+description: 在经典 LIS 动态规划基础上同时维护“最长长度”和“达到该长度的方案数”，系统掌握计数型动态规划的覆盖与累加规则。
+---
+
+# 673. 最长递增子序列的个数
+
+[LeetCode 673：最长递增子序列的个数](https://leetcode.cn/problems/number-of-longest-increasing-subsequence/)
+
+给定一个整数数组 `nums`，要求返回其中 **最长严格递增子序列的个数**。
+
+例如：
+
+```text
+输入：nums = [1,3,5,4,7]
+输出：2
+```
+
+两条最长递增子序列分别为：
+
+```text
+[1,3,5,7]
+[1,3,4,7]
+```
+
+再看一个容易暴露“计数”本质的例子：
+
+```text
+输入：nums = [2,2,2,2,2]
+输出：5
+```
+
+因为严格递增要求后一个数必须更大，所以最长长度只有 $1$；但数组中的每一个 `2` 都可以单独构成一个长度为 $1$ 的最长递增子序列，因此共有 $5$ 个。
+
+> [!NOTE]
+> 本题不是让我们求最长递增子序列本身，也不只是求最长长度，而是进一步统计：**有多少条不同的下标序列能够达到最长长度。**
+
+## 一、从普通 LIS 到“计数型 LIS”
+
+经典的最长递增子序列问题通常定义：
+
+$$
+len[i]
+$$
+
+表示：
+
+> 以 `nums[i]` 结尾的最长严格递增子序列长度。
+
+如果：
+
+$$
+nums[j] < nums[i],\qquad j<i
+$$
+
+那么 `nums[i]` 可以接在任何以 `nums[j]` 结尾的递增子序列后面，于是有候选长度：
+
+$$
+len[j]+1
+$$
+
+经典 LIS 只需要：
+
+$$
+len[i]=\max(len[i],len[j]+1)
+$$
+
+但本题还要知道：
+
+> 这个最长长度一共有多少种实现方式？
+
+于是需要再维护一个数组。
+
+## 二、两个状态必须成对理解
+
+定义：
+
+$$
+len[i]
+$$
+
+表示以 `nums[i]` 结尾的最长递增子序列长度。
+
+定义：
+
+$$
+cnt[i]
+$$
+
+表示以 `nums[i]` 结尾、且长度恰好等于 `len[i]` 的递增子序列个数。
+
+这两个状态的关系可以概括成：
+
+```text
+len[i]：最优值是多少？
+cnt[i]：达到这个最优值有多少种方法？
+```
+
+这是一类非常典型的 **“最优值 + 最优方案数”动态规划**。
+
+> [!IMPORTANT]
+> `cnt[i]` 不是“所有以 i 结尾的递增子序列数量”，而只统计其中长度达到 `len[i]` 的那些最优方案。
+
+## 三、初始化为什么都是 1
+
+任何单独一个元素都可以构成长度为 $1$ 的递增子序列。
+
+因此：
+
+$$
+len[i]=1
+$$
+
+同时，这个长度为 $1$ 的序列至少有一种：
+
+```text
+[nums[i]]
+```
+
+所以：
+
+$$
+cnt[i]=1
+$$
+
+初始化为：
+
+```cpp
+vector<int> len(n, 1);
+vector<int> cnt(n, 1);
+```
+
+## 四、状态转移的核心：覆盖还是累加
+
+枚举：
+
+```text
+j < i
+```
+
+若：
+
+$$
+nums[j] < nums[i]
+$$
+
+则可以把 `nums[i]` 接到以 `nums[j]` 结尾的递增子序列后面。
+
+候选长度为：
+
+$$
+len[j]+1
+$$
+
+此时有两种完全不同的情况。
+
+### 情况 1：发现了更长的方案
+
+若：
+
+$$
+len[j]+1>len[i]
+$$
+
+说明此前记录的 `len[i]` 已经过时，现在找到了一种更长的递增子序列。
+
+于是必须更新：
+
+$$
+len[i]=len[j]+1
+$$
+
+同时，旧的 `cnt[i]` 统计的是“旧长度”的方案，已经不能继续保留。
+
+新的最长方案全部来自 `j`，因此：
+
+$$
+cnt[i]=cnt[j]
+$$
+
+对应代码：
+
+```cpp
+if (len[j] + 1 > len[i]) {
+    len[i] = len[j] + 1;
+    cnt[i] = cnt[j];
+}
+```
+
+这里最重要的动作是：
+
+> **覆盖，而不是累加。**
+
+因为我们发现了更优长度，旧长度对应的方案已经不是“最长方案”。
+
+### 情况 2：发现了另一批同样长的方案
+
+若：
+
+$$
+len[j]+1=len[i]
+$$
+
+说明通过 `j` 也能够构造出与当前最优值一样长的递增子序列。
+
+这些是新的合法最长方案，因此需要累加：
+
+$$
+cnt[i]+=cnt[j]
+$$
+
+对应：
+
+```cpp
+else if (len[j] + 1 == len[i]) {
+    cnt[i] += cnt[j];
+}
+```
+
+于是完整转移为：
+
+```cpp
+if (nums[j] < nums[i]) {
+    if (len[j] + 1 > len[i]) {
+        len[i] = len[j] + 1;
+        cnt[i] = cnt[j];
+    } else if (len[j] + 1 == len[i]) {
+        cnt[i] += cnt[j];
+    }
+}
+```
+
+## 五、为什么“更长时覆盖，相等时累加”
+
+这是本题最值得迁移到其他题目的思想。
+
+设当前 `len[i] = 3`，`cnt[i] = 4`，表示：
+
+```text
+以 i 结尾的最长长度是 3，共有 4 种。
+```
+
+现在遇到某个 `j`，得到候选长度 $4$。
+
+那么原来的 $4$ 种长度为 $3$ 的方案都不再是最长方案，所以必须丢弃：
+
+```text
+len[i] = 4
+cnt[i] = cnt[j]
+```
+
+如果后来又遇到另一个 `j`，同样能产生长度 $4$，那么两批方案都属于最长方案，应当合并：
+
+```text
+cnt[i] += cnt[j]
+```
+
+可以记成一个通用模板：
+
+```text
+候选值 > 当前最优：更新最优值，方案数覆盖
+候选值 = 当前最优：最优值不变，方案数累加
+候选值 < 当前最优：忽略
+```
+
+> [!TIP]
+> 这个模式不仅用于 LIS，也经常出现在最短路计数、最长路径计数、最优方案数量、树形 DP 方案统计等问题中。
+
+## 六、手推示例 `[1,3,5,4,7]`
+
+初始化：
+
+```text
+nums = [1, 3, 5, 4, 7]
+len  = [1, 1, 1, 1, 1]
+cnt  = [1, 1, 1, 1, 1]
+```
+
+### 处理 `3`
+
+`1 < 3`：
+
+$$
+len[1]=len[0]+1=2
+$$
+
+于是：
+
+```text
+len = [1,2,1,1,1]
+cnt = [1,1,1,1,1]
+```
+
+### 处理 `5`
+
+可以从：
+
+```text
+1 -> 5
+3 -> 5
+```
+
+其中通过 `3` 能得到更长的长度 $3$：
+
+```text
+len = [1,2,3,1,1]
+cnt = [1,1,1,1,1]
+```
+
+### 处理 `4`
+
+同样可以形成：
+
+```text
+1 -> 3 -> 4
+```
+
+所以：
+
+```text
+len = [1,2,3,3,1]
+cnt = [1,1,1,1,1]
+```
+
+### 处理 `7`
+
+从 `5` 可以得到：
+
+```text
+1 -> 3 -> 5 -> 7
+```
+
+长度 $4$，于是：
+
+```text
+len[4] = 4
+cnt[4] = 1
+```
+
+随后从 `4` 也能得到长度 $4$：
+
+```text
+1 -> 3 -> 4 -> 7
+```
+
+因为候选长度与当前 `len[4]` 相等，所以累加：
+
+```text
+cnt[4] = 2
+```
+
+最终：
+
+```text
+len = [1,2,3,3,4]
+cnt = [1,1,1,1,2]
+```
+
+因此答案为 $2$。
+
+原资料给出的 DP 推导示意图如下：
+
+![最长递增子序列个数的 DP 推导](https://file1.kamacoder.com/i/algo/20230310000656.png)
+
+## 七、为什么最终不能只返回某一个 `cnt[i]`
+
+最长递增子序列不一定全部以同一个位置结尾。
+
+例如某些数组中，可能存在多个位置都满足：
+
+$$
+len[i]=L
+$$
+
+其中：
+
+$$
+L=\max_i len[i]
+$$
+
+因此最终答案应为：
+
+$$
+\sum_{i:len[i]=L} cnt[i]
+$$
+
+也就是说：
+
+1. 先求全局最长长度 `maxLen`；
+2. 再把所有 `len[i] == maxLen` 的 `cnt[i]` 加起来。
+
+## 八、标准实现
+
+```cpp
+class Solution {
+public:
+    int findNumberOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) return 0;
+
+        vector<int> len(n, 1);
+        vector<int> cnt(n, 1);
+
+        int maxLen = 1;
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (nums[j] >= nums[i]) continue;
+
+                if (len[j] + 1 > len[i]) {
+                    len[i] = len[j] + 1;
+                    cnt[i] = cnt[j];
+                } else if (len[j] + 1 == len[i]) {
+                    cnt[i] += cnt[j];
+                }
+            }
+            maxLen = max(maxLen, len[i]);
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; ++i) {
+            if (len[i] == maxLen) {
+                answer += cnt[i];
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+## 九、复杂度分析
+
+外层枚举终点 `i`，内层枚举所有前驱 `j`：
+
+$$
+\sum_{i=0}^{n-1}O(i)=O(n^2)
+$$
+
+因此：
+
+- 时间复杂度：$O(n^2)$；
+- 空间复杂度：$O(n)$。
+
+对于 LeetCode 本题的数据规模，这个解法足够稳定，也是最适合掌握状态含义的标准解法。
+
+## 十、几个高频易错点
+
+### 1. 必须是严格递增
+
+条件应当写成：
+
+```cpp
+nums[j] < nums[i]
+```
+
+而不是：
+
+```cpp
+nums[j] <= nums[i]
+```
+
+因此数组：
+
+```text
+[2,2,2,2,2]
+```
+
+不存在长度大于 $1$ 的递增子序列。
+
+### 2. 更优时必须覆盖 `cnt[i]`
+
+错误写法：
+
+```cpp
+if (len[j] + 1 > len[i]) {
+    len[i] = len[j] + 1;
+    cnt[i] += cnt[j]; // 错
+}
+```
+
+因为旧的 `cnt[i]` 对应的是更短长度，已经失效。
+
+正确逻辑：
+
+```cpp
+cnt[i] = cnt[j];
+```
+
+### 3. 相等时不能覆盖
+
+若：
+
+$$
+len[j]+1=len[i]
+$$
+
+说明只是又找到了一批同长度方案，应当：
+
+```cpp
+cnt[i] += cnt[j];
+```
+
+### 4. 不要把“值相同”误认为“同一个子序列”
+
+子序列由下标选择决定。
+
+例如：
+
+```text
+[2,2,2]
+```
+
+虽然值都一样，但三个不同下标分别形成三条长度为 $1$ 的子序列，所以答案是 $3$。
+
+## 十一、与普通 LIS 的关系
+
+经典 LIS 只维护：
+
+$$
+len[i]
+$$
+
+本题多维护：
+
+$$
+cnt[i]
+$$
+
+因此可以把两题的关系理解成：
+
+```text
+300. 最长递增子序列
+        ↓
+求“最长长度”
+        ↓
+673. 最长递增子序列的个数
+        ↓
+最长长度 + 达到最长长度的方案数
+```
+
+这也是学习动态规划时很重要的一步：
+
+> 从“能不能”“最大是多少”继续升级到“最优方案有多少种”。
+
+## 十二、进阶：为什么还能做到 $O(n\log n)$
+
+$O(n^2)$ 的瓶颈来自：
+
+> 对每个 `nums[i]`，都要扫描所有更早位置 `j`。
+
+实际上我们需要查询的是：
+
+```text
+所有值 < nums[i] 的状态中：
+最长长度是多少？
+达到该最长长度的方案数是多少？
+```
+
+如果先做坐标压缩，再使用树状数组或线段树，就可以维护一个状态：
+
+```text
+(length, count)
+```
+
+区间合并规则为：
+
+```text
+长度更大的状态获胜；
+长度相同时，方案数相加。
+```
+
+从而把查询和更新都压缩到：
+
+$$
+O(\log n)
+$$
+
+最终总复杂度可以达到：
+
+$$
+O(n\log n)
+$$
+
+不过这种做法的数据结构成本更高。第一次学习本题时，应优先掌握 $O(n^2)$ 的双状态 DP，因为它最直接地揭示了“最优值 + 方案数”的核心规律。
+
+## 十三、可复用的计数 DP 模板
+
+以后遇到类似：
+
+> 求最优值，并统计达到最优值的方案数量。
+
+可以优先尝试维护：
+
+```text
+best[state]
+count[state]
+```
+
+转移时：
+
+```cpp
+if (candidate > best[state]) {
+    best[state] = candidate;
+    count[state] = ways;
+} else if (candidate == best[state]) {
+    count[state] += ways;
+}
+```
+
+如果问题求的是最小值，则把比较方向反过来即可。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int findNumberOfLIS(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+
+        int[] len = new int[n];
+        int[] cnt = new int[n];
+        Arrays.fill(len, 1);
+        Arrays.fill(cnt, 1);
+
+        int maxLen = 1;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[j] >= nums[i]) continue;
+
+                if (len[j] + 1 > len[i]) {
+                    len[i] = len[j] + 1;
+                    cnt[i] = cnt[j];
+                } else if (len[j] + 1 == len[i]) {
+                    cnt[i] += cnt[j];
+                }
+            }
+            maxLen = Math.max(maxLen, len[i]);
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; i++) {
+            if (len[i] == maxLen) answer += cnt[i];
+        }
+        return answer;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def findNumberOfLIS(self, nums: List[int]) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+
+        length = [1] * n
+        count = [1] * n
+        max_len = 1
+
+        for i in range(n):
+            for j in range(i):
+                if nums[j] >= nums[i]:
+                    continue
+
+                if length[j] + 1 > length[i]:
+                    length[i] = length[j] + 1
+                    count[i] = count[j]
+                elif length[j] + 1 == length[i]:
+                    count[i] += count[j]
+
+            max_len = max(max_len, length[i])
+
+        return sum(
+            count[i]
+            for i in range(n)
+            if length[i] == max_len
+        )
+```
+
+```go label="Go"
+func findNumberOfLIS(nums []int) int {
+    n := len(nums)
+    if n == 0 {
+        return 0
+    }
+
+    length := make([]int, n)
+    count := make([]int, n)
+    for i := 0; i < n; i++ {
+        length[i] = 1
+        count[i] = 1
+    }
+
+    maxLen := 1
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < i; j++ {
+            if nums[j] >= nums[i] {
+                continue
+            }
+
+            if length[j]+1 > length[i] {
+                length[i] = length[j] + 1
+                count[i] = count[j]
+            } else if length[j]+1 == length[i] {
+                count[i] += count[j]
+            }
+        }
+
+        if length[i] > maxLen {
+            maxLen = length[i]
+        }
+    }
+
+    answer := 0
+    for i := 0; i < n; i++ {
+        if length[i] == maxLen {
+            answer += count[i]
+        }
+    }
+    return answer
+}
+```
+
+```javascript label="JavaScript"
+var findNumberOfLIS = function(nums) {
+    const n = nums.length;
+    if (n === 0) return 0;
+
+    const length = new Array(n).fill(1);
+    const count = new Array(n).fill(1);
+    let maxLen = 1;
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < i; j++) {
+            if (nums[j] >= nums[i]) continue;
+
+            if (length[j] + 1 > length[i]) {
+                length[i] = length[j] + 1;
+                count[i] = count[j];
+            } else if (length[j] + 1 === length[i]) {
+                count[i] += count[j];
+            }
+        }
+        maxLen = Math.max(maxLen, length[i]);
+    }
+
+    let answer = 0;
+    for (let i = 0; i < n; i++) {
+        if (length[i] === maxLen) {
+            answer += count[i];
+        }
+    }
+    return answer;
+};
+```
+````

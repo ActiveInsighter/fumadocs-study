@@ -1,0 +1,938 @@
+---
+title: 目标和
+description: 从正负号分配推导为子集和计数问题，系统理解 01 背包的方案数模型、奇偶性判定、零元素翻倍现象以及一维滚动数组的正确遍历方式。
+icon: Sigma
+---
+
+# 目标和
+
+> LeetCode 494 · Target Sum
+
+给定一个非负整数数组 `nums` 和一个整数 `target`。
+
+对于数组中的每个元素，都必须在它前面添加：
+
+- `+`；或
+- `-`。
+
+要求最终表达式的结果等于 `target`，返回所有不同符号分配方案的数量。
+
+例如：
+
+```text
+nums = [1, 1, 1, 1, 1]
+target = 3
+```
+
+共有 $5$ 种方案：
+
+```text
+-1 + 1 + 1 + 1 + 1 = 3
++1 - 1 + 1 + 1 + 1 = 3
++1 + 1 - 1 + 1 + 1 = 3
++1 + 1 + 1 - 1 + 1 = 3
++1 + 1 + 1 + 1 - 1 = 3
+```
+
+因此答案为：
+
+```text
+5
+```
+
+<Callout type="info" title="这题真正难的是模型转换">
+表面上是在给数字添加正负号，实际上可以把它转换为“从数组中选出一个子集，使其元素和等于某个固定值，并统计这样的子集有多少个”。完成这一步后，它就变成了标准的 01 背包计数问题。
+</Callout>
+
+## 1. 从正负号问题开始推导
+
+把最终取正号的数字放入集合 $P$，取负号的数字放入集合 $N$。
+
+记：
+
+$$
+P=\text{所有取正号元素之和}
+$$
+
+$$
+N=\text{所有取负号元素之和}
+$$
+
+根据题意：
+
+$$
+P-N=target
+$$
+
+而所有数组元素总和记为：
+
+$$
+S
+$$
+
+显然：
+
+$$
+P+N=S
+$$
+
+把两式相加：
+
+$$
+2P=S+target
+$$
+
+因此：
+
+$$
+\boxed{P=\frac{S+target}{2}}
+$$
+
+这一步把原问题转成了：
+
+> 从 `nums` 中选择若干元素，使这些元素的和恰好等于 $(S+target)/2$，一共有多少种选法？
+
+由于每个数组元素只能决定一次正号或负号，所以每个元素也只能被选入集合 $P$ 一次。
+
+因此这是：
+
+$$
+\boxed{01\text{ 背包方案计数问题}}
+$$
+
+## 2. 为什么必须先判断无解情况
+
+目标背包容量为：
+
+$$
+bag=\frac{S+target}{2}
+$$
+
+但这个值并不总是合法。
+
+### 2.1 `target` 的绝对值超过总和
+
+无论怎样加正负号，最终结果都不可能超过：
+
+$$
+[-S,S]
+$$
+
+因此如果：
+
+$$
+|target|>S
+$$
+
+答案必然为：
+
+$$
+0
+$$
+
+### 2.2 `S + target` 为奇数
+
+因为集合 $P$ 中元素的和一定是整数，而：
+
+$$
+P=\frac{S+target}{2}
+$$
+
+所以如果：
+
+$$
+(S+target)\bmod 2\ne 0
+$$
+
+那么 $P$ 不是整数，必然无解。
+
+于是可以先写：
+
+```cpp
+int sum = accumulate(nums.begin(), nums.end(), 0);
+
+if (abs(target) > sum) return 0;
+if ((sum + target) % 2 != 0) return 0;
+```
+
+之后：
+
+```cpp
+int bagSize = (sum + target) / 2;
+```
+
+<Callout type="warning" title="为什么不能只判断 target > sum">
+`target` 可能是负数。例如总和为 $5$，目标为 $-8$ 同样不可能实现，所以必须比较 $|target|$ 与 $S$。
+</Callout>
+
+## 3. 这次的 `dp` 不再表示最大价值
+
+前面的 01 背包常定义：
+
+$$
+dp[j]=\text{容量 }j\text{ 下的最大价值}
+$$
+
+但本题问的是：
+
+> 有多少种方法？
+
+因此定义：
+
+$$
+\boxed{dp[j]=\text{从已经处理过的数字中，恰好凑出和 }j\text{ 的方案数}}
+$$
+
+最终答案就是：
+
+$$
+\boxed{dp[bagSize]}
+$$
+
+这里的“背包容量”实际上就是一个目标子集和。
+
+## 4. 状态转移为什么是加法
+
+当前处理数字：
+
+$$
+num
+$$
+
+想凑出和：
+
+$$
+j
+$$
+
+有两类方案。
+
+### 4.1 不选择当前数字
+
+此前已经能凑出 $j$ 的方案继续保留：
+
+$$
+dp[j]
+$$
+
+### 4.2 选择当前数字
+
+如果要把当前数字 $num$ 放入子集，那么剩余部分必须凑出：
+
+$$
+j-num
+$$
+
+凑出这个和的方法数为：
+
+$$
+dp[j-num]
+$$
+
+每一种都可以在最后加入当前数字，形成一种新的凑出 $j$ 的方案。
+
+因此：
+
+$$
+\boxed{dp[j]=dp[j]+dp[j-num]}
+$$
+
+代码就是：
+
+```cpp
+dp[j] += dp[j - num];
+```
+
+这和最大价值型背包最大的区别是：
+
+```text
+最大值问题：max(...)
+方案数问题：+=
+```
+
+## 5. 为什么 `dp[0] = 1`
+
+初始化：
+
+```cpp
+vector<int> dp(bagSize + 1, 0);
+dp[0] = 1;
+```
+
+为什么不是 $0$？
+
+因为：
+
+> 什么都不选，本身就是一种凑出总和 $0$ 的方法。
+
+因此：
+
+$$
+\boxed{dp[0]=1}
+$$
+
+这个 $1$ 是整个计数 DP 的“种子”。
+
+例如只有一个数字：
+
+```text
+nums = [3]
+```
+
+处理它时：
+
+$$
+dp[3]+=dp[0]
+$$
+
+由于：
+
+$$
+dp[0]=1
+$$
+
+所以：
+
+$$
+dp[3]=1
+$$
+
+表示“选择数字 $3$”这一种方案。
+
+如果错误初始化为：
+
+$$
+dp[0]=0
+$$
+
+那么第一种方案永远无法产生。
+
+<Callout type="tip" title="计数 DP 的常见边界">
+当 `dp[j]` 表示“恰好得到状态 $j$ 的方案数”时，`dp[0] = 1` 非常常见，因为空集合通常构成唯一的零和方案。
+</Callout>
+
+## 6. 为什么容量仍然必须倒序
+
+这是 01 背包，因此每个数字只能使用一次。
+
+标准循环：
+
+```cpp
+for (int num : nums) {
+    for (int j = bagSize; j >= num; --j) {
+        dp[j] += dp[j - num];
+    }
+}
+```
+
+容量必须从大到小。
+
+### 如果正序会发生什么
+
+假设：
+
+```text
+nums = [1]
+bagSize = 2
+```
+
+初始：
+
+```text
+dp = [1, 0, 0]
+```
+
+如果正序：
+
+```text
+j = 1:
+dp[1] += dp[0]
+=> dp[1] = 1
+```
+
+随后：
+
+```text
+j = 2:
+dp[2] += dp[1]
+```
+
+但此时 `dp[1]` 已经在本轮使用数字 `1` 更新过。
+
+于是又利用这个新状态得到：
+
+```text
+dp[2] = 1
+```
+
+这等价于把同一个 `1` 使用了两次。
+
+所以正序会把问题错误地变成：
+
+> 每个数字可以无限使用。
+
+而倒序能够保证：
+
+$$
+dp[j-num]
+$$
+
+仍然是上一轮的旧状态。
+
+## 7. 用示例完整推导一遍
+
+输入：
+
+```text
+nums = [1, 1, 1, 1, 1]
+target = 3
+```
+
+总和：
+
+$$
+S=5
+$$
+
+背包容量：
+
+$$
+bag=\frac{5+3}{2}=4
+$$
+
+于是问题变成：
+
+> 从五个位置不同的 `1` 中，选择若干个，使它们的和恰好为 $4$，一共有多少种选法？
+
+实际上就是从 $5$ 个 `1` 中选 $4$ 个：
+
+$$
+\binom{5}{4}=5
+$$
+
+DP 也会得到相同结果。
+
+初始：
+
+```text
+[1, 0, 0, 0, 0]
+```
+
+处理第一个 `1`：
+
+```text
+[1, 1, 0, 0, 0]
+```
+
+处理第二个 `1`：
+
+```text
+[1, 2, 1, 0, 0]
+```
+
+处理第三个 `1`：
+
+```text
+[1, 3, 3, 1, 0]
+```
+
+处理第四个 `1`：
+
+```text
+[1, 4, 6, 4, 1]
+```
+
+处理第五个 `1`：
+
+```text
+[1, 5, 10, 10, 5]
+```
+
+最终：
+
+$$
+dp[4]=5
+$$
+
+这实际上正好形成了杨辉三角中的组合数。
+
+![一维 DP 状态变化](https://file1.kamacoder.com/i/algo/20210125120743274.jpg)
+
+## 8. 二维 DP 如何理解
+
+如果希望更完整地看到“选 / 不选”的来源，也可以定义二维状态：
+
+$$
+\boxed{dp[i][j]=\text{只使用 }nums[0\ldots i]\text{ 时，恰好凑出 }j\text{ 的方案数}}
+$$
+
+若当前数字太大：
+
+$$
+nums[i]>j
+$$
+
+则不能选择当前数字：
+
+$$
+dp[i][j]=dp[i-1][j]
+$$
+
+否则：
+
+$$
+\boxed{
+dp[i][j]
+=
+dp[i-1][j]+dp[i-1][j-nums[i]]
+}
+$$
+
+其中：
+
+- $dp[i-1][j]$：不选当前数字；
+- $dp[i-1][j-nums[i]]$：选择当前数字。
+
+![二维方案计数示意](https://file1.kamacoder.com/i/algo/20240808163312.png)
+
+一维式：
+
+$$
+dp[j]+=dp[j-nums[i]]
+$$
+
+正是把二维式中的“上一行”压缩到了同一个数组。
+
+## 9. `0` 为什么是本题最容易忽略的细节
+
+假设数组中有一个：
+
+$$
+0
+$$
+
+它取：
+
+```text
++0
+```
+
+或：
+
+```text
+-0
+```
+
+数值结果完全相同，但在题目要求的“符号分配方案”中，这是两种不同方案。
+
+因此每出现一个 $0$，已有方案数量都会翻倍。
+
+例如：
+
+```text
+nums = [0]
+target = 0
+```
+
+有两种方案：
+
+```text
++0
+-0
+```
+
+所以答案是：
+
+$$
+2
+$$
+
+### 一维 DP 为什么会自动处理零
+
+初始：
+
+$$
+dp[0]=1
+$$
+
+当：
+
+$$
+num=0
+$$
+
+更新：
+
+$$
+dp[0]+=dp[0]
+$$
+
+于是：
+
+$$
+dp[0]=2
+$$
+
+再遇到一个 $0$：
+
+$$
+dp[0]=4
+$$
+
+因此有 $k$ 个零时，方案数自然变为：
+
+$$
+2^k
+$$
+
+<Callout type="info" title="一维写法的一个优势">
+二维 DP 初始化时必须专门处理零元素；一维写法只要 `dp[0] = 1`，随后正常执行 `dp[j] += dp[j-num]`，零元素的翻倍行为会自动出现。
+</Callout>
+
+## 10. 为什么不能直接把“正负号”作为 DP 状态
+
+当然可以定义：
+
+$$
+dp[i][s]=\text{处理前 }i\text{ 个数字后得到和 }s\text{ 的方案数}
+$$
+
+然后转移：
+
+$$
+dp[i+1][s+nums[i]]+=dp[i][s]
+$$
+
+$$
+dp[i+1][s-nums[i]]+=dp[i][s]
+$$
+
+这种方法是正确的。
+
+但由于中间和可能为负数，需要：
+
+- 使用偏移量；或
+- 使用哈希表。
+
+而代数变形：
+
+$$
+P=\frac{S+target}{2}
+$$
+
+能把问题直接化为非负容量的 01 背包，结构更统一，也更适合作为背包专题学习。
+
+## 11. 回溯为什么能做但不是最优选择
+
+每个数字都有：
+
+- `+`；
+- `-`。
+
+因此暴力搜索共有：
+
+$$
+2^n
+$$
+
+种符号分配。
+
+递归可以写成：
+
+```text
+当前位置 i
+├── 选择 +nums[i]
+└── 选择 -nums[i]
+```
+
+时间复杂度约为：
+
+$$
+O(2^n)
+$$
+
+而背包 DP 的容量最多与数组总和同阶，时间复杂度为：
+
+$$
+O(n\cdot bagSize)
+$$
+
+空间复杂度为：
+
+$$
+O(bagSize)
+$$
+
+因此当只要求“方案数量”时，DP 能把大量重复状态合并。
+
+## 12. 完整思维链
+
+遇到本题，可以形成下面这条固定推理链：
+
+```text
+给每个数字添加 + / -
+        ↓
+把取正号的数看成集合 P
+把取负号的数看成集合 N
+        ↓
+P - N = target
+P + N = sum
+        ↓
+2P = sum + target
+        ↓
+P = (sum + target) / 2
+        ↓
+从 nums 中选若干元素，恰好凑出 P
+        ↓
+每个元素最多选一次
+        ↓
+01 背包方案计数
+        ↓
+dp[j] += dp[j - num]
+```
+
+这是本题最值得掌握的部分。
+
+## 13. 一维 DP 实现
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+        int sum = accumulate(nums.begin(), nums.end(), 0);
+
+        if (abs(target) > sum) return 0;
+        if ((sum + target) % 2 != 0) return 0;
+
+        int bagSize = (sum + target) / 2;
+
+        vector<int> dp(bagSize + 1, 0);
+        dp[0] = 1;
+
+        for (int num : nums) {
+            for (int j = bagSize; j >= num; --j) {
+                dp[j] += dp[j - num];
+            }
+        }
+
+        return dp[bagSize];
+    }
+};
+```
+
+### 复杂度
+
+设数组长度为 $n$，背包容量为：
+
+$$
+m=\frac{S+target}{2}
+$$
+
+则：
+
+- 时间复杂度：$O(nm)$；
+- 空间复杂度：$O(m)$。
+
+## 14. 常见错误
+
+<AccordionGroup>
+  <Accordion title="错误 1：没有判断 |target| > sum">
+    当目标超出所有数字可能产生的范围时，应该直接返回 `0`。
+  </Accordion>
+
+  <Accordion title="错误 2：忽略奇偶性">
+    如果 `sum + target` 是奇数，则 `(sum + target) / 2` 不是整数，不可能由整数数组的子集得到。
+  </Accordion>
+
+  <Accordion title="错误 3：把 dp[j] 定义成最大价值">
+    本题问的是方案数量，所以状态必须保存“方法数”，转移使用累加而不是 `max`。
+  </Accordion>
+
+  <Accordion title="错误 4：dp[0] 初始化为 0">
+    空集合是唯一一种得到和 `0` 的初始方案，因此必须有 `dp[0] = 1`。
+  </Accordion>
+
+  <Accordion title="错误 5：容量正序遍历">
+    这会让当前数字在同一轮被重复使用，错误地变成完全背包。
+  </Accordion>
+
+  <Accordion title="错误 6：把值相同的元素当成同一个物品">
+    数组中的元素按位置区分。例如五个 `1` 是五件不同物品，选择不同位置构成不同子集，对应不同符号分配。
+  </Accordion>
+</AccordionGroup>
+
+## 15. 和前面两道 01 背包题放在一起看
+
+| 题目 | `dp[j]` 的含义 | 核心操作 |
+| --- | --- | --- |
+| 分割等和子集 | 是否能达到 / 或不超过 $j$ 的最大和 | `max` 或布尔值 |
+| 最后一块石头的重量 II | 不超过 $j$ 的最大可达重量 | `max` |
+| 目标和 | 恰好凑出 $j$ 的方案数 | `+=` |
+
+三题使用的都是：
+
+$$
+\boxed{01\text{ 背包}}
+$$
+
+真正变化的是：
+
+$$
+\boxed{dp\text{ 所记录的信息}}
+$$
+
+## 16. 进一步理解：方案计数公式为什么会反复出现
+
+以后还会多次看到：
+
+$$
+\boxed{dp[j]+=dp[j-num]}
+$$
+
+它表达的是一个非常通用的计数思想：
+
+> 所有能够得到“旧状态”的方案，在加入当前元素后，都可以一一对应地得到“新状态”。
+
+例如想得到总和 $j$，如果最后选择了 $num$，那么前面的部分必须得到：
+
+$$
+j-num
+$$
+
+于是：
+
+$$
+\text{新方案数}
+=
+\text{所有旧方案数的累加}
+$$
+
+这正是动态规划处理组合计数问题的核心。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int findTargetSumWays(int[] nums, int target) {
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+
+        if (Math.abs(target) > sum) return 0;
+        if ((sum + target) % 2 != 0) return 0;
+
+        int bagSize = (sum + target) / 2;
+        int[] dp = new int[bagSize + 1];
+        dp[0] = 1;
+
+        for (int num : nums) {
+            for (int j = bagSize; j >= num; --j) {
+                dp[j] += dp[j - num];
+            }
+        }
+
+        return dp[bagSize];
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def findTargetSumWays(self, nums: list[int], target: int) -> int:
+        total = sum(nums)
+
+        if abs(target) > total:
+            return 0
+        if (total + target) % 2 != 0:
+            return 0
+
+        bag_size = (total + target) // 2
+        dp = [0] * (bag_size + 1)
+        dp[0] = 1
+
+        for num in nums:
+            for j in range(bag_size, num - 1, -1):
+                dp[j] += dp[j - num]
+
+        return dp[bag_size]
+```
+
+```go label="Go"
+func findTargetSumWays(nums []int, target int) int {
+    sum := 0
+    for _, num := range nums {
+        sum += num
+    }
+
+    absTarget := target
+    if absTarget < 0 {
+        absTarget = -absTarget
+    }
+    if absTarget > sum {
+        return 0
+    }
+    if (sum+target)%2 != 0 {
+        return 0
+    }
+
+    bagSize := (sum + target) / 2
+    dp := make([]int, bagSize+1)
+    dp[0] = 1
+
+    for _, num := range nums {
+        for j := bagSize; j >= num; j-- {
+            dp[j] += dp[j-num]
+        }
+    }
+
+    return dp[bagSize]
+}
+```
+
+```javascript label="JavaScript"
+var findTargetSumWays = function(nums, target) {
+    const sum = nums.reduce((acc, num) => acc + num, 0);
+
+    if (Math.abs(target) > sum) return 0;
+    if ((sum + target) % 2 !== 0) return 0;
+
+    const bagSize = (sum + target) / 2;
+    const dp = new Array(bagSize + 1).fill(0);
+    dp[0] = 1;
+
+    for (const num of nums) {
+        for (let j = bagSize; j >= num; --j) {
+            dp[j] += dp[j - num];
+        }
+    }
+
+    return dp[bagSize];
+};
+```
+````
+
+## 总结
+
+这道题真正值得记住的不是代码，而是三个关键步骤。
+
+第一步，用代数关系把正负号问题化简：
+
+$$
+\boxed{P=\frac{S+target}{2}}
+$$
+
+第二步，把问题识别为：
+
+> 每个元素最多使用一次，统计恰好凑出目标和的方案数量。
+
+第三步，使用 01 背包计数转移：
+
+$$
+\boxed{dp[j]+=dp[j-num]}
+$$
+
+并且容量倒序遍历。
+
+掌握这套转换后，后续“组合计数 + 背包”的很多题都会变得非常熟悉。

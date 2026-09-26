@@ -1,0 +1,751 @@
+---
+title: 钥匙和房间
+description: 把“钥匙与房间”抽象为有向图可达性问题，系统掌握 DFS、BFS、visited 标记时机以及“搜索”与“回溯”的区别。
+---
+
+# 841. 钥匙和房间
+
+[LeetCode 841：钥匙和房间](https://leetcode.cn/problems/keys-and-rooms/)
+
+有 `n` 个房间，编号为：
+
+$$
+0,1,2,\ldots,n-1
+$$
+
+开始时只能进入 `0` 号房间。
+
+每个房间 `i` 中存放若干钥匙：
+
+```text
+rooms[i]
+```
+
+如果其中有钥匙 `v`，就意味着从房间 `i` 可以进入房间 `v`。
+
+要求判断：
+
+> 从 `0` 号房间出发，是否最终能够访问全部房间？
+
+例如：
+
+```text
+输入：rooms = [[1],[2],[3],[]]
+输出：true
+```
+
+因为访问过程为：
+
+```text
+0 -> 1 -> 2 -> 3
+```
+
+再例如：
+
+```text
+输入：rooms = [[1,3],[3,0,1],[2],[0]]
+输出：false
+```
+
+因为无论怎样走，都无法从 `0` 到达房间 `2`。
+
+## 一、第一步不是写 DFS，而是识别图模型
+
+把每个房间看成一个节点。
+
+如果房间 `u` 中存在钥匙 `v`，就建立一条有向边：
+
+$$
+u\to v
+$$
+
+于是整个输入：
+
+```text
+rooms = [[1],[2],[3],[]]
+```
+
+等价于图：
+
+```text
+0 -> 1 -> 2 -> 3
+```
+
+原资料中的两个示例图如下：
+
+![钥匙和房间的有向图表示](https://file1.kamacoder.com/i/algo/20220714101414.png)
+
+所以本题本质是：
+
+> **从节点 0 出发，判断是否能够到达有向图中的所有节点。**
+
+这就是标准的单源可达性问题。
+
+## 二、为什么不是并查集问题
+
+看到“所有房间是否连通”，很容易想到并查集。
+
+但这里有一个关键条件：
+
+> 边是有方向的。
+
+钥匙 `v` 在房间 `u` 中，只说明：
+
+$$
+u\to v
+$$
+
+并不代表：
+
+$$
+v\to u
+$$
+
+而并查集擅长判断的是无向连通关系。
+
+它无法表达：
+
+```text
+从 0 出发是否真的能沿方向走到所有节点
+```
+
+原资料还给出了一个说明方向性的例子：
+
+![有向图中“连在一起”并不等于从 0 可达](https://file1.kamacoder.com/i/algo/20220714102201.png)
+
+因此本题应使用：
+
+- DFS；
+- BFS。
+
+而不是普通并查集。
+
+> [!IMPORTANT]
+> 判断“图是否连成一块”和判断“从指定起点是否能到所有点”不是一回事。尤其在有向图中，必须关注边的方向。
+
+## 三、为什么一定需要 `visited`
+
+图中可能存在环。
+
+例如：
+
+```text
+0 -> 1
+^    |
+|____|
+```
+
+若递归时不记录已经访问过的节点，就可能发生：
+
+```text
+0 -> 1 -> 0 -> 1 -> 0 -> ...
+```
+
+无限递归。
+
+因此必须维护：
+
+```text
+visited[i]
+```
+
+表示房间 `i` 是否已经访问。
+
+一旦某个房间访问过，就不需要再次搜索。
+
+这样每个节点最多真正处理一次。
+
+## 四、DFS 解法一：进入递归后再标记当前节点
+
+第一种写法把递归函数理解为：
+
+> `dfs(u)` 负责“处理节点 u”。
+
+因此进入函数后先判断：
+
+```cpp
+if (visited[u]) return;
+```
+
+若未访问，则立即标记：
+
+```cpp
+visited[u] = true;
+```
+
+然后遍历该房间中的所有钥匙：
+
+```cpp
+for (int v : rooms[u]) {
+    dfs(v);
+}
+```
+
+完整写法：
+
+```cpp
+class Solution {
+private:
+    void dfs(const vector<vector<int>>& rooms,
+             int u,
+             vector<bool>& visited) {
+        if (visited[u]) return;
+
+        visited[u] = true;
+
+        for (int v : rooms[u]) {
+            dfs(rooms, v, visited);
+        }
+    }
+
+public:
+    bool canVisitAllRooms(vector<vector<int>>& rooms) {
+        vector<bool> visited(rooms.size(), false);
+        dfs(rooms, 0, visited);
+
+        for (bool seen : visited) {
+            if (!seen) return false;
+        }
+        return true;
+    }
+};
+```
+
+这种写法的语义非常统一：
+
+```text
+递归函数一开始处理自己。
+```
+
+## 五、DFS 解法二：递归之前标记下一个节点
+
+另一种写法把 `dfs(u)` 理解为：
+
+> 当前节点 `u` 已经访问，现在只负责继续扩展它的邻居。
+
+此时需要在进入第一次 DFS 前先写：
+
+```cpp
+visited[0] = true;
+```
+
+然后枚举邻居时判断：
+
+```cpp
+if (!visited[v]) {
+    visited[v] = true;
+    dfs(v);
+}
+```
+
+完整代码：
+
+```cpp
+class Solution {
+private:
+    void dfs(const vector<vector<int>>& rooms,
+             int u,
+             vector<bool>& visited) {
+        for (int v : rooms[u]) {
+            if (!visited[v]) {
+                visited[v] = true;
+                dfs(rooms, v, visited);
+            }
+        }
+    }
+
+public:
+    bool canVisitAllRooms(vector<vector<int>>& rooms) {
+        vector<bool> visited(rooms.size(), false);
+        visited[0] = true;
+
+        dfs(rooms, 0, visited);
+
+        for (bool seen : visited) {
+            if (!seen) return false;
+        }
+        return true;
+    }
+};
+```
+
+两种写法都正确。
+
+区别只在于：
+
+```text
+visited 是在“进入节点时”标记，
+还是在“准备进入节点前”标记。
+```
+
+> [!TIP]
+> 图搜索代码风格可以不同，但必须保证：一个节点在重复扩展之前已经被标记，否则有环时可能反复入栈或入队。
+
+## 六、为什么本题 DFS 不需要“回溯撤销”
+
+很多初学者会形成一个误区：
+
+> 只要用了递归，就一定要把 `visited` 恢复成 `false`。
+
+这是错误的。
+
+本题的目标是：
+
+```text
+统计从 0 出发最终能访问哪些节点
+```
+
+一旦某个房间访问过，它就应该永久保持：
+
+```text
+visited[u] = true
+```
+
+因为“访问过”是一个全局事实，不需要撤销。
+
+如果写成：
+
+```cpp
+visited[u] = true;
+dfs(...);
+visited[u] = false;
+```
+
+反而会破坏可达性记录。
+
+### 什么情况下才需要撤销？
+
+当 `visited` 表示的不是“全局访问状态”，而是：
+
+> 当前搜索路径中是否使用过该节点。
+
+例如：
+
+- 枚举所有路径；
+- 排列组合；
+- 搜索简单路径；
+- 棋盘路径回溯。
+
+这时离开当前选择后需要恢复状态。
+
+所以可以区分：
+
+```text
+图遍历 visited：通常不撤销
+路径回溯 used/path：通常要撤销
+```
+
+## 七、BFS：把递归栈换成队列
+
+DFS 会沿一条路径尽量走到底。
+
+BFS 则从当前房间开始，一层一层扩展所有已经拿到的钥匙。
+
+流程：
+
+1. `0` 号房间入队；
+2. 标记 `visited[0] = true`；
+3. 每次取出一个房间 `u`；
+4. 枚举 `rooms[u]` 中的钥匙 `v`；
+5. 未访问的房间立即标记并入队。
+
+代码：
+
+```cpp
+class Solution {
+public:
+    bool canVisitAllRooms(vector<vector<int>>& rooms) {
+        int n = rooms.size();
+        vector<bool> visited(n, false);
+        queue<int> q;
+
+        visited[0] = true;
+        q.push(0);
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+
+            for (int v : rooms[u]) {
+                if (visited[v]) continue;
+
+                visited[v] = true;
+                q.push(v);
+            }
+        }
+
+        for (bool seen : visited) {
+            if (!seen) return false;
+        }
+        return true;
+    }
+};
+```
+
+## 八、为什么 BFS 要在“入队时”标记
+
+推荐写法：
+
+```cpp
+if (!visited[v]) {
+    visited[v] = true;
+    q.push(v);
+}
+```
+
+而不是等到 `v` 出队后再标记。
+
+因为如果多个节点同时指向 `v`：
+
+```text
+1 -> 3
+2 -> 3
+```
+
+若等到出队才标记，`3` 可能被重复加入队列多次。
+
+虽然某些题仍然能得到正确结果，但会产生不必要的重复状态。
+
+所以图 BFS 的常见原则是：
+
+> **第一次发现节点时就立刻标记。**
+
+## 九、DFS 和 BFS 谁更适合本题
+
+对于本题，两者都完全合适。
+
+因为我们只关心：
+
+```text
+能否访问所有节点
+```
+
+并不要求最短路径。
+
+### DFS
+
+优点：
+
+- 代码短；
+- 递归表达自然；
+- 很适合单纯做可达性搜索。
+
+缺点：
+
+- 极深图可能产生递归栈风险。
+
+### BFS
+
+优点：
+
+- 不依赖递归栈；
+- 模板稳定；
+- 若问题升级为最少步数，更容易扩展。
+
+缺点：
+
+- 需要显式维护队列。
+
+本题并不存在算法复杂度上的本质差异。
+
+## 十、复杂度分析
+
+设：
+
+- 房间数为 $V$；
+- 所有钥匙总数，也就是有向边数为 $E$。
+
+无论 DFS 还是 BFS：
+
+- 每个房间最多访问一次；
+- 每条钥匙对应的边最多检查一次。
+
+所以时间复杂度为：
+
+$$
+O(V+E)
+$$
+
+`visited` 需要：
+
+$$
+O(V)
+$$
+
+额外空间。
+
+DFS 递归栈最坏还需要：
+
+$$
+O(V)
+$$
+
+BFS 队列最坏同样可能达到：
+
+$$
+O(V)
+$$
+
+因此空间复杂度均为：
+
+$$
+O(V)
+$$
+
+## 十一、从示例理解“可达性”
+
+对于：
+
+```text
+rooms = [[1],[2],[3],[]]
+```
+
+搜索过程：
+
+```text
+visited = [T,F,F,F]
+
+0 中拿到 1
+visited = [T,T,F,F]
+
+1 中拿到 2
+visited = [T,T,T,F]
+
+2 中拿到 3
+visited = [T,T,T,T]
+```
+
+最终全部访问，所以返回：
+
+```text
+true
+```
+
+而：
+
+```text
+rooms = [[1,3],[3,0,1],[2],[0]]
+```
+
+从 `0` 可达的节点只有：
+
+```text
+0,1,3
+```
+
+房间 `2` 即使内部拥有自己的钥匙，也没有任何从 `0` 出发的路径能第一次进入它。
+
+因此返回：
+
+```text
+false
+```
+
+## 十二、一个重要判断：有向图中的“孤立”不是唯一失败原因
+
+失败并不要求某个节点在无向意义上完全孤立。
+
+即使一个节点与其他节点存在边，只要这些边的方向使得从 `0` 无法到达它，依然失败。
+
+例如：
+
+```text
+1 -> 2
+0 -> 1
+```
+
+可以访问 `2`。
+
+但若变成：
+
+```text
+2 -> 1
+0 -> 1
+```
+
+虽然 `1` 和 `2` 之间仍然“连着一条边”，但从 `0` 无法逆着边进入 `2`。
+
+因此判断标准必须始终是：
+
+$$
+0\leadsto v
+$$
+
+是否对每个节点 `v` 成立。
+
+## 十三、什么时候用 DFS，什么时候用 BFS
+
+遇到图搜索时，可以先问目标是什么。
+
+### 只判断可达性
+
+```text
+能不能到？
+能不能遍历所有点？
+连通块里有哪些点？
+```
+
+DFS / BFS 都可以。
+
+### 求无权图最短路
+
+```text
+最少经过多少条边？
+最少几步到目标？
+```
+
+优先 BFS。
+
+### 枚举所有路径
+
+```text
+有哪些从起点到终点的完整路径？
+```
+
+通常 DFS + 回溯。
+
+本题属于第一类：
+
+```text
+单源可达性
+```
+
+因此没有必要记录路径，也没有必要回溯撤销访问状态。
+
+## 十四、可复用的图遍历模板
+
+### DFS
+
+```cpp
+void dfs(int u) {
+    if (visited[u]) return;
+    visited[u] = true;
+
+    for (int v : graph[u]) {
+        dfs(v);
+    }
+}
+```
+
+### BFS
+
+```cpp
+queue<int> q;
+q.push(start);
+visited[start] = true;
+
+while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+
+    for (int v : graph[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            q.push(v);
+        }
+    }
+}
+```
+
+掌握这两个模板后，很多“房间、城市、课程、网页、关系网络”的问题都可以先抽象成图，再直接使用。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean canVisitAllRooms(List<List<Integer>> rooms) {
+        int n = rooms.size();
+        boolean[] visited = new boolean[n];
+        Deque<Integer> queue = new ArrayDeque<>();
+
+        visited[0] = true;
+        queue.offer(0);
+
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+
+            for (int v : rooms.get(u)) {
+                if (visited[v]) continue;
+                visited[v] = true;
+                queue.offer(v);
+            }
+        }
+
+        for (boolean seen : visited) {
+            if (!seen) return false;
+        }
+        return true;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def canVisitAllRooms(self, rooms: List[List[int]]) -> bool:
+        n = len(rooms)
+        visited = [False] * n
+        stack = [0]
+        visited[0] = True
+
+        while stack:
+            u = stack.pop()
+            for v in rooms[u]:
+                if visited[v]:
+                    continue
+                visited[v] = True
+                stack.append(v)
+
+        return all(visited)
+```
+
+```go label="Go"
+func canVisitAllRooms(rooms [][]int) bool {
+    n := len(rooms)
+    visited := make([]bool, n)
+    queue := []int{0}
+    visited[0] = true
+
+    for len(queue) > 0 {
+        u := queue[0]
+        queue = queue[1:]
+
+        for _, v := range rooms[u] {
+            if visited[v] {
+                continue
+            }
+            visited[v] = true
+            queue = append(queue, v)
+        }
+    }
+
+    for _, seen := range visited {
+        if !seen {
+            return false
+        }
+    }
+    return true
+}
+```
+
+```javascript label="JavaScript"
+var canVisitAllRooms = function(rooms) {
+    const n = rooms.length;
+    const visited = new Array(n).fill(false);
+    const stack = [0];
+    visited[0] = true;
+
+    while (stack.length > 0) {
+        const u = stack.pop();
+
+        for (const v of rooms[u]) {
+            if (visited[v]) continue;
+            visited[v] = true;
+            stack.push(v);
+        }
+    }
+
+    return visited.every(Boolean);
+};
+```
+````

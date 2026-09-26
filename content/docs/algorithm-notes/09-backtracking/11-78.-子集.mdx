@@ -1,0 +1,737 @@
+---
+title: 78. 子集
+summary: 从“收集叶子节点”切换到“收集整棵搜索树”，理解子集问题中 startIndex、空集与所有节点收集的核心逻辑。
+description: LeetCode 78 子集：幂集、搜索树所有节点、startIndex、空集、回溯模板、二进制枚举、复杂度与多语言实现。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 78. 子集
+
+[LeetCode 题目链接](https://leetcode.cn/problems/subsets/)
+
+给定一个元素互不相同的整数数组 `nums`，返回它的所有子集，也就是幂集。
+
+```text
+输入：nums = [1, 2, 3]
+输出：
+[
+  [],
+  [1], [2], [3],
+  [1,2], [1,3], [2,3],
+  [1,2,3]
+]
+```
+
+输出顺序不重要。
+
+<Callout title="本题最关键的变化：答案不只在叶子节点">
+
+前面的组合、目标和、字符串分割问题，通常是在满足目标条件后收集一条路径；而子集问题中，**搜索树上的每一个节点本身就是一个合法答案。**
+
+这句话决定了整道题最核心的一行代码应该放在哪里。
+
+</Callout>
+
+## 1. 什么是幂集？
+
+对于 `n` 个互不相同的元素，每个元素都有两种独立状态：
+
+```text
+选择 / 不选择
+```
+
+因此一共有：
+
+\[
+2^n
+\]
+
+个子集。
+
+以 `[1,2,3]` 为例：
+
+```text
+0 个元素：[]
+1 个元素：[1] [2] [3]
+2 个元素：[1,2] [1,3] [2,3]
+3 个元素：[1,2,3]
+```
+
+总数为：
+
+\[
+1+3+3+1=8=2^3
+\]
+
+因此本题本质上不是“筛选少数答案”，而是完整枚举整个解空间。
+
+## 2. 为什么仍然要用 `startIndex`？
+
+子集是集合，不考虑元素顺序。
+
+```text
+[1,2]
+[2,1]
+```
+
+代表的是同一个子集，所以搜索过程中不能回头选已经越过的元素。
+
+选择下标 `i` 后，下一层必须从：
+
+```text
+i + 1
+```
+
+开始：
+
+```cpp
+backtracking(nums, i + 1);
+```
+
+这样同时保证：
+
+- 同一个元素不会重复使用；
+- 不会产生 `[2,1]` 这种逆序重复结果；
+- 每个子集恰好生成一次。
+
+<Callout type="info" title="组合 / 子集与排列的关键分界">
+
+组合和子集只关心“选了哪些元素”，所以使用 `startIndex` 向右推进。
+
+排列还关心顺序，`[1,2]` 与 `[2,1]` 是不同结果，因此排列问题通常每层都从整个数组重新挑选尚未使用的元素。
+
+</Callout>
+
+## 3. 搜索树：为什么每个节点都要收集？
+
+以：
+
+```text
+nums = [1,2,3]
+```
+
+为例：
+
+![78.子集](https://file1.kamacoder.com/i/algo/78.%E5%AD%90%E9%9B%86.png)
+
+根节点：
+
+```text
+[]
+```
+
+它就是空集，所以已经是一个答案。
+
+沿第一条分支依次选择：
+
+```text
+[1]
+[1,2]
+[1,2,3]
+```
+
+这三个节点也全部是答案。
+
+所以本题的收集逻辑不是：
+
+```text
+到叶子 → 收集
+```
+
+而是：
+
+```text
+进入任意节点 → 立刻收集当前 path
+```
+
+这与组合问题有本质区别。
+
+## 4. “收集位置”是回溯题最重要的分类依据之一
+
+| 题型 | `path` 什么时候成为答案？ |
+| --- | --- |
+| 固定长度组合 | 长度达到 `k` |
+| 组合总和 | 当前和达到目标 |
+| 字符串分割 | 字符全部切完 |
+| 复原 IP | 四段且字符全部用完 |
+| 子集 | **任何节点都合法** |
+
+因此子集题最核心的一句就是：
+
+```cpp
+result.push_back(path);
+```
+
+它应当放在递归函数入口，而不是终止条件里。
+
+## 5. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 递归参数
+
+```cpp
+void backtracking(const vector<int>& nums, int startIndex)
+```
+
+同时维护：
+
+```cpp
+vector<int> path;
+vector<vector<int>> result;
+```
+
+其中：
+
+- `path`：当前子集；
+- `startIndex`：下一层允许选择的最左下标。
+
+</Step>
+<Step>
+
+### ② 进入节点立即收集
+
+```cpp
+result.push_back(path);
+```
+
+第一次调用：
+
+```cpp
+backtracking(nums, 0);
+```
+
+此时 `path` 是空数组，因此空集会自然进入结果，不需要额外特判。
+
+</Step>
+<Step>
+
+### ③ 单层搜索
+
+```cpp
+for (int i = startIndex; i < nums.size(); ++i) {
+    path.push_back(nums[i]);
+    backtracking(nums, i + 1);
+    path.pop_back();
+}
+```
+
+仍然是标准结构：
+
+```text
+选择 → 递归 → 撤销选择
+```
+
+</Step>
+</Steps>
+
+## 6. 为什么终止条件可以不写？
+
+当：
+
+```text
+startIndex == nums.size()
+```
+
+循环：
+
+```cpp
+for (int i = startIndex; i < nums.size(); ++i)
+```
+
+本来就不会执行，函数自然返回。
+
+因此：
+
+```cpp
+void backtracking(...) {
+    result.push_back(path);
+    for (...) {
+        ...
+    }
+}
+```
+
+已经完整表达了搜索过程。
+
+<Callout title="回溯模板不是必须机械套终止 if">
+
+真正需要判断的是：当前状态是否还存在下一步选择。如果循环已经会在“无候选”时自然结束，就不一定需要显式终止条件。
+
+</Callout>
+
+## 7. 为什么本题没有常规剪枝？
+
+因为题目要的是**所有子集**。
+
+长度从 `0` 到 `n` 的路径全部合法，所以几乎没有“这一整棵子树绝不可能产生答案”的情况。
+
+换句话说：
+
+```text
+搜索树本身就是答案集合
+```
+
+因此本题优化重点不是剪掉节点，而是保证每个节点只访问一次。
+
+`startIndex` 已经承担了这个作用。
+
+## 8. 推荐的 C++ 实现
+
+```cpp title="C++ · 标准回溯"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(const vector<int>& nums, int startIndex) {
+        result.push_back(path);
+
+        for (int i = startIndex; i < static_cast<int>(nums.size()); ++i) {
+            path.push_back(nums[i]);
+            backtracking(nums, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        result.clear();
+        path.clear();
+        backtracking(nums, 0);
+        return result;
+    }
+};
+```
+
+## 9. 手推 `[1,2,3]`
+
+从根节点开始：
+
+```text
+path = []
+```
+
+进入函数立即收集：
+
+```text
+[]
+```
+
+第一层选择 `1`：
+
+```text
+[1]
+```
+
+立即收集，再选择 `2`：
+
+```text
+[1,2]
+```
+
+继续收集，再选择 `3`：
+
+```text
+[1,2,3]
+```
+
+回溯到 `[1]` 后还可以选择 `3`，得到：
+
+```text
+[1,3]
+```
+
+然后回到根节点，以 `2`、`3` 开头继续。
+
+最终每个树节点恰好访问一次，也恰好对应一个子集。
+
+## 10. 复杂度为什么是 `O(n · 2^n)`？
+
+子集数量为：
+
+\[
+2^n
+\]
+
+每次把 `path` 写入结果时都要复制当前路径，最坏需要复制 `n` 个元素，因此总时间通常记为：
+
+\[
+O(n\cdot2^n)
+\]
+
+不计算输出数组时，递归栈和 `path` 最大长度都是 `n`，辅助空间为：
+
+\[
+O(n)
+\]
+
+若把最终结果也计入空间，则输出本身规模同样可以达到：
+
+\[
+O(n\cdot2^n)
+\]
+
+这个指数规模无法通过剪枝消掉，因为题目要求真的输出全部子集。
+
+## 11. 另一种思路：二进制状态枚举
+
+每个元素只有“选 / 不选”两种状态，所以也可以用一个 `n` 位二进制数表示一个子集。
+
+以 `[1,2,3]` 为例：
+
+| mask | 二进制 | 子集 |
+| ---: | ---: | --- |
+| 0 | `000` | `[]` |
+| 1 | `001` | `[1]` |
+| 2 | `010` | `[2]` |
+| 3 | `011` | `[1,2]` |
+| 4 | `100` | `[3]` |
+| 5 | `101` | `[1,3]` |
+| 6 | `110` | `[2,3]` |
+| 7 | `111` | `[1,2,3]` |
+
+判断第 `j` 个元素是否被选择：
+
+```cpp
+if (mask & (1 << j)) {
+    subset.push_back(nums[j]);
+}
+```
+
+完整实现：
+
+```cpp title="C++ · 二进制枚举"
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int>> result;
+        int n = nums.size();
+
+        for (int mask = 0; mask < (1 << n); ++mask) {
+            vector<int> subset;
+            for (int j = 0; j < n; ++j) {
+                if (mask & (1 << j)) subset.push_back(nums[j]);
+            }
+            result.push_back(move(subset));
+        }
+        return result;
+    }
+};
+```
+
+## 12. 回溯与位运算怎么选？
+
+| 维度 | 回溯 | 二进制枚举 |
+| --- | --- | --- |
+| 建模 | 搜索树 | 位状态 |
+| 纯子集枚举 | 清晰 | 非常直接 |
+| 加条件与剪枝 | 容易扩展 | 条件复杂时不自然 |
+| 迁移到子集 II | 很自然 | 去重更麻烦 |
+| 迁移到组合 / 分割 / 排列 | 很强 | 较弱 |
+
+如果正在系统学习回溯，优先掌握回溯版本，因为下一题“子集 II”就是在这个框架上加入**树层去重**。
+
+## 13. 高频易错点
+
+### 错误一：只在叶子收集
+
+```cpp
+if (startIndex == nums.size()) {
+    result.push_back(path);
+}
+```
+
+这样会漏掉大量中间节点，例如 `[1]`、`[1,2]`。
+
+### 错误二：每层都从 `0` 开始
+
+```cpp
+for (int i = 0; i < nums.size(); ++i)
+```
+
+会重复选择已经处理过的元素，也会制造顺序不同但集合相同的结果。
+
+### 错误三：保存的是同一个可变数组引用
+
+Python、JavaScript 等语言必须保存副本：
+
+```python
+result.append(path[:])
+```
+
+而不能直接保存后续还要继续修改的 `path` 对象。
+
+## 14. 解题检查表
+
+遇到新的子集类问题，可以依次问：
+
+1. 当前 `path` 是否已经是合法答案？
+2. 收集的是叶子节点，还是整棵搜索树？
+3. 结果是否忽略顺序？
+4. 是否应该用 `startIndex` 防止回头选择？
+5. 每个元素能否重复使用？
+6. 输入本身是否存在重复值？
+7. 如果存在重复值，是否需要同一树层去重？
+8. 终止条件是否可以由 `for` 循环自然结束？
+9. 输出规模是否天然就是指数级？
+
+## 15. 其他语言实现
+
+<Tabs groupId="subsets-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala', 'C#']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private final List<List<Integer>> ans = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> subsets(int[] nums) {
+        dfs(nums, 0);
+        return ans;
+    }
+
+    private void dfs(int[] nums, int start) {
+        ans.add(new ArrayList<>(path));
+        for (int i = start; i < nums.length; i++) {
+            path.add(nums[i]);
+            dfs(nums, i + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        ans, path = [], []
+
+        def dfs(start: int) -> None:
+            ans.append(path[:])
+            for i in range(start, len(nums)):
+                path.append(nums[i])
+                dfs(i + 1)
+                path.pop()
+
+        dfs(0)
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func subsets(nums []int) [][]int {
+    ans := [][]int{}
+    path := []int{}
+    var dfs func(int)
+
+    dfs = func(start int) {
+        ans = append(ans, append([]int(nil), path...))
+        for i := start; i < len(nums); i++ {
+            path = append(path, nums[i])
+            dfs(i + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(0)
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var subsets = function(nums) {
+    const ans = [];
+    const path = [];
+
+    function dfs(start) {
+        ans.push([...path]);
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function subsets(nums: number[]): number[][] {
+    const ans: number[][] = [];
+    const path: number[] = [];
+
+    function dfs(start: number): void {
+        ans.push([...path]);
+        for (let i = start; i < nums.length; i++) {
+            path.push(nums[i]);
+            dfs(i + 1);
+            path.pop();
+        }
+    }
+
+    dfs(0);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn subsets(nums: Vec<i32>) -> Vec<Vec<i32>> {
+        fn dfs(nums: &[i32], start: usize, path: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
+            ans.push(path.clone());
+            for i in start..nums.len() {
+                path.push(nums[i]);
+                dfs(nums, i + 1, path, ans);
+                path.pop();
+            }
+        }
+
+        let mut ans = Vec::with_capacity(1usize << nums.len());
+        let mut path = Vec::new();
+        dfs(&nums, 0, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static int* path;
+static int pathSize;
+static int** ans;
+static int* colSizes;
+static int ansSize;
+
+static void dfs(int* nums, int numsSize, int start) {
+    int* subset = NULL;
+    if (pathSize > 0) {
+        subset = (int*)malloc(sizeof(int) * pathSize);
+        memcpy(subset, path, sizeof(int) * pathSize);
+    }
+
+    ans[ansSize] = subset;
+    colSizes[ansSize] = pathSize;
+    ansSize++;
+
+    for (int i = start; i < numsSize; ++i) {
+        path[pathSize++] = nums[i];
+        dfs(nums, numsSize, i + 1);
+        pathSize--;
+    }
+}
+
+int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+    int capacity = 1 << numsSize;
+    ans = (int**)malloc(sizeof(int*) * capacity);
+    colSizes = (int*)malloc(sizeof(int) * capacity);
+    path = (int*)malloc(sizeof(int) * numsSize);
+    pathSize = 0;
+    ansSize = 0;
+
+    dfs(nums, numsSize, 0);
+
+    *returnSize = ansSize;
+    *returnColumnSizes = colSizes;
+    free(path);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func subsets(_ nums: [Int]) -> [[Int]] {
+        var ans = [[Int]]()
+        var path = [Int]()
+
+        func dfs(_ start: Int) {
+            ans.append(path)
+            if start >= nums.count { return }
+
+            for i in start..<nums.count {
+                path.append(nums[i])
+                dfs(i + 1)
+                path.removeLast()
+            }
+        }
+
+        dfs(0)
+        return ans
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def subsets(nums: Array[Int]): List[List[Int]] = {
+    val ans = scala.collection.mutable.ListBuffer[List[Int]]()
+    val path = scala.collection.mutable.ArrayBuffer[Int]()
+
+    def dfs(start: Int): Unit = {
+      ans += path.toList
+      for (i <- start until nums.length) {
+        path += nums(i)
+        dfs(i + 1)
+        path.remove(path.length - 1)
+      }
+    }
+
+    dfs(0)
+    ans.toList
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public IList<IList<int>> Subsets(int[] nums) {
+        var ans = new List<IList<int>>();
+        var path = new List<int>();
+
+        void Dfs(int start) {
+            ans.Add(new List<int>(path));
+            for (int i = start; i < nums.Length; i++) {
+                path.Add(nums[i]);
+                Dfs(i + 1);
+                path.RemoveAt(path.Count - 1);
+            }
+        }
+
+        Dfs(0);
+        return ans;
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,673 @@
+---
+title: 二叉搜索树中的搜索：利用有序性剪枝
+---
+
+# 二叉搜索树中的搜索：利用有序性剪枝
+
+> LeetCode 700 · Search in a Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/search-in-a-binary-search-tree/)
+
+给定二叉搜索树 `root` 和目标值 `val`，找到值等于 `val` 的节点，并返回**以该节点为根的整棵子树**；如果不存在，返回 `null`。
+
+![二叉搜索树中的搜索](https://file1.kamacoder.com/i/algo/20210204155522476.png)
+
+这道题是二叉搜索树（BST）系列的起点。真正需要掌握的不是“怎么遍历树”，而是：
+
+> **一旦树带有顺序约束，就不要再把它当普通二叉树暴力遍历。**
+
+<Callout title="BST 的核心不变量" type="info">
+
+对于任意节点 `node`：
+
+- 左子树所有节点值都小于 `node.val`；
+- 右子树所有节点值都大于 `node.val`；
+- 左右子树本身仍然是二叉搜索树。
+
+因此搜索目标值时，每到一个节点都能排除掉整整一侧子树。
+
+</Callout>
+
+## 1. 普通二叉树搜索与 BST 搜索的本质区别
+
+如果是一棵普通二叉树，要找值为 `val` 的节点，由于没有顺序信息，只能尝试：
+
+```text
+当前节点
+├─ 左子树里找
+└─ 右子树里找
+```
+
+最坏情况下需要访问全部 $n$ 个节点，时间复杂度是 $O(n)$。
+
+BST 则不同。假设当前节点值为 `x`：
+
+| 比较结果 | 可以得出的结论 | 下一步 |
+| --- | --- | --- |
+| `val == x` | 已找到目标 | 直接返回当前节点 |
+| `val < x` | 目标不可能出现在右子树 | 只搜索左子树 |
+| `val > x` | 目标不可能出现在左子树 | 只搜索右子树 |
+
+这意味着搜索过程始终只沿着**一条根到叶子的路径**向下走。
+
+![BST 定向搜索](https://file1.kamacoder.com/i/algo/20200812190213280.png)
+
+## 2. 为什么 BST 搜索不需要回溯
+
+普通二叉树 DFS 常常需要“走到底再回来”，因为：
+
+```text
+左边没找到 ≠ 右边也没有
+```
+
+而 BST 中，当前节点已经能唯一决定下一步方向。
+
+例如搜索 `3`：
+
+```text
+当前值 > 3  → 只能向左
+当前值 < 3  → 只能向右
+当前值 = 3  → 找到
+```
+
+一旦选择左子树，右子树就被严格排除；选择右子树同理。
+
+所以 BST 搜索其实更接近**链表上的定向移动**，而不是普通二叉树的完整 DFS。
+
+<Callout title="关键理解" type="idea">
+
+BST 的有序性给搜索提供了“剪枝证明”。
+
+你不是“猜”目标在哪一边，而是根据大小关系证明：**另一边绝对不可能存在目标值。**
+
+</Callout>
+
+## 3. 递归法：搜索某一条边
+
+先定义函数语义：
+
+```cpp
+TreeNode* searchBST(TreeNode* root, int val)
+```
+
+表示：
+
+> 在以 `root` 为根的 BST 中搜索 `val`，找到则返回对应节点，否则返回 `nullptr`。
+
+### 3.1 终止条件
+
+两种情况可以立刻结束：
+
+```cpp
+if (root == nullptr || root->val == val) {
+    return root;
+}
+```
+
+这里非常巧妙：
+
+- `root == nullptr`：搜索失败，返回空；
+- `root->val == val`：搜索成功，返回当前节点。
+
+### 3.2 单层递归逻辑
+
+如果目标更小，只可能去左边：
+
+```cpp
+if (val < root->val) {
+    return searchBST(root->left, val);
+}
+```
+
+否则只可能去右边：
+
+```cpp
+return searchBST(root->right, val);
+```
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    TreeNode* searchBST(TreeNode* root, int val) {
+        if (root == nullptr || root->val == val) {
+            return root;
+        }
+
+        if (val < root->val) {
+            return searchBST(root->left, val);
+        }
+
+        return searchBST(root->right, val);
+    }
+};
+```
+
+## 4. 为什么递归调用前一定要写 `return`
+
+一个很常见的错误是：
+
+```cpp
+if (val < root->val) {
+    searchBST(root->left, val); // 错误：返回值丢失
+}
+```
+
+假设真正的目标节点在更深处：
+
+```text
+root
+ ↓
+left
+ ↓
+target
+```
+
+最深层确实找到了 `target`，但如果上一层没有把递归结果继续返回：
+
+```text
+target → 返回给父层 → 被父层丢掉
+```
+
+最终调用者仍然拿不到答案。
+
+正确写法必须形成一条完整的返回链：
+
+```text
+找到目标节点
+   ↓ return
+上一层
+   ↓ return
+上一层
+   ↓ return
+最外层调用者
+```
+
+因此应该写：
+
+```cpp
+return searchBST(root->left, val);
+```
+
+这也是二叉树递归中非常重要的经验：
+
+> **如果递归函数的返回值本身就是答案，就必须思考这个答案如何一层层传回去。**
+
+## 5. 迭代法：BST 搜索最自然的写法
+
+BST 的搜索路径是单向的，所以完全不需要栈或队列。
+
+```cpp
+class Solution {
+public:
+    TreeNode* searchBST(TreeNode* root, int val) {
+        while (root != nullptr) {
+            if (val < root->val) {
+                root = root->left;
+            } else if (val > root->val) {
+                root = root->right;
+            } else {
+                return root;
+            }
+        }
+
+        return nullptr;
+    }
+};
+```
+
+可以把整个过程理解成：
+
+```text
+while 当前节点存在:
+    if 目标更小: 指针向左
+    elif 目标更大: 指针向右
+    else: 返回当前节点
+
+走到空指针 → 不存在
+```
+
+## 6. 复杂度分析：关键变量是树高
+
+搜索最多访问一条根到叶子的路径，因此时间复杂度不是简单写成 $O(n)$，更准确的是：
+
+$O(h)$
+
+其中 $h$ 是树高。
+
+### 平衡 BST
+
+如果树比较平衡：
+
+$h = O(\log n)$
+
+因此搜索复杂度为：
+
+$O(\log n)$
+
+### 极端退化 BST
+
+如果节点按有序顺序不断插入，树可能退化成链表：
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+```
+
+此时：
+
+$h = O(n)$
+
+搜索也会退化成 $O(n)$。
+
+空间复杂度：
+
+- 递归：$O(h)$，来自递归调用栈；
+- 迭代：$O(1)$。
+
+## 7. 为什么不能用“二分查找复杂度”直接描述普通 BST
+
+BST 经常让人联想到二分查找，但二者有一个重要区别：
+
+```text
+数组二分查找：每次都能把候选区间大约缩小一半
+普通 BST：只保证左右有序，不保证左右子树规模接近
+```
+
+因此普通 BST 的一次比较虽然能确定方向，却不保证剩余节点数量减半。
+
+只有当树高保持在 $O(\log n)$ 时，搜索才具有 $O(\log n)$ 级别的效率。
+
+这也是 AVL、红黑树等**平衡搜索树**存在的根本原因。
+
+## 8. “返回节点”为什么等于“返回子树”
+
+题目要求：
+
+> 找到目标节点后，返回以该节点为根的子树。
+
+并不需要把这棵子树复制出来。
+
+因为一个 `TreeNode*` 本身就保存着：
+
+```text
+节点值
+左孩子指针
+右孩子指针
+```
+
+因此返回：
+
+```cpp
+return root;
+```
+
+调用者自然就能从该节点继续访问它完整的左右子树。
+
+## 9. 高频错误
+
+### 错误 1：仍然遍历整棵树
+
+```cpp
+searchBST(root->left, val);
+searchBST(root->right, val);
+```
+
+这样虽然可能找到答案，但完全浪费了 BST 的有序性。
+
+### 错误 2：递归结果没有返回
+
+```cpp
+searchBST(root->left, val);
+```
+
+会导致深层找到的节点无法传回最外层。
+
+### 错误 3：为了迭代而机械使用栈
+
+普通二叉树的 DFS 迭代需要栈，是因为需要保存未来还要访问的分支。
+
+BST 搜索不存在这种需求，因为每一步只有一个合法方向。
+
+### 错误 4：默认 BST 一定是平衡的
+
+BST 的定义只约束大小关系，**不约束形状**。
+
+所以复杂度应该先写 $O(h)$，再分别讨论平衡与退化情况。
+
+## 10. 从这道题抽象出的模板
+
+以后看到 BST 中的“查找某个值”，优先想到：
+
+```cpp
+while (root != nullptr) {
+    if (target < root->val) {
+        root = root->left;
+    } else if (target > root->val) {
+        root = root->right;
+    } else {
+        // 找到 target
+    }
+}
+```
+
+这套方向判断会在后续很多 BST 题中反复出现，例如：
+
+- 查找节点；
+- 插入节点；
+- 删除节点；
+- 查找前驱 / 后继；
+- 在 BST 上做区间剪枝。
+
+<Callout title="本题真正要带走的能力" type="success">
+
+普通二叉树题常问：**我要按什么顺序遍历？**
+
+BST 题还要多问一句：**有序性允许我直接排除哪一部分？**
+
+如果没有利用这个性质，往往就还没有抓住 BST 题的核心。
+
+</Callout>
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    // 递归，普通二叉树
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null || root.val == val) {
+            return root;
+        }
+        TreeNode left = searchBST(root.left, val);
+        if (left != null) {
+            return left;
+        }
+        return searchBST(root.right, val);
+    }
+}
+
+class Solution {
+    // 递归，利用二叉搜索树特点，优化
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null || root.val == val) {
+            return root;
+        }
+        if (val < root.val) {
+            return searchBST(root.left, val);
+        } else {
+            return searchBST(root.right, val);
+        }
+    }
+}
+
+class Solution {
+    // 迭代，普通二叉树
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null || root.val == val) {
+            return root;
+        }
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            TreeNode pop = stack.pop();
+            if (pop.val == val) {
+                return pop;
+            }
+            if (pop.right != null) {
+                stack.push(pop.right);
+            }
+            if (pop.left != null) {
+                stack.push(pop.left);
+            }
+        }
+        return null;
+    }
+}
+
+class Solution {
+    // 迭代，利用二叉搜索树特点，优化，可以不需要栈
+    public TreeNode searchBST(TreeNode root, int val) {
+        while (root != null)
+            if (val < root.val) root = root.left;
+            else if (val > root.val) root = root.right;
+            else return root;
+        return null;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def searchBST(self, root: TreeNode, val: int) -> TreeNode:
+        # 为什么要有返回值:
+        #   因为搜索到目标节点就要立即return，
+        #   这样才是找到节点就返回（搜索某一条边），如果不加return，就是遍历整棵树了。
+
+        if not root or root.val == val:
+            return root
+
+        if root.val > val:
+            return self.searchBST(root.left, val)
+
+        if root.val < val:
+            return self.searchBST(root.right, val)
+
+class Solution:
+    def searchBST(self, root: TreeNode, val: int) -> TreeNode:
+        while root:
+            if val < root.val: root = root.left
+            elif val > root.val: root = root.right
+            else: return root
+        return None
+
+class Solution:
+    def searchBST(self, root: TreeNode, val: int) -> TreeNode:
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            # 根据TreeNode的定义
+            # node携带有三类信息 node.left/node.right/node.val
+            # 找到val直接返回node 即是找到了该节点为根的子树
+            # 此处node.left/node.right/val的前后顺序可打乱
+            if node.val == val:
+                return node
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+        return None
+```
+
+```go label="Go"
+ //递归法
+func searchBST(root *TreeNode, val int) *TreeNode {
+    if root == nil || root.Val == val {
+        return root
+    }
+    if root.Val > val {
+        return searchBST(root.Left, val)
+    }
+    return searchBST(root.Right, val)
+}
+
+ //迭代法
+func searchBST(root *TreeNode, val int) *TreeNode {
+    for root != nil {
+        if root.Val > val {
+            root = root.Left
+        } else if root.Val < val {
+            root = root.Right
+        } else {
+            return root
+        }
+    }
+    return nil
+}
+```
+
+```javascript label="JavaScript"
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} val
+ * @return {TreeNode}
+ */
+var searchBST = function (root, val) {
+    if (!root || root.val === val) {
+        return root;
+    }
+    if (root.val > val)
+        return searchBST(root.left, val);
+    if (root.val < val)
+        return searchBST(root.right, val);
+};
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @param {TreeNode} root
+ * @param {number} val
+ * @return {TreeNode}
+ */
+var searchBST = function (root, val) {
+    while (root !== null) {
+        if (root.val > val)
+            root = root.left;
+        else if (root.val < val)
+            root = root.right;
+        else
+            return root;
+    }
+    return null;
+};
+```
+
+```typescript label="TypeScript"
+function searchBST(root: TreeNode | null, val: number): TreeNode | null {
+    if (root === null || root.val === val) return root;
+    if (root.val < val) return searchBST(root.right, val);
+    if (root.val > val) return searchBST(root.left, val);
+    return null;
+};
+
+function searchBST(root: TreeNode | null, val: number): TreeNode | null {
+    let resNode: TreeNode | null = root;
+    while (resNode !== null) {
+        if (resNode.val === val) return resNode;
+        if (resNode.val < val) {
+            resNode = resNode.right;
+        } else {
+            resNode = resNode.left;
+        }
+    }
+    return null;
+};
+```
+
+```scala label="Scala"
+object Solution {
+  def searchBST(root: TreeNode, value: Int): TreeNode = {
+    if (root == null || value == root.value) return root
+    // 相当于三元表达式，在Scala中if...else有返回值
+    if (value < root.value) searchBST(root.left, value) else searchBST(root.right, value)
+  }
+}
+
+object Solution {
+  def searchBST(root: TreeNode, value: Int): TreeNode = {
+    // 因为root是不可变量，所以需要赋值给一个可变量
+    var node = root
+    while (node != null) {
+      if (value < node.value) node = node.left
+      else if (value > node.value) node = node.right
+      else return node
+    }
+    null // 没有返回就返回空
+  }
+}
+```
+
+```rust label="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+impl Solution {
+    pub fn search_bst(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        val: i32,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        if root.is_none() || root.as_ref().unwrap().borrow().val == val {
+            return root;
+        }
+        let node_val = root.as_ref().unwrap().borrow().val;
+        if node_val > val {
+            return Self::search_bst(root.as_ref().unwrap().borrow().left.clone(), val);
+        }
+        if node_val < val {
+            return Self::search_bst(root.unwrap().borrow().right.clone(), val);
+        }
+        None
+    }
+}
+
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::cmp;
+impl Solution {
+    pub fn search_bst(
+        mut root: Option<Rc<RefCell<TreeNode>>>,
+        val: i32,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        while let Some(ref node) = root.clone() {
+            match val.cmp(&node.borrow().val) {
+                cmp::Ordering::Less => root = node.borrow().left.clone(),
+                cmp::Ordering::Equal => return root,
+                cmp::Ordering::Greater => root = node.borrow().right.clone(),
+            };
+        }
+        None
+    }
+}
+```
+
+```csharp label="C#"
+// 递归
+public TreeNode SearchBST(TreeNode root, int val)
+{
+    if (root == null || root.val == val) return root;
+    if (root.val > val) return SearchBST(root.left, val);
+    if (root.val < val) return SearchBST(root.right, val);
+    return null;
+}
+//  迭代
+public TreeNode SearchBST(TreeNode root, int val)
+{
+    while (root != null)
+    {
+        if (root.val > val) root = root.left;
+        else if (root.val < val) root = root.right;
+        else return root;
+    }
+    return null;
+}
+```
+````

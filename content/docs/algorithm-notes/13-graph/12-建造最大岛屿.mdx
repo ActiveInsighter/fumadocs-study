@@ -1,0 +1,1057 @@
+---
+title: 建造最大岛屿
+subtitle: 连通块染色 + 枚举一次修改，把重复搜索降为线性扫描
+summary: 通过卡码网 104 掌握“先预处理连通块，再枚举局部修改”的经典套路：给每座岛屿编号并记录面积，随后枚举每个水格，去重合并四周岛屿，在线性时间内求出翻转一个格子后的最大面积。
+---
+
+# 建造最大岛屿
+
+> **卡码网 104. 建造最大岛屿**
+>
+> 给定一个由 `0` 和 `1` 组成的 $N\times M$ 网格，`1` 表示陆地、`0` 表示水。上下左右相邻的陆地属于同一座岛屿。现在最多可以把一个 `0` 改成 `1`，求操作后能够得到的最大岛屿面积。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1176)
+
+这道题是岛屿问题里非常重要的一次升级。
+
+前面的题目通常只要求：
+
+```text
+找到连通块 → 统计面积
+```
+
+而本题还多了一次“修改地图”的机会：
+
+```text
+把某个 0 变成 1
+```
+
+最容易想到的方法，是对每个 `0` 都真正改一次，再重新搜索整张地图。但这样会把完全相同的岛屿一遍又一遍地重新计算。
+
+真正的关键是：
+
+> **原地图中的每座岛屿面积其实是固定的。先把它们一次性预处理出来，之后枚举 `0` 时只做查表和加法。**
+
+这是一类非常典型的“**连通块预处理 + 局部枚举**”问题。
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+4 5
+1 1 0 0 0
+1 1 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+```
+
+输出：
+
+```text
+6
+```
+
+原题示意图：
+
+![建造最大岛屿示例](https://file1.kamacoder.com/i/algo/20240522154055.png)
+
+存在两个合适的位置，可以把一个水格变成陆地，并把原本分离的岛屿连接起来，最终最大面积为 `6`。
+
+![把水格改为陆地后的效果](https://file1.kamacoder.com/i/algo/20240522154110.png)
+
+---
+
+## 2. 暴力为什么慢
+
+假设我们枚举某个水格 `(i,j)`：
+
+1. 临时把它改成 `1`；
+2. 遍历整张地图；
+3. 用 DFS/BFS 重新统计所有岛屿面积；
+4. 恢复这个格子；
+5. 继续尝试下一个水格。
+
+网格一共有 $NM$ 个位置，所以最多有 $NM$ 个候选水格。
+
+而每次重新计算最大岛屿面积，需要遍历整张网格，复杂度为：
+
+$$
+O(NM)
+$$
+
+因此总复杂度达到：
+
+$$
+O((NM)^2)=O(N^2M^2)
+$$
+
+如果是 $n\times n$ 方阵，就是常见的：
+
+$$
+O(n^4)
+$$
+
+<Callout type="warning" title="真正重复的工作在哪里？">
+
+当你尝试不同的 `0` 时，原来那些岛屿本身并没有发生变化。
+
+例如某座岛屿面积始终是 `17`，暴力算法却可能为了不同的候选 `0`，把这 `17` 个格子重新 DFS 很多次。
+
+所以优化方向不是“让 DFS 再快一点”，而是：**同一座岛屿只统计一次。**
+
+</Callout>
+
+---
+
+## 3. 第一阶段：给每座岛屿染色并记录面积
+
+原始网格只有两种值：
+
+```text
+0 = 水
+1 = 尚未处理的陆地
+```
+
+因此可以从 `2` 开始，给不同岛屿编号：
+
+```text
+2 = 第一座岛屿
+3 = 第二座岛屿
+4 = 第三座岛屿
+...
+```
+
+然后维护：
+
+```cpp
+unordered_map<int, int> area;
+```
+
+其中：
+
+```text
+area[岛屿编号] = 岛屿面积
+```
+
+原题中的示意地图：
+
+![建造最大岛屿原始地图](https://file1.kamacoder.com/i/algo/20220829104834.png)
+
+经过第一次 DFS 染色以后，每座岛屿都拥有唯一编号：
+
+![给每座岛屿编号并统计面积](https://file1.kamacoder.com/i/algo/20220829105644.png)
+
+此时网格本身就同时承担了两个角色：
+
+```text
+0       → 水
+2,3,... → 某座已经识别出的岛屿
+```
+
+而岛屿面积则可以通过编号 $O(1)$ 查询。
+
+---
+
+## 4. 为什么可以直接修改原网格
+
+第一次 DFS 的目的本来就是把所有 `1` 分成不同连通块。
+
+所以访问到陆地 `(x,y)` 后，可以直接执行：
+
+```cpp
+grid[x][y] = mark;
+```
+
+这样以后：
+
+- `grid[x][y] == 1`：还没有处理；
+- `grid[x][y] >= 2`：已经属于某个岛屿；
+- `grid[x][y] == 0`：仍然是水。
+
+因此其实不再需要额外的 `visited` 数组。
+
+<Callout type="tip" title="染色本身就是 visited">
+
+很多网格题都可以直接修改原数组来表示访问状态。
+
+只要题目允许修改输入，就可以把：
+
+```text
+visited + 连通块编号
+```
+
+合并成一份状态。
+
+</Callout>
+
+---
+
+## 5. DFS：染色并返回岛屿面积
+
+推荐把 DFS 写成“返回当前连通块面积”的形式：
+
+```cpp
+int dfs(vector<vector<int>>& grid, int x, int y, int mark) {
+    if (x < 0 || x >= n || y < 0 || y >= m) {
+        return 0;
+    }
+
+    if (grid[x][y] != 1) {
+        return 0;
+    }
+
+    grid[x][y] = mark;
+    int area = 1;
+
+    for (const auto& d : DIR) {
+        area += dfs(grid, x + d[0], y + d[1], mark);
+    }
+
+    return area;
+}
+```
+
+这里最重要的终止条件是：
+
+```cpp
+if (grid[x][y] != 1) return 0;
+```
+
+因为只有值为 `1` 的格子才是“尚未染色的陆地”。
+
+---
+
+## 6. 第二阶段：枚举每一个水格
+
+第一阶段结束后，所有岛屿都已经有了编号和面积。
+
+接下来枚举每个 `0`。
+
+如果把当前水格改成陆地，那么新岛屿面积一定是：
+
+$$
+1+\sum \text{四周不同岛屿的面积}
+$$
+
+这里的 `1` 就是当前新增加的陆地格子。
+
+原题示意图：
+
+![枚举一个水格并合并四周岛屿](https://file1.kamacoder.com/i/algo/20220829105249.png)
+
+于是对每个水格只需要：
+
+1. 看上、下、左、右四个邻居；
+2. 找出它们分别属于哪座岛屿；
+3. 对岛屿编号去重；
+4. 把对应面积相加；
+5. 再加当前格子的 `1`。
+
+---
+
+## 7. 为什么“四周岛屿必须去重”
+
+这是本题最容易写错的地方。
+
+例如下面的情况：
+
+```text
+2 2 2
+2 0 2
+2 2 2
+```
+
+中心 `0` 的四个方向看到的全都是编号为 `2` 的岛屿。
+
+但它们实际上属于 **同一座岛屿**。
+
+如果直接写：
+
+```cpp
+cur += area[grid[nx][ny]];
+```
+
+四个方向都会重复加同一座岛屿，答案就会严重偏大。
+
+因此每枚举一个 `0`，都要维护一个局部集合：
+
+```cpp
+unordered_set<int> used;
+```
+
+只有某个岛屿编号第一次出现时才累加：
+
+```cpp
+int id = grid[nx][ny];
+
+if (id > 1 && !used.count(id)) {
+    cur += area[id];
+    used.insert(id);
+}
+```
+
+<Callout type="warning" title="去重的是岛屿，不是方向">
+
+四个方向最多只有四个邻居，但同一座岛屿可能同时出现在两个、三个甚至四个方向。
+
+所以不能因为“方向不同”就认为“岛屿不同”。
+
+</Callout>
+
+---
+
+## 8. 一个完整的小例子
+
+假设染色之后局部地图是：
+
+```text
+2 2 0 3
+2 0 0 3
+0 0 4 4
+```
+
+并且：
+
+```text
+area[2] = 3
+area[3] = 2
+area[4] = 2
+```
+
+现在考虑中间某个 `0`，如果它四周接触到编号 `2` 和 `4`，那么把它改成陆地后：
+
+$$
+1+3+2=6
+$$
+
+如果同一个编号 `2` 从两个方向出现，仍然只能加一次：
+
+$$
+1+3
+$$
+
+而不是：
+
+$$
+1+3+3
+$$
+
+---
+
+## 9. 全是陆地怎么办
+
+如果网格里一个 `0` 都没有，例如：
+
+```text
+1 1
+1 1
+```
+
+题目说的是“**最多**可以把一个水格改成陆地”，并不是必须修改。
+
+所以最大岛屿就是整张地图：
+
+$$
+NM
+$$
+
+可以在第一次扫描时记录：
+
+```cpp
+bool hasWater = false;
+```
+
+只要遇到 `0` 就设为 `true`。
+
+最后如果：
+
+```cpp
+if (!hasWater) {
+    cout << n * m << '\n';
+    return 0;
+}
+```
+
+---
+
+## 10. 全是水怎么办
+
+例如：
+
+```text
+0 0
+0 0
+```
+
+第一次扫描不会得到任何岛屿。
+
+第二次枚举任意一个 `0` 时：
+
+```text
+cur = 1
+```
+
+四周没有任何岛屿可以合并，因此答案自然为：
+
+$$
+1
+$$
+
+所以不需要专门写额外分支。
+
+---
+
+## 11. 推荐的整体流程
+
+```text
+第一遍扫描：
+    找到每个还等于 1 的格子
+    从它开始 DFS/BFS
+    把整座岛屿染成唯一编号 mark
+    记录 area[mark]
+
+第二遍扫描：
+    只处理值为 0 的格子
+    cur = 1
+    查看四个方向
+    对相邻岛屿编号去重
+    cur += 每座不同岛屿的面积
+    更新答案
+```
+
+这套思路可以进一步抽象为：
+
+```text
+静态部分先预处理
+动态修改只计算它真正影响的局部范围
+```
+
+---
+
+## 12. C++ 推荐实现
+
+```cpp
+#include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+using namespace std;
+
+const int DIR[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+
+int n, m;
+
+int dfs(vector<vector<int>>& grid, int x, int y, int mark) {
+    if (x < 0 || x >= n || y < 0 || y >= m) {
+        return 0;
+    }
+
+    // 只扩展尚未染色的陆地
+    if (grid[x][y] != 1) {
+        return 0;
+    }
+
+    grid[x][y] = mark;
+    int curArea = 1;
+
+    for (const auto& d : DIR) {
+        curArea += dfs(grid, x + d[0], y + d[1], mark);
+    }
+
+    return curArea;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> m;
+    vector<vector<int>> grid(n, vector<int>(m));
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    unordered_map<int, int> area;
+    int mark = 2;
+    bool hasWater = false;
+    int answer = 0;
+
+    // 第一阶段：给每座岛屿染色，并记录面积
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 0) {
+                hasWater = true;
+            }
+
+            if (grid[i][j] == 1) {
+                int curArea = dfs(grid, i, j, mark);
+                area[mark] = curArea;
+                answer = max(answer, curArea);
+                ++mark;
+            }
+        }
+    }
+
+    // 如果没有水，本身就是一个最大岛屿
+    if (!hasWater) {
+        cout << n * m << '\n';
+        return 0;
+    }
+
+    // 第二阶段：枚举把每个 0 改成 1
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] != 0) {
+                continue;
+            }
+
+            int curArea = 1;
+            unordered_set<int> used;
+
+            for (const auto& d : DIR) {
+                int nx = i + d[0];
+                int ny = j + d[1];
+
+                if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                    continue;
+                }
+
+                int id = grid[nx][ny];
+
+                // 0 是水；同一座岛屿只能累加一次
+                if (id <= 1 || used.count(id)) {
+                    continue;
+                }
+
+                curArea += area[id];
+                used.insert(id);
+            }
+
+            answer = max(answer, curArea);
+        }
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+---
+
+## 13. 为什么不需要 `visited`
+
+上面的推荐实现没有额外定义：
+
+```cpp
+vector<vector<bool>> visited;
+```
+
+原因是染色已经完成了访问标记：
+
+```cpp
+grid[x][y] = mark;
+```
+
+只要 DFS 只进入：
+
+```cpp
+grid[x][y] == 1
+```
+
+的格子，就绝不可能重复搜索已经染过色的节点。
+
+因此空间更简洁，状态也更统一。
+
+---
+
+## 14. 时间复杂度为什么是 $O(NM)$
+
+第一阶段中，每个陆地格子只会被 DFS/BFS 真正访问一次：
+
+$$
+O(NM)
+$$
+
+第二阶段遍历每个格子，每个水格只查看固定的四个方向：
+
+$$
+O(4NM)=O(NM)
+$$
+
+总时间复杂度：
+
+$$
+O(NM)
+$$
+
+如果不考虑递归调用栈和哈希表中岛屿面积记录，额外空间主要与岛屿数有关；最坏情况下岛屿数量为 $O(NM)$，因此整体辅助空间可记为：
+
+$$
+O(NM)
+$$
+
+---
+
+## 15. 为什么哈希集合的开销仍然是常数级
+
+每个水格最多只有四个邻居，所以：
+
+```cpp
+unordered_set<int> used;
+```
+
+最多只会放入 `4` 个岛屿编号。
+
+因此对每个水格的去重仍然是常数规模。
+
+甚至可以进一步不用哈希集合，直接用一个长度最多为 `4` 的小数组手动判断是否出现过，但通常没必要为了这点常数优化牺牲可读性。
+
+---
+
+## 16. 高频错误
+
+<Cards>
+  <Card title="相邻岛屿没有去重">
+    同一座岛屿可能从多个方向包围一个水格。必须按岛屿编号去重，而不是按方向累加。
+  </Card>
+  <Card title="mark 从 0 或 1 开始">
+    `0` 和 `1` 已经有原始语义。岛屿编号最好从 `2` 开始，避免状态冲突。
+  </Card>
+  <Card title="DFS 把其他编号也继续扩展">
+    染色阶段只允许进入值为 `1` 的格子。遇到 `0` 或已经编号的岛屿都应停止。
+  </Card>
+  <Card title="忘记全陆地情况">
+    如果没有 `0`，就不存在第二阶段的候选格子。答案应直接是 $NM$。
+  </Card>
+  <Card title="把当前 0 自己漏掉">
+    合并后的面积必须从 `1` 开始，因为被翻转的格子本身也属于新岛屿。
+  </Card>
+</Cards>
+
+---
+
+## 17. 这道题真正应该学会的模式
+
+本题不只是“岛屿面积”的又一道题，更重要的是下面这个通用模型：
+
+> **当一次局部修改只会连接若干已经存在的连通块时，可以先把所有连通块压缩成“编号 + 属性”，再枚举修改位置。**
+
+这里的属性是：
+
+```text
+连通块面积
+```
+
+以后还可能是：
+
+```text
+连通块大小
+连通块权值和
+连通块最大值
+连通块是否含特殊节点
+```
+
+从图论视角看，我们实际上先把每个连通块压缩成了一个“超级节点”。
+
+---
+
+## 18. 与并查集的联系
+
+第一次预处理除了 DFS/BFS，也可以使用并查集维护每个连通块的根节点与大小。
+
+但在本题中：
+
+- 网格是静态的；
+- 只需要做一次连通块识别；
+- DFS/BFS 更直观、代码更短。
+
+如果题目进一步变成：
+
+```text
+不断把多个 0 动态改成 1
+每次都询问最大连通块
+```
+
+那么并查集就会更有优势。
+
+---
+
+## 19. 一句话记忆
+
+> **先给岛屿编号并记住面积，再枚举每个水格，把四周“不同编号”的岛屿面积加起来。**
+
+看到“一次修改会连接若干连通块”的题目，优先考虑：
+
+```text
+连通块预处理 + 编号 + 查表合并
+```
+
+---
+
+## 20. 其他语言版本
+
+下面各版本都采用相同的两阶段结构：先给岛屿染色并记录面积，再枚举每个水格合并四周不同岛屿。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+    };
+
+    static int n, m;
+    static int[][] grid;
+
+    static int dfs(int x, int y, int mark) {
+        if (x < 0 || x >= n || y < 0 || y >= m) return 0;
+        if (grid[x][y] != 1) return 0;
+
+        grid[x][y] = mark;
+        int area = 1;
+
+        for (int[] d : DIR) {
+            area += dfs(x + d[0], y + d[1], mark);
+        }
+
+        return area;
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        grid = new int[n][m];
+        for (int i = 0; i < n; ++i) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; ++j) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        Map<Integer, Integer> area = new HashMap<>();
+        int mark = 2;
+        boolean hasWater = false;
+        int answer = 0;
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] == 0) hasWater = true;
+
+                if (grid[i][j] == 1) {
+                    int cur = dfs(i, j, mark);
+                    area.put(mark, cur);
+                    answer = Math.max(answer, cur);
+                    ++mark;
+                }
+            }
+        }
+
+        if (!hasWater) {
+            System.out.println(n * m);
+            return;
+        }
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] != 0) continue;
+
+                int cur = 1;
+                Set<Integer> used = new HashSet<>();
+
+                for (int[] d : DIR) {
+                    int nx = i + d[0];
+                    int ny = j + d[1];
+
+                    if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+
+                    int id = grid[nx][ny];
+                    if (id <= 1 || !used.add(id)) continue;
+
+                    cur += area.get(id);
+                }
+
+                answer = Math.max(answer, cur);
+            }
+        }
+
+        System.out.println(answer);
+    }
+}
+```
+
+```python label="Python"
+import sys
+sys.setrecursionlimit(1_000_000)
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def dfs(x, y, mark):
+    if not (0 <= x < n and 0 <= y < m):
+        return 0
+    if grid[x][y] != 1:
+        return 0
+
+    grid[x][y] = mark
+    area = 1
+
+    for dx, dy in directions:
+        area += dfs(x + dx, y + dy, mark)
+
+    return area
+
+
+area = {}
+mark = 2
+has_water = False
+answer = 0
+
+for i in range(n):
+    for j in range(m):
+        if grid[i][j] == 0:
+            has_water = True
+
+        if grid[i][j] == 1:
+            cur = dfs(i, j, mark)
+            area[mark] = cur
+            answer = max(answer, cur)
+            mark += 1
+
+if not has_water:
+    print(n * m)
+    raise SystemExit
+
+for i in range(n):
+    for j in range(m):
+        if grid[i][j] != 0:
+            continue
+
+        cur = 1
+        used = set()
+
+        for dx, dy in directions:
+            nx, ny = i + dx, j + dy
+            if not (0 <= nx < n and 0 <= ny < m):
+                continue
+
+            island_id = grid[nx][ny]
+            if island_id <= 1 or island_id in used:
+                continue
+
+            used.add(island_id)
+            cur += area[island_id]
+
+        answer = max(answer, cur)
+
+print(answer)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n, m int
+    grid [][]int
+    dir = [4][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+)
+
+func dfs(x, y, mark int) int {
+    if x < 0 || x >= n || y < 0 || y >= m {
+        return 0
+    }
+    if grid[x][y] != 1 {
+        return 0
+    }
+
+    grid[x][y] = mark
+    area := 1
+
+    for _, d := range dir {
+        area += dfs(x+d[0], y+d[1], mark)
+    }
+
+    return area
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    fmt.Fscan(in, &n, &m)
+    grid = make([][]int, n)
+
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    area := make(map[int]int)
+    mark := 2
+    hasWater := false
+    answer := 0
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] == 0 {
+                hasWater = true
+            }
+            if grid[i][j] == 1 {
+                cur := dfs(i, j, mark)
+                area[mark] = cur
+                if cur > answer {
+                    answer = cur
+                }
+                mark++
+            }
+        }
+    }
+
+    if !hasWater {
+        fmt.Fprintln(out, n*m)
+        return
+    }
+
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] != 0 {
+                continue
+            }
+
+            cur := 1
+            used := make(map[int]bool)
+
+            for _, d := range dir {
+                nx, ny := i+d[0], j+d[1]
+                if nx < 0 || nx >= n || ny < 0 || ny >= m {
+                    continue
+                }
+
+                id := grid[nx][ny]
+                if id <= 1 || used[id] {
+                    continue
+                }
+
+                used[id] = true
+                cur += area[id]
+            }
+
+            if cur > answer {
+                answer = cur
+            }
+        }
+    }
+
+    fmt.Fprintln(out, answer)
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = data[p++];
+const m = data[p++];
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => data[p++])
+);
+
+const dir = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+];
+
+function dfs(x, y, mark) {
+  if (x < 0 || x >= n || y < 0 || y >= m) return 0;
+  if (grid[x][y] !== 1) return 0;
+
+  grid[x][y] = mark;
+  let area = 1;
+
+  for (const [dx, dy] of dir) {
+    area += dfs(x + dx, y + dy, mark);
+  }
+
+  return area;
+}
+
+const area = new Map();
+let mark = 2;
+let hasWater = false;
+let answer = 0;
+
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] === 0) hasWater = true;
+
+    if (grid[i][j] === 1) {
+      const cur = dfs(i, j, mark);
+      area.set(mark, cur);
+      answer = Math.max(answer, cur);
+      mark++;
+    }
+  }
+}
+
+if (!hasWater) {
+  console.log(n * m);
+  process.exit(0);
+}
+
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] !== 0) continue;
+
+    let cur = 1;
+    const used = new Set();
+
+    for (const [dx, dy] of dir) {
+      const nx = i + dx;
+      const ny = j + dy;
+
+      if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+
+      const id = grid[nx][ny];
+      if (id <= 1 || used.has(id)) continue;
+
+      used.add(id);
+      cur += area.get(id);
+    }
+
+    answer = Math.max(answer, cur);
+  }
+}
+
+console.log(answer);
+```
+````

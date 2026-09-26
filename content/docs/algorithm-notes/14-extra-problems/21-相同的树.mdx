@@ -1,0 +1,571 @@
+---
+title: 相同的树
+description: 用“成对比较节点”的视角统一理解递归与 BFS 两种解法，掌握二叉树结构比较时空节点、节点值和左右子树必须同时一致的判断顺序。
+---
+
+# 100. 相同的树
+
+[LeetCode 100：相同的树](https://leetcode.cn/problems/same-tree/)
+
+给定两棵二叉树 `p` 和 `q`，判断它们是否完全相同。
+
+这里的“相同”包含两个条件：
+
+1. **结构完全相同**；
+2. 对应位置上的 **节点值完全相同**。
+
+只有两个条件同时成立，答案才是 `true`。
+
+![相同的树示例 1](https://file1.kamacoder.com/i/algo/20210726172932.png)
+
+![相同的树示例 2](https://file1.kamacoder.com/i/algo/20210726173011.png)
+
+## 一、这道题的本质：同时遍历两棵树
+
+普通二叉树遍历时，我们只关心一个节点：
+
+```text
+node
+```
+
+而这道题每一步真正要处理的是一对节点：
+
+```text
+(p, q)
+```
+
+每次都要回答：
+
+> 当前位置上的两个节点是否相同？如果相同，它们的左右子树是否也分别相同？
+
+因此这是典型的 **双树同步遍历**。
+
+递归关系可以写成：
+
+$Same(p,q)=Same(p.left,q.left)\land Same(p.right,q.right)$
+
+但这个公式成立之前，必须先处理节点为空和节点值不同的情况。
+
+## 二、判断顺序为什么很重要
+
+比较两个节点时，应按下面顺序处理。
+
+### 情况 1：两个节点都为空
+
+```text
+p = null
+q = null
+```
+
+这一位置完全一致：
+
+```cpp
+return true;
+```
+
+### 情况 2：只有一个为空
+
+```text
+p = null, q != null
+```
+
+或者：
+
+```text
+p != null, q = null
+```
+
+说明树的结构已经不同：
+
+```cpp
+return false;
+```
+
+### 情况 3：两个节点都非空，但值不同
+
+```cpp
+p->val != q->val
+```
+
+说明对应位置节点值不一致：
+
+```cpp
+return false;
+```
+
+### 情况 4：两个节点都非空且值相同
+
+只有到这一步，才继续递归比较：
+
+```text
+左子树 vs 左子树
+右子树 vs 右子树
+```
+
+所以完整逻辑是：
+
+```text
+两者都空        -> true
+只有一个为空    -> false
+值不同          -> false
+否则            -> 比较左右子树
+```
+
+> [!IMPORTANT]
+> 先判断空指针，再访问 `val`。这是所有“双节点比较”二叉树题都必须遵守的基本顺序。
+
+## 三、推荐解法：递归
+
+可以直接把函数定义为：
+
+> `isSameTree(p, q)`：判断以 `p` 和 `q` 为根的两棵树是否完全相同。
+
+那么递归边界和递推关系都非常自然。
+
+```cpp
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        if (p == nullptr && q == nullptr) {
+            return true;
+        }
+
+        if (p == nullptr || q == nullptr) {
+            return false;
+        }
+
+        if (p->val != q->val) {
+            return false;
+        }
+
+        return isSameTree(p->left, q->left)
+            && isSameTree(p->right, q->right);
+    }
+};
+```
+
+这版代码短，但逻辑并没有缺失：前三个 `if` 已经完整覆盖当前节点不匹配的所有情况。
+
+## 四、为什么递归必须“左对左、右对右”
+
+判断“相同的树”时，对应关系是：
+
+```text
+p.left  <-> q.left
+p.right <-> q.right
+```
+
+因此：
+
+```cpp
+isSameTree(p->left, q->left)
+&&
+isSameTree(p->right, q->right)
+```
+
+注意它和“对称二叉树”非常相似，但比较方向不同。
+
+### 相同的树
+
+```text
+左 <-> 左
+右 <-> 右
+```
+
+### 对称二叉树
+
+```text
+左 <-> 右
+右 <-> 左
+```
+
+这个区别非常值得记忆。
+
+> [!TIP]
+> “相同”看对应位置，“对称”看镜像位置。两类题的框架几乎一样，真正变化的只是递归配对方式。
+
+## 五、用一个反例理解“值相同但结构不同”
+
+考虑：
+
+```text
+树 p：        树 q：
+   1            1
+  /              \
+ 2                2
+```
+
+两个树都包含：
+
+```text
+1, 2
+```
+
+但它们并不相同。
+
+为什么？
+
+比较根节点 `1`：相同。
+
+接下来比较：
+
+```text
+p.left = 2
+q.left = null
+```
+
+一个为空，一个非空，结构已经不一致，所以立即返回 `false`。
+
+这说明：
+
+> 不能只比较遍历得到的节点值集合，必须同时比较结构。
+
+## 六、为什么只比较前序遍历序列可能出错
+
+如果遍历时不记录空节点，下面两棵树可能产生相同的普通前序序列：
+
+```text
+   1          1
+  /            \
+ 2              2
+```
+
+都可能得到：
+
+```text
+1, 2
+```
+
+但树结构显然不同。
+
+如果确实要把树序列化后比较，就必须把空节点也编码进去，例如：
+
+```text
+1,2,#,#,#
+```
+
+和：
+
+```text
+1,#,2,#,#
+```
+
+这样结构信息才不会丢失。
+
+不过本题没有必要先序列化，直接同步遍历最简单。
+
+## 七、方法二：迭代 BFS
+
+递归实际上依赖系统调用栈保存“待比较的节点对”。
+
+我们也可以显式使用队列：
+
+```text
+(p, q)
+```
+
+每次取出一对节点进行比较。
+
+如果当前节点相同，就把：
+
+```text
+(p.left, q.left)
+(p.right, q.right)
+```
+
+继续加入队列。
+
+### 推荐实现
+
+```cpp
+class Solution {
+public:
+    bool isSameTree(TreeNode* p, TreeNode* q) {
+        queue<pair<TreeNode*, TreeNode*>> que;
+        que.push({p, q});
+
+        while (!que.empty()) {
+            auto [a, b] = que.front();
+            que.pop();
+
+            if (a == nullptr && b == nullptr) {
+                continue;
+            }
+
+            if (a == nullptr || b == nullptr) {
+                return false;
+            }
+
+            if (a->val != b->val) {
+                return false;
+            }
+
+            que.push({a->left, b->left});
+            que.push({a->right, b->right});
+        }
+
+        return true;
+    }
+};
+```
+
+相比“先把 `p` 推进去、再把 `q` 推进去”的写法，直接保存 `pair` 更直观，因为队列中的基本单位就是：
+
+```text
+一对待比较节点
+```
+
+## 八、递归与迭代应该如何选择
+
+### 递归
+
+优点：
+
+- 代码最短；
+- 与“树是否相同”的数学定义几乎完全一致；
+- 更容易写对。
+
+缺点：
+
+- 极端深树可能导致递归栈很深。
+
+### 迭代
+
+优点：
+
+- 不依赖递归调用栈；
+- 显式体现“成对比较”的过程；
+- 可以自然扩展成 BFS。
+
+缺点：
+
+- 代码略长。
+
+普通刷题环境下，本题优先推荐递归。
+
+## 九、复杂度分析
+
+设两棵树总共需要比较的对应节点数为 $n$。
+
+### 时间复杂度
+
+最坏情况下，需要访问所有节点：
+
+$O(n)$
+
+如果很早就发现：
+
+- 结构不同；
+- 节点值不同；
+
+则会提前返回。
+
+### 空间复杂度
+
+#### 递归
+
+空间取决于树高 $h$：
+
+$O(h)$
+
+平衡树中：
+
+$h=O(\log n)$
+
+退化链中：
+
+$h=O(n)$
+
+#### BFS
+
+队列最坏需要保存一层的大量节点对，因此最坏为：
+
+$O(n)$
+
+## 十、常见错误
+
+### 1. 只比较节点值，不比较结构
+
+错误思路：
+
+```text
+把两棵树的节点值排序，再比较
+```
+
+这只能说明节点值集合相同，完全不能说明树结构相同。
+
+### 2. 空指针判断不完整
+
+下面这种写法是危险的：
+
+```cpp
+if (p->val != q->val)
+```
+
+因为 `p` 或 `q` 可能是 `nullptr`。
+
+必须先判断：
+
+```cpp
+if (p == nullptr || q == nullptr)
+```
+
+### 3. 把“相同”写成镜像比较
+
+错误：
+
+```cpp
+isSameTree(p->left, q->right)
+isSameTree(p->right, q->left)
+```
+
+这实际上是在做“对称/镜像”判断。
+
+相同树应该是：
+
+```cpp
+p->left  vs q->left
+p->right vs q->right
+```
+
+### 4. BFS 时丢掉空节点信息
+
+如果只把非空节点加入队列，就可能无法识别结构差异。
+
+例如：
+
+```text
+左孩子存在 vs 右孩子存在
+```
+
+因此应当让空节点也参与“成对比较”，或者在入队前就严格比较子节点结构。
+
+## 十一、统一模板：两棵树同步递归
+
+很多二叉树题都可以抽象成：
+
+```cpp
+bool compare(TreeNode* a, TreeNode* b) {
+    // 1. 处理空节点关系
+    // 2. 比较当前节点
+    // 3. 递归比较指定方向的孩子
+}
+```
+
+不同题目真正变化的是第 3 步的“配对规则”。
+
+### 相同的树
+
+```text
+(a.left,  b.left)
+(a.right, b.right)
+```
+
+### 对称二叉树
+
+```text
+(a.left,  b.right)
+(a.right, b.left)
+```
+
+### 子树比较
+
+先找到候选根，再调用“相同的树”模板判断两棵子树是否完全一致。
+
+所以本题虽然简单，却是后续很多双树比较问题的基础模板。
+
+> [!NOTE]
+> 做二叉树递归题时，比背代码更重要的是先写清楚“递归函数到底表示什么”。函数语义一旦确定，终止条件和下一层递归通常会自然出现。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {
+            return true;
+        }
+        if (p == null || q == null) {
+            return false;
+        }
+        if (p.val != q.val) {
+            return false;
+        }
+
+        return isSameTree(p.left, q.left)
+            && isSameTree(p.right, q.right);
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        if p is None and q is None:
+            return True
+        if p is None or q is None:
+            return False
+        if p.val != q.val:
+            return False
+
+        return (
+            self.isSameTree(p.left, q.left)
+            and self.isSameTree(p.right, q.right)
+        )
+```
+
+```go label="Go"
+func isSameTree(p *TreeNode, q *TreeNode) bool {
+    if p == nil && q == nil {
+        return true
+    }
+    if p == nil || q == nil {
+        return false
+    }
+    if p.Val != q.Val {
+        return false
+    }
+
+    return isSameTree(p.Left, q.Left) &&
+        isSameTree(p.Right, q.Right)
+}
+```
+
+```javascript label="JavaScript"
+var isSameTree = function(p, q) {
+    if (p === null && q === null) {
+        return true;
+    }
+    if (p === null || q === null) {
+        return false;
+    }
+    if (p.val !== q.val) {
+        return false;
+    }
+
+    return isSameTree(p.left, q.left)
+        && isSameTree(p.right, q.right);
+};
+```
+
+```typescript label="TypeScript"
+function isSameTree(
+    p: TreeNode | null,
+    q: TreeNode | null
+): boolean {
+    if (p === null && q === null) {
+        return true;
+    }
+    if (p === null || q === null) {
+        return false;
+    }
+    if (p.val !== q.val) {
+        return false;
+    }
+
+    return isSameTree(p.left, q.left)
+        && isSameTree(p.right, q.right);
+}
+```
+````

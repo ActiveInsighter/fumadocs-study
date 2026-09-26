@@ -1,0 +1,864 @@
+---
+title: 删除二叉搜索树中的节点：递归返回值如何完成结构重接
+---
+
+# 删除二叉搜索树中的节点：递归返回值如何完成结构重接
+
+> LeetCode 450 · Delete Node in a BST
+
+[题目链接](https://leetcode.cn/problems/delete-node-in-a-bst/)
+
+给定一棵二叉搜索树 `root` 和目标值 `key`，删除值为 `key` 的节点，并保证删除后仍然是一棵二叉搜索树。
+
+![删除二叉搜索树中的节点](https://file1.kamacoder.com/i/algo/20201020171048265.png)
+
+<Callout title="本题真正考什么" type="idea">
+
+BST 删除并不难在“找到节点”，而难在：
+
+> **删掉当前节点以后，应该让哪棵子树顶上来，并且怎样保证剩余节点仍满足 BST 的有序关系。**
+
+最值得掌握的统一视角是：**递归函数返回“删除完成后的子树新根”**。
+
+</Callout>
+
+## 1. 为什么删除比插入复杂
+
+插入节点时，我们沿搜索路径一直走到空位置，然后挂上新节点即可。
+
+删除节点不同。假设要删除的节点记为 `root`，它可能有：
+
+| 情况 | 删除后的替代者 |
+| --- | --- |
+| 没有孩子 | `nullptr` |
+| 只有右孩子 | `root->right` |
+| 只有左孩子 | `root->left` |
+| 左右孩子都有 | 需要重新连接两棵子树 |
+
+前三种本质上都是“让唯一还能保留的子树顶上来”。真正需要推理的是最后一种。
+
+## 2. 先用 BST 性质找到目标节点
+
+BST 满足：
+
+```text
+左子树所有值 < 当前节点值 < 右子树所有值
+```
+
+因此寻找 `key` 时不需要遍历整棵树：
+
+```text
+key < root.val  → 只去左子树
+key > root.val  → 只去右子树
+key = root.val  → 找到待删除节点
+```
+
+对应递归：
+
+```cpp
+if (key < root->val) {
+    root->left = deleteNode(root->left, key);
+} else if (key > root->val) {
+    root->right = deleteNode(root->right, key);
+}
+```
+
+这里最关键的并不是“递归去了哪边”，而是赋值：
+
+```cpp
+root->left = ...
+root->right = ...
+```
+
+它负责把**修改后的子树新根重新接回父节点**。
+
+## 3. 递归函数到底应该返回什么
+
+定义：
+
+> `deleteNode(root, key)` 返回：在以 `root` 为根的 BST 中删除 `key` 后，这棵子树的新根节点。
+
+于是所有结构修改都能统一成“返回新根”。
+
+例如删除：
+
+```text
+    5
+     \
+      8
+```
+
+如果当前待删除节点是 `5`，删除后这棵子树的新根显然应该是 `8`：
+
+```cpp
+return root->right;
+```
+
+上一层无需知道内部发生了什么，只负责：
+
+```cpp
+parent->left = deleteNode(parent->left, key);
+```
+
+<Callout title="树结构修改题的通用模型" type="success">
+
+当一道题可能改变某棵子树的根时，优先考虑把递归函数定义成：
+
+```text
+dfs(root) = 处理完成后的子树新根
+```
+
+这样父节点只需要“接住返回值”。
+
+</Callout>
+
+## 4. 找到目标节点后的四类结构
+
+### 4.1 左孩子为空
+
+如果：
+
+```text
+root.left == null
+```
+
+那么删除 `root` 后，右子树可以直接顶上来：
+
+```cpp
+return root->right;
+```
+
+这一个判断其实已经同时覆盖：
+
+- 叶子节点：左右都空，返回的右孩子也是 `nullptr`；
+- 只有右孩子：返回右孩子。
+
+### 4.2 右孩子为空
+
+同理：
+
+```cpp
+return root->left;
+```
+
+### 4.3 左右孩子都不为空
+
+这是整题核心。
+
+原结构可抽象为：
+
+```text
+        root
+       /    \
+      L      R
+```
+
+删除 `root` 后，`L` 与 `R` 都不能丢。
+
+一种非常直观的结构重接方案是：
+
+1. 让右子树 `R` 成为新的子树根；
+2. 在 `R` 中找到最小节点，也就是一路向左走到头；
+3. 把原来的左子树 `L` 接到这个最小节点的左边。
+
+![删除 BST 节点时的结构重接](https://file1.kamacoder.com/i/algo/450.%E5%88%A0%E9%99%A4%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9.gif)
+
+## 5. 为什么“接到右子树最左节点”一定正确
+
+设待删除节点的值是 $x$。
+
+由于原树是 BST：
+
+$$
+\forall a\in L,\quad a<x
+$$
+
+并且：
+
+$$
+\forall b\in R,\quad b>x
+$$
+
+因此左子树中的任何值，都小于右子树中的任何值：
+
+$$
+\forall a\in L,\forall b\in R,\quad a<b
+$$
+
+令 `m` 为右子树中最小的节点。因为 `m` 已经是右子树最左节点，所以它没有左孩子。
+
+此时把整棵 `L` 接到：
+
+```text
+m.left
+```
+
+仍然满足：
+
+```text
+L 中所有值 < m.val
+```
+
+因此 BST 性质不会被破坏。
+
+<Callout title="为什么不能随便接" type="warning">
+
+删除左右孩子都存在的节点时，不能随便把左子树挂到右子树中的任意节点。
+
+选择“右子树最小节点”恰好利用了它的两个性质：
+
+1. 它没有左孩子，有空位置可接；
+2. 原左子树中的所有值都比它小。
+
+</Callout>
+
+## 6. 一次完整的结构变化
+
+假设删除值为 `7` 的节点：
+
+```text
+        7
+       / \
+      5   9
+         / \
+        8  10
+```
+
+右子树最小节点是 `8`。
+
+先把左子树 `5` 接到 `8.left`：
+
+```text
+          9
+         / \
+        8  10
+       /
+      5
+```
+
+然后返回原来的右孩子 `9` 作为这棵子树的新根。
+
+原节点 `7` 就从父子链路中消失了。
+
+## 7. 推荐递归实现
+
+```cpp title="C++ · 递归结构重接"
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+
+        if (key < root->val) {
+            root->left = deleteNode(root->left, key);
+            return root;
+        }
+
+        if (key > root->val) {
+            root->right = deleteNode(root->right, key);
+            return root;
+        }
+
+        // 走到这里说明 root->val == key。
+        if (root->left == nullptr) {
+            TreeNode* right = root->right;
+            delete root;
+            return right;
+        }
+
+        if (root->right == nullptr) {
+            TreeNode* left = root->left;
+            delete root;
+            return left;
+        }
+
+        // 左右孩子都存在：让右子树顶上来，
+        // 再把原左子树接到右子树最小节点的左侧。
+        TreeNode* minNode = root->right;
+        while (minNode->left != nullptr) {
+            minNode = minNode->left;
+        }
+        minNode->left = root->left;
+
+        TreeNode* newRoot = root->right;
+        delete root;
+        return newRoot;
+    }
+};
+```
+
+这里用 `delete root` 是 C++ 的内存管理细节。算法核心仍然只是：
+
+```text
+决定删除后谁成为这棵子树的新根
+```
+
+## 8. 另一种经典方法：用后继节点替换值
+
+还有一种非常常见的写法：
+
+1. 找到右子树最小节点 `successor`；
+2. 用 `successor.val` 覆盖当前节点值；
+3. 再去右子树中删除这个 `successor`。
+
+伪代码：
+
+```text
+successor = min(root.right)
+root.val = successor.val
+root.right = deleteNode(root.right, successor.val)
+return root
+```
+
+它没有直接移动整棵左子树，而是把“删除两个孩子节点”的问题转化为“删除后继节点”。
+
+为什么后继节点更容易删除？因为右子树的最小节点：
+
+```text
+一定没有左孩子
+```
+
+所以它最多只有一个右孩子，删除会退化成简单情况。
+
+<Callout title="两种方法都应该理解" type="info">
+
+结构重接法更容易看清“子树新根”的概念；后继替值法则更接近很多教材中的标准 BST 删除算法。
+
+二者本质相同：都利用了**中序后继是右子树最小节点**这一事实。
+
+</Callout>
+
+## 9. 为什么不能只把目标节点设为空
+
+错误思路：
+
+```cpp
+if (root->val == key) {
+    return nullptr;
+}
+```
+
+如果目标节点还有孩子，这样会把整棵子树一起断开。
+
+例如：
+
+```text
+      5
+     / \
+    3   8
+```
+
+删除 `5` 时直接返回 `nullptr`，`3` 与 `8` 都会丢失。
+
+删除树节点从来不是“把一个变量清空”这么简单，而是要先确定：
+
+> **删除后，原位置应该由哪一个合法子树根替代。**
+
+## 10. 迭代法为什么更麻烦
+
+递归版的父子关系可以靠返回值自动重接：
+
+```cpp
+root->left = deleteNode(root->left, key);
+```
+
+迭代版没有调用栈，因此必须显式记录：
+
+```text
+cur：当前节点
+parent：cur 的父节点
+```
+
+找到目标节点后，还要判断：
+
+```text
+cur 是 parent.left 还是 parent.right
+```
+
+然后才能把删除后的子树新根写回正确位置。
+
+可以把“删除单个子树根”的逻辑抽成函数：
+
+```cpp title="C++ · 删除当前子树根"
+TreeNode* deleteOneNode(TreeNode* target) {
+    if (target == nullptr) {
+        return nullptr;
+    }
+
+    if (target->right == nullptr) {
+        return target->left;
+    }
+
+    TreeNode* cur = target->right;
+    while (cur->left != nullptr) {
+        cur = cur->left;
+    }
+
+    cur->left = target->left;
+    return target->right;
+}
+```
+
+但从学习和书写稳定性看，本题优先掌握递归版本即可。
+
+## 11. 正确性证明
+
+可以按递归的三种搜索状态证明。
+
+### `key < root.val`
+
+根据 BST 性质，目标节点若存在，只可能在左子树。
+
+递归删除左子树后：
+
+```cpp
+root->left = deleteNode(root->left, key);
+```
+
+右子树和当前根都不变，因此整棵树仍是 BST。
+
+### `key > root.val`
+
+完全对称，只修改右子树。
+
+### `key == root.val`
+
+若一侧为空，直接返回另一侧，显然保持 BST。
+
+若两侧都存在，把左子树接到右子树最小节点的左侧。由于：
+
+$$
+\max(L)<x<\min(R)
+$$
+
+因此必有：
+
+$$
+\max(L)<\min(R)
+$$
+
+接入后仍满足 BST 大小关系，再返回右子树作为新根即可。
+
+因此所有情况都保持 BST 性质。
+
+## 12. 复杂度分析
+
+设树高为 $h$。
+
+搜索目标节点只沿一条路径进行；若目标有两个孩子，寻找右子树最小节点也只沿一条向左路径进行。
+
+因此时间复杂度为：
+
+$$
+O(h)
+$$
+
+递归调用栈空间为：
+
+$$
+O(h)
+$$
+
+若树较平衡，通常有：
+
+$$
+h=O(\log n)
+$$
+
+若 BST 退化为链表，则：
+
+$$
+h=O(n)
+$$
+
+所以不能把普通 BST 删除的复杂度无条件写成 $O(\log n)$。
+
+## 13. 高频错误
+
+<AccordionGroup>
+<Accordion title="错误 1：找到节点后直接返回 null">
+
+这只对叶子节点成立。只要目标节点还有孩子，就会把仍然合法的子树一起丢掉。
+
+</Accordion>
+
+<Accordion title="错误 2：递归删除后没有接住返回值">
+
+错误：
+
+```cpp
+deleteNode(root->left, key);
+```
+
+正确：
+
+```cpp
+root->left = deleteNode(root->left, key);
+```
+
+因为删除可能改变左子树的根。
+
+</Accordion>
+
+<Accordion title="错误 3：两个孩子时只返回右子树，却忘了处理左子树">
+
+直接：
+
+```cpp
+return root->right;
+```
+
+会导致原左子树丢失。
+
+必须先把左子树接到合法位置，或者使用后继替值法。
+
+</Accordion>
+
+<Accordion title="错误 4：把右子树随便一个节点当成接入点">
+
+必须保证新连接仍满足 BST 的大小关系。选择右子树最小节点最自然，因为它没有左孩子，而且原左子树中的值全部比它小。
+
+</Accordion>
+
+<Accordion title="错误 5：忘记删除根节点时根本身会变化">
+
+例如只有一个右孩子：
+
+```text
+root = 5
+        \
+         8
+```
+
+删除 `5` 后，新根就是 `8`。这也是函数必须返回 `TreeNode*` 的直接原因之一。
+
+</Accordion>
+</AccordionGroup>
+
+## 14. 与前一篇“插入”放在一起理解
+
+BST 插入和删除看似一简一难，但递归骨架其实高度统一：
+
+```cpp
+TreeNode* modify(TreeNode* root, ...) {
+    if (...) {
+        return /* 当前子树处理后的新根 */;
+    }
+
+    if (...) {
+        root->left = modify(root->left, ...);
+    } else {
+        root->right = modify(root->right, ...);
+    }
+
+    return root;
+}
+```
+
+区别只在“命中目标以后，新根应该是什么”：
+
+```text
+插入：空子树的新根 = new TreeNode(val)
+删除：目标子树的新根 = null / 左孩子 / 右孩子 / 重接后的子树根
+```
+
+<Callout title="本题最值得迁移的能力" type="success">
+
+不要死记五种删除情况。
+
+真正应该形成的思维是：
+
+> **当前子树修改以后，它的新根是谁？让递归把这个新根返回给上一层。**
+
+后面的“修剪二叉搜索树”会再次直接使用这个模型。
+
+</Callout>
+
+## 15. 复盘清单
+
+完成本篇后，应能独立回答：
+
+- 为什么 BST 删除只需要沿一条搜索路径定位目标？
+- 为什么递归函数应该返回“修改后的子树根”？
+- 叶子、单孩子、双孩子节点分别应该返回什么？
+- 为什么右子树最小节点可以接住原左子树？
+- “结构重接法”和“后继替值法”有什么共同本质？
+- 为什么复杂度是 $O(h)$，而不是固定的 $O(\log n)$？
+
+## 其他语言实现
+
+下面统一采用“**找到目标节点后，让右子树顶上来，并把左子树接到右子树最小节点左侧**”这一结构重接思路。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if (root == null) return null;
+
+        if (key < root.val) {
+            root.left = deleteNode(root.left, key);
+            return root;
+        }
+        if (key > root.val) {
+            root.right = deleteNode(root.right, key);
+            return root;
+        }
+
+        if (root.left == null) return root.right;
+        if (root.right == null) return root.left;
+
+        TreeNode minNode = root.right;
+        while (minNode.left != null) {
+            minNode = minNode.left;
+        }
+        minNode.left = root.left;
+        return root.right;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def deleteNode(self, root, key):
+        if root is None:
+            return None
+
+        if key < root.val:
+            root.left = self.deleteNode(root.left, key)
+            return root
+        if key > root.val:
+            root.right = self.deleteNode(root.right, key)
+            return root
+
+        if root.left is None:
+            return root.right
+        if root.right is None:
+            return root.left
+
+        min_node = root.right
+        while min_node.left is not None:
+            min_node = min_node.left
+
+        min_node.left = root.left
+        return root.right
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func deleteNode(root *TreeNode, key int) *TreeNode {
+    if root == nil {
+        return nil
+    }
+
+    if key < root.Val {
+        root.Left = deleteNode(root.Left, key)
+        return root
+    }
+    if key > root.Val {
+        root.Right = deleteNode(root.Right, key)
+        return root
+    }
+
+    if root.Left == nil {
+        return root.Right
+    }
+    if root.Right == nil {
+        return root.Left
+    }
+
+    minNode := root.Right
+    for minNode.Left != nil {
+        minNode = minNode.Left
+    }
+    minNode.Left = root.Left
+    return root.Right
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var deleteNode = function(root, key) {
+    if (root === null) return null;
+
+    if (key < root.val) {
+        root.left = deleteNode(root.left, key);
+        return root;
+    }
+    if (key > root.val) {
+        root.right = deleteNode(root.right, key);
+        return root;
+    }
+
+    if (root.left === null) return root.right;
+    if (root.right === null) return root.left;
+
+    let minNode = root.right;
+    while (minNode.left !== null) {
+        minNode = minNode.left;
+    }
+    minNode.left = root.left;
+    return root.right;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function deleteNode(root: TreeNode | null, key: number): TreeNode | null {
+    if (root === null) return null;
+
+    if (key < root.val) {
+        root.left = deleteNode(root.left, key);
+        return root;
+    }
+    if (key > root.val) {
+        root.right = deleteNode(root.right, key);
+        return root;
+    }
+
+    if (root.left === null) return root.right;
+    if (root.right === null) return root.left;
+
+    let minNode: TreeNode = root.right;
+    while (minNode.left !== null) {
+        minNode = minNode.left;
+    }
+    minNode.left = root.left;
+    return root.right;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def deleteNode(root: TreeNode, key: Int): TreeNode = {
+    if (root == null) return null
+
+    if (key < root.value) {
+      root.left = deleteNode(root.left, key)
+      return root
+    }
+    if (key > root.value) {
+      root.right = deleteNode(root.right, key)
+      return root
+    }
+
+    if (root.left == null) return root.right
+    if (root.right == null) return root.left
+
+    var minNode = root.right
+    while (minNode.left != null) {
+      minNode = minNode.left
+    }
+    minNode.left = root.left
+    root.right
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::cmp::Ordering;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn delete_node(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        key: i32,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        let node = root?;
+        let value = node.borrow().val;
+
+        match value.cmp(&key) {
+            Ordering::Greater => {
+                let left = node.borrow_mut().left.take();
+                node.borrow_mut().left = Self::delete_node(left, key);
+                Some(node)
+            }
+            Ordering::Less => {
+                let right = node.borrow_mut().right.take();
+                node.borrow_mut().right = Self::delete_node(right, key);
+                Some(node)
+            }
+            Ordering::Equal => {
+                let mut current = node.borrow_mut();
+                let left = current.left.take();
+                let right = current.right.take();
+                drop(current);
+
+                match (left, right) {
+                    (None, r) => r,
+                    (l, None) => l,
+                    (Some(l), Some(r)) => {
+                        let mut min_node = r.clone();
+                        loop {
+                            let next = min_node.borrow().left.clone();
+                            match next {
+                                Some(n) => min_node = n,
+                                None => break,
+                            }
+                        }
+                        min_node.borrow_mut().left = Some(l);
+                        Some(r)
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    public TreeNode DeleteNode(TreeNode root, int key)
+    {
+        if (root == null) return null;
+
+        if (key < root.val)
+        {
+            root.left = DeleteNode(root.left, key);
+            return root;
+        }
+        if (key > root.val)
+        {
+            root.right = DeleteNode(root.right, key);
+            return root;
+        }
+
+        if (root.left == null) return root.right;
+        if (root.right == null) return root.left;
+
+        TreeNode minNode = root.right;
+        while (minNode.left != null)
+        {
+            minNode = minNode.left;
+        }
+
+        minNode.left = root.left;
+        return root.right;
+    }
+}
+```
+
+</Tab>
+</Tabs>

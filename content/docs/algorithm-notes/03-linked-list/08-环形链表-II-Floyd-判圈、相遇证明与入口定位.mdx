@@ -1,0 +1,615 @@
+---
+title: 环形链表 II：Floyd 判圈、相遇证明与入口定位
+description: 以 LeetCode 142 为主线，系统推导快慢指针为什么一定能在环中相遇、为什么从头结点和相遇点同步出发会在环入口重逢，并总结环形链表题的通用模板。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 环形链表 II：Floyd 判圈、相遇证明与入口定位
+
+> 对应题目：[LeetCode 142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
+
+给定一个单链表，如果链表中存在环，返回**环的入口节点**；如果不存在环，返回 `null`。题目要求不能修改链表，并希望使用 $O(1)$ 额外空间。
+
+![环形链表示意图](https://file1.kamacoder.com/i/algo/20200816110112704.png)
+
+这是一道非常典型的“代码短、证明长”的链表题。真正需要掌握的不是几行模板，而是两个问题：
+
+1. 为什么快慢指针一定能判断出是否有环？
+2. 为什么第一次相遇后，从头结点和相遇点各放一个指针，同速前进就能找到入口？
+
+---
+
+## 1. Floyd 判圈算法
+
+定义两个指针：
+
+- `slow`：每次前进 1 个节点；
+- `fast`：每次前进 2 个节点。
+
+两者都从 `head` 出发。
+
+如果链表无环，`fast` 最终一定先到达 `null`；如果链表有环，`fast` 和 `slow` 最终一定会在环内相遇。
+
+```cpp
+ListNode* slow = head;
+ListNode* fast = head;
+
+while (fast != nullptr && fast->next != nullptr) {
+    slow = slow->next;
+    fast = fast->next->next;
+
+    if (slow == fast) {
+        // 链表有环
+    }
+}
+```
+
+<Callout title="循环条件不能少一项" type="warning">
+`fast` 一次走两步，因此必须同时检查 `fast != nullptr` 和 `fast->next != nullptr`。否则访问 `fast->next->next` 时可能发生空指针错误。
+</Callout>
+
+---
+
+## 2. 为什么有环时一定会相遇
+
+假设 `slow` 已经进入环，而 `fast` 位于环上的某个位置。
+
+观察二者之间的**相对速度**：
+
+$$
+2-1=1
+$$
+
+也就是说，在只观察环上相对位置时，每轮循环 `fast` 都会相对 `slow` 向前靠近 1 个节点。
+
+![快慢指针在环内追赶](https://file1.kamacoder.com/i/algo/20210318162236720.png)
+
+如果环长为 $L$，那么两个指针在环中的距离可以看成模 $L$ 的量。每轮距离变化 1，因此至多经过 $L$ 次相对移动后，距离一定会变成 0：
+
+$$
+d,
+
+d-1,
+
+d-2,
+\ldots,
+0
+\pmod L
+$$
+
+于是它们必然相遇。
+
+![Floyd 快慢指针判环动画](https://file1.kamacoder.com/i/algo/141.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8.gif)
+
+<Callout title="不要用“fast 会追上 slow”代替证明" type="info">
+关键不是 `fast` 绝对速度更快，而是二者在环上的相对速度恰好为每轮 1 个节点，因此不会出现“每次都跨过 slow 而永远碰不到”的情况。
+</Callout>
+
+---
+
+## 3. 建模：入口距离、相遇位置和环长
+
+设：
+
+- 从头结点到环入口的距离为 $x$；
+- 从环入口沿着环走到第一次相遇点的距离为 $y$；
+- 从相遇点继续走回环入口的距离为 $z$。
+
+那么环长为：
+
+$$
+L=y+z
+$$
+
+示意图如下：
+
+![环入口数学建模](https://file1.kamacoder.com/i/algo/20220925103433.png)
+
+第一次相遇时，慢指针走过：
+
+$$
+x+y
+$$
+
+快指针比慢指针多绕了若干圈。设快指针额外绕了 $k$ 圈，则快指针总路程为：
+
+$$
+x+y+k(y+z)
+$$
+
+又因为快指针速度是慢指针的两倍，所以：
+
+$$
+2(x+y)=x+y+k(y+z)
+$$
+
+整理得到：
+
+$$
+x+y=k(y+z)
+$$
+
+于是：
+
+$$
+x=k(y+z)-y
+$$
+
+再写成：
+
+$$
+x=(k-1)(y+z)+z
+$$
+
+这条等式就是“为什么第二阶段能找到入口”的全部数学依据。
+
+---
+
+## 4. 为什么从 head 和相遇点同速出发会在入口相遇
+
+由：
+
+$$
+x=(k-1)L+z
+$$
+
+可知，从链表头到入口需要走 $x$ 步；而从第一次相遇点开始，走 $x$ 步等价于：
+
+1. 先在环中完整转 $k-1$ 圈；
+2. 再走 $z$ 步；
+3. 恰好回到环入口。
+
+因此，在第一次相遇后：
+
+- `index1` 从相遇点出发；
+- `index2` 从 `head` 出发；
+- 两个指针都每次走 1 步。
+
+它们第一次相遇的位置就是环入口。
+
+![寻找环入口动画](https://file1.kamacoder.com/i/algo/142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II%EF%BC%88%E6%B1%82%E5%85%A5%E5%8F%A3%EF%BC%89.gif)
+
+---
+
+## 5. 两阶段模板
+
+<Steps>
+  <Step>
+
+**第一阶段：判断是否存在环**
+
+```text
+slow 每次走 1 步
+fast 每次走 2 步
+```
+
+如果 `fast` 或 `fast.next` 为空，说明无环。
+
+  </Step>
+  <Step>
+
+**等待快慢指针第一次相遇**
+
+```text
+slow == fast
+```
+
+说明已经进入第二阶段。
+
+  </Step>
+  <Step>
+
+**一个指针回到 head**
+
+```text
+p = head
+q = meeting
+```
+
+  </Step>
+  <Step>
+
+**两个指针都每次走 1 步**
+
+第一次出现：
+
+```text
+p == q
+```
+
+的位置就是环入口。
+
+  </Step>
+</Steps>
+
+---
+
+## 6. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    ListNode* detectCycle(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) {
+                ListNode* p = head;
+                ListNode* q = slow;
+
+                while (p != q) {
+                    p = p->next;
+                    q = q->next;
+                }
+
+                return p;
+            }
+        }
+
+        return nullptr;
+    }
+};
+```
+
+### 复杂度
+
+设链表中参与遍历的不同节点总数为 $n$。
+
+第一阶段和第二阶段都只进行线性次数的指针移动，因此：
+
+$$
+T(n)=O(n)
+$$
+
+只使用常数个指针：
+
+$$
+S(n)=O(1)
+$$
+
+---
+
+## 7. 第一次相遇时，slow 会不会已经绕了很多圈
+
+这是推导中最容易产生疑问的地方。
+
+原始讨论常把第一次相遇时 `slow` 的路程写为：
+
+$$
+x+y
+$$
+
+而不是：
+
+$$
+x+mL+y
+$$
+
+实际上，Floyd 算法第一次相遇发生得很早：`slow` 进入环时，`fast` 已经位于环内。此时二者在环上的最大相对距离小于一个完整环长，而 `fast` 每轮相对 `slow` 缩短 1 个节点的距离，因此在 `slow` 完整走完这一圈之前就会发生相遇。
+
+原始示意：
+
+![slow 与 fast 进入环的位置关系](https://file1.kamacoder.com/i/algo/20210318165123581.png)
+
+![将环展开后的追赶关系](https://file1.kamacoder.com/i/algo/2021031816503266.png)
+
+![fast 已在环中的任意位置](https://file1.kamacoder.com/i/algo/2021031816515727.png)
+
+不过在做题时，不必依赖“slow 一定只走了这一段”的细节才能记住算法。更稳定的理解方式是：
+
+> 第一次相遇后，根据速度关系得到两条路程之间的同余关系；由此可以证明从 `head` 与相遇点同步前进，最终必在入口重合。
+
+---
+
+## 8. 模运算视角：更简洁的推导
+
+若环长为 $L$，第一次相遇时设慢指针进入环后走了 $t$ 步。
+
+那么：
+
+- 慢指针在环上的位移为 $t$；
+- 快指针在环上的相对位移比慢指针多 $t$。
+
+两者相遇意味着相对位移是环长的整数倍：
+
+$$
+t \equiv 0 \pmod L
+$$
+
+从全程路程来看，如果头到入口距离为 $x$，慢指针总路程是 $x+t$，快指针总路程是 $2(x+t)$，它们落在同一环上节点，所以两者路程差满足：
+
+$$
+2(x+t)-(x+t)=x+t \equiv 0 \pmod L
+$$
+
+因此：
+
+$$
+x \equiv -t \pmod L
+$$
+
+而从相遇点继续走到入口的距离恰好也是：
+
+$$
+-t \pmod L
+$$
+
+所以从 `head` 走 $x$ 步，与从相遇点走 $x$ 步，会同时到达入口。
+
+<Callout title="更值得记住的数学本质" type="success">
+入口定位不是神奇技巧，而是一个模环长的同余关系：头到入口的距离，等于相遇点沿环走回入口的距离，再加若干个完整环长。
+</Callout>
+
+---
+
+## 9. 为什么不能在第一次相遇后直接返回
+
+第一次相遇点通常**不是**环入口。
+
+例如：
+
+```text
+head → A → B → C → D → E
+              ↑         ↓
+              H ← G ← F
+```
+
+入口可能是 `C`，但快慢指针第一次相遇可能发生在 `F`、`G` 或其他环内节点。
+
+所以：
+
+```cpp
+if (slow == fast) return slow;
+```
+
+只能用于回答“是否存在环”时的内部判断，不能直接解决“入口在哪里”。
+
+---
+
+## 10. 哈希集合解法为什么不是最优
+
+也可以边遍历边记录已经访问过的节点：
+
+```text
+visited = set()
+```
+
+第一次遇到已经存在于集合中的节点，就是环入口。
+
+时间复杂度仍为：
+
+$$
+O(n)
+$$
+
+但额外空间变成：
+
+$$
+O(n)
+$$
+
+Floyd 算法利用速度关系把空间优化为：
+
+$$
+O(1)
+$$
+
+因此本题最经典的目标就是掌握 Floyd 判圈与入口定位。
+
+---
+
+## 11. 常见错误
+
+<Cards>
+  <Card title="错误 1：只判断 fast 不为空">
+    `fast` 要走两步，必须同时确认 `fast->next` 存在。
+  </Card>
+  <Card title="错误 2：相遇后仍让 fast 一次走两步">
+    第二阶段两个指针必须都改为一次走 1 步。
+  </Card>
+  <Card title="错误 3：把相遇点当入口">
+    第一次相遇只证明有环，通常不是入口节点。
+  </Card>
+  <Card title="错误 4：比较节点值">
+    判断两个指针是否相遇必须比较节点身份，而不是 `val`。
+  </Card>
+</Cards>
+
+---
+
+## 12. 与其他链表双指针题的统一理解
+
+链表篇里已经出现多种双指针：
+
+| 题型 | 双指针建立的关系 |
+| --- | --- |
+| 删除倒数第 $N$ 个节点 | 两个指针保持固定距离 |
+| 链表相交 | 通过换头或长度对齐消除路径差 |
+| 环形链表 II | 通过速度差制造相遇，再利用同余关系定位入口 |
+
+这些题目的共同点是：
+
+> **不是简单地“放两个指针”，而是人为设计两个指针之间可证明的距离或路程关系。**
+
+---
+
+## 13. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 如何判环 | `slow += 1`，`fast += 2` |
+| 无环终止条件 | `fast == null` 或 `fast.next == null` |
+| 有环时是否必相遇 | 是，相对速度为每轮 1 个节点 |
+| 第一次相遇点是否等于入口 | 不一定 |
+| 如何找入口 | `p = head`，`q = meeting`，都每次走 1 步 |
+| 时间复杂度 | $O(n)$ |
+| 辅助空间 | $O(1)$ |
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    ListNode* detectCycle(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) {
+                ListNode* p = head;
+                while (p != slow) {
+                    p = p->next;
+                    slow = slow->next;
+                }
+                return p;
+            }
+        }
+        return nullptr;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+
+            if (slow == fast) {
+                ListNode p = head;
+                while (p != slow) {
+                    p = p.next;
+                    slow = slow.next;
+                }
+                return p;
+            }
+        }
+        return null;
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+        slow = fast = head
+
+        while fast is not None and fast.next is not None:
+            slow = slow.next
+            fast = fast.next.next
+
+            if slow is fast:
+                p = head
+                while p is not slow:
+                    p = p.next
+                    slow = slow.next
+                return p
+
+        return None
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func detectCycle(head *ListNode) *ListNode {
+    slow, fast := head, head
+
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+
+        if slow == fast {
+            p := head
+            for p != slow {
+                p = p.Next
+                slow = slow.Next
+            }
+            return p
+        }
+    }
+
+    return nil
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var detectCycle = function (head) {
+  let slow = head;
+  let fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow.next;
+    fast = fast.next.next;
+
+    if (slow === fast) {
+      let p = head;
+      while (p !== slow) {
+        p = p.next;
+        slow = slow.next;
+      }
+      return p;
+    }
+  }
+
+  return null;
+};
+```
+
+  </Tab>
+  <Tab value="TypeScript">
+
+```typescript
+function detectCycle(head: ListNode | null): ListNode | null {
+  let slow: ListNode | null = head;
+  let fast: ListNode | null = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next;
+    fast = fast.next.next;
+
+    if (slow === fast) {
+      let p: ListNode | null = head;
+      while (p !== slow) {
+        p = p!.next;
+        slow = slow!.next;
+      }
+      return p;
+    }
+  }
+
+  return null;
+}
+```
+
+  </Tab>
+</Tabs>

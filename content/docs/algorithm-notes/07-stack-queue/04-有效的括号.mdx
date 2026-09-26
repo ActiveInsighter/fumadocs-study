@@ -1,0 +1,1122 @@
+---
+title: 有效的括号
+description: 用栈解决括号匹配，系统理解“最近未匹配左括号”模型、三类失败情况与压入期望右括号的简化技巧。
+---
+
+# 20. 有效的括号
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/valid-parentheses/">
+    LeetCode 20 · Valid Parentheses
+  </Card>
+</Cards>
+
+给定只包含：
+
+```text
+( )
+[ ]
+{ }
+```
+
+的字符串 `s`，判断括号是否有效。
+
+有效必须同时满足：
+
+1. 左括号必须由相同类型的右括号闭合；
+2. 左括号必须按照正确顺序闭合；
+3. 每个右括号都有对应的左括号。
+
+例如：
+
+```text
+"()"
+```
+
+有效。
+
+```text
+"()[]{}"
+```
+
+有效。
+
+```text
+"(]"
+```
+
+无效。
+
+```text
+"([)]"
+```
+
+无效。
+
+```text
+"{[]}"
+```
+
+有效。
+
+<Callout type="info" title="为什么这题天然适合栈">
+括号嵌套满足：
+
+> **最后出现但尚未匹配的左括号，必须最先被关闭。**
+
+这正是：
+
+```text
+LIFO
+```
+
+所以栈是最自然的数据结构。
+</Callout>
+
+---
+
+# 1. 括号匹配为什么不是简单计数
+
+只统计：
+
+```text
+左括号数量
+右括号数量
+```
+
+是不够的。
+
+例如：
+
+```text
+"([)]"
+```
+
+各种括号数量看起来都成对：
+
+```text
+( )
+[ ]
+```
+
+但顺序错误。
+
+正确嵌套应该是：
+
+```text
+([])
+```
+
+所以本题必须同时检查：
+
+```text
+数量
+类型
+顺序
+```
+
+---
+
+# 2. 栈里应该保存什么
+
+最直观的方法：
+
+遇到左括号：
+
+```text
+push 左括号
+```
+
+遇到右括号：
+
+```text
+看栈顶左括号是否匹配
+```
+
+例如：
+
+```text
+{ [ ( ) ] }
+```
+
+过程：
+
+```text
+{ 入栈
+[ 入栈
+( 入栈
+) 匹配 (
+] 匹配 [
+} 匹配 {
+```
+
+完全符合“后进先出”。
+
+---
+
+## 3. 为什么只需要看栈顶
+
+假设当前遇到：
+
+```text
+)
+```
+
+如果栈中：
+
+```text
+top
+ ↓
+[
+{
+```
+
+虽然更下面有 `{`，但当前最晚未匹配的是：
+
+```text
+[
+```
+
+如果 `)` 不能和它匹配，那么整个字符串已经无效。
+
+不可能“跳过”栈顶去匹配更早的括号。
+
+这正是嵌套结构的关键。
+
+---
+
+# 4. 三类失败情况
+
+括号题最稳妥的理解方式是把失败情况分成三类。
+
+---
+
+## 情况一：左括号太多
+
+例如：
+
+```text
+"(([]"
+```
+
+扫描结束后栈里还有：
+
+```text
+未匹配左括号
+```
+
+所以：
+
+```text
+stack 非空
+```
+
+代表失败。
+
+---
+
+## 情况二：右括号太多
+
+例如：
+
+```text
+"())"
+```
+
+处理最后一个 `)` 时：
+
+```text
+栈已经空了
+```
+
+说明没有对应左括号。
+
+因此失败。
+
+---
+
+## 情况三：类型不匹配
+
+例如：
+
+```text
+"(]"
+```
+
+处理 `]` 时：
+
+```text
+栈顶是 (
+```
+
+类型不匹配。
+
+失败。
+
+---
+
+## 5. 这三种情况几乎覆盖所有 bug
+
+所以判断逻辑可以固定成：
+
+```text
+遇到左括号：
+    入栈
+
+遇到右括号：
+    栈为空？
+        是 → false
+
+    栈顶类型匹配？
+        否 → false
+
+    匹配成功：
+        pop
+
+扫描结束：
+    栈为空？
+```
+
+---
+
+# 6. 写法一：栈中保存左括号
+
+```cpp
+class Solution {
+public:
+    bool isValid(string s) {
+        stack<char> st;
+
+        for (char c : s) {
+            if (
+                c == '(' ||
+                c == '[' ||
+                c == '{'
+            ) {
+                st.push(c);
+                continue;
+            }
+
+            if (st.empty()) {
+                return false;
+            }
+
+            if (
+                c == ')' &&
+                st.top() != '('
+            ) {
+                return false;
+            }
+
+            if (
+                c == ']' &&
+                st.top() != '['
+            ) {
+                return false;
+            }
+
+            if (
+                c == '}' &&
+                st.top() != '{'
+            ) {
+                return false;
+            }
+
+            st.pop();
+        }
+
+        return st.empty();
+    }
+};
+```
+
+逻辑完全正确，但匹配判断稍显重复。
+
+---
+
+# 7. 更推荐的技巧：压入“期望右括号”
+
+遇到：
+
+```text
+(
+```
+
+不要压入：
+
+```text
+(
+```
+
+而是直接压入：
+
+```text
+)
+```
+
+表示：
+
+> 未来我期望看到 `)`。
+
+同理：
+
+```text
+[ -> push(']')
+{ -> push('}')
+```
+
+这样遇到右括号时只需要判断：
+
+```cpp
+st.top() == c
+```
+
+即可。
+
+---
+
+## 8. 为什么这种写法更简洁
+
+原逻辑：
+
+```text
+当前是 )
+则栈顶必须是 (
+
+当前是 ]
+则栈顶必须是 [
+
+当前是 }
+则栈顶必须是 {
+```
+
+改成：
+
+```text
+左括号出现时
+提前把正确答案压栈
+```
+
+于是后面只需：
+
+```text
+当前字符 == 栈顶期望字符？
+```
+
+这相当于把：
+
+```text
+类型映射
+```
+
+提前做掉了。
+
+---
+
+# 9. 推荐标准解法
+
+```cpp
+class Solution {
+public:
+    bool isValid(string s) {
+        if (s.size() % 2 == 1) {
+            return false;
+        }
+
+        stack<char> st;
+
+        for (char c : s) {
+            if (c == '(') {
+                st.push(')');
+            } else if (c == '[') {
+                st.push(']');
+            } else if (c == '{') {
+                st.push('}');
+            } else {
+                if (
+                    st.empty() ||
+                    st.top() != c
+                ) {
+                    return false;
+                }
+
+                st.pop();
+            }
+        }
+
+        return st.empty();
+    }
+};
+```
+
+---
+
+# 10. 为什么奇数长度可以直接失败
+
+有效括号一定是一对一对出现。
+
+所以总长度必须是：
+
+$$
+2k
+$$
+
+也就是偶数。
+
+如果：
+
+```cpp
+s.size() % 2 == 1
+```
+
+必定无效。
+
+这是一个简单剪枝。
+
+当然不写也不会影响正确性。
+
+---
+
+# 11. 示例完整推演：`"{[]}"`
+
+初始：
+
+```text
+stack = []
+```
+
+遇到 `{`：
+
+```text
+push('}')
+```
+
+栈：
+
+```text
+top
+ ↓
+}
+```
+
+遇到 `[`：
+
+```text
+push(']')
+```
+
+栈：
+
+```text
+top
+ ↓
+]
+}
+```
+
+遇到 `]`：
+
+```text
+top == ']'
+```
+
+匹配成功：
+
+```text
+pop
+```
+
+剩：
+
+```text
+}
+```
+
+遇到 `}`：
+
+```text
+top == '}'
+```
+
+继续 pop。
+
+最后：
+
+```text
+stack empty
+```
+
+所以有效。
+
+---
+
+# 12. 示例：`"([)]"`
+
+遇到 `(`：
+
+```text
+push(')')
+```
+
+遇到 `[`：
+
+```text
+push(']')
+```
+
+栈顶期望：
+
+```text
+]
+```
+
+但接下来实际出现：
+
+```text
+)
+```
+
+于是：
+
+```text
+st.top() != c
+```
+
+立即返回：
+
+```text
+false
+```
+
+这就是“顺序错误”的检测。
+
+---
+
+# 13. 时间复杂度
+
+每个字符只处理一次。
+
+每个括号最多：
+
+```text
+入栈一次
+出栈一次
+```
+
+所以时间复杂度：
+
+$$
+O(n)
+$$
+
+最坏情况下，例如：
+
+```text
+(((([[{{
+```
+
+栈中可能保存：
+
+$$
+O(n)
+$$
+
+个字符。
+
+所以空间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+# 14. 为什么不用递归
+
+嵌套括号确实可以看成递归结构。
+
+但如果直接用系统递归栈来解析：
+
+- 逻辑更复杂；
+- 还需要识别不同括号类型；
+- 深层嵌套可能导致递归栈过深。
+
+显式 `stack` 更直观，也更稳。
+
+---
+
+# 15. 为什么不能用队列
+
+括号匹配要求：
+
+> 最近出现的左括号最先被匹配。
+
+也就是：
+
+```text
+LIFO
+```
+
+如果使用队列：
+
+```text
+FIFO
+```
+
+会优先匹配最早的左括号，顺序完全相反。
+
+例如：
+
+```text
+([ ])
+```
+
+真正应该：
+
+```text
+先闭合 [
+再闭合 (
+```
+
+所以必须用栈。
+
+---
+
+# 16. 括号匹配的通用模型
+
+本题可以抽象为：
+
+```text
+打开某个结构
+      ↓
+把“未来应当如何关闭”压栈
+      ↓
+继续嵌套
+      ↓
+关闭时检查栈顶
+```
+
+所以类似问题都可以考虑栈：
+
+- XML / HTML 标签；
+- 函数调用；
+- 嵌套表达式；
+- 编译器语法分析；
+- 目录进入 / 返回；
+- 作用域匹配。
+
+---
+
+# 17. “压入期望值”是一种通用技巧
+
+这题一个非常好的思维技巧是：
+
+> 不一定保存“已经发生了什么”，也可以保存“未来应该发生什么”。
+
+例如：
+
+```text
+读到 (
+存 )
+
+读到 [
+存 ]
+
+读到 {
+存 }
+```
+
+于是后续判断极简：
+
+```text
+当前输入 == 当前期望？
+```
+
+这种“存预期状态”的思想在状态机和解析问题中很实用。
+
+---
+
+# 18. 常见错误
+
+### 错误一：先访问 `top()` 再判断空栈
+
+错误：
+
+```cpp
+if (st.top() != c || st.empty())
+```
+
+如果栈为空：
+
+```text
+st.top()
+```
+
+本身就非法。
+
+必须先：
+
+```cpp
+st.empty()
+```
+
+再访问栈顶。
+
+---
+
+### 错误二：扫描结束后忘记检查栈是否为空
+
+例如：
+
+```text
+"((("
+```
+
+过程中没有右括号冲突。
+
+但最终仍然无效。
+
+所以最后必须：
+
+```cpp
+return st.empty();
+```
+
+---
+
+### 错误三：只比较括号数量
+
+`"([)]"` 数量正确，但顺序错误。
+
+---
+
+### 错误四：右括号出现时直接 pop
+
+必须先检查：
+
+```text
+是否为空
+类型是否匹配
+```
+
+---
+
+# 19. 和“删除字符串中的相邻重复项”的联系
+
+下一类栈题通常会出现：
+
+```text
+当前字符
+和最近保留下来的字符
+```
+
+比较。
+
+这和括号匹配非常相似：
+
+> 栈顶表示“最近尚未完成处理的状态”。
+
+括号题里：
+
+```text
+最近未闭合括号
+```
+
+重复项删除里：
+
+```text
+最近未被消除字符
+```
+
+所以栈的核心不是“括号专用”，而是：
+
+> **处理最近状态。**
+
+---
+
+# 20. 一眼识别本题
+
+看到：
+
+```text
+嵌套
+匹配
+闭合
+最近打开的结构应最先关闭
+```
+
+立即想到：
+
+```text
+Stack
+```
+
+模板：
+
+```text
+左括号：
+    push 期望右括号
+
+右括号：
+    栈空 → false
+    top != 当前 → false
+    pop
+
+最后：
+    栈空 → true
+```
+
+---
+
+# 21. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    bool isValid(string s) {
+        if (s.size() % 2 == 1) {
+            return false;
+        }
+
+        stack<char> st;
+
+        for (char c : s) {
+            if (c == '(') {
+                st.push(')');
+            } else if (c == '[') {
+                st.push(']');
+            } else if (c == '{') {
+                st.push('}');
+            } else {
+                if (
+                    st.empty() ||
+                    st.top() != c
+                ) {
+                    return false;
+                }
+
+                st.pop();
+            }
+        }
+
+        return st.empty();
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+class Solution {
+    public boolean isValid(String s) {
+        if (s.length() % 2 == 1) {
+            return false;
+        }
+
+        Deque<Character> stack = new ArrayDeque<>();
+
+        for (char c : s.toCharArray()) {
+            if (c == '(') {
+                stack.push(')');
+            } else if (c == '[') {
+                stack.push(']');
+            } else if (c == '{') {
+                stack.push('}');
+            } else {
+                if (
+                    stack.isEmpty() ||
+                    stack.peek() != c
+                ) {
+                    return false;
+                }
+
+                stack.pop();
+            }
+        }
+
+        return stack.isEmpty();
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+class Solution:
+    def isValid(self, s: str) -> bool:
+        if len(s) % 2 == 1:
+            return False
+
+        stack = []
+
+        for c in s:
+            if c == '(':
+                stack.append(')')
+            elif c == '[':
+                stack.append(']')
+            elif c == '{':
+                stack.append('}')
+            else:
+                if not stack or stack[-1] != c:
+                    return False
+
+                stack.pop()
+
+        return not stack
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func isValid(s string) bool {
+    if len(s)%2 == 1 {
+        return false
+    }
+
+    stack := make([]byte, 0)
+
+    for i := 0; i < len(s); i++ {
+        c := s[i]
+
+        switch c {
+        case '(':
+            stack = append(stack, ')')
+        case '[':
+            stack = append(stack, ']')
+        case '{':
+            stack = append(stack, '}')
+        default:
+            if len(stack) == 0 ||
+                stack[len(stack)-1] != c {
+                return false
+            }
+
+            stack = stack[:len(stack)-1]
+        }
+    }
+
+    return len(stack) == 0
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var isValid = function(s) {
+    if (s.length % 2 === 1) {
+        return false;
+    }
+
+    const stack = [];
+
+    for (const c of s) {
+        if (c === '(') {
+            stack.push(')');
+        } else if (c === '[') {
+            stack.push(']');
+        } else if (c === '{') {
+            stack.push('}');
+        } else {
+            if (
+                stack.length === 0 ||
+                stack[stack.length - 1] !== c
+            ) {
+                return false;
+            }
+
+            stack.pop();
+        }
+    }
+
+    return stack.length === 0;
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function isValid(s: string): boolean {
+    if (s.length % 2 === 1) {
+        return false;
+    }
+
+    const stack: string[] = [];
+
+    for (const c of s) {
+        if (c === '(') {
+            stack.push(')');
+        } else if (c === '[') {
+            stack.push(']');
+        } else if (c === '{') {
+            stack.push('}');
+        } else {
+            if (
+                stack.length === 0 ||
+                stack[stack.length - 1] !== c
+            ) {
+                return false;
+            }
+
+            stack.pop();
+        }
+    }
+
+    return stack.length === 0;
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+# 22. 本题总结
+
+有效括号最核心的不是“会用 stack”，而是理解：
+
+> **最近打开、尚未关闭的结构，必须最先被关闭。**
+
+这就是：
+
+```text
+LIFO
+```
+
+最推荐的实现技巧：
+
+```text
+遇到左括号
+压入它对应的“期望右括号”
+```
+
+随后只需统一判断：
+
+```text
+当前字符 == 栈顶期望？
+```
+
+最终需要同时排除三类错误：
+
+```text
+左括号太多
+右括号太多
+括号类型错位
+```
+
+这套“最近未完成状态 + 栈顶匹配”的模型会在后续很多解析类题目中反复出现。

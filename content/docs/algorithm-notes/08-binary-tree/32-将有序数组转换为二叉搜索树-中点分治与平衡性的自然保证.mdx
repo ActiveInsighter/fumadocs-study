@@ -1,0 +1,777 @@
+---
+title: 将有序数组转换为二叉搜索树：中点分治与平衡性的自然保证
+---
+
+# 将有序数组转换为二叉搜索树：中点分治与平衡性的自然保证
+
+> LeetCode 108 · Convert Sorted Array to Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/)
+
+给定一个**严格升序**排列的整数数组 `nums`，把它转换成一棵**高度平衡二叉搜索树**。
+
+所谓高度平衡，是指任意节点左右子树的高度差绝对值不超过 $1$。
+
+![将有序数组转换为二叉搜索树](https://file1.kamacoder.com/i/algo/20201022164420763.png)
+
+<Callout title="本题真正考什么" type="idea">
+
+这不是一道“BST 插入题”，而是一道典型的**分治构造题**：
+
+> **每次选当前有序区间的中间元素作为根，再递归构造左右半区间。**
+
+只要始终从中间切分，BST 的有序性和平衡性会同时自然得到保证。
+
+</Callout>
+
+## 1. 为什么“有序数组”天然适合构造 BST
+
+二叉搜索树满足：
+
+```text
+左子树所有值 < 根节点值 < 右子树所有值
+```
+
+而数组已经严格升序。
+
+如果在区间 `[left, right]` 中选择下标 `mid`：
+
+```text
+nums[left ... mid - 1] < nums[mid] < nums[mid + 1 ... right]
+```
+
+那么：
+
+- `nums[mid]` 可以直接作为当前根节点；
+- 左半区间只可能构成左子树；
+- 右半区间只可能构成右子树。
+
+因此这道题最关键的不是“如何验证 BST”，而是**如何选择分割点**。
+
+## 2. 为什么不能随便选根节点
+
+如果完全不考虑平衡性，即使数组是有序的，也可以构造出极度退化的 BST。
+
+例如：
+
+```text
+[-10, -3, 0, 5, 9]
+```
+
+如果每次都选择最左元素作为根，会得到近似链表的结构：
+
+![不平衡的二叉搜索树](https://file1.kamacoder.com/i/algo/20220930173553.png)
+
+这种树虽然仍是 BST，但高度接近 $n$，搜索性能会退化为 $O(n)$。
+
+所以题目特别要求**高度平衡**。
+
+## 3. 为什么选择中点就能保证平衡
+
+设当前区间长度为：
+
+$$
+n = right - left + 1
+$$
+
+选择中间位置后，左右子区间的长度最多只相差 $1$。
+
+也就是说，每次递归都把问题近似均分成两半：
+
+```text
+             mid
+           /     \
+      左半区间   右半区间
+```
+
+而左右子树又分别按照相同方式继续均分，因此最终得到的树会保持高度平衡。
+
+从递归规模看：
+
+$$
+T(n)=T(\lfloor n/2\rfloor)+T(\lceil n/2\rceil-1)+O(1)
+$$
+
+每个数组元素恰好被创建成一个节点，因此总时间复杂度为：
+
+$$
+O(n)
+$$
+
+由于每次区间规模近似减半，递归深度为：
+
+$$
+O(\log n)
+$$
+
+<Callout title="一个重要理解" type="success">
+
+这里的“平衡”不是构造完以后再检查、再旋转得到的。
+
+**平衡性是由“每次选中点”这个构造策略直接产生的。**
+
+</Callout>
+
+## 4. 偶数长度区间为什么答案不唯一
+
+当当前区间长度是偶数时，中间位置有两个候选。
+
+例如：
+
+```text
+[1, 2, 3, 4]
+```
+
+可以选择：
+
+```text
+mid = 1  → nums[mid] = 2
+```
+
+也可以选择：
+
+```text
+mid = 2  → nums[mid] = 3
+```
+
+两种选择都能得到高度平衡 BST，只是最终形状不同。
+
+![偶数长度时可以得到不同的平衡二叉搜索树](https://file1.kamacoder.com/i/algo/108.%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.png)
+
+因此题目并不要求唯一答案。
+
+## 5. 递归函数应该怎样定义
+
+仍然沿用二叉树构造题中非常重要的模型：
+
+> `build(left, right)` 返回：由 `nums[left...right]` 构造出的平衡 BST 的根节点。
+
+这里使用**左闭右闭区间**：
+
+```text
+[left, right]
+```
+
+于是递归边界非常清晰。
+
+### 5.1 终止条件
+
+当：
+
+```text
+left > right
+```
+
+说明当前区间已经没有元素，应返回空节点：
+
+```cpp
+if (left > right) return nullptr;
+```
+
+### 5.2 选择中点
+
+推荐写成：
+
+```cpp
+int mid = left + (right - left) / 2;
+```
+
+而不是：
+
+```cpp
+int mid = (left + right) / 2;
+```
+
+二者在本题普通数据范围内通常都能工作，但第一种写法可以避免 `left + right` 发生整数溢出，是二分、分治类题目的标准写法。
+
+### 5.3 构造左右子树
+
+当前节点：
+
+```cpp
+TreeNode* root = new TreeNode(nums[mid]);
+```
+
+左子树来自：
+
+```text
+[left, mid - 1]
+```
+
+右子树来自：
+
+```text
+[mid + 1, right]
+```
+
+于是：
+
+```cpp
+root->left = build(nums, left, mid - 1);
+root->right = build(nums, mid + 1, right);
+```
+
+最后返回当前子树的新根：
+
+```cpp
+return root;
+```
+
+## 6. 一次递归过程到底发生了什么
+
+以：
+
+```text
+nums = [-10, -3, 0, 5, 9]
+```
+
+为例。
+
+第一次：
+
+```text
+left = 0
+right = 4
+mid = 2
+nums[mid] = 0
+```
+
+于是根节点是 `0`：
+
+```text
+        0
+       / \
+[-10,-3] [5,9]
+```
+
+再分别递归处理两侧。
+
+左区间：
+
+```text
+[-10, -3]
+```
+
+选一个中点作为左子树根。
+
+右区间：
+
+```text
+[5, 9]
+```
+
+同理。
+
+整个过程实际上就是不停执行：
+
+```text
+有序区间
+   ↓
+取中点
+   ↓
+建立根节点
+   ↓
+递归左半区间 + 递归右半区间
+```
+
+这就是最标准的**分治构造模型**。
+
+## 7. C++：递归实现
+
+```cpp title="C++ · 递归"
+class Solution {
+private:
+    TreeNode* build(const vector<int>& nums, int left, int right) {
+        if (left > right) {
+            return nullptr;
+        }
+
+        int mid = left + (right - left) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+
+        root->left = build(nums, left, mid - 1);
+        root->right = build(nums, mid + 1, right);
+
+        return root;
+    }
+
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return build(nums, 0, static_cast<int>(nums.size()) - 1);
+    }
+};
+```
+
+### 为什么这份代码很值得记住
+
+它几乎就是所有“数组递归构造二叉树”问题的标准骨架：
+
+```cpp
+TreeNode* build(..., int left, int right) {
+    if (区间为空) return nullptr;
+
+    int split = 选择分割点;
+    TreeNode* root = new TreeNode(...);
+
+    root->left = build(...左区间...);
+    root->right = build(...右区间...);
+
+    return root;
+}
+```
+
+真正变化的通常只有：
+
+1. 分割点怎么找；
+2. 左右区间怎样划分。
+
+## 8. 正确性证明
+
+可以从 BST 性质和平衡性两部分理解。
+
+### 8.1 BST 性质
+
+当前根为 `nums[mid]`。
+
+由于数组严格递增：
+
+$$
+\forall i<mid,\quad nums[i]<nums[mid]
+$$
+
+以及：
+
+$$
+\forall j>mid,\quad nums[j]>nums[mid]
+$$
+
+所以左区间构造出的所有节点都小于根，右区间所有节点都大于根。
+
+递归地，每棵子树也满足相同性质，因此整棵树一定是 BST。
+
+### 8.2 平衡性
+
+每次都选择区间中点，因此左右子问题的元素数量最多相差 $1$。
+
+递归对子区间继续执行同样操作，所以左右子树高度最多相差 $1$。
+
+因此最终得到高度平衡 BST。
+
+## 9. 迭代法：显式保存“待构造区间”
+
+递归其实隐式保存了三类状态：
+
+- 当前要填写的树节点；
+- 当前区间左端点；
+- 当前区间右端点。
+
+如果改成迭代，就可以把这三类状态放入队列。
+
+```cpp title="C++ · 迭代"
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        if (nums.empty()) {
+            return nullptr;
+        }
+
+        TreeNode* root = new TreeNode(0);
+
+        queue<TreeNode*> nodes;
+        queue<int> leftBounds;
+        queue<int> rightBounds;
+
+        nodes.push(root);
+        leftBounds.push(0);
+        rightBounds.push(static_cast<int>(nums.size()) - 1);
+
+        while (!nodes.empty()) {
+            TreeNode* node = nodes.front();
+            nodes.pop();
+
+            int left = leftBounds.front();
+            leftBounds.pop();
+
+            int right = rightBounds.front();
+            rightBounds.pop();
+
+            int mid = left + (right - left) / 2;
+            node->val = nums[mid];
+
+            if (left <= mid - 1) {
+                node->left = new TreeNode(0);
+                nodes.push(node->left);
+                leftBounds.push(left);
+                rightBounds.push(mid - 1);
+            }
+
+            if (mid + 1 <= right) {
+                node->right = new TreeNode(0);
+                nodes.push(node->right);
+                leftBounds.push(mid + 1);
+                rightBounds.push(right);
+            }
+        }
+
+        return root;
+    }
+};
+```
+
+迭代法能够帮助理解递归在“偷偷保存什么状态”，但实战中递归写法明显更自然。
+
+## 10. 为什么不建议不断复制子数组
+
+一种很直观的写法是：
+
+```text
+左边复制成一个新数组
+右边复制成一个新数组
+然后递归
+```
+
+逻辑没有问题，但会产生额外的数组复制开销。
+
+更标准的方式是始终使用原数组，只传：
+
+```text
+left
+right
+```
+
+这样：
+
+- 不需要额外切片；
+- 区间边界更清晰；
+- 也更容易迁移到二分和其他分治题。
+
+## 11. 复杂度分析
+
+设数组长度为 $n$。
+
+每个元素只会被访问一次并创建一个树节点：
+
+$$
+T(n)=O(n)
+$$
+
+递归树高度约为：
+
+$$
+O(\log n)
+$$
+
+因此递归调用栈空间为：
+
+$$
+O(\log n)
+$$
+
+如果把输出树本身占用的空间也计算在内，则节点空间显然为 $O(n)$；通常复杂度分析中的“额外空间”不把返回结果本身算进去。
+
+## 12. 常见错误
+
+### 错误一：区间定义前后不一致
+
+如果一开始定义：
+
+```text
+[left, right]
+```
+
+就必须始终坚持左闭右闭。
+
+因此：
+
+```cpp
+left > right
+```
+
+才表示空区间。
+
+不要一会儿使用 `[left, right]`，一会儿又按 `[left, right)` 推导。
+
+### 错误二：忘记排除 `mid`
+
+当前 `mid` 已经作为根节点使用，因此递归区间必须是：
+
+```text
+[left, mid - 1]
+[mid + 1, right]
+```
+
+如果再次包含 `mid`，递归规模可能无法缩小，最终导致无限递归。
+
+### 错误三：把“高度平衡”理解成“完全二叉树”
+
+高度平衡只要求每个节点左右子树高度差不超过 $1$。
+
+它不要求：
+
+- 每层都填满；
+- 最后一层从左到右连续；
+- 树形唯一。
+
+### 错误四：误以为必须进行 AVL 旋转
+
+本题不是“先插入，再维护平衡”。
+
+因为输入已经有序，我们可以直接设计出一棵平衡树，根本不需要旋转。
+
+## 13. 从这道题迁移出去
+
+本题和前面的“从遍历序列构造二叉树”“最大二叉树”属于同一类思想：
+
+> **先决定当前根，再递归构造左右子树。**
+
+可以抽象成：
+
+```text
+1. 找当前区间的根
+2. 划分左区间
+3. 划分右区间
+4. 递归构造左右子树
+5. 返回根
+```
+
+区别只在于“根怎么确定”：
+
+| 问题 | 根节点的确定方式 |
+| --- | --- |
+| 有序数组转 BST | 中间元素 |
+| 最大二叉树 | 区间最大值 |
+| 中序 + 后序构造树 | 后序最后一个元素 |
+| 前序 + 中序构造树 | 前序第一个元素 |
+
+<Callout title="构造类二叉树题的统一视角" type="success">
+
+不要把每一道构造树问题看成新的模板。
+
+核心始终是：
+
+**当前根是谁 → 左边是什么区间 → 右边是什么区间 → 子问题返回子树根。**
+
+</Callout>
+
+## 14. 复盘清单
+
+完成本篇后，应能独立回答：
+
+- 为什么有序数组的中点天然适合作为 BST 根？
+- 为什么每次取中点可以保证高度平衡？
+- 偶数长度时为什么答案不唯一？
+- `build(left, right)` 的返回值到底代表什么？
+- 为什么左闭右闭区间的终止条件是 `left > right`？
+- 为什么中点推荐写成 `left + (right - left) / 2`？
+- 时间复杂度为什么是 $O(n)$ 而不是 $O(n\log n)$？
+- 这道题和其他“构造二叉树”题的共同模板是什么？
+
+## 其他语言实现
+
+下面各语言统一使用“**中点作为根 + 递归构造左右半区间**”的核心思路。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return build(nums, 0, nums.length - 1);
+    }
+
+    private TreeNode build(int[] nums, int left, int right) {
+        if (left > right) {
+            return null;
+        }
+
+        int mid = left + (right - left) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = build(nums, left, mid - 1);
+        root.right = build(nums, mid + 1, right);
+        return root;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def sortedArrayToBST(self, nums):
+        def build(left, right):
+            if left > right:
+                return None
+
+            mid = left + (right - left) // 2
+            root = TreeNode(nums[mid])
+            root.left = build(left, mid - 1)
+            root.right = build(mid + 1, right)
+            return root
+
+        return build(0, len(nums) - 1)
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func sortedArrayToBST(nums []int) *TreeNode {
+    var build func(int, int) *TreeNode
+
+    build = func(left, right int) *TreeNode {
+        if left > right {
+            return nil
+        }
+
+        mid := left + (right-left)/2
+        root := &TreeNode{Val: nums[mid]}
+        root.Left = build(left, mid-1)
+        root.Right = build(mid+1, right)
+        return root
+    }
+
+    return build(0, len(nums)-1)
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var sortedArrayToBST = function(nums) {
+    const build = (left, right) => {
+        if (left > right) {
+            return null;
+        }
+
+        const mid = left + Math.floor((right - left) / 2);
+        const root = new TreeNode(nums[mid]);
+        root.left = build(left, mid - 1);
+        root.right = build(mid + 1, right);
+        return root;
+    };
+
+    return build(0, nums.length - 1);
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function sortedArrayToBST(nums: number[]): TreeNode | null {
+    const build = (left: number, right: number): TreeNode | null => {
+        if (left > right) {
+            return null;
+        }
+
+        const mid = left + Math.floor((right - left) / 2);
+        const root = new TreeNode(nums[mid]);
+        root.left = build(left, mid - 1);
+        root.right = build(mid + 1, right);
+        return root;
+    };
+
+    return build(0, nums.length - 1);
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c title="C"
+struct TreeNode* build(int* nums, int left, int right) {
+    if (left > right) {
+        return NULL;
+    }
+
+    int mid = left + (right - left) / 2;
+    struct TreeNode* root = malloc(sizeof(struct TreeNode));
+    root->val = nums[mid];
+    root->left = build(nums, left, mid - 1);
+    root->right = build(nums, mid + 1, right);
+    return root;
+}
+
+struct TreeNode* sortedArrayToBST(int* nums, int numsSize) {
+    return build(nums, 0, numsSize - 1);
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def sortedArrayToBST(nums: Array[Int]): TreeNode = {
+    def build(left: Int, right: Int): TreeNode = {
+      if (left > right) return null
+
+      val mid = left + (right - left) / 2
+      val root = new TreeNode(nums(mid))
+      root.left = build(left, mid - 1)
+      root.right = build(mid + 1, right)
+      root
+    }
+
+    build(0, nums.length - 1)
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn sorted_array_to_bst(nums: Vec<i32>) -> Option<Rc<RefCell<TreeNode>>> {
+        fn build(nums: &[i32], left: i32, right: i32) -> Option<Rc<RefCell<TreeNode>>> {
+            if left > right {
+                return None;
+            }
+
+            let mid = left + (right - left) / 2;
+            let mut root = TreeNode::new(nums[mid as usize]);
+            root.left = build(nums, left, mid - 1);
+            root.right = build(nums, mid + 1, right);
+            Some(Rc::new(RefCell::new(root)))
+        }
+
+        build(&nums, 0, nums.len() as i32 - 1)
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    public TreeNode SortedArrayToBST(int[] nums)
+    {
+        return Build(nums, 0, nums.Length - 1);
+    }
+
+    private TreeNode Build(int[] nums, int left, int right)
+    {
+        if (left > right)
+        {
+            return null;
+        }
+
+        int mid = left + (right - left) / 2;
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = Build(nums, left, mid - 1);
+        root.right = Build(nums, mid + 1, right);
+        return root;
+    }
+}
+```
+
+</Tab>
+</Tabs>

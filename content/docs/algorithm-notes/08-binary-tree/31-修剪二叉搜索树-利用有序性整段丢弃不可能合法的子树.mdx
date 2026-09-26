@@ -1,0 +1,809 @@
+---
+title: 修剪二叉搜索树：利用有序性整段丢弃不可能合法的子树
+---
+
+# 修剪二叉搜索树：利用有序性整段丢弃不可能合法的子树
+
+> LeetCode 669 · Trim a Binary Search Tree
+
+[题目链接](https://leetcode.cn/problems/trim-a-binary-search-tree/)
+
+给定一棵二叉搜索树和闭区间 `[low, high]`，删除所有不在区间内的节点，同时保持剩余节点原有的相对结构，使结果仍然是一棵 BST。
+
+![修剪二叉搜索树](https://file1.kamacoder.com/i/algo/20201014173115788.png)
+
+![修剪后的二叉搜索树](https://file1.kamacoder.com/i/algo/20201014173219142.png)
+
+<Callout title="本题最容易犯的根本错误" type="warning">
+
+看到一个节点越界时，不能直接：
+
+```cpp
+return nullptr;
+```
+
+因为**当前节点虽然必须删除，它的某一侧子树里仍然可能包含合法节点**。
+
+修剪不是“删掉越界节点”，而是“删掉越界节点后，把仍然可能合法的那一侧子树接回来”。
+
+</Callout>
+
+## 1. 一个看似自然但错误的写法
+
+很容易写出：
+
+```cpp
+if (root == nullptr || root->val < low || root->val > high) {
+    return nullptr;
+}
+
+root->left = trimBST(root->left, low, high);
+root->right = trimBST(root->right, low, high);
+return root;
+```
+
+问题出在：
+
+```cpp
+root->val < low
+```
+
+并不代表整棵 `root` 子树都应该删除。
+
+例如区间是 `[1, 3]`：
+
+```text
+      3
+     /
+    0
+     \
+      2
+```
+
+节点 `0` 越界，但它的右子树中有合法节点 `2`。
+
+如果遇到 `0` 就返回 `nullptr`，`2` 也会被错误丢弃。
+
+![越界节点的右子树仍可能包含合法节点](https://file1.kamacoder.com/i/algo/20210204155302751.png)
+
+## 2. BST 有序性告诉我们该保留哪一边
+
+这是本题全部剪枝逻辑的来源。
+
+### 当前值小于 `low`
+
+如果：
+
+```text
+root.val < low
+```
+
+由于左子树所有值都比 `root.val` 更小，所以：
+
+$$
+\forall x\in root.left,\quad x<root.val<low
+$$
+
+因此：
+
+> 当前节点和整个左子树都不可能保留。
+
+但右子树里可能出现更大的合法节点，所以必须继续修剪右子树：
+
+```cpp
+return trimBST(root->right, low, high);
+```
+
+### 当前值大于 `high`
+
+同理，如果：
+
+```text
+root.val > high
+```
+
+右子树所有值都更大，因此全部越界；只有左子树还可能存在合法节点：
+
+```cpp
+return trimBST(root->left, low, high);
+```
+
+### 当前值位于区间内
+
+如果：
+
+```text
+low <= root.val <= high
+```
+
+当前节点应该保留。
+
+但它的左右子树仍可能含有越界节点，所以分别修剪，并接回：
+
+```cpp
+root->left = trimBST(root->left, low, high);
+root->right = trimBST(root->right, low, high);
+return root;
+```
+
+<Callout title="三种状态必须形成条件反射" type="success">
+
+```text
+root.val < low   → 整个左边都不要，只处理右边
+root.val > high  → 整个右边都不要，只处理左边
+区间内           → 当前节点保留，左右子树继续修剪
+```
+
+这就是 BST 有序性带来的“整段剪枝”。
+
+</Callout>
+
+## 3. 为什么递归返回值是这题的核心
+
+仍然定义：
+
+> `trimBST(root, low, high)` 返回“以 `root` 为根的子树修剪完成后的新根”。
+
+假设：
+
+```text
+      3
+     /
+    0
+     \
+      2
+```
+
+区间 `[1, 3]`。
+
+处理节点 `0` 时：
+
+```text
+0 < low
+```
+
+于是：
+
+```cpp
+return trimBST(root->right, low, high);
+```
+
+`root->right` 就是节点 `2`，它合法，因此递归最终返回 `2`。
+
+上一层节点 `3` 执行：
+
+```cpp
+root->left = trimBST(root->left, low, high);
+```
+
+于是 `3.left` 从原来的 `0` 自动改成 `2`：
+
+```text
+    3
+   /
+  2
+```
+
+![递归返回值完成结构重接](https://file1.kamacoder.com/i/algo/20210204155327203.png)
+
+这就是“越界节点被跳过、合法后代被接回来”的完整过程。
+
+## 4. 推荐递归实现
+
+```cpp title="C++ · 递归剪枝"
+class Solution {
+public:
+    TreeNode* trimBST(TreeNode* root, int low, int high) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+
+        if (root->val < low) {
+            return trimBST(root->right, low, high);
+        }
+
+        if (root->val > high) {
+            return trimBST(root->left, low, high);
+        }
+
+        root->left = trimBST(root->left, low, high);
+        root->right = trimBST(root->right, low, high);
+        return root;
+    }
+};
+```
+
+代码非常短，但每一个 `return` 都有明确的结构含义。
+
+## 5. 递归三部曲
+
+### 5.1 参数与返回值
+
+参数：
+
+```text
+root：当前子树根
+low、high：合法闭区间边界
+```
+
+返回值：
+
+```text
+修剪完成后的当前子树新根
+```
+
+### 5.2 终止条件
+
+空树无需修剪：
+
+```cpp
+if (root == nullptr) {
+    return nullptr;
+}
+```
+
+### 5.3 单层递归逻辑
+
+当前值过小：
+
+```cpp
+if (root->val < low) {
+    return trimBST(root->right, low, high);
+}
+```
+
+当前值过大：
+
+```cpp
+if (root->val > high) {
+    return trimBST(root->left, low, high);
+}
+```
+
+当前值合法：
+
+```cpp
+root->left = trimBST(root->left, low, high);
+root->right = trimBST(root->right, low, high);
+return root;
+```
+
+## 6. 为什么越界时只递归一边
+
+这是 BST 题与普通二叉树题最明显的区别之一。
+
+若普通二叉树中某节点值小于 `low`，你不能推断它左子树也全部小于 `low`，因此往往还得继续检查左右两边。
+
+但 BST 中：
+
+```text
+左边一定更小
+右边一定更大
+```
+
+所以当：
+
+```text
+root.val < low
+```
+
+左侧已经可以整体判死；继续搜索左子树纯属无效工作。
+
+这也是为什么 BST 题要时刻问自己：
+
+> **当前比较结果，能不能直接排除一整棵子树？**
+
+## 7. 与“删除 BST 节点”的联系
+
+上一题删除一个确定的 `key`；本题相当于批量删除：
+
+```text
+(-∞, low) ∪ (high, +∞)
+```
+
+但本题反而更简洁，因为区间条件与 BST 有序性天然匹配。
+
+当一个节点过小时：
+
+```text
+当前节点 + 整个左子树
+```
+
+都可以一起排除。
+
+当一个节点过大时：
+
+```text
+当前节点 + 整个右子树
+```
+
+都可以一起排除。
+
+所以本题真正是“BST 区间剪枝”，而不是逐节点删除。
+
+## 8. 正确性证明
+
+对当前节点 `root` 分类讨论。
+
+### 情况一：`root.val < low`
+
+由 BST 性质：
+
+$$
+\forall x\in root.left,\quad x<root.val<low
+$$
+
+所以当前节点与整棵左子树都必须删除。
+
+合法节点若存在，只可能位于右子树，因此返回：
+
+```cpp
+trimBST(root->right, low, high)
+```
+
+是完整且正确的。
+
+### 情况二：`root.val > high`
+
+由 BST 性质：
+
+$$
+\forall x\in root.right,\quad x>root.val>high
+$$
+
+当前节点和整个右子树都必须删除，合法节点只可能来自左子树。
+
+### 情况三：`low <= root.val <= high`
+
+当前节点合法，应被保留。
+
+分别把左右子树修剪后的新根接回来：
+
+```cpp
+root->left = ...
+root->right = ...
+```
+
+左右子树递归后都满足区间要求与 BST 性质，因此整棵树也满足要求。
+
+三种情况覆盖全部可能，所以算法正确。
+
+## 9. 为什么结果仍然保持原节点的相对顺序
+
+本题不会把一个合法节点随意搬到另一侧。
+
+越界节点被跳过时，只会让它原本可能合法的一侧子树向上接替。
+
+例如：
+
+```text
+parent.left = trimBST(parent.left, low, high)
+```
+
+如果原来的左孩子越界，递归可能返回它右侧更深的合法节点。
+
+这个节点本来就位于 `parent` 的左子树中，因此仍然满足：
+
+```text
+returned.val < parent.val
+```
+
+BST 的相对有序关系自然延续下来。
+
+## 10. 迭代法怎么理解
+
+迭代法可以分成三个阶段。
+
+### 第一步：先把根移动到合法区间
+
+根可能本身就越界：
+
+```cpp
+while (root != nullptr && (root->val < low || root->val > high)) {
+    if (root->val < low) {
+        root = root->right;
+    } else {
+        root = root->left;
+    }
+}
+```
+
+如果最终 `root == nullptr`，说明没有合法节点。
+
+### 第二步：清理左侧过小节点
+
+当当前合法节点 `cur` 的左孩子仍然：
+
+```text
+cur.left.val < low
+```
+
+这个左孩子和它的左子树都必然过小，只有它的右子树可能合法。
+
+因此可以：
+
+```cpp
+cur->left = cur->left->right;
+```
+
+反复跳过过小节点。
+
+### 第三步：清理右侧过大节点
+
+完全对称：
+
+```cpp
+cur->right = cur->right->left;
+```
+
+跳过所有大于 `high` 的右侧节点。
+
+```cpp title="C++ · 迭代"
+class Solution {
+public:
+    TreeNode* trimBST(TreeNode* root, int low, int high) {
+        while (root != nullptr &&
+               (root->val < low || root->val > high)) {
+            if (root->val < low) {
+                root = root->right;
+            } else {
+                root = root->left;
+            }
+        }
+
+        TreeNode* cur = root;
+        while (cur != nullptr) {
+            while (cur->left != nullptr && cur->left->val < low) {
+                cur->left = cur->left->right;
+            }
+            cur = cur->left;
+        }
+
+        cur = root;
+        while (cur != nullptr) {
+            while (cur->right != nullptr && cur->right->val > high) {
+                cur->right = cur->right->left;
+            }
+            cur = cur->right;
+        }
+
+        return root;
+    }
+};
+```
+
+递归版明显更符合“返回修剪后子树新根”的自然语义，因此优先掌握递归版本。
+
+## 11. 复杂度分析
+
+最坏情况下，每个节点都可能被访问一次，因此时间复杂度：
+
+$$
+O(n)
+$$
+
+不过 BST 的有序性会让算法经常直接跳过整棵不可能合法的子树，所以实际访问节点数可能明显少于 $n$。
+
+递归版的调用栈深度最多等于树高：
+
+$$
+O(h)
+$$
+
+平衡 BST 中：
+
+$$
+h=O(\log n)
+$$
+
+退化 BST 中：
+
+$$
+h=O(n)
+$$
+
+迭代版除树本身外只使用常数个指针，额外空间为：
+
+$$
+O(1)
+$$
+
+## 12. 高频错误
+
+<AccordionGroup>
+<Accordion title="错误 1：越界节点直接返回 null">
+
+这是本题最典型错误。
+
+越界的只是当前节点，以及根据 BST 有序性可以确定必然越界的一侧；另一侧仍可能包含合法节点。
+
+</Accordion>
+
+<Accordion title="错误 2：root.val < low 时仍然递归左子树">
+
+左子树中的所有节点都更小：
+
+```text
+left.val < root.val < low
+```
+
+因此整棵左子树已经可以直接舍弃。
+
+</Accordion>
+
+<Accordion title="错误 3：当前节点合法后，不再处理左右子树">
+
+当前节点在 `[low, high]` 中，并不代表它的所有后代都合法。
+
+必须继续：
+
+```cpp
+root->left = trimBST(root->left, low, high);
+root->right = trimBST(root->right, low, high);
+```
+
+</Accordion>
+
+<Accordion title="错误 4：忘了区间是闭区间">
+
+边界值 `low` 与 `high` 都应该保留，因此越界条件必须是：
+
+```text
+root.val < low
+root.val > high
+```
+
+不能写成 `<=` 或 `>=`。
+
+</Accordion>
+
+<Accordion title="错误 5：只想着“删除”，没有想“谁来顶替”">
+
+树结构修改题最重要的问题不是“这个节点要不要”，而是：
+
+```text
+如果它不要了，这棵子树应该返回哪个新根？
+```
+
+本题中答案分别是右侧修剪结果、左侧修剪结果或当前节点本身。
+
+</Accordion>
+</AccordionGroup>
+
+## 13. 一张表记住全部递归逻辑
+
+| 当前节点状态 | 可以直接排除 | 还可能合法 | 返回值 |
+| --- | --- | --- | --- |
+| `root == null` | — | — | `null` |
+| `root.val < low` | 当前节点 + 左子树 | 右子树 | `trimBST(root.right)` |
+| `root.val > high` | 当前节点 + 右子树 | 左子树 | `trimBST(root.left)` |
+| `low <= root.val <= high` | 无 | 左右子树都需检查 | 当前 `root` |
+
+<Callout title="本题最值得带走的模板" type="success">
+
+```cpp
+if (root == nullptr) return nullptr;
+
+if (root->val < low)
+    return dfs(root->right);
+
+if (root->val > high)
+    return dfs(root->left);
+
+root->left = dfs(root->left);
+root->right = dfs(root->right);
+return root;
+```
+
+它体现了两种非常通用的思想：
+
+**BST 有序剪枝 + 递归返回值重接子树。**
+
+</Callout>
+
+## 14. 复盘清单
+
+完成本篇后，应能独立解释：
+
+- 为什么越界节点不能简单返回 `nullptr`？
+- `root.val < low` 时为什么整个左子树都可以丢弃？
+- 为什么只需要递归右子树并直接返回它的修剪结果？
+- 当前节点合法时为什么左右子树仍需要继续修剪？
+- 递归返回值是怎样让越界节点自动从树结构中消失的？
+- 为什么最坏时间复杂度是 $O(n)$，而不是固定的 $O(h)$？
+
+## 其他语言实现
+
+下面各语言统一采用“**越界时利用 BST 有序性只保留可能合法的一侧；合法时递归修剪左右子树**”的写法。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    public TreeNode trimBST(TreeNode root, int low, int high) {
+        if (root == null) return null;
+
+        if (root.val < low) {
+            return trimBST(root.right, low, high);
+        }
+        if (root.val > high) {
+            return trimBST(root.left, low, high);
+        }
+
+        root.left = trimBST(root.left, low, high);
+        root.right = trimBST(root.right, low, high);
+        return root;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def trimBST(self, root, low, high):
+        if root is None:
+            return None
+
+        if root.val < low:
+            return self.trimBST(root.right, low, high)
+        if root.val > high:
+            return self.trimBST(root.left, low, high)
+
+        root.left = self.trimBST(root.left, low, high)
+        root.right = self.trimBST(root.right, low, high)
+        return root
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func trimBST(root *TreeNode, low int, high int) *TreeNode {
+    if root == nil {
+        return nil
+    }
+
+    if root.Val < low {
+        return trimBST(root.Right, low, high)
+    }
+    if root.Val > high {
+        return trimBST(root.Left, low, high)
+    }
+
+    root.Left = trimBST(root.Left, low, high)
+    root.Right = trimBST(root.Right, low, high)
+    return root
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var trimBST = function(root, low, high) {
+    if (root === null) return null;
+
+    if (root.val < low) {
+        return trimBST(root.right, low, high);
+    }
+    if (root.val > high) {
+        return trimBST(root.left, low, high);
+    }
+
+    root.left = trimBST(root.left, low, high);
+    root.right = trimBST(root.right, low, high);
+    return root;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function trimBST(
+    root: TreeNode | null,
+    low: number,
+    high: number
+): TreeNode | null {
+    if (root === null) return null;
+
+    if (root.val < low) {
+        return trimBST(root.right, low, high);
+    }
+    if (root.val > high) {
+        return trimBST(root.left, low, high);
+    }
+
+    root.left = trimBST(root.left, low, high);
+    root.right = trimBST(root.right, low, high);
+    return root;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def trimBST(root: TreeNode, low: Int, high: Int): TreeNode = {
+    if (root == null) return null
+
+    if (root.value < low) {
+      return trimBST(root.right, low, high)
+    }
+    if (root.value > high) {
+      return trimBST(root.left, low, high)
+    }
+
+    root.left = trimBST(root.left, low, high)
+    root.right = trimBST(root.right, low, high)
+    root
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn trim_bst(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        low: i32,
+        high: i32,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        let node = root?;
+        let value = node.borrow().val;
+
+        if value < low {
+            let right = node.borrow_mut().right.take();
+            return Self::trim_bst(right, low, high);
+        }
+        if value > high {
+            let left = node.borrow_mut().left.take();
+            return Self::trim_bst(left, low, high);
+        }
+
+        let left = node.borrow_mut().left.take();
+        let right = node.borrow_mut().right.take();
+        node.borrow_mut().left = Self::trim_bst(left, low, high);
+        node.borrow_mut().right = Self::trim_bst(right, low, high);
+        Some(node)
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    public TreeNode TrimBST(TreeNode root, int low, int high)
+    {
+        if (root == null) return null;
+
+        if (root.val < low)
+        {
+            return TrimBST(root.right, low, high);
+        }
+        if (root.val > high)
+        {
+            return TrimBST(root.left, low, high);
+        }
+
+        root.left = TrimBST(root.left, low, high);
+        root.right = TrimBST(root.right, low, high);
+        return root;
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,883 @@
+---
+title: 两数之和
+description: 用“补数 + 哈希映射”把双重枚举降为线性扫描，理解 Map 中 key 与 value 的职责，并掌握先查后存这一关键顺序。
+---
+
+# 1. 两数之和
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/two-sum/">
+    LeetCode 1 · Two Sum
+  </Card>
+</Cards>
+
+给定一个整数数组 `nums` 和目标值 `target`，请找到两个不同下标 `i`、`j`，使得：
+
+$$
+nums[i]+nums[j]=target
+$$
+
+并返回：
+
+```text
+[i, j]
+```
+
+题目保证每组输入只有一个有效答案，并且同一个数组元素不能重复使用。
+
+例如：
+
+```text
+nums = [2, 7, 11, 15]
+target = 9
+```
+
+因为：
+
+$$
+2+7=9
+$$
+
+所以返回：
+
+```text
+[0, 1]
+```
+
+<Callout type="info" title="本题是哈希表最经典的入门模型">
+前面的题主要在回答“某个元素是否出现过”，而本题还要求返回它的下标，因此需要从 Set 升级为 **Map：值 → 下标**。
+</Callout>
+
+---
+
+## 1. 暴力枚举为什么是 $O(n^2)$
+
+最直接的方法是枚举所有二元组：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    for (int j = i + 1; j < nums.size(); ++j) {
+        if (nums[i] + nums[j] == target) {
+            return {i, j};
+        }
+    }
+}
+```
+
+如果数组长度为 $n$，需要检查大约：
+
+$$
+\frac{n(n-1)}{2}
+$$
+
+对元素。
+
+因此时间复杂度：
+
+$$
+O(n^2)
+$$
+
+暴力方法的本质是：
+
+> 对每个 `nums[i]`，都重新扫描后面的数组去找与它匹配的元素。
+
+真正需要优化的，就是这个“寻找另一个数”的过程。
+
+---
+
+## 2. 从方程推导“补数”
+
+若：
+
+$$
+x+y=target
+$$
+
+那么：
+
+$$
+y=target-x
+$$
+
+所以当我们遍历到当前元素：
+
+```text
+x = nums[i]
+```
+
+时，并不需要再枚举另一个数。
+
+只需要问：
+
+> **之前是否已经出现过 `target - x`？**
+
+这个数通常称为当前元素的**补数（complement）**。
+
+因此原问题变成：
+
+```text
+遍历当前值 x
+      ↓
+计算 complement = target - x
+      ↓
+之前见过 complement 吗？
+```
+
+只要能快速回答这个问题，就可以把双重循环压缩成单次扫描。
+
+---
+
+## 3. 为什么 Set 还不够
+
+如果只判断：
+
+```text
+target - nums[i]
+```
+
+是否出现过，那么 Set 的确可以完成存在性查询。
+
+但是题目最终要求返回：
+
+```text
+两个元素的下标
+```
+
+因此我们不仅要知道：
+
+```text
+这个数出现过吗？
+```
+
+还要知道：
+
+```text
+它出现在哪个下标？
+```
+
+所以需要保存：
+
+$$
+\text{元素值}\rightarrow\text{元素下标}
+$$
+
+这正是 Map 的典型用途。
+
+---
+
+## 4. Map 中 key 和 value 分别是什么
+
+本题中应该保存：
+
+```text
+key   = nums[i]
+value = i
+```
+
+也就是：
+
+```text
+元素值 -> 下标
+```
+
+例如遍历：
+
+```text
+nums = [2, 7, 11, 15]
+```
+
+当处理过 `2` 后：
+
+```text
+map = {
+    2 -> 0
+}
+```
+
+当来到 `7`：
+
+```text
+complement = 9 - 7 = 2
+```
+
+发现：
+
+```text
+2 -> 0
+```
+
+已经存在，所以答案就是：
+
+```text
+[0, 1]
+```
+
+<Callout type="tip" title="建立映射时先问自己两件事">
+**我要查询什么？** —— 这决定 key。  
+**找到后还需要什么信息？** —— 这决定 value。
+
+本题查询的是“某个数是否出现过”，找到后还需要“它的下标”，所以自然得到 `数值 -> 下标`。
+</Callout>
+
+---
+
+## 5. 为什么一定要“先查，再存”
+
+这是本题最容易被忽略、但非常重要的细节。
+
+正确顺序：
+
+```text
+1. 先查 complement
+2. 没找到，再把当前元素存入 map
+```
+
+代码：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i) {
+    int complement = target - nums[i];
+
+    auto it = index.find(complement);
+
+    if (it != index.end()) {
+        return {it->second, i};
+    }
+
+    index[nums[i]] = i;
+}
+```
+
+为什么不能先存当前元素？
+
+考虑：
+
+```text
+nums = [3, 3]
+target = 6
+```
+
+在 `i = 0` 时：
+
+```text
+complement = 3
+```
+
+如果先执行：
+
+```cpp
+index[3] = 0;
+```
+
+再查询 `3`，就会错误地把同一个下标 `0` 使用两次。
+
+而“先查后存”天然保证：
+
+> Map 里只包含当前下标之前的元素。
+
+所以找到的 complement 与当前元素一定来自两个不同位置。
+
+---
+
+## 6. 图示理解单次扫描
+
+原始资料中的过程图：
+
+![两数之和过程一](https://file1.kamacoder.com/i/algo/20220711202638.png)
+
+![两数之和过程二](https://file1.kamacoder.com/i/algo/20230220223536.png)
+
+整个过程可以写成：
+
+```text
+当前 nums[i]
+    ↓
+need = target - nums[i]
+    ↓
+在历史 Map 中查 need
+    ├─ 找到 → 返回 [need 的下标, i]
+    └─ 没找到
+          ↓
+     保存 nums[i] -> i
+```
+
+这里 Map 维护的是一个**历史信息集合**：
+
+```text
+已经遍历过的值 -> 它们的下标
+```
+
+---
+
+## 7. 标准解法
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> index;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            int complement = target - nums[i];
+
+            auto it = index.find(complement);
+
+            if (it != index.end()) {
+                return {it->second, i};
+            }
+
+            index[nums[i]] = i;
+        }
+
+        return {};
+    }
+};
+```
+
+---
+
+## 8. 为什么使用 `unordered_map`
+
+C++ 中常见的 Map：
+
+| 容器 | 常见底层结构 | key 是否有序 | 查询复杂度 |
+| --- | --- | --- | --- |
+| `map` | 红黑树 | 是 | $O(\log n)$ |
+| `multimap` | 红黑树 | 是 | $O(\log n)$ |
+| `unordered_map` | 哈希表 | 否 | 平均 $O(1)$ |
+
+本题：
+
+- 不需要 key 有序；
+- 只需要快速查找；
+- key 不需要重复保存多个版本。
+
+所以：
+
+```cpp
+unordered_map<int, int>
+```
+
+最自然。
+
+---
+
+## 9. 时间复杂度为什么能降到 $O(n)$
+
+遍历数组一次：
+
+$$
+O(n)
+$$
+
+每次进行：
+
+- 一次哈希查询；
+- 最多一次哈希插入。
+
+平均情况下，这些操作都是：
+
+$$
+O(1)
+$$
+
+所以总时间复杂度：
+
+$$
+O(n)
+$$
+
+额外 Map 最多保存 $n$ 个元素，因此空间复杂度：
+
+$$
+O(n)
+$$
+
+这就是典型的：
+
+> 用 $O(n)$ 额外空间，把 $O(n^2)$ 查找优化到 $O(n)$。
+
+---
+
+## 10. 重复元素为什么不会出问题
+
+考虑：
+
+```text
+nums = [3, 3]
+target = 6
+```
+
+执行过程：
+
+### 第一次遇到 3
+
+```text
+need = 3
+map 中没有 3
+```
+
+于是存入：
+
+```text
+3 -> 0
+```
+
+### 第二次遇到 3
+
+```text
+need = 3
+map 中已经有 3 -> 0
+```
+
+所以返回：
+
+```text
+[0, 1]
+```
+
+正好符合要求。
+
+这再次体现：
+
+> “先查后存”天然处理了重复元素和“不能使用同一元素两次”的约束。
+
+---
+
+## 11. 如果 Map 中同一个值出现多次怎么办
+
+例如：
+
+```text
+nums = [1, 1, 4]
+target = 5
+```
+
+如果使用：
+
+```cpp
+index[nums[i]] = i;
+```
+
+后来的 `1` 会覆盖前面的下标。
+
+这通常没有问题。
+
+因为题目只要求：
+
+```text
+找到任意一组合法下标
+```
+
+当处理到 `4` 时：
+
+```text
+need = 1
+```
+
+Map 里保存哪个 `1` 的下标都能构成合法答案。
+
+所以无需保存同一个值的所有下标。
+
+---
+
+## 12. 为什么排序 + 双指针不是本题首选
+
+如果只需要判断：
+
+```text
+是否存在两个数和为 target
+```
+
+可以：
+
+1. 排序；
+2. 左右双指针。
+
+时间复杂度：
+
+$$
+O(n\log n)
+$$
+
+但本题还要求返回**原始下标**。
+
+排序会破坏下标与元素位置之间的对应关系，因此还需要额外维护：
+
+```text
+(value, originalIndex)
+```
+
+整体复杂度和实现细节都会增加。
+
+所以本题最自然的方案仍然是：
+
+```text
+哈希 Map
+```
+
+<Callout type="warning" title="不要把“两数之和”和“三数之和”机械类比">
+“两数之和”需要返回下标，且只找一组答案，哈希法非常自然。  
+“三数之和”要求返回所有不重复三元组，更适合排序 + 双指针，因为去重是核心难点。
+</Callout>
+
+---
+
+## 13. 一次遍历与两次遍历
+
+还有一种写法：
+
+### 第一遍
+
+把所有：
+
+```text
+nums[i] -> i
+```
+
+全部放进 Map。
+
+### 第二遍
+
+再逐个查补数。
+
+这种方法也能做到：
+
+$$
+O(n)
+$$
+
+但必须额外处理：
+
+```text
+补数的下标不能等于当前下标
+```
+
+例如：
+
+```text
+nums = [3, 2, 4]
+target = 6
+```
+
+查询第一个 `3` 时：
+
+```text
+complement = 3
+```
+
+Map 中确实存在 `3`，但那就是它自己。
+
+相比之下，单遍“先查后存”的写法更自然，因为它从结构上就避免了同下标问题。
+
+---
+
+## 14. 从本题抽象出“在线查询历史”的模型
+
+本题其实属于一大类问题：
+
+> 遍历到当前位置时，需要查询“之前是否出现过某种信息”。
+
+这类题常写成：
+
+```text
+遍历当前状态 x
+       ↓
+根据 x 推导需要的历史状态 y
+       ↓
+查询历史结构中是否存在 y
+       ↓
+处理答案
+       ↓
+把 x 加入历史结构
+```
+
+本题：
+
+```text
+x = nums[i]
+y = target - nums[i]
+```
+
+这种“在线维护历史信息”的思想还会出现在：
+
+- 前缀和；
+- 差值匹配；
+- 滑动统计；
+- 首次出现位置；
+- 最长子数组问题；
+- 状态判重。
+
+---
+
+## 15. 高频错误
+
+### 错误一：Map 存成“下标 → 元素值”
+
+如果写：
+
+```text
+i -> nums[i]
+```
+
+那么查询：
+
+```text
+target - nums[i]
+```
+
+时仍然无法直接定位。
+
+本题真正需要：
+
+```text
+值 -> 下标
+```
+
+---
+
+### 错误二：只用 Set
+
+Set 可以知道补数是否存在，却不能直接告诉你它的下标。
+
+---
+
+### 错误三：先存当前元素再查
+
+可能把同一个元素使用两次。
+
+---
+
+### 错误四：暴力查找 Map 中的 value
+
+哈希表优化的核心就是：
+
+> 把“我要查的东西”放到 key 上。
+
+如果每次还遍历 Map 的 value，就失去了哈希查询的意义。
+
+---
+
+## 16. 一眼识别本题的方法
+
+看到：
+
+```text
+两个数
+和为 target
+返回下标
+```
+
+可以立刻建立：
+
+$$
+x+y=target
+$$
+
+推导：
+
+$$
+y=target-x
+$$
+
+再建立：
+
+```text
+历史元素值 -> 下标
+```
+
+完整思维链：
+
+```text
+两数之和
+   ↓
+枚举一个数 x
+   ↓
+另一个数唯一确定为 target - x
+   ↓
+需要快速判断它以前是否出现
+   ↓
+还需要返回它的下标
+   ↓
+unordered_map<值, 下标>
+```
+
+---
+
+## 17. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> index;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            int need = target - nums[i];
+
+            auto it = index.find(need);
+            if (it != index.end()) {
+                return {it->second, i};
+            }
+
+            index[nums[i]] = i;
+        }
+
+        return {};
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> index = new HashMap<>();
+
+        for (int i = 0; i < nums.length; ++i) {
+            int need = target - nums[i];
+
+            if (index.containsKey(need)) {
+                return new int[] {index.get(need), i};
+            }
+
+            index.put(nums[i], i);
+        }
+
+        return new int[0];
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        index = {}
+
+        for i, x in enumerate(nums):
+            need = target - x
+
+            if need in index:
+                return [index[need], i]
+
+            index[x] = i
+
+        return []
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func twoSum(nums []int, target int) []int {
+    index := make(map[int]int)
+
+    for i, x := range nums {
+        need := target - x
+
+        if j, ok := index[need]; ok {
+            return []int{j, i}
+        }
+
+        index[x] = i
+    }
+
+    return []int{}
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var twoSum = function(nums, target) {
+    const index = new Map();
+
+    for (let i = 0; i < nums.length; ++i) {
+        const need = target - nums[i];
+
+        if (index.has(need)) {
+            return [index.get(need), i];
+        }
+
+        index.set(nums[i], i);
+    }
+
+    return [];
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function twoSum(nums: number[], target: number): number[] {
+    const index = new Map<number, number>();
+
+    for (let i = 0; i < nums.length; ++i) {
+        const need = target - nums[i];
+
+        if (index.has(need)) {
+            return [index.get(need)!, i];
+        }
+
+        index.set(nums[i], i);
+    }
+
+    return [];
+}
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 18. 本题总结
+
+本题最重要的四个问题是：
+
+1. **为什么想到哈希？**  
+   因为需要快速判断补数是否出现过。
+
+2. **为什么不能只用 Set？**  
+   因为还需要补数对应的下标。
+
+3. **Map 存什么？**  
+   `元素值 -> 下标`。
+
+4. **为什么先查后存？**  
+   为了保证当前元素不会与自己匹配。
+
+最终模板：
+
+```text
+for 当前元素 x:
+    need = target - x
+
+    if need 在历史 Map:
+        返回答案
+
+    记录 x
+```
+
+这是整个哈希模块中最值得熟练到“看到就能写”的经典模板之一。

@@ -1,0 +1,807 @@
+---
+title: 摆动序列
+summary: 把最长摆动子序列转化为“保留峰谷、删除单调中间点”，重点理解平坡处理与只在真正转向时更新前一坡度。
+description: LeetCode 376 摆动序列。系统讲解贪心建模、峰谷思想、平坡边界、正确性证明、动态规划视角与多语言代码。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 376. 摆动序列
+
+[LeetCode 376. 摆动序列](https://leetcode.cn/problems/wiggle-subsequence/)
+
+这道题真正的难点不是代码，而是把“**最长子序列**”重新理解成“**保留尽可能多的转折点**”。一旦建立这个视角，原本像动态规划的问题就可以压缩成一次 $O(n)$ 扫描。
+
+## 1. 什么叫摆动序列
+
+给定序列：
+
+$$
+a_0,a_1,a_2,\ldots,a_{k-1}
+$$
+
+定义相邻差值：
+
+$$
+d_i=a_i-a_{i-1}\quad (i\ge1)
+$$
+
+若这些非零差值严格正负交替，则序列称为摆动序列。
+
+例如：
+
+```text
+[1, 7, 4, 9, 2, 5]
+```
+
+对应差值为：
+
+$$
+6,-3,5,-7,3
+$$
+
+符号严格交替，因此整个序列就是摆动序列，答案为 $6$。
+
+而：
+
+```text
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+
+始终单调递增，中间没有任何方向反转，因此最长摆动子序列只有首尾两个点，答案为 $2$。
+
+<Callout type="info" title="题目的核心转换">
+最长摆动子序列不需要真的把子序列构造出来。只要知道哪些点应该作为“峰”或“谷”保留，就能直接统计最长长度。
+</Callout>
+
+## 2. 贪心直觉：单调坡上的中间点都可以删除
+
+观察下面的示意图：
+
+![摆动序列整体示意图](https://file1.kamacoder.com/i/algo/20201124174327597.png)
+
+如果一段连续元素一直递增：
+
+$$
+a<b<c<d
+$$
+
+那么在摆动序列中，保留中间的 $b,c$ 没有额外价值。
+
+例如：
+
+```text
+1, 3, 5, 7
+```
+
+无论保留多少中间点，相邻差值都一直为正，不会多产生一次摆动。
+
+所以可以压缩成：
+
+```text
+1, 7
+```
+
+同理，一段连续下降坡也只需要保留两端。
+
+于是得到本题的贪心思想：
+
+> **删除单调坡内部的中间点，尽量保留每一个真正的峰和谷。**
+
+局部最优是：每一段单调区间只保留最有利于下一次反转的端点。
+
+全局最优是：保留下来的峰谷数量最多，也就得到最长摆动子序列。
+
+## 3. 为什么保留“转折点”就是最优
+
+设当前处在一段上升坡：
+
+$$
+a_p<a_{p+1}<\cdots<a_q
+$$
+
+如果后面将要下降，那么作为这次上升结束点，选择 $a_q$ 显然不会比选择中间的任何 $a_i$ 更差，因为：
+
+$$
+a_q\ge a_i
+$$
+
+更高的峰只会让后续形成下降摆动更容易，而不会更难。
+
+同理，在下降坡结束时，保留最低的谷最有利于下一次上升。
+
+因此：
+
+- 上升途中不断“替换”峰值候选；
+- 下降途中不断“替换”谷值候选；
+- 只有方向真正发生改变时，才确定一个新的摆动点。
+
+这就是一个典型的“**当前阶段只保留最极端端点**”的贪心策略。
+
+<Callout type="success" title="可以把它理解为在线压缩">
+我们并不是在显式删除数组元素，而是一边扫描，一边把每段单调区间压缩成两个端点。最终剩下的正是一个最长摆动子序列的骨架。
+</Callout>
+
+## 4. 用差值符号判断是否发生转向
+
+设：
+
+```text
+preDiff = 上一次被确认的有效坡度
+curDiff = 当前相邻两数的差值
+```
+
+如果之前在下降，而现在开始上升：
+
+$$
+preDiff\le0,\quad curDiff>0
+$$
+
+或者之前在上升，而现在开始下降：
+
+$$
+preDiff\ge0,\quad curDiff<0
+$$
+
+就说明发生了一次有效摆动。
+
+因此判断条件可以写成：
+
+```cpp
+(preDiff <= 0 && curDiff > 0) ||
+(preDiff >= 0 && curDiff < 0)
+```
+
+这里为什么不是严格的 `< 0` 与 `> 0`？
+
+答案在于：**平坡，也就是差值为 $0$ 的情况。**
+
+## 5. 平坡是本题最大的坑
+
+本题最容易写错的地方几乎全部来自：
+
+$$
+curDiff=0
+$$
+
+也就是连续相同元素。
+
+平坡大致分为两类。
+
+### 5.1 转折位置存在平坡
+
+例如：
+
+```text
+[1, 2, 2, 2, 2, 1]
+```
+
+示意图：
+
+![上下坡中的平坡](https://file1.kamacoder.com/i/algo/20230106170449.png)
+
+真正的最长摆动子序列可以压缩为：
+
+```text
+[1, 2, 1]
+```
+
+长度为 $3$。
+
+连续的多个 `2` 中，只需要保留一个作为峰值。
+
+原始资料给出的删除方式示意：
+
+![删除平坡冗余点](https://file1.kamacoder.com/i/algo/20230106172613.png)
+
+如果我们把前面的平坡都视为被删除，那么当真正下降到来时，可能出现：
+
+```text
+preDiff == 0
+curDiff < 0
+```
+
+所以判断转向时必须允许：
+
+```text
+preDiff >= 0 && curDiff < 0
+```
+
+同理，上升时允许：
+
+```text
+preDiff <= 0 && curDiff > 0
+```
+
+## 6. 首尾如何统一处理
+
+只有两个不同元素时，例如：
+
+```text
+[2, 5]
+```
+
+答案应为 $2$。
+
+但传统的“前一个坡度 + 当前坡度”似乎需要至少三个点。
+
+一个很巧妙的统一方法是：
+
+```text
+preDiff = 0
+answer = 1
+```
+
+相当于假想序列开头还有一个与首元素相等的点：
+
+```text
+[2, 2, 5]
+```
+
+示意图：
+
+![摆动序列首端处理](https://file1.kamacoder.com/i/algo/20201124174357612.png)
+
+此时：
+
+```text
+preDiff = 0
+curDiff > 0
+```
+
+满足：
+
+```text
+preDiff <= 0 && curDiff > 0
+```
+
+所以答案从 $1$ 增加到 $2$。
+
+这样就不需要单独给长度为 $2$ 的数组写特殊分支。
+
+## 7. 最隐蔽的错误：不能每轮都更新 `preDiff`
+
+考虑：
+
+```text
+[1, 2, 2, 2, 3, 4]
+```
+
+它整体仍然只有一个上升方向，最长摆动子序列长度应该是 $2$。
+
+示意图：
+
+![单调坡中的平坡](https://file1.kamacoder.com/i/algo/20230108171505.png)
+
+假如每一轮都执行：
+
+```cpp
+preDiff = curDiff;
+```
+
+那么经过平坡时 `preDiff` 会被更新为 $0$。
+
+之后再次遇到正差值时：
+
+```text
+preDiff == 0
+curDiff > 0
+```
+
+算法就会误以为发生了新的摆动，于是多计数一次。
+
+所以最关键的一条规则是：
+
+> **只有真正发生摆动时，才更新 `preDiff`。**
+
+也就是：
+
+```cpp
+if ((preDiff <= 0 && curDiff > 0) ||
+    (preDiff >= 0 && curDiff < 0)) {
+    ++answer;
+    preDiff = curDiff;
+}
+```
+
+原始资料把两类平坡放在一张图中进行了总结：
+
+![平坡分类总结](https://file1.kamacoder.com/i/algo/20230108174452.png)
+
+<Callout type="error" title="高频错误">
+`preDiff` 表示的不是“上一对相邻元素的差值”，而是“上一次已经被接受的有效摆动方向”。一旦理解这一点，就自然知道为什么平坡时不能覆盖它。
+</Callout>
+
+## 8. 最终贪心算法
+
+<Steps>
+<Step>
+
+### 初始化
+
+如果数组长度不超过 $1$，直接返回长度。
+
+否则：
+
+```text
+preDiff = 0
+answer = 1
+```
+
+`answer = 1` 表示先默认保留一个端点。
+
+</Step>
+<Step>
+
+### 计算当前差值
+
+依次计算：
+
+$$
+curDiff=nums[i+1]-nums[i]
+$$
+
+</Step>
+<Step>
+
+### 判断是否发生有效方向切换
+
+若：
+
+```text
+preDiff <= 0 && curDiff > 0
+```
+
+或：
+
+```text
+preDiff >= 0 && curDiff < 0
+```
+
+说明当前点形成新的峰或谷，答案加一。
+
+</Step>
+<Step>
+
+### 只在有效摆动时更新坡度
+
+```text
+preDiff = curDiff
+```
+
+平坡和同方向继续延伸时，都不更新 `preDiff`。
+
+</Step>
+</Steps>
+
+## 9. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    int wiggleMaxLength(vector<int>& nums) {
+        if (nums.size() <= 1) {
+            return static_cast<int>(nums.size());
+        }
+
+        long long preDiff = 0;
+        int answer = 1;
+
+        for (int i = 0; i + 1 < static_cast<int>(nums.size()); ++i) {
+            long long curDiff = static_cast<long long>(nums[i + 1]) - nums[i];
+
+            if ((preDiff <= 0 && curDiff > 0) ||
+                (preDiff >= 0 && curDiff < 0)) {
+                ++answer;
+                preDiff = curDiff;
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+这里使用 `long long` 计算差值，是为了避免输入接近整型边界时发生减法溢出。
+
+### 复杂度
+
+只需要一次线性扫描：
+
+$$
+O(n)
+$$
+
+只维护常数个变量：
+
+$$
+O(1)
+$$
+
+## 10. 手动模拟：为什么只记录转向
+
+考虑：
+
+```text
+nums = [1, 17, 5, 10, 13, 15, 10, 5, 16, 8]
+```
+
+只看相邻差值符号：
+
+```text
++  -  +  +  +  -  -  +  -
+```
+
+连续相同符号可以压缩：
+
+```text
++  -  +  -  +  -
+```
+
+因此有效差值一共有 $6$ 个，对应元素个数为：
+
+$$
+6+1=7
+$$
+
+这就是答案。
+
+可以进一步理解为：
+
+- 连续上升时，只保留最高点；
+- 连续下降时，只保留最低点；
+- 每次方向反转，才真正增加一个新的摆动元素。
+
+## 11. 从动态规划角度再理解一次
+
+如果不从贪心角度切入，也可以定义两个状态：
+
+- `up[i]`：处理到位置 $i$ 时，以“上升”结尾的最长摆动子序列长度；
+- `down[i]`：处理到位置 $i$ 时，以“下降”结尾的最长摆动子序列长度。
+
+若：
+
+$$
+nums[i]>nums[i-1]
+$$
+
+则可以把之前下降结尾的序列接上当前元素：
+
+$$
+up=down+1
+$$
+
+若：
+
+$$
+nums[i]<nums[i-1]
+$$
+
+则：
+
+$$
+down=up+1
+$$
+
+相等时什么也不做。
+
+```cpp
+class Solution {
+public:
+    int wiggleMaxLength(vector<int>& nums) {
+        if (nums.empty()) return 0;
+
+        int up = 1;
+        int down = 1;
+
+        for (int i = 1; i < static_cast<int>(nums.size()); ++i) {
+            if (nums[i] > nums[i - 1]) {
+                up = down + 1;
+            } else if (nums[i] < nums[i - 1]) {
+                down = up + 1;
+            }
+        }
+
+        return max(up, down);
+    }
+};
+```
+
+这个写法同样是：
+
+$$
+O(n)\text{ 时间},\quad O(1)\text{ 空间}
+$$
+
+### 贪心和 DP 为什么最终会合流
+
+从 DP 看，每次只需要知道当前“上升结尾”和“下降结尾”的最佳长度，不需要保存更早的细节。
+
+从贪心看，同一段单调坡上，中间点全部可以被更极端的端点替换。
+
+两种解释实际上描述的是同一个结构：
+
+> **一段单调趋势内部没有必要保留多个候选状态。**
+
+因此状态可以被压缩到常数级别，最终表现为线性贪心。
+
+## 12. 常见错误与判断技巧
+
+### 错误一：把 `curDiff == 0` 当成一次摆动
+
+摆动要求差值严格正负交替，零不属于正数也不属于负数。
+
+### 错误二：每轮都更新 `preDiff`
+
+这会让单调坡中的平坡把之前的有效方向抹掉，随后造成重复计数。
+
+### 错误三：直接数局部极值但漏掉首尾
+
+首尾同样可能属于最长摆动子序列。使用 `answer = 1`、`preDiff = 0` 可以自然统一边界。
+
+### 错误四：误以为必须真正删除元素
+
+题目只要求长度。我们只需要“逻辑上删除”单调中间点，不需要修改原数组。
+
+### 错误五：看到“最长子序列”就条件反射写 $O(n^2)$ DP
+
+最长子序列不一定都需要枚举前驱。先观察题目是否存在可替换、可压缩、可安全丢弃的状态。
+
+<Callout type="info" title="做题时的识别信号">
+当你发现“连续同方向变化的中间元素都没有独立贡献，只需要保留最极端端点”时，要高度警惕：这往往意味着可以用贪心把状态压缩掉。
+</Callout>
+
+## 13. 其他语言版本
+
+下面统一给出线性时间的贪心写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public int wiggleMaxLength(int[] nums) {
+        if (nums.length <= 1) {
+            return nums.length;
+        }
+
+        long preDiff = 0;
+        int answer = 1;
+
+        for (int i = 0; i + 1 < nums.length; i++) {
+            long curDiff = (long) nums[i + 1] - nums[i];
+
+            if ((preDiff <= 0 && curDiff > 0) ||
+                (preDiff >= 0 && curDiff < 0)) {
+                answer++;
+                preDiff = curDiff;
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def wiggleMaxLength(self, nums: list[int]) -> int:
+        if len(nums) <= 1:
+            return len(nums)
+
+        pre_diff = 0
+        answer = 1
+
+        for i in range(len(nums) - 1):
+            cur_diff = nums[i + 1] - nums[i]
+
+            if ((pre_diff <= 0 < cur_diff) or
+                    (pre_diff >= 0 > cur_diff)):
+                answer += 1
+                pre_diff = cur_diff
+
+        return answer
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func wiggleMaxLength(nums []int) int {
+    if len(nums) <= 1 {
+        return len(nums)
+    }
+
+    preDiff := int64(0)
+    answer := 1
+
+    for i := 0; i+1 < len(nums); i++ {
+        curDiff := int64(nums[i+1]) - int64(nums[i])
+
+        if (preDiff <= 0 && curDiff > 0) ||
+            (preDiff >= 0 && curDiff < 0) {
+            answer++
+            preDiff = curDiff
+        }
+    }
+
+    return answer
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn wiggle_max_length(nums: Vec<i32>) -> i32 {
+        if nums.len() <= 1 {
+            return nums.len() as i32;
+        }
+
+        let mut pre_diff: i64 = 0;
+        let mut answer = 1;
+
+        for i in 0..nums.len() - 1 {
+            let cur_diff = nums[i + 1] as i64 - nums[i] as i64;
+
+            if (pre_diff <= 0 && cur_diff > 0)
+                || (pre_diff >= 0 && cur_diff < 0)
+            {
+                answer += 1;
+                pre_diff = cur_diff;
+            }
+        }
+
+        answer
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var wiggleMaxLength = function (nums) {
+  if (nums.length <= 1) return nums.length;
+
+  let preDiff = 0;
+  let answer = 1;
+
+  for (let i = 0; i + 1 < nums.length; i++) {
+    const curDiff = nums[i + 1] - nums[i];
+
+    if (
+      (preDiff <= 0 && curDiff > 0) ||
+      (preDiff >= 0 && curDiff < 0)
+    ) {
+      answer++;
+      preDiff = curDiff;
+    }
+  }
+
+  return answer;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function wiggleMaxLength(nums: number[]): number {
+  if (nums.length <= 1) return nums.length;
+
+  let preDiff = 0;
+  let answer = 1;
+
+  for (let i = 0; i + 1 < nums.length; i++) {
+    const curDiff = nums[i + 1] - nums[i];
+
+    if (
+      (preDiff <= 0 && curDiff > 0) ||
+      (preDiff >= 0 && curDiff < 0)
+    ) {
+      answer++;
+      preDiff = curDiff;
+    }
+  }
+
+  return answer;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+int wiggleMaxLength(int* nums, int numsSize) {
+    if (numsSize <= 1) {
+        return numsSize;
+    }
+
+    long long preDiff = 0;
+    int answer = 1;
+
+    for (int i = 0; i + 1 < numsSize; ++i) {
+        long long curDiff = (long long)nums[i + 1] - nums[i];
+
+        if ((preDiff <= 0 && curDiff > 0) ||
+            (preDiff >= 0 && curDiff < 0)) {
+            ++answer;
+            preDiff = curDiff;
+        }
+    }
+
+    return answer;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def wiggleMaxLength(nums: Array[Int]): Int = {
+    if (nums.length <= 1) return nums.length
+
+    var preDiff = 0L
+    var answer = 1
+    var i = 0
+
+    while (i + 1 < nums.length) {
+      val curDiff = nums(i + 1).toLong - nums(i).toLong
+
+      if ((preDiff <= 0 && curDiff > 0) ||
+          (preDiff >= 0 && curDiff < 0)) {
+        answer += 1
+        preDiff = curDiff
+      }
+
+      i += 1
+    }
+
+    answer
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution
+{
+    public int WiggleMaxLength(int[] nums)
+    {
+        if (nums.Length <= 1)
+        {
+            return nums.Length;
+        }
+
+        long preDiff = 0;
+        int answer = 1;
+
+        for (int i = 0; i + 1 < nums.Length; i++)
+        {
+            long curDiff = (long)nums[i + 1] - nums[i];
+
+            if ((preDiff <= 0 && curDiff > 0) ||
+                (preDiff >= 0 && curDiff < 0))
+            {
+                answer++;
+                preDiff = curDiff;
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+</Tab>
+</Tabs>

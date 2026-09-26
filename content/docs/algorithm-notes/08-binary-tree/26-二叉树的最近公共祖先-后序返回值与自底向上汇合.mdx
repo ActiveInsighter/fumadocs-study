@@ -1,0 +1,806 @@
+---
+title: 二叉树的最近公共祖先：后序返回值与自底向上汇合
+---
+
+# 二叉树的最近公共祖先：后序返回值与自底向上汇合
+
+> LeetCode 236 · Lowest Common Ancestor of a Binary Tree
+
+[题目链接](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+给定一棵普通二叉树，以及其中两个不同节点 `p`、`q`，寻找它们的**最近公共祖先**（Lowest Common Ancestor，LCA）。题目保证 `p`、`q` 都存在于树中，并且一个节点可以是它自己的祖先。
+
+![二叉树的最近公共祖先](https://file1.kamacoder.com/i/algo/20201016173414722.png)
+
+<Callout title="这道题真正考什么" type="idea">
+
+表面上是在“找祖先”，本质上是在训练一种非常重要的树形递归模型：
+
+> **让左右子树先返回它们找到的信息，再由当前节点把两边的信息合并。**
+
+这就是典型的**后序思想：左 → 右 → 中**。
+
+</Callout>
+
+## 1. 什么叫“最近公共祖先”
+
+如果节点 `x` 同时是 `p` 和 `q` 的祖先，那么 `x` 是它们的公共祖先。
+
+所有公共祖先中，深度最大的那个，就是最近公共祖先。
+
+例如：
+
+```text
+        3
+      /   \
+     5     1
+    / \   / \
+   6   2 0   8
+      / \
+     7   4
+```
+
+- `p = 5, q = 1` 时，答案是 `3`；
+- `p = 5, q = 4` 时，答案是 `5`。
+
+第二种情况尤其重要：
+
+```text
+5 本身就是 4 的祖先
+```
+
+所以 LCA 完全可能等于 `p` 或 `q` 自身。
+
+## 2. 为什么这道题天然适合“自底向上”
+
+如果站在某个节点 `root` 上，只看当前节点本身，很难知道：
+
+```text
+p 在哪一边？
+q 在哪一边？
+它们是不是都在当前子树？
+```
+
+最自然的方式是先让左右子树各自回答：
+
+```text
+左子树找到什么？
+右子树找到什么？
+```
+
+然后当前节点再根据两个返回值做判断。
+
+这正是后序遍历的结构：
+
+```text
+left  = solve(root->left)
+right = solve(root->right)
+根据 left 和 right 决定 root 应该返回什么
+```
+
+也就是：
+
+```text
+左 → 右 → 中
+```
+
+<Callout title="为什么说回溯天然是自底向上的" type="info">
+
+递归向下时是在“寻找”，函数返回时是在“汇报”。
+
+真正决定“当前节点是不是公共祖先”的信息，来自左右孩子的返回值，因此判断发生在递归返回阶段，也就是回溯阶段。
+
+</Callout>
+
+## 3. 最关键的一步：先定义递归函数的返回语义
+
+很多人会直接背下面这段代码：
+
+```cpp
+TreeNode* left = lowestCommonAncestor(root->left, p, q);
+TreeNode* right = lowestCommonAncestor(root->right, p, q);
+```
+
+但如果不知道 `left` 和 `right` 到底代表什么，代码很容易只会背不会推。
+
+更好的定义是：
+
+> `lowestCommonAncestor(root, p, q)` 返回：在以 `root` 为根的子树中，与 `p`、`q` 有关的最关键节点。
+
+可以更精确地理解成下面四种情况：
+
+| 当前子树包含的目标 | 返回值 |
+| --- | --- |
+| `p`、`q` 都没有 | `nullptr` |
+| 只包含 `p` | `p` |
+| 只包含 `q` | `q` |
+| 同时包含 `p`、`q` | 它们在这棵子树中的 LCA |
+
+这张表就是整道题的核心。
+
+## 4. 递归出口为什么是 `root == p || root == q`
+
+终止条件写成：
+
+```cpp
+if (root == nullptr || root == p || root == q) {
+    return root;
+}
+```
+
+三种情况分别对应：
+
+```text
+root == nullptr  → 当前分支没有找到目标
+root == p        → 当前分支找到 p
+root == q        → 当前分支找到 q
+```
+
+### 4.1 这一步顺便解决了“一个节点是另一个节点祖先”的情况
+
+例如：
+
+![一个目标节点本身就是另一个目标节点的祖先](https://file1.kamacoder.com/i/algo/20220922173530.png)
+
+假设 `p = 5`，`q = 4`。
+
+递归到节点 `5` 时，直接返回 `5`。
+
+你可能会问：
+
+> 还没有继续往下找到 `4`，为什么就能直接返回 `5`？
+
+原因是题目已经保证 `p`、`q` 都存在。
+
+如果最终 `q` 位于 `p` 的子树里，那么 `p` 本身就是公共祖先，而且一定比 `p` 的任何祖先都更“近”。
+
+如果 `q` 位于 `p` 子树之外，那么 `p` 会继续向上返回，最后和另一侧返回的 `q` 在更高层汇合。
+
+因此这一条终止条件同时覆盖了普通情况和“祖先就是目标节点”的情况。
+
+<Callout title="题目条件很重要" type="warning">
+
+这套精简写法依赖题目保证：`p`、`q` 都存在于树中。
+
+如果题目改成“目标节点可能不存在”，那么仅靠当前返回值无法区分“只找到一个目标”和“这个目标就是最终答案”，通常需要额外记录找到的目标数量。
+
+</Callout>
+
+## 5. 左右子树的四种组合
+
+递归完成后：
+
+```cpp
+TreeNode* left = lowestCommonAncestor(root->left, p, q);
+TreeNode* right = lowestCommonAncestor(root->right, p, q);
+```
+
+当前节点只需要分析 `left`、`right` 的组合。
+
+### 5.1 左右都非空：当前节点就是 LCA
+
+```cpp
+if (left != nullptr && right != nullptr) {
+    return root;
+}
+```
+
+这意味着：
+
+```text
+左子树至少提供了一个目标相关节点
+右子树至少提供了一个目标相关节点
+```
+
+由于 `p`、`q` 只有两个且互不相同，它们一定分布在当前节点两侧。
+
+所以当前节点就是两条路径第一次汇合的位置，也就是最近公共祖先。
+
+![p 与 q 分别位于左右子树](https://file1.kamacoder.com/i/algo/20220922173502.png)
+
+### 5.2 只有左边非空：把左边结果继续向上传
+
+```cpp
+if (left != nullptr) {
+    return left;
+}
+```
+
+这里的 `left` 可能是：
+
+- 单独找到的 `p`；
+- 单独找到的 `q`；
+- 已经在更深处求出的 LCA。
+
+当前节点不需要区分是哪一种，只要把它原样向上传递。
+
+### 5.3 只有右边非空：同理返回右边
+
+```cpp
+if (right != nullptr) {
+    return right;
+}
+```
+
+![子树中的候选结果逐层向上传递](https://file1.kamacoder.com/i/algo/20210204151125844.png)
+
+### 5.4 左右都为空：当前子树和目标无关
+
+```cpp
+return nullptr;
+```
+
+## 6. 为什么“第一次左右同时非空”就是最近的
+
+这是本题正确性的关键。
+
+设 `x` 是 `p`、`q` 的最近公共祖先。
+
+从底向上回溯时，在 `x` 以下：
+
+- 不可能已经有一个节点同时覆盖 `p`、`q`；
+- 否则那个更深的节点才应该是 LCA。
+
+因此第一次出现：
+
+```text
+left != null && right != null
+```
+
+的位置，正好就是最深的公共祖先。
+
+![最近公共祖先的完整回溯过程](https://file1.kamacoder.com/i/algo/202102041512582.png)
+
+从这一层开始，返回值会变成 LCA 节点本身，并继续一路向上传递。
+
+所以祖先节点看到的可能是：
+
+```text
+left = LCA
+right = null
+```
+
+它们只会继续返回这个 LCA，而不会把答案改成更高层节点。
+
+## 7. 一条非常重要的不变量
+
+可以把递归过程浓缩成一句话：
+
+> **每个子树只负责返回一个“候选节点”；当左右候选第一次同时出现时，当前节点把两条信息合并成最终 LCA。**
+
+因此函数返回值其实经历了一个语义升级：
+
+```text
+nullptr
+   ↓
+p 或 q
+   ↓
+LCA
+   ↓
+继续向上传递 LCA
+```
+
+这也是这道题比“普通查找”更值得学习的地方。
+
+## 8. 推荐递归写法
+
+```cpp title="C++：后序递归"
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root,
+                                   TreeNode* p,
+                                   TreeNode* q) {
+        if (root == nullptr || root == p || root == q) {
+            return root;
+        }
+
+        TreeNode* left = lowestCommonAncestor(root->left, p, q);
+        TreeNode* right = lowestCommonAncestor(root->right, p, q);
+
+        if (left != nullptr && right != nullptr) {
+            return root;
+        }
+
+        return left != nullptr ? left : right;
+    }
+};
+```
+
+这段代码虽然很短，但每一行都对应一个明确语义：
+
+```text
+命中目标 → 返回目标
+左右都命中 → 当前节点是 LCA
+只有一边有结果 → 把结果继续向上传
+两边都没有 → 返回 null
+```
+
+## 9. 手推一次：`p = 5, q = 4`
+
+考虑：
+
+```text
+        3
+      /   \
+     5     1
+    / \
+   6   2
+      / \
+     7   4
+```
+
+递归走到 `5` 时：
+
+```cpp
+root == p
+```
+
+直接返回 `5`。
+
+于是根节点 `3` 得到：
+
+```text
+left  = 5
+right = null
+```
+
+最后返回：
+
+```text
+5
+```
+
+这正好体现了：
+
+> 一个目标节点可以是另一个目标节点的最近公共祖先。
+
+## 10. 手推一次：`p = 7, q = 4`
+
+在节点 `2`：
+
+```text
+左子树返回 7
+右子树返回 4
+```
+
+所以：
+
+```text
+2 是第一次左右同时非空的节点
+```
+
+于是节点 `2` 返回自己。
+
+继续向上：
+
+```text
+5 的左边返回 null
+5 的右边返回 2
+```
+
+因此 `5` 继续返回 `2`。
+
+再到根节点同样继续返回 `2`。
+
+整个过程可以画成：
+
+```text
+7 ─┐
+   ├─> 2 ──────┐
+4 ─┘            │
+                ├─> 继续向上传递 2
+null ───────────┘
+```
+
+这就是“答案如何从底层一层一层带回根节点”的本质。
+
+## 11. 这题和“存在性搜索”最大的区别
+
+前面的“路径总和”只要求判断：
+
+```text
+是否存在一条满足条件的路径？
+```
+
+所以可以写成：
+
+```cpp
+if (dfs(left)) return true;
+if (dfs(right)) return true;
+```
+
+一旦某个分支成功，就立刻短路。
+
+但 LCA 的当前节点需要同时知道：
+
+```text
+左边返回什么？
+右边返回什么？
+```
+
+所以必须先接住两个结果：
+
+```cpp
+TreeNode* left = dfs(root->left);
+TreeNode* right = dfs(root->right);
+```
+
+再做合并。
+
+<Tabs groupId="return-value-search" items={['存在性搜索', '左右结果合并']}>
+<Tab value="存在性搜索">
+
+```cpp
+if (dfs(root->left)) return true;
+if (dfs(root->right)) return true;
+return false;
+```
+
+目标是：找到任意一个成功分支即可。
+
+</Tab>
+<Tab value="左右结果合并">
+
+```cpp
+TreeNode* left = dfs(root->left);
+TreeNode* right = dfs(root->right);
+return combine(left, right);
+```
+
+目标是：父节点必须同时拿到左右子问题的信息。
+
+</Tab>
+</Tabs>
+
+<Callout title="不要把“有返回值”简单等同于“只搜一条边”" type="warning">
+
+真正决定是否短路的，不是函数有没有返回值，而是：
+
+> **当前节点是否还需要另一个子树的结果。**
+
+LCA 正是“有返回值，但必须合并左右信息”的典型题。
+
+</Callout>
+
+## 12. 是否真的必须遍历整棵树
+
+常见说法是“LCA 一定要遍历整棵树”，这并不严谨。
+
+标准递归的**最坏时间复杂度**确实是：
+
+$$
+O(n)
+$$
+
+因为最坏情况下需要访问几乎所有节点。
+
+但实际执行时存在两个剪枝来源：
+
+1. 遇到 `nullptr` 立即返回；
+2. 遇到 `p` 或 `q` 立即返回，不再继续深入这个节点的后代。
+
+另一方面，在某个子树已经算出 LCA 后，父节点通常仍会按代码顺序计算它的另一棵子树，因为父节点还没有被显式告知“这里已经是最终答案”。
+
+所以更准确的表述是：
+
+> **算法最坏为 $O(n)$，但并不保证每次都实际访问每一个节点。**
+
+## 13. 为什么不优先推荐迭代模拟后序
+
+理论上可以用：
+
+- 父指针映射；
+- 显式栈模拟后序；
+- 记录祖先链；
+
+来解决 LCA。
+
+例如先建立：
+
+```text
+child -> parent
+```
+
+再把 `p` 的所有祖先放入集合，然后从 `q` 一路向上寻找第一个已出现祖先。
+
+这种方法也能做到 $O(n)$，但需要额外哈希表，并且代码比递归版更长。
+
+对于普通二叉树 LCA，递归版最能直接表达问题本身的结构，因此通常是首选。
+
+## 14. 复杂度分析
+
+设树共有 $n$ 个节点，高度为 $h$。
+
+### 时间复杂度
+
+最坏情况下每个节点最多处理一次：
+
+$$
+O(n)
+$$
+
+### 空间复杂度
+
+额外空间主要来自递归栈：
+
+$$
+O(h)
+$$
+
+平衡树中：
+
+$$
+O(\log n)
+$$
+
+最坏退化成链表时：
+
+$$
+O(n)
+$$
+
+## 15. 高频错误
+
+<Cards>
+  <Card title="只从根向下找共同分支">普通二叉树没有 BST 的大小关系，不能靠值判断应该往哪一边走。</Card>
+  <Card title="忘记目标节点可以是答案">`root == p || root == q` 必须直接返回，否则会漏掉祖先就是目标节点的情况。</Card>
+  <Card title="左右都非空时继续返回某一边">左右同时有结果说明当前节点才是第一次汇合点，应返回 `root`。</Card>
+  <Card title="把返回值只理解成 p 或 q">更深层已经形成的 LCA 也会作为返回值一路向上传递。</Card>
+</Cards>
+
+## 16. 一套可迁移的“树上信息汇合”模板
+
+以后遇到类似问题，可以先尝试下面这个抽象模板：
+
+```cpp
+ReturnType dfs(TreeNode* root) {
+    if (root == nullptr) return EMPTY;
+
+    ReturnType left = dfs(root->left);
+    ReturnType right = dfs(root->right);
+
+    return merge(root, left, right);
+}
+```
+
+真正需要设计的是两件事：
+
+```text
+1. 子树应该向父节点返回什么信息？
+2. 父节点如何合并左右两份信息？
+```
+
+这套思想会反复出现在：
+
+- 最近公共祖先；
+- 平衡二叉树；
+- 二叉树直径；
+- 树形动态规划；
+- 子树状态统计；
+- 树上路径问题。
+
+<Callout title="本题最值得带走的能力" type="success">
+
+不要背“左右不空返回 root”这一句。
+
+真正要掌握的是：
+
+> **为递归函数定义清晰的返回语义，然后让父节点用左右返回值完成信息汇合。**
+
+一旦返回语义定义正确，代码往往会自动变得很短。
+
+</Callout>
+
+## 17. 复盘清单
+
+完成本篇后，应能独立解释：
+
+- 为什么 LCA 更适合后序思想而不是前序思想？
+- `dfs(root)` 的返回值到底代表什么？
+- 为什么命中 `p` 或 `q` 可以立即返回？
+- 为什么左右都非空时当前节点一定是 LCA？
+- 为什么已经形成的 LCA 可以一路向上传递而不被覆盖？
+- “存在性搜索的短路返回”和“左右结果合并”有什么区别？
+- 这套写法在哪些题目条件变化后会失效？
+
+## 其他语言实现
+
+下面各语言统一采用“**后序递归 + 左右返回值汇合**”这一核心解法。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null || root == p || root == q) {
+            return root;
+        }
+
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+
+        if (left != null && right != null) {
+            return root;
+        }
+
+        return left != null ? left : right;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def lowestCommonAncestor(self, root, p, q):
+        if root is None or root is p or root is q:
+            return root
+
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+
+        if left is not None and right is not None:
+            return root
+
+        return left if left is not None else right
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+    if root == nil || root == p || root == q {
+        return root
+    }
+
+    left := lowestCommonAncestor(root.Left, p, q)
+    right := lowestCommonAncestor(root.Right, p, q)
+
+    if left != nil && right != nil {
+        return root
+    }
+    if left != nil {
+        return left
+    }
+    return right
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var lowestCommonAncestor = function(root, p, q) {
+    if (root === null || root === p || root === q) {
+        return root;
+    }
+
+    const left = lowestCommonAncestor(root.left, p, q);
+    const right = lowestCommonAncestor(root.right, p, q);
+
+    if (left !== null && right !== null) {
+        return root;
+    }
+
+    return left !== null ? left : right;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function lowestCommonAncestor(
+    root: TreeNode | null,
+    p: TreeNode | null,
+    q: TreeNode | null
+): TreeNode | null {
+    if (root === null || root === p || root === q) {
+        return root;
+    }
+
+    const left = lowestCommonAncestor(root.left, p, q);
+    const right = lowestCommonAncestor(root.right, p, q);
+
+    if (left !== null && right !== null) {
+        return root;
+    }
+
+    return left !== null ? left : right;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def lowestCommonAncestor(root: TreeNode, p: TreeNode, q: TreeNode): TreeNode = {
+    if (root == null || root == p || root == q) {
+      return root
+    }
+
+    val left = lowestCommonAncestor(root.left, p, q)
+    val right = lowestCommonAncestor(root.right, p, q)
+
+    if (left != null && right != null) {
+      return root
+    }
+
+    if (left != null) left else right
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn lowest_common_ancestor(
+        root: Option<Rc<RefCell<TreeNode>>>,
+        p: Option<Rc<RefCell<TreeNode>>>,
+        q: Option<Rc<RefCell<TreeNode>>>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        let Some(node_rc) = root.clone() else {
+            return None;
+        };
+
+        if p.as_ref().is_some_and(|x| Rc::ptr_eq(&node_rc, x))
+            || q.as_ref().is_some_and(|x| Rc::ptr_eq(&node_rc, x))
+        {
+            return root;
+        }
+
+        let (left_child, right_child) = {
+            let node = node_rc.borrow();
+            (node.left.clone(), node.right.clone())
+        };
+
+        let left = Self::lowest_common_ancestor(left_child, p.clone(), q.clone());
+        let right = Self::lowest_common_ancestor(right_child, p, q);
+
+        match (left, right) {
+            (Some(_), Some(_)) => root,
+            (Some(node), None) => Some(node),
+            (None, Some(node)) => Some(node),
+            (None, None) => None,
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    public TreeNode LowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)
+    {
+        if (root == null || root == p || root == q)
+        {
+            return root;
+        }
+
+        TreeNode left = LowestCommonAncestor(root.left, p, q);
+        TreeNode right = LowestCommonAncestor(root.right, p, q);
+
+        if (left != null && right != null)
+        {
+            return root;
+        }
+
+        return left ?? right;
+    }
+}
+```
+
+</Tab>
+</Tabs>

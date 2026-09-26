@@ -1,0 +1,639 @@
+---
+title: 链表相交：长度对齐与双指针路径等长化
+description: 以 LeetCode 160 / 面试题 02.07 为主线，理解链表相交判断为什么比较节点身份而不是值，并掌握长度对齐与 A+B/B+A 双指针两种 O(1) 空间解法。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 链表相交：长度对齐与双指针路径等长化
+
+> 对应题目：[LeetCode 160. 相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/)
+
+给定两个单链表 `headA` 和 `headB`，找出它们开始相交的第一个节点；若不相交，则返回 `null`。
+
+典型结构：
+
+![链表相交结构](https://file1.kamacoder.com/i/algo/20211219221657.png)
+
+这道题表面上是在找“两个链表共同的部分”，本质上考查三个关键概念：
+
+1. **节点相同和节点值相同不是一回事；**
+2. **一旦单链表相交，交点之后一定完全重合；**
+3. **不同长度的链表必须先消除长度差，才能同步比较。**
+
+---
+
+## 1. 什么叫“链表相交”
+
+假设：
+
+```text
+A: a1 → a2 → c1 → c2 → c3 → null
+              ↑
+B:      b1 → b2
+```
+
+更准确地写应是：
+
+```text
+A: a1 → a2 ┐
+           ├→ c1 → c2 → c3 → null
+B: b1 → b2 ┘
+```
+
+所谓相交，是指两个链表从某个位置开始，**指向同一批节点对象**。
+
+因此判断条件是：
+
+```cpp
+curA == curB
+```
+
+而不是：
+
+```cpp
+curA->val == curB->val
+```
+
+<Callout title="最重要的概念" type="warning">
+两个节点的值即使完全相同，只要它们位于不同内存对象中，就不算链表相交。相交判断比较的是节点身份（引用 / 指针），不是节点保存的数据。
+</Callout>
+
+---
+
+## 2. 为什么相交后一定不会再分开
+
+单链表中，每个节点只有一个 `next` 指针。
+
+如果两个链表在节点 `c1` 相交，那么：
+
+```text
+c1.next
+```
+
+只有一个确定的后继。
+
+因此两条链从 `c1` 开始必然共享：
+
+```text
+c1 → c2 → c3 → ... → null
+```
+
+不可能出现：
+
+```text
+      ┌→ x
+... → c
+      └→ y
+```
+
+因为那意味着同一个单链表节点拥有两个不同的 `next`。
+
+所以无环单链表的相交结构一定是：
+
+```text
+两条前缀 + 一条公共后缀
+```
+
+这也是后续所有解法成立的结构基础。
+
+---
+
+## 3. 示例理解
+
+原题示例：
+
+![链表相交示例 1](https://file1.kamacoder.com/i/algo/20211219221723.png)
+
+![链表相交示例 2](https://file1.kamacoder.com/i/algo/20211219221749.png)
+
+不相交时：
+
+![链表不相交示例](https://file1.kamacoder.com/i/algo/20211219221812.png)
+
+无论节点值长什么样，我们真正关心的始终是：
+
+```text
+A 中某个节点地址 == B 中某个节点地址？
+```
+
+---
+
+## 4. 方法一：长度对齐
+
+最直观的思路是先求两个链表长度。
+
+设：
+
+$$
+|A|=m,\qquad |B|=n
+$$
+
+如果：
+
+$$
+m>n
+$$
+
+那么让 A 的指针先前进：
+
+$$
+m-n
+$$
+
+步。
+
+这样两个指针到链表尾部的剩余距离完全相同。
+
+原始示意：
+
+![链表相交初始指针](https://file1.kamacoder.com/i/algo/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4_1.png)
+
+消除长度差后：
+
+![链表相交长度对齐](https://file1.kamacoder.com/i/algo/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4_2.png)
+
+此后两个指针同步移动：
+
+```text
+curA = curA.next
+curB = curB.next
+```
+
+第一次出现：
+
+```text
+curA == curB
+```
+
+的位置，就是第一个交点。
+
+---
+
+## 5. 为什么“尾部对齐”后就能找到交点
+
+假设两条链表共同后缀长度为 $c$，独立前缀长度分别为 $a$ 和 $b$：
+
+```text
+A: [a 个独立节点] → [c 个公共节点]
+B: [b 个独立节点] → [c 个公共节点]
+```
+
+则：
+
+$$
+|A|=a+c
+$$
+
+$$
+|B|=b+c
+$$
+
+若 $a>b$，先让 A 前进 $a-b$ 步，那么两条链当前剩余长度都变成：
+
+$$
+b+c
+$$
+
+此时同步前进，经过 $b$ 步后，两者必然同时到达第一个公共节点。
+
+因此“长度对齐”本质上不是为了让两个头结点位置看起来整齐，而是为了保证：
+
+> **两个指针距离链表终点的剩余步数相同。**
+
+---
+
+## 6. 长度对齐法：步骤模板
+
+<Steps>
+  <Step>
+
+**分别统计两个链表长度**
+
+```cpp
+int lenA = getLength(headA);
+int lenB = getLength(headB);
+```
+
+  </Step>
+  <Step>
+
+**让较长链表先走长度差**
+
+```cpp
+int gap = abs(lenA - lenB);
+```
+
+  </Step>
+  <Step>
+
+**两个指针同步向后移动**
+
+```cpp
+while (curA != curB) {
+    curA = curA->next;
+    curB = curB->next;
+}
+```
+
+  </Step>
+  <Step>
+
+**返回相遇节点**
+
+如果存在交点，相遇位置就是交点；如果不存在，两个指针最终都会变成 `nullptr`。
+
+  </Step>
+</Steps>
+
+---
+
+## 7. 方法二：A + B 与 B + A 的路径等长化
+
+还有一种更巧妙、代码更短的方法，不需要显式统计长度。
+
+定义两个指针：
+
+```text
+pA 从 headA 出发
+pB 从 headB 出发
+```
+
+当 `pA` 走到 A 末尾后，让它转到 B 的头部；
+
+当 `pB` 走到 B 末尾后，让它转到 A 的头部。
+
+即：
+
+```cpp
+pA = (pA == nullptr) ? headB : pA->next;
+pB = (pB == nullptr) ? headA : pB->next;
+```
+
+于是：
+
+```text
+pA 走过：A + B
+pB 走过：B + A
+```
+
+总长度完全相同。
+
+---
+
+## 8. 为什么换头法一定能消除长度差
+
+仍设：
+
+```text
+A = 独立前缀 a + 公共后缀 c
+B = 独立前缀 b + 公共后缀 c
+```
+
+`pA` 的完整路线是：
+
+$$
+(a+c)+(b+c)
+$$
+
+`pB` 的完整路线是：
+
+$$
+(b+c)+(a+c)
+$$
+
+显然：
+
+$$
+(a+c)+(b+c)=(b+c)+(a+c)
+$$
+
+更关键的是，在进入最后一段公共后缀之前：
+
+- `pA` 走过 A 的独立前缀和 B 的独立前缀；
+- `pB` 走过 B 的独立前缀和 A 的独立前缀。
+
+两者所经历的“非公共长度”都等于：
+
+$$
+a+b
+$$
+
+因此它们会在公共后缀的第一个节点同时到达。
+
+这就是所谓：
+
+> **用交换起点的方式，让两条不等长路径自动等长。**
+
+---
+
+## 9. 用例子推演换头法
+
+假设：
+
+```text
+A: a1 → a2 → a3 → c1 → c2 → null
+B:      b1 → b2 → c1 → c2 → null
+```
+
+长度分别为：
+
+```text
+A = 5
+B = 4
+```
+
+两个指针的路线：
+
+```text
+pA: a1 → a2 → a3 → c1 → c2 → null → b1 → b2 → c1
+pB: b1 → b2 → c1 → c2 → null → a1 → a2 → a3 → c1
+```
+
+最终两者在 `c1` 相遇。
+
+如果两条链表根本不相交，它们最终会同时到达：
+
+```text
+nullptr
+```
+
+因此循环：
+
+```cpp
+while (pA != pB)
+```
+
+同样可以自然结束，不需要额外判断“不相交”。
+
+---
+
+## 10. 推荐写法：换头双指针
+
+```cpp
+class Solution {
+public:
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+        ListNode* pA = headA;
+        ListNode* pB = headB;
+
+        while (pA != pB) {
+            pA = (pA == nullptr) ? headB : pA->next;
+            pB = (pB == nullptr) ? headA : pB->next;
+        }
+
+        return pA;
+    }
+};
+```
+
+这段代码同时覆盖：
+
+- 有交点；
+- 无交点；
+- 两个头结点本来就是同一节点；
+- 一条或两条链表为空。
+
+<Callout title="为什么返回 pA 即可" type="info">
+循环退出条件是 `pA == pB`。若有交点，两者等于交点；若无交点，两者最终都等于 `nullptr`。因此直接返回其中任意一个即可。
+</Callout>
+
+---
+
+## 11. 两种方法怎么选
+
+| 方法 | 核心思想 | 时间 | 空间 | 特点 |
+| --- | --- | --- | --- | --- |
+| 长度对齐 | 显式消除长度差 | $O(m+n)$ | $O(1)$ | 最直观、便于证明 |
+| 换头双指针 | 让路径变为 A+B 与 B+A | $O(m+n)$ | $O(1)$ | 代码最简洁 |
+
+学习阶段建议两种都掌握：
+
+- **长度对齐法**帮助理解结构；
+- **换头法**帮助理解路径等长化思想。
+
+---
+
+## 12. 为什么哈希表不是最优解
+
+也可以先把 A 的所有节点放入哈希集合：
+
+```text
+set = {A 中所有节点}
+```
+
+再遍历 B，遇到第一个已存在节点就返回。
+
+时间复杂度期望为：
+
+$$
+O(m+n)
+$$
+
+但需要：
+
+$$
+O(m)
+$$
+
+额外空间。
+
+而本题利用链表结构，可以做到：
+
+$$
+O(1)
+$$
+
+辅助空间，因此双指针更优雅。
+
+---
+
+## 13. 常见错误
+
+<Cards>
+  <Card title="错误 1：比较 val">
+    值相同不代表是同一节点，必须比较指针或对象引用。
+  </Card>
+  <Card title="错误 2：只从头同步走">
+    如果两个链表长度不同，两个指针到达公共尾部的时间不同，会错过交点。
+  </Card>
+  <Card title="错误 3：换头时机写错">
+    当前指针为 `null` 时换到另一链表头；否则正常走 `next`。
+  </Card>
+  <Card title="错误 4：误以为换头会死循环">
+    每个指针至多完整走过 A 和 B 各一次；若无交点，会在 `null` 相遇。
+  </Card>
+</Cards>
+
+---
+
+## 14. 一个重要的提前判定：尾节点
+
+对于无环单链表，如果两条链表相交，那么它们最终一定共享同一个尾节点。
+
+因此可以先分别走到尾部：
+
+```text
+tailA
+tailB
+```
+
+若：
+
+```cpp
+tailA != tailB
+```
+
+则必然不相交。
+
+但这并不能直接找到第一个交点，而且单独做这一步还会增加遍历代码，所以标准解法通常不需要专门进行尾节点预判。
+
+它更适合作为一个结构性质记住：
+
+> **无环单链表相交，当且仅当它们的尾节点相同。**
+
+---
+
+## 15. 与“删除倒数第 N 个节点”的共同思想
+
+上一题使用固定间距双指针：
+
+```text
+fast 比 slow 领先固定距离
+```
+
+本题使用路径等长双指针：
+
+```text
+通过补走另一条链，消除初始长度差
+```
+
+两道题的统一思想都是：
+
+> **先处理“位置差”，再让两个指针同步推进。**
+
+这也是链表双指针题中最常见的抽象之一。
+
+---
+
+## 16. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 相交比较什么 | 节点身份 / 指针，而不是节点值 |
+| 相交后的结构 | 从交点开始共享完整后缀 |
+| 长度对齐法 | 长链先走长度差，再同步走 |
+| 换头法 | `pA` 走 A+B，`pB` 走 B+A |
+| 不相交时 | 两个指针最终在 `null` 相遇 |
+| 时间复杂度 | $O(m+n)$ |
+| 辅助空间 | $O(1)$ |
+
+<Callout title="本题最值得带走的结论" type="success">
+链表相交问题的关键不是“搜索相同元素”，而是消除两条链的路径长度差。显式长度对齐和 A+B/B+A 换头法，本质上都在完成同一件事：让两个指针以相同的剩余路程进入公共后缀。
+</Callout>
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+        ListNode* pA = headA;
+        ListNode* pB = headB;
+
+        while (pA != pB) {
+            pA = (pA == nullptr) ? headB : pA->next;
+            pB = (pB == nullptr) ? headA : pB->next;
+        }
+
+        return pA;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode pA = headA;
+        ListNode pB = headB;
+
+        while (pA != pB) {
+            pA = (pA == null) ? headB : pA.next;
+            pB = (pB == null) ? headA : pB.next;
+        }
+
+        return pA;
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> Optional[ListNode]:
+        pA, pB = headA, headB
+
+        while pA is not pB:
+            pA = headB if pA is None else pA.next
+            pB = headA if pB is None else pB.next
+
+        return pA
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func getIntersectionNode(headA, headB *ListNode) *ListNode {
+    pA, pB := headA, headB
+
+    for pA != pB {
+        if pA == nil {
+            pA = headB
+        } else {
+            pA = pA.Next
+        }
+
+        if pB == nil {
+            pB = headA
+        } else {
+            pB = pB.Next
+        }
+    }
+
+    return pA
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var getIntersectionNode = function (headA, headB) {
+  let pA = headA;
+  let pB = headB;
+
+  while (pA !== pB) {
+    pA = pA === null ? headB : pA.next;
+    pB = pB === null ? headA : pB.next;
+  }
+
+  return pA;
+};
+```
+
+  </Tab>
+</Tabs>

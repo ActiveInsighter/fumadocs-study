@@ -1,0 +1,21 @@
+{
+  "title": "算法学习笔记",
+  "pages": [
+    "index",
+    "目录",
+    "01-basics",
+    "02-array",
+    "03-linked-list",
+    "04-hash-table",
+    "05-string",
+    "06-two-pointers",
+    "07-stack-queue",
+    "08-binary-tree",
+    "09-backtracking",
+    "10-greedy",
+    "11-dynamic-programming",
+    "12-monotonic-stack",
+    "13-graph",
+    "14-extra-problems"
+  ]
+}

@@ -1,0 +1,717 @@
+---
+title: 回文子串
+sidebarTitle: 回文子串
+summary: 系统讲解 LeetCode 647 回文子串，从区间 DP 的状态设计与遍历顺序出发，推导回文区间判定，并对比中心扩展法，建立处理回文类问题的统一框架。
+---
+
+# 647. 回文子串
+
+[LeetCode 647：回文子串](https://leetcode.cn/problems/palindromic-substrings/)
+
+给定字符串 `s`，统计其中有多少个**回文子串**。
+
+需要特别注意：只要起点或终点不同，就视为不同子串，即使它们的字符内容完全相同。
+
+例如：
+
+```text
+s = "aaa"
+```
+
+所有回文子串为：
+
+```text
+下标 [0,0] -> "a"
+下标 [1,1] -> "a"
+下标 [2,2] -> "a"
+下标 [0,1] -> "aa"
+下标 [1,2] -> "aa"
+下标 [0,2] -> "aaa"
+```
+
+所以答案为：
+
+$$
+6
+$$
+
+<Callout type="info" title="这道题真正考什么？">
+本题表面是在“数回文串”，本质上是在学习一种非常重要的 **区间 DP**：状态由一个区间 $[i,j]$ 表示，并且大区间的答案依赖更小的内部区间 $[i+1,j-1]$。
+</Callout>
+
+## 一、为什么普通的一维 DP 很难做
+
+如果定义：
+
+$$
+dp[i]=\text{以 }i\text{ 结尾的回文子串数量}
+$$
+
+很快就会发现：
+
+- `dp[i]` 与 `dp[i-1]` 没有简单关系；
+- 一个子串是否回文，不只与右端点有关；
+- 回文的核心性质是**首尾字符相同，内部仍然回文**。
+
+例如：
+
+```text
+c a b a c
+^       ^
+```
+
+若已经知道：
+
+```text
+aba
+```
+
+是回文串，那么只要左右两端都是 `c`，就可以推出：
+
+```text
+cabac
+```
+
+也是回文串。
+
+![回文区间的递推关系](https://file1.kamacoder.com/i/algo/20230102170752.png)
+
+所以状态必须同时记录区间的两个端点。
+
+## 二、状态定义
+
+定义：
+
+$$
+\boxed{
+dp[i][j]=
+\begin{cases}
+\text{true}, & s[i\ldots j]\text{ 是回文串}\\
+\text{false}, & \text{否则}
+\end{cases}
+}
+$$
+
+这里区间采用**左闭右闭**：
+
+$$
+[i,j]
+$$
+
+只需要考虑：
+
+$$
+i\le j
+$$
+
+因此真正有意义的是 DP 表的右上三角区域。
+
+<Callout type="tip" title="为什么状态不是“回文串数量”？">
+动态规划的状态不一定直接等于题目最终要求的答案。状态首先应服务于“建立递推关系”。本题最自然的状态是“某个区间是不是回文”，然后在计算状态时顺便统计 `true` 的数量。
+</Callout>
+
+## 三、状态转移：回文的本质
+
+考虑区间：
+
+$$
+s[i\ldots j]
+$$
+
+首先比较两端字符：
+
+$$
+s[i]\quad\text{与}\quad s[j]
+$$
+
+### 1. 两端字符不同
+
+若：
+
+$$
+s[i]\ne s[j]
+$$
+
+那么该区间一定不是回文串：
+
+$$
+\boxed{dp[i][j]=\text{false}}
+$$
+
+### 2. 两端字符相同
+
+若：
+
+$$
+s[i]=s[j]
+$$
+
+还需要根据区间长度分类。
+
+#### 情况 A：只有一个字符
+
+当：
+
+$$
+i=j
+$$
+
+单个字符天然是回文串。
+
+#### 情况 B：只有两个字符
+
+当：
+
+$$
+j-i=1
+$$
+
+由于已经满足：
+
+$$
+s[i]=s[j]
+$$
+
+所以两个字符组成回文串，例如：
+
+```text
+aa
+bb
+```
+
+因此前两种情况可合并为：
+
+$$
+\boxed{j-i\le 1}
+$$
+
+#### 情况 C：长度至少为 3
+
+当：
+
+$$
+j-i>1
+$$
+
+两端已经相等，此时只需要判断内部区间：
+
+$$
+[i+1,j-1]
+$$
+
+是否是回文。
+
+因此：
+
+$$
+\boxed{
+dp[i][j]=dp[i+1][j-1]
+}
+$$
+
+综合起来：
+
+$$
+\boxed{
+dp[i][j]
+=
+(s[i]=s[j])\land
+\left((j-i\le1)\lor dp[i+1][j-1]\right)
+}
+$$
+
+这就是整道题最核心的递推式。
+
+## 四、为什么遍历顺序必须特别设计
+
+从转移式可以看到：
+
+$$
+dp[i][j]
+\leftarrow
+dp[i+1][j-1]
+$$
+
+也就是说，当前状态依赖它的**左下方状态**。
+
+![DP 表依赖方向](https://file1.kamacoder.com/i/algo/20210121171032473-20230310132134822.jpg)
+
+如果 `i` 从小到大遍历，那么计算：
+
+$$
+dp[i][j]
+$$
+
+时，下一行的：
+
+$$
+dp[i+1][j-1]
+$$
+
+可能还没有被计算。
+
+因此最自然的顺序是：
+
+```text
+i：从 n - 1 到 0
+j：从 i 到 n - 1
+```
+
+即：
+
+```cpp
+for (int i = n - 1; i >= 0; --i) {
+    for (int j = i; j < n; ++j) {
+        ...
+    }
+}
+```
+
+<Callout type="warning" title="区间 DP 的遍历顺序不能死记">
+真正应该记住的是：**先计算依赖项，再计算当前项**。看到递推式后画出依赖方向，遍历顺序就自然确定了。
+</Callout>
+
+## 五、初始化为什么可以全部设为 false
+
+可以先创建：
+
+```cpp
+vector<vector<bool>> dp(n, vector<bool>(n, false));
+```
+
+因为所有真正为回文的状态，都会在遍历过程中显式设置为 `true`。
+
+例如单字符：
+
+$$
+i=j
+$$
+
+会满足：
+
+$$
+s[i]=s[j],\qquad j-i=0\le1
+$$
+
+因此会被正常更新。
+
+无需再单独把主对角线初始化为 `true`。
+
+## 六、为什么统计 `true` 就是答案
+
+每一对合法下标：
+
+$$
+(i,j),\quad i\le j
+$$
+
+都唯一对应一个子串：
+
+$$
+s[i\ldots j]
+$$
+
+所以每当：
+
+$$
+dp[i][j]=\text{true}
+$$
+
+就发现了一个不同位置的回文子串。
+
+因此在设置状态时执行：
+
+```cpp
+++answer;
+```
+
+即可完成计数。
+
+以：
+
+```text
+s = "aaa"
+```
+
+为例：
+
+![aaa 的 DP 表](https://file1.kamacoder.com/i/algo/20210121171059951-20230310132153163.jpg)
+
+右上三角区域共有 6 个 `true`，答案正是 6。
+
+## 七、完整动态规划代码
+
+```cpp
+class Solution {
+public:
+    int countSubstrings(string s) {
+        int n = s.size();
+        vector<vector<bool>> dp(n, vector<bool>(n, false));
+        int answer = 0;
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i; j < n; ++j) {
+                if (s[i] == s[j] &&
+                    (j - i <= 1 || dp[i + 1][j - 1])) {
+                    dp[i][j] = true;
+                    ++answer;
+                }
+            }
+        }
+
+        return answer;
+    }
+};
+```
+
+### 复杂度
+
+状态数约为：
+
+$$
+\frac{n(n+1)}2
+$$
+
+每个状态只进行 $O(1)$ 运算，因此：
+
+$$
+\boxed{T(n)=O(n^2)}
+$$
+
+DP 表占用：
+
+$$
+\boxed{S(n)=O(n^2)}
+$$
+
+相比直接枚举所有子串后再逐字符判断回文的：
+
+$$
+O(n^3)
+$$
+
+已经降低一个数量级。
+
+## 八、另一种更省空间的方法：中心扩展
+
+回文串具有轴对称结构，因此除了区间 DP，还可以从“中心”出发向两侧扩展。
+
+回文中心有两类。
+
+### 1. 奇数长度回文串
+
+例如：
+
+```text
+abcba
+  ^
+```
+
+中心是一个字符。
+
+初始左右指针：
+
+$$
+l=r=i
+$$
+
+### 2. 偶数长度回文串
+
+例如：
+
+```text
+abba
+ ^^ 
+```
+
+中心位于两个字符之间。
+
+初始左右指针：
+
+$$
+l=i,\qquad r=i+1
+$$
+
+只要：
+
+$$
+l\ge0,
+\qquad
+r<n,
+\qquad
+s[l]=s[r]
+$$
+
+就找到一个回文子串，然后继续：
+
+$$
+l\leftarrow l-1,
+\qquad
+r\leftarrow r+1
+$$
+
+### C++ 实现
+
+```cpp
+class Solution {
+private:
+    int expand(const string& s, int left, int right) {
+        int count = 0;
+
+        while (left >= 0 && right < s.size() && s[left] == s[right]) {
+            ++count;
+            --left;
+            ++right;
+        }
+
+        return count;
+    }
+
+public:
+    int countSubstrings(string s) {
+        int answer = 0;
+
+        for (int i = 0; i < s.size(); ++i) {
+            answer += expand(s, i, i);       // 奇数长度
+            answer += expand(s, i, i + 1);   // 偶数长度
+        }
+
+        return answer;
+    }
+};
+```
+
+复杂度为：
+
+$$
+\boxed{O(n^2)}
+$$
+
+额外空间只有：
+
+$$
+\boxed{O(1)}
+$$
+
+## 九、动态规划与中心扩展怎么选
+
+| 方法 | 时间复杂度 | 空间复杂度 | 优点 | 更适合 |
+|---|---:|---:|---|---|
+| 区间 DP | $O(n^2)$ | $O(n^2)$ | 状态清晰，可复用区间信息 | 学习区间 DP、后续复杂回文问题 |
+| 中心扩展 | $O(n^2)$ | $O(1)$ | 实现短、空间小 | 只要求回文子串计数或最长回文子串 |
+
+<Callout type="tip" title="学习阶段建议">
+这道题即使中心扩展更省空间，也建议先把区间 DP 写熟。下一题“最长回文子序列”仍然需要区间 DP，而这里的状态设计、依赖方向和遍历顺序会直接复用。
+</Callout>
+
+## 十、回文子串与回文子序列的关键区别
+
+这是下一题最重要的衔接。
+
+### 回文子串
+
+要求字符在原字符串中**连续**。
+
+例如：
+
+```text
+s = "abcba"
+```
+
+`"bcb"` 是回文子串。
+
+### 回文子序列
+
+只要求保持原有相对顺序，可以跳过字符。
+
+例如：
+
+```text
+s = "bbbab"
+```
+
+可以选择：
+
+```text
+b b b b
+```
+
+形成长度为 4 的回文子序列，即使这四个字符不连续。
+
+因此：
+
+- 回文**子串**问题更强调“区间本身是否成立”；
+- 回文**子序列**问题允许删掉区间内不合适的字符，需要比较多个子问题的最优值。
+
+## 十一、常见错误
+
+### 错误 1：`i` 从前往后遍历
+
+这样会导致：
+
+$$
+dp[i+1][j-1]
+$$
+
+尚未计算。
+
+### 错误 2：忘记长度为 1 和 2 的特殊情况
+
+不能简单写：
+
+```cpp
+dp[i][j] = s[i] == s[j] && dp[i + 1][j - 1];
+```
+
+因为对于单字符或双字符，会访问无意义的内部区间。
+
+正确写法是：
+
+```cpp
+j - i <= 1 || dp[i + 1][j - 1]
+```
+
+### 错误 3：把“相同内容”当作同一个子串
+
+题目按照**位置**区分子串。
+
+对于：
+
+```text
+"aaa"
+```
+
+三个单独的 `"a"` 是三个不同子串。
+
+### 错误 4：把子串和子序列混淆
+
+子串必须连续，子序列可以不连续。这会直接改变状态转移方式。
+
+## 十二、解题模板
+
+遇到“某个区间是否满足回文性质”时，可以优先考虑：
+
+```text
+1. 状态：dp[i][j] 表示区间 [i,j] 的性质
+2. 比较两端 s[i] 与 s[j]
+3. 大区间依赖内部区间 [i+1,j-1]
+4. 根据依赖方向设计遍历顺序
+```
+
+本题可以浓缩成一句话：
+
+$$
+\boxed{
+\text{两端相等}
++
+\text{内部回文}
+\Longrightarrow
+\text{整体回文}
+}
+$$
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public int countSubstrings(String s) {
+        int n = s.length();
+        boolean[][] dp = new boolean[n][n];
+        int answer = 0;
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i; j < n; ++j) {
+                if (s.charAt(i) == s.charAt(j)
+                        && (j - i <= 1 || dp[i + 1][j - 1])) {
+                    dp[i][j] = true;
+                    ++answer;
+                }
+            }
+        }
+
+        return answer;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+        n = len(s)
+        dp = [[False] * n for _ in range(n)]
+        answer = 0
+
+        for i in range(n - 1, -1, -1):
+            for j in range(i, n):
+                if s[i] == s[j] and (j - i <= 1 or dp[i + 1][j - 1]):
+                    dp[i][j] = True
+                    answer += 1
+
+        return answer
+```
+
+```go label="Go"
+func countSubstrings(s string) int {
+    n := len(s)
+    dp := make([][]bool, n)
+    for i := range dp {
+        dp[i] = make([]bool, n)
+    }
+
+    answer := 0
+    for i := n - 1; i >= 0; i-- {
+        for j := i; j < n; j++ {
+            if s[i] == s[j] && (j-i <= 1 || dp[i+1][j-1]) {
+                dp[i][j] = true
+                answer++
+            }
+        }
+    }
+
+    return answer
+}
+```
+
+```javascript label="JavaScript"
+var countSubstrings = function(s) {
+    const n = s.length;
+    const dp = Array.from({ length: n }, () => Array(n).fill(false));
+    let answer = 0;
+
+    for (let i = n - 1; i >= 0; --i) {
+        for (let j = i; j < n; ++j) {
+            if (s[i] === s[j] && (j - i <= 1 || dp[i + 1][j - 1])) {
+                dp[i][j] = true;
+                ++answer;
+            }
+        }
+    }
+
+    return answer;
+};
+```
+
+```typescript label="TypeScript"
+function countSubstrings(s: string): number {
+    const n = s.length;
+    const dp: boolean[][] = Array.from(
+        { length: n },
+        () => Array<boolean>(n).fill(false)
+    );
+
+    let answer = 0;
+
+    for (let i = n - 1; i >= 0; --i) {
+        for (let j = i; j < n; ++j) {
+            if (s[i] === s[j] && (j - i <= 1 || dp[i + 1][j - 1])) {
+                dp[i][j] = true;
+                ++answer;
+            }
+        }
+    }
+
+    return answer;
+}
+```
+````

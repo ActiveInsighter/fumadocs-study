@@ -1,0 +1,1072 @@
+---
+title: 从遍历序列构造二叉树：区间切分与唯一性
+---
+
+# 从遍历序列构造二叉树：区间切分与唯一性
+
+> LeetCode 106 · Construct Binary Tree from Inorder and Postorder Traversal  
+> LeetCode 105 · Construct Binary Tree from Preorder and Inorder Traversal
+
+本篇把两道经典“由遍历序列还原二叉树”的问题统一成一个模型：**先确定根，再借助中序遍历确定左右子树的边界，最后递归构造两个子树。**
+
+- [106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+- [105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+<Callout title="先记住核心结论" type="info">
+
+在节点值互不相同的前提下：
+
+- **前序 + 中序**可以唯一确定一棵二叉树；
+- **后序 + 中序**可以唯一确定一棵二叉树；
+- 一般情况下，**前序 + 后序不能唯一确定**一棵普通二叉树。
+
+真正起“切割左右子树”作用的是**中序遍历**。
+
+</Callout>
+
+## 1. 为什么“中序”是构造题的关键
+
+三种深度优先遍历的顺序分别是：
+
+```text
+前序：根 → 左 → 右
+中序：左 → 根 → 右
+后序：左 → 右 → 根
+```
+
+所以：
+
+- 前序遍历的第一个节点一定是根；
+- 后序遍历的最后一个节点一定是根；
+- 中序遍历中，根左边的所有节点属于左子树，根右边的所有节点属于右子树。
+
+这三个信息组合起来，就得到了构造二叉树的基本套路：
+
+```text
+1. 从前序/后序中确定根
+2. 在中序中找到根的位置
+3. 中序被根切成左、右两段
+4. 根据左子树节点数去切另一条遍历序列
+5. 递归构造左右子树
+```
+
+## 2. 106：中序 + 后序构造二叉树
+
+给定：
+
+```text
+inorder   = [9, 3, 15, 20, 7]
+postorder = [9, 15, 7, 20, 3]
+```
+
+需要还原对应的二叉树。
+
+![中序与后序构造二叉树示例](https://file1.kamacoder.com/i/algo/20210203154316774.png)
+
+### 2.1 第一步：从后序末尾找到根
+
+后序顺序是：
+
+```text
+左 → 右 → 根
+```
+
+因此：
+
+```text
+postorder 最后一个元素 = 当前子树的根
+```
+
+本例中根是：
+
+```text
+3
+```
+
+### 2.2 第二步：用根切开中序序列
+
+在中序序列中找到 `3`：
+
+```text
+inorder = [9, 3, 15, 20, 7]
+             ↑
+             root
+```
+
+于是：
+
+```text
+左子树中序 = [9]
+右子树中序 = [15, 20, 7]
+```
+
+这里得到一个非常重要的信息：
+
+```text
+左子树节点数 = 1
+右子树节点数 = 3
+```
+
+### 2.3 第三步：根据“节点数量”切后序
+
+后序序列除去最后的根 `3` 后：
+
+```text
+[9, 15, 7, 20]
+```
+
+因为左子树只有 $1$ 个节点，所以后序中的前 $1$ 个节点一定属于左子树：
+
+```text
+左子树后序 = [9]
+右子树后序 = [15, 7, 20]
+```
+
+于是问题被拆成两个规模更小、结构完全相同的子问题。
+
+![中序与后序递归切分过程](https://file1.kamacoder.com/i/algo/20210203154249860.png)
+
+<Callout title="构造题的真正难点" type="warning">
+
+根节点通常很好找，最容易写错的是**区间边界**。
+
+因此建议从一开始就固定一种区间定义，例如全文统一使用：
+
+```text
+左闭右开 [left, right)
+```
+
+递归过程中不要一会儿左闭右开、一会儿左闭右闭。
+
+</Callout>
+
+## 3. 用区间而不是复制数组
+
+最直观的做法是每次创建四个新数组：
+
+```text
+leftInorder
+rightInorder
+leftPostorder
+rightPostorder
+```
+
+虽然容易理解，但会反复复制元素。
+
+更好的做法是：**原数组不动，只传递区间下标。**
+
+定义当前子问题：
+
+```text
+inorder   区间：[inLeft, inRight)
+postorder 区间：[postLeft, postRight)
+```
+
+假设根在中序中的下标为 `rootIndex`，那么左子树节点数为：
+
+$$
+leftSize = rootIndex-inLeft
+$$
+
+于是四个递归区间可以机械地写出来：
+
+| 子树 | 中序区间 | 后序区间 |
+| --- | --- | --- |
+| 左子树 | `[inLeft, rootIndex)` | `[postLeft, postLeft + leftSize)` |
+| 右子树 | `[rootIndex + 1, inRight)` | `[postLeft + leftSize, postRight - 1)` |
+
+注意后序的 `postRight - 1` 正是根节点，所以右子树区间必须把它排除。
+
+## 4. 递归定义
+
+函数可以定义为：
+
+```cpp
+TreeNode* build(
+    int inLeft,
+    int inRight,
+    int postLeft,
+    int postRight
+)
+```
+
+它表示：
+
+> 用 `inorder[inLeft, inRight)` 与 `postorder[postLeft, postRight)` 构造对应子树，并返回根节点。
+
+<Steps>
+
+### 1. 空区间直接返回
+
+```cpp
+if (inLeft >= inRight) return nullptr;
+```
+
+### 2. 后序末尾确定根
+
+```cpp
+int rootValue = postorder[postRight - 1];
+```
+
+### 3. 在中序中找到根
+
+```cpp
+int rootIndex = index[rootValue];
+```
+
+### 4. 计算左子树规模
+
+```cpp
+int leftSize = rootIndex - inLeft;
+```
+
+### 5. 递归构造左右子树
+
+根据上一节的区间公式继续递归。
+
+</Steps>
+
+## 5. 推荐写法：哈希表 + 下标区间
+
+如果每层递归都在线性扫描中序数组寻找根，最坏情况下会达到 $O(n^2)$。
+
+因为节点值互不相同，可以提前建立：
+
+```text
+节点值 → 中序下标
+```
+
+的哈希表，让“找根位置”变成均摊 $O(1)$。
+
+```cpp
+class Solution {
+private:
+    unordered_map<int, int> index;
+
+    TreeNode* build(
+        const vector<int>& inorder,
+        int inLeft,
+        int inRight,
+        const vector<int>& postorder,
+        int postLeft,
+        int postRight
+    ) {
+        if (inLeft >= inRight) return nullptr;
+
+        int rootValue = postorder[postRight - 1];
+        int rootIndex = index[rootValue];
+        int leftSize = rootIndex - inLeft;
+
+        TreeNode* root = new TreeNode(rootValue);
+
+        root->left = build(
+            inorder,
+            inLeft,
+            rootIndex,
+            postorder,
+            postLeft,
+            postLeft + leftSize
+        );
+
+        root->right = build(
+            inorder,
+            rootIndex + 1,
+            inRight,
+            postorder,
+            postLeft + leftSize,
+            postRight - 1
+        );
+
+        return root;
+    }
+
+public:
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        index.clear();
+        for (int i = 0; i < static_cast<int>(inorder.size()); ++i) {
+            index[inorder[i]] = i;
+        }
+
+        return build(
+            inorder, 0, inorder.size(),
+            postorder, 0, postorder.size()
+        );
+    }
+};
+```
+
+## 6. 用一个例子完整推导区间
+
+仍然使用：
+
+```text
+inorder   = [9, 3, 15, 20, 7]
+postorder = [9, 15, 7, 20, 3]
+```
+
+第一次递归：
+
+```text
+中序区间：[0, 5)
+后序区间：[0, 5)
+```
+
+根：
+
+```text
+postorder[4] = 3
+```
+
+`3` 在中序中的位置是 `1`，因此：
+
+$$
+leftSize=1-0=1
+$$
+
+于是：
+
+```text
+左子树：
+  inorder   [0, 1) = [9]
+  postorder [0, 1) = [9]
+
+右子树：
+  inorder   [2, 5) = [15, 20, 7]
+  postorder [1, 4) = [15, 7, 20]
+```
+
+右子树继续处理：
+
+```text
+根 = 20
+```
+
+中序中的 `20` 左边是 `[15]`，右边是 `[7]`，于是最终还原出完整树。
+
+<Callout title="区间推导口诀" type="idea">
+
+不要死背四个边界，先只算一个量：
+
+```text
+leftSize = 中序左半部分的长度
+```
+
+然后让另一条遍历序列切出**同样数量**的节点即可。
+
+构造题的区间公式，本质上都来自“同一棵子树的节点数必然相同”。
+
+</Callout>
+
+## 7. 105：前序 + 中序只是“根的位置”变了
+
+给定：
+
+```text
+preorder = [3, 9, 20, 15, 7]
+inorder  = [9, 3, 15, 20, 7]
+```
+
+![前序与中序构造二叉树](https://file1.kamacoder.com/i/algo/20210203154626672.png)
+
+和 106 相比，唯一的核心变化是：
+
+```text
+前序：根在最前面
+后序：根在最后面
+```
+
+因此前序区间 `[preLeft, preRight)` 中：
+
+```cpp
+int rootValue = preorder[preLeft];
+```
+
+中序切法完全不变。
+
+设：
+
+$$
+leftSize=rootIndex-inLeft
+$$
+
+则前序区间划分为：
+
+| 子树 | 中序区间 | 前序区间 |
+| --- | --- | --- |
+| 左子树 | `[inLeft, rootIndex)` | `[preLeft + 1, preLeft + 1 + leftSize)` |
+| 右子树 | `[rootIndex + 1, inRight)` | `[preLeft + 1 + leftSize, preRight)` |
+
+### C++ 推荐实现
+
+```cpp
+class Solution {
+private:
+    unordered_map<int, int> index;
+
+    TreeNode* build(
+        const vector<int>& preorder,
+        int preLeft,
+        int preRight,
+        const vector<int>& inorder,
+        int inLeft,
+        int inRight
+    ) {
+        if (preLeft >= preRight) return nullptr;
+
+        int rootValue = preorder[preLeft];
+        int rootIndex = index[rootValue];
+        int leftSize = rootIndex - inLeft;
+
+        TreeNode* root = new TreeNode(rootValue);
+
+        root->left = build(
+            preorder,
+            preLeft + 1,
+            preLeft + 1 + leftSize,
+            inorder,
+            inLeft,
+            rootIndex
+        );
+
+        root->right = build(
+            preorder,
+            preLeft + 1 + leftSize,
+            preRight,
+            inorder,
+            rootIndex + 1,
+            inRight
+        );
+
+        return root;
+    }
+
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        index.clear();
+        for (int i = 0; i < static_cast<int>(inorder.size()); ++i) {
+            index[inorder[i]] = i;
+        }
+
+        return build(
+            preorder, 0, preorder.size(),
+            inorder, 0, inorder.size()
+        );
+    }
+};
+```
+
+## 8. 105 与 106 的统一模板
+
+<Tabs groupId="build-tree-comparison" items={['前序 + 中序', '中序 + 后序']}>
+<Tab value="前序 + 中序">
+
+```text
+根：preorder[preLeft]
+
+先在 inorder 中定位根：rootIndex
+leftSize = rootIndex - inLeft
+
+左子树：
+  preorder [preLeft + 1, preLeft + 1 + leftSize)
+  inorder  [inLeft, rootIndex)
+
+右子树：
+  preorder [preLeft + 1 + leftSize, preRight)
+  inorder  [rootIndex + 1, inRight)
+```
+
+</Tab>
+<Tab value="中序 + 后序">
+
+```text
+根：postorder[postRight - 1]
+
+先在 inorder 中定位根：rootIndex
+leftSize = rootIndex - inLeft
+
+左子树：
+  inorder   [inLeft, rootIndex)
+  postorder [postLeft, postLeft + leftSize)
+
+右子树：
+  inorder   [rootIndex + 1, inRight)
+  postorder [postLeft + leftSize, postRight - 1)
+```
+
+</Tab>
+</Tabs>
+
+这两道题不要分开背。统一理解为：
+
+```text
+另一条遍历负责找根
+中序遍历负责分左右
+左子树长度负责同步另一条序列的边界
+```
+
+## 9. 为什么前序 + 后序通常不能唯一确定
+
+考虑两棵树：
+
+```text
+树 A：        树 B：
+
+  1             1
+ /               \
+2                 2
+/                   \
+3                     3
+```
+
+它们的前序都可以是：
+
+```text
+1 2 3
+```
+
+后序也都可以是：
+
+```text
+3 2 1
+```
+
+但结构显然不同。
+
+![前序和后序不能唯一确定普通二叉树](https://file1.kamacoder.com/i/algo/20210203154720326.png)
+
+原因是：前序和后序都能告诉我们“谁是根”，却缺少像中序那样明确的左右边界。
+
+<Callout title="更准确地说" type="note">
+
+“前序 + 后序不能唯一确定二叉树”是针对**一般二叉树**而言。
+
+如果额外知道这是一棵**满二叉树**，则不存在“只有一个孩子但无法判断它在左还是右”的歧义，此时前序与后序可以确定结构。
+
+</Callout>
+
+## 10. 时间复杂度与空间复杂度
+
+使用哈希表记录中序下标后：
+
+- 建表：$O(n)$；
+- 每个节点只创建一次：$O(n)$；
+- 查找根在中序中的位置：均摊 $O(1)$。
+
+因此总时间复杂度：
+
+$$
+O(n)
+$$
+
+额外空间主要来自：
+
+- 哈希表：$O(n)$；
+- 递归栈：$O(h)$，其中 $h$ 是树高。
+
+所以额外空间为：
+
+$$
+O(n)+O(h)=O(n)
+$$
+
+如果不使用哈希表，每层都线性查找根，极端退化树下可能达到：
+
+$$
+O(n^2)
+$$
+
+## 11. 常见错误
+
+<AccordionGroup>
+<Accordion title="错误 1：先切后序/前序，再想办法找中序边界">
+
+应该反过来：**先利用根切中序**。
+
+因为只有中序能直接告诉你左右子树的节点集合；得到左子树长度后，才有依据去切另一条遍历序列。
+
+</Accordion>
+<Accordion title="错误 2：递归过程中区间定义不统一">
+
+一旦选择 `[left, right)`，所有区间都坚持左闭右开。
+
+终止条件也对应写成：
+
+```cpp
+if (left >= right) return nullptr;
+```
+
+</Accordion>
+<Accordion title="错误 3：后序右边界没有排除根">
+
+后序当前根是：
+
+```cpp
+postorder[postRight - 1]
+```
+
+所以右子树区间的右端点只能到：
+
+```text
+postRight - 1
+```
+
+不能包含当前根。
+
+</Accordion>
+<Accordion title="错误 4：默认存在重复节点值">
+
+本题能够用“节点值 → 中序下标”唯一定位，依赖题目保证节点值互不相同。
+
+如果允许重复值，仅靠这些遍历序列通常无法直接按相同方式唯一恢复。
+
+</Accordion>
+</AccordionGroup>
+
+## 12. 调试这类题最有效的方法
+
+不要只盯着最终树结构，直接打印每次递归对应的四个区间：
+
+```text
+inorder   [inLeft, inRight)
+postorder [postLeft, postRight)
+rootValue
+rootIndex
+leftSize
+```
+
+如果某一层开始错位，问题几乎一定来自：
+
+```text
+根位置错了
+leftSize 算错了
+某个区间多包含/少包含了一个元素
+```
+
+这比在脑中模拟多层递归可靠得多。
+
+## 13. 一套可迁移到所有“数组构树”题的思维框架
+
+遇到“根据数组递归构造树”，优先问下面五件事：
+
+1. **当前根是谁？**
+2. **哪个信息能确定左右边界？**
+3. **左子树有多少节点？**
+4. **另一份数据如何按相同规模切分？**
+5. **能否只传下标，而不是创建新数组？**
+
+后面的“最大二叉树”也是完全相同的构造思想：
+
+```text
+先确定根
+再确定左右区间
+最后递归构造
+```
+
+## 其他语言版本
+
+以下代码统一实现 **LeetCode 106：中序 + 后序构造二叉树**，并使用“中序下标表 + 左闭右开区间”的 $O(n)$ 思路。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'C', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    private Map<Integer, Integer> index = new HashMap<>();
+
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        for (int i = 0; i < inorder.length; i++) {
+            index.put(inorder[i], i);
+        }
+        return build(inorder, 0, inorder.length,
+                     postorder, 0, postorder.length);
+    }
+
+    private TreeNode build(
+        int[] inorder, int inLeft, int inRight,
+        int[] postorder, int postLeft, int postRight
+    ) {
+        if (inLeft >= inRight) return null;
+
+        int rootValue = postorder[postRight - 1];
+        int rootIndex = index.get(rootValue);
+        int leftSize = rootIndex - inLeft;
+
+        TreeNode root = new TreeNode(rootValue);
+        root.left = build(
+            inorder, inLeft, rootIndex,
+            postorder, postLeft, postLeft + leftSize
+        );
+        root.right = build(
+            inorder, rootIndex + 1, inRight,
+            postorder, postLeft + leftSize, postRight - 1
+        );
+        return root;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        index = {value: i for i, value in enumerate(inorder)}
+
+        def build(in_left: int, in_right: int,
+                  post_left: int, post_right: int) -> Optional[TreeNode]:
+            if in_left >= in_right:
+                return None
+
+            root_value = postorder[post_right - 1]
+            root_index = index[root_value]
+            left_size = root_index - in_left
+
+            root = TreeNode(root_value)
+            root.left = build(
+                in_left, root_index,
+                post_left, post_left + left_size
+            )
+            root.right = build(
+                root_index + 1, in_right,
+                post_left + left_size, post_right - 1
+            )
+            return root
+
+        return build(0, len(inorder), 0, len(postorder))
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func buildTree(inorder []int, postorder []int) *TreeNode {
+    index := make(map[int]int, len(inorder))
+    for i, v := range inorder {
+        index[v] = i
+    }
+
+    var build func(int, int, int, int) *TreeNode
+    build = func(inLeft, inRight, postLeft, postRight int) *TreeNode {
+        if inLeft >= inRight {
+            return nil
+        }
+
+        rootValue := postorder[postRight-1]
+        rootIndex := index[rootValue]
+        leftSize := rootIndex - inLeft
+
+        root := &TreeNode{Val: rootValue}
+        root.Left = build(
+            inLeft, rootIndex,
+            postLeft, postLeft+leftSize,
+        )
+        root.Right = build(
+            rootIndex+1, inRight,
+            postLeft+leftSize, postRight-1,
+        )
+        return root
+    }
+
+    return build(0, len(inorder), 0, len(postorder))
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var buildTree = function(inorder, postorder) {
+  const index = new Map();
+  inorder.forEach((value, i) => index.set(value, i));
+
+  const build = (inLeft, inRight, postLeft, postRight) => {
+    if (inLeft >= inRight) return null;
+
+    const rootValue = postorder[postRight - 1];
+    const rootIndex = index.get(rootValue);
+    const leftSize = rootIndex - inLeft;
+
+    const root = new TreeNode(rootValue);
+    root.left = build(
+      inLeft, rootIndex,
+      postLeft, postLeft + leftSize
+    );
+    root.right = build(
+      rootIndex + 1, inRight,
+      postLeft + leftSize, postRight - 1
+    );
+    return root;
+  };
+
+  return build(0, inorder.length, 0, postorder.length);
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function buildTree(inorder: number[], postorder: number[]): TreeNode | null {
+  const index = new Map<number, number>();
+  inorder.forEach((value, i) => index.set(value, i));
+
+  function build(
+    inLeft: number,
+    inRight: number,
+    postLeft: number,
+    postRight: number
+  ): TreeNode | null {
+    if (inLeft >= inRight) return null;
+
+    const rootValue = postorder[postRight - 1];
+    const rootIndex = index.get(rootValue)!;
+    const leftSize = rootIndex - inLeft;
+
+    const root = new TreeNode(rootValue);
+    root.left = build(
+      inLeft, rootIndex,
+      postLeft, postLeft + leftSize
+    );
+    root.right = build(
+      rootIndex + 1, inRight,
+      postLeft + leftSize, postRight - 1
+    );
+    return root;
+  }
+
+  return build(0, inorder.length, 0, postorder.length);
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    private var index: [Int: Int] = [:]
+    private var inorder: [Int] = []
+    private var postorder: [Int] = []
+
+    func buildTree(_ inorder: [Int], _ postorder: [Int]) -> TreeNode? {
+        self.inorder = inorder
+        self.postorder = postorder
+        index.removeAll(keepingCapacity: true)
+
+        for (i, value) in inorder.enumerated() {
+            index[value] = i
+        }
+
+        return build(0, inorder.count, 0, postorder.count)
+    }
+
+    private func build(
+        _ inLeft: Int, _ inRight: Int,
+        _ postLeft: Int, _ postRight: Int
+    ) -> TreeNode? {
+        if inLeft >= inRight { return nil }
+
+        let rootValue = postorder[postRight - 1]
+        let rootIndex = index[rootValue]!
+        let leftSize = rootIndex - inLeft
+
+        let root = TreeNode(rootValue)
+        root.left = build(
+            inLeft, rootIndex,
+            postLeft, postLeft + leftSize
+        )
+        root.right = build(
+            rootIndex + 1, inRight,
+            postLeft + leftSize, postRight - 1
+        )
+        return root
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static int findIndex(int* inorder, int left, int right, int value) {
+    for (int i = left; i < right; ++i) {
+        if (inorder[i] == value) return i;
+    }
+    return -1;
+}
+
+static struct TreeNode* build(
+    int* inorder, int inLeft, int inRight,
+    int* postorder, int postLeft, int postRight
+) {
+    if (inLeft >= inRight) return NULL;
+
+    int rootValue = postorder[postRight - 1];
+    int rootIndex = findIndex(inorder, inLeft, inRight, rootValue);
+    int leftSize = rootIndex - inLeft;
+
+    struct TreeNode* root = malloc(sizeof(struct TreeNode));
+    root->val = rootValue;
+    root->left = build(
+        inorder, inLeft, rootIndex,
+        postorder, postLeft, postLeft + leftSize
+    );
+    root->right = build(
+        inorder, rootIndex + 1, inRight,
+        postorder, postLeft + leftSize, postRight - 1
+    );
+    return root;
+}
+
+struct TreeNode* buildTree(
+    int* inorder, int inorderSize,
+    int* postorder, int postorderSize
+) {
+    return build(
+        inorder, 0, inorderSize,
+        postorder, 0, postorderSize
+    );
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def buildTree(inorder: Array[Int], postorder: Array[Int]): TreeNode = {
+    val index = inorder.zipWithIndex.toMap
+
+    def build(
+      inLeft: Int,
+      inRight: Int,
+      postLeft: Int,
+      postRight: Int
+    ): TreeNode = {
+      if (inLeft >= inRight) return null
+
+      val rootValue = postorder(postRight - 1)
+      val rootIndex = index(rootValue)
+      val leftSize = rootIndex - inLeft
+
+      val root = new TreeNode(rootValue)
+      root.left = build(
+        inLeft, rootIndex,
+        postLeft, postLeft + leftSize
+      )
+      root.right = build(
+        rootIndex + 1, inRight,
+        postLeft + leftSize, postRight - 1
+      )
+      root
+    }
+
+    build(0, inorder.length, 0, postorder.length)
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn build_tree(
+        inorder: Vec<i32>,
+        postorder: Vec<i32>,
+    ) -> Option<Rc<RefCell<TreeNode>>> {
+        let index: HashMap<i32, usize> = inorder
+            .iter()
+            .enumerate()
+            .map(|(i, &v)| (v, i))
+            .collect();
+
+        fn build(
+            inorder: &[i32],
+            postorder: &[i32],
+            index: &HashMap<i32, usize>,
+            in_left: usize,
+            in_right: usize,
+            post_left: usize,
+            post_right: usize,
+        ) -> Option<Rc<RefCell<TreeNode>>> {
+            if in_left >= in_right {
+                return None;
+            }
+
+            let root_value = postorder[post_right - 1];
+            let root_index = index[&root_value];
+            let left_size = root_index - in_left;
+
+            let mut root = TreeNode::new(root_value);
+            root.left = build(
+                inorder, postorder, index,
+                in_left, root_index,
+                post_left, post_left + left_size,
+            );
+            root.right = build(
+                inorder, postorder, index,
+                root_index + 1, in_right,
+                post_left + left_size, post_right - 1,
+            );
+
+            Some(Rc::new(RefCell::new(root)))
+        }
+
+        build(
+            &inorder, &postorder, &index,
+            0, inorder.len(), 0, postorder.len(),
+        )
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    private Dictionary<int, int> index = new();
+
+    public TreeNode BuildTree(int[] inorder, int[] postorder) {
+        index.Clear();
+        for (int i = 0; i < inorder.Length; i++) {
+            index[inorder[i]] = i;
+        }
+
+        return Build(
+            inorder, 0, inorder.Length,
+            postorder, 0, postorder.Length
+        );
+    }
+
+    private TreeNode Build(
+        int[] inorder, int inLeft, int inRight,
+        int[] postorder, int postLeft, int postRight
+    ) {
+        if (inLeft >= inRight) return null;
+
+        int rootValue = postorder[postRight - 1];
+        int rootIndex = index[rootValue];
+        int leftSize = rootIndex - inLeft;
+
+        TreeNode root = new TreeNode(rootValue);
+        root.left = Build(
+            inorder, inLeft, rootIndex,
+            postorder, postLeft, postLeft + leftSize
+        );
+        root.right = Build(
+            inorder, rootIndex + 1, inRight,
+            postorder, postLeft + leftSize, postRight - 1
+        );
+        return root;
+    }
+}
+```
+
+</Tab>
+</Tabs>

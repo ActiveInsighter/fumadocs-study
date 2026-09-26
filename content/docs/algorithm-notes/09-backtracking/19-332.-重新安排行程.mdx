@@ -1,0 +1,1482 @@
+---
+title: 332. 重新安排行程
+author: 算法学习笔记
+summary: 把“机票全部使用一次、从 JFK 出发、字典序最小”建模为带重复边的路径搜索，重点讲清楚为什么要记录航班次数、为什么递归返回 bool、为什么字典序排序后找到第一个完整解即可返回，并补充它与欧拉路径的关系。
+description: LeetCode 332 重新安排行程：回溯、DFS、图搜索、字典序、重复机票、航班计数、剪枝、欧拉路径、Hierholzer 算法与多语言实现。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 332. 重新安排行程
+
+[LeetCode 题目链接](https://leetcode.cn/problems/reconstruct-itinerary/)
+
+给定若干张机票：
+
+```text
+[from, to]
+```
+
+要求重新安排出一个完整行程，满足：
+
+1. 必须从 `JFK` 出发；
+2. **每张机票恰好使用一次**；
+3. 如果存在多个合法行程，返回**字典序最小**的那个。
+
+例如：
+
+```text title="示例 1"
+输入：
+[
+  ["MUC", "LHR"],
+  ["JFK", "MUC"],
+  ["SFO", "SJC"],
+  ["LHR", "SFO"]
+]
+
+输出：
+["JFK", "MUC", "LHR", "SFO", "SJC"]
+```
+
+```text title="示例 2"
+输入：
+[
+  ["JFK", "SFO"],
+  ["JFK", "ATL"],
+  ["SFO", "ATL"],
+  ["ATL", "JFK"],
+  ["ATL", "SFO"]
+]
+
+输出：
+["JFK", "ATL", "JFK", "SFO", "ATL", "SFO"]
+```
+
+另一个合法行程：
+
+```text
+["JFK", "SFO", "ATL", "JFK", "ATL", "SFO"]
+```
+
+字典序更大，因此不是答案。
+
+<Callout title="这题为什么属于回溯模块？">
+
+从图论角度看，它是一个**使用每条边恰好一次的路径问题**；从搜索过程看，我们需要：
+
+```text
+选择一张从当前机场出发的未使用机票
+→ 进入下一机场
+→ 如果后面走不通，就撤销这张机票
+→ 改试另一条边
+```
+
+这就是典型的：
+
+$$
+\boxed{\text{DFS} + \text{回溯状态恢复}}
+$$
+
+</Callout>
+
+## 1. 先把题目翻译成图
+
+把机场看成顶点，把机票：
+
+```text
+[from, to]
+```
+
+看成一条有向边：
+
+$$
+from \rightarrow to
+$$
+
+那么题目要求的是：
+
+> 从 `JFK` 出发，找到一条恰好经过全部机票边一次的完整路径，并且在所有合法路径中取字典序最小者。
+
+如果一共有 $m$ 张机票，那么完整行程一定包含：
+
+$$
+m+1
+$$
+
+个机场。
+
+这会直接给出后面的递归终止条件。
+
+## 2. 真正的难点不是“会不会 DFS”
+
+这题的困难主要集中在四件事：
+
+```text
+① 同一对机场之间可能存在多张完全相同的机票
+② 搜索中可能先走进死路，必须回溯
+③ 每个机场的下一站要按字典序尝试
+④ 一旦找到第一个完整合法行程，就可以提前结束搜索
+```
+
+其中第 ① 点最容易被忽略。
+
+## 3. 为什么不能只记录“这个目的地访问过没有”？
+
+原资料用含有重复机场的情况提醒：
+
+![重新安排行程中的重复机场与回路](https://file1.kamacoder.com/i/algo/20201115180537865.png)
+
+假设存在两张完全相同的机票：
+
+```text
+JFK → ATL
+JFK → ATL
+```
+
+这不是一条边，而是**两张不同的票**。
+
+因此状态不能只写成：
+
+```text
+JFK 能不能去 ATL
+```
+
+而应该记录：
+
+```text
+JFK → ATL 还剩几张票
+```
+
+也就是说，一条逻辑边需要带一个计数：
+
+$$
+count(from,to)
+$$
+
+每使用一次：
+
+$$
+count(from,to) \leftarrow count(from,to)-1
+$$
+
+回溯时恢复：
+
+$$
+count(from,to) \leftarrow count(from,to)+1
+$$
+
+## 4. 数据结构：为什么适合“出发机场 → 有序目的地计数表”？
+
+C++ 中可以使用：
+
+```cpp
+unordered_map<string, map<string, int>> targets;
+```
+
+含义是：
+
+```text
+unordered_map<出发机场, map<目的机场, 剩余票数>>
+```
+
+两层容器分工如下：
+
+| 层级 | 结构 | 作用 |
+| --- | --- | --- |
+| 外层 | `unordered_map` | 快速定位当前出发机场 |
+| 内层 | `map` | 按目的机场字典序遍历，并记录同类机票数量 |
+
+例如：
+
+```text
+tickets = [
+  JFK → SFO,
+  JFK → ATL,
+  JFK → ATL
+]
+```
+
+可存成：
+
+```text
+JFK:
+  ATL → 2
+  SFO → 1
+```
+
+因为 `map` 按 key 升序遍历，所以自然先尝试：
+
+```text
+ATL
+```
+
+再尝试：
+
+```text
+SFO
+```
+
+## 5. 为什么“字典序最小”不等于每一步无脑贪心？
+
+很容易产生这样的错误想法：
+
+```text
+每次都飞向当前字典序最小的机场即可
+```
+
+不一定。
+
+当前最小选择可能让剩余机票无法全部接上。
+
+例如：
+
+```text
+JFK → KUL
+JFK → NRT
+NRT → JFK
+```
+
+若一开始贪心选：
+
+```text
+JFK → KUL
+```
+
+就会立刻走到没有后继边的机场，但仍有两张机票没有使用。
+
+正确完整行程应该是：
+
+```text
+JFK → NRT → JFK → KUL
+```
+
+原资料把这个搜索过程画成树：
+
+![重新安排行程的搜索树](https://file1.kamacoder.com/i/algo/2020111518065555-20230310121223600.png)
+
+所以真正的策略是：
+
+```text
+按字典序从小到大尝试
++
+一旦走不通就回溯
+```
+
+而不是单纯局部贪心。
+
+## 6. 为什么第一个完整解就是字典序最小解？
+
+假设每个机场的可选目的地始终按升序枚举：
+
+```text
+ATL < KUL < NRT < SFO < ...
+```
+
+那么搜索树本身就是按照字典序从小到大 DFS。
+
+在这样的遍历顺序下：
+
+> 第一个到达完整叶子节点的合法路径，就是所有合法完整路径中字典序最小的路径。
+
+所以我们不需要：
+
+```text
+收集所有行程 → 再排序 → 取最小值
+```
+
+而可以在找到第一个完整解后立即停止。
+
+这也是递归函数返回 `bool` 的原因。
+
+## 7. 回溯三部曲
+
+<Steps>
+<Step>
+
+### ① 路径状态
+
+使用：
+
+```cpp
+vector<string> route;
+```
+
+初始：
+
+```cpp
+route.push_back("JFK");
+```
+
+`route.back()` 就是当前所在机场。
+
+</Step>
+<Step>
+
+### ② 终止条件
+
+若共有 `ticketNum` 张机票，则完整行程机场数量一定是：
+
+$$
+ticketNum+1
+$$
+
+因此：
+
+```cpp
+if (route.size() == ticketNum + 1) {
+    return true;
+}
+```
+
+注意：这里不需要额外复制答案。
+
+因为 `route` 本身就是正在构造的最终答案。
+
+</Step>
+<Step>
+
+### ③ 单层搜索
+
+枚举当前机场的所有目的地：
+
+```cpp
+for (auto& [to, count] : targets[route.back()]) {
+    if (count == 0) continue;
+
+    --count;
+    route.push_back(to);
+
+    if (backtracking(ticketNum, route)) {
+        return true;
+    }
+
+    route.pop_back();
+    ++count;
+}
+```
+
+选择时消耗一张票，失败后再恢复。
+
+</Step>
+</Steps>
+
+## 8. 为什么递归函数应该返回 `bool`？
+
+以前很多组合、子集问题写成：
+
+```cpp
+void backtracking(...)
+```
+
+是因为要枚举：
+
+```text
+所有合法答案
+```
+
+而这题只需要：
+
+```text
+字典序最小的一个完整答案
+```
+
+因此：
+
+```cpp
+bool backtracking(...)
+```
+
+语义更准确：
+
+```text
+true  → 从当前状态出发已经找到完整行程
+false → 当前分支最终走不通
+```
+
+原资料用叶子路径强调这一点：
+
+![找到第一个完整叶子后即可结束](https://file1.kamacoder.com/i/algo/2020111518065555-20230310121240991.png)
+
+一旦子递归返回：
+
+```cpp
+true
+```
+
+父递归立即：
+
+```cpp
+return true;
+```
+
+整个递归链依次结束，不再继续搜索其他更大的字典序分支。
+
+## 9. 完整 C++ 回溯实现
+
+```cpp title="C++"
+class Solution {
+private:
+    // 出发机场 -> (目的机场 -> 剩余机票数量)
+    unordered_map<string, map<string, int>> targets;
+
+    bool backtracking(int ticketNum, vector<string>& route) {
+        if (route.size() == static_cast<size_t>(ticketNum + 1)) {
+            return true;
+        }
+
+        const string& from = route.back();
+        auto it = targets.find(from);
+
+        if (it == targets.end()) {
+            return false;
+        }
+
+        for (auto& [to, count] : it->second) {
+            if (count == 0) {
+                continue;
+            }
+
+            --count;
+            route.push_back(to);
+
+            if (backtracking(ticketNum, route)) {
+                return true;
+            }
+
+            route.pop_back();
+            ++count;
+        }
+
+        return false;
+    }
+
+public:
+    vector<string> findItinerary(vector<vector<string>>& tickets) {
+        targets.clear();
+
+        for (const auto& ticket : tickets) {
+            ++targets[ticket[0]][ticket[1]];
+        }
+
+        vector<string> route = {"JFK"};
+        backtracking(static_cast<int>(tickets.size()), route);
+        return route;
+    }
+};
+```
+
+## 10. 代码中最值得注意的三个细节
+
+### 10.1 必须修改真实计数，而不是副本
+
+如果写普通拷贝：
+
+```cpp
+for (auto target : targets[from])
+```
+
+那么：
+
+```cpp
+--target.second;
+```
+
+改的是临时副本，不会真正消耗机票。
+
+所以需要引用：
+
+```cpp
+for (auto& target : targets[from])
+```
+
+结构化绑定同理：
+
+```cpp
+for (auto& [to, count] : targets[from])
+```
+
+### 10.2 机票计数才是真正的“used”
+
+普通排列常用：
+
+```cpp
+used[i]
+```
+
+本题更适合：
+
+```text
+(from, to) 的剩余数量
+```
+
+因为相同机场对之间可能有多张票。
+
+所以：
+
+$$
+\boxed{\text{边计数就是这题的使用状态}}
+$$
+
+### 10.3 `route.size()` 同时隐含“已使用机票数”
+
+如果当前路径有 $k$ 个机场，就已经使用：
+
+$$
+k-1
+$$
+
+张机票。
+
+因此当：
+
+$$
+|route|=m+1
+$$
+
+时，恰好说明 $m$ 张票全部使用完毕。
+
+不需要再额外维护：
+
+```text
+usedTicketCount
+```
+
+## 11. 手动模拟最关键的死路回溯
+
+仍看：
+
+```text
+JFK → KUL
+JFK → NRT
+NRT → JFK
+```
+
+由于：
+
+```text
+KUL < NRT
+```
+
+第一步会先试 `KUL`。
+
+```text
+route = [JFK, KUL]
+```
+
+但 `KUL` 没有下一张机票，而当前：
+
+```text
+route.size() = 2
+```
+
+总共却需要：
+
+```text
+4 个机场
+```
+
+于是递归返回 `false`。
+
+回溯：
+
+```text
+恢复 JFK → KUL 的票数
+route 从 [JFK,KUL] 退回 [JFK]
+```
+
+然后尝试：
+
+```text
+JFK → NRT
+```
+
+继续：
+
+```text
+JFK → NRT → JFK → KUL
+```
+
+此时路径长度达到：
+
+$$
+3+1=4
+$$
+
+返回 `true`。
+
+## 12. 复杂度应该怎样理解？
+
+如果只把它当普通回溯，最坏情况下可能尝试大量机票排列，搜索规模可以非常大。
+
+粗略地说，最坏情况具有阶乘级搜索特征：
+
+$$
+O(m!)
+$$
+
+其中 $m$ 是机票数。
+
+但实际会受到以下因素明显限制：
+
+```text
+当前机场必须与下一张机票的出发机场匹配
+字典序搜索找到第一个完整解就停止
+相同边用计数合并
+```
+
+因此通常不会真的枚举全部 $m!$ 种排列。
+
+不过从算法结构上看，它仍然不是解决这道题最“图论化”的方法。
+
+## 13. 更进一步：这题本质上还是欧拉路径问题
+
+题目要求：
+
+```text
+每张机票恰好使用一次
+```
+
+这实际上就是：
+
+> **有向图中的欧拉路径 / 欧拉通路问题。**
+
+所以更经典的图论解法是：
+
+```text
+Hierholzer 算法
+```
+
+思路不是“试错找到一条可行路径”，而是：
+
+```text
+不断消耗当前最小出边
+走到无路可走时，把节点逆序加入答案
+最后翻转结果
+```
+
+如果使用优先队列或排序后的邻接表，典型复杂度可做到：
+
+$$
+O(m\log m)
+$$
+
+或者排序后近似：
+
+$$
+O(m\log m)
+$$
+
+<Callout type="info" title="为什么本章仍然重点讲回溯？">
+
+因为这里最有学习价值的是：
+
+```text
+图上的 DFS 同样可以使用“选择 → 递归 → 撤销”的回溯模型
+```
+
+而在后续图论章节中，再把它提升到“欧拉路径 + Hierholzer”的专门算法视角，会更完整。
+
+</Callout>
+
+## 14. 回溯解法与 Hierholzer 的区别
+
+| 维度 | 回溯搜索 | Hierholzer |
+| --- | --- | --- |
+| 核心思想 | 尝试路径，失败撤销 | 消耗边，后序构造欧拉路径 |
+| 是否可能探索失败分支 | 会 | 基本不会以同样方式试错 |
+| 字典序处理 | 有序枚举下一站 | 有序取最小出边 |
+| 时间复杂度 | 最坏可能很高 | 通常 $O(m\log m)$ |
+| 学习价值 | 强化 DFS + 回溯 | 理解欧拉路径专门算法 |
+
+对于算法体系学习，最好两种都知道：
+
+```text
+回溯法：帮助理解“路径搜索状态”
+Hierholzer：帮助理解“题目结构带来的专用最优算法”
+```
+
+## 15. 这题和以前的回溯题有什么不同？
+
+| 题型 | “选择”是什么 | `used` / 状态是什么 | 终止条件 |
+| --- | --- | --- | --- |
+| 组合 | 一个数字 | `startIndex` | 路径长度 / 和满足要求 |
+| 排列 | 一个数组下标 | `used[i]` | 路径长度为 $n$ |
+| 分割 | 一个切割位置 | `startIndex` | 切到字符串末尾 |
+| 重新安排行程 | 一张从当前机场出发的机票 | 边的剩余次数 | 机场数为机票数 $+1$ |
+
+这说明回溯模板真正稳定的部分不是变量名字，而是：
+
+$$
+\boxed{
+\text{当前状态}
+\rightarrow
+\text{候选集合}
+\rightarrow
+\text{选择}
+\rightarrow
+\text{递归}
+\rightarrow
+\text{撤销}
+}
+$$
+
+## 16. 常见错误
+
+<Steps>
+<Step>
+
+### ① 只记录机场 visited
+
+机场可以重复经过，不能把“机场是否访问过”当成边是否使用过。
+
+</Step>
+<Step>
+
+### ② 把相同 `from → to` 合并成一条边但不计数
+
+会丢掉重复机票。
+
+</Step>
+<Step>
+
+### ③ 每次只贪心选字典序最小下一站，不允许回退
+
+可能提前进入死路，导致剩余机票无法使用。
+
+</Step>
+<Step>
+
+### ④ 找到完整行程后还继续搜索
+
+当前搜索顺序已经保证字典序，因此第一个完整解就是答案，可以立即返回。
+
+</Step>
+<Step>
+
+### ⑤ 忘记回溯恢复票数
+
+```cpp
+--count;
+...
+++count;
+```
+
+必须成对出现，否则其他分支会看到错误状态。
+
+</Step>
+</Steps>
+
+## 17. 一套稳定的思考顺序
+
+遇到这类“路径 + 边使用限制”的题，可以按下面顺序建模：
+
+```text
+1. 节点是什么？
+   → 机场
+
+2. 边是什么？
+   → 一张机票
+
+3. 当前状态是什么？
+   → route.back()
+
+4. 哪些边还能用？
+   → 当前机场出发且剩余次数 > 0
+
+5. 如何保证答案顺序？
+   → 下一站按字典序遍历
+
+6. 什么时候成功？
+   → route.size() == tickets.size() + 1
+
+7. 找到一个解后是否继续？
+   → 不继续，第一个完整解已经是字典序最小
+```
+
+最终记忆为：
+
+$$
+\boxed{
+\text{有序枚举边}
++
+\text{消耗边}
++
+\text{失败恢复}
++
+\text{完整即返回}
+}
+$$
+
+## 18. 其他语言实现
+
+<Tabs groupId="reconstruct-itinerary-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'C', 'Swift', 'Rust']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private LinkedList<String> res;
+    private LinkedList<String> path = new LinkedList<>();
+
+    public List<String> findItinerary(List<List<String>> tickets) {
+        Collections.sort(tickets, (a, b) -> a.get(1).compareTo(b.get(1)));
+        path.add("JFK");
+        boolean[] used = new boolean[tickets.size()];
+        backTracking((ArrayList) tickets, used);
+        return res;
+    }
+
+    public boolean backTracking(ArrayList<List<String>> tickets, boolean[] used) {
+        if (path.size() == tickets.size() + 1) {
+            res = new LinkedList(path);
+            return true;
+        }
+
+        for (int i = 0; i < tickets.size(); i++) {
+            if (!used[i] && tickets.get(i).get(0).equals(path.getLast())) {
+                path.add(tickets.get(i).get(1));
+                used[i] = true;
+
+                if (backTracking(tickets, used)) {
+                    return true;
+                }
+
+                used[i] = false;
+                path.removeLast();
+            }
+        }
+        return false;
+    }
+}
+
+class Solution {
+    private Deque<String> res;
+    private Map<String, Map<String, Integer>> map;
+
+    private boolean backTracking(int ticketNum){
+        if(res.size() == ticketNum + 1){
+            return true;
+        }
+        String last = res.getLast();
+        if(map.containsKey(last)){//防止出现null
+            for(Map.Entry<String, Integer> target : map.get(last).entrySet()){
+                int count = target.getValue();
+                if(count > 0){
+                    res.add(target.getKey());
+                    target.setValue(count - 1);
+                    if(backTracking(ticketNum)) return true;
+                    res.removeLast();
+                    target.setValue(count);
+                }
+            }
+        }
+        return false;
+    }
+
+    public List<String> findItinerary(List<List<String>> tickets) {
+        map = new HashMap<String, Map<String, Integer>>();
+        res = new LinkedList<>();
+        for(List<String> t : tickets){
+            Map<String, Integer> temp;
+            if(map.containsKey(t.get(0))){
+                temp = map.get(t.get(0));
+                temp.put(t.get(1), temp.getOrDefault(t.get(1), 0) + 1);
+            }else{
+                temp = new TreeMap<>();//升序Map
+                temp.put(t.get(1), 1);
+            }
+            map.put(t.get(0), temp);
+
+        }
+        res.add("JFK");
+        backTracking(tickets.size());
+        return new ArrayList<>(res);
+    }
+}
+
+/*  该方法是对第二个方法的改进，主要变化在于将某点的所有终点变更为链表的形式，优点在于
+        1.添加终点时直接在对应位置添加节点，避免了TreeMap增元素时的频繁调整
+        2.同时每次对终点进行增加删除查找时直接通过下标操作，避免hashMap反复计算hash*/
+class Solution {
+    //key为起点，value是有序的终点的列表
+    Map<String, LinkedList<String>> ticketMap = new HashMap<>();
+    LinkedList<String> result = new LinkedList<>();
+    int total;
+
+    public List<String> findItinerary(List<List<String>> tickets) {
+        total = tickets.size() + 1;
+        //遍历tickets，存入ticketMap中
+        for (List<String> ticket : tickets) {
+            addNew(ticket.get(0), ticket.get(1));
+        }
+        deal("JFK");
+        return result;
+    }
+
+    boolean deal(String currentLocation) {
+        result.add(currentLocation);
+        //机票全部用完，找到最小字符路径
+        if (result.size() == total) {
+            return true;
+        }
+        //当前位置的终点列表
+        LinkedList<String> targetLocations = ticketMap.get(currentLocation);
+        //没有从当前位置出发的机票了，说明这条路走不通
+        if (targetLocations != null && !targetLocations.isEmpty()) {
+            //终点列表中遍历到的终点
+            String targetLocation;
+            //遍历从当前位置出发的机票
+            for (int i = 0; i < targetLocations.size(); i++) {
+		//去重，否则在最后一个测试用例中遇到循环时会无限递归
+                if(i > 0 && targetLocations.get(i).equals(targetLocations.get(i - 1))) continue;
+                targetLocation = targetLocations.get(i);
+                //删除终点列表中当前的终点
+                targetLocations.remove(i);
+                //递归
+                if (deal(targetLocation)) {
+                    return true;
+                }
+                //路线走不通，将机票重新加回去
+                targetLocations.add(i, targetLocation);
+                result.removeLast();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 在map中按照字典顺序添加新元素
+     *
+     * @param start 起点
+     * @param end   终点
+     */
+    void addNew(String start, String end) {
+        LinkedList<String> startAllEnd = ticketMap.getOrDefault(start, new LinkedList<>());
+        if (!startAllEnd.isEmpty()) {
+            for (int i = 0; i < startAllEnd.size(); i++) {
+                if (end.compareTo(startAllEnd.get(i)) < 0) {
+                    startAllEnd.add(i, end);
+                    return;
+                }
+            }
+            startAllEnd.add(startAllEnd.size(), end);
+        } else {
+            startAllEnd.add(end);
+            ticketMap.put(start, startAllEnd);
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        self.adj = {}
+
+        # sort by the destination alphabetically
+        # 根据航班每一站的重点字母顺序排序
+        tickets.sort(key=lambda x:x[1])
+
+        # get all possible connection for each destination
+        # 罗列每一站的下一个可选项
+        for u,v in tickets:
+            if u in self.adj: self.adj[u].append(v)
+            else: self.adj[u] = [v]
+
+        # 从JFK出发
+        self.result = []
+        self.dfs("JFK")  # start with JFK
+
+        return self.result[::-1]  # reverse to get the result
+
+    def dfs(self, s):
+        # if depart city has flight and the flight can go to another city
+        while s in self.adj and len(self.adj[s]) > 0:
+            # 找到s能到哪里，选能到的第一个机场
+            v = self.adj[s][0]  # we go to the 1 choice of the city
+            # 在之后的可选项机场中去掉这个机场
+            self.adj[s].pop(0)  # get rid of this choice since we used it
+            # 从当前的新出发点开始
+            self.dfs(v)  # we start from the new airport
+
+        self.result.append(s)  # after append, it will back track to last node, thus the result list is in reversed order
+
+from collections import defaultdict
+
+class Solution:
+    def findItinerary(self, tickets):
+        targets = defaultdict(list)  # 创建默认字典，用于存储机场映射关系
+        for ticket in tickets:
+            targets[ticket[0]].append(ticket[1])  # 将机票输入到字典中
+
+        for key in targets:
+            targets[key].sort(reverse=True)  # 对到达机场列表进行字母逆序排序
+
+        result = []
+        self.backtracking("JFK", targets, result)  # 调用回溯函数开始搜索路径
+        return result[::-1]  # 返回逆序的行程路径
+
+    def backtracking(self, airport, targets, result):
+        while targets[airport]:  # 当机场还有可到达的机场时
+            next_airport = targets[airport].pop()  # 弹出下一个机场
+            self.backtracking(next_airport, targets, result)  # 递归调用回溯函数进行深度优先搜索
+        result.append(airport)  # 将当前机场添加到行程路径中
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+type pair struct {
+	target  string
+	visited bool
+}
+type pairs []*pair
+
+func (p pairs) Len() int {
+	return len(p)
+}
+func (p pairs) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+func (p pairs) Less(i, j int) bool {
+	return p[i].target < p[j].target
+}
+
+func findItinerary(tickets [][]string) []string {
+	result := []string{}
+	// map[出发机场] pair{目的地,是否被访问过}
+	targets := make(map[string]pairs)
+	for _, ticket := range tickets {
+		if targets[ticket[0]] == nil {
+			targets[ticket[0]] = make(pairs, 0)
+		}
+		targets[ticket[0]] = append(targets[ticket[0]], &pair{target: ticket[1], visited: false})
+	}
+	for k, _ := range targets {
+		sort.Sort(targets[k])
+	}
+	result = append(result, "JFK")
+	var backtracking func() bool
+	backtracking = func() bool {
+		if len(tickets)+1 == len(result) {
+			return true
+		}
+		// 取出起飞航班对应的目的地
+		for _, pair := range targets[result[len(result)-1]] {
+			if pair.visited == false {
+				result = append(result, pair.target)
+				pair.visited = true
+				if backtracking() {
+					return true
+				}
+				result = result[:len(result)-1]
+				pair.visited = false
+			}
+		}
+		return false
+	}
+
+	backtracking()
+
+	return result
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var findItinerary = function(tickets) {
+    let result = ['JFK']
+    let map = {}
+
+    for (const tickt of tickets) {
+        const [from, to] = tickt
+        if (!map[from]) {
+            map[from] = []
+        }
+        map[from].push(to)
+    }
+
+    for (const city in map) {
+        // 对到达城市列表排序
+        map[city].sort()
+    }
+    function backtracing() {
+        if (result.length === tickets.length + 1) {
+            return true
+        }
+        if (!map[result[result.length - 1]] || !map[result[result.length - 1]].length) {
+            return false
+        }
+        for(let i = 0 ; i <  map[result[result.length - 1]].length; i++) {
+            let city = map[result[result.length - 1]][i]
+            // 删除已走过航线，防止死循环
+            map[result[result.length - 1]].splice(i, 1)
+            result.push(city)
+            if (backtracing()) {
+                return true
+            }
+            result.pop()
+            map[result[result.length - 1]].splice(i, 0, city)
+        }
+    }
+    backtracing()
+    return result
+};
+
+/**
+ * @param {string[][]} tickets
+ * @return {string[]}
+ */
+var findItinerary = function (tickets) {
+	const ans = ["JFK"];
+	let map = {};
+	// 整理每个站点的终点站信息
+	tickets.forEach((t) => {
+		let targets = map[t[0]];
+		if (!targets) {
+			targets = { [t[1]]: 0 };
+			map[t[0]] = targets;
+		}
+		targets[t[1]] = (targets[t[1]] || 0) + 1;
+	});
+	// 按照key字典序排序对象
+	const sortObject = (obj) => {
+		const newObj = {};
+		const keys = Object.keys(obj);
+		keys.sort((k1, k2) => (k1 < k2 ? -1 : 1));
+		keys.forEach((key) => {
+			if (obj[key] !== null && typeof obj[key] === "object") {
+				newObj[key] = sortObject(obj[key]);
+			} else {
+				newObj[key] = obj[key];
+			}
+		});
+		return newObj;
+	};
+	const backtrack = (tickets, targets) => {
+		if (ans.length === tickets.length + 1) {
+			return true;
+		}
+		const target = targets[ans[ans.length - 1]];
+		// 没有下一站
+		if (!target) {
+			return false;
+		}
+		// 或者在这里排序
+		// const keyList = Object.keys(target).sort((k1, k2) => (k1 < k2 ? -1 : 1));
+		const keyList = Object.keys(target);
+		for (const key of keyList) {
+			// 判断当前站是否还能飞
+			if (target[key] > 0) {
+				target[key]--;
+				ans.push(key);
+				// 对象key有序 此时的行程就是字典序最小的 直接跳出
+				if (backtrack(tickets, targets)) {
+					return true;
+				}
+				target[key]++;
+				ans.pop();
+			}
+		}
+		return false;
+	};
+	map = sortObject(map);
+	backtrack(tickets, map);
+	return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function findItinerary(tickets: string[][]): string[] {
+    /**
+        TicketsMap 实例：
+        { NRT: Map(1) { 'JFK' => 1 }, JFK: Map(2) { 'KUL' => 1, 'NRT' => 1 } }
+        这里选择Map数据结构的原因是：与Object类型的一个主要差异是，Map实例会维护键值对的插入顺序。
+     */
+    type TicketsMap = {
+        [index: string]: Map<string, number>
+    };
+    tickets.sort((a, b) => {
+        return a[1] < b[1] ? -1 : 1;
+    });
+    const ticketMap: TicketsMap = {};
+    for (const [from, to] of tickets) {
+        if (ticketMap[from] === undefined) {
+            ticketMap[from] = new Map();
+        }
+        ticketMap[from].set(to, (ticketMap[from].get(to) || 0) + 1);
+    }
+    const resRoute = ['JFK'];
+    backTracking(tickets.length, ticketMap, resRoute);
+    return resRoute;
+    function backTracking(ticketNum: number, ticketMap: TicketsMap, route: string[]): boolean {
+        if (route.length === ticketNum + 1) return true;
+        const targetMap = ticketMap[route[route.length - 1]];
+        if (targetMap !== undefined) {
+            for (const [to, count] of targetMap.entries()) {
+                if (count > 0) {
+                    route.push(to);
+                    targetMap.set(to, count - 1);
+                    if (backTracking(ticketNum, ticketMap, route) === true) return true;
+                    targetMap.set(to, count);
+                    route.pop();
+                }
+            }
+        }
+        return false;
+    }
+};
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+typedef struct {
+    char *name;        /* key */
+    int cnt;           /* 记录到达机场是否飞过了 */
+    UT_hash_handle hh; /* makes this structure hashable */
+} to_airport_t;
+
+typedef struct {
+    char *name; /* key */
+    to_airport_t *to_airports;
+    UT_hash_handle hh; /* makes this structure hashable */
+} from_airport_t;
+
+void to_airport_destroy(to_airport_t *airports) {
+    to_airport_t *airport, *tmp;
+    HASH_ITER(hh, airports, airport, tmp) {
+        HASH_DEL(airports, airport);
+        free(airport);
+    }
+}
+
+void from_airport_destroy(from_airport_t *airports) {
+    from_airport_t *airport, *tmp;
+    HASH_ITER(hh, airports, airport, tmp) {
+        to_airport_destroy(airport->to_airports);
+        HASH_DEL(airports, airport);
+        free(airport);
+    }
+}
+
+int name_sort(to_airport_t *a, to_airport_t *b) {
+    return strcmp(a->name, b->name);
+}
+
+bool backtracking(from_airport_t *airports, int target_path_len, char **path,
+                  int path_len) {
+    if (path_len == target_path_len) return true;
+
+    from_airport_t *from_airport = NULL;
+    HASH_FIND_STR(airports, path[path_len - 1], from_airport);
+    if (!from_airport) return false;
+
+    for (to_airport_t *to_airport = from_airport->to_airports;
+         to_airport != NULL; to_airport = to_airport->hh.next) {
+        if (to_airport->cnt == 0) continue;
+        to_airport->cnt--;
+        path[path_len] = to_airport->name;
+        if (backtracking(airports, target_path_len, path, path_len + 1))
+            return true;
+        to_airport->cnt++;
+    }
+    return false;
+}
+
+char **findItinerary(char ***tickets, int ticketsSize, int *ticketsColSize,
+                     int *returnSize) {
+    from_airport_t *airports = NULL;
+
+    // 记录映射关系
+    for (int i = 0; i < ticketsSize; i++) {
+        from_airport_t *from_airport = NULL;
+        to_airport_t *to_airport = NULL;
+        HASH_FIND_STR(airports, tickets[i][0], from_airport);
+        if (!from_airport) {
+            from_airport = malloc(sizeof(from_airport_t));
+            from_airport->name = tickets[i][0];
+            from_airport->to_airports = NULL;
+            HASH_ADD_KEYPTR(hh, airports, from_airport->name,
+                            strlen(from_airport->name), from_airport);
+        }
+        HASH_FIND_STR(from_airport->to_airports, tickets[i][1], to_airport);
+        if (!to_airport) {
+            to_airport = malloc(sizeof(to_airport_t));
+            to_airport->name = tickets[i][1];
+            to_airport->cnt = 0;
+            HASH_ADD_KEYPTR(hh, from_airport->to_airports, to_airport->name,
+                            strlen(to_airport->name), to_airport);
+        }
+        to_airport->cnt++;
+    }
+
+    // 机场排序
+    for (from_airport *from_airport = airports; from_airport != NULL;
+         from_airport = from_airport->hh.next) {
+        HASH_SRT(hh, from_airport->to_airports, name_sort);
+    }
+
+    char **path = malloc(sizeof(char *) * (ticketsSize + 1));
+    path[0] = "JFK";  // 起始机场
+    backtracking(airports, ticketsSize + 1, path, 1);
+
+    from_airport_destroy(airports);
+
+    *returnSize = ticketsSize + 1;
+    return path;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+func findItinerary(_ tickets: [[String]]) -> [String] {
+    // 先对路线进行排序
+    let tickets = tickets.sorted { (arr1, arr2) -> Bool in
+        if arr1[0] < arr2[0] {
+            return true
+        } else if arr1[0] > arr2[0] {
+            return false
+        }
+        if arr1[1] < arr2[1] {
+            return true
+        } else if arr1[1] > arr2[1] {
+            return false
+        }
+        return true
+    }
+    var path = ["JFK"]
+    var used = [Bool](repeating: false, count: tickets.count)
+
+    @discardableResult
+    func backtracking() -> Bool {
+        // 结束条件：满足一条路径的数量
+        if path.count == tickets.count + 1 { return true }
+
+        for i in 0 ..< tickets.count {
+            // 巧妙之处！跳过处理过或出发站不是path末尾站的线路，即筛选出未处理的又可以衔接path的线路
+            guard !used[i], tickets[i][0] == path.last! else { continue }
+            // 处理
+            used[i] = true
+            path.append(tickets[i][1])
+            // 递归
+            if backtracking() { return true }
+            // 回溯
+            path.removeLast()
+            used[i] = false
+        }
+        return false
+    }
+    backtracking()
+    return path
+}
+
+func findItinerary(_ tickets: [[String]]) -> [String] {
+    // 建立出发站和目的站的一对多关系，要对目的地进行排序
+    typealias Destination = (name: String, used: Bool)
+    var targets = [String: [Destination]]()
+    for line in tickets {
+        let src = line[0], des = line[1]
+        var value = targets[src] ?? []
+        value.append((des, false))
+        targets[src] = value
+    }
+    for (k, v) in targets {
+        targets[k] = v.sorted { $0.name < $1.name }
+    }
+
+    var path = ["JFK"]
+    let pathCount = tickets.count + 1
+    @discardableResult
+    func backtracking() -> Bool {
+        if path.count == pathCount { return true }
+
+        let startPoint = path.last!
+        guard let end = targets[startPoint]?.count, end > 0 else { return false }
+        for i in 0 ..< end {
+            // 排除处理过的线路
+            guard !targets[startPoint]![i].used else { continue }
+            // 处理
+            targets[startPoint]![i].used = true
+            path.append(targets[startPoint]![i].name)
+            // 递归
+            if backtracking() { return true }
+            // 回溯
+            path.removeLast()
+            targets[startPoint]![i].used = false
+        }
+        return false
+    }
+    backtracking()
+    return path
+}
+
+// 建立出发站和目的站的一对多关系，在构建的时候进行插入排序
+typealias Destination = (name: String, used: Bool)
+var targets = [String: [Destination]]()
+func sortedInsert(_ element: Destination, to array: inout [Destination]) {
+    var left = 0, right = array.count - 1
+    while left <= right {
+        let mid = left + (right - left) / 2
+        if array[mid].name < element.name {
+            left = mid + 1
+        } else if array[mid].name > element.name {
+            right = mid - 1
+        } else {
+            left = mid
+            break
+        }
+    }
+    array.insert(element, at: left)
+}
+for line in tickets {
+    let src = line[0], des = line[1]
+    var value = targets[src] ?? []
+    sortedInsert((des, false), to: &value)
+    targets[src] = value
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::collections::HashMap;
+impl Solution {
+    fn backtracking(airport: String, targets: &mut HashMap<&String, Vec<&String>>, result: &mut Vec<String>) {
+        while let Some(next_airport) = targets.get_mut(&airport).unwrap_or(&mut vec![]).pop() {
+            Self::backtracking(next_airport.clone(), targets, result);
+        }
+        result.push(airport.clone());
+    }
+
+    pub fn find_itinerary(tickets: Vec<Vec<String>>) -> Vec<String> {
+        let mut targets: HashMap<&String, Vec<&String>> = HashMap::new();
+        let mut result = Vec::new();
+        for t in 0..tickets.len() {
+            targets.entry(&tickets[t][0]).or_default().push(&tickets[t][1]);
+        }
+            for (_, target) in targets.iter_mut() {
+            target.sort_by(|a, b| b.cmp(a));
+        }
+        Self::backtracking("JFK".to_string(), &mut targets, &mut result);
+        result.reverse();
+        result
+    }
+}
+```
+
+</Tab>
+</Tabs>

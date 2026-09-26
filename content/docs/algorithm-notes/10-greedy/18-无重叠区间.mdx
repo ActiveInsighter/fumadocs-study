@@ -1,0 +1,1009 @@
+---
+title: 无重叠区间
+summary: 把“最少删除多少区间”转化为“最多保留多少个互不重叠区间”，按右端点排序后始终保留最早结束的区间，是经典活动选择问题。
+description: LeetCode 435 无重叠区间。系统讲解问题转化、右端点贪心、交换论证、左端点等价写法、与最少箭数问题的联系、边界条件、常见错误和多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 435. 无重叠区间
+
+[LeetCode 435. Non-overlapping Intervals](https://leetcode.cn/problems/non-overlapping-intervals/)
+
+给定若干区间 `intervals`，每个区间记作：
+
+$$
+[l_i,r_i]
+$$
+
+要求删除尽可能少的区间，使剩余区间两两不重叠。
+
+题目特别规定：
+
+```text
+[1,2] 和 [2,3]
+```
+
+只是在端点处接触，**不算重叠**。
+
+例如：
+
+```text
+intervals = [[1,2],[2,3],[3,4],[1,3]]
+```
+
+只需要删除 `[1,3]`，剩下：
+
+```text
+[1,2], [2,3], [3,4]
+```
+
+所以答案为：
+
+```text
+1
+```
+
+---
+
+## 1. 最关键的转化：不要直接思考“删谁”
+
+题目问的是：
+
+> 最少删除多少个区间？
+
+直接围绕“删除”思考，容易陷入：
+
+- 两个区间重叠时到底删左边还是右边？
+- 一个区间同时与多个区间重叠怎么办？
+- 局部删除以后会不会影响后面的选择？
+
+更自然的视角是：
+
+> **最多能留下多少个互不重叠区间？**
+
+设总区间数为 $n$，最多能够保留的互不重叠区间数为 $k$，那么最少删除数量就是：
+
+$$
+\boxed{n-k}
+$$
+
+因此，本题实际上就是经典的 **活动选择问题（Activity Selection Problem）**。
+
+<Callout type="info" title="常见的补集转化">
+很多“最少删除”问题都可以尝试改写成“最多保留”。当删除对象与保留对象刚好互补时，最大化保留数量往往比直接最小化删除数量更容易构造贪心策略。
+</Callout>
+
+---
+
+## 2. 应该优先保留什么区间
+
+假设当前可选区间中，有两个区间：
+
+```text
+A = [1, 4]
+B = [2, 3]
+```
+
+如果只能保留一个，那么保留哪一个更有利于后续？
+
+显然是：
+
+```text
+B = [2, 3]
+```
+
+因为它结束得更早。
+
+保留结束位置更靠左的区间，会给右侧未来区间留下更大的可用空间。
+
+于是得到经典贪心选择：
+
+> **每次选择当前所有可选区间中右端点最小的区间。**
+
+实现时只需要：
+
+1. 按右端点从小到大排序；
+2. 第一个区间一定保留；
+3. 后续区间只要左端点不小于上一个已保留区间的右端点，就可以继续保留。
+
+---
+
+## 3. 原图怎么理解
+
+原资料中的示意图：
+
+![无重叠区间示意图](https://file1.kamacoder.com/i/algo/20230201164134.png)
+
+把区间按照右端点排序后，可以把每一次选择理解成：
+
+> 在当前还没有冲突的区间里，尽快结束当前选择，把后面的空间尽可能完整地留出来。
+
+假设排序后依次扫描区间，当前已经保留区间的结束位置为：
+
+$$
+end
+$$
+
+对于下一个区间：
+
+$$
+[l_i,r_i]
+$$
+
+只有两种情况。
+
+### 情况一：不重叠
+
+如果：
+
+$$
+l_i\ge end
+$$
+
+说明新区间可以接在当前选择之后：
+
+```text
+------[ 已选择 ]
+                 [ 新区间 ]------
+```
+
+此时保留新区间，并更新：
+
+$$
+end=r_i
+$$
+
+### 情况二：发生重叠
+
+如果：
+
+$$
+l_i<end
+$$
+
+说明新区间与已经保留的区间冲突。
+
+由于我们已经按右端点升序排序，所以当前已保留区间拥有不晚于新区间的结束位置。
+
+因此直接舍弃新区间即可，不需要修改 `end`。
+
+这也是为什么“按右端点排序”之后代码会非常简洁。
+
+---
+
+## 4. 为什么“结束得越早越好”一定正确
+
+贪心题真正重要的不是写出代码，而是解释：
+
+> 为什么这个局部选择不会破坏全局最优？
+
+可以使用交换论证。
+
+假设当前尚未处理的所有区间中，右端点最小的是：
+
+$$
+I_g=[l_g,r_g]
+$$
+
+设某个最优解没有选择 $I_g$，而是选择了另一个与当前阶段兼容的区间：
+
+$$
+I_o=[l_o,r_o]
+$$
+
+由于 $I_g$ 是右端点最小的区间，所以：
+
+$$
+r_g\le r_o
+$$
+
+现在把最优解中的 $I_o$ 换成 $I_g$。
+
+因为 $I_g$ 结束得更早，所以原本能够排在 $I_o$ 后面的任何区间，也一定不会因为把 $I_o$ 换成 $I_g$ 而失去兼容性。
+
+也就是说：
+
+```text
+原最优解：      I_o | 后续若干区间
+替换以后：  I_g     | 后续若干区间
+```
+
+替换后区间数量不会减少。
+
+因此：
+
+> 总存在一个最优解包含当前右端点最小的区间。
+
+完成第一次选择后，剩余部分又变成完全相同的子问题，于是可以不断重复这个贪心选择。
+
+最终得到的保留区间数量一定是最大值。
+
+<Callout type="info" title="这是区间贪心最重要的证明模板之一">
+如果某个选择“结束得更早”，并且不会压缩后续可选择空间，就可以尝试证明：任意最优解中的第一个选择都能被它替换而不变差。这就是非常典型的交换论证。
+</Callout>
+
+---
+
+## 5. 标准算法流程
+
+<Steps>
+<Step>
+
+### 按右端点升序排序
+
+对于：
+
+$$
+[l_i,r_i]
+$$
+
+按照 $r_i$ 从小到大排列。
+
+这样扫描到的每个区间，都是当前候选中“结束最早”的区间。
+
+</Step>
+<Step>
+
+### 保留第一个区间
+
+如果输入非空，第一个区间必然可以作为第一个保留区间。
+
+初始化：
+
+```text
+keep = 1
+end = intervals[0][1]
+```
+
+</Step>
+<Step>
+
+### 从左到右扫描
+
+如果当前区间满足：
+
+$$
+intervals[i][0]\ge end
+$$
+
+说明它与上一个保留区间不重叠，可以保留：
+
+```text
+keep++
+end = intervals[i][1]
+```
+
+否则当前区间与已保留区间重叠，直接跳过。
+
+</Step>
+<Step>
+
+### 用总数减去最大保留数
+
+最终：
+
+$$
+\boxed{answer=n-keep}
+$$
+
+</Step>
+</Steps>
+
+---
+
+## 6. 例子完整推演
+
+考虑：
+
+```text
+[[1,2],[2,3],[3,4],[1,3]]
+```
+
+按照右端点排序后，可以得到：
+
+```text
+[1,2], [2,3], [1,3], [3,4]
+```
+
+初始化：
+
+```text
+keep = 1
+end = 2
+```
+
+### 扫描 `[2,3]`
+
+因为：
+
+$$
+2\ge2
+$$
+
+端点接触不算重叠，因此可以保留。
+
+```text
+keep = 2
+end = 3
+```
+
+### 扫描 `[1,3]`
+
+因为：
+
+$$
+1<3
+$$
+
+发生重叠，跳过。
+
+### 扫描 `[3,4]`
+
+因为：
+
+$$
+3\ge3
+$$
+
+可以保留。
+
+```text
+keep = 3
+end = 4
+```
+
+因此：
+
+$$
+answer=4-3=1
+$$
+
+---
+
+## 7. C++ 标准写法
+
+```cpp
+class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        if (intervals.empty()) return 0;
+
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[1] < b[1];
+             });
+
+        int keep = 1;
+        int end = intervals[0][1];
+
+        for (int i = 1; i < intervals.size(); ++i) {
+            if (intervals[i][0] >= end) {
+                ++keep;
+                end = intervals[i][1];
+            }
+        }
+
+        return static_cast<int>(intervals.size()) - keep;
+    }
+};
+```
+
+这里最值得记住的状态只有两个：
+
+```text
+keep：已经选择的最大不重叠区间数量
+end ：最后一个已选择区间的右端点
+```
+
+排序以后，扫描过程本身是线性的。
+
+---
+
+## 8. 复杂度分析
+
+设区间数量为 $n$。
+
+排序需要：
+
+$$
+O(n\log n)
+$$
+
+扫描需要：
+
+$$
+O(n)
+$$
+
+所以总时间复杂度为：
+
+$$
+\boxed{O(n\log n)}
+$$
+
+额外空间复杂度取决于语言和排序实现。
+
+如果只看算法显式维护的变量：
+
+$$
+\boxed{O(1)}
+$$
+
+但标准库排序内部可能使用递归栈或其他辅助空间，因此实际排序空间复杂度应按具体实现分析，而不应该机械地固定写成某一个值。
+
+---
+
+## 9. 另一种思路：按左端点排序也能做
+
+很多同学第一次看到这里会问：
+
+> 必须按照右端点排序吗？
+
+不是。
+
+也可以按照左端点升序排序。
+
+关键在于：
+
+> 当两个区间重叠时，必须留下右端点更小的那个。
+
+例如当前保留下来的区间结束位置为：
+
+$$
+end
+$$
+
+当前新区间为：
+
+$$
+[l_i,r_i]
+$$
+
+若：
+
+$$
+l_i<end
+$$
+
+发生重叠，此时一定要删除一个。
+
+为了给后面留下更大空间，应保留结束更早的那个，因此更新：
+
+$$
+end=\min(end,r_i)
+$$
+
+并统计一次删除。
+
+代码如下：
+
+```cpp
+class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        if (intervals.empty()) return 0;
+
+        sort(intervals.begin(), intervals.end(),
+             [](const vector<int>& a, const vector<int>& b) {
+                 return a[0] < b[0];
+             });
+
+        int remove = 0;
+        int end = intervals[0][1];
+
+        for (int i = 1; i < intervals.size(); ++i) {
+            if (intervals[i][0] < end) {
+                ++remove;
+                end = min(end, intervals[i][1]);
+            } else {
+                end = intervals[i][1];
+            }
+        }
+
+        return remove;
+    }
+};
+```
+
+两种方法看起来不同，本质完全相同：
+
+```text
+右端点排序：主动挑选“最早结束”的区间。
+左端点排序：冲突发生时淘汰“结束更晚”的区间。
+```
+
+最终都在维护同一个目标：
+
+> **让当前有效右边界尽可能靠左。**
+
+---
+
+## 10. 一个非常容易写错的边界条件
+
+题目规定：
+
+```text
+[1,2] 和 [2,3] 不重叠
+```
+
+所以“不重叠”的判断必须是：
+
+$$
+nextLeft\ge end
+$$
+
+也就是：
+
+```cpp
+if (intervals[i][0] >= end)
+```
+
+而不是：
+
+```cpp
+if (intervals[i][0] > end)
+```
+
+对应地，如果采用“检测重叠”的写法，则条件应该是：
+
+$$
+nextLeft<end
+$$
+
+也就是：
+
+```cpp
+if (intervals[i][0] < end)
+```
+
+<Callout type="warn" title="区间题先确认端点语义">
+闭区间、开区间以及“端点接触算不算冲突”会直接改变比较符号。区间贪心里大量错误不是思路错，而是 `>`、`>=`、`<`、`<=` 写错。
+</Callout>
+
+---
+
+## 11. 为什么不能按区间长度排序
+
+一个很自然但错误的想法是：
+
+> 区间越短占用空间越少，所以优先保留最短区间。
+
+局部看似合理，但区间长度并不能反映它对后续空间的影响。
+
+例如：
+
+```text
+A = [0,100]
+B = [90,91]
+C = [91,92]
+D = [92,93]
+```
+
+“短”并不是关键属性。
+
+真正决定后续可选择空间的是：
+
+$$
+\text{当前选择的结束位置}
+$$
+
+只有让结束位置尽可能靠左，才能保证后续选择余地最大。
+
+因此这类活动选择问题要关注：
+
+```text
+结束时间 / 右端点
+```
+
+而不是：
+
+```text
+区间长度
+```
+
+---
+
+## 12. 与「用最少数量的箭引爆气球」有什么关系
+
+上一题 [452. 用最少数量的箭引爆气球](https://leetcode.cn/problems/minimum-number-of-arrows-to-burst-balloons/) 和本题非常相似。
+
+两题都可以按右端点排序，但目标略有不同。
+
+| 问题 | 目标 | 新的一组出现条件 |
+| --- | --- | --- |
+| 最少箭数 | 用一个点覆盖尽可能多的重叠区间 | 当前左端点 `> arrowPos` |
+| 无重叠区间 | 选择尽可能多的两两不重叠区间 | 当前左端点 `>= end` |
+
+为什么一个是 `>`，一个是 `>=`？
+
+因为：
+
+### 射气球
+
+对于：
+
+```text
+[1,2], [2,3]
+```
+
+在 $x=2$ 射一箭，可以同时命中两个闭区间。
+
+所以它们可以共用一支箭。
+
+### 无重叠区间
+
+题目明确规定：
+
+```text
+[1,2], [2,3]
+```
+
+不算重叠。
+
+所以两个区间都能留下。
+
+两题真正的差别，最终浓缩成了一个比较符号。
+
+<Callout type="info" title="做区间题时不要只背代码">
+452、435 看起来代码几乎一样，但边界定义不同。真正应该记的是“当前右边界代表什么”，再根据题意推导比较符号，而不是死记 `>` 或 `>=`。
+</Callout>
+
+---
+
+## 13. 动态规划为什么也能做
+
+本题当然也可以定义：
+
+$$
+dp[i]=\text{考虑到第 }i\text{ 个区间时最多能保留多少个不重叠区间}
+$$
+
+然后枚举前驱区间。
+
+朴素转移通常会达到：
+
+$$
+O(n^2)
+$$
+
+但这个问题具有非常强的贪心结构：
+
+> 只要当前选取最早结束的区间，就不会损失最优解。
+
+于是能够把状态转移压缩成一次排序加一次扫描：
+
+$$
+O(n\log n)
+$$
+
+这也是学习贪心时非常值得体会的一点：
+
+> **贪心不是“比动态规划更简单的写法”，而是问题结构允许我们把大量状态比较直接消掉。**
+
+---
+
+## 14. 高频错误
+
+### 错误一：按照右端点排序，却在重叠时更新成更大的右端点
+
+错误：
+
+```cpp
+end = max(end, intervals[i][1]);
+```
+
+这样会让 `end` 越来越靠右，反而压缩未来空间。
+
+右端点排序后，遇到重叠新区间直接跳过即可。
+
+---
+
+### 错误二：按左端点排序，重叠时不更新 `end`
+
+例如：
+
+```text
+[1,10], [2,3], [3,4]
+```
+
+如果遇到 `[2,3]` 后仍保留：
+
+```text
+end = 10
+```
+
+那么 `[3,4]` 也会被错误判定为冲突。
+
+实际上应该删除 `[1,10]`，保留 `[2,3]`，因此：
+
+$$
+end=\min(10,3)=3
+$$
+
+---
+
+### 错误三：把答案直接当成不重叠区间数量
+
+右端点版本统计的是：
+
+```text
+keep = 最大可保留数量
+```
+
+题目要求的是删除数量，所以最后一定是：
+
+$$
+intervals.size()-keep
+$$
+
+---
+
+### 错误四：忘记空数组
+
+虽然部分在线题目约束可能保证至少一个区间，但写通用代码时最好显式处理：
+
+```cpp
+if (intervals.empty()) return 0;
+```
+
+---
+
+## 15. 一句话记忆模板
+
+看到：
+
+```text
+从若干区间中选择最多个互不重叠区间
+```
+
+优先想到：
+
+$$
+\boxed{\text{按右端点升序排序，优先保留最早结束的区间}}
+$$
+
+看到：
+
+```text
+最少删除多少区间，使剩余区间互不重叠
+```
+
+再做一次补集转换：
+
+$$
+\boxed{\text{最少删除}=\text{总数}-\text{最多保留}}
+$$
+
+---
+
+## 16. 其他语言版本
+
+以下实现统一采用最清晰的“**按右端点排序 + 统计最大保留数量**”写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
+
+```java
+import java.util.Arrays;
+
+class Solution {
+    public int eraseOverlapIntervals(int[][] intervals) {
+        if (intervals.length == 0) return 0;
+
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[1], b[1]));
+
+        int keep = 1;
+        int end = intervals[0][1];
+
+        for (int i = 1; i < intervals.length; i++) {
+            if (intervals[i][0] >= end) {
+                keep++;
+                end = intervals[i][1];
+            }
+        }
+
+        return intervals.length - keep;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+        if not intervals:
+            return 0
+
+        intervals.sort(key=lambda x: x[1])
+
+        keep = 1
+        end = intervals[0][1]
+
+        for left, right in intervals[1:]:
+            if left >= end:
+                keep += 1
+                end = right
+
+        return len(intervals) - keep
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+import "sort"
+
+func eraseOverlapIntervals(intervals [][]int) int {
+    if len(intervals) == 0 {
+        return 0
+    }
+
+    sort.Slice(intervals, func(i, j int) bool {
+        return intervals[i][1] < intervals[j][1]
+    })
+
+    keep := 1
+    end := intervals[0][1]
+
+    for i := 1; i < len(intervals); i++ {
+        if intervals[i][0] >= end {
+            keep++
+            end = intervals[i][1]
+        }
+    }
+
+    return len(intervals) - keep
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn erase_overlap_intervals(mut intervals: Vec<Vec<i32>>) -> i32 {
+        if intervals.is_empty() {
+            return 0;
+        }
+
+        intervals.sort_by_key(|interval| interval[1]);
+
+        let mut keep = 1usize;
+        let mut end = intervals[0][1];
+
+        for interval in intervals.iter().skip(1) {
+            if interval[0] >= end {
+                keep += 1;
+                end = interval[1];
+            }
+        }
+
+        (intervals.len() - keep) as i32
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var eraseOverlapIntervals = function(intervals) {
+    if (intervals.length === 0) return 0;
+
+    intervals.sort((a, b) => a[1] - b[1]);
+
+    let keep = 1;
+    let end = intervals[0][1];
+
+    for (let i = 1; i < intervals.length; i++) {
+        if (intervals[i][0] >= end) {
+            keep++;
+            end = intervals[i][1];
+        }
+    }
+
+    return intervals.length - keep;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function eraseOverlapIntervals(intervals: number[][]): number {
+    if (intervals.length === 0) return 0;
+
+    intervals.sort((a, b) => a[1] - b[1]);
+
+    let keep = 1;
+    let end = intervals[0][1];
+
+    for (let i = 1; i < intervals.length; i++) {
+        if (intervals[i][0] >= end) {
+            keep++;
+            end = intervals[i][1];
+        }
+    }
+
+    return intervals.length - keep;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdlib.h>
+
+static int cmp(const void* a, const void* b) {
+    const int* x = *(const int**)a;
+    const int* y = *(const int**)b;
+
+    if (x[1] < y[1]) return -1;
+    if (x[1] > y[1]) return 1;
+    return 0;
+}
+
+int eraseOverlapIntervals(int** intervals,
+                          int intervalsSize,
+                          int* intervalsColSize) {
+    (void)intervalsColSize;
+
+    if (intervalsSize == 0) return 0;
+
+    qsort(intervals, intervalsSize, sizeof(int*), cmp);
+
+    int keep = 1;
+    int end = intervals[0][1];
+
+    for (int i = 1; i < intervalsSize; ++i) {
+        if (intervals[i][0] >= end) {
+            ++keep;
+            end = intervals[i][1];
+        }
+    }
+
+    return intervalsSize - keep;
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+using System;
+
+public class Solution
+{
+    public int EraseOverlapIntervals(int[][] intervals)
+    {
+        if (intervals.Length == 0) return 0;
+
+        Array.Sort(intervals, (a, b) => a[1].CompareTo(b[1]));
+
+        int keep = 1;
+        int end = intervals[0][1];
+
+        for (int i = 1; i < intervals.Length; i++)
+        {
+            if (intervals[i][0] >= end)
+            {
+                keep++;
+                end = intervals[i][1];
+            }
+        }
+
+        return intervals.Length - keep;
+    }
+}
+```
+
+</Tab>
+</Tabs>

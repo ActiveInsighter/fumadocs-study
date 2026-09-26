@@ -1,0 +1,940 @@
+---
+title: 跳跃游戏
+summary: 把“下一步应该跳几格”转化为“当前可达区间最远能扩展到哪里”，掌握覆盖范围型贪心、循环不变量、不可达断点以及与图搜索的联系。
+description: LeetCode 55 跳跃游戏。系统讲解最大可达下标的贪心建模、覆盖区间不变量、正确性证明、边界条件、常见错误、反向视角与多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 55. 跳跃游戏
+
+[LeetCode 55. 跳跃游戏](https://leetcode.cn/problems/jump-game/)
+
+给定一个非负整数数组 `nums`，你最初位于下标 $0$。`nums[i]` 表示从位置 $i$ 出发最多可以向右跳多少步。
+
+判断是否能够到达最后一个位置。
+
+例如：
+
+```text
+nums = [2, 3, 1, 1, 4]
+```
+
+可以：
+
+```text
+0 -> 1 -> 4
+```
+
+因此返回 `true`。
+
+而：
+
+```text
+nums = [3, 2, 1, 0, 4]
+```
+
+无论怎样都无法越过下标 $3$，所以返回 `false`。
+
+<Callout type="info" title="本题最关键的视角转换">
+不要问“当前位置应该跳 1 步、2 步还是 3 步”，而要问“目前所有已经可达的位置，一共能把可达范围扩展到多远”。
+</Callout>
+
+## 1. 为什么直接模拟跳法很麻烦
+
+假设当前位置为：
+
+```text
+nums[i] = 3
+```
+
+那么下一步可能跳：
+
+```text
+1 格、2 格、3 格
+```
+
+如果每次都尝试全部选择，很容易写成回溯或搜索：
+
+```text
+位置 i
+├─ 跳 1 格
+├─ 跳 2 格
+└─ 跳 3 格
+```
+
+数组稍长以后，可能产生大量重复路径。
+
+但题目只问：
+
+> **终点是否可达？**
+
+它不要求：
+
+- 输出具体路径；
+- 输出跳跃次数；
+- 输出每一步跳多远。
+
+因此我们根本不需要区分所有跳法，只需要维护一个更粗但足够的信息：
+
+$$
+\text{当前最远可以到达哪个下标？}
+$$
+
+## 2. 用 `cover` 表示最大可达范围
+
+定义：
+
+$$
+cover=\text{当前已经确认可达的最远下标}
+$$
+
+初始时站在下标 $0$，所以：
+
+$$
+cover=0
+$$
+
+如果位置 $i$ 是可达的，那么从这里最远能够跳到：
+
+$$
+i+nums[i]
+$$
+
+因此扫描到 $i$ 时，用：
+
+$$
+cover=\max\bigl(cover,\ i+nums[i]\bigr)
+$$
+
+不断扩张覆盖范围。
+
+![跳跃游戏覆盖范围示意图](https://file1.kamacoder.com/i/algo/20230203105634.png)
+
+这里真正重要的不是“从 $i$ 最终跳到哪一个点”，而是位置 $i$ 能不能帮助整个可达区间把右边界推得更远。
+
+## 3. 为什么 `i` 只能在 `cover` 范围内扫描
+
+如果当前：
+
+$$
+i\le cover
+$$
+
+说明位置 $i$ 已经可以通过某条路径到达，因此 `nums[i]` 有资格用于扩展覆盖范围。
+
+如果出现：
+
+$$
+i>cover
+$$
+
+说明扫描指针已经走到了一个不可达位置。
+
+既然连 $i$ 本身都到不了，那么就不能使用：
+
+$$
+i+nums[i]
+$$
+
+去更新后续范围。
+
+这也是本题最关键的循环约束：
+
+```cpp
+for (int i = 0; i <= cover; ++i)
+```
+
+而不是简单写成：
+
+```cpp
+for (int i = 0; i < nums.size(); ++i)
+```
+
+除非你在循环内部额外判断 `i > cover` 并立即返回失败。
+
+<Callout type="warning" title="不可达位置没有扩展资格">
+数组里某个数再大也没有意义，前提是你首先能够到达它。不能用一个不可达位置的跳跃能力来“凭空”扩大覆盖范围。
+</Callout>
+
+## 4. 逐步模拟：`[2, 3, 1, 1, 4]`
+
+初始：
+
+$$
+cover=0
+$$
+
+### 扫描 $i=0$
+
+当前位置可达，且：
+
+$$
+i+nums[i]=0+2=2
+$$
+
+更新：
+
+$$
+cover=\max(0,2)=2
+$$
+
+于是当前确定可达的范围是：
+
+```text
+[0, 2]
+```
+
+### 扫描 $i=1$
+
+因为：
+
+$$
+1\le 2
+$$
+
+所以下标 $1$ 可达。
+
+从这里最远可到：
+
+$$
+1+3=4
+$$
+
+于是：
+
+$$
+cover=4
+$$
+
+而最后一个下标正是：
+
+$$
+n-1=4
+$$
+
+所以已经可以直接返回 `true`。
+
+整个过程中，我们从未真正决定：
+
+```text
+第 0 步到底跳到 1 还是 2
+```
+
+因为这并不重要。
+
+## 5. 失败样例：`[3, 2, 1, 0, 4]`
+
+扫描过程如下：
+
+| $i$ | `nums[i]` | $i+nums[i]$ | 更新后的 `cover` |
+| ---: | ---: | ---: | ---: |
+| 0 | 3 | 3 | 3 |
+| 1 | 2 | 3 | 3 |
+| 2 | 1 | 3 | 3 |
+| 3 | 0 | 3 | 3 |
+
+最终：
+
+$$
+cover=3
+$$
+
+但终点是：
+
+$$
+n-1=4
+$$
+
+此时下一个扫描位置将变成：
+
+$$
+i=4>cover=3
+$$
+
+说明 $4$ 不可达，循环自然结束，返回 `false`。
+
+这个例子揭示了本题的失败本质：
+
+> **不是“某个位置是 0”就失败，而是覆盖范围在这个位置之前无法继续向右扩张。**
+
+## 6. `0` 不是失败的充分条件
+
+考虑：
+
+```text
+[2, 0, 1]
+```
+
+虽然下标 $1$ 的值为 $0$，但从下标 $0$ 可以直接跳到下标 $2$。
+
+所以答案是 `true`。
+
+再看：
+
+```text
+[3, 0, 0, 1]
+```
+
+下标 $1$ 和 $2$ 都是 $0$，但起点能够直接覆盖终点：
+
+$$
+0+3=3
+$$
+
+仍然是 `true`。
+
+因此不能写：
+
+```text
+遇到 0 -> 返回 false
+```
+
+真正应该判断的是：
+
+```text
+这个 0 是否形成了无法跨越的断点？
+```
+
+而 `cover` 正好能够自动完成这个判断。
+
+## 7. 贪心到底“贪”在哪里
+
+本题每扫描一个可达位置 $i$，都会选择：
+
+$$
+\max\bigl(cover,\ i+nums[i]\bigr)
+$$
+
+也就是：
+
+> **始终保留目前所有可达选择中，能够向右覆盖最远的边界。**
+
+### 局部最优
+
+在当前已可达的所有位置中，让覆盖右边界尽可能远。
+
+### 全局目标
+
+判断覆盖右边界最终能否达到：
+
+$$
+n-1
+$$
+
+这里和很多“每一步选最大值”的粗糙贪心不同：我们并不是强制下一跳跳到最远的位置。
+
+例如：
+
+```text
+[2, 3, 1, 1, 4]
+```
+
+从位置 $0$ 最远只能跳到位置 $2$，但真正方便的路径是先到位置 $1$。
+
+因此正确理解应该是：
+
+> **贪的是最大覆盖范围，不是实际下一跳的位置。**
+
+## 8. 正确性证明：覆盖区间不变量
+
+可以用一个非常清晰的循环不变量来证明。
+
+在扫描下标 $i$ 之前，维持：
+
+> `[0, cover]` 中所有需要扫描的位置都属于当前可达范围，`cover` 是已经发现的最远可达下标。
+
+当：
+
+$$
+i\le cover
+$$
+
+时，位置 $i$ 本身一定可达。
+
+因此从 $i$ 出发能够到达：
+
+$$
+[i+1,\ i+nums[i]]
+$$
+
+把这些位置并入现有可达范围后，新右边界就是：
+
+$$
+cover'=\max\bigl(cover,\ i+nums[i]\bigr)
+$$
+
+于是覆盖区间仍然保持连续：
+
+$$
+[0,cover']
+$$
+
+为什么不会出现“中间某个位置其实到不了”的空洞？
+
+因为从任何可达位置 $i$ 出发，可以选择跳 $1,2,\ldots,nums[i]$ 中任意合法步数，所以新扩展出来的是一个连续区间，而不是单独一个终点。
+
+不断重复后：
+
+- 如果 $cover\ge n-1$，终点属于可达区间；
+- 如果扫描到 $i=cover+1$ 仍无法扩张，右侧再无任何位置可以被访问，因此终点不可达。
+
+这就证明了算法正确。
+
+## 9. 为什么不需要记录所有“可达点”
+
+如果把数组位置看成图节点，那么从位置 $i$ 可以连向：
+
+$$
+i+1,i+2,\ldots,i+nums[i]
+$$
+
+可以使用 BFS / DFS 判断最后一个节点是否可达。
+
+但这里有一个很强的结构：
+
+> 每个节点的出边都指向右边的一段连续区间。
+
+因此所有已经可达的节点可以被压缩成一个信息：
+
+$$
+\text{最远可达下标 } cover
+$$
+
+不需要维护：
+
+```text
+{0, 1, 2, 3, ...}
+```
+
+这样的集合。
+
+这也是贪心和状态压缩经常出现的共同点：
+
+> 当很多状态对未来的影响只取决于其中某个极值时，就只保留这个极值。
+
+本题保留的就是“最右边界”。
+
+## 10. 标准线性算法
+
+<Steps>
+<Step>
+
+### 初始化覆盖范围
+
+```cpp
+int cover = 0;
+```
+
+表示起点 $0$ 已经可达。
+
+</Step>
+<Step>
+
+### 只扫描当前能够到达的位置
+
+```cpp
+for (int i = 0; i <= cover; ++i)
+```
+
+只要 `i <= cover`，位置 `i` 就属于已知可达范围。
+
+</Step>
+<Step>
+
+### 用当前位置扩展最远边界
+
+```cpp
+cover = max(cover, i + nums[i]);
+```
+
+</Step>
+<Step>
+
+### 一旦覆盖终点立即成功
+
+```cpp
+if (cover >= nums.size() - 1) {
+    return true;
+}
+```
+
+</Step>
+</Steps>
+
+C++ 实现：
+
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int cover = 0;
+        const int target = static_cast<int>(nums.size()) - 1;
+
+        for (int i = 0; i <= cover && i <= target; ++i) {
+            cover = max(cover, i + nums[i]);
+
+            if (cover >= target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(n)
+$$
+
+额外空间复杂度：
+
+$$
+O(1)
+$$
+
+## 11. 一个更常见的等价写法
+
+也可以正常遍历整个数组，但在使用 `nums[i]` 前检查当前位置是否可达：
+
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int farthest = 0;
+
+        for (int i = 0; i < static_cast<int>(nums.size()); ++i) {
+            if (i > farthest) {
+                return false;
+            }
+
+            farthest = max(farthest, i + nums[i]);
+        }
+
+        return true;
+    }
+};
+```
+
+这两个版本完全等价。
+
+### 第一种写法
+
+```text
+只让 i 在可达区间里移动
+```
+
+### 第二种写法
+
+```text
+先移动 i，如果发现 i 已经超出可达区间，就失败
+```
+
+学习阶段建议优先理解第一种，因为：
+
+```cpp
+i <= cover
+```
+
+直接体现了“扫描边界由覆盖范围动态决定”的本质。
+
+## 12. 为什么不能“每次真的跳最远”
+
+这是本题最常见的误解之一。
+
+“维护最远覆盖范围”不等于：
+
+```text
+每次都真的跳 nums[i] 步
+```
+
+考虑：
+
+```text
+[2, 3, 0, 1, 4]
+```
+
+如果从位置 $0$ 机械地跳最远：
+
+```text
+0 -> 2
+```
+
+位置 $2$ 的值是 $0$，看起来立刻卡住。
+
+但正确路径是：
+
+```text
+0 -> 1 -> 4
+```
+
+所以：
+
+> **贪心选择的是“状态摘要”中的最远覆盖边界，而不是把某条具体路径固定下来。**
+
+这一区别非常重要。
+
+## 13. 反向贪心：不断把“终点”往左推
+
+本题还存在一种反向理解。
+
+令：
+
+$$
+goal=n-1
+$$
+
+从右向左扫描位置 $i$。
+
+如果：
+
+$$
+i+nums[i]\ge goal
+$$
+
+说明从 $i$ 可以直接到达当前目标位置，于是可以把目标更新为：
+
+$$
+goal=i
+$$
+
+最终如果：
+
+$$
+goal=0
+$$
+
+说明起点能够通过一系列跳跃连接到原来的终点。
+
+C++ 写法：
+
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int goal = static_cast<int>(nums.size()) - 1;
+
+        for (int i = goal - 1; i >= 0; --i) {
+            if (i + nums[i] >= goal) {
+                goal = i;
+            }
+        }
+
+        return goal == 0;
+    }
+};
+```
+
+这个写法同样是 $O(n)$ 时间、$O(1)$ 空间。
+
+前向贪心维护的是：
+
+$$
+\text{最远能到哪里}
+$$
+
+反向贪心维护的是：
+
+$$
+\text{最左至少到哪里，就能保证到终点}
+$$
+
+二者本质一致，但前向 `cover` 更容易和下一题“跳跃游戏 II”衔接。
+
+## 14. 常见错误
+
+### 错误 1：遇到 `0` 就返回 `false`
+
+`0` 只有在无法从左侧直接跨过它时才会形成障碍。
+
+### 错误 2：扫描不可达位置并拿它扩展 `cover`
+
+例如：
+
+```text
+[1, 0, 100]
+```
+
+位置 $2$ 的 `100` 再大也没有意义，因为下标 $2$ 根本到不了。
+
+### 错误 3：把“最大覆盖”理解成“每一步必须跳最大距离”
+
+这会错误地固定路径，而本题只应该压缩“所有可能路径”得到的可达边界。
+
+### 错误 4：把本题和“最少跳几次”混在一起
+
+当前问题只判断：
+
+```text
+能不能到
+```
+
+下一类问题会要求：
+
+```text
+最少跳几次
+```
+
+虽然都使用覆盖范围，但状态和更新时机不同，不能直接套同一段代码。
+
+## 15. 从这道题抽象出的“覆盖范围型贪心”
+
+以后遇到类似问题，可以尝试寻找这种结构：
+
+1. 当前已处理状态构成一个连续可行区间；
+2. 区间内每个位置都可能把右边界继续向外扩展；
+3. 对未来而言，只需要知道“最远边界”，不需要知道具体路径；
+4. 一旦边界无法继续扩张，就可以确定后面的状态不可达。
+
+本题的核心压缩过程可以写成：
+
+$$
+\{\text{所有可行跳跃路径}\}
+\Longrightarrow
+\text{一个最远可达下标 } cover
+$$
+
+这是一种非常强的状态压缩思想。
+
+<Callout type="success" title="本题的迁移价值">
+贪心并不一定表现为“选最大”“选最小”。它也可能表现为：把数量庞大的可行状态压缩成一个足以代表未来能力的极值状态，然后只维护这个极值。
+</Callout>
+
+## 16. 其他语言版本
+
+下面统一给出“最大可达下标”这一前向贪心写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'Scala', 'C#']}>
+<Tab value="Java">
+
+```java
+class Solution {
+    public boolean canJump(int[] nums) {
+        int farthest = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            if (i > farthest) {
+                return false;
+            }
+
+            farthest = Math.max(farthest, i + nums[i]);
+
+            if (farthest >= nums.length - 1) {
+                return true;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def canJump(self, nums: list[int]) -> bool:
+        farthest = 0
+
+        for i, jump in enumerate(nums):
+            if i > farthest:
+                return False
+
+            farthest = max(farthest, i + jump)
+
+            if farthest >= len(nums) - 1:
+                return True
+
+        return True
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func canJump(nums []int) bool {
+    farthest := 0
+
+    for i := 0; i < len(nums); i++ {
+        if i > farthest {
+            return false
+        }
+
+        if i+nums[i] > farthest {
+            farthest = i + nums[i]
+        }
+
+        if farthest >= len(nums)-1 {
+            return true
+        }
+    }
+
+    return true
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn can_jump(nums: Vec<i32>) -> bool {
+        let mut farthest = 0usize;
+
+        for i in 0..nums.len() {
+            if i > farthest {
+                return false;
+            }
+
+            farthest = farthest.max(i + nums[i] as usize);
+
+            if farthest >= nums.len() - 1 {
+                return true;
+            }
+        }
+
+        true
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var canJump = function (nums) {
+  let farthest = 0;
+
+  for (let i = 0; i < nums.length; i++) {
+    if (i > farthest) {
+      return false;
+    }
+
+    farthest = Math.max(farthest, i + nums[i]);
+
+    if (farthest >= nums.length - 1) {
+      return true;
+    }
+  }
+
+  return true;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function canJump(nums: number[]): boolean {
+  let farthest = 0;
+
+  for (let i = 0; i < nums.length; i++) {
+    if (i > farthest) {
+      return false;
+    }
+
+    farthest = Math.max(farthest, i + nums[i]);
+
+    if (farthest >= nums.length - 1) {
+      return true;
+    }
+  }
+
+  return true;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdbool.h>
+
+bool canJump(int* nums, int numsSize) {
+    int farthest = 0;
+
+    for (int i = 0; i < numsSize; ++i) {
+        if (i > farthest) {
+            return false;
+        }
+
+        int reach = i + nums[i];
+        if (reach > farthest) {
+            farthest = reach;
+        }
+
+        if (farthest >= numsSize - 1) {
+            return true;
+        }
+    }
+
+    return true;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def canJump(nums: Array[Int]): Boolean = {
+    var farthest = 0
+    var i = 0
+
+    while (i < nums.length) {
+      if (i > farthest) {
+        return false
+      }
+
+      farthest = math.max(farthest, i + nums(i))
+
+      if (farthest >= nums.length - 1) {
+        return true
+      }
+
+      i += 1
+    }
+
+    true
+  }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution
+{
+    public bool CanJump(int[] nums)
+    {
+        int farthest = 0;
+
+        for (int i = 0; i < nums.Length; i++)
+        {
+            if (i > farthest)
+            {
+                return false;
+            }
+
+            farthest = Math.Max(farthest, i + nums[i]);
+
+            if (farthest >= nums.Length - 1)
+            {
+                return true;
+            }
+        }
+
+        return true;
+    }
+}
+```
+
+</Tab>
+</Tabs>

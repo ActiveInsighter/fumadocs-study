@@ -1,0 +1,1160 @@
+---
+title: 翻转字符串里的单词
+description: 用“去除多余空格 + 整体反转 + 单词局部反转”完成单词顺序翻转，综合训练快慢指针与区间反转。
+---
+
+# 151. 翻转字符串里的单词
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/reverse-words-in-a-string/">
+    LeetCode 151 · Reverse Words in a String
+  </Card>
+</Cards>
+
+给定字符串 `s`，要求：
+
+- 反转字符串中的**单词顺序**；
+- 单词内部字符顺序保持不变；
+- 单词之间只保留一个空格；
+- 删除字符串首尾多余空格。
+
+例如：
+
+```text
+输入：
+"the sky is blue"
+
+输出：
+"blue is sky the"
+```
+
+再例如：
+
+```text
+输入：
+"  hello world  "
+
+输出：
+"world hello"
+```
+
+还有：
+
+```text
+输入：
+"a good   example"
+
+输出：
+"example good a"
+```
+
+<Callout type="info" title="这道题是双指针综合题">
+它把前面的两个重要技巧组合到了一起：
+
+1. **快慢指针**：原地去除多余空格；
+2. **相向双指针**：反转整个字符串与每一个单词。
+</Callout>
+
+---
+
+## 1. 最直接的方法：拆分、反转、拼接
+
+如果语言提供很方便的字符串 API，可以：
+
+```text
+split
+reverse
+join
+```
+
+例如 Python：
+
+```python
+' '.join(reversed(s.split()))
+```
+
+思路非常简单。
+
+但如果题目希望训练底层字符串操作，或者要求尽量原地处理，那么更值得掌握：
+
+> **整体反转 + 局部反转**
+
+这个技巧。
+
+---
+
+# 2. 为什么“整体反转 + 局部反转”可以翻转单词顺序
+
+假设：
+
+```text
+the sky is blue
+```
+
+先把整个字符串反转：
+
+```text
+eulb si yks eht
+```
+
+可以看到：
+
+- 单词顺序已经反过来了；
+- 但每个单词内部也反了。
+
+于是再分别反转每个单词：
+
+```text
+blue is sky the
+```
+
+就得到最终结果。
+
+所以核心恒等关系可以理解为：
+
+```text
+整体逆序
+=
+单词顺序逆序
++
+每个单词内部逆序
+```
+
+再把每个单词内部反转回来，就只剩单词顺序的逆序。
+
+---
+
+## 3. 整体算法分三步
+
+标准原地思路：
+
+```text
+步骤一：去除多余空格
+步骤二：反转整个字符串
+步骤三：逐个反转单词
+```
+
+这三步非常稳定，也适合作为模板记忆。
+
+---
+
+# 4. 第一步：去除多余空格
+
+目标是把：
+
+```text
+"  a   good   example  "
+```
+
+压缩成：
+
+```text
+"a good example"
+```
+
+要求：
+
+- 没有前导空格；
+- 没有尾随空格；
+- 单词之间只有一个空格。
+
+这里最适合使用快慢指针。
+
+---
+
+## 5. 去空格的快慢指针模型
+
+定义：
+
+### `fast`
+
+负责扫描原字符数组。
+
+### `slow`
+
+负责写入清洗后的字符串。
+
+思路不是：
+
+```text
+看到空格就复制
+```
+
+而是：
+
+> **以单词为单位复制。**
+
+遇到一个单词时：
+
+1. 如果不是第一个单词，先写一个空格；
+2. 再完整复制这个单词；
+3. 自动跳过原字符串中的所有多余空格。
+
+---
+
+## 6. 去空格代码
+
+```cpp
+void removeExtraSpaces(string& s) {
+    int slow = 0;
+    int fast = 0;
+
+    while (fast < s.size()) {
+        while (
+            fast < s.size() &&
+            s[fast] == ' '
+        ) {
+            ++fast;
+        }
+
+        if (fast >= s.size()) {
+            break;
+        }
+
+        if (slow != 0) {
+            s[slow++] = ' ';
+        }
+
+        while (
+            fast < s.size() &&
+            s[fast] != ' '
+        ) {
+            s[slow++] = s[fast++];
+        }
+    }
+
+    s.resize(slow);
+}
+```
+
+---
+
+## 7. 为什么 `slow != 0` 时才加空格
+
+因为：
+
+```text
+slow == 0
+```
+
+说明一个单词都还没写。
+
+第一个单词前不能加空格。
+
+而从第二个单词开始：
+
+```text
+先加一个空格
+再复制单词
+```
+
+就能天然保证：
+
+```text
+单词之间恰好一个空格
+```
+
+不需要事后再删尾部空格。
+
+---
+
+## 8. 去空格过程示例
+
+原字符串：
+
+```text
+"  hello   world  "
+```
+
+### fast 跳过开头空格
+
+定位到：
+
+```text
+h
+```
+
+由于：
+
+```text
+slow == 0
+```
+
+不添加空格。
+
+复制：
+
+```text
+hello
+```
+
+---
+
+### fast 跳过三个空格
+
+定位到：
+
+```text
+w
+```
+
+此时：
+
+```text
+slow != 0
+```
+
+先写：
+
+```text
+' '
+```
+
+再复制：
+
+```text
+world
+```
+
+最终有效前缀：
+
+```text
+hello world
+```
+
+最后：
+
+```cpp
+s.resize(slow);
+```
+
+即可删除后面的无效内容。
+
+---
+
+# 9. 第二步：反转整个字符串
+
+现在字符串已经规整为：
+
+```text
+hello world
+```
+
+整体反转：
+
+```text
+dlrow olleh
+```
+
+使用前面“反转字符串”的相向双指针模板：
+
+```cpp
+void reverseRange(string& s, int left, int right) {
+    while (left < right) {
+        swap(s[left], s[right]);
+        ++left;
+        --right;
+    }
+}
+```
+
+调用：
+
+```cpp
+reverseRange(
+    s,
+    0,
+    static_cast<int>(s.size()) - 1
+);
+```
+
+---
+
+# 10. 第三步：逐个反转单词
+
+整体反转后：
+
+```text
+dlrow olleh
+```
+
+现在寻找每个单词区间：
+
+```text
+[0, 4]
+[6, 10]
+```
+
+分别反转：
+
+```text
+world hello
+```
+
+---
+
+## 11. 如何找到每个单词的边界
+
+定义：
+
+```text
+start = 当前单词起点
+end   = 当前扫描位置
+```
+
+扫描：
+
+```cpp
+for (int end = 0; end <= s.size(); ++end)
+```
+
+当：
+
+```text
+end == s.size()
+```
+
+或者：
+
+```text
+s[end] == ' '
+```
+
+说明当前单词结束于：
+
+```text
+end - 1
+```
+
+于是反转：
+
+```cpp
+reverseRange(s, start, end - 1);
+```
+
+然后下一个单词起点：
+
+```cpp
+start = end + 1;
+```
+
+---
+
+## 12. 完整标准解法
+
+```cpp
+class Solution {
+public:
+    void reverseRange(
+        string& s,
+        int left,
+        int right
+    ) {
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+
+    void removeExtraSpaces(string& s) {
+        int slow = 0;
+        int fast = 0;
+
+        while (fast < s.size()) {
+            while (
+                fast < s.size() &&
+                s[fast] == ' '
+            ) {
+                ++fast;
+            }
+
+            if (fast >= s.size()) {
+                break;
+            }
+
+            if (slow != 0) {
+                s[slow++] = ' ';
+            }
+
+            while (
+                fast < s.size() &&
+                s[fast] != ' '
+            ) {
+                s[slow++] = s[fast++];
+            }
+        }
+
+        s.resize(slow);
+    }
+
+    string reverseWords(string s) {
+        removeExtraSpaces(s);
+
+        reverseRange(
+            s,
+            0,
+            static_cast<int>(s.size()) - 1
+        );
+
+        int start = 0;
+
+        for (int end = 0; end <= s.size(); ++end) {
+            if (
+                end == s.size() ||
+                s[end] == ' '
+            ) {
+                reverseRange(s, start, end - 1);
+                start = end + 1;
+            }
+        }
+
+        return s;
+    }
+};
+```
+
+---
+
+## 13. 为什么 `end <= s.size()`
+
+这里故意让 `end` 可以走到：
+
+```text
+s.size()
+```
+
+相当于在字符串末尾放了一个“虚拟空格”。
+
+这样最后一个单词不需要单独写特殊处理。
+
+统一判断：
+
+```cpp
+if (
+    end == s.size() ||
+    s[end] == ' '
+)
+```
+
+即可。
+
+这是一种很实用的：
+
+> **哨兵 / 统一边界处理**
+
+思想。
+
+---
+
+## 14. 正确性分析
+
+设清理后的单词序列为：
+
+$$
+W_1,W_2,\dots,W_k
+$$
+
+原字符串：
+
+$$
+W_1\ \ W_2\ \ \cdots\ \ W_k
+$$
+
+整体字符反转后：
+
+$$
+reverse(W_k)\ \ reverse(W_{k-1})\ \cdots\ reverse(W_1)
+$$
+
+随后再逐个对每个单词反转：
+
+$$
+W_k\ \ W_{k-1}\ \cdots\ W_1
+$$
+
+正好得到目标结果。
+
+---
+
+## 15. 时间复杂度
+
+### 去空格
+
+每个字符最多读写常数次：
+
+$$
+O(n)
+$$
+
+### 整体反转
+
+$$
+O(n)
+$$
+
+### 单词反转
+
+所有单词长度总和不超过 $n$：
+
+$$
+O(n)
+$$
+
+因此总时间复杂度：
+
+$$
+O(n)
+$$
+
+---
+
+## 16. 空间复杂度
+
+对于 C++ `string` 的可修改版本，主要操作都发生在原字符串上。
+
+若忽略返回值本身，可以做到：
+
+$$
+O(1)
+$$
+
+额外空间。
+
+但不同语言字符串实现不同。
+
+例如：
+
+- Python `str` 不可变；
+- Java `String` 不可变；
+- JavaScript 字符串不可变。
+
+这些语言通常会转换成字符数组或单词数组，因此会使用：
+
+$$
+O(n)
+$$
+
+辅助空间。
+
+---
+
+## 17. 为什么不能简单从后往前直接拼接
+
+还有一种思路：
+
+```text
+从右往左扫描单词
+然后逐个加入答案
+```
+
+这也完全正确，而且在不可变字符串语言中很自然。
+
+但如果题目强调：
+
+```text
+尽量原地
+```
+
+那么：
+
+```text
+去空格
+整体反转
+单词反转
+```
+
+更能体现双指针技巧。
+
+---
+
+## 18. 这道题为什么是双指针综合题
+
+它实际上用了两种双指针。
+
+### 第一种：同向快慢指针
+
+用于：
+
+```text
+去除多余空格
+```
+
+职责：
+
+```text
+fast = 读
+slow = 写
+```
+
+---
+
+### 第二种：相向双指针
+
+用于：
+
+```text
+反转整个字符串
+反转每一个单词
+```
+
+职责：
+
+```text
+left  从左
+right 从右
+```
+
+所以这道题非常适合作为前两类双指针的综合练习。
+
+---
+
+## 19. 和“移除元素”的联系
+
+去空格这一步，本质上就是“移除元素”的升级版。
+
+移除元素：
+
+```text
+保留所有 nums[fast] != val 的元素
+```
+
+这里则是：
+
+```text
+保留所有单词
+并重新规范空格
+```
+
+都是：
+
+> **fast 读取原内容，slow 写入规范后的内容。**
+
+---
+
+## 20. 和“反转字符串”的联系
+
+第二、三步直接复用了：
+
+```text
+区间反转
+```
+
+模板。
+
+这说明一个成熟的算法学习方式不是每题从头想，而是建立：
+
+```text
+基础操作模块
+```
+
+然后组合。
+
+本题就是：
+
+```text
+原地过滤
++
+区间反转
++
+区间反转
+```
+
+---
+
+## 21. 常见错误
+
+### 错误一：只整体反转
+
+得到：
+
+```text
+eulb si yks eht
+```
+
+单词内部也是反的。
+
+必须再逐个反转单词。
+
+---
+
+### 错误二：没有先处理多余空格
+
+如果原字符串：
+
+```text
+"  hello   world  "
+```
+
+直接整体反转，会得到很多难处理的空格边界。
+
+先规范成：
+
+```text
+"hello world"
+```
+
+后续逻辑最简单。
+
+---
+
+### 错误三：去空格时总是在单词后添加空格
+
+这样容易留下尾部空格。
+
+更推荐：
+
+```text
+从第二个单词开始，在单词前添加一个空格
+```
+
+这样天然不会出现尾空格。
+
+---
+
+### 错误四：最后一个单词没有反转
+
+如果扫描逻辑只在遇到 `' '` 时触发，那么最后一个单词后面没有空格，就会漏掉。
+
+解决：
+
+```cpp
+end <= s.size()
+```
+
+并把：
+
+```text
+end == s.size()
+```
+
+也当作单词结束。
+
+---
+
+### 错误五：区间边界写错
+
+如果：
+
+```text
+end 指向空格
+```
+
+那么单词范围应该是：
+
+$$
+[start,\ end-1]
+$$
+
+不是：
+
+$$
+[start,\ end]
+$$
+
+---
+
+## 22. 一眼识别这类字符串题
+
+如果题目要求：
+
+```text
+单词顺序反转
+单词内部不变
+多余空格清理
+```
+
+可以快速想到：
+
+```text
+快慢指针去空格
+        ↓
+整体反转
+        ↓
+逐单词反转
+```
+
+这是一套非常成熟的字符串原地处理模板。
+
+---
+
+## 23. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    void reverseRange(
+        string& s,
+        int left,
+        int right
+    ) {
+        while (left < right) {
+            swap(s[left], s[right]);
+            ++left;
+            --right;
+        }
+    }
+
+    void removeExtraSpaces(string& s) {
+        int slow = 0;
+        int fast = 0;
+
+        while (fast < s.size()) {
+            while (
+                fast < s.size() &&
+                s[fast] == ' '
+            ) {
+                ++fast;
+            }
+
+            if (fast >= s.size()) {
+                break;
+            }
+
+            if (slow != 0) {
+                s[slow++] = ' ';
+            }
+
+            while (
+                fast < s.size() &&
+                s[fast] != ' '
+            ) {
+                s[slow++] = s[fast++];
+            }
+        }
+
+        s.resize(slow);
+    }
+
+    string reverseWords(string s) {
+        removeExtraSpaces(s);
+
+        reverseRange(
+            s,
+            0,
+            static_cast<int>(s.size()) - 1
+        );
+
+        int start = 0;
+
+        for (int end = 0; end <= s.size(); ++end) {
+            if (
+                end == s.size() ||
+                s[end] == ' '
+            ) {
+                reverseRange(s, start, end - 1);
+                start = end + 1;
+            }
+        }
+
+        return s;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        String[] words = s.trim().split("\\s+");
+
+        int left = 0;
+        int right = words.length - 1;
+
+        while (left < right) {
+            String temp = words[left];
+            words[left] = words[right];
+            words[right] = temp;
+
+            ++left;
+            --right;
+        }
+
+        return String.join(" ", words);
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        words = s.split()
+
+        left = 0
+        right = len(words) - 1
+
+        while left < right:
+            words[left], words[right] = (
+                words[right],
+                words[left],
+            )
+
+            left += 1
+            right -= 1
+
+        return ' '.join(words)
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+func reverseWords(s string) string {
+    b := []byte(s)
+
+    slow := 0
+
+    for fast := 0; fast < len(b); {
+        for fast < len(b) && b[fast] == ' ' {
+            fast++
+        }
+
+        if fast == len(b) {
+            break
+        }
+
+        if slow != 0 {
+            b[slow] = ' '
+            slow++
+        }
+
+        for fast < len(b) && b[fast] != ' ' {
+            b[slow] = b[fast]
+            slow++
+            fast++
+        }
+    }
+
+    b = b[:slow]
+
+    reverse := func(left, right int) {
+        for left < right {
+            b[left], b[right] = b[right], b[left]
+            left++
+            right--
+        }
+    }
+
+    reverse(0, len(b)-1)
+
+    start := 0
+
+    for end := 0; end <= len(b); end++ {
+        if end == len(b) || b[end] == ' ' {
+            reverse(start, end-1)
+            start = end + 1
+        }
+    }
+
+    return string(b)
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var reverseWords = function(s) {
+    const chars = Array.from(s);
+
+    let slow = 0;
+    let fast = 0;
+
+    while (fast < chars.length) {
+        while (
+            fast < chars.length &&
+            chars[fast] === ' '
+        ) {
+            ++fast;
+        }
+
+        if (fast === chars.length) {
+            break;
+        }
+
+        if (slow !== 0) {
+            chars[slow++] = ' ';
+        }
+
+        while (
+            fast < chars.length &&
+            chars[fast] !== ' '
+        ) {
+            chars[slow++] = chars[fast++];
+        }
+    }
+
+    chars.length = slow;
+
+    const reverse = (left, right) => {
+        while (left < right) {
+            [chars[left], chars[right]] =
+                [chars[right], chars[left]];
+
+            ++left;
+            --right;
+        }
+    };
+
+    reverse(0, chars.length - 1);
+
+    let start = 0;
+
+    for (let end = 0; end <= chars.length; ++end) {
+        if (
+            end === chars.length ||
+            chars[end] === ' '
+        ) {
+            reverse(start, end - 1);
+            start = end + 1;
+        }
+    }
+
+    return chars.join('');
+};
+```
+
+  </Tab>
+</Tabs>
+
+---
+
+## 24. 本题总结
+
+本题可以浓缩成三步：
+
+```text
+去空格
+  ↓
+整体反转
+  ↓
+逐单词反转
+```
+
+对应两类双指针：
+
+```text
+快慢指针 → 原地压缩
+相向双指针 → 区间反转
+```
+
+真正需要掌握的是：
+
+1. `fast` 读、`slow` 写，可以原地清理字符串。
+2. 从第二个单词开始“前置一个空格”，能自然避免首尾多余空格。
+3. 整体反转改变单词顺序，同时反转单词内部。
+4. 再逐单词反转，就能恢复单词字符顺序。
+5. `end == s.size()` 可以作为虚拟边界，统一处理最后一个单词。
+6. 这道题是“基础双指针模板组合”的典型例子。

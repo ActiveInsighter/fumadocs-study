@@ -1,0 +1,989 @@
+---
+title: 划分字母区间
+summary: 预处理每个字符最后一次出现的位置，扫描时维护当前片段必须覆盖的最远右边界；当扫描位置追上右边界时，当前片段才真正闭合。
+description: LeetCode 763 划分字母区间。系统讲解最后出现位置、动态扩张右边界、贪心切分点的正确性、区间合并视角、复杂度、常见错误和多语言实现。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+# 763. 划分字母区间
+
+[LeetCode 763. Partition Labels](https://leetcode.cn/problems/partition-labels/)
+
+给定一个只包含小写字母的字符串 `s`，要求把它划分成尽可能多的片段，并且满足：
+
+> **同一个字母最多只能出现在一个片段中。**
+
+返回每个片段的长度。
+
+例如：
+
+```text
+s = "ababcbacadefegdehijhklij"
+```
+
+一种最优划分为：
+
+```text
+"ababcbaca" | "defegde" | "hijhklij"
+```
+
+对应长度：
+
+```text
+[9, 7, 8]
+```
+
+---
+
+## 1. 题目真正限制的是什么
+
+表面上是在“切字符串”，但真正的约束是：
+
+> 一旦某个字符进入当前片段，那么这个字符后续的所有出现位置，都必须被包含在当前片段里。
+
+例如：
+
+```text
+s = "abac"
+```
+
+扫描到第一个 `a` 时，如果马上在它后面切开：
+
+```text
+"a" | "bac"
+```
+
+就非法了，因为 `a` 又在后面的片段中出现。
+
+因此，如果当前片段已经包含字符 `a`，那么片段右边界至少必须延伸到：
+
+```text
+最后一个 a 的位置
+```
+
+如果延伸过程中又遇到 `b`，还要继续保证把最后一个 `b` 包含进来。
+
+于是当前片段的右边界会不断被“推远”。
+
+这就是本题的核心。
+
+---
+
+## 2. 第一遍扫描：记录每个字符最后出现的位置
+
+因为字符串只包含小写字母，可以用固定大小数组：
+
+```text
+last[26]
+```
+
+定义：
+
+$$
+last[c]=\text{字符 }c\text{ 最后一次出现的下标}
+$$
+
+例如：
+
+```text
+s = "abac"
+```
+
+有：
+
+```text
+last['a'] = 2
+last['b'] = 1
+last['c'] = 3
+```
+
+这样，当扫描到某个字符时，就能立刻知道：
+
+> 当前片段至少必须延伸到哪里，才能把这个字符的所有出现位置全部包进去。
+
+---
+
+## 3. 第二遍扫描：维护当前片段的最远右边界
+
+设当前片段左端点为：
+
+$$
+left
+$$
+
+当前片段为了容纳已经见过的所有字符，至少必须延伸到：
+
+$$
+right
+$$
+
+扫描到位置 $i$，字符为 $s[i]$ 时：
+
+$$
+right=\max(right,last[s[i]])
+$$
+
+这句话非常重要。
+
+它表示：
+
+> 当前片段不仅要包含已经确定的范围，还必须把当前新遇到字符的最后一次出现位置也覆盖进去。
+
+当：
+
+$$
+i<right
+$$
+
+说明当前片段还不能结束，因为至少还有一个字符会在后面再次出现。
+
+只有当：
+
+$$
+\boxed{i=right}
+$$
+
+才说明：
+
+> 当前片段里出现过的所有字符，最后一次出现位置都已经落在当前片段内部。
+
+此时才能安全切分。
+
+---
+
+## 4. 原图怎么读
+
+原资料中的示意图：
+
+![划分字母区间示意图](https://file1.kamacoder.com/i/algo/20201222191924417.png)
+
+可以把每个字符理解成一个“必须被完整包住的区间”。
+
+例如字符 `a` 第一次出现在位置 $0$，最后一次出现在位置 $8$，那么 `a` 对应：
+
+$$
+[0,8]
+$$
+
+如果区间内部又出现字符 `b`，而 `b` 的最后位置更靠右，那么当前片段必须继续扩张。
+
+因此第二遍扫描实际上是在做一种在线区间合并：
+
+```text
+遇到字符
+   ↓
+查看该字符最后位置
+   ↓
+扩张当前片段右边界
+   ↓
+扫描位置追上右边界
+   ↓
+当前片段闭合，可以切分
+```
+
+---
+
+## 5. 完整推演经典样例
+
+考虑：
+
+```text
+s = "ababcbacadefegdehijhklij"
+```
+
+我们不需要把 26 个字符的最后位置全部列出来，只关注前几个关键字符。
+
+开始时：
+
+```text
+left = 0
+right = 0
+```
+
+<Steps>
+<Step>
+
+### 扫描位置 0：`a`
+
+`a` 最后一次出现在位置 $8$，因此：
+
+$$
+right=\max(0,8)=8
+$$
+
+当前片段至少必须延伸到位置 $8$。
+
+</Step>
+<Step>
+
+### 扫描位置 1：`b`
+
+如果 `b` 最后一次出现在位置 $5$：
+
+$$
+right=\max(8,5)=8
+$$
+
+右边界不变。
+
+</Step>
+<Step>
+
+### 中途遇到其他字符
+
+对于每一个字符都执行：
+
+$$
+right=\max(right,last[s[i]])
+$$
+
+只要某个字符最后出现得更远，当前片段就会被继续拉长。
+
+</Step>
+<Step>
+
+### 扫描到位置 8
+
+当：
+
+$$
+i=right=8
+$$
+
+说明位置 $0$ 到 $8$ 内所有出现过的字符，都不会再出现在后面。
+
+因此第一个片段正式闭合：
+
+```text
+"ababcbaca"
+```
+
+长度为：
+
+$$
+8-0+1=9
+$$
+
+然后更新：
+
+```text
+left = 9
+```
+
+</Step>
+<Step>
+
+### 对剩余字符串重复同样过程
+
+接下来依次得到：
+
+```text
+"defegde"   -> 7
+"hijhklij"  -> 8
+```
+
+最终：
+
+```text
+[9, 7, 8]
+```
+
+</Step>
+</Steps>
+
+---
+
+## 6. 为什么在 `i == right` 时立刻切分是最优的
+
+题目要求的是：
+
+> 划分成 **尽可能多** 的片段。
+
+因此每一个片段都应该在合法的前提下尽可能早结束。
+
+扫描过程中，`right` 表示：
+
+> 当前片段中所有已经出现字符的最后出现位置的最大值。
+
+即：
+
+$$
+right=\max_{j\in[left,i]} last[s[j]]
+$$
+
+当 $i<right$ 时，至少存在某个已经出现的字符，其最后一次出现位置还在当前扫描位置右侧。
+
+如果此时切分，这个字符必然跨越两个片段，违反题意。
+
+所以：
+
+$$
+i<right\Rightarrow\text{绝对不能切}
+$$
+
+而当：
+
+$$
+i=right
+$$
+
+当前片段中所有字符的最后出现位置都不超过 $i$。
+
+因此在 $i$ 后切分一定合法。
+
+同时，这是从 `left` 出发能遇到的**最早合法切分点**。
+
+如果故意继续往后延长，虽然仍然可能合法，但会合并本来可以分开的片段，从而减少片段数量。
+
+所以：
+
+$$
+\boxed{\text{遇到第一个合法切分点就立刻切，是局部最优，也是全局最优}}
+$$
+
+这就是本题的贪心性。
+
+<Callout type="info" title="本题的贪心并不体现在排序">
+很多贪心题需要排序，但这题不需要。它的贪心选择是：当前片段一旦达到最早合法结束位置，就立即切分，不为未来“多留一些字符”。
+</Callout>
+
+---
+
+## 7. C++ 标准实现
+
+```cpp
+class Solution {
+public:
+    vector<int> partitionLabels(string s) {
+        int last[26] = {0};
+
+        for (int i = 0; i < s.size(); ++i) {
+            last[s[i] - 'a'] = i;
+        }
+
+        vector<int> result;
+        int left = 0;
+        int right = 0;
+
+        for (int i = 0; i < s.size(); ++i) {
+            right = max(right, last[s[i] - 'a']);
+
+            if (i == right) {
+                result.push_back(right - left + 1);
+                left = i + 1;
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+这段代码真正需要理解的只有一行：
+
+```cpp
+right = max(right, last[s[i] - 'a']);
+```
+
+它不是在找当前字符自己的边界，而是在维护：
+
+> **当前整个片段已经涉及的所有字符，需要共同覆盖到的最远边界。**
+
+---
+
+## 8. 一个不变量视角
+
+在扫描某个片段 `[left, i]` 时，可以维持如下不变量：
+
+$$
+right=\max_{k\in[left,i]} last[s[k]]
+$$
+
+也就是说：
+
+```text
+right 永远等于当前片段已出现字符的最远最后位置
+```
+
+于是判断逻辑就非常自然：
+
+### 若 `i < right`
+
+当前片段还欠着至少一个字符的后续出现位置。
+
+不能切。
+
+### 若 `i == right`
+
+当前所有“欠账”都已经结清。
+
+可以切。
+
+这个“欠账模型”在理解代码时非常实用。
+
+---
+
+## 9. 复杂度分析
+
+设字符串长度为 $n$。
+
+第一遍扫描记录最后出现位置：
+
+$$
+O(n)
+$$
+
+第二遍扫描寻找切分点：
+
+$$
+O(n)
+$$
+
+所以总时间复杂度为：
+
+$$
+\boxed{O(n)}
+$$
+
+因为字符集固定为 26 个小写英文字母，`last` 数组大小固定，所以额外空间复杂度为：
+
+$$
+\boxed{O(1)}
+$$
+
+如果字符集不是固定 26 个字母，而是任意字符，则可以使用哈希表，此时额外空间与不同字符数量有关。
+
+---
+
+## 10. 为什么不需要回溯
+
+看到“把字符串切成尽可能多的段”，很容易联想到回溯：
+
+```text
+枚举每个位置切或不切
+```
+
+但本题没有必要。
+
+原因是每个位置能不能切，其实不是一个真正需要搜索的决策。
+
+扫描到位置 $i$ 时：
+
+- 如果 $i<right$，一定不能切；
+- 如果 $i=right$，为了让片段数最大，一定应该切。
+
+也就是说，每一步实际上都被约束和贪心目标唯一确定了。
+
+根本不存在指数级分支搜索的必要。
+
+<Callout type="info" title="先判断决策是否真的有分支">
+有些题目表面上出现“切分”“选择”“组合”，但如果每个位置的最优动作能由局部状态唯一决定，就不需要回溯。判断是否必须搜索，比看到关键词就套模板更重要。
+</Callout>
+
+---
+
+## 11. 另一个视角：把每个字符变成区间
+
+对于每个出现过的字符 $c$，记录：
+
+$$
+first[c]=\text{第一次出现的位置}
+$$
+
+$$
+last[c]=\text{最后一次出现的位置}
+$$
+
+于是每个字符对应一个区间：
+
+$$
+[first[c],last[c]]
+$$
+
+例如：
+
+```text
+s = "abac"
+```
+
+对应：
+
+```text
+a -> [0,2]
+b -> [1,1]
+c -> [3,3]
+```
+
+只要两个字符区间发生交叠或嵌套，它们就必须属于同一个最终片段。
+
+于是本题也可以理解成：
+
+> **把所有字符区间合并，最终每个合并后的区间就是一个答案片段。**
+
+这与前面的区间贪心题形成了很好的联系。
+
+---
+
+## 12. 用“区间合并”重新理解样例
+
+经典字符串：
+
+```text
+ababcbacadefegdehijhklij
+```
+
+每个字符都能得到一个首次位置到末次位置的区间。
+
+第一组字符对应的若干区间会互相交织，最终合并成：
+
+$$
+[0,8]
+$$
+
+第二组形成：
+
+$$
+[9,15]
+$$
+
+第三组形成：
+
+$$
+[16,23]
+$$
+
+所以长度分别为：
+
+$$
+8-0+1=9
+$$
+
+$$
+15-9+1=7
+$$
+
+$$
+23-16+1=8
+$$
+
+最终得到：
+
+```text
+[9, 7, 8]
+```
+
+不过实际编码时，没有必要真的建立 26 个区间再排序。
+
+直接扫描字符串并动态扩展 `right`，可以在线完成同样的区间合并过程，而且复杂度更低、代码更短。
+
+---
+
+## 13. 与「合并区间」的区别
+
+虽然本题可以转换为字符区间合并，但与普通的“合并区间”题仍有一个重要区别。
+
+普通区间题的输入直接给出：
+
+```text
+[[l1,r1], [l2,r2], ...]
+```
+
+而本题的区间是隐含在字符串中的：
+
+```text
+字符第一次出现位置 -> 左端点
+字符最后一次出现位置 -> 右端点
+```
+
+因此本题训练的是一种非常重要的建模能力：
+
+> **从离散元素中提取影响范围，再把问题转换成区间问题。**
+
+这种思路在字符串、任务依赖、时间窗口、生命周期等问题中都很常见。
+
+---
+
+## 14. 高频错误
+
+### 错误一：只看当前字符的最后位置
+
+错误思路：
+
+```text
+当前位置到了当前字符的 last，就切分
+```
+
+问题是当前片段可能已经包含了别的字符，而别的字符最后一次出现得更远。
+
+所以必须维护：
+
+$$
+right=\max(right,last[s[i]])
+$$
+
+不是直接：
+
+$$
+right=last[s[i]]
+$$
+
+---
+
+### 错误二：找到合法位置却继续拖延
+
+当：
+
+$$
+i=right
+$$
+
+已经可以安全切分。
+
+如果继续延长片段，并不会增加合法性，只会让片段数量变少。
+
+题目要求尽可能多的片段，因此必须立即切。
+
+---
+
+### 错误三：片段长度少写 `+1`
+
+区间 `[left, right]` 是闭区间，因此长度为：
+
+$$
+\boxed{right-left+1}
+$$
+
+不是：
+
+$$
+right-left
+$$
+
+---
+
+### 错误四：切分后忘记更新左边界
+
+当前片段结束于 $i$，下一个片段从：
+
+$$
+i+1
+$$
+
+开始，所以必须：
+
+```cpp
+left = i + 1;
+```
+
+---
+
+## 15. 与前几道贪心题的共同结构
+
+把最近几道题放在一起，可以看到一个非常统一的模式：
+
+| 题目 | 扫描时维护的核心边界 |
+| --- | --- |
+| 跳跃游戏 | 当前能够到达的最远位置 |
+| 跳跃游戏 II | 当前层能够覆盖的最远位置 |
+| 最少箭数 | 当前箭可覆盖的有效位置 |
+| 无重叠区间 | 当前已选区间的最早结束边界 |
+| 划分字母区间 | 当前片段必须覆盖到的最远位置 |
+
+它们看起来题型不同，但都在做一件事：
+
+> **扫描过程中维护一个“有效边界”，并在边界发生关键变化时作出贪心决策。**
+
+这比单独记每道题的代码更有价值。
+
+---
+
+## 16. 一句话记忆模板
+
+看到：
+
+```text
+同一个元素的所有出现位置必须被放在同一个片段
+```
+
+优先想到：
+
+1. 先记录每个元素最后一次出现的位置；
+2. 扫描时不断扩张当前片段的最远右边界；
+3. 当当前位置追上右边界时，说明当前片段已经闭合；
+4. 立即切分，以得到尽可能多的片段。
+
+核心公式只有一个：
+
+$$
+\boxed{right=\max(right,last[s[i]])}
+$$
+
+切分条件只有一个：
+
+$$
+\boxed{i=right}
+$$
+
+---
+
+## 17. 其他语言版本
+
+以下代码都采用“**预处理最后出现位置 + 一次扫描动态扩张右边界**”的标准写法。
+
+<Tabs items={['Java', 'Python', 'Go', 'Rust', 'JavaScript', 'TypeScript', 'C', 'C#']}>
+<Tab value="Java">
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    public List<Integer> partitionLabels(String s) {
+        int[] last = new int[26];
+
+        for (int i = 0; i < s.length(); i++) {
+            last[s.charAt(i) - 'a'] = i;
+        }
+
+        List<Integer> result = new ArrayList<>();
+        int left = 0;
+        int right = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            right = Math.max(right, last[s.charAt(i) - 'a']);
+
+            if (i == right) {
+                result.add(right - left + 1);
+                left = i + 1;
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+from typing import List
+
+class Solution:
+    def partitionLabels(self, s: str) -> List[int]:
+        last = [0] * 26
+
+        for i, ch in enumerate(s):
+            last[ord(ch) - ord('a')] = i
+
+        result = []
+        left = 0
+        right = 0
+
+        for i, ch in enumerate(s):
+            right = max(right, last[ord(ch) - ord('a')])
+
+            if i == right:
+                result.append(right - left + 1)
+                left = i + 1
+
+        return result
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func partitionLabels(s string) []int {
+    last := [26]int{}
+
+    for i := 0; i < len(s); i++ {
+        last[s[i]-'a'] = i
+    }
+
+    result := make([]int, 0)
+    left, right := 0, 0
+
+    for i := 0; i < len(s); i++ {
+        pos := last[s[i]-'a']
+        if pos > right {
+            right = pos
+        }
+
+        if i == right {
+            result = append(result, right-left+1)
+            left = i + 1
+        }
+    }
+
+    return result
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    pub fn partition_labels(s: String) -> Vec<i32> {
+        let bytes = s.as_bytes();
+        let mut last = [0usize; 26];
+
+        for (i, &ch) in bytes.iter().enumerate() {
+            last[(ch - b'a') as usize] = i;
+        }
+
+        let mut result = Vec::new();
+        let mut left = 0usize;
+        let mut right = 0usize;
+
+        for (i, &ch) in bytes.iter().enumerate() {
+            right = right.max(last[(ch - b'a') as usize]);
+
+            if i == right {
+                result.push((right - left + 1) as i32);
+                left = i + 1;
+            }
+        }
+
+        result
+    }
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var partitionLabels = function(s) {
+    const last = new Array(26).fill(0);
+
+    for (let i = 0; i < s.length; i++) {
+        last[s.charCodeAt(i) - 97] = i;
+    }
+
+    const result = [];
+    let left = 0;
+    let right = 0;
+
+    for (let i = 0; i < s.length; i++) {
+        right = Math.max(right, last[s.charCodeAt(i) - 97]);
+
+        if (i === right) {
+            result.push(right - left + 1);
+            left = i + 1;
+        }
+    }
+
+    return result;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function partitionLabels(s: string): number[] {
+    const last: number[] = new Array(26).fill(0);
+
+    for (let i = 0; i < s.length; i++) {
+        last[s.charCodeAt(i) - 97] = i;
+    }
+
+    const result: number[] = [];
+    let left = 0;
+    let right = 0;
+
+    for (let i = 0; i < s.length; i++) {
+        right = Math.max(right, last[s.charCodeAt(i) - 97]);
+
+        if (i === right) {
+            result.push(right - left + 1);
+            left = i + 1;
+        }
+    }
+
+    return result;
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+#include <stdlib.h>
+#include <string.h>
+
+int* partitionLabels(char* s, int* returnSize) {
+    int last[26] = {0};
+    int n = (int)strlen(s);
+
+    for (int i = 0; i < n; ++i) {
+        last[s[i] - 'a'] = i;
+    }
+
+    int* result = (int*)malloc(sizeof(int) * n);
+    *returnSize = 0;
+
+    int left = 0;
+    int right = 0;
+
+    for (int i = 0; i < n; ++i) {
+        int pos = last[s[i] - 'a'];
+        if (pos > right) {
+            right = pos;
+        }
+
+        if (i == right) {
+            result[(*returnSize)++] = right - left + 1;
+            left = i + 1;
+        }
+    }
+
+    return result;
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+using System;
+using System.Collections.Generic;
+
+public class Solution
+{
+    public IList<int> PartitionLabels(string s)
+    {
+        int[] last = new int[26];
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            last[s[i] - 'a'] = i;
+        }
+
+        List<int> result = new List<int>();
+        int left = 0;
+        int right = 0;
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            right = Math.Max(right, last[s[i] - 'a']);
+
+            if (i == right)
+            {
+                result.Add(right - left + 1);
+                left = i + 1;
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+</Tab>
+</Tabs>

@@ -1,0 +1,669 @@
+---
+title: 77. 组合剪枝优化
+summary: 从“剩余候选是否足够”严格推导组合问题的剪枝上界，并理解剪枝如何改变搜索树。
+description: LeetCode 77 组合的剪枝优化：推导 i <= n - (k - path.size()) + 1，解释 +1、边界条件、正确性与复杂度。
+---
+
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 77. 组合剪枝优化
+
+上一篇已经得到基础回溯框架：
+
+```cpp
+for (int i = startIndex; i <= n; ++i) {
+    path.push_back(i);
+    backtracking(n, k, i + 1);
+    path.pop_back();
+}
+```
+
+它是正确的，但会进入一些**从数学上已经不可能凑满 $k$ 个元素**的分支。
+
+剪枝的目标不是改变答案，而是提前识别这些无解节点，不再继续展开搜索树。
+
+<Callout title="本篇只解决一个核心问题">
+
+当前已经选了 $|path|$ 个数，本层准备选择 $i$。为了最终仍能凑够 $k$ 个数，$i$ 最大允许取到哪里？
+
+答案是：
+
+$$
+i\le n-(k-|path|)+1
+$$
+
+下面不背公式，直接把它推出来。
+
+</Callout>
+
+## 1. 无效搜索出现在哪里？
+
+例如 $n=4,k=4$。
+
+如果第一层就选择 $2$，那么后续只能再选择：
+
+$$
+3,4
+$$
+
+连同已经选的 $2$，总共也只有 3 个数，不可能构成长度为 4 的组合。
+
+所以第一层选择 $2,3,4$ 都是无意义的。
+
+![77.组合4](https://file1.kamacoder.com/i/algo/20210130194335207.png)
+
+这类节点有一个共同特征：
+
+> **剩余候选数量 < 还需要选择的数量。**
+
+只要把这句话翻译成不等式，就能得到剪枝边界。
+
+## 2. 从“还差多少个数”开始推导
+
+设当前路径长度为：
+
+$$
+p=|path|
+$$
+
+目标需要选 $k$ 个，因此还缺：
+
+$$
+r=k-p
+$$
+
+个数。
+
+现在本层准备从候选 $i$ 开始选择。
+
+从 $i$ 到 $n$ 一共有：
+
+$$
+n-i+1
+$$
+
+个可用数字。
+
+为了至少还能选出 $r$ 个数字，必须满足：
+
+$$
+n-i+1\ge r
+$$
+
+代入 $r=k-p$：
+
+$$
+n-i+1\ge k-p
+$$
+
+移项：
+
+$$
+i\le n-(k-p)+1
+$$
+
+再把 $p$ 换回 `path.size()`：
+
+$$
+\boxed{i\le n-(k-|path|)+1}
+$$
+
+于是基础循环：
+
+```cpp
+for (int i = startIndex; i <= n; ++i)
+```
+
+就可以收紧成：
+
+```cpp
+for (int i = startIndex;
+     i <= n - (k - path.size()) + 1;
+     ++i)
+```
+
+## 3. 为什么一定有 `+1`？
+
+这是最容易写错的地方。
+
+原因很简单：区间 $[i,n]$ 是**左右闭区间**，它包含的整数个数不是 $n-i$，而是：
+
+$$
+n-i+1
+$$
+
+例如从 $2$ 到 $4$：
+
+```text
+2, 3, 4
+```
+
+一共有 3 个数，而：
+
+$$
+4-2+1=3
+$$
+
+如果漏掉 `+1`，就会把本来合法的最后一个起点错误剪掉。
+
+### 用 $n=4,k=3$ 验证
+
+根节点时 $|path|=0$，还需要选 3 个数，所以：
+
+$$
+i\le 4-(3-0)+1=2
+$$
+
+因此第一层只需要尝试：
+
+$$
+i=1,2
+$$
+
+其中 $i=2$ 仍然必须保留，因为它可以形成：
+
+$$
+[2,3,4]
+$$
+
+如果没有 `+1`，边界会错误变成 $i\le1$，从而漏掉这个答案。
+
+<Callout type="warn" title="判断剪枝是否正确的最快方法">
+
+找一个“刚好够用”的边界样例。
+
+当从 $i$ 到 $n$ 的剩余数量**恰好等于**还需要选择的数量时，这个分支必须保留；如果你的公式把它剪掉，边界一定写错了。
+
+</Callout>
+
+## 4. 另一种更容易记忆的写法
+
+公式：
+
+$$
+i\le n-(k-|path|)+1
+$$
+
+可以整理成：
+
+$$
+i\le n-k+|path|+1
+$$
+
+代码中常见两种完全等价的写法：
+
+```cpp
+for (int i = startIndex; i <= n - (k - path.size()) + 1; ++i)
+```
+
+或：
+
+```cpp
+for (int i = startIndex; i <= n - k + path.size() + 1; ++i)
+```
+
+第一种更容易对应“还缺多少个数”，因此更推荐用于理解；第二种更短，但初学时不如第一种直观。
+
+## 5. 剪枝究竟剪掉了什么？
+
+剪枝并不是“少递归几次”这么简单，它是在搜索树的某个节点处证明：
+
+$$
+\text{该节点的所有后继都不可能成为答案}
+$$
+
+于是整个子树都可以删除。
+
+<Steps>
+<Step>
+
+### ① 当前已经选择 $p$ 个数
+
+还需要：
+
+$$
+k-p
+$$
+
+个。
+
+</Step>
+<Step>
+
+### ② 假设本层选择 $i$
+
+此时从 $i$ 到 $n$ 最多还有：
+
+$$
+n-i+1
+$$
+
+个候选可参与当前及后续选择。
+
+</Step>
+<Step>
+
+### ③ 如果候选不足，整个分支无解
+
+当：
+
+$$
+n-i+1<k-p
+$$
+
+时，即使把剩余数字全选上也凑不够 $k$ 个，因此无需继续搜索。
+
+</Step>
+</Steps>
+
+这正是回溯剪枝最典型的思考方式：
+
+> 不去猜“这个分支大概没用”，而是寻找一个可以证明“后面一定无解”的必要条件。
+
+## 6. 优化后的完整 C++ 实现
+
+```cpp title="C++：组合 + 数量剪枝"
+class Solution {
+private:
+    vector<vector<int>> result;
+    vector<int> path;
+
+    void backtracking(int n, int k, int startIndex) {
+        if (path.size() == k) {
+            result.push_back(path);
+            return;
+        }
+
+        const int need = k - static_cast<int>(path.size());
+        const int last = n - need + 1;
+
+        for (int i = startIndex; i <= last; ++i) {
+            path.push_back(i);
+            backtracking(n, k, i + 1);
+            path.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combine(int n, int k) {
+        result.clear();
+        path.clear();
+        backtracking(n, k, 1);
+        return result;
+    }
+};
+```
+
+这里专门把：
+
+```cpp
+const int need = k - path.size();
+const int last = n - need + 1;
+```
+
+拆出来，是为了让代码直接对应推导过程：
+
+```text
+need = 还需要多少个数
+last = 当前层最后一个仍有机会完成组合的起点
+```
+
+## 7. 为什么剪枝不会漏答案？
+
+如果某个 $i$ 被剪掉，说明：
+
+$$
+n-i+1<k-|path|
+$$
+
+也就是说，从 $i$ 到 $n$ 的所有候选全部拿上，都不足以补齐当前路径。
+
+那么以这个 $i$ 或更大的数字作为本层选择，显然都不可能产生长度为 $k$ 的组合。
+
+因此，被删除的分支中不存在合法答案，剪枝保持算法完备性。
+
+## 8. 剪枝后搜索树缩小了多少？
+
+基础版会访问很多“长度还没到 $k$，但已经没有足够候选继续扩展”的前缀。
+
+剪枝之后，深度为 $d$ 的合法搜索前缀必须还能补齐到 $k$。这会显著减少靠近右侧边界的无效节点。
+
+更重要的是，这种优化具有很强的迁移性：
+
+| 问题 | 可剪枝条件 |
+| --- | --- |
+| 固定长度组合 | 剩余元素数量不足 |
+| 组合总和 | 当前和已经超过目标值 |
+| 排序后的组合总和 | 当前元素已经过大，后续元素只会更大 |
+| N 皇后 | 当前列或对角线已经冲突 |
+| 字符串切割 | 当前片段已经不满足合法条件 |
+
+它们本质上都遵循同一个原则：
+
+$$
+\text{当前状态不可能扩展成合法解}\Rightarrow\text{停止搜索}
+$$
+
+## 9. 复杂度与输出下界
+
+无论怎样剪枝，答案总数仍然是：
+
+$$
+\binom{n}{k}
+$$
+
+而每个答案有 $k$ 个元素，因此显式返回全部答案至少需要：
+
+$$
+\Omega\left(k\binom{n}{k}\right)
+$$
+
+的时间来构造输出。
+
+所以剪枝无法突破“必须生成全部答案”的输出下界，它优化的是：
+
+- 无效前缀的遍历；
+- 不可能成功的递归调用；
+- 搜索树右侧的大量空分支。
+
+不计结果集，当前路径和递归栈仍只需要：
+
+$$
+O(k)
+$$
+
+额外空间。
+
+<Callout type="info" title="回溯优化时最重要的思维顺序">
+
+不要先背循环边界。
+
+应当依次问：**当前还缺多少？剩余最多还能提供多少？两者什么时候已经不可能满足？**
+
+只要能写出这个必要条件，剪枝公式通常就能自然推导出来。
+
+</Callout>
+
+## 其他语言版本
+
+<Tabs groupId="combine-pruning-language" items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Rust', 'C', 'Swift', 'Scala']} persist>
+<Tab value="Java">
+
+```java
+class Solution {
+    private final List<List<Integer>> result = new ArrayList<>();
+    private final List<Integer> path = new ArrayList<>();
+
+    public List<List<Integer>> combine(int n, int k) {
+        result.clear();
+        path.clear();
+        backtrack(n, k, 1);
+        return result;
+    }
+
+    private void backtrack(int n, int k, int start) {
+        if (path.size() == k) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        int need = k - path.size();
+        int last = n - need + 1;
+        for (int x = start; x <= last; x++) {
+            path.add(x);
+            backtrack(n, k, x + 1);
+            path.remove(path.size() - 1);
+        }
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+class Solution:
+    def combine(self, n: int, k: int) -> list[list[int]]:
+        ans: list[list[int]] = []
+        path: list[int] = []
+
+        def backtrack(start: int) -> None:
+            if len(path) == k:
+                ans.append(path.copy())
+                return
+
+            need = k - len(path)
+            last = n - need + 1
+            for x in range(start, last + 1):
+                path.append(x)
+                backtrack(x + 1)
+                path.pop()
+
+        backtrack(1)
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func combine(n int, k int) [][]int {
+    ans := make([][]int, 0)
+    path := make([]int, 0, k)
+
+    var dfs func(int)
+    dfs = func(start int) {
+        if len(path) == k {
+            ans = append(ans, append([]int(nil), path...))
+            return
+        }
+
+        need := k - len(path)
+        last := n - need + 1
+        for x := start; x <= last; x++ {
+            path = append(path, x)
+            dfs(x + 1)
+            path = path[:len(path)-1]
+        }
+    }
+
+    dfs(1)
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var combine = function (n, k) {
+  const ans = [];
+  const path = [];
+
+  function backtrack(start) {
+    if (path.length === k) {
+      ans.push([...path]);
+      return;
+    }
+
+    const need = k - path.length;
+    const last = n - need + 1;
+    for (let x = start; x <= last; x++) {
+      path.push(x);
+      backtrack(x + 1);
+      path.pop();
+    }
+  }
+
+  backtrack(1);
+  return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function combine(n: number, k: number): number[][] {
+  const ans: number[][] = [];
+  const path: number[] = [];
+
+  function backtrack(start: number): void {
+    if (path.length === k) {
+      ans.push([...path]);
+      return;
+    }
+
+    const need = k - path.length;
+    const last = n - need + 1;
+    for (let x = start; x <= last; x++) {
+      path.push(x);
+      backtrack(x + 1);
+      path.pop();
+    }
+  }
+
+  backtrack(1);
+  return ans;
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+impl Solution {
+    fn dfs(n: i32, k: usize, start: i32, path: &mut Vec<i32>, ans: &mut Vec<Vec<i32>>) {
+        if path.len() == k {
+            ans.push(path.clone());
+            return;
+        }
+
+        let need = k as i32 - path.len() as i32;
+        let last = n - need + 1;
+        for x in start..=last {
+            path.push(x);
+            Self::dfs(n, k, x + 1, path, ans);
+            path.pop();
+        }
+    }
+
+    pub fn combine(n: i32, k: i32) -> Vec<Vec<i32>> {
+        let mut ans = Vec::new();
+        let mut path = Vec::new();
+        Self::dfs(n, k as usize, 1, &mut path, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C">
+
+```c
+static int *path;
+static int pathSize;
+static int **ans;
+static int ansSize;
+static int targetK;
+
+static void backtrack(int n, int start) {
+    if (pathSize == targetK) {
+        int *row = malloc(sizeof(int) * targetK);
+        memcpy(row, path, sizeof(int) * targetK);
+        ans[ansSize++] = row;
+        return;
+    }
+
+    int need = targetK - pathSize;
+    int last = n - need + 1;
+    for (int x = start; x <= last; ++x) {
+        path[pathSize++] = x;
+        backtrack(n, x + 1);
+        --pathSize;
+    }
+}
+
+int **combine(int n, int k, int *returnSize, int **returnColumnSizes) {
+    targetK = k;
+    pathSize = ansSize = 0;
+    path = malloc(sizeof(int) * k);
+    ans = malloc(sizeof(int *) * 10000);
+
+    backtrack(n, 1);
+
+    *returnSize = ansSize;
+    *returnColumnSizes = malloc(sizeof(int) * ansSize);
+    for (int i = 0; i < ansSize; ++i) {
+        (*returnColumnSizes)[i] = k;
+    }
+    free(path);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func combine(_ n: Int, _ k: Int) -> [[Int]] {
+        var ans = [[Int]]()
+        var path = [Int]()
+
+        func backtrack(_ start: Int) {
+            if path.count == k {
+                ans.append(path)
+                return
+            }
+
+            let need = k - path.count
+            let last = n - need + 1
+            guard start <= last else { return }
+
+            for x in start...last {
+                path.append(x)
+                backtrack(x + 1)
+                path.removeLast()
+            }
+        }
+
+        backtrack(1)
+        return ans
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+object Solution {
+  def combine(n: Int, k: Int): List[List[Int]] = {
+    val ans = scala.collection.mutable.ListBuffer.empty[List[Int]]
+    val path = scala.collection.mutable.ListBuffer.empty[Int]
+
+    def backtrack(start: Int): Unit = {
+      if (path.size == k) {
+        ans += path.toList
+        return
+      }
+
+      val need = k - path.size
+      val last = n - need + 1
+      for (x <- start to last) {
+        path += x
+        backtrack(x + 1)
+        path.remove(path.size - 1)
+      }
+    }
+
+    backtrack(1)
+    ans.toList
+  }
+}
+```
+
+</Tab>
+</Tabs>

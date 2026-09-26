@@ -1,0 +1,893 @@
+---
+title: 孤岛的总面积
+subtitle: 从边界反向搜索，筛掉所有“与外界连通”的陆地
+summary: 通过卡码网 101 掌握边界洪泛思想：先从矩阵四周搜索并删除所有与边界连通的陆地，再统计剩余陆地，从而高效求出孤岛总面积。
+---
+
+# 孤岛的总面积
+
+> **卡码网 101. 孤岛的总面积**
+>
+> 给定一个由 `0`（水）和 `1`（陆地）组成的网格。孤岛是完全位于矩阵内部、整座岛没有任何陆地格子接触矩阵边缘的岛屿。求所有孤岛的总面积。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1173)
+
+这道题表面上仍是“岛屿统计”，但真正重要的新思想不是 DFS/BFS 本身，而是：
+
+> **不要逐座岛判断它是否接触边界，而是反过来先从边界出发，把所有“不可能是孤岛”的陆地一次性排除。**
+
+这种思路可以概括为：
+
+$$
+\text{孤岛陆地}
+=
+\text{全部陆地}
+-
+\text{与边界连通的陆地}
+$$
+
+<Callout type="info" title="这是一类非常重要的反向思考">
+
+题目问“哪些区域完全封闭”，往往可以先找：
+
+> 哪些区域能从边界到达？
+
+把它们排除后，剩下的自然就是封闭区域。
+
+</Callout>
+
+## 1. 题目示例
+
+输入：
+
+```text
+4 5
+1 1 0 0 0
+1 1 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+```
+
+输出：
+
+```text
+1
+```
+
+原题示意图：
+
+![孤岛总面积示意图](https://file1.kamacoder.com/i/algo/20240517105557.png)
+
+左上角和右下角的岛屿都接触边界，所以都不是孤岛。
+
+只有中心的单个陆地完全位于内部，因此：
+
+$$
+\boxed{1}
+$$
+
+---
+
+## 2. 最直接的想法：逐座岛判断是否碰边
+
+一种自然方案是：
+
+1. 扫描整个网格；
+2. 每发现一座新岛，就 DFS/BFS 遍历它；
+3. 同时统计面积；
+4. 再记录这座岛是否存在边界节点；
+5. 如果没有碰边，则把面积加入答案。
+
+这个方法可以写对。
+
+例如搜索时维护：
+
+```cpp
+int area = 0;
+bool touchBorder = false;
+```
+
+每访问一个节点：
+
+```cpp
+++area;
+
+if (x == 0 || x == n - 1 || y == 0 || y == m - 1) {
+    touchBorder = true;
+}
+```
+
+搜索结束后：
+
+```cpp
+if (!touchBorder) {
+    answer += area;
+}
+```
+
+### 但它不是最值得记忆的方法
+
+因为本题有更简洁、更有迁移价值的结构：
+
+> **从四周开始做一次“清除”。**
+
+---
+
+## 3. 关键转化：所有接触边界的岛都不是孤岛
+
+一个岛不是孤岛，当且仅当：
+
+> 它存在至少一个陆地格子位于矩阵边界。
+
+进一步说：
+
+> 只要从所有边界陆地出发进行 DFS/BFS，就能访问到所有“与边界连通”的陆地。
+
+这些陆地全部不属于答案。
+
+于是算法分成两阶段。
+
+### 阶段一：从边界清除非孤岛
+
+遍历四条边：
+
+```text
+上边界
+下边界
+左边界
+右边界
+```
+
+只要发现 `1`，就从那里启动 DFS/BFS，把整块与边界连通的陆地都改成 `0`。
+
+原题边界陆地示意：
+
+![从边界寻找非孤岛](https://file1.kamacoder.com/i/algo/20220830104632.png)
+
+清除之后：
+
+![清除与边界连通的陆地](https://file1.kamacoder.com/i/algo/20220830104651.png)
+
+### 阶段二：统计剩余的 `1`
+
+经过第一阶段之后：
+
+```text
+所有与边界连通的陆地 → 0
+所有仍然为 1 的陆地 → 一定属于孤岛
+```
+
+因此最后根本不需要再按岛搜索，直接数剩余的 `1` 即可。
+
+---
+
+## 4. 为什么“剩余的 1”一定全是孤岛
+
+这是本题正确性的核心。
+
+第一阶段从 **所有边界上的陆地** 出发搜索，并沿四方向遍历所有相连陆地。
+
+假设最终还剩某个陆地格子 `u`。
+
+如果 `u` 所在岛屿能够接触边界，那么该岛必然存在一个边界陆地 `v`。
+
+又因为 `u` 与 `v` 位于同一岛屿，所以存在一条全由陆地组成的四方向路径：
+
+$$
+v\leadsto u
+$$
+
+那么第一阶段从 `v` 出发时一定能够访问并清除 `u`。
+
+但 `u` 最终仍然存在，与假设矛盾。
+
+所以：
+
+> 第一阶段结束后剩下的每个 `1` 都不可能与边界连通，也就一定属于孤岛。
+
+---
+
+## 5. 为什么可以直接修改 grid
+
+本题非常适合“原地标记”。
+
+搜索边界连通陆地时：
+
+```cpp
+grid[x][y] = 0;
+```
+
+可以同时表示：
+
+1. 这个节点已经访问过；
+2. 它已经被判定为非孤岛陆地；
+3. 后续统计时不应计入答案。
+
+因此无需额外 `visited` 数组。
+
+<Callout type="tip" title="状态压缩思维">
+
+当题目允许修改输入时，经常可以把“访问状态”直接编码进原数据。
+
+例如：
+
+```text
+1 → 未处理陆地
+0 → 水 / 已清除的非孤岛陆地
+```
+
+这能让实现明显更简洁。
+
+</Callout>
+
+---
+
+## 6. DFS 清除函数
+
+我们希望：
+
+```cpp
+flood(x, y)
+```
+
+表示：
+
+> 把 `(x,y)` 所在的整个陆地连通块全部清零。
+
+```cpp
+void flood(int x, int y) {
+    grid[x][y] = 0;
+
+    for (const auto& d : dir) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1) {
+            flood(nx, ny);
+        }
+    }
+}
+```
+
+注意：一进入函数就：
+
+```cpp
+grid[x][y] = 0;
+```
+
+这样同一格不会重复进入递归。
+
+---
+
+## 7. 四条边如何遍历
+
+一种清晰写法是先处理左右边界：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    if (grid[i][0] == 1) {
+        flood(i, 0);
+    }
+
+    if (grid[i][m - 1] == 1) {
+        flood(i, m - 1);
+    }
+}
+```
+
+再处理上下边界：
+
+```cpp
+for (int j = 0; j < m; ++j) {
+    if (grid[0][j] == 1) {
+        flood(0, j);
+    }
+
+    if (grid[n - 1][j] == 1) {
+        flood(n - 1, j);
+    }
+}
+```
+
+四个角会被检查两次，但完全没有问题。
+
+因为第一次清除后已经变为 `0`，第二次检查不会再次搜索。
+
+---
+
+## 8. C++ 推荐实现：边界 DFS + 直接计数
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const int dir[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+};
+
+int n, m;
+vector<vector<int>> grid;
+
+void flood(int x, int y) {
+    grid[x][y] = 0;
+
+    for (const auto& d : dir) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+
+        if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+            continue;
+        }
+
+        if (grid[nx][ny] == 1) {
+            flood(nx, ny);
+        }
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> m;
+
+    grid.assign(n, vector<int>(m));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            cin >> grid[i][j];
+        }
+    }
+
+    // 左、右边界
+    for (int i = 0; i < n; ++i) {
+        if (grid[i][0] == 1) {
+            flood(i, 0);
+        }
+        if (grid[i][m - 1] == 1) {
+            flood(i, m - 1);
+        }
+    }
+
+    // 上、下边界
+    for (int j = 0; j < m; ++j) {
+        if (grid[0][j] == 1) {
+            flood(0, j);
+        }
+        if (grid[n - 1][j] == 1) {
+            flood(n - 1, j);
+        }
+    }
+
+    int answer = 0;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 1) {
+                ++answer;
+            }
+        }
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+---
+
+## 9. 一个更精确的集合视角
+
+把所有陆地格子的集合记作 $L$。
+
+把所有能够通过陆地路径到达边界的陆地集合记作 $B$。
+
+显然：
+
+$$
+B\subseteq L
+$$
+
+孤岛中的陆地正是：
+
+$$
+L-B
+$$
+
+所以答案为：
+
+$$
+|L-B|=|L|-|B|
+$$
+
+算法中的“从边界开始 flood”实际上就是在构造集合 $B$。
+
+把 $B$ 全部从网格中删除后，剩余元素自然就是 $L-B$。
+
+这种集合差的理解方式对很多边界连通问题都非常有用。
+
+---
+
+## 10. BFS 也完全一样
+
+DFS 不是本题的关键。
+
+只要能从边界陆地访问完整连通块，就可以使用 BFS。
+
+```cpp
+void flood(int sx, int sy) {
+    queue<pair<int, int>> q;
+    q.push({sx, sy});
+    grid[sx][sy] = 0;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (const auto& d : dir) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                continue;
+            }
+
+            if (grid[nx][ny] == 1) {
+                grid[nx][ny] = 0;
+                q.push({nx, ny});
+            }
+        }
+    }
+}
+```
+
+这里仍然要遵守 BFS 的标准原则：
+
+> **入队即标记。**
+
+也就是先：
+
+```cpp
+grid[nx][ny] = 0;
+```
+
+再：
+
+```cpp
+q.push({nx, ny});
+```
+
+这样一个格子最多进入队列一次。
+
+---
+
+## 11. 为什么不需要第二次 DFS/BFS
+
+第一阶段之后，源文有些实现会再次对内部陆地做 DFS/BFS，并在搜索过程中累计面积。
+
+这当然可以，但其实没有必要。
+
+因为第一阶段已经证明：
+
+> 剩余的每一个 `1` 都属于某座孤岛。
+
+题目要的是 **所有孤岛总面积**，而不是孤岛数量或最大孤岛面积。
+
+因此直接：
+
+```cpp
+if (grid[i][j] == 1) {
+    ++answer;
+}
+```
+
+即可。
+
+### 三类问题的第二阶段不同
+
+| 目标 | 清除边界后应该做什么 |
+| --- | --- |
+| 孤岛总面积 | 直接统计剩余 `1` 的数量 |
+| 孤岛数量 | 再 DFS/BFS 统计剩余连通块个数 |
+| 最大孤岛面积 | 再 DFS/BFS 统计每个剩余连通块面积并取最大值 |
+
+这张表能帮助你理解“边界预处理”和“最终统计目标”是两个独立模块。
+
+---
+
+## 12. 正确性证明
+
+### 12.1 所有非孤岛都会被删除
+
+任何非孤岛都至少包含一个边界陆地格子。
+
+算法会枚举所有边界格子，所以必然从该岛的某个边界节点启动搜索。
+
+搜索会沿四方向遍历该岛全部陆地，因此整座非孤岛都会被清零。
+
+### 12.2 孤岛不会被误删
+
+孤岛与任何边界陆地都不连通。
+
+第一阶段的所有搜索都从边界陆地开始，只能沿陆地边扩展。
+
+因此搜索不可能进入任何孤岛。
+
+### 12.3 最后剩余的陆地恰好是所有孤岛
+
+根据前两点：
+
+- 非孤岛全部被删除；
+- 孤岛全部保留。
+
+因此剩余 `1` 的总数就是孤岛总面积。
+
+---
+
+## 13. 复杂度分析
+
+设网格大小为 $N\times M$。
+
+### 时间复杂度
+
+边界搜索过程中，每个陆地最多被清除一次。
+
+最后再扫描整个网格一次。
+
+因此：
+
+$$
+O(NM)
+$$
+
+### 空间复杂度
+
+如果使用递归 DFS，最坏递归深度可达到：
+
+$$
+O(NM)
+$$
+
+如果使用 BFS，队列最坏占用：
+
+$$
+O(NM)
+$$
+
+因为直接修改 `grid`，无需额外 `visited` 数组。
+
+---
+
+## 14. 容易忽略的边界情况
+
+<Cards>
+  <Card title="只有一行">
+    当 $N=1$ 时，所有陆地都在边界上，所以不存在孤岛，答案一定为 `0`。
+  </Card>
+  <Card title="只有一列">
+    当 $M=1$ 时同理，所有陆地都接触边界，答案一定为 `0`。
+  </Card>
+  <Card title="四个角重复处理">
+    上下边界与左右边界会重复检查角点，但被第一次搜索清零后不会再次扩展，不影响复杂度和正确性。
+  </Card>
+  <Card title="对角线不连通">
+    仍然只允许上下左右四方向，斜角接触不能把内部岛屿连接到边界。
+  </Card>
+</Cards>
+
+---
+
+## 15. 更值得记住的通用套路：边界洪泛
+
+这道题最有迁移价值的不是“孤岛”两个字，而是：
+
+```text
+从边界出发
+  ↓
+找到所有与边界连通的区域
+  ↓
+给这些区域统一打标记 / 删除
+  ↓
+处理剩余区域
+```
+
+它常见于：
+
+- 被围绕的区域；
+- 封闭岛屿；
+- 边界泄露问题；
+- 从海岸线能到达的陆地；
+- 围棋式包围判定；
+- 图像中的封闭区域识别。
+
+可以抽象成：
+
+$$
+\text{内部封闭集合}
+=
+\text{候选集合}
+-
+\text{边界可达集合}
+$$
+
+<Callout type="tip" title="做题识别信号">
+
+如果题目同时出现“内部”“封闭”“不接触边缘”“被完全包围”之类描述，优先考虑：
+
+> 能不能先从边界反向搜索？
+
+</Callout>
+
+---
+
+## 16. 与上一题“最大岛屿面积”的联系
+
+两道题都基于同一个基本能力：
+
+> 从一个陆地格子出发，遍历整个四连通块。
+
+但外层策略不同。
+
+### 最大岛屿面积
+
+```text
+从所有未访问陆地出发
+→ 枚举所有连通块
+→ 统计每块大小
+→ 取最大值
+```
+
+### 孤岛总面积
+
+```text
+只从边界陆地出发
+→ 删除所有边界可达连通块
+→ 剩下的全部计数
+```
+
+因此学习图论时不要只背 DFS/BFS 模板，还要注意：
+
+> **搜索从哪里启动，往往比“用 DFS 还是 BFS”更决定题目的结构。**
+
+---
+
+## 17. 其他语言版本
+
+以下版本统一采用“从边界出发清除非孤岛，再统计剩余陆地”的写法。
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static final int[][] DIR = {
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}
+    };
+
+    static int n, m;
+    static int[][] grid;
+
+    static void flood(int x, int y) {
+        grid[x][y] = 0;
+
+        for (int[] d : DIR) {
+            int nx = x + d[0];
+            int ny = y + d[1];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+            if (grid[nx][ny] == 1) {
+                flood(nx, ny);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+
+        grid = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; j++) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (grid[i][0] == 1) flood(i, 0);
+            if (grid[i][m - 1] == 1) flood(i, m - 1);
+        }
+
+        for (int j = 0; j < m; j++) {
+            if (grid[0][j] == 1) flood(0, j);
+            if (grid[n - 1][j] == 1) flood(n - 1, j);
+        }
+
+        int answer = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1) answer++;
+            }
+        }
+
+        System.out.println(answer);
+    }
+}
+```
+
+```python label="Python"
+import sys
+sys.setrecursionlimit(1_000_000)
+input = sys.stdin.readline
+
+n, m = map(int, input().split())
+grid = [list(map(int, input().split())) for _ in range(n)]
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+
+def flood(x, y):
+    grid[x][y] = 0
+
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if not (0 <= nx < n and 0 <= ny < m):
+            continue
+        if grid[nx][ny] == 1:
+            flood(nx, ny)
+
+
+for i in range(n):
+    if grid[i][0] == 1:
+        flood(i, 0)
+    if grid[i][m - 1] == 1:
+        flood(i, m - 1)
+
+for j in range(m):
+    if grid[0][j] == 1:
+        flood(0, j)
+    if grid[n - 1][j] == 1:
+        flood(n - 1, j)
+
+answer = sum(cell == 1 for row in grid for cell in row)
+print(answer)
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+var (
+    n, m int
+    grid [][]int
+    dir = [4][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+)
+
+func flood(x, y int) {
+    grid[x][y] = 0
+
+    for _, d := range dir {
+        nx, ny := x+d[0], y+d[1]
+        if nx < 0 || nx >= n || ny < 0 || ny >= m {
+            continue
+        }
+        if grid[nx][ny] == 1 {
+            flood(nx, ny)
+        }
+    }
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    fmt.Fscan(in, &n, &m)
+
+    grid = make([][]int, n)
+    for i := 0; i < n; i++ {
+        grid[i] = make([]int, m)
+        for j := 0; j < m; j++ {
+            fmt.Fscan(in, &grid[i][j])
+        }
+    }
+
+    for i := 0; i < n; i++ {
+        if grid[i][0] == 1 {
+            flood(i, 0)
+        }
+        if grid[i][m-1] == 1 {
+            flood(i, m-1)
+        }
+    }
+
+    for j := 0; j < m; j++ {
+        if grid[0][j] == 1 {
+            flood(0, j)
+        }
+        if grid[n-1][j] == 1 {
+            flood(n-1, j)
+        }
+    }
+
+    answer := 0
+    for i := 0; i < n; i++ {
+        for j := 0; j < m; j++ {
+            if grid[i][j] == 1 {
+                answer++
+            }
+        }
+    }
+
+    fmt.Fprintln(out, answer)
+}
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+
+let p = 0;
+const n = input[p++];
+const m = input[p++];
+const grid = Array.from({ length: n }, () =>
+  Array.from({ length: m }, () => input[p++])
+);
+
+const dir = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+function flood(startX, startY) {
+  const queue = [[startX, startY]];
+  let head = 0;
+  grid[startX][startY] = 0;
+
+  while (head < queue.length) {
+    const [x, y] = queue[head++];
+
+    for (const [dx, dy] of dir) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+      if (grid[nx][ny] !== 1) continue;
+
+      grid[nx][ny] = 0;
+      queue.push([nx, ny]);
+    }
+  }
+}
+
+for (let i = 0; i < n; i++) {
+  if (grid[i][0] === 1) flood(i, 0);
+  if (grid[i][m - 1] === 1) flood(i, m - 1);
+}
+
+for (let j = 0; j < m; j++) {
+  if (grid[0][j] === 1) flood(0, j);
+  if (grid[n - 1][j] === 1) flood(n - 1, j);
+}
+
+let answer = 0;
+for (let i = 0; i < n; i++) {
+  for (let j = 0; j < m; j++) {
+    if (grid[i][j] === 1) answer++;
+  }
+}
+
+console.log(answer);
+```
+````

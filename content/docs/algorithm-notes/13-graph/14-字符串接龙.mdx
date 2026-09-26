@@ -1,0 +1,779 @@
+---
+title: 字符串接龙
+subtitle: 把字符串变化抽象成隐式无权图，用 BFS 求最短转换序列
+summary: 通过卡码网 110 掌握“状态建图 + BFS 最短路”的经典模型：不显式建边，而是枚举每一位的 26 种替换生成邻接状态，并用入队即标记保证最短路与搜索效率。
+---
+
+# 字符串接龙
+
+> **卡码网 110. 字符串接龙**
+>
+> 给定起点字符串 `beginStr`、终点字符串 `endStr` 和字典 `strList`。每次只能修改一个字符，中间状态必须来自字典。求从起点到终点的最短转换序列包含多少个字符串；若无法到达，输出 `0`。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1183)
+
+这道题表面上是“字符串变化”，本质上却是一道非常标准的 **无权图最短路**。
+
+真正关键的不是字符串本身，而是下面这个抽象：
+
+- 每一个合法字符串都是一个节点；
+- 两个字符串只相差一个字符，就在它们之间连一条边；
+- 每次转换的代价都相同，都是走一条边；
+- 问最少经过多少个字符串，本质上就是求最短路径。
+
+<Callout type="info" title="核心识别">
+
+只要题目出现“每次进行一种等价操作，并要求最少操作次数 / 最短转换长度”，就要警觉它可能是一个 **无权图 BFS** 问题。
+
+</Callout>
+
+---
+
+## 1. 题目示例
+
+输入：
+
+```text
+6
+abc def
+efc
+dbc
+ebc
+dec
+dfc
+yhn
+```
+
+输出：
+
+```text
+4
+```
+
+一条最短转换路径为：
+
+```text
+abc -> dbc -> dec -> def
+```
+
+因此序列中一共有 `4` 个字符串。
+
+原题示意图：
+
+![字符串接龙图示](https://file1.kamacoder.com/i/algo/20250317105155.png)
+
+从图中可以看到，从 `abc` 到 `def` 可能存在多条路线，但题目只要求最短的一条。
+
+---
+
+## 2. 第一步：把字符串看成图上的节点
+
+假设当前字符串为：
+
+```text
+abc
+```
+
+如果一次只能修改一个位置，那么它可能走向：
+
+```text
+bbc
+cbc
+dbc
+...
+
+acc
+adc
+...
+
+aba
+abb
+abd
+...
+```
+
+当然，并不是所有这些字符串都是合法节点。
+
+只有满足下面条件的字符串才能继续加入搜索：
+
+```text
+候选字符串出现在 strList 中
+并且此前没有访问过
+```
+
+终点 `endStr` 是一个特殊情况：题目明确说明它不在 `strList` 中，因此生成候选字符串后，应当先判断：
+
+```cpp
+if (newWord == endStr)
+```
+
+再判断它是否位于字典中。
+
+---
+
+## 3. 为什么不需要显式建完整图
+
+最直接的办法是：
+
+1. 枚举所有字符串对；
+2. 判断两者是否只差一个字符；
+3. 差一个字符就在邻接表中连边；
+4. 最后再 BFS。
+
+如果字典中有 $N$ 个字符串，每个字符串长度为 $L$，这种预处理大约需要比较：
+
+$$
+O(N^2L)
+$$
+
+但实际上没有必要把所有边提前建出来。
+
+对于一个长度为 $L$ 的字符串，我们可以直接：
+
+- 枚举要修改的位置，共 $L$ 个；
+- 枚举新字符，共 $26$ 个；
+- 去哈希集合中查询候选字符串是否合法。
+
+也就是说，我们可以在 BFS 过程中 **现用现生成邻接点**。
+
+这种图称为：
+
+> **隐式图（Implicit Graph）**
+
+边没有提前存储，而是在搜索到某个节点时动态生成。
+
+---
+
+## 4. 为什么 BFS 一定能得到最短路
+
+这张图中的每条边代价完全相同。
+
+例如：
+
+```text
+abc -> dbc
+```
+
+和：
+
+```text
+dbc -> dec
+```
+
+都只代表进行了一次字符修改，所以每条边权都可以看成 `1`。
+
+BFS 会按照距离起点的层数依次扩展：
+
+```text
+第 0 层：距离起点 0 条边
+第 1 层：距离起点 1 条边
+第 2 层：距离起点 2 条边
+...
+```
+
+因此，当 BFS **第一次发现终点** 时，得到的一定是最短距离。
+
+<Callout type="tip" title="无权图最短路优先想到 BFS">
+
+DFS 可以枚举路径，但无法天然保证第一次找到终点就是最短路径。
+
+如果边权都相同，并且只求最短步数，BFS 通常是最直接的选择。
+
+</Callout>
+
+---
+
+## 5. 路径长度到底记录“边数”还是“节点数”
+
+这是本题最容易出现 `+1` 错误的地方。
+
+路径：
+
+```text
+abc -> dbc -> dec -> def
+```
+
+包含：
+
+- `3` 次转换；
+- `3` 条边；
+- `4` 个字符串节点。
+
+而题目要求的是：
+
+> **转换序列中的字符串数量。**
+
+所以可以直接令：
+
+```cpp
+steps[beginStr] = 1;
+```
+
+表示起点本身已经算作序列中的第一个字符串。
+
+之后每向外扩展一层：
+
+```cpp
+steps[next] = steps[cur] + 1;
+```
+
+这样第一次生成 `endStr` 时，答案直接就是：
+
+```cpp
+steps[cur] + 1
+```
+
+---
+
+## 6. visited 为什么必须“入队时标记”
+
+假设同一个字符串 `xxx` 可以由两个节点同时生成。
+
+如果等到它出队时才标记，那么它可能被重复加入队列：
+
+```text
+A -> xxx
+B -> xxx
+```
+
+于是：
+
+```text
+xxx 入队两次
+```
+
+这会造成无意义的重复搜索。
+
+正确方式是：
+
+```cpp
+if (合法 && 未访问) {
+    visited[next] = true;
+    queue.push(next);
+}
+```
+
+也就是：
+
+> **BFS 中通常在入队的那一刻就完成 visited 标记。**
+
+这样可以保证一个节点最多入队一次。
+
+---
+
+## 7. 如何生成当前字符串的所有邻居
+
+假设：
+
+```text
+word = "abc"
+```
+
+我们依次修改每一个位置。
+
+第 `0` 位：
+
+```text
+a -> a,b,c,...,z
+```
+
+第 `1` 位：
+
+```text
+b -> a,b,c,...,z
+```
+
+第 `2` 位：
+
+```text
+c -> a,b,c,...,z
+```
+
+代码结构就是：
+
+```cpp
+for (int i = 0; i < word.size(); ++i) {
+    string next = word;
+
+    for (char ch = 'a'; ch <= 'z'; ++ch) {
+        next[i] = ch;
+        // 检查 next
+    }
+}
+```
+
+为了少生成一次原字符串，可以跳过：
+
+```cpp
+if (ch == word[i]) continue;
+```
+
+---
+
+## 8. 完整搜索过程
+
+可以把整个算法压缩成下面几步：
+
+```text
+1. 把字典放入 unordered_set
+2. beginStr 入队，距离记为 1
+3. 每次取出队首字符串
+4. 枚举它每一位的 25 种有效替换
+5. 如果候选字符串 == endStr，立即返回当前距离 + 1
+6. 如果候选字符串在字典中且没访问过：
+      标记访问
+      记录距离
+      入队
+7. 队列为空仍未找到终点，输出 0
+```
+
+流程可以理解为：
+
+```text
+beginStr
+   |
+   | 生成所有只差一个字符的合法字符串
+   v
+第 1 圈邻居
+   |
+   v
+第 2 圈邻居
+   |
+   v
+...
+   |
+第一次碰到 endStr
+   |
+   v
+得到最短路径
+```
+
+---
+
+## 9. C++ 标准写法
+
+```cpp
+#include <iostream>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+
+    string beginStr, endStr;
+    cin >> beginStr >> endStr;
+
+    unordered_set<string> dict;
+    for (int i = 0; i < n; ++i) {
+        string s;
+        cin >> s;
+        dict.insert(s);
+    }
+
+    queue<string> q;
+    unordered_map<string, int> dist;
+
+    q.push(beginStr);
+    dist[beginStr] = 1;
+
+    while (!q.empty()) {
+        string word = q.front();
+        q.pop();
+
+        int curDist = dist[word];
+
+        for (int i = 0; i < static_cast<int>(word.size()); ++i) {
+            string next = word;
+
+            for (char ch = 'a'; ch <= 'z'; ++ch) {
+                if (ch == word[i]) {
+                    continue;
+                }
+
+                next[i] = ch;
+
+                if (next == endStr) {
+                    cout << curDist + 1 << '\n';
+                    return 0;
+                }
+
+                if (dict.count(next) && !dist.count(next)) {
+                    dist[next] = curDist + 1;
+                    q.push(next);
+                }
+            }
+        }
+    }
+
+    cout << 0 << '\n';
+    return 0;
+}
+```
+
+---
+
+## 10. 为什么这里用 `unordered_set`
+
+我们最频繁执行的操作是：
+
+```text
+“这个字符串是否在字典中？”
+```
+
+如果字典用 `vector<string>`，每次查询都可能需要扫描整个数组：
+
+$$
+O(N)
+$$
+
+使用哈希集合后，平均查询复杂度可以视为：
+
+$$
+O(1)
+$$
+
+因此这类“海量候选状态 + 快速判断合法性”的问题，哈希集合非常重要。
+
+---
+
+## 11. 复杂度分析
+
+设：
+
+- 字典中可访问字符串数量为 $V$；
+- 每个字符串长度为 $L$；
+- 字母表大小为 $26$。
+
+每个被访问的字符串最多生成：
+
+$$
+26L
+$$
+
+个候选状态。
+
+如果把字符串复制和哈希成本暂时按常数看，搜索规模可写为：
+
+$$
+O(26VL)=O(VL)
+$$
+
+严格考虑长度为 $L$ 的字符串复制与哈希后，最坏可以写成：
+
+$$
+O(26VL^2)
+$$
+
+由于字母表大小固定，核心增长因素仍然是可访问节点数和字符串长度。
+
+空间主要用于：
+
+- 字典；
+- BFS 队列；
+- 距离 / visited 哈希表。
+
+大致为：
+
+$$
+O(VL)
+$$
+
+---
+
+## 12. 常见错误
+
+### 12.1 先判断候选字符串是否在字典中，再判断终点
+
+题目说明 `endStr` 不在字典中。
+
+因此下面这种写法可能永远无法到达终点：
+
+```cpp
+if (dict.count(next)) {
+    if (next == endStr) {
+        ...
+    }
+}
+```
+
+应该先判断终点：
+
+```cpp
+if (next == endStr) {
+    ...
+}
+```
+
+---
+
+### 12.2 BFS 出队时才标记 visited
+
+会导致同一个字符串被多个父节点重复入队。
+
+应该在：
+
+```text
+第一次发现节点时
+```
+
+就标记。
+
+---
+
+### 12.3 把答案写成“修改次数”
+
+本题要求的是字符串个数，不是边数。
+
+如果最少修改次数是 $d$，那么序列字符串数量是：
+
+$$
+d+1
+$$
+
+---
+
+### 12.4 对所有字符串两两比较建图
+
+能够做，但没有必要。
+
+字符串转换类问题通常更适合：
+
+> **直接从当前状态生成下一状态。**
+
+这也是“隐式图”模型非常常见的应用方式。
+
+---
+
+## 13. 双向 BFS 为什么可能更快
+
+普通 BFS 从起点不断向外扩展：
+
+```text
+begin -> ... -> end
+```
+
+如果搜索树的分支数很大，层数稍深，节点数可能迅速增长。
+
+双向 BFS 则同时从：
+
+```text
+beginStr
+endStr
+```
+
+向中间扩展，并优先扩展节点数量更少的一侧。
+
+直观上，相比搜索深度 $d$：
+
+```text
+单向 BFS：搜索到深度 d
+双向 BFS：两边大约各搜索到 d / 2
+```
+
+在分支数较大的图中可能明显减少状态数。
+
+不过对于本题的数据规模，普通 BFS 已经足够，并且实现更加清晰。
+
+---
+
+## 14. 从这道题抽象出的通用模型
+
+这道题最值得掌握的并不是“枚举 26 个字母”，而是下面的思维链：
+
+```text
+字符串
+↓
+状态
+↓
+一次合法修改
+↓
+图上的一条边
+↓
+每次修改代价相同
+↓
+无权图
+↓
+求最少修改次数
+↓
+BFS
+```
+
+类似问题包括：
+
+- 密码锁最少旋转次数；
+- 棋盘上最少移动次数；
+- 状态经过固定规则转换到目标状态；
+- 单词替换；
+- 数字经过若干操作变成目标数字。
+
+<Callout type="success" title="一句话记忆">
+
+**状态是节点，合法操作是边；边权都为 1 时，最短操作次数优先考虑 BFS。**
+
+</Callout>
+
+---
+
+## 15. 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.util.*;
+
+public class Main {
+    public static int bfs(String beginStr, String endStr, Set<String> dict) {
+        Queue<String> queue = new ArrayDeque<>();
+        Map<String, Integer> dist = new HashMap<>();
+
+        queue.offer(beginStr);
+        dist.put(beginStr, 1);
+
+        while (!queue.isEmpty()) {
+            String word = queue.poll();
+            int curDist = dist.get(word);
+
+            char[] chars = word.toCharArray();
+
+            for (int i = 0; i < chars.length; i++) {
+                char old = chars[i];
+
+                for (char ch = 'a'; ch <= 'z'; ch++) {
+                    if (ch == old) continue;
+
+                    chars[i] = ch;
+                    String next = new String(chars);
+
+                    if (next.equals(endStr)) {
+                        return curDist + 1;
+                    }
+
+                    if (dict.contains(next) && !dist.containsKey(next)) {
+                        dist.put(next, curDist + 1);
+                        queue.offer(next);
+                    }
+                }
+
+                chars[i] = old;
+            }
+        }
+
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int n = scanner.nextInt();
+        String beginStr = scanner.next();
+        String endStr = scanner.next();
+
+        Set<String> dict = new HashSet<>();
+        for (int i = 0; i < n; i++) {
+            dict.add(scanner.next());
+        }
+
+        System.out.println(bfs(beginStr, endStr, dict));
+    }
+}
+```
+
+```python label="Python"
+from collections import deque
+
+
+def bfs(begin_str: str, end_str: str, words: set[str]) -> int:
+    queue = deque([begin_str])
+    dist = {begin_str: 1}
+
+    while queue:
+        word = queue.popleft()
+        cur_dist = dist[word]
+
+        chars = list(word)
+
+        for i in range(len(chars)):
+            old = chars[i]
+
+            for code in range(ord('a'), ord('z') + 1):
+                ch = chr(code)
+                if ch == old:
+                    continue
+
+                chars[i] = ch
+                nxt = ''.join(chars)
+
+                if nxt == end_str:
+                    return cur_dist + 1
+
+                if nxt in words and nxt not in dist:
+                    dist[nxt] = cur_dist + 1
+                    queue.append(nxt)
+
+            chars[i] = old
+
+    return 0
+
+
+n = int(input())
+begin_str, end_str = input().split()
+words = {input().strip() for _ in range(n)}
+
+print(bfs(begin_str, end_str, words))
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const input = fs.readFileSync(0, 'utf8').trim().split(/\s+/);
+
+let p = 0;
+const n = Number(input[p++]);
+const beginStr = input[p++];
+const endStr = input[p++];
+
+const dict = new Set();
+for (let i = 0; i < n; i++) {
+  dict.add(input[p++]);
+}
+
+const queue = [beginStr];
+let head = 0;
+const dist = new Map([[beginStr, 1]]);
+
+while (head < queue.length) {
+  const word = queue[head++];
+  const curDist = dist.get(word);
+
+  for (let i = 0; i < word.length; i++) {
+    const chars = word.split('');
+    const old = chars[i];
+
+    for (let code = 97; code <= 122; code++) {
+      const ch = String.fromCharCode(code);
+      if (ch === old) continue;
+
+      chars[i] = ch;
+      const next = chars.join('');
+
+      if (next === endStr) {
+        console.log(curDist + 1);
+        process.exit(0);
+      }
+
+      if (dict.has(next) && !dist.has(next)) {
+        dist.set(next, curDist + 1);
+        queue.push(next);
+      }
+    }
+  }
+}
+
+console.log(0);
+```
+````

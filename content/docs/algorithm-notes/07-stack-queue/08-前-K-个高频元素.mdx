@@ -1,0 +1,1262 @@
+---
+title: 前 K 个高频元素
+description: 用哈希表统计频次，再用最小堆维护前 K 高频元素，理解“频次统计 + Top K”这一经典组合以及 O(n log k) 的堆优化。
+---
+
+# 347. 前 K 个高频元素
+
+<Cards>
+  <Card title="题目" href="https://leetcode.cn/problems/top-k-frequent-elements/">
+    LeetCode 347 · Top K Frequent Elements
+  </Card>
+</Cards>
+
+给定整数数组 `nums` 和整数 `k`。
+
+返回出现频率最高的前 `k` 个元素。
+
+例如：
+
+```text
+nums = [1, 1, 1, 2, 2, 3]
+k = 2
+```
+
+频次：
+
+```text
+1 -> 3
+2 -> 2
+3 -> 1
+```
+
+答案：
+
+```text
+[1, 2]
+```
+
+<Callout type="info" title="本题由两个阶段组成">
+第一阶段：
+
+```text
+哈希表统计频次
+```
+
+第二阶段：
+
+```text
+从所有不同元素中选出频次最高的 K 个
+```
+
+所以它是典型的：
+
+> **Hash Map + Priority Queue**
+</Callout>
+
+---
+
+# 1. 第一步：统计频次
+
+遍历数组：
+
+```cpp
+unordered_map<int, int> freq;
+
+for (int x : nums) {
+    ++freq[x];
+}
+```
+
+得到：
+
+```text
+元素 -> 出现次数
+```
+
+如果数组长度为 $n$，这一阶段平均：
+
+$$
+O(n)
+$$
+
+---
+
+# 2. 第二步：如何找前 K 大频次
+
+假设不同元素个数为：
+
+$$
+m
+$$
+
+最直接可以：
+
+1. 把 `(元素, 频次)` 全部放到数组；
+2. 按频次排序；
+3. 取前 `k` 个。
+
+排序复杂度：
+
+$$
+O(m\log m)
+$$
+
+最坏：
+
+$$
+O(n\log n)
+$$
+
+但如果：
+
+```text
+k 很小
+```
+
+没必要把所有元素完整排序。
+
+---
+
+# 3. Top K 为什么适合堆
+
+我们只关心：
+
+> 当前见过的元素中，频次最大的 `k` 个。
+
+可以维护一个大小最多为：
+
+$$
+k
+$$
+
+的小根堆。
+
+堆顶表示：
+
+> 当前 Top K 中频次最小的那个。
+
+为什么要最小堆？
+
+因为当新候选更强时，我们最想淘汰的正是：
+
+```text
+当前 Top K 中最弱的那个
+```
+
+也就是最小频次。
+
+---
+
+# 4. 为什么不是大根堆
+
+当然也可以把所有元素放入大根堆，然后弹出前 `k` 个。
+
+但那需要保存全部：
+
+$$
+m
+$$
+
+个元素。
+
+构建和操作复杂度大约：
+
+$$
+O(m\log m)
+$$
+
+或建堆 $O(m)$ 后再弹出。
+
+而最小堆只保留：
+
+$$
+k
+$$
+
+个候选。
+
+每次堆操作：
+
+$$
+O(\log k)
+$$
+
+总复杂度：
+
+$$
+O(m\log k)
+$$
+
+当：
+
+$$
+k\ll m
+$$
+
+时更优。
+
+---
+
+# 5. 最小堆维护规则
+
+遍历每个：
+
+```text
+(element, frequency)
+```
+
+都先压入堆。
+
+如果：
+
+```text
+heap.size() > k
+```
+
+就弹出堆顶。
+
+这样始终保持：
+
+```text
+堆中只留下当前频次最高的 k 个元素
+```
+
+因为每次超出容量时，都淘汰：
+
+```text
+频次最小者
+```
+
+---
+
+# 6. 举例理解
+
+频次：
+
+```text
+1 -> 3
+2 -> 2
+3 -> 1
+4 -> 5
+```
+
+设：
+
+```text
+k = 2
+```
+
+---
+
+### 放入 `(1,3)`
+
+堆：
+
+```text
+[(1,3)]
+```
+
+---
+
+### 放入 `(2,2)`
+
+堆中两个候选：
+
+```text
+1:3
+2:2
+```
+
+最小堆顶部是：
+
+```text
+2:2
+```
+
+---
+
+### 放入 `(3,1)`
+
+堆大小变成 3。
+
+超过：
+
+$$
+k=2
+$$
+
+弹出最小频次：
+
+```text
+3:1
+```
+
+剩：
+
+```text
+1:3
+2:2
+```
+
+---
+
+### 放入 `(4,5)`
+
+堆临时：
+
+```text
+1:3
+2:2
+4:5
+```
+
+弹出当前最小：
+
+```text
+2:2
+```
+
+最终：
+
+```text
+1:3
+4:5
+```
+
+正好是前 2 高频元素。
+
+---
+
+# 7. C++ 比较器
+
+`priority_queue` 默认是大根堆。
+
+我们需要按：
+
+```text
+频次
+```
+
+构造小根堆。
+
+可以定义：
+
+```cpp
+using Pair = pair<int, int>;
+```
+
+其中：
+
+```text
+first  = 元素
+second = 频次
+```
+
+比较器：
+
+```cpp
+struct Compare {
+    bool operator()(
+        const Pair& a,
+        const Pair& b
+    ) const {
+        return a.second > b.second;
+    }
+};
+```
+
+这样频次最小的元素会来到堆顶。
+
+---
+
+# 8. 标准解法
+
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(
+        vector<int>& nums,
+        int k
+    ) {
+        unordered_map<int, int> freq;
+
+        for (int x : nums) {
+            ++freq[x];
+        }
+
+        using Pair = pair<int, int>;
+
+        auto cmp = [](
+            const Pair& a,
+            const Pair& b
+        ) {
+            return a.second > b.second;
+        };
+
+        priority_queue<
+            Pair,
+            vector<Pair>,
+            decltype(cmp)
+        > heap(cmp);
+
+        for (const auto& [value, count] : freq) {
+            heap.push({value, count});
+
+            if (heap.size() > k) {
+                heap.pop();
+            }
+        }
+
+        vector<int> result(k);
+
+        for (int i = k - 1; i >= 0; --i) {
+            result[i] = heap.top().first;
+            heap.pop();
+        }
+
+        return result;
+    }
+};
+```
+
+---
+
+# 9. 为什么结果从后往前填
+
+最小堆顶部是 Top K 中：
+
+```text
+频次最小
+```
+
+的元素。
+
+第一次弹出的，其实是 Top K 中的第 `k` 名。
+
+所以如果想让结果大致按频次从高到低，可以：
+
+```cpp
+for (int i = k - 1; i >= 0; --i)
+```
+
+从后往前填。
+
+但题目通常不要求顺序。
+
+所以也可以直接：
+
+```cpp
+push_back(heap.top().first)
+```
+
+---
+
+# 10. 时间复杂度
+
+统计频次：
+
+$$
+O(n)
+$$
+
+设不同元素数为：
+
+$$
+m
+$$
+
+每个不同元素进入一次大小最多为 $k$ 的堆。
+
+每次：
+
+$$
+O(\log k)
+$$
+
+因此：
+
+$$
+O(m\log k)
+$$
+
+总时间：
+
+$$
+O(n+m\log k)
+$$
+
+因为：
+
+$$
+m\le n
+$$
+
+通常写成：
+
+$$
+O(n\log k)
+$$
+
+---
+
+# 11. 空间复杂度
+
+哈希表最多存：
+
+$$
+m
+$$
+
+个不同元素。
+
+堆最多：
+
+$$
+k
+$$
+
+个元素。
+
+所以空间：
+
+$$
+O(m+k)
+$$
+
+最坏：
+
+$$
+O(n)
+$$
+
+---
+
+# 12. 为什么堆大小一定控制在 K
+
+如果让堆保存所有元素：
+
+```text
+就失去了最小堆 Top K 的优势
+```
+
+核心代码：
+
+```cpp
+heap.push(...);
+
+if (heap.size() > k) {
+    heap.pop();
+}
+```
+
+这保证：
+
+> 任意时刻，堆里只保留当前最有竞争力的 k 个候选。
+
+---
+
+# 13. “Top K”为什么经常使用小根堆
+
+这是非常重要的通用规律。
+
+如果要找：
+
+```text
+最大的 K 个
+```
+
+通常维护：
+
+```text
+大小为 K 的小根堆
+```
+
+因为堆顶是：
+
+```text
+当前 K 个中最小的
+```
+
+方便淘汰。
+
+反过来：
+
+如果要找：
+
+```text
+最小的 K 个
+```
+
+通常维护：
+
+```text
+大小为 K 的大根堆
+```
+
+因为堆顶是：
+
+```text
+当前 K 个中最大的
+```
+
+方便淘汰。
+
+一句话：
+
+> **要保留“大 K”，用小堆；要保留“小 K”，用大堆。**
+
+---
+
+# 14. 为什么这个规律看起来“反着”
+
+如果目标是最大 K 个，很多人第一反应：
+
+```text
+用大根堆
+```
+
+如果你把全部数据放入堆，确实如此。
+
+但如果只维护 K 个候选，则需要随时淘汰：
+
+```text
+最弱候选
+```
+
+对于“最大 K”来说：
+
+```text
+最弱 = 当前最小
+```
+
+所以需要：
+
+```text
+小根堆
+```
+
+这就是两种思路的区别。
+
+---
+
+# 15. 全量堆与固定 K 堆的区别
+
+### 全量大根堆
+
+```text
+所有元素全部入堆
+然后 pop K 次
+```
+
+堆规模：
+
+$$
+m
+$$
+
+### 固定 K 小根堆
+
+```text
+始终只保留 K 个候选
+```
+
+堆规模：
+
+$$
+k
+$$
+
+如果：
+
+$$
+k\ll m
+$$
+
+固定 K 堆更节省时间和空间。
+
+---
+
+# 16. 这题还可以用桶排序
+
+频次最大不会超过：
+
+$$
+n
+$$
+
+可以建立：
+
+```text
+bucket[f] = 出现频次为 f 的所有元素
+```
+
+然后从频次：
+
+```text
+n
+```
+
+向下扫描。
+
+理论时间复杂度可以做到：
+
+$$
+O(n)
+$$
+
+但需要额外桶数组。
+
+---
+
+# 17. 桶排序思路
+
+例如：
+
+```text
+1 -> 3
+2 -> 2
+3 -> 1
+```
+
+构造：
+
+```text
+bucket[1] = [3]
+bucket[2] = [2]
+bucket[3] = [1]
+```
+
+从后向前：
+
+```text
+frequency = 3, 2, 1...
+```
+
+依次取出元素。
+
+直到得到 `k` 个。
+
+这种方法利用了：
+
+> 频次范围天然限制在 $[1,n]$。
+
+---
+
+# 18. 堆和桶排序怎么选
+
+### 最小堆
+
+更通用。
+
+适合：
+
+```text
+Top K
+k 较小
+频次范围不重要
+```
+
+复杂度：
+
+$$
+O(n\log k)
+$$
+
+### 桶排序
+
+利用频次范围。
+
+理论：
+
+$$
+O(n)
+$$
+
+但需要：
+
+```text
+O(n)
+```
+
+桶空间。
+
+对刷题而言，两种都值得掌握。
+
+---
+
+# 19. 优先队列到底是什么
+
+`priority_queue` 并不是 FIFO 队列。
+
+它内部通常使用：
+
+> **Heap**
+
+每次 `top()` 返回：
+
+```text
+优先级最高的元素
+```
+
+默认 C++：
+
+```text
+最大元素优先
+```
+
+通过比较器可以改成：
+
+```text
+最小优先
+```
+
+本题正好用到：
+
+```text
+按 frequency 建小根堆
+```
+
+---
+
+# 20. 堆与排序的关系
+
+排序回答：
+
+> 所有元素的完整大小顺序是什么？
+
+Top K 只回答：
+
+> 最强的 k 个是谁？
+
+所以 Top K 并不需要知道所有元素之间的完整顺序。
+
+堆只维护必要的部分顺序，因此能避免全排序成本。
+
+---
+
+# 21. 常见错误
+
+### 错误一：最大 K 用大小 K 的大根堆
+
+这样堆顶是当前最大值。
+
+当堆超过 K 时弹出：
+
+```text
+反而把最强候选删了
+```
+
+固定 K 模式应使用小根堆。
+
+---
+
+### 错误二：比较器比较元素值而不是频次
+
+本题排名依据：
+
+```text
+出现次数
+```
+
+不是元素本身大小。
+
+---
+
+### 错误三：统计频次和 Top K 逻辑混在一起
+
+一般先：
+
+```text
+完整统计 frequency
+```
+
+再做 Top K。
+
+结构更清楚。
+
+---
+
+### 错误四：堆不限制大小
+
+会退化成保存全部不同元素。
+
+---
+
+# 22. Top K 通用模板
+
+```text
+统计 / 计算每个候选的 score
+
+维护大小为 K 的小根堆：
+
+for candidate:
+    heap.push(candidate)
+
+    if heap.size > K:
+        heap.pop()
+
+最终 heap 中就是 score 最大的 K 个
+```
+
+这里：
+
+```text
+score
+```
+
+可以是：
+
+- 频次；
+- 距离；
+- 权重；
+- 收益；
+- 评分。
+
+所以本题是非常经典的 Top K 模板。
+
+---
+
+# 23. 一眼识别本题
+
+看到：
+
+```text
+前 K 个
+最高频
+最大 K 个
+不需要完整排序
+```
+
+优先考虑：
+
+```text
+Hash Map + 小根堆
+```
+
+完整思路：
+
+```text
+先计数
+  ↓
+(value, frequency)
+  ↓
+大小为 K 的小根堆
+  ↓
+超过 K 就弹最小
+  ↓
+最终剩下 Top K
+```
+
+---
+
+# 24. 多语言实现
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript', 'TypeScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(
+        vector<int>& nums,
+        int k
+    ) {
+        unordered_map<int, int> freq;
+
+        for (int x : nums) {
+            ++freq[x];
+        }
+
+        using Pair = pair<int, int>;
+
+        auto cmp = [](
+            const Pair& a,
+            const Pair& b
+        ) {
+            return a.second > b.second;
+        };
+
+        priority_queue<
+            Pair,
+            vector<Pair>,
+            decltype(cmp)
+        > heap(cmp);
+
+        for (const auto& [value, count] : freq) {
+            heap.push({value, count});
+
+            if (heap.size() > k) {
+                heap.pop();
+            }
+        }
+
+        vector<int> result;
+
+        while (!heap.empty()) {
+            result.push_back(heap.top().first);
+            heap.pop();
+        }
+
+        return result;
+    }
+};
+```
+
+  </Tab>
+
+  <Tab value="Java">
+
+```java
+import java.util.*;
+
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> freq = new HashMap<>();
+
+        for (int x : nums) {
+            freq.put(
+                x,
+                freq.getOrDefault(x, 0) + 1
+            );
+        }
+
+        PriorityQueue<Integer> heap =
+            new PriorityQueue<>(
+                Comparator.comparingInt(freq::get)
+            );
+
+        for (int value : freq.keySet()) {
+            heap.offer(value);
+
+            if (heap.size() > k) {
+                heap.poll();
+            }
+        }
+
+        int[] result = new int[k];
+
+        for (int i = 0; i < k; ++i) {
+            result[i] = heap.poll();
+        }
+
+        return result;
+    }
+}
+```
+
+  </Tab>
+
+  <Tab value="Python">
+
+```python
+from collections import Counter
+from heapq import heappush, heappop
+from typing import List
+
+class Solution:
+    def topKFrequent(
+        self,
+        nums: List[int],
+        k: int
+    ) -> List[int]:
+        freq = Counter(nums)
+        heap = []
+
+        for value, count in freq.items():
+            heappush(heap, (count, value))
+
+            if len(heap) > k:
+                heappop(heap)
+
+        return [value for count, value in heap]
+```
+
+  </Tab>
+
+  <Tab value="Go">
+
+```go
+type Item struct {
+    value int
+    count int
+}
+
+type MinHeap []Item
+
+func (h MinHeap) Len() int {
+    return len(h)
+}
+
+func (h MinHeap) Less(i, j int) bool {
+    return h[i].count < h[j].count
+}
+
+func (h MinHeap) Swap(i, j int) {
+    h[i], h[j] = h[j], h[i]
+}
+
+func (h *MinHeap) Push(x any) {
+    *h = append(*h, x.(Item))
+}
+
+func (h *MinHeap) Pop() any {
+    old := *h
+    n := len(old)
+
+    item := old[n-1]
+    *h = old[:n-1]
+
+    return item
+}
+
+func topKFrequent(nums []int, k int) []int {
+    freq := make(map[int]int)
+
+    for _, x := range nums {
+        freq[x]++
+    }
+
+    h := &MinHeap{}
+    heap.Init(h)
+
+    for value, count := range freq {
+        heap.Push(h, Item{
+            value: value,
+            count: count,
+        })
+
+        if h.Len() > k {
+            heap.Pop(h)
+        }
+    }
+
+    result := make([]int, 0, k)
+
+    for h.Len() > 0 {
+        item := heap.Pop(h).(Item)
+        result = append(result, item.value)
+    }
+
+    return result
+}
+```
+
+  </Tab>
+
+  <Tab value="JavaScript">
+
+```javascript
+var topKFrequent = function(nums, k) {
+    const freq = new Map();
+
+    for (const x of nums) {
+        freq.set(x, (freq.get(x) ?? 0) + 1);
+    }
+
+    const items = Array.from(freq.entries());
+
+    items.sort((a, b) => b[1] - a[1]);
+
+    return items
+        .slice(0, k)
+        .map(([value]) => value);
+};
+```
+
+  </Tab>
+
+  <Tab value="TypeScript">
+
+```typescript
+function topKFrequent(
+    nums: number[],
+    k: number
+): number[] {
+    const freq = new Map<number, number>();
+
+    for (const x of nums) {
+        freq.set(x, (freq.get(x) ?? 0) + 1);
+    }
+
+    return Array.from(freq.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, k)
+        .map(([value]) => value);
+}
+```
+
+  </Tab>
+</Tabs>
+
+<Callout type="note" title="关于 JavaScript / TypeScript">
+语言标准库没有统一内置的优先队列，因此上面的版本使用排序保持代码简洁。
+
+如果运行环境提供 Heap / PriorityQueue 库，则可按同样的“小根堆大小固定为 K”思路实现 $O(n\log k)$。
+</Callout>
+
+---
+
+# 25. 复杂度总结
+
+使用最小堆版本：
+
+统计：
+
+$$
+O(n)
+$$
+
+堆维护：
+
+$$
+O(m\log k)
+$$
+
+其中 $m$ 是不同元素数量。
+
+最坏写作：
+
+$$
+O(n\log k)
+$$
+
+空间：
+
+$$
+O(n)
+$$
+
+---
+
+## 26. 本题总结
+
+前 K 高频元素是一个非常典型的组合题：
+
+```text
+Hash Map
+   ↓
+统计 frequency
+   ↓
+Top K
+   ↓
+大小为 K 的最小堆
+```
+
+核心规律：
+
+> **找最大的 K 个，用大小为 K 的小根堆。**
+
+因为小根堆顶部始终是：
+
+```text
+当前 Top K 中最弱的候选
+```
+
+新候选加入后，只要超过 K：
+
+```text
+淘汰最弱者
+```
+
+最终剩下的就是全局前 K 名。

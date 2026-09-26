@@ -1,0 +1,1389 @@
+---
+title: Kruskal 算法精讲
+subtitle: 从“按边贪心 + 并查集判环”理解最小生成树
+summary: 以卡码网 53「寻宝」为主线系统学习 Kruskal：理解为什么边按权值排序后可以贪心选择、为什么并查集恰好能判断一条边是否成环、如何恢复最小生成树、如何判断图不连通，以及 Kruskal 与 Prim 的复杂度和适用场景。
+---
+
+# Kruskal 算法精讲
+
+> **卡码网 53. 寻宝**
+>
+> 给定一张无向带权图，用最小的道路总长度把所有岛屿连接起来，求最小总权值。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1053)
+
+上一篇 Prim 是“从一个点出发，把一棵树不断向外扩张”。
+
+Kruskal 的视角完全不同：
+
+> **不固定从哪个点开始，而是把所有边按权值从小到大考虑；只要当前边不会形成环，就把它加入生成树。**
+
+因此 Kruskal 的核心不是 `minDist`，而是两个问题：
+
+1. 下一条最值得尝试的边是哪一条？
+2. 加上这条边会不会形成环？
+
+第一个问题通过**排序**解决；第二个问题通过**并查集**解决。
+
+<Callout type="info" title="一句话理解 Kruskal">
+
+**边从小到大扫；端点不连通就选，已经连通就跳过。**
+
+这正是“排序 + 并查集”的经典组合。
+
+</Callout>
+
+---
+
+## 1. 先回顾最小生成树
+
+设无向连通图为：
+
+$$
+G=(V,E)
+$$
+
+每条边 $e$ 的权值为 $w(e)$。
+
+我们需要找一个边集合 $T$，满足：
+
+- 覆盖所有顶点；
+- 图连通；
+- 不含环；
+- 总权值最小。
+
+若：
+
+$$
+|V|=n
+$$
+
+则任何生成树都恰好包含：
+
+$$
+n-1
+$$
+
+条边。
+
+所以 Kruskal 的过程可以理解成：
+
+> 从所有边中挑出恰好 $n-1$ 条边，同时保证始终不成环，并让总权值尽可能小。
+
+题目示例图：
+
+![题目中的无向带权图](https://file1.kamacoder.com/i/algo/20240111113514.png)
+
+---
+
+## 2. Kruskal 的两个核心动作
+
+先把所有边按照权值从小到大排序：
+
+```text
+小权边
+  ↓
+  ↓
+  ↓
+大权边
+```
+
+然后依次扫描每一条边 $(u,v,w)$。
+
+<Cards>
+  <Card title="端点不连通">
+    如果 `u` 和 `v` 当前属于两个不同连通分量，这条边可以把两个分量合并，不会产生环，因此加入 MST。
+  </Card>
+  <Card title="端点已连通">
+    如果 `u` 和 `v` 已经在同一个连通分量中，当前已经存在一条从 `u` 到 `v` 的路径，再加入这条边一定形成环，因此跳过。
+  </Card>
+</Cards>
+
+用并查集表达就是：
+
+```text
+find(u) != find(v)  →  选边 + union(u, v)
+find(u) == find(v)  →  跳过
+```
+
+---
+
+## 3. 为什么并查集正好适合 Kruskal
+
+Kruskal 不需要知道两个点之间具体经过了哪些顶点。
+
+它只关心：
+
+> `u` 和 `v` 是否已经处于同一个连通分量。
+
+并查集恰好提供：
+
+```text
+find(x)      查询 x 所属集合的代表元
+union(u, v)  合并两个集合
+```
+
+因此可以把当前已经选择的 MST 边看成若干棵互不相交的树，也就是一个森林：
+
+```text
+T1    T2    T3    T4
+```
+
+每选中一条连接两个不同分量的边，就把两棵树合并：
+
+```text
+T1 + T3  →  一棵更大的树
+```
+
+如果一条边的两个端点已经在同一棵树中，再连接它们，就必然产生环。
+
+<Callout type="tip" title="这是并查集最经典的使用场景之一">
+
+当题目反复询问：
+
+```text
+两个点现在是否已经连通？
+如果不连通，就把它们连起来。
+```
+
+应当非常自然地想到并查集。
+
+</Callout>
+
+---
+
+## 4. 手推 Kruskal：先排序所有边
+
+示例图中的边按照权值升序排列后，可以得到类似：
+
+```text
+(1,2,1)
+(1,3,1)
+(2,6,1)
+(3,4,1)
+(4,5,1)
+(5,7,1)
+(6,7,1)
+(1,5,2)
+(2,3,2)
+(2,4,2)
+(5,6,2)
+```
+
+权值相同的边之间先后顺序可以不同。
+
+这也是为什么：
+
+> 同一个图可能得到结构不同、但总权值相同的多棵最小生成树。
+
+---
+
+## 5. 选择第一条边
+
+先看：
+
+```text
+1 -- 2   权值 1
+```
+
+开始时每个顶点都是独立集合：
+
+```text
+{1} {2} {3} {4} {5} {6} {7}
+```
+
+因为：
+
+$$
+\operatorname{find}(1)\ne\operatorname{find}(2)
+$$
+
+所以加入边 `(1,2)`，再合并集合。
+
+![Kruskal 选择第一条边](https://file1.kamacoder.com/i/algo/20240111114204.png)
+
+此时森林变成：
+
+```text
+{1,2} {3} {4} {5} {6} {7}
+```
+
+---
+
+## 6. 继续选择不会成环的最小边
+
+再处理一条权值为 `1` 的边，例如 `(4,5)`。
+
+因为：
+
+$$
+\operatorname{find}(4)\ne\operatorname{find}(5)
+$$
+
+可以安全加入。
+
+![选择边 4-5](https://file1.kamacoder.com/i/algo/20240111120458.png)
+
+接着选择 `(1,3)`：
+
+![选择边 1-3](https://file1.kamacoder.com/i/algo/20240112105834.png)
+
+选择 `(2,6)`：
+
+![选择边 2-6](https://file1.kamacoder.com/i/algo/20240112110214.png)
+
+选择 `(3,4)`：
+
+![选择边 3-4](https://file1.kamacoder.com/i/algo/20240112110450.png)
+
+此时多个原本独立的连通分量已经被合并成一个更大的分量。
+
+再选择 `(6,7)`：
+
+![选择边 6-7 后形成生成树](https://file1.kamacoder.com/i/algo/20240112110637.png)
+
+现在已经选择：
+
+$$
+V-1=6
+$$
+
+条边，最小生成树构造完成。原资料再次用最终状态图强调：此时所有顶点已经由绿色树边连通。
+
+![Kruskal 最终得到的一棵最小生成树](https://file1.kamacoder.com/i/algo/20240112110637.png)
+
+---
+
+## 7. 为什么后面的边要跳过
+
+假设此时继续扫描边 `(5,7)`。
+
+已经存在一条由已选边组成的路径，把 `5` 与 `7` 连在一起。
+
+也就是：
+
+$$
+\operatorname{find}(5)=\operatorname{find}(7)
+$$
+
+如果仍把 `(5,7)` 加入，就会出现一个环。
+
+因此跳过。
+
+之后的 `(1,5)`、`(2,3)`、`(2,4)`、`(5,6)` 也是同理。
+
+<Callout type="warning" title="Kruskal 不是“取最小的 V-1 条边”">
+
+最小的 $V-1$ 条边可能形成环，也可能无法覆盖所有顶点。
+
+真正的规则是：
+
+> **按权值顺序尝试边，但只有“不形成环”的边才能被接受。**
+
+</Callout>
+
+---
+
+## 8. Kruskal 的标准流程
+
+<Steps>
+
+### 将所有边存入数组
+
+每条边至少保存：
+
+```text
+u, v, weight
+```
+
+### 按边权升序排序
+
+```text
+edges.sort(weight ascending)
+```
+
+### 初始化并查集
+
+开始时每个顶点自己构成一个连通分量。
+
+### 从小到大扫描边
+
+若：
+
+$$
+\operatorname{find}(u)\ne\operatorname{find}(v)
+$$
+
+则：
+
+```text
+选择这条边
+答案加上 w
+union(u, v)
+```
+
+### 选满 V-1 条边后停止
+
+此时如果已经选中 $V-1$ 条边，则生成树完成，没有必要继续扫描。
+
+</Steps>
+
+---
+
+## 9. 为什么 Kruskal 的贪心是正确的
+
+Kruskal 也可以用最小生成树的 **割性质（Cut Property）** 来理解。
+
+当前已经通过并查集形成若干连通分量：
+
+```text
+C1, C2, C3, ...
+```
+
+当我们选择一条连接两个不同分量的最小权边时，本质上就是在跨越某个割的候选边中取一个安全的最小边。
+
+更直观地说：
+
+> 如果两个连通分量最终必须被连接起来，那么在所有能跨越它们边界的边里，优先使用当前最便宜的安全边，不会使最优解变差。
+
+还有另一个常用理解：**环性质（Cycle Property）**。
+
+对于任意一个环，如果其中某条边严格重于环内其他边，那么这条最重边不可能是某棵唯一必要的 MST 边，因为删除它以后环上其他路径仍然保持连通，而且总代价更小。
+
+Kruskal 从小到大选边，并主动跳过会形成环的边，正好与这个性质吻合。
+
+---
+
+## 10. 标准 C++ 实现
+
+这里使用：
+
+- `Edge` 保存边；
+- `sort` 按权值排序；
+- 并查集路径压缩；
+- 按集合大小合并；
+- 选满 $V-1$ 条边后提前结束；
+- 如果最后不足 $V-1$ 条边，则说明原图不连通。
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <numeric>
+#include <vector>
+using namespace std;
+
+struct Edge {
+    int u;
+    int v;
+    long long w;
+};
+
+class UnionFind {
+private:
+    vector<int> parent;
+    vector<int> size;
+
+public:
+    explicit UnionFind(int n) : parent(n + 1), size(n + 1, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    bool unite(int u, int v) {
+        int rootU = find(u);
+        int rootV = find(v);
+
+        if (rootU == rootV) {
+            return false;
+        }
+
+        if (size[rootU] < size[rootV]) {
+            swap(rootU, rootV);
+        }
+
+        parent[rootV] = rootU;
+        size[rootU] += size[rootV];
+        return true;
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int V, E;
+    cin >> V >> E;
+
+    vector<Edge> edges(E);
+    for (auto& edge : edges) {
+        cin >> edge.u >> edge.v >> edge.w;
+    }
+
+    sort(edges.begin(), edges.end(), [](const Edge& a, const Edge& b) {
+        return a.w < b.w;
+    });
+
+    UnionFind uf(V);
+
+    long long answer = 0;
+    int selected = 0;
+
+    for (const Edge& edge : edges) {
+        if (uf.unite(edge.u, edge.v)) {
+            answer += edge.w;
+            ++selected;
+
+            if (selected == V - 1) {
+                break;
+            }
+        }
+    }
+
+    if (selected != V - 1) {
+        cout << -1 << '\n';
+        return 0;
+    }
+
+    cout << answer << '\n';
+    return 0;
+}
+```
+
+样例输出：
+
+```text
+6
+```
+
+---
+
+## 11. `unite` 返回 `bool` 为什么很舒服
+
+很多并查集模板会把：
+
+```cpp
+union(u, v)
+```
+
+写成一个没有返回值的函数。
+
+在 Kruskal 中，更推荐让它返回：
+
+```text
+true  → 原本不连通，成功合并
+false → 原本已经连通，没有合并
+```
+
+于是主循环可以直接写：
+
+```cpp
+if (uf.unite(edge.u, edge.v)) {
+    answer += edge.w;
+    ++selected;
+}
+```
+
+这和 Kruskal 的语义完全一致：
+
+> 合并成功，说明这条边不会成环，可以进入 MST。
+
+---
+
+## 12. 为什么选中 V-1 条边就可以停止
+
+一棵包含 $V$ 个顶点的树恰好有：
+
+$$
+V-1
+$$
+
+条边。
+
+Kruskal 每次只会加入连接两个不同连通分量的边，所以被选中的边始终不会形成环。
+
+当已经选择 $V-1$ 条边时：
+
+- 无环；
+- 顶点总数为 $V$；
+- 边数为 $V-1$。
+
+如果这些边仍然不连通，就会形成至少两个树状分量，而一个有 $k$ 个连通分量的森林最多只有：
+
+$$
+V-k
+$$
+
+条边。
+
+当边数已经达到 $V-1$ 时只能有：
+
+$$
+k=1
+$$
+
+因此一定已经是一棵生成树。
+
+---
+
+## 13. 图不连通时如何判断
+
+如果原图不连通，Kruskal 仍然会尽可能在各个连通分量内部选边。
+
+最后得到的是**最小生成森林**，而不是覆盖全部顶点的一棵生成树。
+
+因此应检查：
+
+```cpp
+selected == V - 1
+```
+
+若不成立，就说明不存在覆盖全部顶点的生成树。
+
+这比只输出 `answer` 更健壮。
+
+---
+
+## 14. Kruskal 的复杂度
+
+设顶点数为 $V$，边数为 $E$。
+
+最主要的开销是边排序：
+
+$$
+O(E\log E)
+$$
+
+并查集使用路径压缩 + 按秩/按大小合并后，单次操作均摊复杂度近似：
+
+$$
+O(\alpha(V))
+$$
+
+这里 $\alpha$ 是反阿克曼函数，在现实数据规模中可以近似看作常数。
+
+扫描全部边最多做 $E$ 次并查集操作：
+
+$$
+O(E\alpha(V))
+$$
+
+所以总复杂度为：
+
+$$
+O(E\log E + E\alpha(V))
+$$
+
+通常写成：
+
+$$
+\boxed{O(E\log E)}
+$$
+
+空间复杂度：
+
+$$
+\boxed{O(V+E)}
+$$
+
+其中边数组占 $O(E)$，并查集占 $O(V)$。
+
+<Callout type="info" title="复杂度里的 n 到底代表谁">
+
+不要只背“$O(n\log n)$”。
+
+Kruskal 排序的是**边**，因此准确写法应该是：
+
+$$
+O(E\log E)
+$$
+
+这也是判断它是否适合稀疏图的重要依据。
+
+</Callout>
+
+---
+
+## 15. 如何输出最小生成树中的边
+
+Kruskal 本身就是直接处理边，因此恢复 MST 边比 Prim 更自然。
+
+只需要在合并成功时记录当前边：
+
+```cpp
+vector<Edge> mst;
+
+if (uf.unite(edge.u, edge.v)) {
+    mst.push_back(edge);
+    answer += edge.w;
+}
+```
+
+完整核心：
+
+```cpp
+vector<Edge> mst;
+long long answer = 0;
+
+for (const Edge& edge : edges) {
+    if (uf.unite(edge.u, edge.v)) {
+        mst.push_back(edge);
+        answer += edge.w;
+
+        if (mst.size() == static_cast<size_t>(V - 1)) {
+            break;
+        }
+    }
+}
+```
+
+示例中一种可能的结果是：
+
+```text
+1 - 2 : 1
+1 - 3 : 1
+2 - 6 : 1
+3 - 4 : 1
+4 - 5 : 1
+5 - 7 : 1
+```
+
+对应的最小生成树可能是：
+
+![另一种合法的最小生成树](https://file1.kamacoder.com/i/algo/20240116163014.png)
+
+它和手推过程中得到的树结构可能不完全一样，但总权值相同。
+
+---
+
+## 16. 为什么不同代码可能得到不同 MST
+
+如果存在相同权值的多条边，例如：
+
+```text
+w(e1) = w(e2) = 1
+```
+
+排序时 `e1` 和 `e2` 的先后顺序不一定固定。
+
+如果两种选择都不会破坏最优性，就可能形成不同的 MST。
+
+这并不是算法不稳定，而是问题本身可能有多个最优解。
+
+只有在所有边权互不相同时，MST 才一定唯一。
+
+<Callout type="tip" title="判题通常只要求最小权值时，不要纠结树形状不同">
+
+如果题目只要求最小总权值：
+
+```text
+answer
+```
+
+那么不同的 MST 结构没有影响。
+
+如果题目要求输出具体边，并且要求字典序或固定顺序，则必须额外阅读题目的 tie-breaking 规则。
+
+</Callout>
+
+---
+
+## 17. Prim 与 Kruskal 的本质区别
+
+原资料用一句非常好的话概括：
+
+> Prim 更像是在维护“顶点集合”，Kruskal 更像是在维护“边集合”。
+
+进一步展开：
+
+| 对比项 | Prim | Kruskal |
+| --- | --- | --- |
+| 生长方式 | 从一棵树向外扩张 | 多个小树逐渐合并 |
+| 核心数据 | `minDist` | 排序后的边 + 并查集 |
+| 每轮选择 | 离当前树最近的顶点 | 全局下一条最小安全边 |
+| 防环方式 | 新顶点只从树外加入 | 并查集判断两端是否已连通 |
+| 朴素复杂度 | $O(V^2)$ | $O(E\log E)$ |
+| 常见适用 | 稠密图 | 稀疏图 |
+
+原资料给出的稀疏图示意：
+
+![边较少的稀疏图](https://file1.kamacoder.com/i/algo/20240116152211.png)
+
+如果边很少：
+
+$$
+E\ll V^2
+$$
+
+那么 Kruskal 只需要排序并扫描这些实际存在的边，往往非常自然。
+
+---
+
+## 18. “稀疏图用 Kruskal，稠密图用 Prim”要怎么理解
+
+这是一个常见经验，但不能背得过于绝对。
+
+### 朴素 Prim
+
+邻接矩阵 + 线性选点：
+
+$$
+O(V^2)
+$$
+
+当图接近完全图时：
+
+$$
+E\approx V^2
+$$
+
+这个复杂度很有竞争力。
+
+### Kruskal
+
+主要复杂度：
+
+$$
+O(E\log E)
+$$
+
+当：
+
+$$
+E=O(V)
+$$
+
+时通常很合适。
+
+### 堆优化 Prim
+
+邻接表 + 小根堆可以做到约：
+
+$$
+O(E\log V)
+$$
+
+因此现代实现里，Prim 也可以很好地处理稀疏图。
+
+所以更准确的选择依据是：
+
+- 题目天然给“边列表”：Kruskal 很顺手；
+- 已经有邻接表并希望从某个点扩树：堆优化 Prim 很自然；
+- 稠密图、$V$ 不大：朴素 Prim 简洁有效；
+- 需要频繁利用并查集结构：Kruskal 往往更好写。
+
+---
+
+## 19. Kruskal 能处理负权边吗
+
+可以。
+
+例如边权为：
+
+```text
+-5, -2, 1, 3
+```
+
+Kruskal 只需要把它们升序排序：
+
+```text
+-5, -2, 1, 3
+```
+
+然后继续执行“不成环就选”。
+
+负权边不会造成最短路算法中那种反复降低路径长度的问题。
+
+因此：
+
+> MST 的 Prim / Kruskal 都允许负权边。
+
+---
+
+## 20. 自环与重边怎么处理
+
+### 自环
+
+如果一条边是：
+
+```text
+u -- u
+```
+
+则：
+
+$$
+\operatorname{find}(u)=\operatorname{find}(u)
+$$
+
+因此 Kruskal 会自然跳过，自环永远不会属于生成树。
+
+### 重边
+
+若有：
+
+```text
+u -- v : 3
+u -- v : 7
+```
+
+排序后权值 `3` 的边会先被考虑。
+
+如果它被选中，那么之后权值 `7` 的同端点边再出现时，两端已经连通，会被自动跳过。
+
+因此 Kruskal 对重边不需要特别预处理。
+
+这也是边列表实现很方便的一点。
+
+---
+
+## 21. 高频错误
+
+### 错误一：排序了顶点，而不是边
+
+Kruskal 的全局顺序是：
+
+```text
+edge.weight
+```
+
+不是顶点编号。
+
+### 错误二：只要边权小就加入
+
+必须先检查：
+
+```cpp
+find(u) != find(v)
+```
+
+否则会形成环。
+
+### 错误三：合并前后重复 `find` 太多但逻辑混乱
+
+可以把“是否合并成功”封装进：
+
+```cpp
+bool unite(u, v)
+```
+
+主循环会非常干净。
+
+### 错误四：忘记 `V-1` 条边后提前结束
+
+不影响正确性，但浪费后续扫描。
+
+### 错误五：原图不连通还直接输出权值
+
+最终必须检查：
+
+```text
+selected == V - 1
+```
+
+### 错误六：把并查集的 `parent` 当成 MST 的父子关系
+
+并查集内部的 `parent[x]` 只是集合代表结构。
+
+它并不等于最小生成树中真实的边。
+
+如果要输出 MST，必须单独保存选中的 `Edge`。
+
+<Callout type="warning" title="并查集 parent 与生成树 parent 不是一回事">
+
+并查集路径压缩后可能出现：
+
+```text
+1 <- 2
+1 <- 3
+1 <- 4
+1 <- 5
+```
+
+这只是为了快速判断集合。
+
+它不能说明 MST 中真的存在 `1-2、1-3、1-4、1-5` 这些边。
+
+</Callout>
+
+---
+
+## 22. 为什么“判环”只看两端是否已经连通
+
+设当前已经选择的边始终构成森林。
+
+准备加入边：
+
+$$
+(u,v)
+$$
+
+若 `u` 和 `v` 已经连通，就意味着森林中已经存在一条路径：
+
+$$
+u\leadsto v
+$$
+
+加入新边以后形成：
+
+$$
+u\leadsto v\to u
+$$
+
+于是产生环。
+
+反之，如果二者不连通，它们属于两棵不同的树。
+
+一条边连接两棵树只会把它们合并为更大的树，不可能产生环。
+
+所以：
+
+$$
+\boxed{
+\operatorname{find}(u)=\operatorname{find}(v)
+\iff
+\text{加入 }(u,v)\text{ 会形成环}
+}
+$$
+
+这个结论不仅用于 Kruskal，也用于“冗余连接”等大量无向图题。
+
+---
+
+## 23. 做题时的固定模板
+
+<Steps>
+
+### 识别题目
+
+看到：
+
+```text
+连接所有点
+总代价最小
+无向带权图
+```
+
+优先想到 MST。
+
+### 选择 Kruskal
+
+如果题目天然以边列表输入，尤其是稀疏图，Kruskal 通常最直接。
+
+### 建边结构
+
+```text
+Edge { u, v, w }
+```
+
+### 按 w 升序排序
+
+不要改变 MST 逻辑所依赖的全局边权顺序。
+
+### 初始化并查集
+
+每个顶点先独立。
+
+### 扫描边
+
+```text
+如果 unite(u,v) 成功：
+    answer += w
+    selected++
+```
+
+### 检查是否选满 V-1 条边
+
+若没有，原图不连通。
+
+</Steps>
+
+---
+
+## 24. 一张图记住 Prim 与 Kruskal
+
+可以这样建立直觉：
+
+```text
+Prim
+
+        当前树
+      /   |   \
+   候选 候选 候选
+      \   |   /
+   每次挑离树最近的点
+```
+
+```text
+Kruskal
+
+树A      树B      树C
+ \        |       /
+  \--候选边列表--/
+       ↓排序
+全局最小且不成环就合并
+```
+
+Prim 是：
+
+> **一棵树长大。**
+
+Kruskal 是：
+
+> **很多棵小树合并。**
+
+---
+
+## 25. 最终总结
+
+<Callout type="success" title="一句话总结">
+
+**Kruskal 把所有边按权值升序处理，并用并查集维护当前连通分量；一条边的两个端点若尚未连通，就把这条边加入最小生成树并合并两个集合，否则跳过。**
+
+</Callout>
+
+最精炼的伪代码：
+
+```text
+sort(edges by weight)
+init union-find
+answer = 0
+selected = 0
+
+for edge in edges:
+    if union(edge.u, edge.v) succeeds:
+        answer += edge.weight
+        selected += 1
+
+        if selected == V - 1:
+            break
+```
+
+只要牢牢记住：
+
+```text
+排序负责“先考虑便宜边”
+并查集负责“保证不成环”
+V-1 负责“判断树已经完整”
+```
+
+Kruskal 的主体逻辑就已经掌握了。
+
+---
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static class Edge {
+        int u, v;
+        long w;
+
+        Edge(int u, int v, long w) {
+            this.u = u;
+            this.v = v;
+            this.w = w;
+        }
+    }
+
+    static class UnionFind {
+        int[] parent;
+        int[] size;
+
+        UnionFind(int n) {
+            parent = new int[n + 1];
+            size = new int[n + 1];
+            for (int i = 1; i <= n; ++i) {
+                parent[i] = i;
+                size[i] = 1;
+            }
+        }
+
+        int find(int x) {
+            if (parent[x] != x) {
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        boolean union(int u, int v) {
+            int rootU = find(u);
+            int rootV = find(v);
+
+            if (rootU == rootV) {
+                return false;
+            }
+
+            if (size[rootU] < size[rootV]) {
+                int temp = rootU;
+                rootU = rootV;
+                rootV = temp;
+            }
+
+            parent[rootV] = rootU;
+            size[rootU] += size[rootV];
+            return true;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        int V = Integer.parseInt(st.nextToken());
+        int E = Integer.parseInt(st.nextToken());
+
+        Edge[] edges = new Edge[E];
+        for (int i = 0; i < E; ++i) {
+            st = new StringTokenizer(br.readLine());
+            int u = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            long w = Long.parseLong(st.nextToken());
+            edges[i] = new Edge(u, v, w);
+        }
+
+        Arrays.sort(edges, Comparator.comparingLong(edge -> edge.w));
+
+        UnionFind uf = new UnionFind(V);
+        long answer = 0;
+        int selected = 0;
+
+        for (Edge edge : edges) {
+            if (uf.union(edge.u, edge.v)) {
+                answer += edge.w;
+                ++selected;
+
+                if (selected == V - 1) {
+                    break;
+                }
+            }
+        }
+
+        System.out.println(selected == V - 1 ? answer : -1);
+    }
+}
+```
+
+```python label="Python"
+import sys
+
+input = sys.stdin.readline
+
+
+class UnionFind:
+    def __init__(self, n: int):
+        self.parent = list(range(n + 1))
+        self.size = [1] * (n + 1)
+
+    def find(self, x: int) -> int:
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, u: int, v: int) -> bool:
+        root_u = self.find(u)
+        root_v = self.find(v)
+
+        if root_u == root_v:
+            return False
+
+        if self.size[root_u] < self.size[root_v]:
+            root_u, root_v = root_v, root_u
+
+        self.parent[root_v] = root_u
+        self.size[root_u] += self.size[root_v]
+        return True
+
+
+V, E = map(int, input().split())
+edges = []
+
+for _ in range(E):
+    u, v, w = map(int, input().split())
+    edges.append((w, u, v))
+
+edges.sort()
+uf = UnionFind(V)
+
+answer = 0
+selected = 0
+
+for w, u, v in edges:
+    if uf.union(u, v):
+        answer += w
+        selected += 1
+
+        if selected == V - 1:
+            break
+
+print(answer if selected == V - 1 else -1)
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let idx = 0;
+
+const V = data[idx++];
+const E = data[idx++];
+
+const edges = [];
+for (let i = 0; i < E; ++i) {
+  const u = data[idx++];
+  const v = data[idx++];
+  const w = data[idx++];
+  edges.push([w, u, v]);
+}
+
+edges.sort((a, b) => a[0] - b[0]);
+
+class UnionFind {
+  constructor(n) {
+    this.parent = Array.from({ length: n + 1 }, (_, i) => i);
+    this.size = new Array(n + 1).fill(1);
+  }
+
+  find(x) {
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.find(this.parent[x]);
+    }
+    return this.parent[x];
+  }
+
+  union(u, v) {
+    let rootU = this.find(u);
+    let rootV = this.find(v);
+
+    if (rootU === rootV) return false;
+
+    if (this.size[rootU] < this.size[rootV]) {
+      [rootU, rootV] = [rootV, rootU];
+    }
+
+    this.parent[rootV] = rootU;
+    this.size[rootU] += this.size[rootV];
+    return true;
+  }
+}
+
+const uf = new UnionFind(V);
+let answer = 0;
+let selected = 0;
+
+for (const [w, u, v] of edges) {
+  if (uf.union(u, v)) {
+    answer += w;
+    ++selected;
+
+    if (selected === V - 1) break;
+  }
+}
+
+console.log(selected === V - 1 ? answer : -1);
+```
+
+```go label="Go"
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+    "sort"
+)
+
+type Edge struct {
+    u, v int
+    w    int64
+}
+
+type UnionFind struct {
+    parent []int
+    size   []int
+}
+
+func NewUnionFind(n int) *UnionFind {
+    parent := make([]int, n+1)
+    size := make([]int, n+1)
+    for i := 1; i <= n; i++ {
+        parent[i] = i
+        size[i] = 1
+    }
+    return &UnionFind{parent: parent, size: size}
+}
+
+func (uf *UnionFind) Find(x int) int {
+    if uf.parent[x] != x {
+        uf.parent[x] = uf.Find(uf.parent[x])
+    }
+    return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(u, v int) bool {
+    rootU := uf.Find(u)
+    rootV := uf.Find(v)
+
+    if rootU == rootV {
+        return false
+    }
+
+    if uf.size[rootU] < uf.size[rootV] {
+        rootU, rootV = rootV, rootU
+    }
+
+    uf.parent[rootV] = rootU
+    uf.size[rootU] += uf.size[rootV]
+    return true
+}
+
+func main() {
+    in := bufio.NewReader(os.Stdin)
+    out := bufio.NewWriter(os.Stdout)
+    defer out.Flush()
+
+    var V, E int
+    fmt.Fscan(in, &V, &E)
+
+    edges := make([]Edge, E)
+    for i := 0; i < E; i++ {
+        fmt.Fscan(in, &edges[i].u, &edges[i].v, &edges[i].w)
+    }
+
+    sort.Slice(edges, func(i, j int) bool {
+        return edges[i].w < edges[j].w
+    })
+
+    uf := NewUnionFind(V)
+    var answer int64
+    selected := 0
+
+    for _, edge := range edges {
+        if uf.Union(edge.u, edge.v) {
+            answer += edge.w
+            selected++
+
+            if selected == V-1 {
+                break
+            }
+        }
+    }
+
+    if selected != V-1 {
+        fmt.Fprintln(out, -1)
+        return
+    }
+
+    fmt.Fprintln(out, answer)
+}
+```
+````

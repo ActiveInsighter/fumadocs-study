@@ -1,0 +1,715 @@
+---
+title: 最长回文子串
+description: 从区间动态规划到中心扩散，再到 Manacher，系统理解回文子串的状态设计、遍历顺序和复杂度优化。
+---
+
+# 5. 最长回文子串
+
+[LeetCode 5：最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/)
+
+给定字符串 `s`，返回其中最长的回文子串。
+
+例如：
+
+```text
+输入：s = "babad"
+输出："bab"
+说明："aba" 也是合法答案。
+```
+
+```text
+输入：s = "cbbd"
+输出："bb"
+```
+
+## 一、问题本质：如何快速判断一个区间是不是回文
+
+若直接枚举每个子串，再用双指针判断该子串是否回文：
+
+- 子串数量为 $O(n^2)$；
+- 每次判断最坏需要 $O(n)$。
+
+因此暴力复杂度为：
+
+$$
+O(n^3)
+$$
+
+本题真正需要优化的是：
+
+> **不要重复判断相同区间内部是否回文。**
+
+常见解法有三层递进：
+
+1. 区间动态规划：复用内部区间结果；
+2. 中心扩散：直接从回文中心向两侧扩张；
+3. Manacher：进一步利用不同中心之间的对称信息，将复杂度降至线性。
+
+## 二、动态规划：由内部回文推出外层回文
+
+### 1. 状态定义
+
+定义：
+
+$$
+dp[i][j]
+$$
+
+表示闭区间：
+
+$$
+s[i\ldots j]
+$$
+
+是否为回文串。
+
+即：
+
+```text
+dp[i][j] = true  -> s[i..j] 是回文
+dp[i][j] = false -> s[i..j] 不是回文
+```
+
+只需要考虑：
+
+$$
+i\le j
+$$
+
+因此真正有意义的是 `dp` 矩阵的右上三角区域。
+
+### 2. 状态转移
+
+判断 `s[i..j]` 是否回文，首先看两端：
+
+#### 情况 A：两端不同
+
+若：
+
+$$
+s[i]\ne s[j]
+$$
+
+那么：
+
+$$
+dp[i][j]=false
+$$
+
+无需继续判断内部。
+
+#### 情况 B：两端相同
+
+若：
+
+$$
+s[i]=s[j]
+$$
+
+还需要根据区间长度判断。
+
+当：
+
+$$
+j-i\le 1
+$$
+
+区间长度为 $1$ 或 $2$。
+
+例如：
+
+```text
+"a"
+"aa"
+```
+
+只要两端相同，就一定是回文。
+
+当：
+
+$$
+j-i>1
+$$
+
+例如：
+
+```text
+c a b a c
+^       ^
+```
+
+外层两个 `c` 相同，此时整个区间是否回文，只取决于内部：
+
+```text
+aba
+```
+
+即：
+
+$$
+dp[i][j]=dp[i+1][j-1]
+$$
+
+所以可以合并为：
+
+$$
+dp[i][j]
+=
+(s[i]=s[j])\land
+\left((j-i\le1)\lor dp[i+1][j-1]\right)
+$$
+
+对应代码：
+
+```cpp
+if (s[i] == s[j] && (j - i <= 1 || dp[i + 1][j - 1])) {
+    dp[i][j] = true;
+}
+```
+
+## 三、最容易写错的地方：遍历顺序
+
+状态：
+
+$$
+dp[i][j]
+$$
+
+依赖：
+
+$$
+dp[i+1][j-1]
+$$
+
+也就是说，计算当前区间之前，必须先算出“左端点更靠右”的内部区间。
+
+因此 `i` 应当从后往前遍历：
+
+```cpp
+for (int i = n - 1; i >= 0; --i) {
+    for (int j = i; j < n; ++j) {
+        ...
+    }
+}
+```
+
+原资料中的状态示意图可以帮助理解这一依赖关系：
+
+![回文区间 DP 的依赖方向](https://file1.kamacoder.com/i/algo/20210121171032473.jpg)
+
+对字符串 `"aaa"`，状态表可以得到：
+
+![aaa 的回文状态](https://file1.kamacoder.com/i/algo/20210121171059951.jpg)
+
+> [!IMPORTANT]
+> 区间 DP 判断遍历顺序时，不要凭习惯写循环。先从递推式中找“当前状态依赖谁”，再决定先计算哪一部分。
+
+## 四、在 DP 中同步维护最长答案
+
+只要某个区间满足：
+
+```text
+dp[i][j] = true
+```
+
+它就是一个合法回文子串，其长度为：
+
+$$
+j-i+1
+$$
+
+如果该长度超过当前最优值，就记录左端点与长度。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int n = s.size();
+        vector<vector<bool>> dp(n, vector<bool>(n, false));
+
+        int bestLeft = 0;
+        int bestLength = 1;
+
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = i; j < n; ++j) {
+                if (s[i] == s[j] &&
+                    (j - i <= 1 || dp[i + 1][j - 1])) {
+                    dp[i][j] = true;
+                }
+
+                if (dp[i][j] && j - i + 1 > bestLength) {
+                    bestLeft = i;
+                    bestLength = j - i + 1;
+                }
+            }
+        }
+
+        return s.substr(bestLeft, bestLength);
+    }
+};
+```
+
+### 复杂度
+
+共有约 $n^2/2$ 个有效区间状态。
+
+- 时间复杂度：$O(n^2)$
+- 空间复杂度：$O(n^2)$
+
+## 五、更推荐掌握：中心扩散
+
+动态规划虽然直观，但额外使用了二维数组。
+
+实际上，回文串有一个更直接的几何特征：
+
+> **从中心向左右扩展时，两侧字符始终相等。**
+
+因此可以枚举所有可能的回文中心。
+
+### 为什么有两类中心
+
+奇数长度回文：
+
+```text
+b a b
+  ^
+```
+
+只有一个中心字符。
+
+偶数长度回文：
+
+```text
+b b
+^ ^
+```
+
+中心位于两个字符之间。
+
+所以对于每个位置 `i`，需要分别尝试：
+
+```cpp
+expand(i, i);       // 奇数长度
+expand(i, i + 1);   // 偶数长度
+```
+
+## 六、中心扩散完整过程
+
+设左右指针为 `left`、`right`。
+
+只要：
+
+```text
+left >= 0
+right < n
+s[left] == s[right]
+```
+
+就继续向外扩张：
+
+```text
+left--
+right++
+```
+
+扩张过程中，每一个有效区间都是回文。
+
+### C++ 实现
+
+```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int bestLeft = 0;
+        int bestLength = 1;
+
+        auto expand = [&](int left, int right) {
+            while (left >= 0 && right < (int)s.size() &&
+                   s[left] == s[right]) {
+                int length = right - left + 1;
+                if (length > bestLength) {
+                    bestLength = length;
+                    bestLeft = left;
+                }
+                --left;
+                ++right;
+            }
+        };
+
+        for (int i = 0; i < (int)s.size(); ++i) {
+            expand(i, i);
+            expand(i, i + 1);
+        }
+
+        return s.substr(bestLeft, bestLength);
+    }
+};
+```
+
+### 复杂度
+
+共有 $O(n)$ 个中心，每个中心最坏向两侧扩展 $O(n)$ 次。
+
+- 时间复杂度：$O(n^2)$
+- 空间复杂度：$O(1)$
+
+> [!TIP]
+> 如果题目只要求最长回文子串，而不要求统计所有区间状态，中心扩散通常比二维 DP 更自然，空间也更优。
+
+## 七、为什么中心扩散没有遗漏任何答案
+
+任意一个回文串一定存在中心。
+
+若长度为奇数：
+
+$$
+2k+1
+$$
+
+中心是某个字符。
+
+若长度为偶数：
+
+$$
+2k
+$$
+
+中心位于两个字符之间。
+
+而我们对每一个位置都枚举了：
+
+```text
+(i, i)
+(i, i+1)
+```
+
+因此所有可能的回文中心都被覆盖。
+
+从每个中心一直扩展到失配，便会枚举出以该中心为核心的全部回文串。
+
+## 八、进一步优化：Manacher 算法
+
+中心扩散仍然会重复比较很多字符。
+
+例如一个高度重复的字符串：
+
+```text
+aaaaaaaaaa
+```
+
+不同中心的扩展区域严重重叠。
+
+Manacher 算法利用已经计算出的最大回文区间，以及关于其中心的镜像信息，复用一部分回文半径。
+
+### 1. 先消除奇偶长度差异
+
+把：
+
+```text
+abba
+```
+
+预处理成：
+
+```text
+#a#b#b#a#
+```
+
+把：
+
+```text
+aba
+```
+
+预处理成：
+
+```text
+#a#b#a#
+```
+
+这样所有回文都可以统一看成奇数长度。
+
+### 2. 定义回文半径
+
+令：
+
+$$
+p[i]
+$$
+
+表示以预处理字符串位置 `i` 为中心时，可向左右扩展的最大半径。
+
+同时维护：
+
+- `center`：当前覆盖最右位置的回文中心；
+- `right`：该回文能够到达的最右边界。
+
+如果当前：
+
+$$
+i<right
+$$
+
+那么它关于 `center` 的镜像位置：
+
+$$
+mirror=2\cdot center-i
+$$
+
+已经计算过。
+
+于是可以先得到一个保守初值：
+
+$$
+p[i]=\min(p[mirror], right-i)
+$$
+
+然后再从这个基础继续尝试向外扩展。
+
+### 3. C++ 实现
+
+```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        string t = "#";
+        for (char c : s) {
+            t += c;
+            t += '#';
+        }
+
+        int n = t.size();
+        vector<int> p(n, 0);
+
+        int center = 0;
+        int right = 0;
+        int bestCenter = 0;
+        int bestRadius = 0;
+
+        for (int i = 0; i < n; ++i) {
+            if (i < right) {
+                int mirror = 2 * center - i;
+                p[i] = min(right - i, p[mirror]);
+            }
+
+            while (i - p[i] - 1 >= 0 &&
+                   i + p[i] + 1 < n &&
+                   t[i - p[i] - 1] == t[i + p[i] + 1]) {
+                ++p[i];
+            }
+
+            if (i + p[i] > right) {
+                center = i;
+                right = i + p[i];
+            }
+
+            if (p[i] > bestRadius) {
+                bestRadius = p[i];
+                bestCenter = i;
+            }
+        }
+
+        int start = (bestCenter - bestRadius) / 2;
+        return s.substr(start, bestRadius);
+    }
+};
+```
+
+### 复杂度
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(n)$
+
+> [!NOTE]
+> Manacher 的常数和实现复杂度都高于中心扩散。普通面试、考研或刷题阶段，优先熟练掌握 DP 与中心扩散；需要追求线性复杂度时再使用 Manacher。
+
+## 九、三种方法如何选择
+
+| 方法 | 时间 | 空间 | 优点 | 适合场景 |
+| --- | ---: | ---: | --- | --- |
+| 区间 DP | $O(n^2)$ | $O(n^2)$ | 状态清晰，可复用回文表 | 后续还要查询大量区间是否回文 |
+| 中心扩散 | $O(n^2)$ | $O(1)$ | 实现简洁，空间优秀 | 只求最长回文子串 |
+| Manacher | $O(n)$ | $O(n)$ | 理论复杂度最优 | 数据规模很大或明确要求线性 |
+
+## 十、常见错误
+
+### 1. 只枚举 `(i, i)` 中心
+
+这样会漏掉：
+
+```text
+"bb"
+"abba"
+```
+
+等偶数长度回文。
+
+### 2. DP 从上到下计算
+
+若先计算 `dp[i][j]`，但：
+
+```text
+dp[i + 1][j - 1]
+```
+
+还没算出来，状态转移就失去了依据。
+
+### 3. 把长度写成 `j - i`
+
+闭区间 `[i,j]` 的长度是：
+
+$$
+j-i+1
+$$
+
+### 4. 找到一个回文就立即返回
+
+题目要求最长，不是任意一个回文。
+
+必须继续比较所有候选区间。
+
+## 十一、从本题提炼出的回文模板
+
+### 区间 DP 模板
+
+若问题需要频繁判断：
+
+```text
+s[i..j] 是否回文
+```
+
+可优先考虑：
+
+$$
+pal[i][j]
+=
+(s[i]=s[j])\land
+\left(j-i\le1\lor pal[i+1][j-1]\right)
+$$
+
+### 中心扩散模板
+
+如果目标是枚举回文串、最长回文串或统计回文数量，也可以枚举：
+
+```text
+(i, i)
+(i, i+1)
+```
+
+然后双指针向外扩展。
+
+这两个模板会反复出现在：
+
+- 回文子串；
+- 最长回文子串；
+- 分割回文串；
+- 最少回文分割；
+- 回文相关区间 DP。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    private int bestLeft = 0;
+    private int bestLength = 1;
+
+    public String longestPalindrome(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            expand(s, i, i);
+            expand(s, i, i + 1);
+        }
+        return s.substring(bestLeft, bestLeft + bestLength);
+    }
+
+    private void expand(String s, int left, int right) {
+        while (left >= 0 && right < s.length()
+                && s.charAt(left) == s.charAt(right)) {
+            int len = right - left + 1;
+            if (len > bestLength) {
+                bestLength = len;
+                bestLeft = left;
+            }
+            left--;
+            right++;
+        }
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def longestPalindrome(self, s: str) -> str:
+        best_left = 0
+        best_len = 1
+
+        def expand(left: int, right: int) -> None:
+            nonlocal best_left, best_len
+            while left >= 0 and right < len(s) and s[left] == s[right]:
+                length = right - left + 1
+                if length > best_len:
+                    best_left = left
+                    best_len = length
+                left -= 1
+                right += 1
+
+        for i in range(len(s)):
+            expand(i, i)
+            expand(i, i + 1)
+
+        return s[best_left:best_left + best_len]
+```
+
+```go label="Go"
+func longestPalindrome(s string) string {
+    bestLeft, bestLen := 0, 1
+
+    expand := func(left, right int) {
+        for left >= 0 && right < len(s) && s[left] == s[right] {
+            length := right - left + 1
+            if length > bestLen {
+                bestLeft = left
+                bestLen = length
+            }
+            left--
+            right++
+        }
+    }
+
+    for i := 0; i < len(s); i++ {
+        expand(i, i)
+        expand(i, i+1)
+    }
+
+    return s[bestLeft : bestLeft+bestLen]
+}
+```
+
+```javascript label="JavaScript"
+var longestPalindrome = function(s) {
+    let bestLeft = 0;
+    let bestLength = 1;
+
+    const expand = (left, right) => {
+        while (left >= 0 && right < s.length && s[left] === s[right]) {
+            const length = right - left + 1;
+            if (length > bestLength) {
+                bestLeft = left;
+                bestLength = length;
+            }
+            left--;
+            right++;
+        }
+    };
+
+    for (let i = 0; i < s.length; i++) {
+        expand(i, i);
+        expand(i, i + 1);
+    }
+
+    return s.slice(bestLeft, bestLeft + bestLength);
+};
+```
+````

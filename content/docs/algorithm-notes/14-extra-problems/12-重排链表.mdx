@@ -1,0 +1,746 @@
+---
+title: 重排链表
+description: 把链表重排拆成“找中点、反转后半段、交替合并”三个标准模板，理解 O(1) 额外空间解法的完整指针操作链路。
+---
+
+# 143. 重排链表
+
+[LeetCode 143：重排链表](https://leetcode.cn/problems/reorder-list/)
+
+给定一个单链表：
+
+```text
+L0 -> L1 -> L2 -> ... -> Ln-1 -> Ln
+```
+
+要求在**不修改节点值**的前提下，将它原地重排为：
+
+```text
+L0 -> Ln -> L1 -> Ln-1 -> L2 -> Ln-2 -> ...
+```
+
+例如：
+
+```text
+1 -> 2 -> 3 -> 4
+```
+
+重排后：
+
+```text
+1 -> 4 -> 2 -> 3
+```
+
+而：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+```
+
+重排后：
+
+```text
+1 -> 5 -> 2 -> 4 -> 3
+```
+
+原题示意图：
+
+![](https://file1.kamacoder.com/i/algo/20210726160122.png)
+
+> [!IMPORTANT]
+> 本题真正值得掌握的不是某一段特殊代码，而是三个链表基本操作的组合：**快慢指针找中点 + 反转链表 + 两链表交替合并**。这三个模板在链表题中会反复出现。
+
+## 一、为什么直接在单链表上“首尾交替”很困难
+
+目标顺序需要不断取得：
+
+```text
+第一个节点、最后一个节点、第二个节点、倒数第二个节点……
+```
+
+但单链表只有：
+
+```text
+node->next
+```
+
+没有指向前驱节点的指针，因此：
+
+- 从头部向后找很容易；
+- 从尾部向前找却很困难；
+- 如果每次都重新扫描链表寻找末尾节点，最坏会退化到 $O(n^2)$。
+
+因此需要改变问题结构，而不是强行模拟“从尾部往前走”。
+
+## 二、三种思路总览
+
+| 方法 | 核心思想 | 时间复杂度 | 额外空间 |
+| --- | --- | --- | --- |
+| 数组保存节点 | 利用数组随机访问，两端取节点 | $O(n)$ | $O(n)$ |
+| 双端队列 | 从队首、队尾交替弹出 | $O(n)$ | $O(n)$ |
+| 原地链表操作 | 分割 + 反转 + 交替合并 | $O(n)$ | $O(1)$ |
+
+前两种思路容易理解，也很适合作为过渡；真正推荐掌握的是第三种。
+
+## 三、方法一：把节点存入数组
+
+因为数组可以 $O(1)$ 随机访问，所以先把所有节点保存下来：
+
+```text
+链表：1 -> 2 -> 3 -> 4 -> 5
+
+数组：
+[1, 2, 3, 4, 5]
+ ^           ^
+ left       right
+```
+
+随后按照：
+
+```text
+1, 5, 2, 4, 3
+```
+
+重新连接节点即可。
+
+### 实现
+
+```cpp
+class Solution {
+public:
+    void reorderList(ListNode* head) {
+        if (head == nullptr) return;
+
+        vector<ListNode*> nodes;
+        for (ListNode* cur = head; cur != nullptr; cur = cur->next) {
+            nodes.push_back(cur);
+        }
+
+        int left = 0;
+        int right = static_cast<int>(nodes.size()) - 1;
+
+        while (left < right) {
+            nodes[left]->next = nodes[right];
+            ++left;
+
+            if (left == right) break;
+
+            nodes[right]->next = nodes[left];
+            --right;
+        }
+
+        nodes[left]->next = nullptr;
+    }
+};
+```
+
+> [!WARNING]
+> 最后一定要令尾节点的 `next = nullptr`。原链表中的旧指针关系仍然存在，如果不主动断开，可能产生错误连接甚至形成环。
+
+## 四、方法二：双端队列
+
+数组方案本质上是在手动维护左右下标。
+
+既然我们真正需要的是：
+
+- 从尾部取一个；
+- 再从头部取一个；
+
+那么也可以把除头节点外的节点放入双端队列：
+
+```text
+front                        back
+  ↓                            ↓
+[ 2 ][ 3 ][ 4 ][ 5 ]
+```
+
+然后依次：
+
+```text
+pop_back()  -> 5
+pop_front() -> 2
+pop_back()  -> 4
+pop_front() -> 3
+```
+
+这种方法代码直观，但仍需要 $O(n)$ 额外空间。
+
+## 五、最优思路：分割、反转、合并
+
+最终解法可以拆成三个完全独立的阶段：
+
+```text
+① 找到链表中点并切开
+② 反转后半部分
+③ 左右两条链表交替合并
+```
+
+原文中的示意图也体现了这一过程：
+
+![](https://file1.kamacoder.com/i/algo/143.重排链表.png)
+
+下面逐步推导。
+
+## 六、第一步：快慢指针找到前半部分末尾
+
+使用：
+
+```cpp
+ListNode* slow = head;
+ListNode* fast = head;
+
+while (fast->next != nullptr && fast->next->next != nullptr) {
+    slow = slow->next;
+    fast = fast->next->next;
+}
+```
+
+这里让：
+
+- `slow` 每次走一步；
+- `fast` 每次走两步。
+
+循环结束后，`slow` 位于**前半部分的最后一个节点**。
+
+### 偶数长度
+
+```text
+1 -> 2 -> 3 -> 4
+     ^
+    slow
+```
+
+切开后：
+
+```text
+left : 1 -> 2
+right: 3 -> 4
+```
+
+### 奇数长度
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+          ^
+         slow
+```
+
+切开后：
+
+```text
+left : 1 -> 2 -> 3
+right: 4 -> 5
+```
+
+因此左半部分节点数始终满足：
+
+```text
+len(left) >= len(right)
+```
+
+这会让后面的合并非常方便。
+
+### 真正切断链表
+
+```cpp
+ListNode* second = slow->next;
+slow->next = nullptr;
+```
+
+此时才真正得到两条互不连接的链表。
+
+## 七、第二步：反转后半部分
+
+例如：
+
+```text
+4 -> 5 -> null
+```
+
+反转为：
+
+```text
+5 -> 4 -> null
+```
+
+于是原来的：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5
+```
+
+变成：
+
+```text
+left : 1 -> 2 -> 3
+right: 5 -> 4
+```
+
+现在两条链表从头向后走，正好就是最终答案需要的两个方向。
+
+标准反转模板：
+
+```cpp
+ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr;
+    ListNode* cur = head;
+
+    while (cur != nullptr) {
+        ListNode* next = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+    }
+
+    return prev;
+}
+```
+
+> [!TIP]
+> `next = cur->next` 必须在修改 `cur->next` 之前保存。链表指针题里，“先保存后继，再改指针”是最重要的操作习惯之一。
+
+## 八、第三步：交替合并两条链表
+
+现在有：
+
+```text
+left : 1 -> 2 -> 3
+right: 5 -> 4
+```
+
+目标：
+
+```text
+1 -> 5 -> 2 -> 4 -> 3
+```
+
+每轮都把 `right` 的当前节点插入 `left` 当前节点之后。
+
+假设当前：
+
+```text
+left  = 1
+right = 5
+```
+
+必须先保存：
+
+```cpp
+ListNode* nextLeft = left->next;
+ListNode* nextRight = right->next;
+```
+
+然后改成：
+
+```text
+left -> right -> nextLeft
+```
+
+对应代码：
+
+```cpp
+left->next = right;
+right->next = nextLeft;
+```
+
+最后两个指针继续向后：
+
+```cpp
+left = nextLeft;
+right = nextRight;
+```
+
+### 为什么只需要判断 `right != nullptr`
+
+前面分割时已经保证：
+
+```text
+len(left) >= len(right)
+```
+
+因此只要右半部分还有节点，左半部分就一定有对应位置可供插入。
+
+## 九、完整最优解
+
+```cpp
+class Solution {
+private:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+
+        while (cur != nullptr) {
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+
+        return prev;
+    }
+
+public:
+    void reorderList(ListNode* head) {
+        if (head == nullptr || head->next == nullptr) return;
+
+        // 1. 找到前半部分的末尾节点
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while (fast->next != nullptr && fast->next->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+
+        // 2. 切开并反转后半部分
+        ListNode* second = reverseList(slow->next);
+        slow->next = nullptr;
+
+        // 3. 两条链表交替合并
+        ListNode* first = head;
+        while (second != nullptr) {
+            ListNode* nextFirst = first->next;
+            ListNode* nextSecond = second->next;
+
+            first->next = second;
+            second->next = nextFirst;
+
+            first = nextFirst;
+            second = nextSecond;
+        }
+    }
+};
+```
+
+## 十、完整过程演示
+
+以：
+
+```text
+1 -> 2 -> 3 -> 4 -> 5 -> 6
+```
+
+为例。
+
+### 1. 分割
+
+```text
+1 -> 2 -> 3
+
+4 -> 5 -> 6
+```
+
+### 2. 反转右半部分
+
+```text
+left : 1 -> 2 -> 3
+right: 6 -> 5 -> 4
+```
+
+### 3. 交替合并
+
+第一轮：
+
+```text
+1 -> 6 -> 2 -> 3
+     
+5 -> 4
+```
+
+第二轮：
+
+```text
+1 -> 6 -> 2 -> 5 -> 3
+
+4
+```
+
+第三轮：
+
+```text
+1 -> 6 -> 2 -> 5 -> 3 -> 4
+```
+
+完成。
+
+## 十一、易错点
+
+### 1. 中点位置定义不统一
+
+快慢指针有多种写法，不同循环条件可能让 `slow` 停在不同位置。
+
+本题最推荐：
+
+```cpp
+while (fast->next && fast->next->next)
+```
+
+因为它直接让 `slow` 停在前半部分末尾，切链最自然。
+
+### 2. 忘记切断前后两部分
+
+必须：
+
+```cpp
+slow->next = nullptr;
+```
+
+否则前半部分仍然连着原来的后半部分，合并时会保留旧连接关系。
+
+### 3. 合并前没有保存后继节点
+
+错误地直接：
+
+```cpp
+first->next = second;
+```
+
+会导致原来的 `first->next` 丢失。
+
+所以必须先：
+
+```cpp
+ListNode* nextFirst = first->next;
+ListNode* nextSecond = second->next;
+```
+
+### 4. 试图创建新节点
+
+题目要求重排原链表，本质上只需要重新连接原节点，不需要：
+
+```cpp
+new ListNode(...)
+```
+
+## 十二、复杂度分析
+
+三阶段分别都是线性扫描：
+
+- 找中点：$O(n)$；
+- 反转后半部分：$O(n)$；
+- 合并：$O(n)$。
+
+因此总时间复杂度：
+
+$$
+O(n)
+$$
+
+只使用有限个指针变量，所以额外空间复杂度：
+
+$$
+O(1)
+$$
+
+> [!NOTE]
+> 虽然代码中出现了三次线性过程，但复杂度相加仍然是 $O(n)+O(n)+O(n)=O(n)$，不是 $O(n^3)$。
+
+## 十三、把本题记成一个组合模板
+
+遇到类似需求：
+
+```text
+前面取一个、后面取一个、前面再取一个、后面再取一个……
+```
+
+而数据结构又是单链表时，可以优先思考：
+
+```text
+快慢指针切成两半
+        ↓
+反转后半部分
+        ↓
+两个链表交替合并
+```
+
+这比死记整道题代码更有迁移价值。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public void reorderList(ListNode head) {
+        if (head == null || head.next == null) return;
+
+        ListNode slow = head, fast = head;
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        ListNode second = reverseList(slow.next);
+        slow.next = null;
+
+        ListNode first = head;
+        while (second != null) {
+            ListNode nextFirst = first.next;
+            ListNode nextSecond = second.next;
+
+            first.next = second;
+            second.next = nextFirst;
+
+            first = nextFirst;
+            second = nextSecond;
+        }
+    }
+
+    private ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode cur = head;
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def reorderList(self, head: Optional[ListNode]) -> None:
+        if not head or not head.next:
+            return
+
+        slow = fast = head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+
+        second = slow.next
+        slow.next = None
+
+        prev = None
+        while second:
+            nxt = second.next
+            second.next = prev
+            prev = second
+            second = nxt
+        second = prev
+
+        first = head
+        while second:
+            next_first = first.next
+            next_second = second.next
+
+            first.next = second
+            second.next = next_first
+
+            first = next_first
+            second = next_second
+```
+
+```go label="Go"
+func reorderList(head *ListNode) {
+    if head == nil || head.Next == nil {
+        return
+    }
+
+    slow, fast := head, head
+    for fast.Next != nil && fast.Next.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+    }
+
+    second := slow.Next
+    slow.Next = nil
+
+    var prev *ListNode
+    for second != nil {
+        next := second.Next
+        second.Next = prev
+        prev = second
+        second = next
+    }
+    second = prev
+
+    first := head
+    for second != nil {
+        nextFirst := first.Next
+        nextSecond := second.Next
+
+        first.Next = second
+        second.Next = nextFirst
+
+        first = nextFirst
+        second = nextSecond
+    }
+}
+```
+
+```javascript label="JavaScript"
+var reorderList = function(head) {
+    if (head === null || head.next === null) return;
+
+    let slow = head;
+    let fast = head;
+    while (fast.next !== null && fast.next.next !== null) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+
+    let second = slow.next;
+    slow.next = null;
+
+    let prev = null;
+    while (second !== null) {
+        const next = second.next;
+        second.next = prev;
+        prev = second;
+        second = next;
+    }
+    second = prev;
+
+    let first = head;
+    while (second !== null) {
+        const nextFirst = first.next;
+        const nextSecond = second.next;
+
+        first.next = second;
+        second.next = nextFirst;
+
+        first = nextFirst;
+        second = nextSecond;
+    }
+};
+```
+
+```typescript label="TypeScript"
+function reorderList(head: ListNode | null): void {
+    if (head === null || head.next === null) return;
+
+    let slow: ListNode = head;
+    let fast: ListNode = head;
+    while (fast.next !== null && fast.next.next !== null) {
+        slow = slow.next!;
+        fast = fast.next.next;
+    }
+
+    let second: ListNode | null = slow.next;
+    slow.next = null;
+
+    let prev: ListNode | null = null;
+    while (second !== null) {
+        const next: ListNode | null = second.next;
+        second.next = prev;
+        prev = second;
+        second = next;
+    }
+    second = prev;
+
+    let first: ListNode | null = head;
+    while (second !== null) {
+        const nextFirst = first!.next;
+        const nextSecond = second.next;
+
+        first!.next = second;
+        second.next = nextFirst;
+
+        first = nextFirst;
+        second = nextSecond;
+    }
+}
+```
+````

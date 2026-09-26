@@ -1,0 +1,615 @@
+---
+title: 删除链表倒数第 N 个节点：快慢指针与距离不变量
+description: 以 LeetCode 19 为主线，系统理解为什么快指针要领先 n+1 步、虚拟头结点如何统一删除头结点，并总结“固定间距双指针”的通用模型。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 删除链表倒数第 N 个节点：快慢指针与距离不变量
+
+> 对应题目：[LeetCode 19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
+
+给定一个单链表，删除倒数第 $n$ 个节点，并返回新的头结点。
+
+原题示意：
+
+![删除链表倒数第 N 个节点](https://file1.kamacoder.com/i/algo/20210510085957392.png)
+
+例如：
+
+```text
+head = 1 → 2 → 3 → 4 → 5 → null
+n = 2
+```
+
+目标是删除节点 `4`：
+
+```text
+1 → 2 → 3 → 5 → null
+```
+
+这道题最重要的不是记住某几行代码，而是建立一个非常通用的模型：
+
+> **让两个指针之间保持固定距离，当快指针到达终点时，慢指针自然落在目标位置。**
+
+---
+
+## 1. 最直接的方法：先求长度，再定位
+
+假设链表长度为 $L$，倒数第 $n$ 个节点等价于正数第：
+
+$$
+L-n+1
+$$
+
+个节点。
+
+因此可以：
+
+1. 第一次遍历求长度 $L$；
+2. 第二次遍历走到第 $L-n$ 个节点；
+3. 删除它的下一个节点。
+
+这个方法时间复杂度仍然是 $O(L)$，因为：
+
+$$
+O(L)+O(L)=O(L)
+$$
+
+但题目通常进一步要求“一趟扫描”，于是更自然的解法是快慢指针。
+
+<Callout title="一趟扫描是什么意思" type="info">
+“一趟扫描”不等于每个节点严格只能被访问一次，而是希望在一次从头到尾的同步推进过程中完成定位，不再先完整统计长度再重新遍历。
+</Callout>
+
+---
+
+## 2. 为什么删除节点时要找它的前驱
+
+假设要删除节点 `target`：
+
+```text
+prev → target → next
+```
+
+真正执行的操作是：
+
+```cpp
+prev->next = target->next;
+```
+
+因此，我们真正希望 `slow` 最终停在：
+
+> **待删除节点的前一个节点。**
+
+这比让 `slow` 直接停在待删除节点更方便，因为单链表无法从当前节点直接找到前驱。
+
+---
+
+## 3. 为什么需要虚拟头结点
+
+如果删除的是普通节点：
+
+```text
+1 → 2 → 3 → 4
+        ↑
+      删除 3
+```
+
+可以通过节点 `2` 修改：
+
+```text
+2.next = 4
+```
+
+但如果要删除头结点：
+
+```text
+1 → 2 → 3
+↑
+删除 1
+```
+
+头结点没有真实前驱。
+
+因此添加一个虚拟头结点 `dummy`：
+
+```text
+dummy → 1 → 2 → 3 → null
+```
+
+此时即使删除原来的头结点 `1`，也只是：
+
+```text
+dummy.next = 2
+```
+
+于是所有删除情况都统一成：
+
+```cpp
+slow->next = slow->next->next;
+```
+
+<Callout title="链表删除的统一技巧" type="success">
+只要题目可能修改头结点，就优先考虑虚拟头结点。它本质上是在真实头结点之前补出一个“合法前驱”。
+</Callout>
+
+---
+
+## 4. 快慢指针的核心：保持固定距离
+
+先让：
+
+```text
+fast = dummy
+slow = dummy
+```
+
+原始示意：
+
+![快慢指针初始位置](https://file1.kamacoder.com/i/algo/19.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9.png)
+
+我们希望最终：
+
+```text
+slow → target → ... → tail
+                    fast → null
+```
+
+也就是说，当 `fast == null` 时，`slow` 恰好是待删除节点的前驱。
+
+---
+
+## 5. 为什么 `fast` 要先走 `n + 1` 步
+
+这是本题最容易背错的地方。
+
+如果只想让 `slow` 最后停在“倒数第 $n$ 个节点”本身，那么快慢指针之间保持 $n$ 个节点的距离即可。
+
+但我们要删除它，因此希望 `slow` 停在它的**前驱**。
+
+所以需要让 `fast` 比 `slow` 多领先一步：
+
+$$
+\text{gap}=n+1
+$$
+
+示意如下：
+
+![快指针先走 n+1 步](https://file1.kamacoder.com/i/algo/19.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B91.png)
+
+然后让两者同步移动：
+
+![快慢指针同步移动](https://file1.kamacoder.com/i/algo/19.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B92.png)
+
+直到 `fast == null`。
+
+这时 `slow.next` 就是待删除节点：
+
+![删除 slow 的下一个节点](https://file1.kamacoder.com/i/algo/19.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B93.png)
+
+---
+
+## 6. 用具体例子推演 `n + 1`
+
+链表：
+
+```text
+dummy → 1 → 2 → 3 → 4 → 5 → null
+```
+
+删除倒数第 $2$ 个节点，也就是 `4`。
+
+初始：
+
+```text
+fast
+ ↓
+dummy → 1 → 2 → 3 → 4 → 5 → null
+ ↑
+slow
+```
+
+让 `fast` 先走 $n+1=3$ 步：
+
+```text
+dummy → 1 → 2 → 3 → 4 → 5 → null
+ ↑              ↑
+slow           fast
+```
+
+之后同步移动：
+
+```text
+第 1 次：slow = 1, fast = 4
+第 2 次：slow = 2, fast = 5
+第 3 次：slow = 3, fast = null
+```
+
+此时：
+
+```text
+slow
+ ↓
+ 3 → 4 → 5
+     ↑
+   删除
+```
+
+执行：
+
+```cpp
+slow->next = slow->next->next;
+```
+
+得到：
+
+```text
+1 → 2 → 3 → 5 → null
+```
+
+---
+
+## 7. 另一种等价写法：先走 `n` 步，再判断 `fast.next`
+
+实际代码里经常看到另一套模板：
+
+```cpp
+for (int i = 0; i < n; ++i) {
+    fast = fast->next;
+}
+
+while (fast->next != nullptr) {
+    fast = fast->next;
+    slow = slow->next;
+}
+```
+
+这里 `fast` 只提前走了 $n$ 步，但循环条件是：
+
+```cpp
+fast->next != nullptr
+```
+
+也就是说，最终 `fast` 停在尾结点，而不是 `null`。
+
+于是 `slow` 同样会停在待删除节点的前驱。
+
+两套写法完全等价：
+
+| 写法 | 初始领先 | 终止条件 | `slow` 最终位置 |
+| --- | ---: | --- | --- |
+| 模板 A | $n+1$ 步 | `fast == null` | 待删除节点前驱 |
+| 模板 B | $n$ 步 | `fast.next == null` | 待删除节点前驱 |
+
+<Callout title="不要混用两套模板" type="warning">
+最常见错误是“提前走 $n$ 步，却用 `fast != null` 作为同步循环条件”，这样 `slow` 会多走一步。写代码时要把“初始距离”和“终止位置”配套考虑。
+</Callout>
+
+---
+
+## 8. 一趟扫描的循环不变量
+
+理解双指针最好不要依赖画图记忆，而是抓住不变量。
+
+在同步移动阶段始终保持：
+
+$$
+\operatorname{dist}(slow,fast)=n+1
+$$
+
+若最终：
+
+```text
+fast = null
+```
+
+那么从 `slow` 到 `null` 一共有 $n+1$ 条 `next` 边。
+
+因此：
+
+- `slow.next` 到 `null` 有 $n$ 条边；
+- `slow.next` 正好是倒数第 $n$ 个节点。
+
+这就是整个算法正确性的本质。
+
+---
+
+## 9. 推荐的 C++ 写法
+
+```cpp
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode dummy(0, head);
+        ListNode* fast = &dummy;
+        ListNode* slow = &dummy;
+
+        // fast 领先 n + 1 步
+        for (int i = 0; i <= n; ++i) {
+            fast = fast->next;
+        }
+
+        // 保持距离不变，直到 fast 到达 null
+        while (fast != nullptr) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+
+        // slow 恰好位于待删除节点的前驱
+        slow->next = slow->next->next;
+        return dummy.next;
+    }
+};
+```
+
+如果希望显式释放被删除节点：
+
+```cpp
+ListNode* target = slow->next;
+slow->next = target->next;
+delete target;
+```
+
+在 LeetCode 这类评测环境中通常可以省略 `delete`，但在真实 C++ 工程中，如果节点由当前代码负责管理生命周期，应明确考虑内存释放。
+
+---
+
+## 10. 边界情况
+
+### 10.1 只有一个节点
+
+```text
+head = [1], n = 1
+```
+
+添加 `dummy`：
+
+```text
+dummy → 1 → null
+```
+
+最终 `slow == dummy`，删除 `slow.next` 即可得到空链表。
+
+### 10.2 删除头结点
+
+```text
+1 → 2 → 3 → 4
+n = 4
+```
+
+待删除的是 `1`。
+
+由于 `slow` 可以合法停在 `dummy`，无需额外写：
+
+```cpp
+if (n == length) ...
+```
+
+### 10.3 删除尾结点
+
+```text
+1 → 2 → 3
+n = 1
+```
+
+最后：
+
+```text
+slow = 2
+slow.next = 3
+```
+
+直接跳过 `3` 即可。
+
+---
+
+## 11. 复杂度分析
+
+设链表长度为 $L$。
+
+虽然 `fast` 和 `slow` 都会移动，但每个指针都只单向向后移动，移动次数与 $L$ 同阶，因此：
+
+$$
+T(L)=O(L)
+$$
+
+只使用固定数量指针：
+
+$$
+S(L)=O(1)
+$$
+
+注意不要把“有两个指针”误认为 $O(2L)$ 后还保留常数 $2$。渐进复杂度中：
+
+$$
+O(2L)=O(L)
+$$
+
+---
+
+## 12. 常见错误
+
+<Cards>
+  <Card title="错误 1：不用 dummy">
+    删除头结点时需要单独分类，代码更容易出现边界错误。
+  </Card>
+  <Card title="错误 2：距离少 1">
+    如果目标是让 `slow` 停在前驱，就必须把“多出的前驱位置”考虑进去。
+  </Card>
+  <Card title="错误 3：模板混搭">
+    “先走 n 步”和“先走 n+1 步”对应不同的终止条件，不能随意组合。
+  </Card>
+  <Card title="错误 4：删除后还访问旧节点">
+    如果手动 `delete target`，之后绝不能再访问 `target->next`。
+  </Card>
+</Cards>
+
+---
+
+## 13. 固定间距双指针的通用模型
+
+这道题代表一类重要的链表技巧：
+
+> **通过制造两个指针之间的距离，把“从尾部计数”转化为“从头部同步扫描”。**
+
+典型应用包括：
+
+- 找倒数第 $k$ 个节点；
+- 删除倒数第 $k$ 个节点；
+- 找链表中点；
+- 判断两个位置之间是否存在固定间距；
+- 部分链表窗口问题。
+
+可以把它和数组中的滑动窗口类比：
+
+```text
+数组滑动窗口：维护左右边界之间的区间
+链表快慢指针：维护 fast 与 slow 之间的距离
+```
+
+二者本质上都在维护一个“移动中的不变量”。
+
+---
+
+## 14. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 为什么加 `dummy` | 统一删除头结点与普通节点 |
+| 真正需要定位哪里 | 待删除节点的前驱 |
+| `fast` 领先多少 | 常用模板中领先 $n+1$ 步 |
+| 为什么是 $n+1$ | 给 `slow` 留出前驱位置 |
+| 同步阶段不变量 | 两指针距离固定 |
+| 时间复杂度 | $O(L)$ |
+| 辅助空间 | $O(1)$ |
+
+<Callout title="本题最值得记住的结论" type="success">
+不要背“fast 先走几步”。先确定你希望 `slow` 最终停在哪里，再根据 `fast` 的终点反推两个指针应该保持多大的距离。这样面对变式题也能自己推出模板。
+</Callout>
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'Go', 'JavaScript']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode dummy(0, head);
+        ListNode* fast = &dummy;
+        ListNode* slow = &dummy;
+
+        for (int i = 0; i <= n; ++i) {
+            fast = fast->next;
+        }
+
+        while (fast != nullptr) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+
+        slow->next = slow->next->next;
+        return dummy.next;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(0, head);
+        ListNode fast = dummy;
+        ListNode slow = dummy;
+
+        for (int i = 0; i <= n; i++) {
+            fast = fast.next;
+        }
+
+        while (fast != null) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+
+        slow.next = slow.next.next;
+        return dummy.next;
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
+        dummy = ListNode(0, head)
+        fast = slow = dummy
+
+        for _ in range(n + 1):
+            fast = fast.next
+
+        while fast is not None:
+            fast = fast.next
+            slow = slow.next
+
+        slow.next = slow.next.next
+        return dummy.next
+```
+
+  </Tab>
+  <Tab value="Go">
+
+```go
+func removeNthFromEnd(head *ListNode, n int) *ListNode {
+    dummy := &ListNode{Val: 0, Next: head}
+    fast, slow := dummy, dummy
+
+    for i := 0; i <= n; i++ {
+        fast = fast.Next
+    }
+
+    for fast != nil {
+        fast = fast.Next
+        slow = slow.Next
+    }
+
+    slow.Next = slow.Next.Next
+    return dummy.Next
+}
+```
+
+  </Tab>
+  <Tab value="JavaScript">
+
+```javascript
+var removeNthFromEnd = function (head, n) {
+  const dummy = new ListNode(0, head);
+  let fast = dummy;
+  let slow = dummy;
+
+  for (let i = 0; i <= n; i++) {
+    fast = fast.next;
+  }
+
+  while (fast !== null) {
+    fast = fast.next;
+    slow = slow.next;
+  }
+
+  slow.next = slow.next.next;
+  return dummy.next;
+};
+```
+
+  </Tab>
+</Tabs>

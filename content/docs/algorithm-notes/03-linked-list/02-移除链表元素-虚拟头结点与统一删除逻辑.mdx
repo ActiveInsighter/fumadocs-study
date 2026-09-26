@@ -1,0 +1,634 @@
+---
+title: 移除链表元素：虚拟头结点与统一删除逻辑
+description: 以 LeetCode 203 为主线，系统讲解单链表删除节点、头结点特判、虚拟头结点、指针移动规则、内存释放，以及递归解法的时间与空间复杂度。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+# 移除链表元素：虚拟头结点与统一删除逻辑
+
+> 对应题目：[LeetCode 203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
+
+链表删除题真正难的地方，通常不是“删掉一个节点”，而是：
+
+- 删除头结点时没有前驱节点；
+- 连续多个节点都需要删除；
+- 删除后当前指针到底要不要后移；
+- C / C++ 中还要考虑被移除节点的内存释放。
+
+这道题非常适合引出链表里最重要的技巧之一：**虚拟头结点（dummy / sentinel node）**。
+
+---
+
+## 1. 问题定义
+
+给定单链表 `head` 和整数 `val`，删除链表中所有满足：
+
+$$
+node.val = val
+$$
+
+的节点，并返回新的头结点。
+
+例如：
+
+```text
+输入：1 → 2 → 6 → 3 → 4 → 5 → 6
+val = 6
+
+输出：1 → 2 → 3 → 4 → 5
+```
+
+再比如所有节点都被删除：
+
+```text
+输入：7 → 7 → 7 → 7
+val = 7
+
+输出：null
+```
+
+---
+
+## 2. 删除一个普通节点的本质
+
+假设链表中有：
+
+```text
+prev → cur → next
+```
+
+要删除 `cur`，只需要让前驱节点跳过它：
+
+```text
+prev.next = cur.next
+```
+
+也就是：
+
+```text
+prev ─────────→ next
+        cur
+```
+
+原文中的示意图：
+
+![链表删除元素](https://file1.kamacoder.com/i/algo/20210316095351161.png)
+
+如果使用 C / C++，节点被从链表中摘除以后，还要释放其动态申请的内存：
+
+![释放被删除节点](https://file1.kamacoder.com/i/algo/20210316095418280.png)
+
+<Callout title="结构删除和内存释放是两件事" type="warning">
+把节点从链表中断开，只是改变了链表结构；在 C / C++ 中，如果节点来自动态分配，还应当 `free` / `delete`。Java、Python 等由垃圾回收机制负责回收不可达对象。
+</Callout>
+
+---
+
+## 3. 为什么头结点是特殊情况
+
+普通节点可以通过它的前驱节点删除：
+
+```text
+prev → cur → next
+```
+
+但头结点没有前驱：
+
+```text
+head → next → ...
+```
+
+因此，如果直接在原链表上操作，删除头结点只能写成：
+
+```cpp
+head = head->next;
+```
+
+原文示意：
+
+![直接删除普通节点](https://file1.kamacoder.com/i/algo/2021031609544922.png)
+
+![头结点后移](https://file1.kamacoder.com/i/algo/20210316095512470.png)
+
+如果是 C++，还应保存旧头结点并释放：
+
+![释放旧头结点](https://file1.kamacoder.com/i/algo/20210316095543775.png)
+
+于是代码自然分裂成两套逻辑：
+
+1. 先单独处理头部连续出现的 `val`；
+2. 再处理其余节点。
+
+这当然可以写，但并不优雅。
+
+---
+
+## 4. 方法一：直接操作原链表
+
+### 4.1 先删除头部连续目标节点
+
+为什么这里必须使用 `while` 而不是 `if`？
+
+因为可能出现：
+
+```text
+6 → 6 → 6 → 1 → 2
+```
+
+如果只删除一次，新的头结点仍然可能等于 `val`。
+
+所以：
+
+```cpp
+while (head != nullptr && head->val == val) {
+    ListNode* tmp = head;
+    head = head->next;
+    delete tmp;
+}
+```
+
+### 4.2 再删除非头节点
+
+此时令 `cur` 指向“待检查节点的前驱”：
+
+```text
+cur → cur.next
+```
+
+真正检查的是：
+
+```cpp
+cur->next->val
+```
+
+如果需要删除：
+
+```cpp
+cur->next = cur->next->next;
+```
+
+如果不需要删除，才让 `cur` 向后移动。
+
+完整代码：
+
+```cpp
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        while (head != nullptr && head->val == val) {
+            ListNode* tmp = head;
+            head = head->next;
+            delete tmp;
+        }
+
+        ListNode* cur = head;
+
+        while (cur != nullptr && cur->next != nullptr) {
+            if (cur->next->val == val) {
+                ListNode* tmp = cur->next;
+                cur->next = tmp->next;
+                delete tmp;
+            } else {
+                cur = cur->next;
+            }
+        }
+
+        return head;
+    }
+};
+```
+
+---
+
+## 5. 最容易写错的一点：删除后不要立刻后移
+
+假设：
+
+```text
+1 → 6 → 6 → 2
+↑
+cur
+```
+
+第一次删除后变成：
+
+```text
+1 → 6 → 2
+↑
+cur
+```
+
+此时 `cur->next` 仍然是 `6`，还要继续检查。
+
+如果删除后同时执行：
+
+```cpp
+cur = cur->next;
+```
+
+就会跳过第二个 `6`。
+
+所以链表删除中一个非常通用的规则是：
+
+> **删除 `cur->next` 后，`cur` 通常不要移动；只有确认保留 `cur->next` 时，才向后移动。**
+
+<Callout title="指针移动口诀" type="info">
+删除后留在原地，保留后再向后走。
+</Callout>
+
+---
+
+## 6. 方法二：虚拟头结点统一所有删除操作
+
+更推荐的方法，是在真实头结点之前人工增加一个节点：
+
+```text
+dummy → head → ...
+```
+
+这样原来的头结点也拥有了前驱节点 `dummy`。
+
+原文示意：
+
+![虚拟头结点](https://file1.kamacoder.com/i/algo/20210316095619221.png)
+
+例如：
+
+```text
+dummy → 1 → 4 → 2 → 4
+```
+
+如果要删除真实头结点 `1`，操作和删除中间节点完全一样：
+
+```cpp
+dummy->next = dummy->next->next;
+```
+
+因此我们再也不需要专门处理头结点。
+
+---
+
+## 7. 为什么虚拟头结点如此重要
+
+虚拟头结点的价值不只是“少写几行代码”，而是把多个边界情况统一成同一种结构。
+
+<Cards>
+  <Card title="删除头结点" description="头结点不再特殊，因为它也有前驱 dummy。" />
+  <Card title="在头部插入" description="可以统一成在某个前驱节点之后插入。" />
+  <Card title="空链表" description="dummy 始终存在，很多逻辑无需额外判断 head。" />
+  <Card title="连续删除" description="cur 固定在前驱位置，可连续检查 cur.next。" />
+</Cards>
+
+从抽象角度看，dummy 把：
+
+```text
+“头结点没有前驱”
+```
+
+变成：
+
+```text
+“所有真实节点都有前驱”
+```
+
+这就是所谓的**哨兵节点 / sentinel node** 思想。
+
+---
+
+## 8. 推荐写法：dummy + 前驱指针
+
+<Steps>
+  <Step>
+    创建 `dummy`，并让 `dummy.next = head`。
+  </Step>
+  <Step>
+    令 `cur = dummy`，始终让 `cur` 表示待检查节点的前驱。
+  </Step>
+  <Step>
+    若 `cur.next.val == val`，直接绕过 `cur.next`。
+  </Step>
+  <Step>
+    否则才让 `cur` 向后移动。
+  </Step>
+  <Step>
+    最终返回 `dummy.next`。
+  </Step>
+</Steps>
+
+```cpp
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        ListNode dummy(0, head);
+        ListNode* cur = &dummy;
+
+        while (cur->next != nullptr) {
+            if (cur->next->val == val) {
+                ListNode* removed = cur->next;
+                cur->next = removed->next;
+                delete removed;
+            } else {
+                cur = cur->next;
+            }
+        }
+
+        return dummy.next;
+    }
+};
+```
+
+这里把 `dummy` 直接定义成局部对象：
+
+```cpp
+ListNode dummy(0, head);
+```
+
+可以避免为了一个哨兵节点额外 `new` / `delete`。
+
+<Callout title="工程上更稳妥的 C++ 写法" type="info">
+如果链表节点定义允许，虚拟头结点优先放在栈上，而不是动态申请。这样既减少手动内存管理，也避免忘记释放 dummy。
+</Callout>
+
+---
+
+## 9. 复杂度分析
+
+整个链表最多扫描一次。
+
+设链表长度为 $n$，则时间复杂度：
+
+$$
+O(n)
+$$
+
+迭代版本只使用常数个额外指针，因此辅助空间复杂度：
+
+$$
+O(1)
+$$
+
+注意链表本身的节点不属于“额外辅助空间”。
+
+---
+
+## 10. 递归解法
+
+还可以从“处理当前节点 + 递归处理剩余链表”的角度理解。
+
+先递归处理后继链表：
+
+```cpp
+head->next = removeElements(head->next, val);
+```
+
+此时 `head->next` 已经是清理过后的链表。
+
+然后只需要判断当前 `head` 是否应该保留。
+
+```cpp
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        if (head == nullptr) {
+            return nullptr;
+        }
+
+        head->next = removeElements(head->next, val);
+
+        if (head->val == val) {
+            ListNode* next = head->next;
+            delete head;
+            return next;
+        }
+
+        return head;
+    }
+};
+```
+
+递推关系近似为：
+
+$$
+T(n)=T(n-1)+O(1)
+$$
+
+因此：
+
+$$
+T(n)=O(n)
+$$
+
+但递归深度最坏为 $n$，调用栈需要：
+
+$$
+O(n)
+$$
+
+额外空间。
+
+因此在链表很长时，迭代版本通常更稳妥。
+
+---
+
+## 11. 高频错误总结
+
+### 错误 1：只用 `if` 删除头结点
+
+```cpp
+if (head != nullptr && head->val == val) {
+    head = head->next;
+}
+```
+
+如果开头连续出现多个目标值，就删不干净。
+
+应该使用：
+
+```cpp
+while (...)
+```
+
+或者直接使用 dummy。
+
+### 错误 2：删除后仍然移动 `cur`
+
+```cpp
+cur->next = cur->next->next;
+cur = cur->next; // 容易跳过连续目标节点
+```
+
+### 错误 3：返回 `dummy` 而不是 `dummy.next`
+
+虚拟头结点不属于真实链表：
+
+```cpp
+return dummy.next;
+```
+
+### 错误 4：访问空指针
+
+下面这种判断顺序必须保证短路：
+
+```cpp
+cur != nullptr && cur->next != nullptr
+```
+
+不能先访问：
+
+```cpp
+cur->next
+```
+
+再判断 `cur` 是否为空。
+
+### 错误 5：C / C++ 断链后忘记释放节点
+
+算法平台有时即使泄漏也能通过，但长期写代码应当建立正确的资源管理意识。
+
+---
+
+## 12. 从这道题提炼出的链表模板
+
+很多链表删除问题都可以抽象成：
+
+```cpp
+ListNode dummy(0, head);
+ListNode* prev = &dummy;
+
+while (prev->next != nullptr) {
+    if (shouldDelete(prev->next)) {
+        // 删除 prev->next
+    } else {
+        prev = prev->next;
+    }
+}
+
+return dummy.next;
+```
+
+核心不是记代码，而是记住不变量：
+
+> `prev` 始终指向“下一待检查节点”的前驱。
+
+只要这个不变量始终成立，边界情况就会大幅减少。
+
+---
+
+## 13. 一页速记
+
+| 问题 | 结论 |
+| --- | --- |
+| 删除节点需要知道什么 | 通常需要它的前驱节点 |
+| 为什么头结点麻烦 | 它天然没有前驱 |
+| 最常用解决办法 | 增加虚拟头结点 `dummy` |
+| 删除后 `cur` 是否后移 | 通常不移动，继续检查新的 `cur.next` |
+| 保留节点后是否后移 | 是 |
+| 迭代时间复杂度 | $O(n)$ |
+| 迭代辅助空间 | $O(1)$ |
+| 递归时间复杂度 | $O(n)$ |
+| 递归辅助空间 | $O(n)$ |
+
+<Callout title="本题最值得带走的结论" type="success">
+当链表题涉及“头结点可能变化”或“头部也可能插入 / 删除”时，优先思考虚拟头结点。它本质上是在用一个额外节点换取统一的边界处理。
+</Callout>
+
+---
+
+## 其他语言版本
+
+<Tabs items={['C++', 'Java', 'Python', 'C']}>
+  <Tab value="C++">
+
+```cpp
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        ListNode dummy(0, head);
+        ListNode* cur = &dummy;
+
+        while (cur->next != nullptr) {
+            if (cur->next->val == val) {
+                ListNode* removed = cur->next;
+                cur->next = removed->next;
+                delete removed;
+            } else {
+                cur = cur->next;
+            }
+        }
+
+        return dummy.next;
+    }
+};
+```
+
+  </Tab>
+  <Tab value="Java">
+
+```java
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        ListNode dummy = new ListNode(0, head);
+        ListNode cur = dummy;
+
+        while (cur.next != null) {
+            if (cur.next.val == val) {
+                cur.next = cur.next.next;
+            } else {
+                cur = cur.next;
+            }
+        }
+
+        return dummy.next;
+    }
+}
+```
+
+  </Tab>
+  <Tab value="Python">
+
+```python
+class Solution:
+    def removeElements(self, head: Optional[ListNode], val: int) -> Optional[ListNode]:
+        dummy = ListNode(0, head)
+        cur = dummy
+
+        while cur.next is not None:
+            if cur.next.val == val:
+                cur.next = cur.next.next
+            else:
+                cur = cur.next
+
+        return dummy.next
+```
+
+  </Tab>
+  <Tab value="C">
+
+```c
+struct ListNode* removeElements(struct ListNode* head, int val) {
+    struct ListNode dummy;
+    dummy.val = 0;
+    dummy.next = head;
+
+    struct ListNode* cur = &dummy;
+
+    while (cur->next != NULL) {
+        if (cur->next->val == val) {
+            struct ListNode* removed = cur->next;
+            cur->next = removed->next;
+            free(removed);
+        } else {
+            cur = cur->next;
+        }
+    }
+
+    return dummy.next;
+}
+```
+
+  </Tab>
+</Tabs>

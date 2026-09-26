@@ -1,0 +1,480 @@
+---
+title: 同构字符串
+description: 用双向映射理解字符串同构问题，掌握“一一对应”约束、单向映射的漏洞以及哈希映射的标准写法。
+---
+
+# 205. 同构字符串
+
+[LeetCode 205：同构字符串](https://leetcode.cn/problems/isomorphic-strings/)
+
+给定两个字符串 `s` 和 `t`，判断它们是否同构。
+
+如果可以把 `s` 中每一种字符按照固定规则替换后得到 `t`，则二者同构。
+
+例如：
+
+```text
+s = "egg"
+t = "add"
+```
+
+可以建立：
+
+```text
+e -> a
+g -> d
+```
+
+所以答案为 `true`。
+
+而：
+
+```text
+s = "foo"
+t = "bar"
+```
+
+要求 `o` 第一次映射到 `a`，第二次又映射到 `r`，同一个字符出现了两种映射，因此答案为 `false`。
+
+## 一、本质：字符之间必须建立一一对应关系
+
+同构要求同时满足两个条件。
+
+### 条件 1：同一个源字符不能映射到不同字符
+
+例如：
+
+```text
+s = "aa"
+t = "ab"
+```
+
+如果第一个 `a` 映射到 `a`，第二个 `a` 又映射到 `b`，映射规则就不一致。
+
+### 条件 2：不同源字符不能映射到同一个目标字符
+
+例如：
+
+```text
+s = "ab"
+t = "aa"
+```
+
+若只看：
+
+```text
+a -> a
+b -> a
+```
+
+每个源字符似乎都只有一个去向，但两个不同字符都映射成了 `a`，这同样不合法。
+
+因此本题要求的不是普通函数映射，而是在出现过的字符集合之间建立**双射**。
+
+> [!IMPORTANT]
+> 只检查 `s -> t` 的映射不够。必须同时保证 `t -> s` 也唯一，才能阻止两个不同字符映射到同一目标字符。
+
+## 二、为什么需要两个哈希表
+
+建立两个映射：
+
+```text
+mapST: s[i] -> t[i]
+mapTS: t[i] -> s[i]
+```
+
+遍历每一对字符 `(s[i], t[i])`。
+
+如果它们从未出现过，就建立映射；如果已经出现，则检查当前字符是否仍然符合之前的规则。
+
+例如：
+
+```text
+s = "paper"
+t = "title"
+```
+
+逐步建立：
+
+```text
+p -> t
+a -> i
+p -> t
+e -> l
+r -> e
+```
+
+反向映射同时是：
+
+```text
+t -> p
+i -> a
+l -> e
+e -> r
+```
+
+两边都没有冲突，因此同构。
+
+## 三、标准哈希表解法
+
+```cpp
+class Solution {
+public:
+    bool isIsomorphic(string s, string t) {
+        unordered_map<char, char> mapST;
+        unordered_map<char, char> mapTS;
+
+        for (int i = 0; i < s.size(); ++i) {
+            char a = s[i];
+            char b = t[i];
+
+            if (mapST.count(a) && mapST[a] != b) return false;
+            if (mapTS.count(b) && mapTS[b] != a) return false;
+
+            mapST[a] = b;
+            mapTS[b] = a;
+        }
+
+        return true;
+    }
+};
+```
+
+设字符串长度为 $n$。
+
+哈希表平均查询与插入都是 $O(1)$，所以：
+
+- 时间复杂度：$O(n)$；
+- 空间复杂度：$O(k)$，其中 $k$ 为出现过的不同字符数。
+
+若字符集大小固定，则空间也可以视为 $O(1)$。
+
+## 四、为什么“只用一个 map”会错
+
+考虑：
+
+```text
+s = "ab"
+t = "cc"
+```
+
+如果只维护：
+
+```text
+s -> t
+```
+
+就会得到：
+
+```text
+a -> c
+b -> c
+```
+
+对每个源字符来说，它都只对应一个目标字符，看上去没有冲突。
+
+但这显然不是同构，因为不同字符 `a`、`b` 被压缩成了同一个字符 `c`。
+
+所以必须额外检查：
+
+```text
+c 不能同时来自 a 和 b
+```
+
+这就是反向映射 `t -> s` 的作用。
+
+## 五、把它理解成“模式一致”会更容易
+
+同构并不关心字符本身是什么，而关心**重复结构是否一致**。
+
+例如：
+
+```text
+paper
+```
+
+可以抽象成首次出现编号：
+
+```text
+0 1 0 2 3
+```
+
+而：
+
+```text
+title
+```
+
+同样是：
+
+```text
+0 1 0 2 3
+```
+
+因此同构。
+
+再看：
+
+```text
+foo -> 0 1 1
+bar -> 0 1 2
+```
+
+模式不同，所以不同构。
+
+这个视角非常重要，因为它把问题从“字符替换”提升成了“结构模式是否一致”。
+
+## 六、另一种写法：记录上一次出现位置
+
+本题还可以不显式维护“字符映射”，而是记录每个字符**上一次出现的位置**。
+
+如果 `s[i]` 和 `t[i]` 在各自字符串中的历史出现模式一致，那么它们每次的上次出现位置也必须相同。
+
+例如：
+
+```text
+s = paper
+t = title
+```
+
+对于每一对字符，它们第一次出现、再次出现的位置关系都完全同步。
+
+若字符集是 ASCII，可以使用固定数组：
+
+```cpp
+class Solution {
+public:
+    bool isIsomorphic(string s, string t) {
+        int lastS[256] = {};
+        int lastT[256] = {};
+
+        for (int i = 0; i < s.size(); ++i) {
+            unsigned char a = s[i];
+            unsigned char b = t[i];
+
+            if (lastS[a] != lastT[b]) return false;
+
+            // 用 i + 1 区分“从未出现”和位置 0
+            lastS[a] = i + 1;
+            lastT[b] = i + 1;
+        }
+
+        return true;
+    }
+};
+```
+
+> [!NOTE]
+> 这里记录 `i + 1` 而不是 `i`，是因为数组初始值为 `0`。如果直接记录 `i`，那么“从未出现”和“在位置 0 出现过”会无法区分。
+
+## 七、手动模拟 `egg` 与 `add`
+
+初始：
+
+```text
+mapST = {}
+mapTS = {}
+```
+
+### 第 0 位
+
+```text
+e <-> a
+```
+
+建立：
+
+```text
+e -> a
+a -> e
+```
+
+### 第 1 位
+
+```text
+g <-> d
+```
+
+建立：
+
+```text
+g -> d
+d -> g
+```
+
+### 第 2 位
+
+再次出现：
+
+```text
+g <-> d
+```
+
+已有映射完全一致，因此合法。
+
+最终返回 `true`。
+
+## 八、常见错误
+
+### 错误 1：只建立单向映射
+
+会漏掉：
+
+```text
+ab -> cc
+```
+
+这种“多对一”情况。
+
+### 错误 2：每次都直接覆盖旧映射
+
+例如：
+
+```cpp
+mapST[s[i]] = t[i];
+```
+
+如果覆盖前不检查旧值，那么：
+
+```text
+aa -> ab
+```
+
+第二次会悄悄把 `a -> a` 改成 `a -> b`，从而掩盖冲突。
+
+### 错误 3：误以为字符只能映射到不同字符
+
+字符允许映射到自身，例如：
+
+```text
+a -> a
+```
+
+完全合法。
+
+禁止的是：
+
+- 一个字符映射到多个字符；
+- 多个字符映射到同一个字符。
+
+## 九、相似题型
+
+这类题通常都在检查“结构是否一致”：
+
+- 单词模式；
+- 字符串模式匹配；
+- 元素重命名后结构是否相同；
+- 建立唯一 ID 后比较模式序列。
+
+遇到“不同对象之间必须一一对应”的描述时，应优先想到：
+
+```text
+双向哈希映射 / 双射
+```
+
+## 十、其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    public boolean isIsomorphic(String s, String t) {
+        Map<Character, Character> st = new HashMap<>();
+        Map<Character, Character> ts = new HashMap<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            char a = s.charAt(i);
+            char b = t.charAt(i);
+
+            if (st.containsKey(a) && st.get(a) != b) return false;
+            if (ts.containsKey(b) && ts.get(b) != a) return false;
+
+            st.put(a, b);
+            ts.put(b, a);
+        }
+
+        return true;
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def isIsomorphic(self, s: str, t: str) -> bool:
+        st = {}
+        ts = {}
+
+        for a, b in zip(s, t):
+            if a in st and st[a] != b:
+                return False
+            if b in ts and ts[b] != a:
+                return False
+
+            st[a] = b
+            ts[b] = a
+
+        return True
+```
+
+```go label="Go"
+func isIsomorphic(s string, t string) bool {
+    st := make(map[byte]byte)
+    ts := make(map[byte]byte)
+
+    for i := 0; i < len(s); i++ {
+        a, b := s[i], t[i]
+
+        if v, ok := st[a]; ok && v != b {
+            return false
+        }
+        if v, ok := ts[b]; ok && v != a {
+            return false
+        }
+
+        st[a] = b
+        ts[b] = a
+    }
+
+    return true
+}
+```
+
+```javascript label="JavaScript"
+var isIsomorphic = function(s, t) {
+    const st = new Map();
+    const ts = new Map();
+
+    for (let i = 0; i < s.length; i++) {
+        const a = s[i];
+        const b = t[i];
+
+        if (st.has(a) && st.get(a) !== b) return false;
+        if (ts.has(b) && ts.get(b) !== a) return false;
+
+        st.set(a, b);
+        ts.set(b, a);
+    }
+
+    return true;
+};
+```
+
+```typescript label="TypeScript"
+function isIsomorphic(s: string, t: string): boolean {
+    const st = new Map<string, string>();
+    const ts = new Map<string, string>();
+
+    for (let i = 0; i < s.length; i++) {
+        const a = s[i];
+        const b = t[i];
+
+        if (st.has(a) && st.get(a) !== b) return false;
+        if (ts.has(b) && ts.get(b) !== a) return false;
+
+        st.set(a, b);
+        ts.set(b, a);
+    }
+
+    return true;
+}
+```
+````

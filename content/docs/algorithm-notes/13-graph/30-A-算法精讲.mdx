@@ -1,0 +1,1086 @@
+---
+title: A* 算法精讲
+subtitle: 用启发函数让最短路搜索朝目标方向前进
+summary: 以卡码网 126「骑士的攻击」为主线，系统理解 A* 的 g、h、f，启发函数的可采纳性与一致性，为什么标准 A* 能保证最短路，以及它与 BFS、Dijkstra、Weighted A* 的关系。
+---
+
+# A* 算法精讲
+
+> **卡码网 126. 骑士的攻击**
+>
+> 在 $1000\times1000$ 的棋盘上，骑士每次按照“马走日”移动。给定若干组起点和终点，求从起点到终点所需的最少移动次数。
+
+[题目链接（ACM 模式）](https://kamacoder.com/problempage.php?pid=1203)
+
+骑士共有 8 种移动方式：
+
+![骑士的 8 种移动方向](https://file1.kamacoder.com/i/algo/20240626104833.png)
+
+这道题首先会让人想到 BFS，因为每次移动的代价都相同，图本质上是一个**单位权图**。
+
+但棋盘最多有：
+
+$$
+1000\times1000=10^6
+$$
+
+个状态，而且测试用例可能很多。普通 BFS 虽然一定能求出最短路，却可能为了“按层扩散”访问大量与目标方向无关的节点。
+
+A* 的目标就是：
+
+> **仍然做最短路搜索，但利用“目标在哪”这一额外信息，让搜索更有方向。**
+
+---
+
+## 1. 从 BFS 到 A*：问题究竟出在哪里
+
+BFS 的优势是非常稳定：
+
+- 单位权图中一定得到最短路；
+- 每个点至多处理一次；
+- 代码简单。
+
+但它不知道目标在哪。
+
+从起点出发后，BFS 会像水波一样一层一层扩散：
+
+![BFS 搜索骑士最短路](https://file1.kamacoder.com/i/algo/20240611143712.png)
+
+如果目标位于某一个明确方向，BFS 仍然会同时探索其他方向的节点。
+
+A* 则尝试优先扩展“看起来更有希望”的状态：
+
+![A* 搜索骑士最短路](https://file1.kamacoder.com/i/algo/20240611195223.png)
+
+两种算法都可能得到相同的最短路长度，但 A* 往往扩展更少的节点。
+
+原资料还提供了骑士寻路的可视化：
+
+[骑士 BFS / A* 可视化](https://kamacoder.com/tools/knight.html)
+
+---
+
+## 2. A* 最核心的公式：$f=g+h$
+
+对搜索中的任意节点 $x$，定义：
+
+$$
+\boxed{f(x)=g(x)+h(x)}
+$$
+
+其中：
+
+- $g(x)$：从起点到 $x$ 的**已知最短代价**；
+- $h(x)$：从 $x$ 到终点的**估计剩余代价**；
+- $f(x)$：经过 $x$ 到达目标的估计总代价。
+
+A* 使用最小堆，每次优先取出 $f$ 最小的节点。
+
+因此它和 Dijkstra 最大的区别就在这里：
+
+$$
+\text{Dijkstra 优先级}=g(x)
+$$
+
+$$
+\text{A* 优先级}=g(x)+h(x)
+$$
+
+如果令：
+
+$$
+h(x)=0
+$$
+
+A* 就退化为 Dijkstra；在单位权图中，Dijkstra 又可以进一步用 BFS 实现。
+
+<Callout type="info" title="理解 A* 的最好方式">
+
+A* 更适合理解成：
+
+> **Dijkstra + 启发式函数**
+
+而不是简单理解为“BFS 的改良版”。
+
+BFS、Dijkstra 与 A* 的共同点都是不断扩展当前最有价值的状态，只是“最有价值”的排序规则不同。
+
+</Callout>
+
+---
+
+## 3. 启发函数为什么决定 A* 的质量
+
+如果 $h(x)$ 完全没有信息：
+
+$$
+h(x)=0
+$$
+
+搜索没有方向性，A* 就退化为 Dijkstra。
+
+如果 $h(x)$ 越接近真实剩余距离，A* 越容易直接朝目标方向搜索。
+
+但这里有一个极其重要的约束：
+
+> **如果要求 A* 保证得到最短路，启发函数不能随便写。**
+
+### 3.1 可采纳启发函数（Admissible Heuristic）
+
+记从节点 $x$ 到目标的真实最短距离为：
+
+$$
+h^*(x)
+$$
+
+如果始终满足：
+
+$$
+\boxed{0\le h(x)\le h^*(x)}
+$$
+
+就称 $h$ 是**可采纳的**。
+
+直观理解：
+
+> 启发函数可以低估，但不能高估。
+
+因为一旦高估某条实际上很优秀的路径，A* 就可能错误地认为它“不值得探索”。
+
+---
+
+## 4. 一致性：图搜索版本更重要的性质
+
+在图搜索中，经常还要求启发函数满足一致性（Consistency）：
+
+对于任意边 $u\to v$，边权为 $w(u,v)$：
+
+$$
+\boxed{h(u)\le w(u,v)+h(v)}
+$$
+
+这和三角不等式非常相似。
+
+如果 $h$ 一致，则：
+
+- $f=g+h$ 沿搜索路径不会下降；
+- 节点第一次以最优状态弹出时，其最短距离已经确定；
+- 实现逻辑与 Dijkstra 非常接近。
+
+一致性会推出可采纳性，因此实际写模板时通常更希望构造一个**一致的下界函数**。
+
+---
+
+## 5. 骑士问题不能直接照搬普通网格距离
+
+普通四方向网格最常见的启发函数是曼哈顿距离：
+
+$$
+|x-x_t|+|y-y_t|
+$$
+
+八方向移动中经常使用切比雪夫距离：
+
+$$
+\max(|x-x_t|,|y-y_t|)
+$$
+
+但骑士不是四方向或八方向相邻移动，而是每一步走：
+
+$$
+(\pm1,\pm2)\quad\text{或}\quad(\pm2,\pm1)
+$$
+
+所以不能因为某个“几何距离看起来合理”，就直接拿来当 $h$。
+
+<Callout type="warning" title="平方欧氏距离不能保证最优性">
+
+原资料中曾使用：
+
+$$
+h=\Delta x^2+\Delta y^2
+$$
+
+并令每一步的 $g$ 增加 $5$。
+
+这种写法可以增强搜索方向性，但它**可能高估剩余真实代价**，因此不属于保证最短路的标准可采纳启发函数。
+
+如果算法题要求“最少步数”，应优先使用能够证明为真实距离下界的启发函数。
+
+</Callout>
+
+---
+
+## 6. 为骑士构造一个安全的下界
+
+设当前点到终点的坐标差为：
+
+$$
+d_x=|x-x_t|,\qquad d_y=|y-y_t|
+$$
+
+一次骑士移动：
+
+- 单个坐标最多变化 $2$；
+- 曼哈顿距离 $d_x+d_y$ 最多减少 $3$。
+
+因此至少需要：
+
+$$
+\left\lceil\frac{\max(d_x,d_y)}{2}\right\rceil
+$$
+
+步，才能解决最大的单轴差距。
+
+同时至少需要：
+
+$$
+\left\lceil\frac{d_x+d_y}{3}\right\rceil
+$$
+
+步，才能消除总坐标差。
+
+所以可以取：
+
+$$
+\boxed{
+h(x,y)=
+\max\left(
+\left\lceil\frac{\max(d_x,d_y)}{2}\right\rceil,
+\left\lceil\frac{d_x+d_y}{3}\right\rceil
+\right)
+}
+$$
+
+它不一定等于真实剩余步数，但一定是一个安全下界。
+
+整数代码可以直接写成：
+
+```cpp
+int heuristic(int x, int y, int tx, int ty) {
+    int dx = abs(x - tx);
+    int dy = abs(y - ty);
+    int h1 = (max(dx, dy) + 1) / 2;
+    int h2 = (dx + dy + 2) / 3;
+    return max(h1, h2);
+}
+```
+
+### 为什么它不会高估
+
+因为每走一步：
+
+- 最大坐标差最多消除 $2$；
+- 总坐标差最多消除 $3$。
+
+任何真实路径都不可能突破这两个物理限制，所以两者都是最短步数的下界，取最大值仍然是下界。
+
+---
+
+## 7. A* 的标准搜索流程
+
+A* 的主体和堆优化 Dijkstra 几乎相同。
+
+维护：
+
+```text
+dist[x][y] = 起点到 (x,y) 的当前最小步数
+```
+
+最小堆里保存：
+
+```text
+(f, g, x, y)
+```
+
+其中：
+
+$$
+f=g+h
+$$
+
+算法流程：
+
+1. `dist[start] = 0`；
+2. 起点进入优先队列；
+3. 每次弹出 $f$ 最小的节点；
+4. 如果这是旧状态，跳过；
+5. 如果弹出的是终点，可以返回答案；
+6. 枚举 8 个骑士移动方向；
+7. 用 `g + 1` 松弛相邻节点；
+8. 新状态按 `newG + h(next)` 入堆。
+
+伪代码：
+
+```text
+A*(start, target):
+    dist[start] = 0
+    push(start, f = h(start))
+
+    while heap 非空:
+        cur = pop 最小 f
+
+        if cur.g != dist[cur]:
+            continue
+
+        if cur == target:
+            return cur.g
+
+        for next in neighbors(cur):
+            newG = cur.g + 1
+
+            if newG < dist[next]:
+                dist[next] = newG
+                push(next, newG + h(next))
+```
+
+---
+
+## 8. 为什么不能用“第一次访问就永久标记”
+
+BFS 在单位权图中可以：
+
+```cpp
+if (!visited[next]) {
+    visited[next] = true;
+    ...
+}
+```
+
+因为 BFS 严格按层扩展，同一个节点第一次被发现时，距离一定最短。
+
+A* 的优先级是：
+
+$$
+f=g+h
+$$
+
+并不是单纯按 $g$ 排序。
+
+因此更稳妥的写法是像 Dijkstra 一样维护 `dist`，允许在发现更短的 $g$ 时重新入堆：
+
+```cpp
+if (newG < dist[nx][ny]) {
+    dist[nx][ny] = newG;
+    pq.push(...);
+}
+```
+
+弹出时再过滤旧状态：
+
+```cpp
+if (cur.g != dist[cur.x][cur.y]) continue;
+```
+
+这比“入队即永久访问”更通用、更不容易写错。
+
+---
+
+## 9. 完整 C++ 思路
+
+节点结构：
+
+```cpp
+struct Node {
+    int f;
+    int g;
+    int x;
+    int y;
+
+    bool operator<(const Node& other) const {
+        return f > other.f;
+    }
+};
+```
+
+这里 `priority_queue` 默认是大根堆，所以用：
+
+```cpp
+return f > other.f;
+```
+
+把它变成按 $f$ 从小到大弹出的最小堆。
+
+松弛逻辑：
+
+```cpp
+int ng = cur.g + 1;
+
+if (ng < dist[nx][ny]) {
+    dist[nx][ny] = ng;
+    int nf = ng + heuristic(nx, ny, tx, ty);
+    pq.push({nf, ng, nx, ny});
+}
+```
+
+---
+
+## 10. A* 为什么可以比 BFS 快很多
+
+假设 BFS 搜索到目标所需层数为 $d$。
+
+BFS 会扩展大量满足：
+
+$$
+d(start,x)\le d
+$$
+
+的节点。
+
+而 A* 更偏向扩展：
+
+$$
+g(x)+h(x)
+$$
+
+较小的节点。
+
+当 $h$ 很准确时，搜索区域会更像一条朝目标延伸的“走廊”，而不是完整的圆形扩散区域。
+
+因此真正决定 A* 性能的不是公式 $f=g+h$ 本身，而是：
+
+> **启发函数有多接近真实剩余代价。**
+
+---
+
+## 11. 启发函数越大越好吗
+
+不是。
+
+在保持可采纳的前提下，若两个启发函数满足：
+
+$$
+h_2(x)\ge h_1(x)
+$$
+
+且二者都不高估真实距离，那么通常 $h_2$ 信息更强，A* 需要扩展的节点更少。
+
+但如果为了“更有方向”把 $h$ 放得过大，以至于：
+
+$$
+h(x)>h^*(x)
+$$
+
+就可能失去最优性保证。
+
+可以把它理解成一条连续的光谱：
+
+| 搜索策略 | 优先级 | 特点 |
+| --- | --- | --- |
+| Dijkstra | $g$ | 最稳健，但没有目标方向 |
+| 标准 A* | $g+h$ | $h$ 为安全下界时兼顾最优性和方向性 |
+| Weighted A* | $g+w h,\ w>1$ | 更激进，通常更快，但可能牺牲最优性 |
+| 贪心最佳优先搜索 | $h$ | 只看“离目标近不近”，不保证最短 |
+
+<Callout type="tip" title="算法题与工程的目标可能不同">
+
+算法题通常要求精确最短路，因此应使用可证明安全的启发函数。
+
+游戏寻路、实时规划等工程场景有时更看重响应速度，可以接受近似路径，此时可能使用 Weighted A* 等变体，用部分最优性换速度。
+
+</Callout>
+
+---
+
+## 12. A* 与 BFS、Dijkstra 的统一理解
+
+三者可以放在同一个框架里理解：
+
+### BFS
+
+适合单位权图。
+
+按：
+
+$$
+g
+$$
+
+一层一层扩展，但因为每条边权都相同，可以直接使用普通队列。
+
+### Dijkstra
+
+适合非负权图。
+
+按照：
+
+$$
+g
+$$
+
+从小到大扩展，使用最小堆。
+
+### A*
+
+适合目标明确、状态空间大、能够设计启发函数的最短路问题。
+
+按照：
+
+$$
+g+h
+$$
+
+从小到大扩展。
+
+所以：
+
+$$
+\boxed{
+\text{A*}=\text{Dijkstra}+\text{启发信息}
+}
+$$
+
+---
+
+## 13. 多目标问题为什么不一定适合 A*
+
+A* 最擅长：
+
+> 已知一个明确终点，快速朝这个终点搜索。
+
+如果问题是：
+
+> 从起点出发，在大量候选目标中找到最近的一个。
+
+此时“该朝哪个目标估价”本身就变复杂。
+
+更自然的工具可能是：
+
+- BFS；
+- 多源 BFS；
+- Dijkstra；
+- 多源 Dijkstra；
+- 反向从所有目标同时搜索。
+
+所以不要看到“寻路”就机械套 A*。
+
+---
+
+## 14. 复杂度应该怎样理解
+
+A* 的实际访问节点数量高度依赖启发函数，因此不像 Floyd 的 $O(n^3)$ 那样有一个特别有代表性的固定表达式。
+
+如果使用二叉堆，并把已经扩展的区域看作子图：
+
+$$
+V_s=\text{实际进入搜索范围的节点数}
+$$
+
+$$
+E_s=\text{这些节点之间被检查的边数}
+$$
+
+那么可以近似写成：
+
+$$
+O((V_s+E_s)\log V_s)
+$$
+
+在本题中每个节点最多只有 8 条边，因此可粗略写成：
+
+$$
+O(V_s\log V_s)
+$$
+
+最坏情况下，如果启发函数几乎没有帮助：
+
+$$
+V_s\approx V
+$$
+
+A* 会接近 Dijkstra / BFS 的搜索规模。
+
+空间复杂度主要由：
+
+- `dist`；
+- 优先队列；
+
+决定，最坏为：
+
+$$
+O(V)
+$$
+
+对于本题：
+
+$$
+V\le10^6
+$$
+
+因此数组大小和优先队列内存都需要注意。
+
+---
+
+## 15. 常见错误
+
+### 错误一：把任意“离终点的距离”都当成合法启发函数
+
+启发函数不是越像“直线距离”就一定越正确。
+
+必须结合具体移动规则判断它是否为真实代价下界。
+
+### 错误二：直接把节点第一次入堆视为最短
+
+应维护最小 `g`：
+
+```text
+newG < dist[next]
+```
+
+时重新松弛。
+
+### 错误三：只存 f，不存 g
+
+$f$ 只是排序值，真正的已走距离仍然是 $g$。
+
+答案应该返回：
+
+$$
+g(target)
+$$
+
+而不是 $f(target)$。
+
+### 错误四：忘记清空每组测试的数据
+
+本题有多组询问，每组都要重新初始化：
+
+- `dist`；
+- 优先队列。
+
+### 错误五：误以为 A* 一定比 BFS 快
+
+如果启发函数很弱，或者目标距离很近，A* 的堆操作成本反而可能让常数更大。
+
+---
+
+## 16. 一页记忆
+
+遇到目标明确的最短路搜索，可以想到：
+
+$$
+\boxed{f=g+h}
+$$
+
+其中：
+
+- $g$：已经走了多远；
+- $h$：估计还要走多远；
+- 最小堆优先扩展 $f$ 最小的节点。
+
+如果希望**保证最短路**：
+
+$$
+\boxed{h(x)\le h^*(x)}
+$$
+
+即启发函数不能高估真实剩余代价。
+
+最重要的退化关系：
+
+$$
+h=0\Longrightarrow A*\Longrightarrow Dijkstra
+$$
+
+单位权图中又可以把 Dijkstra 简化为 BFS。
+
+---
+
+## 17. 多语言模板
+
+下面的实现使用前文给出的安全下界：
+
+$$
+h=
+\max\left(
+\left\lceil\frac{\max(d_x,d_y)}{2}\right\rceil,
+\left\lceil\frac{d_x+d_y}{3}\right\rceil
+\right)
+$$
+
+````code-tabs
+```cpp label="C++"
+#include <bits/stdc++.h>
+using namespace std;
+
+constexpr int N = 1000;
+constexpr int INF = 0x3f3f3f3f;
+
+int distStep[N + 1][N + 1];
+
+const int dir[8][2] = {
+    {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
+    {1, -2},  {1, 2},  {2, -1},  {2, 1}
+};
+
+struct Node {
+    int f, g, x, y;
+
+    bool operator<(const Node& other) const {
+        if (f != other.f) return f > other.f;
+        return g > other.g;
+    }
+};
+
+int heuristic(int x, int y, int tx, int ty) {
+    int dx = abs(x - tx);
+    int dy = abs(y - ty);
+
+    int h1 = (max(dx, dy) + 1) / 2;
+    int h2 = (dx + dy + 2) / 3;
+
+    return max(h1, h2);
+}
+
+int astar(int sx, int sy, int tx, int ty) {
+    if (sx == tx && sy == ty) return 0;
+
+    memset(distStep, 0x3f, sizeof(distStep));
+    priority_queue<Node> pq;
+
+    distStep[sx][sy] = 0;
+    pq.push({heuristic(sx, sy, tx, ty), 0, sx, sy});
+
+    while (!pq.empty()) {
+        Node cur = pq.top();
+        pq.pop();
+
+        if (cur.g != distStep[cur.x][cur.y]) continue;
+        if (cur.x == tx && cur.y == ty) return cur.g;
+
+        for (auto &d : dir) {
+            int nx = cur.x + d[0];
+            int ny = cur.y + d[1];
+
+            if (nx < 1 || nx > N || ny < 1 || ny > N) continue;
+
+            int ng = cur.g + 1;
+            if (ng >= distStep[nx][ny]) continue;
+
+            distStep[nx][ny] = ng;
+            int nf = ng + heuristic(nx, ny, tx, ty);
+            pq.push({nf, ng, nx, ny});
+        }
+    }
+
+    return -1;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+
+    while (T--) {
+        int sx, sy, tx, ty;
+        cin >> sx >> sy >> tx >> ty;
+        cout << astar(sx, sy, tx, ty) << '\n';
+    }
+}
+```
+
+```python label="Python"
+import heapq
+import sys
+
+input = sys.stdin.readline
+N = 1000
+
+MOVES = [
+    (-2, -1), (-2, 1), (-1, -2), (-1, 2),
+    (1, -2), (1, 2), (2, -1), (2, 1),
+]
+
+
+def heuristic(x, y, tx, ty):
+    dx = abs(x - tx)
+    dy = abs(y - ty)
+    h1 = (max(dx, dy) + 1) // 2
+    h2 = (dx + dy + 2) // 3
+    return max(h1, h2)
+
+
+def astar(sx, sy, tx, ty):
+    if (sx, sy) == (tx, ty):
+        return 0
+
+    inf = 10**9
+    dist = [[inf] * (N + 1) for _ in range(N + 1)]
+    dist[sx][sy] = 0
+
+    pq = [(heuristic(sx, sy, tx, ty), 0, sx, sy)]
+
+    while pq:
+        f, g, x, y = heapq.heappop(pq)
+
+        if g != dist[x][y]:
+            continue
+        if (x, y) == (tx, ty):
+            return g
+
+        for dx, dy in MOVES:
+            nx = x + dx
+            ny = y + dy
+
+            if not (1 <= nx <= N and 1 <= ny <= N):
+                continue
+
+            ng = g + 1
+            if ng >= dist[nx][ny]:
+                continue
+
+            dist[nx][ny] = ng
+            nf = ng + heuristic(nx, ny, tx, ty)
+            heapq.heappush(pq, (nf, ng, nx, ny))
+
+    return -1
+
+
+T = int(input())
+for _ in range(T):
+    sx, sy, tx, ty = map(int, input().split())
+    print(astar(sx, sy, tx, ty))
+```
+
+```javascript label="JavaScript"
+const fs = require('fs');
+const data = fs.readFileSync(0, 'utf8').trim().split(/\s+/).map(Number);
+let p = 0;
+
+const N = 1000;
+const MOVES = [
+  [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+  [1, -2], [1, 2], [2, -1], [2, 1],
+];
+
+class MinHeap {
+  constructor() {
+    this.a = [];
+  }
+
+  push(node) {
+    this.a.push(node);
+    let i = this.a.length - 1;
+
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (this.a[parent][0] <= this.a[i][0]) break;
+      [this.a[parent], this.a[i]] = [this.a[i], this.a[parent]];
+      i = parent;
+    }
+  }
+
+  pop() {
+    const top = this.a[0];
+    const last = this.a.pop();
+
+    if (this.a.length > 0) {
+      this.a[0] = last;
+      let i = 0;
+
+      while (true) {
+        let smallest = i;
+        const l = i * 2 + 1;
+        const r = i * 2 + 2;
+
+        if (l < this.a.length && this.a[l][0] < this.a[smallest][0]) smallest = l;
+        if (r < this.a.length && this.a[r][0] < this.a[smallest][0]) smallest = r;
+        if (smallest === i) break;
+
+        [this.a[i], this.a[smallest]] = [this.a[smallest], this.a[i]];
+        i = smallest;
+      }
+    }
+
+    return top;
+  }
+
+  get size() {
+    return this.a.length;
+  }
+}
+
+function heuristic(x, y, tx, ty) {
+  const dx = Math.abs(x - tx);
+  const dy = Math.abs(y - ty);
+  const h1 = Math.floor((Math.max(dx, dy) + 1) / 2);
+  const h2 = Math.floor((dx + dy + 2) / 3);
+  return Math.max(h1, h2);
+}
+
+function astar(sx, sy, tx, ty) {
+  if (sx === tx && sy === ty) return 0;
+
+  const INF = 1e9;
+  const dist = Array.from({ length: N + 1 }, () => new Int32Array(N + 1).fill(INF));
+  const pq = new MinHeap();
+
+  dist[sx][sy] = 0;
+  pq.push([heuristic(sx, sy, tx, ty), 0, sx, sy]);
+
+  while (pq.size) {
+    const [f, g, x, y] = pq.pop();
+
+    if (g !== dist[x][y]) continue;
+    if (x === tx && y === ty) return g;
+
+    for (const [dx, dy] of MOVES) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx < 1 || nx > N || ny < 1 || ny > N) continue;
+
+      const ng = g + 1;
+      if (ng >= dist[nx][ny]) continue;
+
+      dist[nx][ny] = ng;
+      pq.push([ng + heuristic(nx, ny, tx, ty), ng, nx, ny]);
+    }
+  }
+
+  return -1;
+}
+
+const T = data[p++];
+const out = [];
+
+for (let tc = 0; tc < T; tc++) {
+  const sx = data[p++];
+  const sy = data[p++];
+  const tx = data[p++];
+  const ty = data[p++];
+  out.push(astar(sx, sy, tx, ty));
+}
+
+console.log(out.join('\n'));
+```
+
+```c label="C"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 1000
+#define INF 0x3f3f3f3f
+#define MAX_HEAP 2000000
+
+typedef struct {
+    int f, g, x, y;
+} Node;
+
+typedef struct {
+    Node *a;
+    int size;
+} Heap;
+
+int distStep[N + 1][N + 1];
+
+const int dir[8][2] = {
+    {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
+    {1, -2},  {1, 2},  {2, -1},  {2, 1}
+};
+
+int max2(int a, int b) {
+    return a > b ? a : b;
+}
+
+int heuristic(int x, int y, int tx, int ty) {
+    int dx = abs(x - tx);
+    int dy = abs(y - ty);
+    int h1 = (max2(dx, dy) + 1) / 2;
+    int h2 = (dx + dy + 2) / 3;
+    return max2(h1, h2);
+}
+
+void heapPush(Heap *h, Node x) {
+    int i = h->size++;
+    h->a[i] = x;
+
+    while (i > 0) {
+        int p = (i - 1) / 2;
+        if (h->a[p].f <= h->a[i].f) break;
+
+        Node t = h->a[p];
+        h->a[p] = h->a[i];
+        h->a[i] = t;
+        i = p;
+    }
+}
+
+Node heapPop(Heap *h) {
+    Node top = h->a[0];
+    h->a[0] = h->a[--h->size];
+
+    int i = 0;
+    while (1) {
+        int l = i * 2 + 1;
+        int r = i * 2 + 2;
+        int best = i;
+
+        if (l < h->size && h->a[l].f < h->a[best].f) best = l;
+        if (r < h->size && h->a[r].f < h->a[best].f) best = r;
+        if (best == i) break;
+
+        Node t = h->a[i];
+        h->a[i] = h->a[best];
+        h->a[best] = t;
+        i = best;
+    }
+
+    return top;
+}
+
+int astar(int sx, int sy, int tx, int ty, Heap *heap) {
+    if (sx == tx && sy == ty) return 0;
+
+    memset(distStep, 0x3f, sizeof(distStep));
+    heap->size = 0;
+
+    distStep[sx][sy] = 0;
+    Node start = {heuristic(sx, sy, tx, ty), 0, sx, sy};
+    heapPush(heap, start);
+
+    while (heap->size > 0) {
+        Node cur = heapPop(heap);
+
+        if (cur.g != distStep[cur.x][cur.y]) continue;
+        if (cur.x == tx && cur.y == ty) return cur.g;
+
+        for (int i = 0; i < 8; ++i) {
+            int nx = cur.x + dir[i][0];
+            int ny = cur.y + dir[i][1];
+
+            if (nx < 1 || nx > N || ny < 1 || ny > N) continue;
+
+            int ng = cur.g + 1;
+            if (ng >= distStep[nx][ny]) continue;
+
+            distStep[nx][ny] = ng;
+            Node next = {ng + heuristic(nx, ny, tx, ty), ng, nx, ny};
+            heapPush(heap, next);
+        }
+    }
+
+    return -1;
+}
+
+int main(void) {
+    int T;
+    scanf("%d", &T);
+
+    Heap heap;
+    heap.a = (Node *)malloc(sizeof(Node) * MAX_HEAP);
+    if (!heap.a) return 0;
+
+    while (T--) {
+        int sx, sy, tx, ty;
+        scanf("%d%d%d%d", &sx, &sy, &tx, &ty);
+        printf("%d\n", astar(sx, sy, tx, ty, &heap));
+    }
+
+    free(heap.a);
+    return 0;
+}
+```
+````

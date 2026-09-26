@@ -1,0 +1,1283 @@
+---
+title: 在排序数组中查找元素的第一个和最后一个位置
+description: 用两次二分查找系统掌握 lower_bound 与 upper_bound，理解“找值”与“找边界”的区别，并建立可复用的二分边界模板。
+---
+
+# 34. 在排序数组中查找元素的第一个和最后一个位置
+
+[LeetCode 34：在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+给定一个非递减整数数组 `nums` 和目标值 `target`，要求返回 `target` 在数组中的：
+
+```text
+[第一次出现的位置, 最后一次出现的位置]
+```
+
+如果不存在 `target`，返回：
+
+```text
+[-1, -1]
+```
+
+例如：
+
+```text
+nums   = [5, 7, 7, 8, 8, 10]
+target = 8
+```
+
+答案为：
+
+```text
+[3, 4]
+```
+
+题目要求时间复杂度达到：
+
+$$
+O(\log n)
+$$
+
+因此不能在找到一个 `target` 后再向两侧线性扫描，而应该用**两次二分查找直接定位左右边界**。
+
+> [!IMPORTANT]
+> 这道题真正考察的不是“能不能二分找到 `target`”，而是：**如何用二分找到满足某个条件的第一个位置。**
+
+## 一、普通二分为什么还不够
+
+标准二分查找只要求：
+
+```text
+找到任意一个 nums[mid] == target 的位置
+```
+
+例如：
+
+```text
+nums   = [5, 7, 7, 8, 8, 10]
+target = 8
+```
+
+普通二分可能找到：
+
+```text
+下标 3
+```
+
+也可能在其他实现中找到：
+
+```text
+下标 4
+```
+
+但题目要求的是：
+
+```text
+最左的 8 -> 3
+最右的 8 -> 4
+```
+
+所以问题要从：
+
+> “查找某个值”
+
+升级为：
+
+> “查找满足条件的边界”。
+
+这正是二分查找最重要的进阶用法。
+
+## 二、把问题改写成两个边界问题
+
+我们分别寻找：
+
+1. 第一个 **大于等于** `target` 的位置；
+2. 第一个 **大于** `target` 的位置。
+
+定义：
+
+$$
+L=\operatorname{lower\_bound}(target)
+$$
+
+即：
+
+```text
+第一个满足 nums[i] >= target 的下标
+```
+
+再定义：
+
+$$
+R=\operatorname{upper\_bound}(target)
+$$
+
+即：
+
+```text
+第一个满足 nums[i] > target 的下标
+```
+
+如果 `target` 存在，那么：
+
+```text
+第一次出现位置 = L
+最后一次出现位置 = R - 1
+```
+
+所以答案就是：
+
+$$
+[L,R-1]
+$$
+
+这比“分别想左边界和右边界怎么写”更统一。
+
+## 三、先理解 `lower_bound`
+
+`lower_bound(target)` 要找：
+
+> **第一个满足 `nums[i] >= target` 的位置。**
+
+例如：
+
+```text
+nums   = [1, 3, 3, 3, 5, 8]
+target = 3
+```
+
+第一个 `>= 3` 的位置是：
+
+```text
+1
+```
+
+因为：
+
+```text
+nums[1] = 3
+```
+
+如果：
+
+```text
+target = 4
+```
+
+第一个 `>= 4` 的位置是：
+
+```text
+4
+```
+
+因为：
+
+```text
+nums[4] = 5
+```
+
+注意：
+
+> `lower_bound` 找到的位置不一定真的等于 `target`。
+
+因此求出左边界后，还要额外判断：
+
+```cpp
+nums[left] == target
+```
+
+才能确认目标值确实存在。
+
+## 四、`lower_bound` 的二分模板
+
+推荐使用左闭右开区间：
+
+$$
+[left,right)
+$$
+
+初始化：
+
+```cpp
+int left = 0;
+int right = nums.size();
+```
+
+注意这里：
+
+```text
+right = n
+```
+
+而不是：
+
+```text
+right = n - 1
+```
+
+因为搜索区间是：
+
+$$
+[0,n)
+$$
+
+循环条件：
+
+```cpp
+while (left < right)
+```
+
+取中点：
+
+```cpp
+int mid = left + (right - left) / 2;
+```
+
+### 当 `nums[mid] < target`
+
+说明 `mid` 肯定不可能成为答案，而且答案只能出现在它右边：
+
+```cpp
+left = mid + 1;
+```
+
+### 当 `nums[mid] >= target`
+
+说明：
+
+```text
+mid 有可能就是第一个 >= target 的位置
+```
+
+所以不能丢掉 `mid`，应该：
+
+```cpp
+right = mid;
+```
+
+最终：
+
+```cpp
+return left;
+```
+
+完整模板：
+
+```cpp
+int lowerBound(const vector<int>& nums, int target) {
+    int left = 0;
+    int right = nums.size();
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+
+    return left;
+}
+```
+
+## 五、为什么 `right = mid`，而不是 `mid - 1`
+
+这是二分边界题最值得理解的一点。
+
+如果：
+
+```cpp
+nums[mid] >= target
+```
+
+那么 `mid` 本身就**可能是答案**。
+
+例如：
+
+```text
+nums = [1, 2, 3]
+target = 2
+mid = 1
+```
+
+此时：
+
+```text
+nums[mid] = target
+```
+
+而下标 `1` 恰好就是第一个 `>= 2` 的位置。
+
+如果写：
+
+```cpp
+right = mid - 1;
+```
+
+就会把真正的答案直接排除。
+
+因此在左闭右开模型中：
+
+```cpp
+right = mid;
+```
+
+表示：
+
+> 答案仍然可能是 `mid`，继续在 `[left, mid)` 加上边界位置 `mid` 的收缩逻辑中寻找。
+
+更准确地说，下一轮搜索区间变成：
+
+$$
+[left,mid)
+$$
+
+而 `right` 本身作为候选边界被保留下来。
+
+## 六、再理解 `upper_bound`
+
+`upper_bound(target)` 找：
+
+> **第一个满足 `nums[i] > target` 的位置。**
+
+例如：
+
+```text
+nums   = [1, 3, 3, 3, 5, 8]
+target = 3
+```
+
+第一个 `> 3` 的元素是：
+
+```text
+5
+```
+
+其下标是：
+
+```text
+4
+```
+
+所以最后一个 `3` 的位置就是：
+
+$$
+4-1=3
+$$
+
+因此：
+
+```text
+右边界 = upper_bound(target) - 1
+```
+
+## 七、`upper_bound` 与 `lower_bound` 只差一个等号
+
+`lower_bound` 的条件是：
+
+```text
+nums[mid] >= target
+```
+
+所以当：
+
+```cpp
+nums[mid] < target
+```
+
+才去右边。
+
+而 `upper_bound` 要找第一个：
+
+```text
+nums[i] > target
+```
+
+因此当：
+
+```cpp
+nums[mid] <= target
+```
+
+都应该继续向右：
+
+```cpp
+left = mid + 1;
+```
+
+否则：
+
+```cpp
+right = mid;
+```
+
+模板：
+
+```cpp
+int upperBound(const vector<int>& nums, int target) {
+    int left = 0;
+    int right = nums.size();
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] <= target) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+
+    return left;
+}
+```
+
+两者唯一核心区别是：
+
+```text
+lower_bound : nums[mid] <  target -> 去右边
+upper_bound : nums[mid] <= target -> 去右边
+```
+
+也就是：
+
+> **是否允许等于 `target` 的位置继续被跳过。**
+
+## 八、完整过程推演
+
+考虑：
+
+```text
+nums   = [5, 7, 7, 8, 8, 10]
+target = 8
+```
+
+### 寻找 `lower_bound(8)`
+
+初始：
+
+```text
+left = 0
+right = 6
+```
+
+第一次：
+
+```text
+mid = 3
+nums[3] = 8
+```
+
+因为：
+
+```text
+8 >= 8
+```
+
+所以：
+
+```text
+right = 3
+```
+
+继续寻找更左边的位置。
+
+第二次：
+
+```text
+left = 0
+right = 3
+mid = 1
+nums[1] = 7
+```
+
+因为：
+
+```text
+7 < 8
+```
+
+所以：
+
+```text
+left = 2
+```
+
+第三次：
+
+```text
+left = 2
+right = 3
+mid = 2
+nums[2] = 7
+```
+
+仍然小于 `8`：
+
+```text
+left = 3
+```
+
+此时：
+
+```text
+left == right == 3
+```
+
+所以：
+
+```text
+lower_bound(8) = 3
+```
+
+### 寻找 `upper_bound(8)`
+
+同理最终得到：
+
+```text
+upper_bound(8) = 5
+```
+
+因此：
+
+```text
+first = 3
+last  = 5 - 1 = 4
+```
+
+答案：
+
+```text
+[3, 4]
+```
+
+## 九、如何判断 `target` 不存在
+
+只求出：
+
+```cpp
+int left = lowerBound(nums, target);
+```
+
+还不能直接认为 `left` 是目标值的位置。
+
+例如：
+
+```text
+nums   = [1, 3, 5, 7]
+target = 4
+```
+
+`lower_bound(4)` 会返回：
+
+```text
+2
+```
+
+因为：
+
+```text
+nums[2] = 5
+```
+
+确实是第一个 `>= 4` 的元素。
+
+但 `4` 根本不存在。
+
+所以必须判断：
+
+```cpp
+if (left == nums.size() || nums[left] != target) {
+    return {-1, -1};
+}
+```
+
+这里有两个失败条件：
+
+### 条件 1：`left == n`
+
+说明所有元素都小于 `target`。
+
+例如：
+
+```text
+nums   = [1, 2, 3]
+target = 8
+```
+
+插入位置位于数组末尾：
+
+```text
+left = 3
+```
+
+不能访问 `nums[3]`。
+
+### 条件 2：`nums[left] != target`
+
+说明虽然找到了第一个 `>= target` 的位置，但那个元素实际上比 `target` 大。
+
+因此目标不存在。
+
+## 十、推荐完整解法
+
+```cpp
+class Solution {
+private:
+    int lowerBound(const vector<int>& nums, int target) {
+        int left = 0;
+        int right = nums.size();
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+    int upperBound(const vector<int>& nums, int target) {
+        int left = 0;
+        int right = nums.size();
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        int first = lowerBound(nums, target);
+
+        if (first == nums.size() || nums[first] != target) {
+            return {-1, -1};
+        }
+
+        int last = upperBound(nums, target) - 1;
+
+        return {first, last};
+    }
+};
+```
+
+时间复杂度：
+
+$$
+O(\log n)
+$$
+
+两次二分分别都是 $O(\log n)$：
+
+$$
+O(\log n)+O(\log n)=O(\log n)
+$$
+
+空间复杂度：
+
+$$
+O(1)
+$$
+
+## 十一、还能只写一个边界函数
+
+其实 `upper_bound(target)` 可以转化为：
+
+```text
+lower_bound(target + 1)
+```
+
+但这只适用于数值安全时。
+
+例如：
+
+```cpp
+int first = lowerBound(nums, target);
+int last = lowerBound(nums, target + 1) - 1;
+```
+
+问题是如果：
+
+```text
+target = INT_MAX
+```
+
+那么：
+
+```cpp
+target + 1
+```
+
+可能发生整数溢出。
+
+所以工程上更稳妥的是：
+
+- 分别写 `lowerBound`；
+- 分别写 `upperBound`；
+
+或者把“比较条件”抽象成通用函数。
+
+## 十二、和 C++ STL 的关系
+
+C++ 标准库已经提供：
+
+```cpp
+lower_bound
+upper_bound
+```
+
+因此本题也可以写成：
+
+```cpp
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        auto left = lower_bound(nums.begin(), nums.end(), target);
+
+        if (left == nums.end() || *left != target) {
+            return {-1, -1};
+        }
+
+        auto right = upper_bound(nums.begin(), nums.end(), target);
+
+        return {
+            static_cast<int>(left - nums.begin()),
+            static_cast<int>(right - nums.begin() - 1)
+        };
+    }
+};
+```
+
+理解本题后，STL 里的两个函数应该直接形成条件反射：
+
+```text
+lower_bound(x) -> 第一个 >= x
+upper_bound(x) -> 第一个 > x
+```
+
+> [!TIP]
+> 在竞赛和算法题中，“第一个不小于”“第一个大于”“最后一个不大于”“最后一个小于”这四类边界问题，本质上都可以由 `lower_bound` / `upper_bound` 相互转换。
+
+## 十三、四种常见边界如何统一
+
+对于有序数组：
+
+### 第一个 `>= x`
+
+直接：
+
+```text
+lower_bound(x)
+```
+
+### 第一个 `> x`
+
+直接：
+
+```text
+upper_bound(x)
+```
+
+### 最后一个 `< x`
+
+因为 `lower_bound(x)` 是第一个 `>= x`，所以它前一个位置就是：
+
+```text
+最后一个 < x
+```
+
+即：
+
+$$
+lower\_bound(x)-1
+$$
+
+### 最后一个 `<= x`
+
+因为 `upper_bound(x)` 是第一个 `> x`，所以它前一个位置就是：
+
+```text
+最后一个 <= x
+```
+
+即：
+
+$$
+upper\_bound(x)-1
+$$
+
+可以记成表格：
+
+| 要找的位置 | 对应写法 |
+| --- | --- |
+| 第一个 `>= x` | `lower_bound(x)` |
+| 第一个 `> x` | `upper_bound(x)` |
+| 最后一个 `< x` | `lower_bound(x) - 1` |
+| 最后一个 `<= x` | `upper_bound(x) - 1` |
+
+这张表非常值得掌握。
+
+## 十四、为什么“先找到一个，再向两边扩展”不满足要求
+
+一种很自然的写法是：
+
+1. 普通二分找到任意一个 `target`；
+2. 从该位置不断向左；
+3. 再不断向右。
+
+虽然平均情况下可能很快，但最坏情况下：
+
+```text
+nums = [8, 8, 8, 8, 8, ..., 8]
+```
+
+左右扩展需要遍历整个数组。
+
+因此复杂度退化为：
+
+$$
+O(n)
+$$
+
+不符合题目要求的：
+
+$$
+O(\log n)
+$$
+
+所以：
+
+> **只要题目明确要求 $O(\log n)$，边界本身也必须通过二分定位。**
+
+## 十五、常见错误
+
+### 错误 1：找到 `target` 就直接返回
+
+```cpp
+if (nums[mid] == target) {
+    return mid;
+}
+```
+
+这只能得到任意一个目标位置，而不是边界。
+
+寻找左边界时，即使：
+
+```text
+nums[mid] == target
+```
+
+仍然要继续向左压缩。
+
+### 错误 2：区间模型混用
+
+如果采用：
+
+```text
+[left, right)
+```
+
+就应该保持：
+
+```cpp
+right = nums.size();
+while (left < right)
+```
+
+不要一会儿写：
+
+```cpp
+right = mid;
+```
+
+一会儿又照搬左闭右闭模板：
+
+```cpp
+right = mid - 1;
+```
+
+这会破坏循环不变量。
+
+### 错误 3：没有判断目标是否真的存在
+
+`lower_bound` 返回的是插入位置，不保证该位置就是目标值。
+
+必须检查：
+
+```cpp
+first == nums.size() || nums[first] != target
+```
+
+### 错误 4：右边界忘记减 `1`
+
+`upper_bound(target)` 返回的是：
+
+```text
+第一个 > target 的位置
+```
+
+而题目要的是：
+
+```text
+最后一个 == target 的位置
+```
+
+所以：
+
+```cpp
+last = upperBound(nums, target) - 1;
+```
+
+## 十六、二分查找真正应该记什么
+
+不要死背大量不同版本的二分代码。
+
+更重要的是先明确：
+
+```text
+我要找什么条件的第一个位置？
+```
+
+如果目标是：
+
+```text
+第一个满足 P(i) 的位置
+```
+
+并且随着下标增大，条件 `P(i)` 呈现：
+
+```text
+false false false true true true
+```
+
+那么就可以二分这个“真假分界点”。
+
+例如 `lower_bound(target)` 中：
+
+```text
+P(i) := nums[i] >= target
+```
+
+数组有序，因此条件呈现：
+
+```text
+false false false | true true true
+```
+
+我们真正二分的不是某个具体数字，而是：
+
+> **单调布尔条件的分界位置。**
+
+这就是二分查找最通用的理解方式。
+
+## 十七、一句话模板
+
+本题可以直接记为：
+
+```text
+左端点 = 第一个 >= target
+右端点 = 第一个 > target - 1
+```
+
+即：
+
+$$
+first=lower\_bound(target)
+$$
+
+$$
+last=upper\_bound(target)-1
+$$
+
+一旦理解这两个边界函数，类似的有序数组范围问题就会非常稳定。
+
+## 其他语言版本
+
+````code-tabs
+```java label="Java"
+class Solution {
+    private int lowerBound(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+    private int upperBound(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (nums[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+    public int[] searchRange(int[] nums, int target) {
+        int first = lowerBound(nums, target);
+
+        if (first == nums.length || nums[first] != target) {
+            return new int[]{-1, -1};
+        }
+
+        int last = upperBound(nums, target) - 1;
+        return new int[]{first, last};
+    }
+}
+```
+
+```python label="Python"
+class Solution:
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        def lower_bound(x: int) -> int:
+            left, right = 0, len(nums)
+
+            while left < right:
+                mid = left + (right - left) // 2
+
+                if nums[mid] < x:
+                    left = mid + 1
+                else:
+                    right = mid
+
+            return left
+
+        def upper_bound(x: int) -> int:
+            left, right = 0, len(nums)
+
+            while left < right:
+                mid = left + (right - left) // 2
+
+                if nums[mid] <= x:
+                    left = mid + 1
+                else:
+                    right = mid
+
+            return left
+
+        first = lower_bound(target)
+
+        if first == len(nums) or nums[first] != target:
+            return [-1, -1]
+
+        last = upper_bound(target) - 1
+        return [first, last]
+```
+
+```go label="Go"
+func searchRange(nums []int, target int) []int {
+    lowerBound := func(target int) int {
+        left, right := 0, len(nums)
+
+        for left < right {
+            mid := left + (right-left)/2
+
+            if nums[mid] < target {
+                left = mid + 1
+            } else {
+                right = mid
+            }
+        }
+
+        return left
+    }
+
+    upperBound := func(target int) int {
+        left, right := 0, len(nums)
+
+        for left < right {
+            mid := left + (right-left)/2
+
+            if nums[mid] <= target {
+                left = mid + 1
+            } else {
+                right = mid
+            }
+        }
+
+        return left
+    }
+
+    first := lowerBound(target)
+
+    if first == len(nums) || nums[first] != target {
+        return []int{-1, -1}
+    }
+
+    last := upperBound(target) - 1
+    return []int{first, last}
+}
+```
+
+```javascript label="JavaScript"
+var searchRange = function(nums, target) {
+    const lowerBound = (x) => {
+        let left = 0;
+        let right = nums.length;
+
+        while (left < right) {
+            const mid = left + Math.floor((right - left) / 2);
+
+            if (nums[mid] < x) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    };
+
+    const upperBound = (x) => {
+        let left = 0;
+        let right = nums.length;
+
+        while (left < right) {
+            const mid = left + Math.floor((right - left) / 2);
+
+            if (nums[mid] <= x) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    };
+
+    const first = lowerBound(target);
+
+    if (first === nums.length || nums[first] !== target) {
+        return [-1, -1];
+    }
+
+    return [first, upperBound(target) - 1];
+};
+```
+
+```typescript label="TypeScript"
+function searchRange(nums: number[], target: number): number[] {
+    const lowerBound = (x: number): number => {
+        let left = 0;
+        let right = nums.length;
+
+        while (left < right) {
+            const mid = left + Math.floor((right - left) / 2);
+
+            if (nums[mid] < x) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    };
+
+    const upperBound = (x: number): number => {
+        let left = 0;
+        let right = nums.length;
+
+        while (left < right) {
+            const mid = left + Math.floor((right - left) / 2);
+
+            if (nums[mid] <= x) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+
+        return left;
+    };
+
+    const first = lowerBound(target);
+
+    if (first === nums.length || nums[first] !== target) {
+        return [-1, -1];
+    }
+
+    return [first, upperBound(target) - 1];
+}
+```
+
+```rust label="Rust"
+impl Solution {
+    pub fn search_range(nums: Vec<i32>, target: i32) -> Vec<i32> {
+        fn lower_bound(nums: &[i32], target: i32) -> usize {
+            let mut left = 0usize;
+            let mut right = nums.len();
+
+            while left < right {
+                let mid = left + (right - left) / 2;
+
+                if nums[mid] < target {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+
+            left
+        }
+
+        fn upper_bound(nums: &[i32], target: i32) -> usize {
+            let mut left = 0usize;
+            let mut right = nums.len();
+
+            while left < right {
+                let mid = left + (right - left) / 2;
+
+                if nums[mid] <= target {
+                    left = mid + 1;
+                } else {
+                    right = mid;
+                }
+            }
+
+            left
+        }
+
+        let first = lower_bound(&nums, target);
+
+        if first == nums.len() || nums[first] != target {
+            return vec![-1, -1];
+        }
+
+        let last = upper_bound(&nums, target) - 1;
+        vec![first as i32, last as i32]
+    }
+}
+```
+````

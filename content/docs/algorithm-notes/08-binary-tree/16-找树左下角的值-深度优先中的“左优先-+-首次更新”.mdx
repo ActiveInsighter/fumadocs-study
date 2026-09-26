@@ -1,0 +1,758 @@
+---
+title: 找树左下角的值：深度优先中的“左优先 + 首次更新”
+description: 以 LeetCode 513 为主线，理解“最后一层最左节点”与“沿左链走到底”的本质区别，掌握层序遍历、最大深度 DFS、左优先搜索与严格更新条件。
+---
+
+# 找树左下角的值：深度优先中的“左优先 + 首次更新”
+
+> LeetCode 513 · Find Bottom Left Tree Value
+
+[题目链接](https://leetcode.cn/problems/find-bottom-left-tree-value/)
+
+给定一棵非空二叉树，返回**最后一层最左边节点的值**。
+
+![找树左下角的值示例一](https://file1.kamacoder.com/i/algo/20210204152956836.png)
+
+![找树左下角的值示例二](https://file1.kamacoder.com/i/algo/20210204153017586.png)
+
+<Callout title="本题真正要找的不是“最左节点”" type="idea">
+
+题目中的“左下角”包含两个约束：
+
+1. **先尽可能深**：节点必须位于整棵树的最后一层；
+2. **同一深度再尽可能靠左**：在最深层中取最左节点。
+
+因此这本质上是一个带有**主关键字 + 次关键字**的选择问题：先比较深度，再比较从左到右的顺序。
+
+</Callout>
+
+## 1. 为什么一路向左走到底是错的
+
+最容易出现的误区是：
+
+```text
+不断访问 left，走到不能再走的位置
+```
+
+但“左边走得最远”并不等于“整棵树最深层的最左节点”。
+
+例如：
+
+```text
+        1
+       / \
+      2   3
+         /
+        4
+       /
+      5
+```
+
+沿左链只能得到节点 `2`，而最后一层只有节点 `5`，正确答案显然是 `5`。
+
+所以问题必须拆成：
+
+```text
+先确定最深层
+再确定这一层的第一个节点
+```
+
+## 2. 两种最自然的建模
+
+<Cards>
+  <Card title="BFS：按层看">每一层从左到右访问，持续记录“本层第一个节点”，遍历结束时保存的就是最后一层最左值。</Card>
+  <Card title="DFS：按深度看">左子树优先搜索，只在“发现更深的叶子”时更新答案，第一个到达某个新最大深度的叶子天然最靠左。</Card>
+</Cards>
+
+这两种思路都不是技巧性的“特殊写法”，而是分别利用了 BFS 与 DFS 的天然顺序属性。
+
+## 3. 解法一：层序遍历——最符合题意的解法
+
+题目直接出现“最后一行”“最左边”，首先就应该想到按层遍历。
+
+对于每一层：
+
+```text
+记录该层第一个出队节点
+```
+
+当所有层都处理结束后，最后一次记录的值就是答案。
+
+### 3.1 为什么必须固定当前层的 `size`
+
+队列在处理本层节点时还会不断加入下一层节点，因此必须先保存：
+
+```cpp
+int size = que.size();
+```
+
+这个 `size` 表示：
+
+> 本轮循环只处理“进入这一轮时已经在队列中的节点”，也就是同一层的所有节点。
+
+否则当前层和下一层会混在一起，`i == 0` 就失去“本层第一个节点”的意义。
+
+### 3.2 C++ 实现
+
+```cpp title="层序遍历：记录每层第一个节点"
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode*> que;
+        que.push(root);
+
+        int result = root->val;
+
+        while (!que.empty()) {
+            int size = que.size();
+
+            for (int i = 0; i < size; ++i) {
+                TreeNode* node = que.front();
+                que.pop();
+
+                if (i == 0) {
+                    result = node->val;
+                }
+
+                if (node->left != nullptr) que.push(node->left);
+                if (node->right != nullptr) que.push(node->right);
+            }
+        }
+
+        return result;
+    }
+};
+```
+
+### 3.3 状态变化到底发生了什么
+
+假设层序遍历依次得到：
+
+```text
+第 0 层：1
+第 1 层：2 3
+第 2 层：4 5 6
+```
+
+`result` 的变化是：
+
+```text
+1 → 2 → 4
+```
+
+每次覆盖掉旧答案，因为**更深一层一定比更浅一层优先级高**。
+
+而同一层只记录 `i == 0` 的节点，因此自动满足“最左”。
+
+## 4. 一个更巧的 BFS：右孩子先入队
+
+还可以换一个观察角度。
+
+如果每层从**右向左**访问：
+
+```text
+右孩子先入队
+左孩子后入队
+```
+
+那么整个 BFS 最后弹出的节点，就是最后一层最左节点。
+
+```cpp title="层序遍历：右先左后，最后一个节点即答案"
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode*> que;
+        que.push(root);
+
+        TreeNode* node = nullptr;
+
+        while (!que.empty()) {
+            node = que.front();
+            que.pop();
+
+            if (node->right != nullptr) que.push(node->right);
+            if (node->left != nullptr) que.push(node->left);
+        }
+
+        return node->val;
+    }
+};
+```
+
+<Callout title="为什么这个写法成立" type="info">
+
+BFS 保证更浅的节点一定先于更深的节点被处理；同一层又因为“右先左后”，所以该层最左节点会最后被处理。
+
+于是全局最后一个被处理的节点恰好满足：
+
+```text
+深度最大 + 在该深度最靠左
+```
+
+</Callout>
+
+这个写法很短，但第一次学习时仍建议优先掌握“记录每层第一个节点”的标准层序模板，因为语义最清楚。
+
+## 5. 解法二：DFS——把题目转化为“最深叶子”
+
+递归写法的关键转换是：
+
+> 最后一层中的节点一定是全树深度最大的节点，而最后一层最左节点一定是**最先被左优先 DFS 遇到的最深叶子**。
+
+因此我们维护两个状态：
+
+```text
+maxDepth：目前见过的最大叶子深度
+result：这个最大深度第一次出现时对应的叶子值
+```
+
+## 6. 为什么只需要在叶子节点处更新
+
+题目寻找的是最后一层的最左节点。
+
+在非空有限二叉树中，最深层的节点一定是叶子节点：如果一个最深节点还有孩子，那么它的孩子会位于更深一层，与“当前已经最深”矛盾。
+
+所以 DFS 只需要在：
+
+```cpp
+node->left == nullptr && node->right == nullptr
+```
+
+时尝试更新答案。
+
+## 7. DFS 最关键的不变量
+
+我们约定：
+
+```text
+depth = 当前节点相对于根节点的深度
+根节点 depth = 0
+```
+
+并且始终**先递归左子树，再递归右子树**。
+
+当访问到叶子节点时：
+
+```cpp
+if (depth > maxDepth) {
+    maxDepth = depth;
+    result = node->val;
+}
+```
+
+注意这里必须是：
+
+```text
+>
+```
+
+而不是：
+
+```text
+>=
+```
+
+<Callout title="`>` 是保证“最左”的核心" type="warning">
+
+由于 DFS 左优先，同一个深度上最左叶子一定先被访问。
+
+第一次到达新深度时记录它；后面如果又遇到**同深度**叶子，绝不能覆盖答案。
+
+所以更新条件必须是 `depth > maxDepth`。
+
+如果写成 `depth >= maxDepth`，同层更靠右的叶子会不断覆盖前面的结果，最终可能得到最右节点。
+
+</Callout>
+
+## 8. 递归三步法
+
+<Steps>
+
+### 1. 明确递归函数的状态
+
+```cpp
+void dfs(TreeNode* node, int depth)
+```
+
+它负责遍历 `node` 的整棵子树，同时携带当前深度。
+
+### 2. 在叶子处尝试更新答案
+
+只有发现严格更深的叶子时才更新：
+
+```cpp
+if (node->left == nullptr && node->right == nullptr) {
+    if (depth > maxDepth) {
+        maxDepth = depth;
+        result = node->val;
+    }
+    return;
+}
+```
+
+### 3. 保证左子树先于右子树
+
+```cpp
+if (node->left != nullptr) dfs(node->left, depth + 1);
+if (node->right != nullptr) dfs(node->right, depth + 1);
+```
+
+`depth + 1` 作为值传入下一层，递归返回后当前层的 `depth` 并没有被修改，因此这里已经隐含了回溯。
+
+</Steps>
+
+## 9. C++ 递归实现
+
+```cpp title="DFS：左优先 + 只在更深叶子处更新"
+class Solution {
+private:
+    int maxDepth = -1;
+    int result = 0;
+
+    void dfs(TreeNode* node, int depth) {
+        if (node->left == nullptr && node->right == nullptr) {
+            if (depth > maxDepth) {
+                maxDepth = depth;
+                result = node->val;
+            }
+            return;
+        }
+
+        if (node->left != nullptr) {
+            dfs(node->left, depth + 1);
+        }
+        if (node->right != nullptr) {
+            dfs(node->right, depth + 1);
+        }
+    }
+
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        dfs(root, 0);
+        return result;
+    }
+};
+```
+
+## 10. 为什么 `depth + 1` 也属于回溯
+
+很多人只有看到：
+
+```cpp
+depth++;
+dfs(...);
+depth--;
+```
+
+才会觉得发生了回溯。
+
+实际上下面两种写法表达的是同一个状态恢复过程。
+
+<Tabs groupId="bottom-left-backtracking" items={['显式修改', '值传递']}>
+<Tab value="显式修改">
+
+```cpp
+depth++;
+dfs(node->left, depth);
+depth--;
+```
+
+递归前修改当前变量，返回后必须手动恢复。
+
+</Tab>
+<Tab value="值传递">
+
+```cpp
+dfs(node->left, depth + 1);
+```
+
+传给子调用的是一个新值，当前栈帧中的 `depth` 从未被修改，所以返回时天然恢复。
+
+</Tab>
+</Tabs>
+
+这就是所谓的**隐式回溯**。
+
+## 11. 为什么前序、中序、后序不是本题重点
+
+本题 DFS 真正依赖的不是“中节点在哪个时刻处理”，而是：
+
+```text
+左子树一定先于右子树被完整搜索
+```
+
+因为我们只在叶子节点处做更新，所以前序 / 中序 / 后序的传统标签没有那么重要。
+
+更准确地说，本题需要的是：
+
+```text
+深度优先 + 左优先
+```
+
+这是比死记“某题用前序”更可迁移的理解。
+
+## 12. 正确性证明：为什么 DFS 一定留下最左值
+
+设整棵树最大叶子深度为 $D$。
+
+### 12.1 一定能找到深度为 $D$ 的叶子
+
+DFS 会访问整棵树的所有叶子，因此最终至少会遇到一个深度为 $D$ 的叶子。
+
+### 12.2 第一个深度为 $D$ 的叶子一定最靠左
+
+因为每个节点都先搜索左子树，再搜索右子树，所以在相同深度下，访问顺序是从左向右的。
+
+因此第一个被访问到的深度 $D$ 叶子，就是最后一层最左节点。
+
+### 12.3 为什么不会被右侧节点覆盖
+
+更新条件是：
+
+```cpp
+depth > maxDepth
+```
+
+第一次到达 $D$ 时：
+
+$$
+D > maxDepth
+$$
+
+答案被记录。
+
+之后所有同层节点深度仍为 $D$，不满足：
+
+$$
+D > D
+$$
+
+因此答案保持不变。
+
+## 13. BFS 与 DFS 怎么选
+
+| 方法 | 关键状态 | 时间复杂度 | 额外空间 | 特点 |
+| --- | --- | --- | --- | --- |
+| 标准 BFS | 每层第一个节点 | $O(n)$ | $O(w)$ | 最符合“最后一层”题意 |
+| 右先左后 BFS | 最后弹出的节点 | $O(n)$ | $O(w)$ | 代码极短，但技巧性更强 |
+| DFS | 最大深度 + 对应值 | $O(n)$ | $O(h)$ | 训练左优先与更新不变量 |
+
+其中：
+
+- $n$ 为节点总数；
+- $h$ 为树高；
+- $w$ 为树的最大宽度。
+
+对于退化成链表的树：
+
+$$
+h=n
+$$
+
+所以 DFS 最坏空间复杂度也是 $O(n)$。
+
+## 14. 常见错误
+
+### 14.1 只沿 `left` 指针向下
+
+这只能找到“左链末端”，不能保证它处在整棵树最后一层。
+
+### 14.2 DFS 使用 `>=` 更新
+
+```cpp
+if (depth >= maxDepth)
+```
+
+会让同层右侧节点覆盖左侧节点。
+
+### 14.3 DFS 先右后左却仍然只在 `>` 时更新
+
+这样第一次到达最深层的是最右节点，最终答案也会偏右。
+
+如果遍历顺序改变，更新策略也必须一起重新设计。
+
+### 14.4 BFS 忘记固定当前层大小
+
+如果一边遍历一边使用不断变化的 `queue.size()` 作为同一层边界，就会把下一层节点混入当前层。
+
+## 15. 从这道题抽象出的通用模板
+
+这类问题经常可以抽象成：
+
+```text
+寻找“最优层级”上的“第一个元素”
+```
+
+常见策略有两类：
+
+1. **BFS**：天然按层枚举，直接获得层级顺序；
+2. **DFS**：显式维护深度，同时通过遍历顺序决定同层优先级。
+
+<Callout title="一句话记忆" type="success">
+
+“树的最下层最左值”有两种核心理解：
+
+```text
+BFS：最后一层的第一个节点
+DFS：左优先搜索中，第一个达到最大深度的叶子
+```
+
+DFS 中真正保证“最左”的组合是：
+
+```text
+左先右后 + 只在 depth > maxDepth 时更新
+```
+
+</Callout>
+
+## 其他语言版本
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Swift', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java
+import java.util.ArrayDeque;
+import java.util.Queue;
+
+class Solution {
+    public int findBottomLeftValue(TreeNode root) {
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        int answer = root.val;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (i == 0) answer = node.val;
+
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+            }
+        }
+        return answer;
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python
+from collections import deque
+
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+        queue = deque([root])
+        answer = root.val
+
+        while queue:
+            size = len(queue)
+            for i in range(size):
+                node = queue.popleft()
+                if i == 0:
+                    answer = node.val
+
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+        return answer
+```
+
+</Tab>
+<Tab value="Go">
+
+```go
+func findBottomLeftValue(root *TreeNode) int {
+    queue := []*TreeNode{root}
+    answer := root.Val
+
+    for len(queue) > 0 {
+        size := len(queue)
+        for i := 0; i < size; i++ {
+            node := queue[0]
+            queue = queue[1:]
+
+            if i == 0 {
+                answer = node.Val
+            }
+            if node.Left != nil {
+                queue = append(queue, node.Left)
+            }
+            if node.Right != nil {
+                queue = append(queue, node.Right)
+            }
+        }
+    }
+    return answer
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript
+var findBottomLeftValue = function(root) {
+  const queue = [root];
+  let head = 0;
+  let answer = root.val;
+
+  while (head < queue.length) {
+    const size = queue.length - head;
+    for (let i = 0; i < size; i++) {
+      const node = queue[head++];
+      if (i === 0) answer = node.val;
+
+      if (node.left) queue.push(node.left);
+      if (node.right) queue.push(node.right);
+    }
+  }
+  return answer;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript
+function findBottomLeftValue(root: TreeNode | null): number {
+  if (root === null) throw new Error('root must be non-null');
+
+  const queue: TreeNode[] = [root];
+  let head = 0;
+  let answer = root.val;
+
+  while (head < queue.length) {
+    const size = queue.length - head;
+    for (let i = 0; i < size; i++) {
+      const node = queue[head++];
+      if (i === 0) answer = node.val;
+
+      if (node.left !== null) queue.push(node.left);
+      if (node.right !== null) queue.push(node.right);
+    }
+  }
+  return answer;
+}
+```
+
+</Tab>
+<Tab value="Swift">
+
+```swift
+class Solution {
+    func findBottomLeftValue(_ root: TreeNode?) -> Int {
+        guard let root = root else { return 0 }
+
+        var queue = [TreeNode]()
+        var head = 0
+        var answer = root.val
+        queue.append(root)
+
+        while head < queue.count {
+            let size = queue.count - head
+            for i in 0..<size {
+                let node = queue[head]
+                head += 1
+
+                if i == 0 { answer = node.val }
+                if let left = node.left { queue.append(left) }
+                if let right = node.right { queue.append(right) }
+            }
+        }
+        return answer
+    }
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala
+import scala.collection.mutable.Queue
+
+object Solution {
+  def findBottomLeftValue(root: TreeNode): Int = {
+    val queue = Queue[TreeNode](root)
+    var answer = root.value
+
+    while (queue.nonEmpty) {
+      val size = queue.size
+      for (i <- 0 until size) {
+        val node = queue.dequeue()
+        if (i == 0) answer = node.value
+
+        if (node.left != null) queue.enqueue(node.left)
+        if (node.right != null) queue.enqueue(node.right)
+      }
+    }
+    answer
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust
+use std::cell::RefCell;
+use std::collections::VecDeque;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn find_bottom_left_value(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        let root = root.unwrap();
+        let mut queue = VecDeque::from([root.clone()]);
+        let mut answer = root.borrow().val;
+
+        while !queue.is_empty() {
+            let size = queue.len();
+            for i in 0..size {
+                let node = queue.pop_front().unwrap();
+                let node_ref = node.borrow();
+
+                if i == 0 {
+                    answer = node_ref.val;
+                }
+                if let Some(left) = node_ref.left.clone() {
+                    queue.push_back(left);
+                }
+                if let Some(right) = node_ref.right.clone() {
+                    queue.push_back(right);
+                }
+            }
+        }
+        answer
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp
+public class Solution {
+    public int FindBottomLeftValue(TreeNode root) {
+        var queue = new Queue<TreeNode>();
+        queue.Enqueue(root);
+        int answer = root.val;
+
+        while (queue.Count > 0) {
+            int size = queue.Count;
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.Dequeue();
+                if (i == 0) answer = node.val;
+
+                if (node.left != null) queue.Enqueue(node.left);
+                if (node.right != null) queue.Enqueue(node.right);
+            }
+        }
+        return answer;
+    }
+}
+```
+
+</Tab>
+</Tabs>

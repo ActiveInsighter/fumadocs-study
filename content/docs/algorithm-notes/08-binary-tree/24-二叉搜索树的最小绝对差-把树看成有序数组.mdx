@@ -1,0 +1,710 @@
+---
+title: 二叉搜索树的最小绝对差：把树看成有序数组
+---
+
+# 二叉搜索树的最小绝对差：把树看成有序数组
+
+> LeetCode 530 · Minimum Absolute Difference in BST
+
+[题目链接](https://leetcode.cn/problems/minimum-absolute-difference-in-bst/)
+
+给定一棵至少包含两个节点的二叉搜索树，求任意两个节点值之差的绝对值的最小值。
+
+![二叉搜索树的最小绝对差](https://file1.kamacoder.com/i/algo/20201014223400123.png)
+
+<Callout title="这道题真正考的不是暴力枚举" type="idea">
+
+看到“任意两个节点的最小差”时，普通二叉树很容易让人想到两两比较；但题目给的是 **BST**。BST 的中序遍历天然有序，于是问题会立刻退化成：
+
+> **在一个有序数组中寻找最小相邻差。**
+
+</Callout>
+
+## 1. 先把树问题改写成数组问题
+
+二叉搜索树满足：
+
+```text
+左子树 < 当前节点 < 右子树
+```
+
+中序遍历顺序又恰好是：
+
+```text
+左 → 中 → 右
+```
+
+因此，中序遍历得到的节点序列一定按值递增。
+
+假设中序序列为：
+
+$$
+a_1<a_2<\cdots<a_n
+$$
+
+原题要求：
+
+$$
+\min_{i\neq j}|a_i-a_j|
+$$
+
+而对于一个已经排好序的序列，答案一定出现在**相邻元素**之间：
+
+$$
+\boxed{\min_{1\le i<n}(a_{i+1}-a_i)}
+$$
+
+这就是本题从“任意两点”降维成“前后两个节点”的关键。
+
+## 2. 为什么只比较相邻元素就够了
+
+假设有三个递增元素：
+
+$$
+a<b<c
+$$
+
+那么：
+
+$$
+c-a=(b-a)+(c-b)
+$$
+
+显然有：
+
+$$
+c-a\ge b-a
+$$
+
+并且：
+
+$$
+c-a\ge c-b
+$$
+
+因此跳过中间元素得到的差，不可能比中间某一段更小。
+
+推广到任意两个非相邻元素 $a_i<a_j$：
+
+$$
+a_j-a_i
+=
+(a_{i+1}-a_i)+(a_{i+2}-a_{i+1})+\cdots+(a_j-a_{j-1})
+$$
+
+所以这个差值至少不会小于其中最小的某个相邻差。
+
+<Callout title="有序性带来的算法收益" type="success">
+
+原本看起来需要比较 $O(n^2)$ 对节点；利用 BST 的中序有序性后，只需要做一次中序遍历并比较相邻节点，总时间降为 $O(n)$。
+
+</Callout>
+
+## 3. 解法一：先生成中序数组
+
+最直观的写法是先把 BST 转成有序数组，再扫描相邻元素。
+
+<Steps>
+
+### 1. 中序遍历整棵树
+
+把每个节点值依次放入数组 `values`。
+
+### 2. 扫描相邻元素
+
+比较：
+
+```text
+values[i] - values[i - 1]
+```
+
+### 3. 维护最小值
+
+不断更新 `result` 即可。
+
+</Steps>
+
+```cpp title="中序数组写法"
+class Solution {
+private:
+    vector<int> values;
+
+    void inorder(TreeNode* root) {
+        if (root == nullptr) return;
+        inorder(root->left);
+        values.push_back(root->val);
+        inorder(root->right);
+    }
+
+public:
+    int getMinimumDifference(TreeNode* root) {
+        inorder(root);
+
+        int result = INT_MAX;
+        for (int i = 1; i < values.size(); ++i) {
+            result = min(result, values[i] - values[i - 1]);
+        }
+        return result;
+    }
+};
+```
+
+### 复杂度
+
+遍历所有节点需要：
+
+$$
+O(n)
+$$
+
+数组额外保存 $n$ 个元素，所以额外空间为：
+
+$$
+O(n)
+$$
+
+这个版本非常适合第一次理解本题，但空间还可以继续优化。
+
+## 4. 解法二：中序遍历时直接比较 `pre` 与 `cur`
+
+既然最终只需要相邻元素，那么没必要保存完整数组。
+
+中序遍历过程中，我们只需维护：
+
+```text
+pre = 上一个被中序访问的节点
+cur = 当前节点
+```
+
+然后每访问一个新节点就计算：
+
+```cpp
+cur->val - pre->val
+```
+
+![中序遍历中维护前驱节点](https://file1.kamacoder.com/i/algo/20210204153247458.png)
+
+这其实就是把：
+
+```text
+有序数组中的 a[i - 1]
+```
+
+换成：
+
+```text
+树遍历过程中的 pre
+```
+
+### 递归不变量
+
+当执行到当前节点 `cur` 的“中”位置时：
+
+- `cur->left` 已经全部处理完；
+- `pre` 是中序序列中紧挨着 `cur` 前面的节点；
+- 所以 `cur->val - pre->val` 正是一个相邻差。
+
+```cpp title="推荐：递归中序 + pre"
+class Solution {
+private:
+    TreeNode* pre = nullptr;
+    int result = INT_MAX;
+
+    void inorder(TreeNode* cur) {
+        if (cur == nullptr) return;
+
+        inorder(cur->left);
+
+        if (pre != nullptr) {
+            result = min(result, cur->val - pre->val);
+        }
+        pre = cur;
+
+        inorder(cur->right);
+    }
+
+public:
+    int getMinimumDifference(TreeNode* root) {
+        inorder(root);
+        return result;
+    }
+};
+```
+
+<Callout title="pre 为什么必须在这里更新" type="warning">
+
+`pre = cur` 必须放在：
+
+```text
+左子树处理完
+→ 当前节点完成差值计算
+→ 更新 pre
+→ 再进入右子树
+```
+
+这样 `pre` 才始终表示“中序序列中的前一个节点”。如果提前更新，比较对象就错了。
+
+</Callout>
+
+## 5. 手推一次 `pre` 的变化
+
+考虑：
+
+```text
+       4
+      / \
+     2   6
+    / \
+   1   3
+```
+
+中序序列为：
+
+```text
+1 → 2 → 3 → 4 → 6
+```
+
+遍历状态如下：
+
+| 当前节点 `cur` | `pre` | 当前差值 | 当前最小值 |
+| --- | --- | ---: | ---: |
+| 1 | `null` | 不比较 | $+\infty$ |
+| 2 | 1 | $2-1=1$ | 1 |
+| 3 | 2 | $3-2=1$ | 1 |
+| 4 | 3 | $4-3=1$ | 1 |
+| 6 | 4 | $6-4=2$ | 1 |
+
+最终答案为：
+
+$$
+1
+$$
+
+这个过程和扫描有序数组完全一致，只是没有真的建立数组。
+
+## 6. 解法三：迭代中序遍历
+
+如果不想使用递归，同样可以用栈模拟中序遍历。
+
+核心仍然没有变化：
+
+```text
+访问左链
+→ 弹出当前节点
+→ 与 pre 比较
+→ 更新 pre
+→ 转向右子树
+```
+
+```cpp title="迭代中序写法"
+class Solution {
+public:
+    int getMinimumDifference(TreeNode* root) {
+        stack<TreeNode*> st;
+        TreeNode* cur = root;
+        TreeNode* pre = nullptr;
+        int result = INT_MAX;
+
+        while (cur != nullptr || !st.empty()) {
+            while (cur != nullptr) {
+                st.push(cur);
+                cur = cur->left;
+            }
+
+            cur = st.top();
+            st.pop();
+
+            if (pre != nullptr) {
+                result = min(result, cur->val - pre->val);
+            }
+            pre = cur;
+
+            cur = cur->right;
+        }
+
+        return result;
+    }
+};
+```
+
+递归版和迭代版的本质完全相同，区别只是：
+
+<Cards>
+  <Card title="递归版">调用栈隐式保存“回到哪里继续处理”。代码更简洁。</Card>
+  <Card title="迭代版">显式使用 `stack` 保存尚未处理的祖先节点。</Card>
+  <Card title="共同核心">真正决定答案的都是 BST 中序有序性和 `pre` 前驱状态。</Card>
+</Cards>
+
+## 7. 复杂度分析
+
+### 时间复杂度
+
+每个节点恰好访问一次：
+
+$$
+O(n)
+$$
+
+### 空间复杂度
+
+如果使用 `pre` 而不保存完整数组，额外空间主要来自递归栈或显式栈。
+
+设树高为 $h$：
+
+$$
+O(h)
+$$
+
+平衡 BST 中：
+
+$$
+h=O(\log n)
+$$
+
+极端退化成链表时：
+
+$$
+h=O(n)
+$$
+
+## 8. 常见错误
+
+### 错误一：真的枚举任意两个节点
+
+如果先收集所有值后两两比较：
+
+$$
+O(n^2)
+$$
+
+完全浪费了 BST 已经提供的有序性。
+
+### 错误二：只比较父节点和孩子
+
+最小差值不一定发生在父子节点之间。
+
+例如：
+
+```text
+       8
+      / \
+     3   10
+      \
+       6
+      /
+     5
+```
+
+中序序列：
+
+```text
+3, 5, 6, 8, 10
+```
+
+最小差值来自 `5` 和 `6`，它们不一定是直接父子关系。
+
+真正应该比较的是：
+
+> **中序序列相邻节点，而不是树结构上的相邻节点。**
+
+### 错误三：把绝对值写得到处都是
+
+因为中序序列递增，所以有：
+
+$$
+cur.val\ge pre.val
+$$
+
+直接计算：
+
+```cpp
+cur->val - pre->val
+```
+
+即可。
+
+这不是不能使用 `abs`，而是说明我们已经利用了有序性。
+
+### 错误四：每次调用对象时忘记重置成员状态
+
+如果代码运行环境可能复用同一个 `Solution` 对象，那么成员变量 `pre`、`result` 在入口处最好显式初始化。
+
+例如：
+
+```cpp
+pre = nullptr;
+result = INT_MAX;
+```
+
+LeetCode 通常每个测试会创建新的 `Solution`，但写可复用代码时应理解这个状态问题。
+
+## 9. 这道题真正应该形成的模板
+
+以后看到：
+
+```text
+BST + 最小差值
+BST + 相邻关系
+BST + 前驱 / 后继
+BST + 第 k 小
+BST + 是否有序
+```
+
+第一反应应该是：
+
+```text
+BST
+↓
+中序遍历
+↓
+有序序列
+↓
+把树问题转成有序数组问题
+```
+
+<Callout title="一句话记忆" type="success">
+
+**BST 的中序遍历就是一个“边遍历边生成的有序数组”；只依赖相邻元素的问题，通常只需要一个 `pre`，不需要真的把数组存下来。**
+
+</Callout>
+
+## 10. 复盘清单
+
+完成本篇后，应能独立回答：
+
+- 为什么 BST 的中序遍历一定有序？
+- 为什么最小差值一定发生在有序序列相邻元素之间？
+- `pre` 在递归过程中究竟代表什么？
+- `pre = cur` 为什么必须放在处理当前节点之后？
+- 为什么不能只比较树上的父子节点？
+- 数组版为什么是 $O(n)$ 额外空间，而 `pre` 版只需要 $O(h)$？
+- 看到 BST 的“前驱、后继、差值、排序”类题目时，为什么应优先想到中序遍历？
+
+## 其他语言实现
+
+下面各语言统一采用“**中序遍历 + 前驱节点**”这一核心解法。
+
+<Tabs groupId="binary-tree-language" persist items={['Java', 'Python', 'Go', 'JavaScript', 'TypeScript', 'Scala', 'Rust', 'C#']}>
+<Tab value="Java">
+
+```java title="Java"
+class Solution {
+    private TreeNode pre;
+    private int ans;
+
+    public int getMinimumDifference(TreeNode root) {
+        pre = null;
+        ans = Integer.MAX_VALUE;
+        inorder(root);
+        return ans;
+    }
+
+    private void inorder(TreeNode node) {
+        if (node == null) return;
+
+        inorder(node.left);
+        if (pre != null) {
+            ans = Math.min(ans, node.val - pre.val);
+        }
+        pre = node;
+        inorder(node.right);
+    }
+}
+```
+
+</Tab>
+<Tab value="Python">
+
+```python title="Python"
+class Solution:
+    def getMinimumDifference(self, root):
+        pre = None
+        ans = float("inf")
+
+        def inorder(node):
+            nonlocal pre, ans
+            if node is None:
+                return
+
+            inorder(node.left)
+            if pre is not None:
+                ans = min(ans, node.val - pre.val)
+            pre = node
+            inorder(node.right)
+
+        inorder(root)
+        return ans
+```
+
+</Tab>
+<Tab value="Go">
+
+```go title="Go"
+func getMinimumDifference(root *TreeNode) int {
+    var pre *TreeNode
+    ans := int(^uint(0) >> 1)
+
+    var inorder func(*TreeNode)
+    inorder = func(node *TreeNode) {
+        if node == nil {
+            return
+        }
+
+        inorder(node.Left)
+        if pre != nil && node.Val-pre.Val < ans {
+            ans = node.Val - pre.Val
+        }
+        pre = node
+        inorder(node.Right)
+    }
+
+    inorder(root)
+    return ans
+}
+```
+
+</Tab>
+<Tab value="JavaScript">
+
+```javascript title="JavaScript"
+var getMinimumDifference = function(root) {
+    let pre = null;
+    let ans = Infinity;
+
+    const inorder = (node) => {
+        if (node === null) return;
+
+        inorder(node.left);
+        if (pre !== null) {
+            ans = Math.min(ans, node.val - pre.val);
+        }
+        pre = node;
+        inorder(node.right);
+    };
+
+    inorder(root);
+    return ans;
+};
+```
+
+</Tab>
+<Tab value="TypeScript">
+
+```typescript title="TypeScript"
+function getMinimumDifference(root: TreeNode | null): number {
+    let pre: TreeNode | null = null;
+    let ans = Infinity;
+
+    function inorder(node: TreeNode | null): void {
+        if (node === null) return;
+
+        inorder(node.left);
+        if (pre !== null) {
+            ans = Math.min(ans, node.val - pre.val);
+        }
+        pre = node;
+        inorder(node.right);
+    }
+
+    inorder(root);
+    return ans;
+}
+```
+
+</Tab>
+<Tab value="Scala">
+
+```scala title="Scala"
+object Solution {
+  def getMinimumDifference(root: TreeNode): Int = {
+    var pre: TreeNode = null
+    var ans = Int.MaxValue
+
+    def inorder(node: TreeNode): Unit = {
+      if (node == null) return
+
+      inorder(node.left)
+      if (pre != null) {
+        ans = math.min(ans, node.value - pre.value)
+      }
+      pre = node
+      inorder(node.right)
+    }
+
+    inorder(root)
+    ans
+  }
+}
+```
+
+</Tab>
+<Tab value="Rust">
+
+```rust title="Rust"
+use std::cell::RefCell;
+use std::rc::Rc;
+
+impl Solution {
+    pub fn get_minimum_difference(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        fn inorder(
+            node: &Option<Rc<RefCell<TreeNode>>>,
+            pre: &mut Option<i32>,
+            ans: &mut i32,
+        ) {
+            let Some(rc) = node else { return };
+
+            let (left, val, right) = {
+                let node = rc.borrow();
+                (node.left.clone(), node.val, node.right.clone())
+            };
+
+            inorder(&left, pre, ans);
+            if let Some(prev) = *pre {
+                *ans = (*ans).min(val - prev);
+            }
+            *pre = Some(val);
+            inorder(&right, pre, ans);
+        }
+
+        let mut pre = None;
+        let mut ans = i32::MAX;
+        inorder(&root, &mut pre, &mut ans);
+        ans
+    }
+}
+```
+
+</Tab>
+<Tab value="C#">
+
+```csharp title="C#"
+public class Solution
+{
+    private TreeNode pre = null;
+    private int ans = int.MaxValue;
+
+    public int GetMinimumDifference(TreeNode root)
+    {
+        pre = null;
+        ans = int.MaxValue;
+        Inorder(root);
+        return ans;
+    }
+
+    private void Inorder(TreeNode node)
+    {
+        if (node == null) return;
+
+        Inorder(node.left);
+        if (pre != null)
+        {
+            ans = Math.Min(ans, node.val - pre.val);
+        }
+        pre = node;
+        Inorder(node.right);
+    }
+}
+```
+
+</Tab>
+</Tabs>
