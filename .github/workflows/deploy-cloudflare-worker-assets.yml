@@ -333,6 +333,48 @@ jobs:
               throw new Error('Deep Fumadocs client navigation failed: ' + deepPath + ' expected=' + deepHref);
             }
             console.log('[browser-check] all homepage module links, blog index, and real deep Fumadocs navigation passed');
+
+            const codeTabsPath =
+              '/docs/algorithm/04-hash-table/05-%E5%BF%AB%E4%B9%90%E6%95%B0/';
+            await page.goto(base + codeTabsPath, {
+              waitUntil: 'networkidle2',
+              timeout: 120000,
+            });
+            const languageTabs = await page.$eval('[role="tab"]', (elements) =>
+              elements
+                .map((element) => element.textContent?.trim())
+                .filter(Boolean),
+            );
+            console.log('[browser-check] code tabs=' + languageTabs.join(', '));
+            for (const language of ['C++', 'Java', 'Python', 'Go', 'JavaScript']) {
+              if (!languageTabs.includes(language)) {
+                throw new Error(
+                  'Missing Fumadocs code tab "' + language + '" on ' + codeTabsPath,
+                );
+              }
+            }
+
+            const clickedJava = await page.evaluate(() => {
+              const target = Array.from(document.querySelectorAll('[role="tab"]')).find(
+                (element) => element.textContent?.trim() === 'Java',
+              );
+              if (!(target instanceof HTMLElement)) return false;
+              target.click();
+              return true;
+            });
+            if (!clickedJava) {
+              throw new Error('Could not click Java Fumadocs code tab.');
+            }
+            await page.waitForFunction(
+              () =>
+                Array.from(document.querySelectorAll('[role="tab"]')).some(
+                  (element) =>
+                    element.textContent?.trim() === 'Java' &&
+                    element.getAttribute('aria-selected') === 'true',
+                ),
+              { timeout: 30000 },
+            );
+            console.log('[browser-check] Fumadocs multilingual code tabs rendered and switched to Java');
           } finally {
             await browser.close();
           }
