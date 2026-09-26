@@ -42,7 +42,7 @@ describe('Cloudflare Workers Static Assets deployment', () => {
       .map((line) => line.trim())
       .filter((line) => line.length > 0 && !line.startsWith('#'));
 
-    expect(ruleLines.every((line) => !/\s200$/.test(line))).toBe(true);
+    expect(ruleLines.every((line) => /\s200$/.test(line))).toBe(true);
   });
 
 
