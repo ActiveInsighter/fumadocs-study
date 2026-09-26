@@ -60,9 +60,13 @@ jobs:
         shell: bash
         run: npm run postinstall
 
+      - name: Check Markdown strong boundaries
+        shell: bash
+        run: node scripts/normalize-strong-boundaries.mjs --check
+
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts
 
       - name: Restore Next/Turbopack build cache
         uses: actions/cache@v5
