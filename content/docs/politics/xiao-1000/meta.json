@@ -1,0 +1,13 @@
+{
+  "title": "肖1000题",
+  "description": "肖1000题精简版，按考研政治科目与章节整理。",
+  "pages": [
+    "index",
+    "marxism-principles",
+    "mao-zedong-thought",
+    "modern-chinese-history",
+    "xi-jinping-thought",
+    "ideology-morality-law"
+  ],
+  "defaultOpen": true
+}
