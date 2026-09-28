@@ -91,9 +91,9 @@ describe('InlineSvg', () => {
 
     // This regression case has a wide viewBox but intentionally no width.
     expect(html).toContain('viewBox="0 0 860 480"');
-    expect(html).not.toMatch(/<svg[^>]*\\swidth=/u);
+    expect(html).not.toMatch(/<svg[^>]*\swidth=/u);
     expect(css).toMatch(
-      /#docs-body \\.inline-svg > svg:not\\(\\[width\\]\\)\\s*\\{[^}]*width:\\s*100%;/su,
+      /#docs-body \.inline-svg > svg:not\(\[width\]\)\s*\{[^}]*width:\s*100%;/su,
     );
   });
 
