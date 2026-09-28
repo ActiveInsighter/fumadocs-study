@@ -63,12 +63,22 @@
  * available to page-level CSS while preserving the old responsive image size. */
 #docs-body .inline-svg {
   display: block;
+  width: 100%;
   max-width: 100%;
   overflow-x: auto;
 }
 
+/*
+ * InlineSvg renders SVG markup directly into the document. Many study
+ * diagrams only declare a viewBox, so an inline <svg> otherwise falls back to
+ * the browser's small default intrinsic width instead of filling the prose
+ * column. Keep diagrams full-width on desktop, and preserve a readable floor
+ * on narrow screens so dense labels scroll horizontally rather than being
+ * scaled down to illegible text.
+ */
 #docs-body .inline-svg > svg {
   display: block;
+  width: max(100%, 40rem);
   height: auto;
-  max-width: 100%;
+  max-width: none;
 }
