@@ -37,6 +37,28 @@ describe('InlineSvg', () => {
     expect(html).not.toContain('<img');
   });
 
+  it('restores intrinsic dimensions from the viewBox when an SVG omits them', () => {
+    const html = renderToStaticMarkup(
+      <InlineSvg
+        src="/images/computer-network/computer-network-datalink-mac-017.svg"
+        alt="NAV 与虚拟载波监听"
+      />,
+    );
+
+    expect(html).toMatch(/<svg[^>]*\bwidth="860"[^>]*\bheight="480"/u);
+  });
+
+  it('preserves explicit SVG dimensions instead of overriding the source', () => {
+    const html = renderToStaticMarkup(
+      <InlineSvg
+        src="/images/computer-network/computer-network-datalink-mac-001.svg"
+        alt="介质访问控制"
+      />,
+    );
+
+    expect(html).toMatch(/<svg[^>]*\bheight="211"[^>]*\bwidth="531"/u);
+  });
+
   it('rejects sources outside the local SVG asset directory', () => {
     expect(() =>
       renderToStaticMarkup(<InlineSvg src="/images/../private.svg" alt="非法资源" />),
