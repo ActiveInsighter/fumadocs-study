@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/algorithm-notes-0926
+      - fix/svg-readability-0928
   workflow_dispatch:
     inputs:
       deploy:
