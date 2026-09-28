@@ -6,6 +6,7 @@ const publicDirectory = resolve(process.cwd(), 'public');
 const imagesDirectory = resolve(publicDirectory, 'images');
 const localSvgSourcePattern = /^\/images\/(?:[\w.-]+\/)*[\w.-]+\.svg$/u;
 const svgRootPattern = /<svg\b[^>]*>/iu;
+const svgViewBoxPattern = /\bviewBox\s*=\s*(["'])([^"']+)\1/iu;
 const svgIdPattern = /\bid=(['"])([^'"]+)\1/gu;
 const svgUrlReferencePattern = /url\(\s*#([^\s)]+)\s*\)/gu;
 const svgFragmentReferencePattern = /((?:xlink:)?href\s*=\s*)(['"])#([^'"]+)\2/giu;
@@ -184,6 +185,36 @@ function setRootAttribute(rootTag: string, name: string, value: string): string 
   return rootTag.replace(/\s*\/?>(?=$)/u, (closing) => ` ${attribute}${closing}`);
 }
 
+function restoreIntrinsicDimensionsFromViewBox(rootTag: string): string {
+  // An inline <svg> without width/height falls back to the browser's small
+  // default viewport. That makes labels authored in viewBox units unreadably
+  // tiny. Preserve the source drawing scale by restoring the missing intrinsic
+  // dimensions from the viewBox while leaving explicitly sized SVGs untouched.
+  if (/\swidth\s*=/iu.test(rootTag) || /\sheight\s*=/iu.test(rootTag)) {
+    return rootTag;
+  }
+
+  const viewBoxMatch = rootTag.match(svgViewBoxPattern);
+  if (!viewBoxMatch) return rootTag;
+
+  const values = viewBoxMatch[2].trim().split(/[\s,]+/u);
+  if (values.length !== 4) return rootTag;
+
+  const width = Number(values[2]);
+  const height = Number(values[3]);
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return rootTag;
+  }
+
+  rootTag = setRootAttribute(rootTag, 'width', values[2]);
+  return setRootAttribute(rootTag, 'height', values[3]);
+}
+
 function addRootClass(rootTag: string): string {
   const classPattern = /\sclass\s*=\s*(["'])([\s\S]*?)\1/iu;
   const classMatch = rootTag.match(classPattern);
@@ -207,7 +238,7 @@ function prepareSvg(content: string, alt?: string): string {
     throw new Error('InlineSvg could not prepare an SVG without a root element.');
   }
 
-  let rootTag = addRootClass(rootMatch[0]);
+  let rootTag = restoreIntrinsicDimensionsFromViewBox(addRootClass(rootMatch[0]));
 
   if (alt) {
     rootTag = setRootAttribute(rootTag, 'role', 'img');
