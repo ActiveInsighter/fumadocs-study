@@ -77,6 +77,26 @@ describe('InlineSvg', () => {
     expect(fallbackHtml).not.toContain('https://www.drawio.com/');
   });
 
+  it('renders viewBox-only diagrams at the docs-column width', () => {
+    const html = renderToStaticMarkup(
+      <InlineSvg
+        src="/images/computer-network/computer-network-datalink-mac-017.svg"
+        alt="NAV 与虚拟载波监听"
+      />,
+    );
+    const css = readFileSync(
+      join(process.cwd(), 'app/docs/docs-typography.css'),
+      'utf8',
+    );
+
+    // This regression case has a wide viewBox but intentionally no width.
+    expect(html).toContain('viewBox="0 0 860 480"');
+    expect(html).not.toMatch(/<svg[^>]*\\swidth=/u);
+    expect(css).toMatch(
+      /#docs-body \\.inline-svg > svg:not\\(\\[width\\]\\)\\s*\\{[^}]*width:\\s*100%;/su,
+    );
+  });
+
   it('converts every SVG image in 知识点总结2 to InlineSvg', () => {
     const files = releaseDocsRoots.flatMap(getMdxFiles);
     const source = files.map((file) => readFileSync(file, 'utf8')).join('\n');
