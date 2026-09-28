@@ -72,3 +72,14 @@
   height: auto;
   max-width: 100%;
 }
+
+/*
+ * Inline SVG roots that only declare a viewBox otherwise fall back to the
+ * browser's 300px intrinsic width. Most of the 408 diagrams are authored this
+ * way, so the old rule shrank wide diagrams (and their 11-14px labels) to a
+ * fraction of the docs column. Let viewBox-only diagrams use the full column
+ * while preserving an explicit author-provided width when one exists.
+ */
+#docs-body .inline-svg > svg:not([width]) {
+  width: 100%;
+}
