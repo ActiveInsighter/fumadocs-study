@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/algorithm-notes-0926
+      - codex/fix-svg-readability-0928
   workflow_dispatch:
     inputs:
       deploy:
@@ -65,7 +66,7 @@ jobs:
 
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx
 
       - name: Restore Next/Turbopack build cache
         uses: actions/cache@v5
