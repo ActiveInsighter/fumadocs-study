@@ -5,15 +5,15 @@
     </marker>
   </defs>
   <rect x="0" y="0" width="980" height="520" fill="var(--surface)"/>
-  <text x="490" y="34" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" class="svg-text svg-text-theme">请求分页中的页框分配策略</text>
-  <text x="490" y="58" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-theme">固定分配：页框数量保持不变；可变分配：页框数量可随运行情况调整</text>
+  <text x="490" y="34" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" class="svg-text svg-text-on-light">请求分页中的页框分配策略</text>
+  <text x="490" y="58" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">固定分配：页框数量保持不变；可变分配：页框数量可随运行情况调整</text>
 
   <g>
     <rect x="40" y="86" width="420" height="330" rx="14" fill="var(--paper)" stroke="var(--indigo-mid)"/>
     <rect x="40" y="86" width="420" height="52" rx="14" fill="var(--indigo-light)" stroke="var(--indigo-mid)"/>
     <text x="250" y="118" text-anchor="middle" font-size="var(--svg-font-size-body)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-on-light">固定分配（Fixed Allocation）</text>
 
-    <text x="70" y="170" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-theme">时刻 t₀：进程 A 分得 3 个页框</text>
+    <text x="70" y="170" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">时刻 t₀：进程 A 分得 3 个页框</text>
     <g transform="translate(70 188)">
       <rect x="0" y="0" width="92" height="48" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
       <rect x="92" y="0" width="92" height="48" fill="var(--mint-soft)" stroke="var(--mint-deep)"/>
@@ -24,9 +24,9 @@
     </g>
 
     <path d="M208 250 V282" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <text x="228" y="272" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">发生缺页并置换</text>
+    <text x="228" y="272" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">发生缺页并置换</text>
 
-    <text x="70" y="318" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-theme">时刻 t₁：内容可变化，但仍是 3 个页框</text>
+    <text x="70" y="318" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">时刻 t₁：内容可变化，但仍是 3 个页框</text>
     <g transform="translate(70 336)">
       <rect x="0" y="0" width="92" height="48" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
       <rect x="92" y="0" width="92" height="48" fill="var(--rose-soft)" stroke="var(--rose-deep)"/>
@@ -43,7 +43,7 @@
     <rect x="520" y="86" width="420" height="52" rx="14" fill="var(--green-light)" stroke="var(--green-mid)"/>
     <text x="730" y="118" text-anchor="middle" font-size="var(--svg-font-size-body)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-on-light">可变分配（Variable Allocation）</text>
 
-    <text x="550" y="170" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-theme">时刻 t₀：进程 B 当前分得 2 个页框</text>
+    <text x="550" y="170" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">时刻 t₀：进程 B 当前分得 2 个页框</text>
     <g transform="translate(550 188)">
       <rect x="0" y="0" width="92" height="48" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
       <rect x="92" y="0" width="92" height="48" fill="var(--amber-soft)" stroke="var(--amber-deep)"/>
@@ -53,9 +53,9 @@
     <text x="800" y="216" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">缺页率偏高</text>
 
     <path d="M690 250 V282" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <text x="708" y="272" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">动态增加页框</text>
+    <text x="708" y="272" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">动态增加页框</text>
 
-    <text x="550" y="318" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-theme">时刻 t₁：进程 B 调整为 4 个页框</text>
+    <text x="550" y="318" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">时刻 t₁：进程 B 调整为 4 个页框</text>
     <g transform="translate(550 336)">
       <rect x="0" y="0" width="78" height="48" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
       <rect x="78" y="0" width="78" height="48" fill="var(--amber-soft)" stroke="var(--amber-deep)"/>
@@ -70,6 +70,6 @@
   </g>
 
   <rect x="40" y="442" width="900" height="52" rx="10" fill="var(--paper-alt)" stroke="var(--line)"/>
-  <text x="490" y="464" text-anchor="middle" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-theme">易混淆点</text>
-  <text x="490" y="484" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">这里讨论的是“进程拥有多少个页框”，不是连续内存管理中的固定分区 / 动态分区。</text>
+  <text x="490" y="464" text-anchor="middle" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-on-light">易混淆点</text>
+  <text x="490" y="484" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">这里讨论的是“进程拥有多少个页框”，不是连续内存管理中的固定分区 / 动态分区。</text>
 </svg>

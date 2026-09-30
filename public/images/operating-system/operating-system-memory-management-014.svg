@@ -5,7 +5,7 @@
     </marker>
   </defs>
   <rect width="900" height="690" fill="var(--surface)"/>
-  <text x="450" y="32" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" class="svg-text svg-text-theme">简单 Clock（Second-Chance）页面置换流程</text>
+  <text x="450" y="32" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" class="svg-text svg-text-on-light">简单 Clock（Second-Chance）页面置换流程</text>
 
   <ellipse cx="450" cy="82" rx="105" ry="30" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
   <text x="450" y="88" text-anchor="middle" font-size="var(--svg-font-size-body)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">访问页面 P</text>
@@ -50,8 +50,8 @@
   <text x="735" y="583" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">指针后移，继续扫描</text>
   <path d="M735 535 C735 510 575 520 575 320 C575 300 610 300 610 320" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 
-  <text x="62" y="535" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-theme">核心语义</text>
-  <text x="62" y="560" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">• R=1 表示近期被访问，给予一次“第二次机会”。</text>
-  <text x="62" y="582" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">• 扫描到 R=1：清零并跳过。</text>
-  <text x="62" y="604" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-theme">• 扫描到 R=0：选择该页框进行置换。</text>
+  <text x="62" y="535" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-on-light">核心语义</text>
+  <text x="62" y="560" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• R=1 表示近期被访问，给予一次“第二次机会”。</text>
+  <text x="62" y="582" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• 扫描到 R=1：清零并跳过。</text>
+  <text x="62" y="604" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• 扫描到 R=0：选择该页框进行置换。</text>
 </svg>
