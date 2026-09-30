@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - codex/algorithm-notes-0926
+      - codex/markmap-default-toolbar-0930
   workflow_dispatch:
     inputs:
       deploy:
