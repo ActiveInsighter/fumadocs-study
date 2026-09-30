@@ -56,37 +56,27 @@ export function MindMap({
     maxWidth,
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [fullscreenSupported, setFullscreenSupported] = useState(false);
 
   useEffect(() => {
-    setFullscreenSupported(
-      typeof document.documentElement.requestFullscreen === 'function',
-    );
+    if (!isFullscreen) return;
 
-    const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === containerRef.current);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsFullscreen(false);
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
     };
+  }, [isFullscreen]);
+
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen((value) => !value);
   }, []);
-
-  const toggleFullscreen = useCallback(async () => {
-    const container = containerRef.current;
-    if (!container || !fullscreenSupported) return;
-
-    try {
-      if (document.fullscreenElement === container) {
-        await document.exitFullscreen();
-      } else {
-        await container.requestFullscreen();
-      }
-    } catch {
-      // Fullscreen can be denied by the browser or an embedded host.
-    }
-  }, [fullscreenSupported]);
 
   const heightValue = typeof height === 'number' ? `${height}px` : height;
 
@@ -95,6 +85,7 @@ export function MindMap({
       ref={containerRef}
       className={cn(
         'mind-map not-prose',
+        isFullscreen && 'mind-map-fullscreen',
         resolvedTheme === 'dark' && 'markmap-dark',
         className,
       )}
@@ -131,7 +122,7 @@ export function MindMap({
         <MindMapToolbar
           status={status}
           isFullscreen={isFullscreen}
-          fullscreenSupported={fullscreenSupported}
+          fullscreenSupported={true}
           onFit={fitMap}
           onExpandAll={expandAll}
           onCollapseAll={collapseAll}
