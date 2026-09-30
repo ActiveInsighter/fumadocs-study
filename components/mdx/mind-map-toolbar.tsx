@@ -8,6 +8,7 @@ import {
   Minimize2,
   Minus,
   Plus,
+  RotateCcw,
   Scan,
 } from 'lucide-react';
 
@@ -18,6 +19,7 @@ interface MindMapToolbarProps {
   onFit: () => void;
   onExpandAll: () => void;
   onCollapseAll: () => void;
+  onReset: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onToggleFullscreen: () => void;
@@ -30,6 +32,7 @@ export function MindMapToolbar({
   onFit,
   onExpandAll,
   onCollapseAll,
+  onReset,
   onZoomIn,
   onZoomOut,
   onToggleFullscreen,
@@ -88,6 +91,16 @@ export function MindMapToolbar({
         aria-label="全部折叠"
       >
         <ChevronsDownUp aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onReset}
+        disabled={disabled}
+        title="恢复默认"
+        aria-label="恢复默认"
+      >
+        <RotateCcw aria-hidden="true" />
       </button>
       <span className="mind-map-toolbar-separator" aria-hidden="true" />
       <button
