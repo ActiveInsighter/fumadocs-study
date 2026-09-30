@@ -2,6 +2,8 @@
 
 import type { MindMapStatus } from '@/components/mdx/mind-map-hook';
 import {
+  ChevronsDownUp,
+  ChevronsUpDown,
   Maximize2,
   Minimize2,
   Minus,
@@ -14,6 +16,8 @@ interface MindMapToolbarProps {
   isFullscreen: boolean;
   fullscreenSupported: boolean;
   onFit: () => void;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
   onZoomIn: () => void;
   onZoomOut: () => void;
   onToggleFullscreen: () => void;
@@ -24,6 +28,8 @@ export function MindMapToolbar({
   isFullscreen,
   fullscreenSupported,
   onFit,
+  onExpandAll,
+  onCollapseAll,
   onZoomIn,
   onZoomOut,
   onToggleFullscreen,
@@ -61,6 +67,27 @@ export function MindMapToolbar({
         aria-label="适应窗口"
       >
         <Scan aria-hidden="true" />
+      </button>
+      <span className="mind-map-toolbar-separator" aria-hidden="true" />
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onExpandAll}
+        disabled={disabled}
+        title="全部展开"
+        aria-label="全部展开"
+      >
+        <ChevronsUpDown aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onCollapseAll}
+        disabled={disabled}
+        title="全部折叠"
+        aria-label="全部折叠"
+      >
+        <ChevronsDownUp aria-hidden="true" />
       </button>
       <span className="mind-map-toolbar-separator" aria-hidden="true" />
       <button
