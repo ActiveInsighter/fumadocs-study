@@ -20,29 +20,6 @@ interface UseMindMapOptions {
   maxWidth: number;
 }
 
-function getChildren(node: unknown): unknown[] {
-  if (!node || typeof node !== 'object' || !('children' in node)) return [];
-  const children = (node as { children?: unknown }).children;
-  return Array.isArray(children) ? children : [];
-}
-
-function getAdaptiveExpandLevel(root: unknown) {
-  let nodeCount = 0;
-  const stack = [root];
-
-  while (stack.length > 0) {
-    const node = stack.pop();
-    if (!node) continue;
-
-    nodeCount += 1;
-    stack.push(...getChildren(node));
-  }
-
-  if (nodeCount <= 36) return -1;
-  if (nodeCount <= 80) return 3;
-  return 2;
-}
-
 function enhanceInteractiveNodes(svg: SVGSVGElement) {
   svg
     .querySelectorAll<SVGCircleElement>('g.markmap-node > circle')
@@ -132,8 +109,7 @@ export function useMindMap({
         const prefersReducedMotion =
           typeof window.matchMedia === 'function' &&
           window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const resolvedExpandLevel =
-          initialExpandLevel ?? getAdaptiveExpandLevel(root);
+        const resolvedExpandLevel = initialExpandLevel ?? 3;
         const instance = new Markmap(svg, {
           autoFit: false,
           duration: prefersReducedMotion ? 0 : 250,
@@ -237,5 +213,34 @@ export function useMindMap({
     if (instance) void instance.rescale(0.8);
   }, []);
 
-  return { errorMessage, fitMap, status, svgRef, zoomIn, zoomOut };
+  const expandAll = useCallback(async () => {
+    const instance = markmapRef.current;
+    const root = instance?.state.data;
+    if (!instance || !root) return;
+
+    root.payload = { ...root.payload, fold: 1 };
+    await instance.toggleNode(root, true);
+    await instance.fit(1.2);
+  }, []);
+
+  const collapseAll = useCallback(async () => {
+    const instance = markmapRef.current;
+    const root = instance?.state.data;
+    if (!instance || !root) return;
+
+    root.payload = { ...root.payload, fold: 0 };
+    await instance.toggleNode(root, true);
+    await instance.fit(1.2);
+  }, []);
+
+  return {
+    collapseAll,
+    errorMessage,
+    expandAll,
+    fitMap,
+    status,
+    svgRef,
+    zoomIn,
+    zoomOut,
+  };
 }
