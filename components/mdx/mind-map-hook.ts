@@ -233,11 +233,27 @@ export function useMindMap({
     await instance.fit(1.2);
   }, []);
 
+  const resetMap = useCallback(async () => {
+    const instance = markmapRef.current;
+    if (!instance || !markdown.trim()) return;
+
+    const { Transformer } = await import('markmap-lib');
+    const transformer = new Transformer();
+    const { root } = transformer.transform(markdown.trim());
+
+    instance.setOptions({
+      initialExpandLevel: initialExpandLevel ?? 3,
+    });
+    await instance.setData(root);
+    await instance.fit(1.2);
+  }, [initialExpandLevel, markdown]);
+
   return {
     collapseAll,
     errorMessage,
     expandAll,
     fitMap,
+    resetMap,
     status,
     svgRef,
     zoomIn,
