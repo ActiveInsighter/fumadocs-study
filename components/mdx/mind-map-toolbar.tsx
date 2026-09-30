@@ -1,59 +1,123 @@
 'use client';
 
 import type { MindMapStatus } from '@/components/mdx/mind-map-hook';
-import { Maximize2, Minimize2, Scan } from 'lucide-react';
+import {
+  ChevronsDownUp,
+  ChevronsUpDown,
+  Maximize2,
+  Minimize2,
+  Minus,
+  Plus,
+  RotateCcw,
+  Scan,
+} from 'lucide-react';
 
 interface MindMapToolbarProps {
-  title: string;
   status: MindMapStatus;
   isFullscreen: boolean;
   fullscreenSupported: boolean;
   onFit: () => void;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+  onReset: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
   onToggleFullscreen: () => void;
 }
 
 export function MindMapToolbar({
-  title,
   status,
   isFullscreen,
   fullscreenSupported,
   onFit,
+  onExpandAll,
+  onCollapseAll,
+  onReset,
+  onZoomIn,
+  onZoomOut,
   onToggleFullscreen,
 }: MindMapToolbarProps) {
+  const disabled = status !== 'ready';
+
   return (
-    <figcaption className="mind-map-toolbar">
-      <span className="mind-map-title">{title}</span>
-      <div className="mind-map-actions" aria-label="思维导图工具">
-        <button
-          type="button"
-          className="mind-map-button"
-          onClick={onFit}
-          disabled={status !== 'ready'}
-          title="适应窗口"
-          aria-label="适应窗口"
-        >
-          <Scan aria-hidden="true" />
-          <span className="mind-map-button-label">适应窗口</span>
-        </button>
-        <button
-          type="button"
-          className="mind-map-button"
-          onClick={onToggleFullscreen}
-          disabled={!fullscreenSupported}
-          title={isFullscreen ? '退出全屏' : '全屏查看'}
-          aria-label={isFullscreen ? '退出全屏' : '全屏查看'}
-          aria-pressed={isFullscreen}
-        >
-          {isFullscreen ? (
-            <Minimize2 aria-hidden="true" />
-          ) : (
-            <Maximize2 aria-hidden="true" />
-          )}
-          <span className="mind-map-button-label">
-            {isFullscreen ? '退出全屏' : '全屏查看'}
-          </span>
-        </button>
-      </div>
-    </figcaption>
+    <div className="mind-map-toolbar" role="toolbar" aria-label="思维导图工具">
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onZoomIn}
+        disabled={disabled}
+        title="放大"
+        aria-label="放大"
+      >
+        <Plus aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onZoomOut}
+        disabled={disabled}
+        title="缩小"
+        aria-label="缩小"
+      >
+        <Minus aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onFit}
+        disabled={disabled}
+        title="适应窗口"
+        aria-label="适应窗口"
+      >
+        <Scan aria-hidden="true" />
+      </button>
+      <span className="mind-map-toolbar-separator" aria-hidden="true" />
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onExpandAll}
+        disabled={disabled}
+        title="全部展开"
+        aria-label="全部展开"
+      >
+        <ChevronsUpDown aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onCollapseAll}
+        disabled={disabled}
+        title="全部折叠"
+        aria-label="全部折叠"
+      >
+        <ChevronsDownUp aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onReset}
+        disabled={disabled}
+        title="恢复默认"
+        aria-label="恢复默认"
+      >
+        <RotateCcw aria-hidden="true" />
+      </button>
+      <span className="mind-map-toolbar-separator" aria-hidden="true" />
+      <button
+        type="button"
+        className="mind-map-button"
+        onClick={onToggleFullscreen}
+        disabled={!fullscreenSupported}
+        title={isFullscreen ? '退出全屏' : '全屏查看'}
+        aria-label={isFullscreen ? '退出全屏' : '全屏查看'}
+        aria-pressed={isFullscreen}
+      >
+        {isFullscreen ? (
+          <Minimize2 aria-hidden="true" />
+        ) : (
+          <Maximize2 aria-hidden="true" />
+        )}
+      </button>
+    </div>
   );
 }

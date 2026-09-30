@@ -16,7 +16,7 @@ export type MindMapStatus = 'loading' | 'ready' | 'error';
 
 interface UseMindMapOptions {
   markdown: string;
-  initialExpandLevel: number;
+  initialExpandLevel?: number;
   maxWidth: number;
 }
 
@@ -61,6 +61,8 @@ export function useMindMap({
     const svg = svgRef.current;
     const previousMarkmap = markmapRef.current;
     let nodeObserver: MutationObserver | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let resizeFrame: number | undefined;
 
     const handleNodeKeyDown = (event: KeyboardEvent) => {
       const target = event.target;
@@ -107,11 +109,13 @@ export function useMindMap({
         const prefersReducedMotion =
           typeof window.matchMedia === 'function' &&
           window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const resolvedExpandLevel = initialExpandLevel ?? 3;
         const instance = new Markmap(svg, {
           autoFit: false,
           duration: prefersReducedMotion ? 0 : 250,
-          fitRatio: 0.9,
-          initialExpandLevel,
+          fitRatio: 0.92,
+          initialExpandLevel: resolvedExpandLevel,
+          maxInitialScale: 1.2,
           maxWidth,
           nodeMinHeight: 18,
           pan: true,
@@ -138,7 +142,36 @@ export function useMindMap({
         });
         svg.addEventListener('keydown', handleNodeKeyDown);
 
-        await instance.fit();
+        await instance.fit(1.2);
+
+        const resizeTarget = svg.parentElement ?? svg;
+        let previousWidth = resizeTarget.clientWidth;
+        let previousHeight = resizeTarget.clientHeight;
+
+        if (typeof ResizeObserver !== 'undefined') {
+          resizeObserver = new ResizeObserver(([entry]) => {
+            if (!entry || cancelled || markmapRef.current !== instance) return;
+
+            const { width, height } = entry.contentRect;
+            const sizeChanged =
+              Math.abs(width - previousWidth) > 8 ||
+              Math.abs(height - previousHeight) > 8;
+
+            previousWidth = width;
+            previousHeight = height;
+
+            if (!sizeChanged) return;
+            if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
+
+            resizeFrame = requestAnimationFrame(() => {
+              if (!cancelled && markmapRef.current === instance) {
+                void instance.fit(1.2);
+              }
+            });
+          });
+          resizeObserver.observe(resizeTarget);
+        }
+
         if (!cancelled) setStatus('ready');
       } catch {
         if (cancelled) return;
@@ -156,6 +189,8 @@ export function useMindMap({
     return () => {
       cancelled = true;
       nodeObserver?.disconnect();
+      resizeObserver?.disconnect();
+      if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
       svg?.removeEventListener('keydown', handleNodeKeyDown);
       markmapRef.current?.destroy();
       markmapRef.current = null;
@@ -165,8 +200,63 @@ export function useMindMap({
 
   const fitMap = useCallback(() => {
     const instance = markmapRef.current;
-    if (instance) void instance.fit();
+    if (instance) void instance.fit(1.2);
   }, []);
 
-  return { errorMessage, fitMap, status, svgRef };
+  const zoomIn = useCallback(() => {
+    const instance = markmapRef.current;
+    if (instance) void instance.rescale(1.25);
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    const instance = markmapRef.current;
+    if (instance) void instance.rescale(0.8);
+  }, []);
+
+  const expandAll = useCallback(async () => {
+    const instance = markmapRef.current;
+    const root = instance?.state.data;
+    if (!instance || !root) return;
+
+    root.payload = { ...root.payload, fold: 1 };
+    await instance.toggleNode(root, true);
+    await instance.fit(1.2);
+  }, []);
+
+  const collapseAll = useCallback(async () => {
+    const instance = markmapRef.current;
+    const root = instance?.state.data;
+    if (!instance || !root) return;
+
+    root.payload = { ...root.payload, fold: 0 };
+    await instance.toggleNode(root, true);
+    await instance.fit(1.2);
+  }, []);
+
+  const resetMap = useCallback(async () => {
+    const instance = markmapRef.current;
+    if (!instance || !markdown.trim()) return;
+
+    const { Transformer } = await import('markmap-lib');
+    const transformer = new Transformer();
+    const { root } = transformer.transform(markdown.trim());
+
+    instance.setOptions({
+      initialExpandLevel: initialExpandLevel ?? 3,
+    });
+    await instance.setData(root);
+    await instance.fit(1.2);
+  }, [initialExpandLevel, markdown]);
+
+  return {
+    collapseAll,
+    errorMessage,
+    expandAll,
+    fitMap,
+    resetMap,
+    status,
+    svgRef,
+    zoomIn,
+    zoomOut,
+  };
 }

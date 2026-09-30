@@ -16,11 +16,11 @@ import {
 export interface MindMapProps {
   /** Markdown headings and list items used to build the tree. */
   markdown: string;
-  /** Visible label used by the toolbar and assistive technologies. */
+  /** Visible label used by assistive technologies. */
   title?: string;
   /** CSS height, or a number interpreted as pixels. */
   height?: number | string;
-  /** Heading depth shown on first render. `-1` expands every level. */
+  /** Heading depth shown on first render. Omit to use level 3; `-1` expands every level. */
   initialExpandLevel?: number;
   /** Maximum width of a node label before it wraps. */
   maxWidth?: number;
@@ -30,8 +30,8 @@ export interface MindMapProps {
 export function MindMap({
   markdown,
   title = '思维导图',
-  height = 'clamp(20rem, 58vw, 30rem)',
-  initialExpandLevel = -1,
+  height = 'clamp(22rem, 62vh, 38rem)',
+  initialExpandLevel,
   maxWidth = 280,
   className,
 }: MindMapProps) {
@@ -40,7 +40,17 @@ export function MindMap({
   const rawId = useId();
   const id = rawId.replaceAll(':', '');
   const descriptionId = `mind-map-description-${id}`;
-  const { errorMessage, fitMap, status, svgRef: mindMapSvgRef } = useMindMap({
+  const {
+    collapseAll,
+    errorMessage,
+    expandAll,
+    fitMap,
+    resetMap,
+    status,
+    svgRef: mindMapSvgRef,
+    zoomIn,
+    zoomOut,
+  } = useMindMap({
     markdown,
     initialExpandLevel,
     maxWidth,
@@ -92,15 +102,6 @@ export function MindMap({
       data-status={status}
       style={{ '--mind-map-height': heightValue } as CSSProperties}
     >
-      <MindMapToolbar
-        title={title}
-        status={status}
-        isFullscreen={isFullscreen}
-        fullscreenSupported={fullscreenSupported}
-        onFit={fitMap}
-        onToggleFullscreen={toggleFullscreen}
-      />
-
       <div
         className="mind-map-stage"
         role="region"
@@ -115,6 +116,7 @@ export function MindMap({
           role="img"
           aria-label={title}
         />
+
         {status === 'loading' && (
           <div className="mind-map-status" role="status">
             正在生成思维导图…
@@ -125,10 +127,23 @@ export function MindMap({
             {errorMessage}
           </div>
         )}
+
+        <MindMapToolbar
+          status={status}
+          isFullscreen={isFullscreen}
+          fullscreenSupported={fullscreenSupported}
+          onFit={fitMap}
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
+          onReset={resetMap}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onToggleFullscreen={toggleFullscreen}
+        />
       </div>
 
-      <p id={descriptionId} className="mind-map-hint">
-        滚轮缩放 · 拖动平移 · 点击节点圆点展开或收起
+      <p id={descriptionId} className="mind-map-sr-only">
+        滚轮缩放，拖动平移，点击节点圆点展开或收起；右下角工具栏可放大、缩小、适应窗口、全部展开、全部折叠、恢复默认和全屏查看。
       </p>
     </figure>
   );
