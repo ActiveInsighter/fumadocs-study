@@ -400,9 +400,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 思想：微元法
 - 性质
   - 线性性质
-    - \[\iint_D [k_1f(x,y)+k_2g(x,y)]\,d\sigma=k_1\iint_D f(x,y)\,d\sigma+k_2\iint_D g(x,y)\,d\sigma\]
+    - $\iint_D [k_1f(x,y)+k_2g(x,y)]\,d\sigma=k_1\iint_D f(x,y)\,d\sigma+k_2\iint_D g(x,y)\,d\sigma$
   - 可加性
-    - \[\iint_{D_1\cup D_2} f(x,y)\,dxdy=\iint_{D_1} f(x,y)\,dxdy+\iint_{D_2} f(x,y)\,dxdy,\quad D_1\cap D_2=\varnothing\]
+    - $\iint_{D_1\cup D_2} f(x,y)\,dxdy=\iint_{D_1} f(x,y)\,dxdy+\iint_{D_2} f(x,y)\,dxdy,\quad D_1\cap D_2=\varnothing$
   - 比较定理
     - 估值定理
     - 二重积分中值定理
@@ -420,11 +420,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 交换积分次序
 - 极坐标
   - 转换公式
-    - \[\begin{cases}x=r\cos\theta\\y=r\sin\theta\end{cases},\qquad dxdy=r\,dr\,d\theta\]
+    - $\begin{cases}x=r\cos\theta\\y=r\sin\theta\end{cases},\qquad dxdy=r\,dr\,d\theta$
   - 核心考点
     - 适用范围
       - 区域：含圆或其它极坐标曲线
-      - 函数：含 \[x^2+y^2\]
+      - 函数：含 $x^2+y^2$
     - 定限方法
   - 考查方式
     - 求二重积分
@@ -447,48 +447,48 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 一阶方程
     - 可分离变量的微分方程
       - 标准形式
-        - \[y'=f(x)g(y)\]
+        - $y'=f(x)g(y)$
       - 识别要点：变量可分离
       - 求解步骤：先分离变量，再积分
     - 齐次方程
       - 标准形式
-        - \[y'=f\left(\frac{y}{x}\right)\]
+        - $y'=f\left(\frac{y}{x}\right)$
       - 识别要点：齐次（每项的总次数都相同）
       - 求解步骤
-        - 令 \[u=\frac{y}{x}\]，化为可分离变量的微分方程
+        - 令 $u=\frac{y}{x}$，化为可分离变量的微分方程
     - 一阶线性微分方程
       - 标准形式
-        - \[y'+P(x)y=Q(x)\]
-      - 识别要点：线性（关于 \[y\] 和 \[y'\] 都是一次的）
+        - $y'+P(x)y=Q(x)$
+      - 识别要点：线性（关于 $y$ 和 $y'$ 都是一次的）
       - 求解方法
-        - 配凑法：将等式左边凑成 \[u(x)y\] 的导数
+        - 配凑法：将等式左边凑成 $u(x)y$ 的导数
         - 公式法
-          - \[y=e^{-\int P(x)\,dx}\left(\int Q(x)e^{\int P(x)\,dx}\,dx+C\right)\]
+          - $y=e^{-\int P(x)\,dx}\left(\int Q(x)e^{\int P(x)\,dx}\,dx+C\right)$
     - 伯努利方程（*数学一）
       - 标准形式
-        - \[y'+P(x)y=Q(x)y^n\]
-        - 或 \[y^{n-1}y'+P(x)y^n=Q(x)\]
+        - $y'+P(x)y=Q(x)y^n$
+        - 或 $y^{n-1}y'+P(x)y^n=Q(x)$
       - 求解步骤
-        - 化为 \[y^{n-1}y'+P(x)y^n=Q(x)\]，再令 \[u=y^n\]
+        - 化为 $y^{n-1}y'+P(x)y^n=Q(x)$，再令 $u=y^n$
     - 全微分方程（*数学一）
       - 标准形式
-        - \[P(x,y)\,dx+Q(x,y)\,dy=0\]
-        - \[\frac{\partial P}{\partial y}=\frac{\partial Q}{\partial x}\]
+        - $P(x,y)\,dx+Q(x,y)\,dy=0$
+        - $\frac{\partial P}{\partial y}=\frac{\partial Q}{\partial x}$
       - 求解步骤
-        - 1、求出二元函数 \[u(x,y)\]，使得 \[du=P(x,y)\,dx+Q(x,y)\,dy\]
-        - 2、写出通解 \[u(x,y)=C\]
+        - 1、求出二元函数 $u(x,y)$，使得 $du=P(x,y)\,dx+Q(x,y)\,dy$
+        - 2、写出通解 $u(x,y)=C$
     - 可降阶的高阶微分方程（*数学一、数学二）
-      - 缺 \[y\] 型
-        - 令 \[y'=p,\quad y''=p'\]
-      - 缺 \[x\] 型
-        - \[y'=p,\quad y''=p\frac{dp}{dy}\]
+      - 缺 $y$ 型
+        - 令 $y'=p,\quad y''=p'$
+      - 缺 $x$ 型
+        - $y'=p,\quad y''=p\frac{dp}{dy}$
   - 高阶方程
     - 线性微分方程
       - 解的结构
         - 齐次
           - 解的任意线性组合仍为解
           - 二阶通解
-            - \[C_1y_1(x)+C_2y_2(x)\]
+            - $C_1y_1(x)+C_2y_2(x)$
         - 非齐次
           - 叠加原理
             - 齐 + 非 = 非
@@ -496,19 +496,19 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
           - 通解：齐通 + 非特
       - 常系数方程的求解
         - 齐次
-          - 特征根 \[r_1\]（\[k\] 重）
-            - \[e^{r_1x},\ldots,x^{k-1}e^{r_1x}\]
-          - 特征根 \[\alpha\pm\beta i\]
-            - \[e^{\alpha x}\cos\beta x,\quad e^{\alpha x}\sin\beta x\]
+          - 特征根 $r_1$（$k$ 重）
+            - $e^{r_1x},\ldots,x^{k-1}e^{r_1x}$
+          - 特征根 $\alpha\pm\beta i$
+            - $e^{\alpha x}\cos\beta x,\quad e^{\alpha x}\sin\beta x$
         - 非齐次特解的设法
           - 与自由项同类型且项数补齐
           - 与齐次的解对比
           - sin，cos 成对设
     - 欧拉方程（*数学一）
       - 标准形式
-        - \[x^ny^{(n)}+p_1x^{n-1}y^{(n-1)}+\cdots+p_{n-1}xy'+p_ny=f(x)\]
+        - $x^ny^{(n)}+p_1x^{n-1}y^{(n-1)}+\cdots+p_{n-1}xy'+p_ny=f(x)$
       - 求解方法
-        - 令 \[x=e^t\]，化为常系数线性微分方程
+        - 令 $x=e^t$，化为常系数线性微分方程
 - 积分方程
   - 基本思路：求导消去积分号，化为微分方程
   - 需关注的细节
@@ -516,13 +516,13 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 初始条件
 - 差分方程
   - 基本概念
-    - \[\Delta y_t=y_{t+1}-y_t=f(t+1)-f(t)\]
+    - $\Delta y_t=y_{t+1}-y_t=f(t+1)-f(t)$
   - 一阶常系数线性差分方程
     - 标准形式
-      - \[y_{t+1}-ay_t=f(t)\]
+      - $y_{t+1}-ay_t=f(t)$
     - 通解结构
-      - \[y=Ca^t+y^*(t)\]
-    - \[y^*(t)\] 的设法
+      - $y=Ca^t+y^*(t)$
+    - $y^*(t)$ 的设法
       - 与自由项同类型且项数补齐
       - 与齐次的解对比
 
@@ -581,16 +581,16 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - 证明导数有零点：找两点相同
       - 证明二阶导有零点：找三点相同
   - 辅助函数的构造
-    - 基本思路：先构造出 \[F'(\xi)\]，再积分得到 \[F(x)\]
+    - 基本思路：先构造出 $F'(\xi)$，再积分得到 $F(x)$
     - 常用技巧
-      - \[kf+xf'\to F(x)=x^kf(x)\]
-      - \[\lambda f+f'\to F(x)=e^{\lambda x}f(x)\]
-      - \[p(x)f+f'\to p(x)+\frac{f'}{f}\to F(x)=e^{\int P(x)\,dx}f(x)\]
+      - $kf+xf'\to F(x)=x^kf(x)$
+      - $\lambda f+f'\to F(x)=e^{\lambda x}f(x)$
+      - $p(x)f+f'\to p(x)+\frac{f'}{f}\to F(x)=e^{\int P(x)\,dx}f(x)$
   - 双中值问题
     - 同一函数，不同区间
     - 不同函数，同一区间
   - 泰勒中值定理的使用
-    - \[n+1\] 阶可导，展开到 \[n\] 阶
+    - $n+1$ 阶可导，展开到 $n$ 阶
     - 在函数信息最丰富的点展开
 
 ## 零点问题
@@ -606,26 +606,26 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 罗尔定理
     - 基本内容：函数的任意两个相等的点之间必有其导数的零点
     - 常用结论
-      - 如果函数有 \[n\] 个零点，则其导数至少有 \[n-1\] 个零点
-      - 如果函数有 \[n\] 个零点，则其 \[k\] 阶导数至少有 \[n-k\] 个零点
-  - 泰勒公式：如果 \[x=a\] 为函数的 \[n\] 重根，则 \[x=a\] 为其导数的 \[n-1\] 重根
-  - 代数基本定理：\[n\] 次多项式至多有 \[n\] 个根
+      - 如果函数有 $n$ 个零点，则其导数至少有 $n-1$ 个零点
+      - 如果函数有 $n$ 个零点，则其 $k$ 阶导数至少有 $n-k$ 个零点
+  - 泰勒公式：如果 $x=a$ 为函数的 $n$ 重根，则 $x=a$ 为其导数的 $n-1$ 重根
+  - 代数基本定理：$n$ 次多项式至多有 $n$ 个根
 
 ## 不等式
 
 - 相关考点
   - 常用不等式
     - 常用函数不等式
-      - \[\sin x<x<\tan x,\quad x\in\left(0,\frac{\pi}{2}\right)\]
-      - \[\arcsin x>x>\arctan x,\quad x\in(0,1)\]
-      - \[x-\frac{1}{6}x^3<\sin x<x,\quad x\in(0,+\infty)\]
-      - \[xe^x\ge e^x-1\ge x\ge\ln(1+x),\quad x\in(-1,+\infty)\]
-      - \[\frac{1}{1+x}<\ln\left(1+\frac{1}{x}\right)<\frac{1}{x},\quad x\in(0,+\infty)\]
+      - $\sin x<x<\tan x,\quad x\in\left(0,\frac{\pi}{2}\right)$
+      - $\arcsin x>x>\arctan x,\quad x\in(0,1)$
+      - $x-\frac{1}{6}x^3<\sin x<x,\quad x\in(0,+\infty)$
+      - $xe^x\ge e^x-1\ge x\ge\ln(1+x),\quad x\in(-1,+\infty)$
+      - $\frac{1}{1+x}<\ln\left(1+\frac{1}{x}\right)<\frac{1}{x},\quad x\in(0,+\infty)$
     - 均值不等式
-      - \[\frac{a+b}{2}\ge\sqrt{ab},\quad a,b>0\]
+      - $\frac{a+b}{2}\ge\sqrt{ab},\quad a,b>0$
     - 绝对值不等式
-      - \[\bigl||a|-|b|\bigr|\le a\pm b\le |a|+|b|\]
-      - \[\left|\int_a^b f(x)\,dx\right|\le\int_a^b|f(x)|\,dx\]
+      - $\bigl||a|-|b|\bigr|\le a\pm b\le |a|+|b|$
+      - $\left|\int_a^b f(x)\,dx\right|\le\int_a^b|f(x)|\,dx$
   - 单调性与凹凸性
   - 拉格朗日中值定理
   - 二重积分中值定理
@@ -656,16 +656,16 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 - 背景：无穷多个数求和
 - 数学表达
   - 1、先求部分和
-    - \[S_n=\sum_{i=1}^{n}a_i\]
+    - $S_n=\sum_{i=1}^{n}a_i$
   - 2、再求极限
-    - \[\lim_{n\to\infty}S_n\]
-    - 若存在，则级数 \[\sum_{n=1}^{\infty}a_n\] 收敛，且
-      - \[\sum_{n=1}^{\infty}a_n=\lim_{n\to\infty}S_n\]
-    - 若不存在，则级数 \[\sum_{n=1}^{\infty}a_n\] 发散
+    - $\lim_{n\to\infty}S_n$
+    - 若存在，则级数 $\sum_{n=1}^{\infty}a_n$ 收敛，且
+      - $\sum_{n=1}^{\infty}a_n=\lim_{n\to\infty}S_n$
+    - 若不存在，则级数 $\sum_{n=1}^{\infty}a_n$ 发散
 - 常用结论
-  - 数列极限 \[\lim_{n\to\infty}x_n\] 存在
-  - \[\Longleftrightarrow\]
-  - \[\sum_{n=1}^{\infty}(x_{n+1}-x_n)\] 收敛
+  - 数列极限 $\lim_{n\to\infty}x_n$ 存在
+  - $\Longleftrightarrow$
+  - $\sum_{n=1}^{\infty}(x_{n+1}-x_n)$ 收敛
 
 ## 基本性质
 
@@ -675,106 +675,106 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 收敛 + 发散 = 发散
     - 发散 + 发散 = ？
   - 常用结论
-    - \[\sum_{n=1}^{\infty}a_n\] 绝对收敛
-      - \[\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)\] 收敛
-    - \[\sum_{n=1}^{\infty}a_n\] 条件收敛
-      - \[\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)\] 发散
-    - \[\sum_{n=1}^{\infty}a_n\] 发散，\[\sum_{n=1}^{\infty}(-1)^n a_n\] 收敛
-      - \[\Longrightarrow \sum_{n=1}^{\infty}a_{2n}\] 与 \[\sum_{n=1}^{\infty}a_{2n+1}\] 均发散
+    - $\sum_{n=1}^{\infty}a_n$ 绝对收敛
+      - $\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)$ 收敛
+    - $\sum_{n=1}^{\infty}a_n$ 条件收敛
+      - $\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)$ 发散
+    - $\sum_{n=1}^{\infty}a_n$ 发散，$\sum_{n=1}^{\infty}(-1)^n a_n$ 收敛
+      - $\Longrightarrow \sum_{n=1}^{\infty}a_{2n}$ 与 $\sum_{n=1}^{\infty}a_{2n+1}$ 均发散
 - 数乘
   - 乘以非零常数不影响级数的敛散性
 - 改变有限项
   - 基本内容：级数去掉有限项敛散性不变
   - 常用结论
-    - \[\sum_{n=1}^{\infty}a_n\] 收敛
-      - \[\Longleftrightarrow \sum_{n=1}^{\infty}a_{n+p}\] 收敛
-    - \[\sum_{n=1}^{\infty}a_n\] 绝对收敛
-      - \[\Longrightarrow \sum_{n=p+1}^{\infty}a_n\] 收敛
+    - $\sum_{n=1}^{\infty}a_n$ 收敛
+      - $\Longleftrightarrow \sum_{n=1}^{\infty}a_{n+p}$ 收敛
+    - $\sum_{n=1}^{\infty}a_n$ 绝对收敛
+      - $\Longrightarrow \sum_{n=p+1}^{\infty}a_n$ 收敛
 - 加括号
   - 基本内容：收敛的级数任意加括号仍收敛
   - 常用结论
-    - \[\sum_{n=1}^{\infty}a_n\] 收敛
-      - \[\Longrightarrow \sum_{n=1}^{\infty}(a_{2n+1}+a_{2n})\] 收敛
-    - \[\sum_{n=1}^{\infty}(-1)^{n-1}a_n\] 收敛
-      - \[\Longrightarrow \sum_{n=1}^{\infty}(a_{2n-1}-a_{2n})\] 收敛
+    - $\sum_{n=1}^{\infty}a_n$ 收敛
+      - $\Longrightarrow \sum_{n=1}^{\infty}(a_{2n+1}+a_{2n})$ 收敛
+    - $\sum_{n=1}^{\infty}(-1)^{n-1}a_n$ 收敛
+      - $\Longrightarrow \sum_{n=1}^{\infty}(a_{2n-1}-a_{2n})$ 收敛
 - 必要条件
   - 基本内容
-    - \[\sum_{n=1}^{\infty}a_n\] 收敛
-      - \[\Longrightarrow \lim_{n\to\infty}a_n=0\]
+    - $\sum_{n=1}^{\infty}a_n$ 收敛
+      - $\Longrightarrow \lim_{n\to\infty}a_n=0$
   - 常用结论
-    - 若 \[\lim_{n\to\infty}a_n\] 不存在或存在但不为 0，则
-      - \[\sum_{n=1}^{\infty}a_n\] 发散
+    - 若 $\lim_{n\to\infty}a_n$ 不存在或存在但不为 0，则
+      - $\sum_{n=1}^{\infty}a_n$ 发散
 
 ## 判别法
 
 ### 正项级数判别法
 
 - 基本概念
-  - \[\sum_{n=1}^{\infty}u_n\]，其中 \[u_n\ge 0\]
-  - 则称 \[\sum_{n=1}^{\infty}u_n\] 为正项级数
+  - $\sum_{n=1}^{\infty}u_n$，其中 $u_n\ge 0$
+  - 则称 $\sum_{n=1}^{\infty}u_n$ 为正项级数
 - 充要条件
-  - 正项级数 \[\sum_{n=1}^{\infty}u_n\] 收敛
-  - \[\Longleftrightarrow\]
-  - 部分和数列 \[\{S_n\}\] 有上界
+  - 正项级数 $\sum_{n=1}^{\infty}u_n$ 收敛
+  - $\Longleftrightarrow$
+  - 部分和数列 $\{S_n\}$ 有上界
 - 两个比较标尺
-  - \[\sum_{n=2}^{\infty}\frac{1}{n^p\ln^q n}\]
-    - \[p>1\]：收敛
-    - \[p<1\]：发散
-    - \[p=1,\ q>1\]：收敛
-    - \[p=1,\ q\le 1\]：发散
+  - $\sum_{n=2}^{\infty}\frac{1}{n^p\ln^q n}$
+    - $p>1$：收敛
+    - $p<1$：发散
+    - $p=1,\ q>1$：收敛
+    - $p=1,\ q\le 1$：发散
   - 几何级数
-    - \[\sum_{n=1}^{\infty}aq^{n-1}\]
-    - \[|q|<1\]：收敛
-    - \[|q|\ge 1\]：发散
+    - $\sum_{n=1}^{\infty}aq^{n-1}$
+    - $|q|<1$：收敛
+    - $|q|\ge 1$：发散
 - 比较判别法
-  - 比大小：大收 \[\Longrightarrow\] 小收
+  - 比大小：大收 $\Longrightarrow$ 小收
     - 常用结论
-      - \[\sum_{n=1}^{\infty}a_n^2\] 与 \[\sum_{n=1}^{\infty}b_n^2\] 均收敛
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_nb_n\] 与 \[\sum_{n=1}^{\infty}(a_n+b_n)^2\] 均收敛
-      - \[\sum_{n=1}^{\infty}a_n^2\] 收敛
-        - \[\Longrightarrow \sum_{n=1}^{\infty}\frac{a_n}{n}\] 收敛
+      - $\sum_{n=1}^{\infty}a_n^2$ 与 $\sum_{n=1}^{\infty}b_n^2$ 均收敛
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_nb_n$ 与 $\sum_{n=1}^{\infty}(a_n+b_n)^2$ 均收敛
+      - $\sum_{n=1}^{\infty}a_n^2$ 收敛
+        - $\Longrightarrow \sum_{n=1}^{\infty}\frac{a_n}{n}$ 收敛
     - 使用关键
       - 确保正项
       - 不等关系识别
-  - 比阶数：同阶 \[\Longrightarrow\] 同敛散
+  - 比阶数：同阶 $\Longrightarrow$ 同敛散
     - 常用结论
-      - \[\lim_{n\to\infty}n^pa_n\] 存在，且 \[p>1\]
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_n\] 收敛
-      - \[\lim_{n\to\infty}n^pa_n\ne 0\]，且 \[p\le 1\]
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_n\] 发散
+      - $\lim_{n\to\infty}n^pa_n$ 存在，且 $p>1$
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_n$ 收敛
+      - $\lim_{n\to\infty}n^pa_n\ne 0$，且 $p\le 1$
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_n$ 发散
     - 使用关键：确保收敛的级数绝对收敛
-  - 比阶数：低收 \[\Longrightarrow\] 高收
+  - 比阶数：低收 $\Longrightarrow$ 高收
     - 常用结论
-      - \[\sum_{n=1}^{\infty}a_n^k\] 收敛
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_n^{k+p}\] 收敛
-      - \[\sum_{n=1}^{\infty}a_n\] 绝对收敛，\[\sum_{n=1}^{\infty}b_n\]
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_nb_n\] 收敛
+      - $\sum_{n=1}^{\infty}a_n^k$ 收敛
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_n^{k+p}$ 收敛
+      - $\sum_{n=1}^{\infty}a_n$ 绝对收敛，$\sum_{n=1}^{\infty}b_n$
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_nb_n$ 收敛
     - 使用关键
       - 识别乘法
       - 确保低阶绝对收敛
 - 比值与根值
   - 比值判别法
     - 基本内容
-      - 设 \[\sum_{n=1}^{\infty}a_n\] 为正项级数，
-        \[\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l\]
-      - \[l<1\Longrightarrow \sum_{n=1}^{\infty}a_n\] 收敛
-      - \[l>1\Longrightarrow \sum_{n=1}^{\infty}a_n\] 发散
+      - 设 $\sum_{n=1}^{\infty}a_n$ 为正项级数，
+        $\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l$
+      - $l<1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 收敛
+      - $l>1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 发散
     - 常用结论
-      - \[\lim_{n\to\infty}\frac{a_{n+1}}{a_n}>1\]
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_n\] 发散
-      - \[-1<\lim_{n\to\infty}\frac{a_{n+1}}{a_n}<1\]
-        - \[\Longrightarrow \sum_{n=1}^{\infty}a_n\] 收敛
+      - $\lim_{n\to\infty}\frac{a_{n+1}}{a_n}>1$
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_n$ 发散
+      - $-1<\lim_{n\to\infty}\frac{a_{n+1}}{a_n}<1$
+        - $\Longrightarrow \sum_{n=1}^{\infty}a_n$ 收敛
     - 使用关键
       - 出现阶乘时使用
       - 确保正项
   - 根值判别法
     - 基本内容
-      - 正项级数 \[\sum_{n=1}^{\infty}u_n\] 满足
-        \[\lim_{n\to\infty}\sqrt[n]{u_n}=\rho\]
-      - \[\rho<1\] 时，\[\sum_{n=1}^{\infty}u_n\] 收敛
-      - 当 \[\rho>1\] 或 \[\infty\] 时，\[\sum_{n=1}^{\infty}u_n\] 发散
+      - 正项级数 $\sum_{n=1}^{\infty}u_n$ 满足
+        $\lim_{n\to\infty}\sqrt[n]{u_n}=\rho$
+      - $\rho<1$ 时，$\sum_{n=1}^{\infty}u_n$ 收敛
+      - 当 $\rho>1$ 或 $\infty$ 时，$\sum_{n=1}^{\infty}u_n$ 发散
     - 使用关键
-      - 出现 \[n\] 次幂时使用
+      - 出现 $n$ 次幂时使用
       - 确保正项
 
 ### 一般项级数判别法
@@ -783,9 +783,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 一般项级数：正项和负项都有无穷多项的级数
   - 绝对收敛与条件收敛
     - 绝对收敛
-      - \[\sum_{n=1}^{\infty}|u_n|\] 收敛
+      - $\sum_{n=1}^{\infty}|u_n|$ 收敛
     - 条件收敛
-      - 若 \[\sum_{n=1}^{\infty}u_n\] 收敛，但 \[\sum_{n=1}^{\infty}|u_n|\] 不收敛
+      - 若 $\sum_{n=1}^{\infty}u_n$ 收敛，但 $\sum_{n=1}^{\infty}|u_n|$ 不收敛
     - 相互关系
       - 绝对收敛必收敛
       - 绝对收敛与条件收敛无交集
@@ -794,10 +794,10 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 1、先加绝对值判断是否绝对收敛
   - 2、如果非绝对收敛再判断级数本身是否收敛
 - 莱布尼兹判别法
-  - 若交错级数 \[\sum_{n=1}^{\infty}(-1)^n u_n\] 满足
-    - 1、\[u_n>u_{n+1}\]
-    - 2、\[\lim_{n\to\infty}u_n=0\]
-  - 则 \[\sum_{n=1}^{\infty}(-1)^n u_n\] 收敛
+  - 若交错级数 $\sum_{n=1}^{\infty}(-1)^n u_n$ 满足
+    - 1、$u_n>u_{n+1}$
+    - 2、$\lim_{n\to\infty}u_n=0$
+  - 则 $\sum_{n=1}^{\infty}(-1)^n u_n$ 收敛
 ```
 
 ## 第十章 函数项级数
@@ -813,70 +813,70 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 阿贝尔定理
     - 如果幂级数在一点收敛，则在任何距离中心更近的点都绝对收敛
     - 如果幂级数在一点发散，则在任何距离中心更远的点都发散
-  - \[R\] 为 \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n\] 的收敛半径
-    - 1、\[|x-x_0|<R\] 时，幂级数绝对收敛
-    - 2、\[|x-x_0|>R\] 时，幂级数发散
+  - $R$ 为 $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 的收敛半径
+    - 1、$|x-x_0|<R$ 时，幂级数绝对收敛
+    - 2、$|x-x_0|>R$ 时，幂级数发散
   - 收敛区间
     - 一般形式
-      - 若 \[R\] 为收敛半径，则 \[(x_0-R,x_0+R)\] 为收敛区间
+      - 若 $R$ 为收敛半径，则 $(x_0-R,x_0+R)$ 为收敛区间
     - 特殊形式
-      - \[R=\infty\Rightarrow\] 收敛区间为 \[(-\infty,+\infty)\]
-      - \[R=0\Rightarrow\] 收敛区间为 \[\varnothing\]
+      - $R=\infty\Rightarrow$ 收敛区间为 $(-\infty,+\infty)$
+      - $R=0\Rightarrow$ 收敛区间为 $\varnothing$
   - 收敛域
     - 一般形式：所有收敛点的集合（收敛区间与收敛的端点的并集）
     - 特殊形式
-      - \[R=\infty\Rightarrow\] 收敛域为 \[(-\infty,+\infty)\]
-      - \[R=0\Rightarrow\] 收敛域为 \[\{x_0\}\]
+      - $R=\infty\Rightarrow$ 收敛域为 $(-\infty,+\infty)$
+      - $R=0\Rightarrow$ 收敛域为 $\{x_0\}$
 - 计算方法
   - 收敛半径
     - 比值法
       - 基本形式
-        - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n:\quad R=\lim_{n\to\infty}\left|\frac{a_n}{a_{n+1}}\right|\]
+        - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n:\quad R=\lim_{n\to\infty}\left|\frac{a_n}{a_{n+1}}\right|$
       - 缺项幂级数
-        - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^{k_n}\]
-        - \[\displaystyle \lim_{n\to\infty}\left|\frac{a_{n+1}(x-x_0)^{k_{n+1}}}{a_n(x-x_0)^{k_n}}\right|<1\]，解出收敛区间
+        - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^{k_n}$
+        - $\displaystyle \lim_{n\to\infty}\left|\frac{a_{n+1}(x-x_0)^{k_{n+1}}}{a_n(x-x_0)^{k_n}}\right|<1$，解出收敛区间
     - 根值法
       - 基本形式
-        - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n:\quad R=\frac{1}{\displaystyle \lim_{n\to\infty}\sqrt[n]{|a_n|}}\]
+        - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n:\quad R=\frac{1}{\displaystyle \lim_{n\to\infty}\sqrt[n]{|a_n|}}$
       - 缺项幂级数
-        - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^{k_n}:\quad R=\frac{1}{\displaystyle \lim_{n\to\infty}\sqrt[k_n]{|a_n|}}\]
+        - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^{k_n}:\quad R=\frac{1}{\displaystyle \lim_{n\to\infty}\sqrt[k_n]{|a_n|}}$
   - 收敛域
     - 1、先求出收敛半径与收敛区间
     - 2、将收敛区间端点代入幂级数判断敛散性
 - 常用性质
   - 单点的敛散性与收敛半径
-    - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n\] 在 \[x=x_1\] 处收敛 \[\Rightarrow |x_1-x_0|\le R\]
-    - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n\] 在 \[x=x_1\] 处绝对收敛 \[\Rightarrow |x_1-x_0|\le R\]
-    - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n\] 在 \[x=x_1\] 处条件收敛 \[\Rightarrow |x_1-x_0|=R\]
-    - \[\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n\] 在 \[x=x_1\] 处发散 \[\Rightarrow |x_1-x_0|\ge R\]
+    - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处收敛 $\Rightarrow |x_1-x_0|\le R$
+    - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处绝对收敛 $\Rightarrow |x_1-x_0|\le R$
+    - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处条件收敛 $\Rightarrow |x_1-x_0|=R$
+    - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处发散 $\Rightarrow |x_1-x_0|\ge R$
   - 幂级数的常见变换
 
 ### 求和与展开
 
 - 理论依据
   - 常见函数的麦克劳林级数
-    - \[\displaystyle e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!},\quad -\infty<x<+\infty\]
-    - \[\displaystyle \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!},\quad -\infty<x<+\infty\]
-    - \[\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!},\quad -\infty<x<+\infty\]
-    - \[\displaystyle \ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}x^n}{n},\quad -1<x\le 1\]
-    - \[\displaystyle (1+x)^a=1+ax+\sum_{n=2}^{\infty}\frac{a(a-1)\cdots(a-n+1)}{n!}x^n,\quad R=1\]
-      - \[\displaystyle \frac{1}{1+x}=\sum_{n=0}^{\infty}(-1)^n x^n,\quad x\in(-1,1)\]
-      - \[\displaystyle \frac{1}{(1+x)^2}=\sum_{n=0}^{\infty}(-1)^n(n+1)x^n,\quad x\in(-1,1)\]
-      - \[\displaystyle \sqrt{1+x}=1+\frac{x}{2}+\sum_{n=2}^{\infty}(-1)^{n-1}\frac{(2n-3)!!}{(2n)!!}x^n,\quad x\in[-1,1]\]
-      - \[\displaystyle \frac{1}{\sqrt{1+x}}=1+\sum_{n=1}^{\infty}(-1)^n\frac{(2n-1)!!}{(2n)!!}x^n,\quad x\in(-1,1]\]
+    - $\displaystyle e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!},\quad -\infty<x<+\infty$
+    - $\displaystyle \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!},\quad -\infty<x<+\infty$
+    - $\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!},\quad -\infty<x<+\infty$
+    - $\displaystyle \ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}x^n}{n},\quad -1<x\le 1$
+    - $\displaystyle (1+x)^a=1+ax+\sum_{n=2}^{\infty}\frac{a(a-1)\cdots(a-n+1)}{n!}x^n,\quad R=1$
+      - $\displaystyle \frac{1}{1+x}=\sum_{n=0}^{\infty}(-1)^n x^n,\quad x\in(-1,1)$
+      - $\displaystyle \frac{1}{(1+x)^2}=\sum_{n=0}^{\infty}(-1)^n(n+1)x^n,\quad x\in(-1,1)$
+      - $\displaystyle \sqrt{1+x}=1+\frac{x}{2}+\sum_{n=2}^{\infty}(-1)^{n-1}\frac{(2n-3)!!}{(2n)!!}x^n,\quad x\in[-1,1]$
+      - $\displaystyle \frac{1}{\sqrt{1+x}}=1+\sum_{n=1}^{\infty}(-1)^n\frac{(2n-1)!!}{(2n)!!}x^n,\quad x\in(-1,1]$
   - 逐项求导与逐项积分定理
     - 定理内容
-      - 若 \[\displaystyle f(x)=\sum_{n=0}^{\infty}a_nx^n\]，则
-        - \[\displaystyle f'(x)=\sum_{n=1}^{\infty}na_nx^{n-1}\]
-        - \[\displaystyle \int_a^x f(t)\,dt=\sum_{n=0}^{\infty}\frac{a_n}{n+1}x^{n+1}\]
+      - 若 $\displaystyle f(x)=\sum_{n=0}^{\infty}a_nx^n$，则
+        - $\displaystyle f'(x)=\sum_{n=1}^{\infty}na_nx^{n-1}$
+        - $\displaystyle \int_a^x f(t)\,dt=\sum_{n=0}^{\infty}\frac{a_n}{n+1}x^{n+1}$
     - 易错点
       - 收敛半径与收敛域
         - 收敛半径不变
         - 逐项求导收敛域不扩大
         - 逐项积分收敛域不缩小
-      - 常数项 \[a_0\]
-        - \[f(0)=a_0\]
-        - \[f'(x)=a_1+2a_2x+\cdots+na_nx^{n-1}+\cdots\]
+      - 常数项 $a_0$
+        - $f(0)=a_0$
+        - $f'(x)=a_1+2a_2x+\cdots+na_nx^{n-1}+\cdots$
 - 计算方法
   - 求和
     - 有理系数
@@ -888,33 +888,33 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
         - 系数在分子
           - 先积分，再求导
           - 先积后导公式
-            - \[\displaystyle f(x)=\left(\int_0^x f(t)\,dt\right)'\]
+            - $\displaystyle f(x)=\left(\int_0^x f(t)\,dt\right)'$
         - 系数在分母
           - 先求导，再积分
           - 先导后积公式
-            - \[\displaystyle f(x)=f(0)+\int_0^x f'(t)\,dt\]
+            - $\displaystyle f(x)=f(0)+\int_0^x f'(t)\,dt$
         - 系数比较复杂：先拆分，再逐一求和
     - 系数含阶乘
       - 代公式
-        - \[\displaystyle e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!}\]
-        - \[\displaystyle \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}\]
-        - \[\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!}\]
+        - $\displaystyle e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!}$
+        - $\displaystyle \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}$
+        - $\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!}$
       - 建立微分方程再求解
     - 抽象系数
       - 基本思路：先求导，结合系数间关系，建立微分方程再求解
       - 次数下标变换法则
         - 次数下标一起变
-          - \[\displaystyle \sum_{n=k}^{\infty}a_nx^{n-k}=\sum_{n=0}^{\infty}a_{n+k}x^n\]
-          - \[\displaystyle \sum_{n=0}^{\infty}a_nx^{n+k}=\sum_{n=k}^{\infty}a_{n-k}x^n\]
+          - $\displaystyle \sum_{n=k}^{\infty}a_nx^{n-k}=\sum_{n=0}^{\infty}a_{n+k}x^n$
+          - $\displaystyle \sum_{n=0}^{\infty}a_nx^{n+k}=\sum_{n=k}^{\infty}a_{n-k}x^n$
         - 只变下标不变次数
-          - \[\displaystyle \sum_{n=0}^{\infty}a_nx^n=a_0+a_1x+\cdots+a_{k-1}x^{k-1}+\sum_{n=k}^{\infty}a_nx^n\]
+          - $\displaystyle \sum_{n=0}^{\infty}a_nx^n=a_0+a_1x+\cdots+a_{k-1}x^{k-1}+\sum_{n=k}^{\infty}a_nx^n$
         - 只变次数不变下标
-          - \[\displaystyle \sum_{n=k}^{\infty}a_nx^n=x^k\sum_{n=k}^{\infty}a_nx^{n-k}\]
+          - $\displaystyle \sum_{n=k}^{\infty}a_nx^n=x^k\sum_{n=k}^{\infty}a_nx^{n-k}$
   - 展开
-    - 将 \[f(x)\] 在 \[x=a\] 处展开
-      - 1、将 \[f(x)\] 凑成 \[g\bigl(b(x-a)^k\bigr)\]
+    - 将 $f(x)$ 在 $x=a$ 处展开
+      - 1、将 $f(x)$ 凑成 $g\bigl(b(x-a)^k\bigr)$
       - 2、套公式
-    - \[f(x)\] 中含 arc
+    - $f(x)$ 中含 arc
       - 1、先求导，再展开
       - 2、逐项积分
 
@@ -922,28 +922,28 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 
 - 展开系数的计算
   - 一般公式
-    - \[\displaystyle f(x)\sim \frac{a_0}{2}+\sum_{n=1}^{\infty}\left(a_n\cos\frac{n\pi}{l}x+b_n\sin\frac{n\pi}{l}x\right)\]
-    - \[\displaystyle a_n=\frac{1}{l}\int_{-l}^{l}f(x)\cos\frac{n\pi}{l}x\,dx\]
-    - \[\displaystyle b_n=\frac{1}{l}\int_{-l}^{l}f(x)\sin\frac{n\pi}{l}x\,dx\]
+    - $\displaystyle f(x)\sim \frac{a_0}{2}+\sum_{n=1}^{\infty}\left(a_n\cos\frac{n\pi}{l}x+b_n\sin\frac{n\pi}{l}x\right)$
+    - $\displaystyle a_n=\frac{1}{l}\int_{-l}^{l}f(x)\cos\frac{n\pi}{l}x\,dx$
+    - $\displaystyle b_n=\frac{1}{l}\int_{-l}^{l}f(x)\sin\frac{n\pi}{l}x\,dx$
   - 正弦级数与余弦级数
-    - \[f(x)\] 为奇函数
-      - \[a_n=0\]
-      - \[\displaystyle b_n=\frac{2}{l}\int_0^l f(x)\sin\frac{n\pi}{l}x\,dx\]
-    - \[f(x)\] 为偶函数
-      - \[b_n=0\]
-      - \[\displaystyle a_n=\frac{2}{l}\int_0^l f(x)\cos\frac{n\pi}{l}x\,dx\]
+    - $f(x)$ 为奇函数
+      - $a_n=0$
+      - $\displaystyle b_n=\frac{2}{l}\int_0^l f(x)\sin\frac{n\pi}{l}x\,dx$
+    - $f(x)$ 为偶函数
+      - $b_n=0$
+      - $\displaystyle a_n=\frac{2}{l}\int_0^l f(x)\cos\frac{n\pi}{l}x\,dx$
   - 奇延拓与偶延拓
     - 奇延拓
-      - \[\displaystyle F(x)=\begin{cases}f(x),&x\in[0,l]\\-f(-x),&x\in[-l,0]\end{cases}\]
+      - $\displaystyle F(x)=\begin{cases}f(x),&x\in[0,l]\\-f(-x),&x\in[-l,0]\end{cases}$
     - 偶延拓
-      - \[\displaystyle F(x)=\begin{cases}f(x),&x\in[0,l]\\f(-x),&x\in[-l,0]\end{cases}\]
+      - $\displaystyle F(x)=\begin{cases}f(x),&x\in[0,l]\\f(-x),&x\in[-l,0]\end{cases}$
     - 展开公式：与函数本身为奇偶函数时一致
 - 迪利克雷收敛定理
   - 条件
-    - 1、\[f(x)\] 连续或只有有限个第一类间断点
-    - 2、\[f(x)\] 只有有限个极值点
+    - 1、$f(x)$ 连续或只有有限个第一类间断点
+    - 2、$f(x)$ 只有有限个极值点
   - 结论
-    - \[\displaystyle \frac{a_0}{2}+\sum_{n=1}^{\infty}\left(a_n\cos\frac{n\pi}{l}x+b_n\sin\frac{n\pi}{l}x\right)=\begin{cases}\dfrac{f(x+0)+f(x-0)}{2},&x\in(-l,l)\\[6pt]\dfrac{f(-l+0)+f(l-0)}{2},&x=\pm l\end{cases}\]
+    - $\displaystyle \frac{a_0}{2}+\sum_{n=1}^{\infty}\left(a_n\cos\frac{n\pi}{l}x+b_n\sin\frac{n\pi}{l}x\right)=\begin{cases}\dfrac{f(x+0)+f(x-0)}{2},&x\in(-l,l)\\[6pt]\dfrac{f(-l+0)+f(l-0)}{2},&x=\pm l\end{cases}$
 ```
 
 ## 第十一章 三重积分
@@ -958,9 +958,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 思想：微元法
 - 性质
   - 线性性质
-    - \[\iiint_{\Omega}[k_1f(x,y,z)+k_2g(x,y,z)]\,dv=k_1\iiint_{\Omega}f(x,y,z)\,dv+k_2\iiint_{\Omega}g(x,y,z)\,dv\]
+    - $\iiint_{\Omega}[k_1f(x,y,z)+k_2g(x,y,z)]\,dv=k_1\iiint_{\Omega}f(x,y,z)\,dv+k_2\iiint_{\Omega}g(x,y,z)\,dv$
   - 可加性
-    - \[\iiint_{\Omega_1\cup\Omega_2}f(x,y,z)\,dv=\iiint_{\Omega_1}f(x,y,z)\,dv+\iiint_{\Omega_2}f(x,y,z)\,dv\quad(\Omega_1\cap\Omega_2=\varnothing)\]
+    - $\iiint_{\Omega_1\cup\Omega_2}f(x,y,z)\,dv=\iiint_{\Omega_1}f(x,y,z)\,dv+\iiint_{\Omega_2}f(x,y,z)\,dv\quad(\Omega_1\cap\Omega_2=\varnothing)$
   - 比较定理
     - 估值定理
     - 三重积分中值定理
@@ -970,32 +970,32 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 ### 直角坐标
 
 - 先一后二
-  - 以先对 \[z\] 积分为例
-  - 1、画一条和 \[z\] 轴平行的直线穿过区域，找出相交的部分
-  - 2、相交部分上交点和下交点的 \[z\] 值分别为第一步积分的上限和下限
-  - 3、将区域在 \[xoy\] 平面内投影，投影区域即为第二步二重积分的积分区域
+  - 以先对 $z$ 积分为例
+  - 1、画一条和 $z$ 轴平行的直线穿过区域，找出相交的部分
+  - 2、相交部分上交点和下交点的 $z$ 值分别为第一步积分的上限和下限
+  - 3、将区域在 $xoy$ 平面内投影，投影区域即为第二步二重积分的积分区域
 - 先二后一
   - 适用范围
     - 被积函数只含一个变量（先对另外两个变量积分）
     - 先一后二定限不方便，但平行于坐标平面的截面比较好找
   - 计算步骤
-    - 以先对 \[x,y\] 积分为例
-    - 1、画一个和 \[xoy\] 平面平行且和积分区域相交的平面
-    - 2、所得截面为 \[D_z\]，计算 \[D_z\] 上的二重积分
-      - \[\iint_{D_z}f(x,y,z)\,d\sigma\]
-    - 3、将平面上下移动，使之和积分区域有交点的 \[z\] 的范围就是第二步积分的积分区间
+    - 以先对 $x,y$ 积分为例
+    - 1、画一个和 $xoy$ 平面平行且和积分区域相交的平面
+    - 2、所得截面为 $D_z$，计算 $D_z$ 上的二重积分
+      - $\iint_{D_z}f(x,y,z)\,d\sigma$
+    - 3、将平面上下移动，使之和积分区域有交点的 $z$ 的范围就是第二步积分的积分区间
 
 ### 球面坐标
 
 - 转换公式
-  - \[\begin{cases}x=r\sin\varphi\cos\theta\\y=r\sin\varphi\sin\theta\\z=r\cos\varphi\end{cases},\qquad dv=r^2\sin\varphi\,dr\,d\varphi\,d\theta\]
+  - $\begin{cases}x=r\sin\varphi\cos\theta\\y=r\sin\varphi\sin\theta\\z=r\cos\varphi\end{cases},\qquad dv=r^2\sin\varphi\,dr\,d\varphi\,d\theta$
 - 适用范围
   - 区域：含球面或以原点为顶点的锥面
-  - 函数：含 \[x^2+y^2+z^2\] 或形如 \[f(z),\ f(x^2+y^2)\]
+  - 函数：含 $x^2+y^2+z^2$ 或形如 $f(z),\ f(x^2+y^2)$
 - 定限方法
   - 1、从原点出发画一条穿过积分区域的射线，找出相交的部分
-  - 2、相交部分到原点距离的范围即为 \[r\] 的积分区间
-  - 3、转动射线，找到射线和积分区域有交点的 \[\varphi\] 和 \[\theta\] 的范围，得到对应的积分区间
+  - 2、相交部分到原点距离的范围即为 $r$ 的积分区间
+  - 3、转动射线，找到射线和积分区域有交点的 $\varphi$ 和 $\theta$ 的范围，得到对应的积分区间
 
 ### 对称性
 
@@ -1004,11 +1004,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 使用规则：偶倍奇零
 - 轮换对称性
   - 公式内容
-    - 若积分区域关于 \[y=x\] 对称，则有
-      - \[\iiint_{\Omega}f(x,y,z)\,dv=\iiint_{\Omega}f(y,x,z)\,dv\]
+    - 若积分区域关于 $y=x$ 对称，则有
+      - $\iiint_{\Omega}f(x,y,z)\,dv=\iiint_{\Omega}f(y,x,z)\,dv$
   - 使用技巧
-    - 区域识别：如果在积分区域方程中交换 \[x,y\]，方程不变，则积分区域关于 \[y=x\] 对称
-    - 若 \[\Omega\] 关于 \[y=x,\ y=z,\ z=x\] 对称，则
+    - 区域识别：如果在积分区域方程中交换 $x,y$，方程不变，则积分区域关于 $y=x$ 对称
+    - 若 $\Omega$ 关于 $y=x,\ y=z,\ z=x$ 对称，则
       - 常用结论
-        - \[\iiint_{\Omega}f(x)\,dv=\iiint_{\Omega}f(y)\,dv=\iiint_{\Omega}f(z)\,dv=\iiint_{\Omega}\frac{f(x)+f(y)+f(z)}{3}\,dv\]
+        - $\iiint_{\Omega}f(x)\,dv=\iiint_{\Omega}f(y)\,dv=\iiint_{\Omega}f(z)\,dv=\iiint_{\Omega}\frac{f(x)+f(y)+f(z)}{3}\,dv$
 ```

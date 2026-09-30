@@ -10,14 +10,6 @@ import {
 
 const EMPTY_MESSAGE = '思维导图内容为空。请补充至少一个标题。';
 const RENDER_ERROR_MESSAGE = '思维导图暂时无法生成，请检查 Markdown 的层级结构。';
-const BRACKET_MATH_DELIMITER = /(?<!\\)\\\[([\s\S]+?)(?<!\\)\\\]/g;
-
-function normalizeBracketMath(markdown: string) {
-  return markdown.replace(
-    BRACKET_MATH_DELIMITER,
-    (_match, expression: string) => `$${expression}$`,
-  );
-}
 
 export type MindMapStatus = 'loading' | 'ready' | 'error';
 
@@ -108,9 +100,7 @@ export function useMindMap({
         if (cancelled || !svg) return;
 
         const transformer = new Transformer();
-        const { root } = transformer.transform(
-          normalizeBracketMath(markdown.trim()),
-        );
+        const { root } = transformer.transform(markdown.trim());
         const prefersReducedMotion =
           typeof window.matchMedia === 'function' &&
           window.matchMedia('(prefers-reduced-motion: reduce)').matches;
