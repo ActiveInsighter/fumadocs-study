@@ -1,0 +1,803 @@
+---
+title: "概率思维导图"
+description: "考研数学概率论与数理统计思维导图，汇总全部模块核心概念、公式与方法。"
+---
+
+## 随机事件与概率
+
+```mindmap
+# 随机事件与概率
+
+## 随机事件及其运算
+
+- 随机试验与随机事件
+  - 随机试验：可重复，结果不唯一，不可预测
+  - 样本空间：所有结果组成的集合
+  - 样本点：单个结果（不可再分）
+  - 随机事件
+    - 定义：样本空间的子集
+    - 意义：是否发生具有随机性
+    - 特殊事件
+      - 样本空间：必然事件
+      - 空集：不可能事件
+      - 单个样本点组成的事件：基本事件
+
+- 随机事件的运算
+  - 和事件
+    - 定义
+      - 集合意义：并集
+      - 概率意义：$A$ 发生或者 $B$ 发生
+      - 理解关键词：或、至少一个
+    - 常用结论：$\{\min\{X,Y\}\le a\}=\{X\le a\}\cup\{Y\le a\}$
+  - 积事件
+    - 定义
+      - 集合意义：交集
+      - 概率意义：$A$ 发生并且 $B$ 发生
+      - 理解关键词：且、都、同时、“，”
+    - 常用结论：$\{\max\{X,Y\}\le a\}=\{X\le a\}\cap\{Y\le a\}$
+  - 差事件
+    - 定义：$A$ 发生并且 $B$ 不发生
+    - 常用结论：$A-B=A-AB=A\overline{B}$
+  - 运算法则
+    - 吸收律
+      - 基本内容：若 $A\subset B$，则 $AB=A,\ A\cup B=B$
+      - 常用结论
+        - $A\Omega=A\cup\varnothing=A,\ A\cup\Omega=\Omega,\ A\varnothing=\varnothing$
+        - $A+AB=A,\ AAB=AB$
+    - 分配律
+      - $(A+B)C=AC+BC$
+      - $(A+C)(B+C)=AB+C$
+    - 对偶律
+      - $\overline{A\cup B}=\overline{A}\cap\overline{B}$
+      - $\overline{A\cap B}=\overline{A}\cup\overline{B}$
+
+- 随机事件的关系
+  - 包含：$A\subset B$
+    - 集合意义：$A$ 为 $B$ 的子集
+    - 概率意义：$A$ 发生 $\Rightarrow B$ 发生
+    - 等价描述
+      - $A\overline{B}=\varnothing$
+      - $\overline{B}\subset\overline{A}$
+      - $AB=A,\ A\cup B=B$
+  - 相等：$A=B$
+    - 集合意义：相互包含
+    - 概率意义：同一事件的等价描述
+  - 互斥：$A,B$ 互斥（互不相容）
+    - 集合意义：$A\cap B=\varnothing$
+    - 概率意义：$A,B$ 不能同时发生
+    - 等价描述
+      - $A\subset\overline{B},\ B\subset\overline{A}$
+      - $\overline{A}\cup\overline{B}=\Omega$
+  - 对立：$B=\overline{A}$
+    - 集合意义
+      - 运算：$A\cap B=\varnothing,\ A\cup B=\Omega$
+      - 图像：$A,B$ 将样本空间 $\Omega$ 分为互不相交的两份
+    - 概率意义：每次试验 $A,B$ 有且仅有一个发生
+  - 完备事件组
+    - 集合意义
+      - 运算：$A_1,\ldots,A_n$ 两两互斥且 $A_1\cup\cdots\cup A_n=\Omega$
+      - 图像：$A_1,\ldots,A_n$ 将样本空间 $\Omega$ 分为互不相交的 $n$ 份
+    - 概率意义：每次试验 $A_1,\ldots,A_n$ 中有且仅有一个发生
+
+## 概率
+
+- 公理化定义
+  - 基本定义
+    - 非负性
+    - 归一性
+    - 可列可加性
+  - 常用性质
+    - 不可能事件的概率
+      - 公式：$P(\varnothing)=0$
+      - 易错点
+        - 概率为零的事件不一定为不可能事件
+        - 由概率的关系无法得到集合的关系
+    - 单调性
+      - 公式：$A\subset B\Rightarrow P(A)\le P(B)$
+      - 推论
+        - $P(AB)\le P(A)\le P(A+B)$
+        - $P(A)=0\Rightarrow P(AB)=0,\ P(A+B)=P(B)$
+        - $P(A)=1\Rightarrow P(AB)=P(B),\ P(A+B)=1$
+    - 有限可加性
+      - 公式：$A_1,\ldots,A_n$ 两两互斥，则 $P(A_1\cup\cdots\cup A_n)=P(A_1)+\cdots+P(A_n)$
+      - 推论：$P(\overline{A})=1-P(A)$
+
+- 条件概率
+  - 定义：$P(B\mid A)=\dfrac{P(AB)}{P(A)}$
+  - 性质
+    - 非负性、归一性、可列可加性
+    - 有限可加性
+    - $P(\overline{B}\mid A)=1-P(B\mid A)$
+  - 计算方法
+    - 用定义
+    - 缩减样本空间
+
+- 独立性
+  - 定义
+    - 数学定义
+      - $A,B$ 独立：$P(AB)=P(A)P(B)$
+      - $A,B,C$ 两两独立：$P(AB)=P(A)P(B),\ P(AC)=P(A)P(C),\ P(BC)=P(B)P(C)$
+      - $A,B,C$ 相互独立：$A,B,C$ 两两独立且 $P(ABC)=P(A)P(B)P(C)$
+    - 实际意义：互不影响
+    - 等价条件
+      - $P(B\mid A)=P(B)\quad(P(A)>0)$
+      - $P(B\mid A)=P(B\mid\overline{A})\quad(0<P(A)<1)$
+  - 常用性质
+    - 概率为 $0$ 或 $1$ 的随机事件与任何随机事件都是独立的
+    - 取逆事件不影响独立性
+
+- 概率的计算方法
+  - 用简单模型
+    - 古典模型
+      - 三种抽取方式：先后放回、先后不放回、任取
+      - 抽签原理
+    - 几何模型
+    - 伯努利模型
+      - 独立重复试验
+      - $n$ 次试验中成功 $k$ 次（对位置没有任何要求）的概率：$C_n^k p^k(1-p)^{n-k}$
+  - 用性质：单调性、有限可加性、逆事件的概率
+  - 用条件概率与独立性
+  - 用公式
+    - 加法公式
+      - $P(A+B)=P(A)+P(B)-P(AB)$
+      - $P(A+B+C)=P(A)+P(B)+P(C)-P(AB)-P(AC)-P(BC)+P(ABC)$
+    - 减法公式：$P(A-B)=P(A)-P(AB)$
+    - 乘法公式：$P(AB)=P(A)P(B\mid A)\quad(P(A)>0)$
+    - 全概率公式
+      - 使用条件
+        - 需分情况讨论的事件
+        - 离散型与连续型结合
+      - 使用方法：先划分情况，再逐一讨论（缩减样本空间）
+      - 具体公式：$P(B)=\sum_{i=1}^{n}P(A_i)P(B\mid A_i)$
+    - 贝叶斯公式：$P(A_i\mid B)=\dfrac{P(A_iB)}{P(B)}=\dfrac{P(A_i)P(B\mid A_i)}{\sum_{i=1}^{n}P(A_i)P(B\mid A_i)}$
+  - 用分布
+    - 分布函数
+      - $P\{a<X\le b\}=F(b)-F(a)$
+      - $P\{X=a\}=F(a)-F(a-0)$
+    - 概率密度
+      - $P\{a<X<b\}=P\{a\le X\le b\}=\int_a^b f(x)\,dx$
+      - $P\{(X,Y)\in D\}=\iint_{(x,y)\in D}f(x,y)\,dx\,dy$
+```
+
+## 一维随机变量
+
+```mindmap
+# 一维随机变量
+
+## 概念与性质
+
+- 随机变量
+  - 数学表达：定义在样本空间上的函数
+  - 实际意义：将随机试验的结果用数字表达
+
+- 分布函数
+  - 基本知识
+    - 适用范围：一切随机变量
+    - 定义：$F(x)=P\{X\le x\}$
+    - 性质
+      - 充要条件
+        - $F(x)$ 单调不减
+        - $F(+\infty)=1,\ F(-\infty)=0$
+        - $F(x)$ 右连续
+      - 特殊性质
+        - $P\{a<X\le b\}=F(b)-F(a)$
+        - $P\{X=a\}=F(a)-F(a-0)$
+  - 常考题型
+    - 对性质的考查
+      - 求参数
+      - 判断分布函数：逐一检验充要条件
+    - 分布函数的连续性
+      - $F(x)$ 右连续
+      - $F(x)$ 在 $x=a$ 连续 $\Leftrightarrow P\{X=a\}=0$
+      - 若 $X$ 为连续型，$F(x)$ 连续
+    - 分布函数的计算
+      - 结合分布律：$F(x)=\displaystyle\sum_{x_i\le x}p_i$
+      - 结合概率密度：$F(x)=\displaystyle\int_{-\infty}^{x}f(t)\,dt$
+      - 用定义
+        - 1. 先求出 $X$ 的取值范围
+          - 如 $x$ 小于 $X$ 取值的下限，则 $F(x)=0$
+          - 如 $x$ 大于或等于 $X$ 取值的上限，则 $F(x)=1$
+        - 2. 在 $X$ 的取值范围之内，分析 $\{X\le x\}$ 的实际意义，计算其概率
+
+- 分布律
+  - 适用范围：离散型随机变量
+  - 定义：取值+概率（$P\{X\le x_i\}=p_i$）
+  - 性质（充要条件）
+    - 非负性：$p_i\ge 0$
+    - 归一性：$\displaystyle\sum_i p_i=1$
+  - 常考题型
+    - 求参数：利用性质
+    - 求分布律：抓住两要素
+
+- 概率密度
+  - 定义
+    - 适用范围：连续型随机变量
+    - 数学表达：$F(x)=\displaystyle\int_{-\infty}^{x}f(t)\,dt$
+    - 实际意义：随机变量在该点附近单位长度区间内取值的概率
+  - 性质
+    - 充要条件
+      - 非负性：$f(x)\ge 0$
+      - 归一性：$\displaystyle\int_{-\infty}^{+\infty}f(x)\,dx=1$
+    - 特殊性质
+      - $\forall a\in R,\ P\{X=a\}=0$
+      - $P\{a<X<b\}=P\{a\le X\le b\}=\displaystyle\int_a^b f(x)\,dx$
+  - 常考题型
+    - 求参数
+    - 判断概率密度：逐一检验充要条件
+    - 求概率：哪儿求概率哪儿积分
+    - 求概率密度：求分布函数，再对其求导
+
+## 常见分布
+
+- 离散型
+  - 0-1 分布
+    - 意义：表示在一次试验中某事件是否发生
+    - 分布律：$P\{X=1\}=p,\ P\{X=0\}=1-p$
+  - 二项分布
+    - 意义：$n$ 重伯努利试验中成功的次数
+    - 符号：$X\sim B(n,p)$
+    - 分布律：$P\{X=k\}=C_n^k p^k(1-p)^{n-k},\ k=0,\ldots,n$
+    - 性质
+      - $B(1,p)$ 就是 0-1 分布
+      - $X\sim B(n,p),\ Y\sim B(m,p)$ 且 $X,Y$ 独立，则 $X+Y\sim B(m+n,p)$
+  - 几何分布
+    - 意义：伯努利试验进行到第一次成功时的试验次数
+    - 符号：$X\sim G(p)$
+    - 分布律：$P\{X=k\}=(1-p)^{k-1}p,\ k=1,2,3,\ldots$
+  - 泊松分布
+    - 符号：$X\sim P(\lambda)$
+    - 分布律：$P\{X=k\}=\dfrac{\lambda^k}{k!}e^{-\lambda},\ k=0,1,2,\ldots$
+    - 性质：$X\sim P(\lambda_1),\ Y\sim P(\lambda_2)$ 且 $X,Y$ 独立，则 $X+Y\sim P(\lambda_1+\lambda_2)$
+
+- 连续型
+  - 均匀分布
+    - 符号：$X\sim U(a,b)$
+    - 概率密度：$f(x)=\begin{cases}\dfrac{1}{b-a},&a<x<b\\0,&\text{其他}\end{cases}$
+    - 性质：概率=区间长度比
+  - 指数分布
+    - 符号：$X\sim E(\lambda)$
+    - 概率密度：$f(x)=\begin{cases}\lambda e^{-\lambda x},&x>0\\0,&x\le 0\end{cases}$
+    - 性质：无记忆性（$P\{X>s+t\mid X>s\}=P\{X>t\}$）
+  - 正态分布
+    - 符号：$X\sim N(\mu,\sigma^2)$
+    - 分布
+      - 一般正态分布：$f(x)=\dfrac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
+      - 标准正态分布
+        - 概率密度：$\varphi(x)=\dfrac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}}$
+        - 分布函数：$\Phi(x)=\displaystyle\int_{-\infty}^{x}\dfrac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}}\,dt$
+    - 性质
+      - 查表
+      - 对称性
+        - 数学表达
+          - $\Phi(-x)=1-\Phi(x)$
+          - $\Phi(0)=0.5$
+        - 图像：概率密度的图像关于 $x=\mu$ 对称
+      - 标准化：$X\sim N(\mu,\sigma^2)\Rightarrow \dfrac{X-\mu}{\sigma}\sim N(0,1)$
+```
+
+## 多维随机变量
+
+```mindmap
+# 多维随机变量
+
+## 联合分布
+
+- 联合分布函数
+  - 适用范围：一切二维随机变量
+  - 定义：$F(x,y)=P\{X\le x,Y\le y\}$
+  - 性质
+    - $F(x,y)$ 关于 $x$ 和 $y$ 均单调不减
+    - $F(x,-\infty)=F(-\infty,y)=0,\ F(+\infty,+\infty)=1$
+    - $F(x,y)$ 关于 $x$ 和 $y$ 均右连续
+    - $P\{x_1<X\le x_2,\ y_1<Y\le y_2\}=F(x_2,y_2)-F(x_1,y_2)-F(x_2,y_1)+F(x_1,y_1)$
+  - 常考题型：联合分布函数的计算（用定义）
+
+- 联合分布律
+  - 适用范围：二维离散型随机变量（$X,Y$ 都是离散型随机变量）
+  - 定义：取值 + 概率（$P\{X=x_i,Y=y_j\}=p_{ij}$）
+  - 性质
+    - $p_{ij}\ge 0$
+    - $\displaystyle\sum_i\sum_j p_{ij}=1$
+    - $P\{(X,Y)\in D\}=\displaystyle\sum_{(x_i,y_j)\in D}p_{ij}$
+  - 常考题型
+    - 求参数
+    - 求联合分布律：抓住两要素
+
+- 联合概率密度
+  - 适用范围：二维连续型随机变量（$X,Y$ 都是连续型随机变量）
+  - 定义
+    - 数学表达：$F(x,y)=\displaystyle\int_{-\infty}^{x}du\int_{-\infty}^{y}f(u,v)\,dv$
+    - 实际意义：随机变量在该点附近单位面积区域内取值的概率
+  - 性质
+    - 非负性：$f(x,y)\ge 0$
+    - 归一性：$\displaystyle\iint_{\mathbb R^2}f(x,y)\,dx\,dy=1$
+    - $P\{(X,Y)\in D\}=\displaystyle\iint_{(x,y)\in D}f(x,y)\,dx\,dy$
+  - 常考题型
+    - 求参数
+    - 求概率：哪儿求概率哪儿积分
+    - 求概率密度：求分布函数，再对其求导
+
+## 常见分布
+
+- 二维均匀分布
+  - 符号：$(X,Y)\sim U(D)$
+  - 概率密度：$f(x,y)=\begin{cases}\dfrac{1}{S(D)},&(x,y)\in D\\0,&\text{其他}\end{cases}$
+  - 性质：概率 = 区域面积比
+
+- 二维正态分布
+  - 符号：$(X,Y)\sim N(\mu_1,\mu_2;\sigma_1^2,\sigma_2^2;\rho)$
+  - 概率密度：略
+  - 性质
+    - 与一维正态分布的关系
+      - $(X,Y)$ 服从二维正态分布 $\Rightarrow X,Y$ 均服从一维正态分布
+      - $X,Y$ 均服从一维正态分布 $\nRightarrow (X,Y)$ 服从二维正态分布
+      - $X,Y$ 均服从一维正态分布，且 $X,Y$ 独立 $\Rightarrow (X,Y)$ 服从二维正态分布
+    - 线性性质
+      - $(X,Y)$ 服从二维正态分布 $\Rightarrow aX+bY$ 服从一维正态分布
+      - $X_1,\ldots,X_n$ 相互独立且均服从正态分布，则 $\displaystyle\sum_{i=1}^{n}a_iX_i$ 服从一维正态分布
+      - $(X,Y)$ 服从二维正态分布，且 $ad-bc\ne0$，则 $(aX+bY,cX+dY)$ 也服从二维正态分布
+    - 独立性与不相关性：若 $(X,Y)$ 服从二维正态分布，则 $X,Y$ 独立 $\Leftrightarrow \rho_{XY}=0$
+
+## 边缘与条件
+
+- 边缘分布
+  - 定义：二维随机变量中两个随机变量各自的分布
+  - 计算公式
+    - 边缘分布函数：$F_X(x)=F(x,+\infty)$
+    - 边缘分布律：$p_i=P\{X=x_i\}=\displaystyle\sum_j p_{ij}$
+    - 边缘概率密度：$f_X(x)=\displaystyle\int_{-\infty}^{+\infty}f(x,y)\,dy$
+
+- 条件分布
+  - 定义：固定一个随机变量之后另一个随机变量的分布
+  - 计算公式
+    - 条件分布律：$P\{Y=y_j\mid X=x_i\}=\dfrac{p_{ij}}{p_i}\quad(p_i>0)$
+    - 条件概率密度：$f_X(x)>0$ 时，$f_{Y\mid X}(y\mid x)=\dfrac{f(x,y)}{f_X(x)}$
+
+- 独立性
+  - 定义
+    - 一般表达：$F(x,y)=F_X(x)F_Y(y)$
+    - 离散型：$p_{ij}=p_i p_j$
+    - 连续型：$f(x,y)=f_X(x)f_Y(y)$
+  - 意义
+    - $X,Y$ 的取值互不影响
+    - $P\{X\in I_1,Y\in I_2\}=P\{X\in I_1\}P\{Y\in I_2\}$，$I_1,I_2$ 为任意数集
+
+- 常考题型
+  - 离散型
+    - 已知联合分布求边缘分布及条件分布：代公式
+    - 已知边缘分布求联合分布
+      - 1. 写出 $X,Y$ 各自的取值
+      - 2. 写出联合分布各行各列的和
+      - 3. 结合题目中其他条件求联合分布
+    - 独立性
+      - 判断
+        - 定义法：求出两个边缘分布
+        - 观察法：直接观察联合分布各行各列是否成比例
+      - 应用
+        - 利用独立性求分布
+        - 利用独立性求概率
+  - 连续型
+    - 已知联合求边缘及条件
+      - 基本方法：代公式
+      - 难点
+        - 范围的讨论
+          - $f_X(x)=\displaystyle\int_{-\infty}^{+\infty}f(x,y)\,dy$：固定 $x$，$y$ 从 $-\infty$ 到 $+\infty$ 取值
+          - 首先确保 $f_X(x)>0$
+          - 求 $f_{Y\mid X}(y\mid x)=\dfrac{f(x,y)}{f_X(x)}$ 时，$x$ 看作常数
+        - 特殊积分的计算
+          - $\displaystyle\int_0^{+\infty}x^n e^{-x}\,dx=n!$
+          - $\displaystyle\int_{-\infty}^{+\infty}e^{-x^2}\,dx=\sqrt{\pi}$
+          - $\displaystyle\int_{-\infty}^{+\infty}x^{2n}e^{-x^2}\,dx=\frac{2n-1}{2}\int_{-\infty}^{+\infty}x^{2n-2}e^{-x^2}\,dx$
+    - 已知边缘及条件求联合
+      - $f_X(x)>0$ 时，$f(x,y)=f_X(x)f_{Y\mid X}(y\mid x)$
+      - $f_X(x)=0$ 时，$f(x,y)=0$
+    - 独立性
+      - 判断
+        - 定义法：求出两个边缘分布
+        - 观察法
+          - 1. 解析式变量可分离
+          - 2. 定义域为矩形区域
+          - 两点同时满足，随机变量 $X,Y$ 才独立
+        - 排除法
+          - 对于明显有关系的随机变量 $X,Y$，可用如下方法说明其不独立
+          - 1. 找到数集 $I_1$ 与 $I_2$
+          - 2. 验证 $P\{X\in I_1,Y\in I_2\}\ne P\{X\in I_1\}P\{Y\in I_2\}$
+      - 应用
+        - 利用独立性求分布
+        - 利用独立性求概率
+```
+
+## 随机变量函数的分布
+
+```mindmap
+# 随机变量函数的分布
+
+## 一维
+
+- 离散型：把握好两要素（先写出取值，再逐一计算其概率）
+
+- 连续型
+  - 公式法
+    - 适用范围：$Y=g(X)$ 可导且在 $X$ 的取值范围内 $g(X)$ 单调
+    - 具体步骤
+      - 1. 先根据 $X$ 的取值范围得到 $Y$ 的取值范围
+      - 2. 在 $Y$ 的取值范围之外，直接令 $f_Y(y)=0$
+      - 3. 在 $Y$ 的取值范围之内
+        - （1）求出 $Y=g(X)$ 的反函数 $X=h(Y)$
+        - （2）代公式 $f_Y(y)=f_X(h(y))\lvert h'(y)\rvert$
+  - 定义法
+    - 适用范围：$Y=g(X)$ 不可导或在 $X$ 的取值范围内 $g(X)$ 不单调
+    - 具体步骤
+      - 1. 先根据 $X$ 的取值范围得到 $Y$ 的取值范围
+      - 2. 在 $Y$ 的取值范围之外
+        - （1）$y$ 小于 $Y$ 取值的下限：$F_Y(y)=0$
+        - （2）$y$ 大于或等于 $Y$ 取值的上限：$F_Y(y)=1$
+      - 3. 在 $Y$ 的取值范围之内：解出不等式 $g(X)\le y$ 所对应的区间，对概率密度积分
+
+## 多维
+
+- 离散型：把握好两要素（先写出取值，再逐一计算其概率）
+
+- 连续型
+  - 公式法
+    - 总体法则
+      - 1. 积谁换对门
+      - 2. 再乘 $z$ 偏导
+    - 具体公式
+      - 和的分布 $Z=aX+bY$：$f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}f\left(x,\frac{1}{b}(z-ax)\right)\frac{1}{|b|}\,dx$
+      - 积的分布 $Z=XY$：$f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}f\left(x,\frac{z}{x}\right)\frac{1}{|x|}\,dx$
+      - 商的分布 $Z=\dfrac{Y}{X}$：$f_Z(z)=\displaystyle\int_{-\infty}^{+\infty}f(x,xz)|x|\,dx=\int_{-\infty}^{+\infty}f\left(\frac{y}{z},y\right)\frac{|y|}{z^2}\,dy$
+  - 定义法
+    - 1. 先根据 $X,Y$ 的取值范围得到 $Z$ 的取值范围
+    - 2. 在 $Z$ 的取值范围之外
+      - （1）$z$ 小于 $Z$ 取值的下限：$F_Z(z)=0$
+      - （2）$z$ 大于或等于 $Z$ 取值的上限：$F_Z(z)=1$
+    - 3. 在 $Z$ 的取值范围之内：画出不等式 $g(X,Y)\le z$ 所对应的区域，对概率密度积分
+
+- 混合型
+  - 基本思路：定义法 $F_Z(z)=P\{Z\le z\}=P\{g(X,Y)\le z\}$
+  - 计算要点（假设 $Y$ 为离散型）
+    - （1）全概率公式：根据 $Y$ 的取值，分情况讨论
+    - （2）缩减样本空间法：$P\{g(X,Y)\le z\mid Y=y_i\}=P\{g(X,y_i)\le z\mid Y=y_i\}$
+    - （3）特殊事件的概率：若 $a,b$ 均为常数，则 $P\{a\le b\}=\begin{cases}1,&a\le b\\0,&a>b\end{cases}$
+
+- 最值的分布
+  - 基本思路：定义法 $F_Z(z)=P\{Z\le z\}$
+  - 计算要点
+    - （1）最大值
+      - $\{\max\{X,Y\}\le z\}=\{X\le z,Y\le z\}$
+      - $\{\max\{X_1,\ldots,X_n\}\le z\}=\{X_1\le z,\ldots,X_n\le z\}$
+    - （2）最小值
+      - $\{\min\{X,Y\}\le z\}=\{X\le z\text{ 或 }Y\le z\}$
+      - $\{\min\{X,Y\}>z\}=\{X>z,Y>z\}$
+      - $\{\min\{X_1,\ldots,X_n\}>z\}=\{X_1>z,\ldots,X_n>z\}$
+    - （3）特殊事件的意义：若 $a,b$ 均为常数，则 $\{a\le b\}=\begin{cases}\Omega,&a\le b\\\varnothing,&a>b\end{cases}$
+```
+
+## 数字特征
+
+```mindmap
+# 数字特征
+
+## 基本概念
+
+- 一维
+  - 期望
+    - 意义：随机变量的取值的平均数
+    - 数学表达
+      - 离散型：$E[g(X)]=\sum_i g(x_i)p_i$
+      - 连续型：$E[g(X)]=\int_{-\infty}^{+\infty} g(x)f(x)\,dx$
+  - 方差
+    - 意义：随机变量取值的波动程度
+    - 数学表达：$DX=E[(X-EX)^2]=EX^2-(EX)^2$
+    - 标准差：$\sqrt{DX}$
+  - 计算难点
+    - 离散型：级数求和
+    - 连续型
+      - $\displaystyle\int_{-\infty}^{+\infty}x\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\mu$
+      - $\displaystyle\int_{-\infty}^{+\infty}(x-\mu)^2\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\sigma^2$
+      - $\displaystyle\int_{-\infty}^{+\infty}x^2\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\mu^2+\sigma^2$
+      - $\displaystyle\int_0^{+\infty}x^n e^{-x^2}\,dx=\begin{cases}\dfrac12\displaystyle\int_0^{+\infty}u^k e^{-u}\,du,&n=2k+1\\[4pt]\dfrac{2k-1}{2}\displaystyle\int_0^{+\infty}x^{2k-2}e^{-x^2}\,dx,&n=2k\end{cases}$
+  - 应用
+
+- 二维
+  - 期望
+    - 离散型：$E[g(X,Y)]=\displaystyle\sum_i\sum_j g(x_i,y_j)p_{ij}$
+    - 连续型：$E[g(X,Y)]=\displaystyle\iint_{\mathbb R^2}g(x,y)f(x,y)\,dx\,dy$
+  - 协方差：$\operatorname{cov}(X,Y)=E[(X-EX)(Y-EY)]=EXY-EX\cdot EY$
+  - 相关系数：$\rho_{XY}=\dfrac{\operatorname{cov}(X,Y)}{\sqrt{DX\cdot DY}}$
+
+## 常用公式
+
+- 常见分布的数字特征
+  - 公式
+  - 使用要点
+    - 常见分布的识别
+    - 数字特征之间的关系
+      - $EX^2=DX+(EX)^2$
+      - $\operatorname{cov}(X,Y)=\rho_{XY}\sqrt{DX\cdot DY}$
+
+- 常用性质
+  - 常数的数字特征：$EC=C,\ DC=0,\ \operatorname{cov}(C,X)=0$
+  - 数乘的数字特征：$E(CX)=CEX,\ D(CX)=C^2DX,\ \operatorname{cov}(C_1X,C_2Y)=C_1C_2\operatorname{cov}(X,Y)$
+  - 加法的数字特征
+    - 期望
+      - $E(X+Y)=EX+EY$
+      - $E(X_1+\cdots+X_n)=EX_1+\cdots+EX_n$
+    - 方差
+      - $D(X+Y)=DX+DY+2\operatorname{cov}(X,Y)$
+      - $D\!\left(\displaystyle\sum_{i=1}^{n}X_i\right)=\displaystyle\sum_{i=1}^{n}DX_i+2\displaystyle\sum_{i<j}\operatorname{cov}(X_i,X_j)$
+    - 协方差：$\operatorname{cov}(X+Y,Z)=\operatorname{cov}(X,Z)+\operatorname{cov}(Y,Z)$
+    - 使用技巧
+      - 将复杂的随机变量分解为若干个简单的随机变量之和
+      - 若 $X_1,\ldots,X_n$ 同分布，则 $E(\overline{X})=EX_1$
+  - 积的期望
+    - 一般公式：若 $X,Y$ 独立，则 $E(XY)=EX\cdot EY$
+    - 推论
+      - 若 $X,Y$ 独立，则 $\operatorname{cov}(X,Y)=0$
+      - 若 $X,Y$ 独立，则 $D(X+Y)=DX+DY$
+      - 若 $X_1,\ldots,X_n$ 两两独立，则 $D\!\left(\displaystyle\sum_{i=1}^{n}X_i\right)=\displaystyle\sum_{i=1}^{n}DX_i$
+      - 若 $X_1,\ldots,X_n$ 独立同分布，则 $D(\overline{X})=\dfrac{1}{n}DX_1$
+  - 协方差的性质
+    - 对称性：$\operatorname{cov}(Y,X)=\operatorname{cov}(X,Y)$
+    - 与方差的关系：$\operatorname{cov}(X,X)=DX$
+    - 常用结论
+      - $\operatorname{cov}(X+Y,X-Y)=DX-DY$
+      - 若 $X_1,\ldots,X_n$ 两两独立，则 $\operatorname{cov}\!\left(X_i,\displaystyle\sum_{j=1}^{n}X_j\right)=DX_i$
+
+## 相关系数的性质
+
+- 意义
+  - 绝对值：线性关联程度
+  - 符号：线性关联的性质
+    - 符号为正：正相关，$D(X+Y)>DX+DY$
+    - 符号为负：负相关，$D(X+Y)<DX+DY$
+
+- $|\rho_{XY}|=1$：完全线性关系，$Y=aX+b,\ a\ne0$
+  - $a>0\Leftrightarrow\rho_{XY}=1$
+  - $a<0\Leftrightarrow\rho_{XY}=-1$
+
+- $\rho_{XY}=0$：不相关
+  - 充要条件：$\operatorname{cov}(X,Y)=0$
+  - 与独立的关系
+    - $X,Y$ 独立 $\Rightarrow X,Y$ 不相关
+    - $X,Y$ 不相关 $\nRightarrow X,Y$ 独立
+    - $(X,Y)$ 服从二维正态分布且 $X,Y$ 不相关 $\Rightarrow X,Y$ 独立
+```
+
+## 大数定律与中心极限定理
+
+```mindmap
+# 大数定律与中心极限定理
+
+## 大数定律
+
+- 依概率收敛
+  - $\forall \varepsilon>0,\ \displaystyle\lim_{n\to\infty}P\{|X_n-\mu|>\varepsilon\}=0$
+
+- 常见大数定律
+  - 切比雪夫大数定律
+    - 条件
+      - 1. $X_1,\ldots,X_n$ 相互独立
+      - 2. $EX_1=\cdots=EX_n=\mu$
+      - 3. $\{DX_n\}$ 有上界
+    - 结论：$\displaystyle\frac{1}{n}\sum_{i=1}^{n}X_i\xrightarrow{P}\mu$
+  - 辛钦大数定律
+    - 条件
+      - 1. $X_1,\ldots,X_n$ 相互独立
+      - 2. $X_1,\ldots,X_n$ 同分布
+      - 3. $EX_1=\cdots=EX_n=\mu$
+    - 结论：$\displaystyle\frac{1}{n}\sum_{i=1}^{n}X_i\xrightarrow{P}\mu$
+  - 伯努利大数定律
+    - 条件
+      - 1. $P\{X_i=1\}=p,\ P\{X_i=0\}=1-p$
+      - 2. $X_1,\ldots,X_n$ 相互独立
+    - 结论：$\displaystyle\frac{1}{n}\sum_{i=1}^{n}X_i\xrightarrow{P}p$
+
+- 相互关系
+  - 切比雪夫与辛钦
+    - 相同点
+      - 1. 结论相同（均值依概率收敛于期望）
+      - 2. 相同的条件
+        - $X_1,\ldots,X_n$ 相互独立
+        - $EX_1=\cdots=EX_n=\mu$
+    - 不同点
+      - 切比雪夫：$\{DX_n\}$ 有上界
+      - 辛钦：$X_1,\ldots,X_n$ 同分布
+  - 伯努利：同时是切比雪夫与辛钦的推论
+
+## 中心极限定理
+
+- 定理内容
+  - 实际意义：无穷多个独立同分布的随机变量之和服从正态分布
+  - 数学表达
+    - 条件
+      - 1. $X_1,\ldots,X_n$ 独立同分布
+      - 2. $EX_i=\mu,\ DX_i=\sigma^2$
+    - $\displaystyle\lim_{n\to\infty}P\left\{\frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt{n}\sigma}\le x\right\}=\Phi(x)$
+    - 结论
+      - $\displaystyle\lim_{n\to\infty}P\left\{\frac{\sqrt{n}(\overline{X}-\mu)}{\sigma}\le x\right\}=\Phi(x)$
+  - 推论：当 $n$ 足够大时，$n$ 个独立同分布的随机变量之和近似服从正态分布
+
+- 运用中心极限定理做近似计算
+  - 1. 构造独立同分布的随机变量
+  - 2. 按实际意义写出事件的表达式（用 $\displaystyle\sum_{i=1}^{n}X_i$ 或 $\overline{X}$ 表示）
+  - 3. $\displaystyle\sum_{i=1}^{n}X_i$ 或 $\overline{X}$ 标准化，用 $\Phi(x)$ 表示计算结果
+```
+
+## 数理统计
+
+```mindmap
+# 数理统计
+
+## 基本概念
+
+- 总体
+
+- 样本
+  - 简单随机样本 $X_1,\ldots,X_n$：独立同分布的随机变量
+  - 观测值 $x_1,\ldots,x_n$：随机变量 $X_1,\ldots,X_n$ 实际的取值
+  - 样本容量：$n$
+
+- 统计量
+  - 基本概念：简单随机样本 $X_1,\ldots,X_n$ 的函数，不含未知参数
+  - 常见统计量
+    - 样本均值：$\overline{X}=\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i$
+    - 样本方差：$S^2=\dfrac{1}{n-1}\displaystyle\sum_{i=1}^{n}(X_i-\overline{X})^2=\dfrac{1}{n-1}\left[\displaystyle\sum_{i=1}^{n}X_i^2-n\overline{X}^{\,2}\right]$
+    - 样本标准差：$S=\sqrt{S^2}$
+    - $k$ 阶原点矩：$\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i^k$
+    - $k$ 阶中心矩：$\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}(X_i-\overline{X})^k$
+
+## 统计量的分布
+
+- 三大抽样分布
+  - $\chi^2$ 分布
+    - 形式：$X=X_1^2+\cdots+X_n^2$
+    - 要求：$X_1,\ldots,X_n$ 相互独立且均服从标准正态分布
+    - 定义：$X\sim\chi^2(n)$
+    - 性质：$X\sim\chi^2(n),\ Y\sim\chi^2(m)$，$X$ 与 $Y$ 相互独立 $\Rightarrow X+Y\sim\chi^2(m+n)$
+  - $t$ 分布
+    - 形式：$T=\dfrac{X}{\sqrt{Y/n}}$
+    - 要求：$X\sim N(0,1),\ Y\sim\chi^2(n)$，$X$ 与 $Y$ 相互独立
+    - 定义：$T\sim t(n)$
+    - 性质：概率密度为偶函数（图像接近于标准正态）
+  - $F$ 分布
+    - 形式：$F=\dfrac{X/m}{Y/n}$
+    - 要求：$X\sim\chi^2(m),\ Y\sim\chi^2(n)$，$X$ 与 $Y$ 相互独立
+    - 定义：$F\sim F(m,n)$
+    - 性质
+      - $F\sim F(m,n)\Rightarrow\dfrac{1}{F}\sim F(n,m)$
+      - $T\sim t(n)\Rightarrow T^2\sim F(1,n)$
+
+- 常考题型
+  - 统计量分布的判断：连猜带凑
+    - 1. 先通过统计量的形式大致判断分布的类型
+    - 2. 将统计量凑成分布定义的标准形式
+  - 利用分布求概率
+    - $T\sim t(n)$
+      - $P\{T>a\}=P\{T<-a\}$
+      - $P\{-a<T<a\}=2P\{0\le T<a\}$
+      - 分位点的性质：$-t_{\alpha}(n)=t_{1-\alpha}(n)$
+    - $F$ 分布
+      - $F\sim F(n,n)\Rightarrow P\{F>1\}=P\{F<1\}=\dfrac{1}{2}$
+      - 分位点的性质：$F_{\alpha}(m,n)F_{1-\alpha}(n,m)=1$
+
+- 正态总体下统计量的分布
+  - 设总体 $X$ 服从正态分布 $N(\mu,\sigma^2)$，则
+    - 1. $\dfrac{\sqrt{n}(\overline{X}-\mu)}{\sigma}\sim N(0,1)$
+    - 2. $\dfrac{\sqrt{n}(\overline{X}-\mu)}{S}\sim t(n-1)$
+    - 3. $\dfrac{1}{\sigma^2}\displaystyle\sum_{i=1}^{n}(X_i-\mu)^2\sim\chi^2(n)$
+    - 4. $\dfrac{1}{\sigma^2}\displaystyle\sum_{i=1}^{n}(X_i-\overline{X})^2=\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)$
+
+## 统计量求数字特征
+
+- 一般总体
+  - 设总体为 $X$，且 $EX,DX$ 均存在，则
+    - 1. $E(\overline{X})=EX,\ D(\overline{X})=\dfrac{DX}{n},\ E(S^2)=DX$
+    - 2. $E(\overline{X}^{\,2})=(EX)^2+\dfrac{DX}{n},\ E\left(\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i^2\right)=(EX)^2+DX$
+    - 3. $E\left[\displaystyle\sum_{i=1}^{n}(X_i-\overline{X})^2\right]=(n-1)DX$
+
+- 正态总体
+  - 设总体 $X$ 服从正态分布 $N(\mu,\sigma^2)$，则
+    - 1. $\dfrac{1}{\sigma^2}\displaystyle\sum_{i=1}^{n}(X_i-\overline{X})^2=\dfrac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)\Rightarrow D(S^2)=\dfrac{2\sigma^4}{n-1}$
+    - 2. $\overline{X}$ 与 $S^2$ 相互独立 $\Rightarrow E(\overline{X}S^2)=E(\overline{X})E(S^2),\ D(\overline{X}+S^2)=D(\overline{X})+D(S^2)$
+
+- $\chi^2$ 分布的数字特征：若 $X\sim\chi^2(n)$，则 $EX=n,\ DX=2n$
+```
+
+## 参数估计与假设检验
+
+```mindmap
+# 参数估计与假设检验
+
+## 参数估计
+
+- 点估计
+  - 估计方法
+    - 矩估计
+      - 基本步骤
+        - 1. 求出 $EX=g(\theta)$
+        - 2. 解出 $\theta=g^{-1}(EX)$
+        - 3. 用 $\overline{X}$ 估计 $EX$，得到矩估计量 $\hat{\theta}=g^{-1}(\overline{X})$
+        - 4. 矩估计值：$\hat{\theta}=g^{-1}\left(\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}x_i\right)$
+      - 方法推广
+        - $EX$ 与 $\theta$ 无关
+          - 1. 求出 $EX^2=g_2(\theta)$
+          - 2. 解出 $\theta=g_2^{-1}(EX^2)$
+          - 3. 用 $\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i^2$ 估计 $EX^2$，得到矩估计量 $\hat{\theta}=g_2^{-1}\left(\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i^2\right)$
+        - 两个参数 $\theta_1,\theta_2$
+          - 1. 求出 $EX=g_1(\theta_1,\theta_2),\ EX^2=g_2(\theta_1,\theta_2)$
+          - 2. 解出 $\theta_1=\theta_1(EX,EX^2),\ \theta_2=\theta_2(EX,EX^2)$
+          - 3. 用 $\overline{X}$ 估计 $EX$，$\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}X_i^2$ 估计 $EX^2$
+    - 最大似然估计
+      - 基本步骤
+        - 1. 写似然函数
+          - 离散型：$L=\displaystyle\prod_{i=1}^{n}P\{X_i=x_i\}$
+          - 连续型：$L=\displaystyle\prod_{i=1}^{n}f(x_i,\theta)$
+        - 2. 在可能的范围内，求使得 $L$ 最大的 $\theta$ 的取值
+          - 定义域内不含 $\theta$
+            - （1）取对数 $\ln L$
+            - （2）求导 $\dfrac{d(\ln L)}{d\theta}$
+            - （3）令 $\dfrac{d(\ln L)}{d\theta}=0$，解出最大似然估计量
+          - 定义域内含 $\theta$：分析单调性
+            - $L$ 关于 $\theta$ 单调：$\hat{\theta}=\min\{x_1,\ldots,x_n\}$
+            - $L$ 关于 $\theta$ 单调：$\hat{\theta}=\max\{x_1,\ldots,x_n\}$
+        - 3. 将 $x_i$ 换成 $X_i$，得到最大似然估计量
+      - 方法推广：两个参数 $\theta_1,\theta_2$
+        - 1. 写似然函数
+        - 2. 在可能的范围内，求使得 $L$ 最大的 $\theta_1,\theta_2$ 的取值
+  - 评选标准（*数学一）
+    - 无偏性：$E(\hat{\theta})=\theta$
+    - 有效性：$\hat{\theta}_1$ 比 $\hat{\theta}_2$ 有效
+      - 1. $\hat{\theta}_1,\hat{\theta}_2$ 均为无偏估计量
+      - 2. $D(\hat{\theta}_1)<D(\hat{\theta}_2)$
+    - 一致性（相合性）：当 $n\to\infty$ 时，$\hat{\theta}\xrightarrow{P}\theta$
+
+- 区间估计（*数学一）
+  - 基本概念
+    - $P\{\theta\in[\underline{\theta},\overline{\theta}]\}=1-\alpha$
+    - $1-\alpha$：置信水平
+    - $[\underline{\theta},\overline{\theta}]$：置信区间
+    - $\underline{\theta}\,(\overline{\theta})$：置信下（上）限
+  - 估计方法
+    - 基本思路
+      - 1. 结合已知信息，构造含未知参数且服从统计分布的统计量 $T$
+      - 2. 找出满足 $P\{T\in I\}=1-\alpha$ 的最小区间 $I$
+      - 3. 从 $T\in I$ 中解出参数的置信区间
+    - 具体公式
+
+## 假设检验（*数学一）
+
+- 基本概念
+  - 原假设与备择假设
+    - 原假设 $H_0$：较明显能成立的假设
+    - 备择假设 $H_1$：$H_0$ 的补集
+  - 接受域与拒绝域
+    - 接受域：接受原假设 $H_0$ 的统计量取值范围
+    - 拒绝域：拒绝原假设 $H_0$ 的统计量取值范围
+  - 两类错误
+    - 第一类错误（弃真）：原假设为真的条件下拒绝了原假设
+    - 第二类错误（纳伪）：原假设为假的条件下接受了原假设
+  - 显著水平：犯第一类错误的概率
+
+- 检验方法
+  - 基本思路
+    - 1. 提出原假设 $H_0$ 与备择假设 $H_1$
+    - 2. 结合已知信息，构造统计量 $T$
+    - 3. 假设 $H_0$ 为真，进行检验
+  - 具体公式
+    - $H_0:\mu=\mu_0\quad[H_1:\mu\ne\mu_0]$
+      - $\sigma$ 已知
+        - 统计量及分布：$U=\dfrac{\sqrt{n}\,|\overline{X}-\mu_0|}{\sigma}\sim N(0,1)$
+        - 拒绝域：$|U|>z_{\alpha/2}$
+      - $\sigma$ 未知
+        - 统计量及分布：$T=\dfrac{\sqrt{n}\,|\overline{X}-\mu_0|}{S}\sim t(n-1)$
+        - 拒绝域：$|T|>t_{\alpha/2}(n-1)$
+    - $H_0:\sigma^2=\sigma_0^2\quad[H_1:\sigma^2\ne\sigma_0^2]$
+      - $\mu$ 已知
+        - 统计量及分布：$W^{*}=\dfrac{1}{\sigma_0^2}\displaystyle\sum_{i=1}^{n}(X_i-\mu)^2\sim\chi^2(n)$
+        - 拒绝域：$W^{*}<\chi^2_{1-\alpha/2}(n)$ 或 $W^{*}>\chi^2_{\alpha/2}(n)$
+      - $\mu$ 未知
+        - 统计量及分布：$W=\dfrac{(n-1)S^2}{\sigma_0^2}\sim\chi^2(n-1)$
+        - 拒绝域：$W<\chi^2_{1-\alpha/2}(n-1)$ 或 $W>\chi^2_{\alpha/2}(n-1)$
+```
