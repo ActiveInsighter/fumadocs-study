@@ -61,7 +61,7 @@
 			<rect v:rectContext="foreign" x="0" y="125.71" width="56.9334" height="48.6211" class="st1"/>
 			<switch>
 				<foreignObject x="0" y="125.71" width="56.9334" height="48.6211"
-						requiredExtensions="http://schemas.microsoft.com/visio/2003/SVGExtensions/">
+						requiredExtensions="http://schemas.microsoft.com/visio/2003/SVGExtensions/" class="svg-text svg-text-theme">
 					<v:foreignData v:orgSize="2760" v:data="data:metafile;base64,eNrtlk1IVFEUx89r7otqTGx0EbWRIJqF0KYg+rRF7Vq1EVp
 								EkZtChMqFMCAkSdiiXRQuQkbNQjFMCUeCjIhc1GDTJgh00ZRlNjbW4Onr9T+3+5rnm1czRrXqwZ9z73v3/s7HvXfmWkR0Gmq
 								1iJJfHOcm7ALs7s1EZ0cdZ91WorY7jlO978B+IoserCI6ifEKWg3VkXnkRYioFvPn0NxLx6iRjlI9VdNBaqZT8FJPDbBEa6A
@@ -151,7 +151,7 @@
 			<rect v:rectContext="foreign" x="0" y="125.71" width="56.9334" height="48.6211" class="st1"/>
 			<switch>
 				<foreignObject x="0" y="125.71" width="56.9334" height="48.6211"
-						requiredExtensions="http://schemas.microsoft.com/visio/2003/SVGExtensions/">
+						requiredExtensions="http://schemas.microsoft.com/visio/2003/SVGExtensions/" class="svg-text svg-text-theme">
 					<v:foreignData v:orgSize="2760" v:data="data:metafile;base64,eNrtlk1IVFEUx89r7otqTGx0EbWRIJqF0KYg+rRF7Vq1EVp
 								EkZtChMqFMCAkSdiiXRQuQkbNQjFMCUeCjIhc1GDTJgh00ZRlNjbW4Onr9T+3+5rnm1czRrXqwZ9z73v3/s7HvXfmWkR0Gmq
 								1iJJfHOcm7ALs7s1EZ0cdZ91WorY7jlO978B+IoserCI6ifEKWg3VkXnkRYioFvPn0NxLx6iRjlI9VdNBaqZT8FJPDbBEa6A
@@ -258,7 +258,7 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="53.0084" cy="161.985" width="106.02" height="24.6922"/>
 			<rect x="0" y="149.639" width="106.017" height="24.6922" class="st1"/>
-			<text x="4" y="159.73" class="st3" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>Src:<tspan class="st4">192</tspan><tspan
+			<text x="4" y="159.73" class="st3 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>Src:<tspan class="st4">192</tspan><tspan
 						class="st4">.</tspan><tspan class="st4">168</tspan><tspan class="st4">.</tspan><tspan class="st4">1</tspan><tspan
 						class="st4">.</tspan><tspan class="st4">5<v:newlineChar/></tspan><tspan x="4" dy="1em" class="st5">Dst</tspan>:<tspan
 						class="st4">10</tspan><tspan class="st4">.</tspan><tspan class="st4">1</tspan><tspan class="st4">.</tspan><tspan
@@ -269,14 +269,14 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="14.4623" cy="164.331" width="28.93" height="20"/>
 			<rect x="0" y="154.331" width="28.9246" height="20" class="st1"/>
-			<text x="5.12" y="167.93" class="st6" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>PC1</text>		</g>
+			<text x="5.12" y="167.93" class="st6 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>PC1</text>		</g>
 		<g id="shape178-40" v:mID="178" v:groupContext="shape" transform="translate(439.737,-60.9449)">
 			<title>Sheet.178</title>
 			<desc>PC2</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="14.4623" cy="164.331" width="28.93" height="20"/>
 			<rect x="0" y="154.331" width="28.9246" height="20" class="st1"/>
-			<text x="5.12" y="167.93" class="st6" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>PC2</text>		</g>
+			<text x="5.12" y="167.93" class="st6 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>PC2</text>		</g>
 		<g id="shape179-43" v:mID="179" v:groupContext="shape" transform="translate(98.2002,-30.3441)">
 			<title>Sheet.179</title>
 			<path d="M0 174.33 L336.92 174.33" class="st7"/>
@@ -287,21 +287,21 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="37.4638" cy="164.331" width="74.93" height="20"/>
 			<rect x="0" y="154.331" width="74.9276" height="20" class="st1"/>
-			<text x="4" y="166.83" class="st9" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>192.168.1.5</text>		</g>
+			<text x="4" y="166.83" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>192.168.1.5</text>		</g>
 		<g id="shape184-52" v:mID="184" v:groupContext="shape" transform="translate(404.22,-20.3441)">
 			<title>Sheet.184</title>
 			<desc>10.1.1.5</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="41.1024" cy="164.331" width="82.21" height="20"/>
 			<rect x="0" y="154.331" width="82.2047" height="20" class="st1"/>
-			<text x="35.5" y="166.83" class="st9" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>10.1.1.5</text>		</g>
+			<text x="35.5" y="166.83" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>10.1.1.5</text>		</g>
 		<g id="shape186-55" v:mID="186" v:groupContext="shape" transform="translate(356.945,-52.3262)">
 			<title>Sheet.186</title>
 			<desc>Directly connected 10.1.1.0/24</desc>
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="41.1024" cy="156.696" width="82.21" height="35.269"/>
 			<rect x="0" y="139.062" width="82.2047" height="35.269" class="st1"/>
-			<text x="4" y="149.95" class="st10" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>Directly <tspan x="4"
+			<text x="4" y="149.95" class="st10 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1"/><v:tabList/>Directly <tspan x="4"
 						dy="1em" class="st5">connected<v:newlineChar/></tspan><tspan x="4" dy="1em" class="st5">10</tspan>.1.1.0/24</text>		</g>
 		<g id="group220-60" transform="translate(122.4,-38.974)" v:mID="220" v:groupContext="group">
 			<title>router-svg.10</title>
@@ -411,7 +411,7 @@
 				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 				<v:textRect cx="28.4667" cy="167.672" width="56.94" height="13.317"/>
 				<rect x="0" y="161.014" width="56.9334" height="13.317" class="st1"/>
-				<text x="21.81" y="170.67" class="st17" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R1</text>			</g>
+				<text x="21.81" y="170.67" class="st17 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R1</text>			</g>
 		</g>
 		<g id="group244-108" transform="translate(210.39,-88.2272)" v:mID="244" v:groupContext="group">
 			<title>Sheet.244</title>
@@ -521,7 +521,7 @@
 				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 				<v:textRect cx="28.4667" cy="167.672" width="56.94" height="13.317"/>
 				<rect x="0" y="161.014" width="56.9334" height="13.317" class="st1"/>
-				<text x="21.81" y="170.67" class="st17" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R3</text>			</g>
+				<text x="21.81" y="170.67" class="st17 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R3</text>			</g>
 		</g>
 		<g id="group245-156" transform="translate(299.609,-38.974)" v:mID="245" v:groupContext="group">
 			<title>Sheet.245</title>
@@ -631,7 +631,7 @@
 				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 				<v:textRect cx="28.4667" cy="167.672" width="56.94" height="13.317"/>
 				<rect x="0" y="161.014" width="56.9334" height="13.317" class="st1"/>
-				<text x="21.81" y="170.67" class="st17" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R2</text>			</g>
+				<text x="21.81" y="170.67" class="st17 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>R2</text>			</g>
 		</g>
 		<g id="shape246-204" v:mID="246" v:groupContext="shape" v:layerMember="0" transform="translate(179.334,-48.189)">
 			<title>Dynamic connector.246</title>
@@ -648,7 +648,7 @@
 				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 				<v:textRect cx="45.4746" cy="155.906" width="90.95" height="36.8504"/>
 				<rect x="0" y="137.48" width="90.9492" height="36.8504" rx="5.66929" ry="5.66929" class="st18"/>
-				<text x="13.05" y="149.16" class="st3" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>R3 must know <tspan
+				<text x="13.05" y="149.16" class="st3 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>R3 must know <tspan
 							x="16.05" dy="1em" class="st5">how to reach </tspan><tspan x="18.49" dy="1em" class="st5">10</tspan>.1.1.0/24</text>			</g>
 			<g id="shape250-213" v:mID="250" v:groupContext="shape" transform="translate(53.2699,333.071) rotate(180)">
 				<title>Triangle.190</title>
@@ -669,7 +669,7 @@
 				<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 				<v:textRect cx="45.4746" cy="155.906" width="90.95" height="36.8504"/>
 				<rect x="0" y="137.48" width="90.9492" height="36.8504" rx="5.66929" ry="5.66929" class="st18"/>
-				<text x="13.05" y="149.16" class="st3" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>R1 must know <tspan
+				<text x="13.05" y="149.16" class="st3 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>R1 must know <tspan
 							x="16.05" dy="1em" class="st5">how to reach </tspan><tspan x="18.49" dy="1em" class="st5">10</tspan>.1.1.0/24</text>			</g>
 			<g id="shape248-221" v:mID="248" v:groupContext="shape" transform="translate(53.2699,333.071) rotate(180)">
 				<title>Triangle</title>
@@ -688,7 +688,7 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="15.5906" cy="167.672" width="31.19" height="13.317"/>
 			<rect x="0" y="161.014" width="31.1811" height="13.317" rx="1.41732" ry="1.41732" class="st20"/>
-			<text x="5.04" y="170.67" class="st9" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
+			<text x="5.04" y="170.67" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
 		<g id="shape254-226" v:mID="254" v:groupContext="shape" transform="translate(163.112,-30.3441)">
 			<title>Sheet.254</title>
 			<path d="M0 174.33 L75.85 130.41 A2.83465 2.83465 0 0 1 78.76 130.45 L149.37 174.33" class="st21"/>
@@ -718,7 +718,7 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="15.5906" cy="167.672" width="31.19" height="13.317"/>
 			<rect x="0" y="161.014" width="31.1811" height="13.317" rx="1.41732" ry="1.41732" class="st20"/>
-			<text x="5.04" y="170.67" class="st9" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
+			<text x="5.04" y="170.67" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
 		<g id="shape180-253" v:mID="180" v:groupContext="shape" transform="translate(131.931,-23.6856)">
 			<title>Rectangle.180</title>
 			<desc>Pckt</desc>
@@ -728,7 +728,7 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="15.5906" cy="167.672" width="31.19" height="13.317"/>
 			<rect x="0" y="161.014" width="31.1811" height="13.317" rx="1.41732" ry="1.41732" class="st20"/>
-			<text x="5.04" y="170.67" class="st9" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
+			<text x="5.04" y="170.67" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
 		<g id="shape182-256" v:mID="182" v:groupContext="shape" transform="translate(312.485,-23.6856)">
 			<title>Rectangle.182</title>
 			<desc>Pckt</desc>
@@ -738,7 +738,7 @@
 			<v:textBlock v:margins="rect(4,4,4,4)" v:tabSpace="42.5197"/>
 			<v:textRect cx="15.5906" cy="167.672" width="31.19" height="13.317"/>
 			<rect x="0" y="161.014" width="31.1811" height="13.317" rx="1.41732" ry="1.41732" class="st20"/>
-			<text x="5.04" y="170.67" class="st9" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
+			<text x="5.04" y="170.67" class="st9 svg-text svg-text-theme" v:langID="1033"><v:paragraph v:horizAlign="1"/><v:tabList/>Pckt</text>		</g>
 		<g id="shape259-259" v:mID="259" v:groupContext="shape" transform="translate(419.244,-30.3441)">
 			<title>Sheet.259</title>
 			<path d="M0 174.33 L7.37 174.33" class="st22"/>

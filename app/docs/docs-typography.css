@@ -71,4 +71,29 @@
   display: block;
   height: auto;
   max-width: 100%;
+  color: var(--svg-text);
+  font-family: var(--svg-font-family);
+}
+
+/*
+ * Inline SVG diagrams in 408/knowledge2 are real DOM, so typography can be
+ * controlled here instead of carrying generator-specific text colors. Text
+ * on a known light or dark diagram surface is pinned to a monochrome token;
+ * all other text follows the documentation theme.
+ */
+#docs-body .inline-svg > svg :is(text, tspan, foreignObject, foreignObject *) {
+  color: var(--svg-text) !important;
+}
+
+#docs-body .inline-svg > svg :is(text, tspan) {
+  fill: currentColor !important;
+  stroke: none !important;
+}
+
+#docs-body .inline-svg > svg .svg-text-on-light {
+  --svg-text: var(--svg-text-on-light);
+}
+
+#docs-body .inline-svg > svg .svg-text-on-dark {
+  --svg-text: var(--svg-text-on-dark);
 }
