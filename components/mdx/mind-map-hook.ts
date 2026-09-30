@@ -100,8 +100,7 @@ export function useMindMap({
 
         if (cancelled || !svg) return;
 
-        const mathWindow = window as typeof window & { katex?: typeof katex };
-        mathWindow.katex = katex;
+        Object.assign(window, { katex });
 
         const transformer = new Transformer();
         const { root } = transformer.transform(markdown.trim());
