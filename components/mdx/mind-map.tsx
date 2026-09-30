@@ -31,7 +31,7 @@ export function MindMap({
   markdown,
   title = '思维导图',
   height = 'clamp(20rem, 58vw, 30rem)',
-  initialExpandLevel = 2,
+  initialExpandLevel = -1,
   maxWidth = 280,
   className,
 }: MindMapProps) {
