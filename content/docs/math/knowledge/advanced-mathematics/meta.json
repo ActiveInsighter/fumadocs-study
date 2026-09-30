@@ -12,7 +12,11 @@
     "08-multivariable-differentiation",
     "09-multivariable-integration",
     "10-integral-theorems",
-    "11-infinite-series"
+    "11-infinite-series",
+    "12-first-kind-line-integral",
+    "13-first-kind-surface-integral",
+    "14-second-kind-line-integral",
+    "15-second-kind-surface-integral"
   ],
   "defaultOpen": false
 }
