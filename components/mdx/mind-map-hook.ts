@@ -1,6 +1,7 @@
 'use client';
 
 import type { Markmap } from 'markmap-view';
+import katex from 'katex';
 import {
   useCallback,
   useEffect,
@@ -98,6 +99,9 @@ export function useMindMap({
         ]);
 
         if (cancelled || !svg) return;
+
+        const mathWindow = window as typeof window & { katex?: typeof katex };
+        mathWindow.katex = katex;
 
         const transformer = new Transformer();
         const { root } = transformer.transform(markdown.trim());
