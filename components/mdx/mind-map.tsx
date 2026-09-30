@@ -20,7 +20,7 @@ export interface MindMapProps {
   title?: string;
   /** CSS height, or a number interpreted as pixels. */
   height?: number | string;
-  /** Heading depth shown on first render. Omit for adaptive expansion; `-1` expands every level. */
+  /** Heading depth shown on first render. Omit to use level 3; `-1` expands every level. */
   initialExpandLevel?: number;
   /** Maximum width of a node label before it wraps. */
   maxWidth?: number;
@@ -41,7 +41,9 @@ export function MindMap({
   const id = rawId.replaceAll(':', '');
   const descriptionId = `mind-map-description-${id}`;
   const {
+    collapseAll,
     errorMessage,
+    expandAll,
     fitMap,
     status,
     svgRef: mindMapSvgRef,
@@ -130,6 +132,8 @@ export function MindMap({
           isFullscreen={isFullscreen}
           fullscreenSupported={fullscreenSupported}
           onFit={fitMap}
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
           onToggleFullscreen={toggleFullscreen}
@@ -137,7 +141,7 @@ export function MindMap({
       </div>
 
       <p id={descriptionId} className="mind-map-sr-only">
-        滚轮缩放，拖动平移，点击节点圆点展开或收起；右下角工具栏可放大、缩小、适应窗口和全屏查看。
+        滚轮缩放，拖动平移，点击节点圆点展开或收起；右下角工具栏可放大、缩小、适应窗口、全部展开、全部折叠和全屏查看。
       </p>
     </figure>
   );
