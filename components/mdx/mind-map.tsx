@@ -45,6 +45,7 @@ export function MindMap({
     errorMessage,
     expandAll,
     fitMap,
+    resetMap,
     status,
     svgRef: mindMapSvgRef,
     zoomIn,
@@ -134,6 +135,7 @@ export function MindMap({
           onFit={fitMap}
           onExpandAll={expandAll}
           onCollapseAll={collapseAll}
+          onReset={resetMap}
           onZoomIn={zoomIn}
           onZoomOut={zoomOut}
           onToggleFullscreen={toggleFullscreen}
@@ -141,7 +143,7 @@ export function MindMap({
       </div>
 
       <p id={descriptionId} className="mind-map-sr-only">
-        滚轮缩放，拖动平移，点击节点圆点展开或收起；右下角工具栏可放大、缩小、适应窗口、全部展开、全部折叠和全屏查看。
+        滚轮缩放，拖动平移，点击节点圆点展开或收起；右下角工具栏可放大、缩小、适应窗口、全部展开、全部折叠、恢复默认和全屏查看。
       </p>
     </figure>
   );
