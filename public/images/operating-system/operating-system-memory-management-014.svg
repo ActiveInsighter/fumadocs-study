@@ -5,53 +5,53 @@
     </marker>
   </defs>
   <rect width="900" height="690" fill="var(--surface)"/>
-  <text x="450" y="32" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" fill="var(--ink)">简单 Clock（Second-Chance）页面置换流程</text>
+  <text x="450" y="32" text-anchor="middle" font-size="var(--svg-font-size-title)" font-weight="var(--svg-font-weight-bold)" class="svg-text svg-text-on-light">简单 Clock（Second-Chance）页面置换流程</text>
 
   <ellipse cx="450" cy="82" rx="105" ry="30" fill="var(--sky-soft)" stroke="var(--sky-deep)"/>
-  <text x="450" y="88" text-anchor="middle" font-size="var(--svg-font-size-body)" font-weight="var(--svg-font-weight-medium)" fill="var(--sky-ink)">访问页面 P</text>
+  <text x="450" y="88" text-anchor="middle" font-size="var(--svg-font-size-body)" font-weight="var(--svg-font-weight-medium)" class="svg-text svg-text-on-light">访问页面 P</text>
   <path d="M450 112 V145" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <polygon points="450,145 590,205 450,265 310,205" fill="var(--amber-soft)" stroke="var(--amber-deep)"/>
-  <text x="450" y="198" text-anchor="middle" font-size="var(--svg-font-size-body)" fill="var(--amber-ink)">页面 P 是否</text>
-  <text x="450" y="218" text-anchor="middle" font-size="var(--svg-font-size-body)" fill="var(--amber-ink)">已在内存？</text>
+  <text x="450" y="198" text-anchor="middle" font-size="var(--svg-font-size-body)" class="svg-text svg-text-on-light">页面 P 是否</text>
+  <text x="450" y="218" text-anchor="middle" font-size="var(--svg-font-size-body)" class="svg-text svg-text-on-light">已在内存？</text>
 
   <path d="M310 205 H176 V295" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-  <text x="235" y="194" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--green-deep)">是（命中）</text>
+  <text x="235" y="194" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">是（命中）</text>
   <rect x="70" y="295" width="212" height="70" rx="10" fill="var(--green-soft)" stroke="var(--green-deep)"/>
-  <text x="176" y="323" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--green-ink)">将 P 的访问位置 1</text>
-  <text x="176" y="345" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--green-ink)">不移动时钟指针</text>
+  <text x="176" y="323" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">将 P 的访问位置 1</text>
+  <text x="176" y="345" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">不移动时钟指针</text>
   <path d="M176 365 V420" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
   <ellipse cx="176" cy="455" rx="88" ry="28" fill="var(--neutral-soft)" stroke="var(--neutral-deep)"/>
-  <text x="176" y="461" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--neutral-ink)">访问完成</text>
+  <text x="176" y="461" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">访问完成</text>
 
   <path d="M590 205 H724 V284" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-  <text x="662" y="194" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--red-deep)">否（缺页）</text>
+  <text x="662" y="194" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">否（缺页）</text>
   <rect x="610" y="284" width="228" height="72" rx="10" fill="var(--rose-soft)" stroke="var(--rose-deep)"/>
-  <text x="724" y="312" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--rose-ink)">从当前指针开始</text>
-  <text x="724" y="334" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--rose-ink)">检查所指页框</text>
+  <text x="724" y="312" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">从当前指针开始</text>
+  <text x="724" y="334" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">检查所指页框</text>
   <path d="M724 356 V390" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <polygon points="724,390 848,445 724,500 600,445" fill="var(--yellow-soft)" stroke="var(--yellow-deep)"/>
-  <text x="724" y="439" text-anchor="middle" font-size="var(--svg-font-size-body)" fill="var(--yellow-ink)">访问位 R = 0？</text>
+  <text x="724" y="439" text-anchor="middle" font-size="var(--svg-font-size-body)" class="svg-text svg-text-on-light">访问位 R = 0？</text>
 
   <path d="M600 445 H477 V535" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-  <text x="540" y="433" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--green-deep)">是</text>
+  <text x="540" y="433" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">是</text>
   <rect x="354" y="535" width="246" height="76" rx="10" fill="var(--green-soft)" stroke="var(--green-deep)"/>
-  <text x="477" y="561" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--green-ink)">换入页面 P，访问位置 1</text>
-  <text x="477" y="583" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--green-ink)">指针移到下一个页框</text>
+  <text x="477" y="561" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">换入页面 P，访问位置 1</text>
+  <text x="477" y="583" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">指针移到下一个页框</text>
   <path d="M477 611 V638" stroke="var(--neutral-deep)" stroke-width="1.5" marker-end="url(#arrow)"/>
   <ellipse cx="477" cy="662" rx="92" ry="22" fill="var(--neutral-soft)" stroke="var(--neutral-deep)"/>
-  <text x="477" y="667" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--neutral-ink)">置换完成</text>
+  <text x="477" y="667" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">置换完成</text>
 
   <path d="M848 445 H870 V535 H735" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
-  <text x="865" y="430" text-anchor="end" font-size="var(--svg-font-size-caption)" fill="var(--orange-deep)">否（R = 1）</text>
+  <text x="865" y="430" text-anchor="end" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">否（R = 1）</text>
   <rect x="610" y="535" width="250" height="76" rx="10" fill="var(--orange-soft)" stroke="var(--orange-deep)"/>
-  <text x="735" y="561" text-anchor="middle" font-size="var(--svg-font-size-label)" fill="var(--orange-ink)">将该页框访问位置 0</text>
-  <text x="735" y="583" text-anchor="middle" font-size="var(--svg-font-size-caption)" fill="var(--orange-ink)">指针后移，继续扫描</text>
+  <text x="735" y="561" text-anchor="middle" font-size="var(--svg-font-size-label)" class="svg-text svg-text-on-light">将该页框访问位置 0</text>
+  <text x="735" y="583" text-anchor="middle" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">指针后移，继续扫描</text>
   <path d="M735 535 C735 510 575 520 575 320 C575 300 610 300 610 320" stroke="var(--neutral-deep)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
 
-  <text x="62" y="535" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" fill="var(--ink)">核心语义</text>
-  <text x="62" y="560" font-size="var(--svg-font-size-caption)" fill="var(--ink-soft)">• R=1 表示近期被访问，给予一次“第二次机会”。</text>
-  <text x="62" y="582" font-size="var(--svg-font-size-caption)" fill="var(--ink-soft)">• 扫描到 R=1：清零并跳过。</text>
-  <text x="62" y="604" font-size="var(--svg-font-size-caption)" fill="var(--ink-soft)">• 扫描到 R=0：选择该页框进行置换。</text>
+  <text x="62" y="535" font-size="var(--svg-font-size-label)" font-weight="var(--svg-font-weight-semibold)" class="svg-text svg-text-on-light">核心语义</text>
+  <text x="62" y="560" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• R=1 表示近期被访问，给予一次“第二次机会”。</text>
+  <text x="62" y="582" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• 扫描到 R=1：清零并跳过。</text>
+  <text x="62" y="604" font-size="var(--svg-font-size-caption)" class="svg-text svg-text-on-light">• 扫描到 R=0：选择该页框进行置换。</text>
 </svg>

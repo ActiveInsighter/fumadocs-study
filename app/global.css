@@ -93,6 +93,11 @@
   --svg-font-weight-semibold: 600;
   --svg-font-weight-bold: 700;
 
+  /* Keep diagram typography monochrome and theme-aware. */
+  --svg-text: var(--foreground);
+  --svg-text-on-light: #111;
+  --svg-text-on-dark: #fff;
+
   --paper: #faf9f5;
   --paper-warm: #f7f4ed;
   --paper-alt: #f1eee7;
