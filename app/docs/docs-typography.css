@@ -71,7 +71,6 @@
   display: block;
   height: auto;
   max-width: 100%;
-  color: var(--svg-text);
   font-family: var(--svg-font-family);
 }
 
@@ -81,11 +80,12 @@
  * on a known light or dark diagram surface is pinned to a monochrome token;
  * all other text follows the documentation theme.
  */
-#docs-body .inline-svg > svg :is(text, tspan, foreignObject, foreignObject *) {
+#docs-body .inline-svg > svg .svg-text,
+#docs-body .inline-svg > svg .svg-text * {
   color: var(--svg-text) !important;
 }
 
-#docs-body .inline-svg > svg :is(text, tspan) {
+#docs-body .inline-svg > svg :is(text.svg-text, text.svg-text tspan) {
   fill: currentColor !important;
   stroke: none !important;
 }
