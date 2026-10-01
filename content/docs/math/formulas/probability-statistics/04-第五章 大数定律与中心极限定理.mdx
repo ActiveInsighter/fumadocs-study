@@ -1,0 +1,69 @@
+---
+title: "第五章 大数定律与中心极限定理"
+---
+
+## 第五章 大数定律与中心极限定理
+
+### 1. 大数定律
+
+（1）依概率收敛
+
+对于随机变量序列 $X_1,X_2,\cdots,X_n,\cdots$ 和常数 $a$，如果对于任意给定的正数 $\varepsilon$，有
+
+$$
+\lim_{n\to\infty}P\{|X_n-a|<\varepsilon\}=1,
+$$
+
+则称随机变量序列 $X_1,X_2,\cdots,X_n,\cdots$ 依概率收敛于 $a$，记作 $X_n\xrightarrow{P}a$。
+
+（2）切比雪夫大数定律
+
+设随机变量 $X_1,X_2,\cdots,X_n,\cdots$ 相互独立，数学期望 $EX_i$ 和方差 $DX_i$ 均存在，且方差 $DX_i$ 有公共上界，即存在常数 $C$，使 $DX_i\le C\ (i=1,2,\cdots)$，则对于任意给定的正数 $\varepsilon$，总有
+
+$$
+\lim_{n\to\infty}P\left\{\left|\frac1n\sum_{i=1}^{n}X_i-\frac1n\sum_{i=1}^{n}EX_i\right|<\varepsilon\right\}=1.
+$$
+
+【注】上式表明：当 $n$ 很大时，相互独立方差有公共上界的随机变量的平均值 $\dfrac1n\sum_{i=1}^{n}X_i$ 依概率收敛于其数学期望 $\dfrac1n\sum_{i=1}^{n}EX_i$。
+
+（3）伯努利大数定律
+
+设 $n_A$ 是 $n$ 次独立重复试验中事件 $A$ 发生的次数，$p$ 是事件 $A$ 在每次试验中发生的概率，则对于任意正数 $\varepsilon>0$，有
+
+$$
+\lim_{n\to\infty}P\left\{\left|\frac{n_A}{n}-p\right|<\varepsilon\right\}=1.
+$$
+
+【注】上式表明：当 $n$ 很大时，随机事件 $A$ 发生的频率 $\dfrac{n_A}{n}$ 依概率收敛于事件 $A$ 的概率 $p$，因此在试验次数充分大时，可以用频率来近似代替概率。
+
+（4）辛钦大数定律
+
+设随机变量 $X_1,X_2,\cdots,X_n,\cdots$ 相互独立，服从相同的分布，具有数学期望 $EX_i=\mu\ (i=1,2,\cdots)$，则对于任意给定的正数 $\varepsilon$，总有
+
+$$
+\lim_{n\to\infty}P\left\{\left|\frac1n\sum_{i=1}^{n}X_i-\mu\right|<\varepsilon\right\}=1.
+$$
+
+【注】上式表明：当 $n$ 很大时，独立同分布的随机变量的平均值 $\dfrac1n\sum_{i=1}^{n}X_i$ 依概率收敛于它的数学期望 $\mu$。
+
+### 2. 中心极限定理
+
+（1）列维-林德伯格中心极限定理
+
+设随机变量 $X_1,X_2,\cdots,X_n,\cdots$ 相互独立，服从相同的分布，具有数学期望 $EX_i=\mu$ 和方差 $DX_i=\sigma^2>0\ (i=1,2,\cdots)$，则对于任意实数 $x$，有
+
+$$
+\lim_{n\to\infty}P\left\{\frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt{n}\sigma}\le x\right\}=\Phi(x).
+$$
+
+【注】上式表明：在定理条件下，当 $n$ 充分大时，$\sum_{i=1}^{n}X_i$ 以正态分布为极限分布。
+
+（2）棣莫弗-拉普拉斯中心极限定理
+
+设随机变量 $X_n$ 服从参数为 $n,p\ (0<p<1,n=1,2,\cdots)$ 的二项分布，即 $X_n\sim B(n,p)$，则对于任意实数 $x$，有
+
+$$
+\lim_{n\to\infty}P\left\{\frac{X_n-np}{\sqrt{np(1-p)}}\le x\right\}=\Phi(x).
+$$
+
+【注】上式表明：当重复实验次数足够多时，二项分布以正态分布为极限分布。

@@ -1,0 +1,167 @@
+---
+title: "第九章 三重积分"
+---
+
+## 第九章 三重积分
+
+### 1. 不同坐标系下的表示
+
+直角坐标系下的三重积分表示：
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv
+=\iint_{D_{xy}}dxdy\int_{z_1(x,y)}^{z_2(x,y)}f(x,y,z)\,dz
+\qquad（先一后二）
+$$
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv
+=\int_c^d dz\iint_{D_z}f(x,y,z)\,dxdy
+\qquad（先二后一）
+$$
+
+柱坐标系下的三重积分表示：
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv
+=\iiint_{\Omega}f(r\cos\theta,r\sin\theta,z)\,r\,dr\,d\theta\,dz.
+$$
+
+球坐标系下的三重积分表示：
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv
+=\iiint_{\Omega}f(r\sin\varphi\cos\theta,r\sin\varphi\sin\theta,r\cos\varphi)r^2\sin\varphi\,dr\,d\varphi\,d\theta.
+$$
+
+### 2. 三重积分的普通对称性与轮换对称性
+
+① 若 $\Omega$ 关于 $xOy$ 面对称，
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv=
+\begin{cases}
+0, & f(x,y,-z)=-f(x,y,z),\\[4pt]
+2\iiint_{\Omega_1}f(x,y,z)\,dv, & f(x,y,-z)=f(x,y,z),
+\end{cases}
+$$
+
+其中 $\Omega_1$ 是 $\Omega$ 在 $xOy$ 面上方部分，关于 $yOz$、$xOz$ 面的对称性有类似的性质。
+
+② 轮换对称性
+
+如果积分区域关于变量 $x,y,z$ 具有轮换对称性（即将表示积分区域的方程 $x$ 换成 $y$，$y$ 换成 $z$ 或 $z$ 换成 $x$ 后表达式不变），则
+
+$$
+\iiint_{\Omega}f(x,y,z)\,dv
+=\iiint_{\Omega}f(y,x,z)\,dv
+=\iiint_{\Omega}f(z,x,y)\,dv.
+$$
+
+### 3. 换元法求三重积分
+
+$$
+\iiint_{\Omega_{xyz}}f(x,y,z)\,dxdydz
+$$
+
+若
+
+$$
+\begin{cases}
+x=x(u,v,w),\\
+y=y(u,v,w),\\
+z=z(u,v,w),
+\end{cases}
+$$
+
+则
+
+$$
+\iiint_{\Omega_{uvw}}
+ f[x(u,v,w),y(u,v,w),z(u,v,w)]
+\left|\frac{\partial(x,y,z)}{\partial(u,v,w)}\right|dudvdw.
+$$
+
+① $f(x,y,z)\to f[x(u,v,w),y(u,v,w),z(u,v,w)]$。
+
+② $\displaystyle \iiint_{\Omega_{xyz}}\to\iiint_{\Omega_{uvw}}$。
+
+③ $\displaystyle dxdydz\to\left|\frac{\partial(x,y,z)}{\partial(u,v,w)}\right|dudvdw$。
+
+其中：
+
+a. $\begin{cases}x=x(u,v,w),\\y=y(u,v,w),\\z=z(u,v,w)\end{cases}$ 是空间 $(x,y,z)$ 到空间 $(u,v,w)$ 的一一映射；
+
+b. $x=x(u,v,w),y=y(u,v,w),z=z(u,v,w)$ 有一阶连续偏导数，且
+
+$$
+\frac{\partial(x,y,z)}{\partial(u,v,w)}
+=
+\begin{vmatrix}
+\dfrac{\partial x}{\partial u} & \dfrac{\partial x}{\partial v} & \dfrac{\partial x}{\partial w}\\
+\dfrac{\partial y}{\partial u} & \dfrac{\partial y}{\partial v} & \dfrac{\partial y}{\partial w}\\
+\dfrac{\partial z}{\partial u} & \dfrac{\partial z}{\partial v} & \dfrac{\partial z}{\partial w}
+\end{vmatrix}
+\ne0.
+$$
+
+### 4. 几何物理应用
+
+（1）体积
+
+对于空间物体 $\Omega$，其体积计算公式为
+
+$$
+V=\iiint_{\Omega}dv.
+$$
+
+（2）总质量
+
+对空间物体 $\Omega$，其体积密度为 $\rho(x,y,z)$，则其总质量计算公式为
+
+$$
+m=\iiint_{\Omega}\rho(x,y,z)\,dv.
+$$
+
+（3）重心
+
+对空间物体 $\Omega$，其体积密度为 $\rho(x,y,z)$，则重心 $(\bar{x},\bar{y},\bar{z})$ 的计算公式为
+
+$$
+\bar{x}=\frac{\iiint_{\Omega}x\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv},\qquad
+\bar{y}=\frac{\iiint_{\Omega}y\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv},\qquad
+\bar{z}=\frac{\iiint_{\Omega}z\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv}.
+$$
+
+（4）转动惯量
+
+对于空间物体 $\Omega$，其体积密度为 $\rho(x,y,z)$，则该物体对 $x$ 轴、$y$ 轴、$z$ 轴和原点 $O$ 的转动惯量 $I_x,I_y,I_z$ 和 $I_O$ 的计算公式分别为
+
+$$
+I_x=\iiint_{\Omega}(y^2+z^2)\rho(x,y,z)\,dv,\qquad
+I_y=\iiint_{\Omega}(x^2+z^2)\rho(x,y,z)\,dv,
+$$
+
+$$
+I_z=\iiint_{\Omega}(x^2+y^2)\rho(x,y,z)\,dv,\qquad
+I_O=\iiint_{\Omega}(x^2+y^2+z^2)\rho(x,y,z)\,dv.
+$$
+
+（5）引力
+
+对于空间物体 $\Omega$，其体积密度为 $\rho(x,y,z)$，则该物体对物体外一点 $M_0(x_0,y_0,z_0)$ 处的质量为 $m$ 的质点的引力 $(F_x,F_y,F_z)$ 的计算公式为
+
+$$
+F_x=Gm\iiint_{\Omega}
+\frac{\rho(x,y,z)(x-x_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv,
+$$
+
+$$
+F_y=Gm\iiint_{\Omega}
+\frac{\rho(x,y,z)(y-y_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv,
+$$
+
+$$
+F_z=Gm\iiint_{\Omega}
+\frac{\rho(x,y,z)(z-z_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv.
+$$

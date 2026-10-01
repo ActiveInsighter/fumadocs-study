@@ -1,0 +1,399 @@
+---
+title: "第三章 一元函数积分学"
+---
+
+## 第三章 一元函数积分学
+
+### 1. 基本积分公式
+
+1. $\displaystyle \int x^k\,dx=\frac{x^{k+1}}{k+1}+C\quad(k\ne-1)$。
+2. $\displaystyle \int\frac{1}{x}\,dx=\ln|x|+C$。
+3. $\displaystyle \int a^x\,dx=\frac{a^x}{\ln a}+C$，$\displaystyle \int e^x\,dx=e^x+C$。
+4. $\displaystyle \int\cos x\,dx=\sin x+C$，$\displaystyle \int\sin x\,dx=-\cos x+C$。
+5. $\displaystyle \int\frac{1}{\sin x}\,dx=\int\csc x\,dx=\ln|\csc x-\cot x|+C$，$\displaystyle \int\frac{1}{\cos x}\,dx=\int\sec x\,dx=\ln|\sec x+\tan x|+C$。
+6. $\displaystyle \int\frac{1}{\sin^2x}\,dx=\int\csc^2x\,dx=-\cot x+C$，$\displaystyle \int\frac{1}{\cos^2x}\,dx=\int\sec^2x\,dx=\tan x+C$。
+7. $\displaystyle \int\tan x\,dx=-\ln|\cos x|+C$，$\displaystyle \int\cot x\,dx=\ln|\sin x|+C$。
+8. $\displaystyle \int\sec x\tan x\,dx=\sec x+C$，$\displaystyle \int\csc x\cot x\,dx=-\csc x+C$。
+9. $\displaystyle \int\frac{1}{a^2+x^2}\,dx=\frac{1}{a}\arctan\frac{x}{a}+C$，$\displaystyle \int\frac{1}{1+x^2}\,dx=\arctan x+C$。
+10. $\displaystyle \int\frac{1}{\sqrt{a^2-x^2}}\,dx=\arcsin\frac{x}{a}+C$，$\displaystyle \int\frac{1}{\sqrt{1-x^2}}\,dx=\arcsin x+C$。
+11. $\displaystyle \int\frac{1}{a^2-x^2}\,dx=\frac{1}{2a}\ln\left|\frac{a+x}{a-x}\right|+C$，$\displaystyle \int\frac{1}{1-x^2}\,dx=\frac12\ln\left|\frac{1+x}{1-x}\right|+C$。
+12. $\displaystyle \int\frac{1}{\sqrt{x^2\pm a^2}}\,dx=\ln\left|x+\sqrt{x^2\pm a^2}\right|+C$。
+
+### 2. 常见的几种凑微分形式
+
+1. $\displaystyle \int f(ax+b)\,dx=\frac1a\int f(ax+b)\,d(ax+b)\quad(a\ne0)$。
+2. $\displaystyle \int f(ax^n+b)x^{n-1}\,dx=\frac{1}{na}\int f(ax^n+b)\,d(ax^n+b)\quad(a\ne0)$。
+3. $\displaystyle \int f(e^x)e^x\,dx=\int f(e^x)\,d(e^x)$。
+4. $\displaystyle \int\frac{f\!\left(\frac1x\right)}{x^2}\,dx=-\int f\!\left(\frac1x\right)\,d\!\left(\frac1x\right)$。
+5. $\displaystyle \int\frac{f(\ln x)}{x}\,dx=\int f(\ln x)\,d(\ln x)$。
+6. $\displaystyle \int\frac{f(\sqrt{x})}{\sqrt{x}}\,dx=2\int f(\sqrt{x})\,d(\sqrt{x})$。
+7. $\displaystyle \int f(\sin x)\cos x\,dx=\int f(\sin x)\,d(\sin x)$。
+8. $\displaystyle \int f(\cos x)\sin x\,dx=-\int f(\cos x)\,d(\cos x)$。
+9. $\displaystyle \int f(\tan x)\sec^2x\,dx=\int f(\tan x)\,d(\tan x)$。
+10. $\displaystyle \int f(\cot x)\csc^2x\,dx=-\int f(\cot x)\,d(\cot x)$。
+11. $\displaystyle \int\frac{f(\arcsin x)}{\sqrt{1-x^2}}\,dx=\int f(\arcsin x)\,d(\arcsin x)$。
+12. $\displaystyle \int\frac{f(\arctan x)}{1+x^2}\,dx=\int f(\arctan x)\,d(\arctan x)$。
+
+### 3. 定积分重要公式（包含区间再现、华里士公式等）
+
+$$
+\int_a^b f(x)\,dx=\int_a^b f(a+b-x)\,dx. \tag{1}
+$$
+
+$$
+\int_a^b f(x)\,dx=\frac12\int_a^b[f(x)+f(a+b-x)]\,dx. \tag{2}
+$$
+
+$$
+\int_a^b f(x)\,dx=\int_a^{\frac{a+b}{2}}[f(x)+f(a+b-x)]\,dx. \tag{3}
+$$
+
+$$
+\int_0^{\frac{\pi}{2}}\sin^n x\,dx=\int_0^{\frac{\pi}{2}}\cos^n x\,dx=
+\begin{cases}
+\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac23\cdot1, & n\text{ 为大于 }1\text{ 的奇数},\\[6pt]
+\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac12\cdot\dfrac{\pi}{2}, & n\text{ 为正偶数}.
+\end{cases}\tag{4}
+$$
+
+$$
+\int_0^\pi\sin^n x\,dx=
+\begin{cases}
+2\cdot\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac23\cdot1, & n\text{ 为大于 }1\text{ 的奇数},\\[6pt]
+2\cdot\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac12\cdot\dfrac{\pi}{2}, & n\text{ 为正偶数}.
+\end{cases}\tag{5}
+$$
+
+$$
+\int_0^\pi\cos^n x\,dx=
+\begin{cases}
+0, & n\text{ 为正奇数},\\[4pt]
+2\cdot\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac12\cdot\dfrac{\pi}{2}, & n\text{ 为正偶数}.
+\end{cases}\tag{6}
+$$
+
+$$
+\int_0^{2\pi}\sin^n x\,dx=
+\begin{cases}
+0, & n\text{ 为正奇数},\\[4pt]
+4\cdot\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac12\cdot\dfrac{\pi}{2}, & n\text{ 为正偶数}.
+\end{cases}\tag{7}
+$$
+
+$$
+\int_0^{2\pi}\cos^n x\,dx=\int_0^{2\pi}\sin^n x\,dx=
+\begin{cases}
+0, & n\text{ 为正奇数},\\[4pt]
+4\cdot\dfrac{n-1}{n}\cdot\dfrac{n-3}{n-2}\cdots\dfrac12\cdot\dfrac{\pi}{2}, & n\text{ 为正偶数}.
+\end{cases}\tag{8}
+$$
+
+$$
+\int_0^\pi x f(\sin x)\,dx=\frac{\pi}{2}\int_0^\pi f(\sin x)\,dx. \tag{9}
+$$
+
+$$
+\int_0^\pi x f(\sin x)\,dx=\pi\int_0^{\frac{\pi}{2}}f(\sin x)\,dx. \tag{10}
+$$
+
+$$
+\int_0^{\frac{\pi}{2}}f(\sin x)\,dx=\int_0^{\frac{\pi}{2}}f(\cos x)\,dx. \tag{11}
+$$
+
+$$
+\int_0^{\frac{\pi}{2}}f(\sin x,\cos x)\,dx=\int_0^{\frac{\pi}{2}}f(\cos x,\sin x)\,dx. \tag{12}
+$$
+
+$$
+\int_a^b f(x)\,dx
+=\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}
+f\!\left(\frac{a+b}{2}+\frac{b-a}{2}\sin t\right)\frac{b-a}{2}\cos t\,dt. \tag{13}
+$$
+
+$$
+\int_a^b f(x)\,dx=\int_0^1(b-a)f[a+(b-a)t]\,dt. \tag{14}
+$$
+
+$$
+\int_{-a}^a f(x)\,dx=\int_0^a[f(x)+f(-x)]\,dx\qquad(a>0). \tag{15}
+$$
+
+### 4. 常见反常积分及判敛
+
+1.
+
+$$
+\int_1^{+\infty}\frac1{x^p}\,dx
+\begin{cases}
+\text{收敛}, & p>1,\\
+\text{发散}, & p\le1,
+\end{cases}
+\qquad
+\int_2^{+\infty}\frac1{x\ln^p x}\,dx
+\begin{cases}
+\text{收敛}, & p>1,\\
+\text{发散}, & p\le1.
+\end{cases}
+$$
+
+2.
+
+$$
+\int_0^1\frac1{x^p}\,dx
+\begin{cases}
+\text{收敛}, & p<1,\\
+\text{发散}, & p\ge1.
+\end{cases}
+$$
+
+3. $\displaystyle \int_1^{+\infty}x^k e^{-x^p}\,dx$，$k$ 为任意常数且 $p>0$ 时均收敛。
+4. $\displaystyle \int_0^1\frac{\ln^k x}{x^p}\,dx$，$k$ 为任意常数且 $p<1$ 时均收敛。
+
+### 5. 定积分的精确定义（和式极限）
+
+$$
+\int_a^b f(x)\,dx
+=\lim_{n\to\infty}\sum_{i=1}^n
+f\!\left(a+\frac{b-a}{n}i\right)\frac{b-a}{n}.
+$$
+
+### 6. 变限积分求导公式
+
+1.
+
+$$
+\left[\int_a^{\varphi(x)}f(t)\,dt\right]'_x=f[\varphi(x)]\varphi'(x).
+$$
+
+2.
+
+$$
+\left[\int_{\varphi_1(x)}^{\varphi_2(x)}f(t)\,dt\right]'_x
+=f[\varphi_2(x)]\varphi_2'(x)-f[\varphi_1(x)]\varphi_1'(x).
+$$
+
+### 7. 积分的不等式
+
+**保号性**
+
+$$
+f(x)\le g(x)\Rightarrow\int_a^b f(x)\,dx\le\int_a^b g(x)\,dx,\qquad b>a.
+$$
+
+**估值定理**
+
+$$
+m\le f(x)\le M\Rightarrow m(b-a)\le\int_a^b f(x)\,dx\le M(b-a),\qquad b>a.
+$$
+
+**绝对值不等式**
+
+$$
+\left|\int_a^b f(x)\,dx\right|\le\int_a^b|f(x)|\,dx,\qquad b>a.
+$$
+
+**柯西不等式**
+
+设函数 $f(x),g(x)$ 在 $[a,b]$ 上连续，则
+
+$$
+\left(\int_a^b f(x)g(x)\,dx\right)^2
+\le\int_a^b f^2(x)\,dx\int_a^b g^2(x)\,dx.
+$$
+
+### 8. 面积
+
+1. 直角坐标系下的面积公式［见图（a）］：
+
+$$
+S=\int_a^b|f_1(x)-f_2(x)|\,dx.
+$$
+
+2. 极坐标系下的面积公式［见图（b）］：
+
+$$
+S=\int_\alpha^\beta\frac12\left|r_2^2(\theta)-r_1^2(\theta)\right|\,d\theta.
+$$
+
+3. 曲边由参数方程
+
+$$
+\begin{cases}
+x=x(t),\\
+y=y(t)
+\end{cases}
+$$
+
+给出的曲边梯形的面积为
+
+$$
+S=\int_a^b y\,dx=\int_\alpha^\beta y(t)x'(t)\,dt.
+$$
+
+### 9. 旋转体体积
+
+平面图形由曲线 $y=y(x)$ 与直线 $x=a$，$x=b$ 和 $x$ 轴围成，则
+
+绕 $x$ 轴旋转一周所形成的旋转体的体积
+
+$$
+V_x=\pi\int_a^b y^2(x)\,dx.
+$$
+
+绕 $y$ 轴旋转一周所形成的旋转体的体积
+
+$$
+V_y=2\pi\int_a^b x|y(x)|\,dx.
+$$
+
+**二重积分法**
+
+旋转体的体积的一般问题是平面域 $D$ 绕直线
+
+$$
+L:ax+by+c=0
+$$
+
+（该直线不穿过区域 $D$，如图 3-6）旋转所得旋转体体积，记该体积为 $V$。解决该问题利用二重积分比利用一元定积分的元素法方便：在区域 $D$ 中取一小区域 $(d\sigma)$，其面积记为 $d\sigma$，$(x,y)$ 为区域 $(d\sigma)$ 中的任一点，则该小区域绕直线 $L$ 旋转所得环状体的体积近似值为
+
+$$
+dV=2\pi r(x,y)d\sigma,
+$$
+
+其中 $r(x,y)$ 为点 $(x,y)$ 到直线 $L$ 的距离，即
+
+$$
+r(x,y)=\frac{|ax+by+c|}{\sqrt{a^2+b^2}}.
+$$
+
+则
+
+$$
+V=2\pi\iint_D r(x,y)d\sigma.
+$$
+
+**极坐标系下旋转体体积**
+
+平面图形
+
+$$
+D=\{(r,\theta)\mid 0\le r\le r(\theta),\ \theta\in[\alpha,\beta]\subset[0,\pi]\},
+$$
+
+如图（d）所示，则 $D$ 绕极轴旋转一周所得旋转体体积为
+
+$$
+V=\frac23\pi\int_\alpha^\beta r^3(\theta)\sin\theta\,d\theta.
+$$
+
+### 10. 旋转曲面面积（侧面积）
+
+1. 曲线 $y=y(x)$ 在区间 $[a,b]$ 上的曲线弧段绕 $x$ 轴旋转一周所得到的旋转曲面的面积为
+
+$$
+S=2\pi\int_a^b|y(x)|\sqrt{1+[y'(x)]^2}\,dx.
+$$
+
+2. 曲线 $r=r(\theta)$ 在区间 $[\alpha,\beta]$ 上的曲线弧段绕 $x$ 轴旋转一周所得到的旋转曲面的面积为
+
+$$
+S=2\pi\int_\alpha^\beta|r(\theta)\sin\theta|\sqrt{[r(\theta)]^2+[r'(\theta)]^2}\,d\theta.
+$$
+
+3. 曲线 $x=x(t),\ y=y(t)\ (\alpha\le t\le\beta,\ x'(t)\ne0)$ 在区间 $[\alpha,\beta]$ 上的曲线弧段绕 $x$ 轴旋转一周所得到的旋转曲面的面积为
+
+$$
+S=2\pi\int_\alpha^\beta|y(t)|\sqrt{[x'(t)]^2+[y'(t)]^2}\,dt.
+$$
+
+### 11. 平面曲线弧长公式
+
+1. 若平面光滑曲线由直角坐标方程 $y=y(x)\ (a\le x\le b)$ 给出，则
+
+$$
+s=\int_a^b\sqrt{1+[y'(x)]^2}\,dx.
+$$
+
+2. 若平面光滑曲线由极坐标方程 $r=r(\theta)\ (\alpha\le\theta\le\beta)$ 给出，则
+
+$$
+s=\int_\alpha^\beta\sqrt{[r(\theta)]^2+[r'(\theta)]^2}\,d\theta.
+$$
+
+3. 若平面光滑曲线由参数方程
+
+$$
+\begin{cases}
+x=x(t),\\
+y=y(t)
+\end{cases}
+\qquad(\alpha\le t\le\beta)
+$$
+
+给出，则
+
+$$
+s=\int_\alpha^\beta\sqrt{[x'(t)]^2+[y'(t)]^2}\,dt.
+$$
+
+### 12. 质心形心公式
+
+| 对象 | 质量 | 质心 $(\bar x,\bar y)$ 或 $(\bar x,\bar y,\bar z)$ |
+| --- | --- | --- |
+| 曲线 $L$ 的线密度为 $\rho$ | $\displaystyle m=\int_L\rho\,ds$ | $\displaystyle \bar x=\frac{\int_L x\rho\,ds}{\int_L\rho\,ds},\quad \bar y=\frac{\int_L y\rho\,ds}{\int_L\rho\,ds}$ |
+| 平面图形 $D$ 的面密度为 $\rho(x,y)$ | $\displaystyle m=\iint_D\rho(x,y)\,dxdy$ | $\displaystyle \bar x=\frac{\iint_Dx\rho(x,y)\,dxdy}{\iint_D\rho(x,y)\,dxdy},\quad \bar y=\frac{\iint_Dy\rho(x,y)\,dxdy}{\iint_D\rho(x,y)\,dxdy}$ |
+| 空间区域 $\Omega$ 的体密度函数为 $\mu(x,y,z)$ | $\displaystyle m=\iiint_\Omega\mu(x,y,z)\,dxdydz$ | $\displaystyle \bar x=\frac{\iiint_\Omega x\mu(x,y,z)\,dxdydz}{\iiint_\Omega\mu(x,y,z)\,dxdydz},\quad \bar y=\frac{\iiint_\Omega y\mu(x,y,z)\,dxdydz}{\iiint_\Omega\mu(x,y,z)\,dxdydz},\quad \bar z=\frac{\iiint_\Omega z\mu(x,y,z)\,dxdydz}{\iiint_\Omega\mu(x,y,z)\,dxdydz}$ |
+
+**注：** 密度均匀（即密度为一常数 $C$）的物体的质心即为形心。
+
+### 13. 平均值
+
+$$
+\bar f=\frac1{b-a}\int_a^b f(x)\,dx.
+$$
+
+### 14. 物理应用
+
+**变力沿直线做功**
+
+设方向沿 $x$ 轴正向的力函数为 $F(x)\ (a\le x\le b)$，则物体沿 $x$ 轴从点 $a$ 移动到点 $b$ 时，变力 $F(x)$ 所做的功（见图）为
+
+$$
+W=\int_a^bF(x)\,dx,
+$$
+
+功的元素
+
+$$
+dW=F(x)\,dx.
+$$
+
+**抽水做功**
+
+如图所示，将容器中的水全部抽出所做的功为
+
+$$
+W=\rho g\int_a^b xA(x)\,dx,
+$$
+
+其中 $\rho$ 为水的密度，$g$ 为重力加速度。
+
+功的元素 $dW=\rho gxA(x)dx$ 为位于 $x$ 处厚度为 $dx$、水平截面面积为 $A(x)$ 的一层水被抽出（路程为 $x$）所做的功。
+
+**水压力**
+
+垂直浸没在水中的平板 $ABCD$（见图）的一侧受到的水压力为
+
+$$
+P=\rho g\int_a^b x[f(x)-h(x)]\,dx,
+$$
+
+其中 $\rho$ 为水的密度，$g$ 为重力加速度。
+
+压力元素
+
+$$
+dP=\rho gx[f(x)-h(x)]\,dx,
+$$
+
+即图中矩形条所受到的压力。$x$ 表示水深，$f(x)-h(x)$ 是矩形条的宽度，$dx$ 是矩形条的高度。

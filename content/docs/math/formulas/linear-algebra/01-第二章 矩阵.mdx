@@ -1,0 +1,481 @@
+---
+title: "第二章 矩阵"
+---
+
+## 第二章 矩阵
+
+### 1. 矩阵的运算
+
+（1）矩阵的加法运算
+
+设 $A,B,C,O$ 是 $m\times n$ 的同型矩阵（只有同型矩阵才能作加法），
+
+$$
+A+B=B+A,
+$$
+
+$$
+(A+B)+C=A+(B+C),
+$$
+
+$$
+A+O=A,
+$$
+
+$$
+A+(-A)=O.
+$$
+
+（2）矩阵的数乘（以下 $k,l$ 为任意常数）
+
+$$
+k(lA)=(kl)A=l(kA),\qquad (k+l)A=kA+lA,
+$$
+
+$$
+k(A+B)=kA+kB,\qquad 1A=A,\qquad 0A=O.
+$$
+
+（3）矩阵的乘法
+
+$$
+(AB)C=A(BC),\qquad A(B+C)=AB+AC,
+$$
+
+$$
+(A+B)C=AC+BC.
+$$
+
+### 2. 矩阵转置的运算规律
+
+（1）$(A^{\mathrm T})^{\mathrm T}=A$。
+
+（2）$(A+B)^{\mathrm T}=A^{\mathrm T}+B^{\mathrm T}$。
+
+（3）$(\lambda A)^{\mathrm T}=\lambda A^{\mathrm T}$。
+
+（4）$(AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}$。
+
+### 3. 伴随矩阵的性质
+
+（1）$AA^*=A^*A=|A|E$。
+
+（2）$(kA)^*=k^{n-1}A^*\ (n\ge2)$。
+
+（3）$(AB)^*=B^*A^*$。
+
+（4）$|A^*|=|A|^{n-1}\ (n\ge2)$。
+
+（5）$(A^*)^{-1}=(A^{-1})^*=\dfrac1{|A|}A$。
+
+（6）$(A^*)^{\mathrm T}=(A^{\mathrm T})^*$。
+
+（7）$(A^*)^*=|A|^{n-2}A\ (n\ge3)$。
+
+**【注】** 一般地，$(A+B)^*\ne A^*+B^*$。
+
+### 4. 可逆与不可逆的充分必要条件
+
+（1）$n$ 阶矩阵 $A$ 可逆
+
+$$
+\Longleftrightarrow |A|\ne0
+$$
+
+$$
+\Longleftrightarrow AB=E\ \text{（或 }BA=E\text{）}
+$$
+
+$$
+\Longleftrightarrow r(A)=n
+$$
+
+$$
+\Longleftrightarrow A^*\text{ 可逆}
+$$
+
+$$
+\Longleftrightarrow A\text{ 可以表示为若干初等矩阵的乘积}
+$$
+
+$$
+\Longleftrightarrow A\text{ 与 }E\text{ 等价}
+$$
+
+$$
+\Longleftrightarrow Ax=0\text{ 只有零解}
+$$
+
+$$
+\Longleftrightarrow \forall b,\ Ax=b\text{ 有唯一解}
+$$
+
+$$
+\Longleftrightarrow A\text{ 的列（行）向量组线性无关}
+$$
+
+$$
+\Longleftrightarrow A\text{ 的特征值都不为 }0.
+$$
+
+（2）$n$ 阶矩阵 $A$ 不可逆
+
+$$
+\Longleftrightarrow |A|=0
+$$
+
+$$
+\Longleftrightarrow r(A)<n
+$$
+
+$$
+\Longleftrightarrow Ax=0\text{ 有非零解}
+$$
+
+$$
+\Longleftrightarrow A\text{ 的列（行）向量组线性相关}
+$$
+
+$$
+\Longleftrightarrow 0\text{ 是 }A\text{ 的特征值}.
+$$
+
+### 5. 可逆矩阵的性质
+
+（1）若 $A$ 可逆，则 $A^{-1}$ 亦可逆，且 $(A^{-1})^{-1}=A$。
+
+（2）若 $A$ 可逆，则 $kA\ (k\ne0)$ 亦可逆，且 $(kA)^{-1}=\dfrac1kA^{-1}$。
+
+（3）若 $A,B$ 可逆，则 $AB$ 亦可逆，且 $(AB)^{-1}=B^{-1}A^{-1}$。
+
+（4）若 $A$ 可逆，则 $A^{\mathrm T}$ 亦可逆，且 $(A^{\mathrm T})^{-1}=(A^{-1})^{\mathrm T}$。
+
+（5）$|A^{-1}|=\dfrac1{|A|}$。
+
+**【注】** 一般地，$(A+B)^{-1}\ne A^{-1}+B^{-1}$。
+
+### 6. 求逆的方法
+
+（1）定义法：若 $AB=E$，则 $A^{-1}=B$。
+
+（2）伴随矩阵法：$A^{-1}=\dfrac1{|A|}A^*$。
+
+（3）初等变换法：
+
+$$
+(A\mid E)\xrightarrow{\text{行变换}}(E\mid A^{-1}).
+$$
+
+（4）分块矩阵求逆法：
+
+①
+
+$$
+\begin{pmatrix}
+A&O\\
+O&B
+\end{pmatrix}^{-1}
+=
+\begin{pmatrix}
+A^{-1}&O\\
+O&B^{-1}
+\end{pmatrix}.
+$$
+
+②
+
+$$
+\begin{pmatrix}
+O&A\\
+B&O
+\end{pmatrix}^{-1}
+=
+\begin{pmatrix}
+O&B^{-1}\\
+A^{-1}&O
+\end{pmatrix}.
+$$
+
+### 7. 初等矩阵的性质
+
+① $|E_{ij}|=-1,\ |E_{ij}(k)|=1,\ |E_i(k)|=k$。
+
+② $E_{ij}^{\mathrm T}=E_{ij},\ E_{ij}^{\mathrm T}(k)=E_{ji}(k),\ E_i^{\mathrm T}(k)=E_i(k)$。
+
+③ $E_{ij}^{-1}=E_{ij},\ E_{ij}^{-1}(k)=E_{ij}(-k),\ E_i^{-1}(k)=E_i\!\left(\dfrac1k\right)$。
+
+④
+
+$$
+E_{ij}^*=|E_{ij}|E_{ij}^{-1}=-E_{ij},
+$$
+
+$$
+E_{ij}^*(k)=|E_{ij}(k)|E_{ij}^{-1}(k)=E_{ij}(-k),
+$$
+
+$$
+E_i^*(k)=|E_i(k)|E_i^{-1}(k)=kE_i\!\left(\frac1k\right).
+$$
+
+### 8. 矩阵方程的公式利用
+
+① $AA^*=|A|E$，$A$ 可逆时，$A^*=|A|A^{-1}$，$(A^*)^*=|A|^{n-2}A\ (n\ge2)$。
+
+② $A^2-E=(A+E)(A-E)=(A-E)(A+E)$，$A^3-E=(A-E)(A^2+A+E)$。
+
+③ $A^{\mathrm T}B^{\mathrm T}=(BA)^{\mathrm T}$，$A,B$ 可逆时，$A^{-1}B^{-1}=(BA)^{-1}$，$A^*B^*=(BA)^*$。
+
+④ $A$ 可逆时，$(A^{-1})^*=(A^*)^{-1}$，$(A^{-1})^{\mathrm T}=(A^{\mathrm T})^{-1}$，$(A^*)^{\mathrm T}=(A^{\mathrm T})^*$。
+
+### 9. 矩阵等价
+
+如果矩阵 $A$ 经有限次初等变换变成矩阵 $B$，则称矩阵 $A$ 与 $B$ 等价。
+
+$$
+A\text{ 与 }B\text{ 等价}
+\Longleftrightarrow \text{存在可逆阵 }P\text{ 及 }Q，\text{使 }PAQ=B
+$$
+
+$$
+\Longleftrightarrow A,B\text{ 同型，且 }r(A)=r(B).
+$$
+
+### 10. 分块矩阵
+
+① 加法：同型，且分法一致，则
+
+$$
+\begin{bmatrix}
+A_1&A_2\\
+A_3&A_4
+\end{bmatrix}
++
+\begin{bmatrix}
+B_1&B_2\\
+B_3&B_4
+\end{bmatrix}
+=
+\begin{bmatrix}
+A_1+B_1&A_2+B_2\\
+A_3+B_3&A_4+B_4
+\end{bmatrix}.
+$$
+
+② 数乘：
+
+$$
+k
+\begin{bmatrix}
+A&B\\
+C&D
+\end{bmatrix}
+=
+\begin{bmatrix}
+kA&kB\\
+kC&kD
+\end{bmatrix}.
+$$
+
+③ 乘法：
+
+$$
+\begin{bmatrix}
+A&B\\
+C&D
+\end{bmatrix}
+\begin{bmatrix}
+X&Y\\
+Z&W
+\end{bmatrix}
+=
+\begin{bmatrix}
+AX+BZ&AY+BW\\
+CX+DZ&CY+DW
+\end{bmatrix},
+$$
+
+要可乘、可加。
+
+④ 若 $A,B$ 分别为 $m,n$ 阶方阵，则分块对角矩阵的幂为
+
+$$
+\begin{bmatrix}
+A&O\\
+O&B
+\end{bmatrix}^{k}
+=
+\begin{bmatrix}
+A^k&O\\
+O&B^k
+\end{bmatrix}.
+$$
+
+⑤ 已知
+
+$$
+A=
+\begin{bmatrix}
+B&O\\
+D&C
+\end{bmatrix},
+$$
+
+其中 $B$ 是 $r$ 阶可逆矩阵，$C$ 是 $s$ 阶可逆矩阵，则 $A$ 可逆，且
+
+$$
+A^{-1}=
+\begin{bmatrix}
+B^{-1}&O\\
+-C^{-1}DB^{-1}&C^{-1}
+\end{bmatrix}.
+$$
+
+**【注】** 若
+
+$$
+A_1=
+\begin{bmatrix}
+B&D\\
+O&C
+\end{bmatrix},\qquad
+A_2=
+\begin{bmatrix}
+O&B\\
+C&D
+\end{bmatrix},\qquad
+A_3=
+\begin{bmatrix}
+D&B\\
+C&O
+\end{bmatrix},
+$$
+
+其中 $B,C$ 可逆，则有
+
+$$
+A_1^{-1}=
+\begin{bmatrix}
+B^{-1}&-B^{-1}DC^{-1}\\
+O&C^{-1}
+\end{bmatrix},
+$$
+
+$$
+A_2^{-1}=
+\begin{bmatrix}
+-C^{-1}DB^{-1}&C^{-1}\\
+B^{-1}&O
+\end{bmatrix},
+$$
+
+$$
+A_3^{-1}=
+\begin{bmatrix}
+O&C^{-1}\\
+B^{-1}&-B^{-1}DC^{-1}
+\end{bmatrix}.
+$$
+
+⑥ 主对角线分块矩阵
+
+$$
+A=
+\begin{bmatrix}
+A_1&&&\\
+&A_2&&\\
+&&\ddots&\\
+&&&A_s
+\end{bmatrix},
+$$
+
+若 $A_i\ (i=1,2,\cdots,s)$ 均可逆，则 $A$ 可逆，且
+
+$$
+A^{-1}=
+\begin{bmatrix}
+A_1^{-1}&&&\\
+&A_2^{-1}&&\\
+&&\ddots&\\
+&&&A_s^{-1}
+\end{bmatrix}.
+$$
+
+副对角线分块矩阵：
+
+$$
+A=
+\begin{bmatrix}
+&&&A_1\\
+&&A_2&\\
+&\iddots&&\\
+A_s&&&
+\end{bmatrix},
+$$
+
+若 $A_i\ (i=1,2,\cdots,s)$ 均可逆，则 $A$ 可逆，且
+
+$$
+A^{-1}=
+\begin{bmatrix}
+&&&A_s^{-1}\\
+&&\iddots&\\
+&A_2^{-1}&&\\
+A_1^{-1}&&&
+\end{bmatrix}.
+$$
+
+### 11. 关于矩阵的秩的公式
+
+① $0\le r(A_{m\times n})\le\min\{m,n\}$。
+
+② $r(kA)=r(A)\ (k\ne0)$。
+
+③ $r(A)=r(PA)=r(AQ)=r(PAQ)$。
+
+④ $r(AB)\le\min\{r(A),r(B)\}$。
+
+⑤ $r(A+B)\le r[A,B]\le r(A)+r(B)$。
+
+⑥
+
+$$
+r\!\begin{pmatrix}
+A&O\\
+O&B
+\end{pmatrix}=r(A)+r(B).
+$$
+
+⑦
+
+$$
+r(A)+r(B)\le r\!\begin{pmatrix}
+A&O\\
+C&B
+\end{pmatrix}\le r(A)+r(B)+r(C).
+$$
+
+⑧ $r(AB)\ge r(A)+r(B)-n$。
+
+⑨ $r(A)=r(A^{\mathrm T})=r(AA^{\mathrm T})=r(A^{\mathrm T}A)$。
+
+⑩
+
+$$
+r(A^*)=
+\begin{cases}
+n,&r(A)=n,\\
+1,&r(A)=n-1,\\
+0,&r(A)<n-1.
+\end{cases}
+$$
+
+⑪ 若 $A^2=A$，则 $r(A)+r(A-E)=n$。
+
+⑫ 若 $A^2=E$，则 $r(A+E)+r(A-E)=n$。
+
+⑬ $Ax=0$ 的基础解系所含向量的个数 $s=n-r(A)$。
+
+⑭ 若 $A\sim\Lambda$，则 $n_i=n-r(\lambda_iE-A)$，其中 $\lambda_i$ 是 $n_i$ 重特征根。
+
+⑮ 若 $A\sim\Lambda$，则 $r(A)$ 等于非零特征值的个数，重根按重数算。

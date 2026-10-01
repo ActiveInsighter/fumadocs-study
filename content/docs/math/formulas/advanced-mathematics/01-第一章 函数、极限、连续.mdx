@@ -1,0 +1,139 @@
+---
+title: "第一章 函数、极限、连续"
+---
+
+## 第一章 函数、极限、连续
+
+### 1. 常用等价无穷小
+
+**普通函数型**
+
+当 $x\to0$ 时，
+
+$$
+\sin x\sim x,\quad \tan x\sim x,\quad \arcsin x\sim x,\quad \arctan x\sim x,
+$$
+
+$$
+e^x-1\sim x,\qquad \ln(1+x)\sim x,
+$$
+
+$$
+\ln\left(x+\sqrt{1+x^2}\right)\sim x,
+$$
+
+$$
+a^x-1=e^{x\ln a}-1\sim x\ln a\qquad(a>0\text{ 且 }a\ne1),
+$$
+
+$$
+1-\cos x\sim\frac{1}{2}x^2,\qquad 1-\cos^\alpha x\sim\frac{\alpha}{2}x^2,
+$$
+
+$$
+(1+x)^\alpha-1\sim\alpha x\quad(\alpha\ne0),\qquad
+(1+x)^x-1=e^{x\ln(1+x)}-1\sim x^2.
+$$
+
+**差函数型**
+
+当 $x\to0$ 时，
+
+$$
+x-\sin x\sim\frac{1}{6}x^3,\qquad x-\arcsin x\sim-\frac{1}{6}x^3,
+$$
+
+$$
+x-\tan x\sim-\frac{1}{3}x^3,\qquad x-\arctan x\sim\frac{1}{3}x^3,
+$$
+
+$$
+x-\ln(1+x)\sim\frac{1}{2}x^2,\qquad e^x-1-x\sim\frac{1}{2}x^2.
+$$
+
+### 2. 无穷大量阶的比较
+
+由于
+
+$$
+\begin{cases}
+x\to+\infty\text{ 时}, & \ln^p x\ll x^q\ll a^x\ll x^x,\\
+n\to\infty\text{ 时}, & \ln^p n\ll n^q\ll a^n\ll n!\ll n^n,
+\end{cases}
+\qquad(p,q>0,\ a>1),
+$$
+
+则
+
+$$
+\lim_{n\to\infty}\frac{\ln^p n}{n^q}=0,\qquad
+\lim_{n\to\infty}\frac{n^q}{a^n}=0,\qquad
+\lim_{n\to\infty}\frac{a^n}{n!}=0,\qquad
+\lim_{n\to\infty}\frac{n!}{n^n}=0.
+$$
+
+### 3. 常用的几个极限
+
+$$
+\lim_{n\to\infty}\sqrt[n]{n}=1,\qquad \lim_{x\to0^+}x^x=1.
+$$
+
+$$
+\lim_{x\to0^+}x^a=
+\begin{cases}
+0, & a>0,\\
+1, & a=0,\\
++\infty, & a<0,
+\end{cases}
+$$
+
+$$
+\lim_{n\to\infty}n^x=
+\begin{cases}
++\infty, & x>0,\\
+1, & x=0,\\
+0, & x<0.
+\end{cases}
+$$
+
+### 4. 常用麦克劳林公式
+
+$$
+e^x=1+x+\frac{1}{2!}x^2+\cdots+\frac{1}{n!}x^n+o(x^n),
+$$
+
+$$
+\ln(1+x)=x-\frac{1}{2}x^2+\frac{1}{3}x^3-\cdots+(-1)^{n-1}\frac{x^n}{n}+o(x^n),
+$$
+
+$$
+\sin x=x-\frac{1}{3!}x^3+\cdots+(-1)^n\frac{x^{2n+1}}{(2n+1)!}+o(x^{2n+1}),
+$$
+
+$$
+\cos x=1-\frac{1}{2!}x^2+\cdots+(-1)^n\frac{x^{2n}}{(2n)!}+o(x^{2n}),
+$$
+
+$$
+\tan x=x+\frac{1}{3}x^3+o(x^3),
+$$
+
+$$
+\arcsin x=x+\frac{1}{6}x^3+o(x^3),
+$$
+
+$$
+\arctan x=x-\frac{1}{3}x^3+o(x^3),
+$$
+
+$$
+\frac{1}{1-x}=1+x+x^2+\cdots+x^n+o(x^n),
+$$
+
+$$
+\frac{1}{1+x}=1-x+x^2+\cdots+(-1)^n x^n+o(x^n),
+$$
+
+$$
+(1+x)^m=1+mx+\frac{m(m-1)}{2!}x^2+\cdots+\frac{m(m-1)\cdots(m-n+1)}{n!}x^n+o(x^n).
+$$

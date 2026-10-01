@@ -1,0 +1,162 @@
+---
+title: "第三章 向量组"
+---
+
+## 第三章 向量组
+
+### 1. 线性表示
+
+（1）向量 $\beta$ 可由 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 线性表示
+
+$$
+\overset{\text{定义}}{\Longleftrightarrow}\ \text{存在数 }k_1,k_2,\cdots,k_m，\text{使 }\beta=k_1\alpha_1+k_2\alpha_2+\cdots+k_m\alpha_m
+$$
+
+$$
+\Longleftrightarrow \text{线性方程组 }x_1\alpha_1+x_2\alpha_2+\cdots+x_m\alpha_m=\beta\text{ 有解}
+$$
+
+$$
+\Longleftrightarrow r(A)=r(A,\beta)，\text{其中 }A=(\alpha_1,\alpha_2,\cdots,\alpha_m).
+$$
+
+（2）向量组 $\beta_1,\beta_2,\cdots,\beta_t$ 可由 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 线性表示
+
+$$
+\overset{\text{定义}}{\Longleftrightarrow}\ \beta_j\text{ 能由 }\alpha_1,\alpha_2,\cdots,\alpha_m\text{ 线性表示，}\quad j=1,2,\cdots,t
+$$
+
+$$
+\Longleftrightarrow r(A)=r(A,B)，\text{其中 }A=(\alpha_1,\alpha_2,\cdots,\alpha_m)，\ B=(\beta_1,\beta_2,\cdots,\beta_t).
+$$
+
+（3）向量组 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 与 $\beta_1,\beta_2,\cdots,\beta_t$ 等价
+
+$$
+\overset{\text{定义}}{\Longleftrightarrow}\ \alpha_1,\alpha_2,\cdots,\alpha_m\text{ 与 }\beta_1,\beta_2,\cdots,\beta_t\text{ 能互相线性表示}
+$$
+
+$$
+\Longleftrightarrow r(A)=r(B)=r(A,B)，\text{其中 }A=(\alpha_1,\alpha_2,\cdots,\alpha_m)，\ B=(\beta_1,\beta_2,\cdots,\beta_t)
+$$
+
+$$
+\Longleftrightarrow \beta_1,\beta_2,\cdots,\beta_t\text{ 可由 }\alpha_1,\alpha_2,\cdots,\alpha_m\text{ 线性表示，且 }r(A)=r(B).
+$$
+
+### 2. 线性相关性
+
+（1）线性相关
+
+$n$ 维向量组 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 线性相关
+
+$$
+\overset{\text{定义}}{\Longleftrightarrow}\ \text{存在一组不全为 }0\text{ 的数 }k_1,k_2,\cdots,k_m，\text{使 }k_1\alpha_1+k_2\alpha_2+\cdots+k_m\alpha_m=0
+$$
+
+$$
+\Longleftrightarrow \text{齐次线性方程组 }x_1\alpha_1+x_2\alpha_2+\cdots+x_m\alpha_m=0\text{ 有非零解}
+$$
+
+$$
+\Longleftrightarrow \text{至少有一个向量可由其余向量线性表示}
+$$
+
+$$
+\Longleftrightarrow r(\alpha_1,\alpha_2,\cdots,\alpha_m)<m
+$$
+
+当 $m=n$ 时，
+
+$$
+\Longleftrightarrow |\alpha_1,\alpha_2,\cdots,\alpha_m|=0.
+$$
+
+（2）线性无关
+
+$n$ 维向量组 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 线性无关
+
+$$
+\overset{\text{定义}}{\Longleftrightarrow}\ \text{若 }k_1\alpha_1+k_2\alpha_2+\cdots+k_m\alpha_m=0，\text{则必有 }k_1=k_2=\cdots=k_m=0
+$$
+
+$$
+\Longleftrightarrow \text{齐次线性方程组 }x_1\alpha_1+x_2\alpha_2+\cdots+x_m\alpha_m=0\text{ 只有零解}
+$$
+
+$$
+\Longleftrightarrow \text{任一向量都不能由其余向量线性表示}
+$$
+
+$$
+\Longleftrightarrow r(\alpha_1,\alpha_2,\cdots,\alpha_m)=m
+$$
+
+当 $m=n$ 时，
+
+$$
+\Longleftrightarrow |\alpha_1,\alpha_2,\cdots,\alpha_m|\ne0.
+$$
+
+### 3. 线性相关常用结论
+
+（1）如果向量组 $\alpha_1,\alpha_2,\cdots,\alpha_m$ 中有一部分向量线性相关，则整个向量组也线性相关；若整个向量组也线性无关，则部分向量组也线性无关。（简记为：部分相关，整体相关；整体无关，部分无关。）
+
+（2）如果 $\alpha_1,\alpha_2,\cdots,\alpha_s$ 线性无关，则
+
+$$
+\begin{pmatrix}\alpha_1\\\beta_1\end{pmatrix},
+\begin{pmatrix}\alpha_2\\\beta_2\end{pmatrix},\cdots,
+\begin{pmatrix}\alpha_m\\\beta_m\end{pmatrix}
+$$
+
+线性无关；反之，若
+
+$$
+\begin{pmatrix}\alpha_1\\\beta_1\end{pmatrix},
+\begin{pmatrix}\alpha_2\\\beta_2\end{pmatrix},\cdots,
+\begin{pmatrix}\alpha_m\\\beta_m\end{pmatrix}
+$$
+
+线性相关，则 $\alpha_1,\alpha_2,\cdots,\alpha_s$ 线性相关。（简记为：低维无关，高维无关；高维相关，低维相关。）
+
+（3）若向量组 $\alpha_1,\alpha_2,\cdots,\alpha_r$ 线性无关，而 $\beta,\alpha_1,\alpha_2,\cdots,\alpha_r$ 线性相关，则 $\beta$ 可由 $\alpha_1,\alpha_2,\cdots,\alpha_r$ 线性表示，且表示法唯一。
+
+（4）若向量组 $\beta_1,\beta_2,\cdots,\beta_t$ 可由 $\alpha_1,\alpha_2,\cdots,\alpha_s$ 线性表示，且 $t>s$，则 $\beta_1,\beta_2,\cdots,\beta_t$ 线性相关。（多的能由少的线性表示，则多的必线性相关。）
+
+若向量组 $\beta_1,\beta_2,\cdots,\beta_t$ 可由 $\alpha_1,\alpha_2,\cdots,\alpha_s$ 线性表示，且 $\beta_1,\beta_2,\cdots,\beta_t$ 线性无关，则 $t\le s$。（无关向量组不能由比它个数少的向量组表出。）
+
+（5）$n+1$ 个 $n$ 维向量必相关。
+
+### 4. 线性方程组解的个数
+
+（1）$n$ 元线性方程组 $Ax=b$
+
+1. 无解 $\Longleftrightarrow r(A)<r(A,b)$；
+2. 有唯一解 $\Longleftrightarrow r(A)=r(A,b)=n$；
+3. 有无穷多解 $\Longleftrightarrow r(A)=r(A,b)<n$。
+
+（2）$n$ 元齐次线性方程组 $Ax=0$
+
+1. 只有零解 $\Longleftrightarrow r(A)=n$；
+2. 有非零解 $\Longleftrightarrow r(A)<n$。
+
+### 5. 向量组等价
+
+给出向量组（I）：$\alpha_1,\alpha_2,\cdots,\alpha_s$；向量组（II）：$\beta_1,\beta_2,\cdots,\beta_t$。
+
+在 $\alpha_i(i=1,2,\cdots,s)$ 与 $\beta_j(j=1,2,\cdots,t)$ 同维的条件下，若 $\alpha_i$ 均可由 $\beta_1,\beta_2,\cdots,\beta_t$ 线性表示，且 $\beta_j$ 均可由 $\alpha_1,\alpha_2,\cdots,\alpha_s$ 线性表示，则称（I）与（II）等价。
+
+其等价的充要条件是
+
+$$
+r(\mathrm{I})=r(\mathrm{II})=r(\mathrm{I},\mathrm{II}).
+$$
+
+### 6. 空间基坐标变换公式
+
+$$
+\alpha=[\xi_1,\xi_2,\cdots,\xi_n]x=[\eta_1,\eta_2,\cdots,\eta_n]y=[\xi_1,\xi_2,\cdots,\xi_n]Cy,
+$$
+
+其中 $x=Cy$ 叫坐标变换公式。
