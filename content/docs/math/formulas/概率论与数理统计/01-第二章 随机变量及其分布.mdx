@@ -1,0 +1,167 @@
+---
+title: "第二章 随机变量及其分布"
+---
+
+## 第二章 随机变量及其分布
+
+### 1. 分布函数的性质
+
+（1）非负性：$0\le F(x)\le1$。
+
+（2）规范性：$F(-\infty)=0$，$F(+\infty)=1$。
+
+（3）单调不减性：对于任意 $x_1<x_2$，有 $F(x_1)\le F(x_2)$。
+
+（4）右连续性：$F(x_0+0)=F(x_0)$。
+
+### 2. 密度函数的性质
+
+（1）非负性：$f(x)\ge0\ (-\infty<x<+\infty)$。
+
+（2）规范性：$\displaystyle\int_{-\infty}^{+\infty}f(x)\,dx=1$。
+
+（3）对于任意实数 $a$ 和 $b(a<b)$，有 $\displaystyle P\{a<X\le b\}=\int_a^b f(x)\,dx$。
+
+（4）对于连续型随机变量 $X$，有 $P\{X=x\}=0$，对 $\forall x\in R$ 成立。
+
+（5）连续型随机变量的分布函数 $F(x)$ 是连续函数。
+
+（6）在 $f(x)$ 的连续点处，有 $F'(x)=f(x)$。
+
+### 3. 常用分布（离散型）
+
+1）0-1 分布　$X\sim B(1,p)$
+
+$$
+P(X=k)=p^k(1-p)^{1-k},\quad (k=0,1).
+$$
+
+$$
+EX=p,\qquad DX=p(1-p).
+$$
+
+2）二项分布　$X\sim B(n,p)$
+
+$$
+P(X=k)=C_n^kp^k(1-p)^{n-k},\quad (k=0,1,\cdots,n).
+$$
+
+$$
+EX=np,\qquad DX=np(1-p).
+$$
+
+3）泊松分布　$X\sim P(\lambda)(\lambda>0)$
+
+$$
+P(X=k)=\frac{\lambda^k}{k!}e^{-\lambda},\quad (k=0,1,2,\cdots).
+$$
+
+$$
+EX=\lambda,\qquad DX=\lambda.
+$$
+
+4）几何分布　$X\sim G(p)$
+
+$$
+P(X=k)=p(1-p)^{k-1},\quad (0<p<1,k=1,2,\cdots).
+$$
+
+$$
+EX=\frac1p,\qquad DX=\frac{1-p}{p^2}.
+$$
+
+5）超几何分布　$X\sim H(N,M,n)$
+
+$$
+P(X=k)=\frac{C_M^kC_{N-M}^{n-k}}{C_N^n},\quad (k=0,1,\cdots,\min\{n,M\}).
+$$
+
+### 4. 常用分布（连续型）
+
+1）均匀分布　$X\sim U(a,b)$
+
+$$
+f(x)=
+\begin{cases}
+\dfrac1{b-a},&a<x<b,\\
+0,&\text{其他}.
+\end{cases}
+$$
+
+$$
+EX=\frac{a+b}{2},\qquad DX=\frac{(b-a)^2}{12}.
+$$
+
+2）指数分布　$X\sim E(\lambda)(\lambda>0)$
+
+$$
+f(x)=
+\begin{cases}
+\lambda e^{-\lambda x},&x>0,\\
+0,&\text{其他}.
+\end{cases}
+$$
+
+$$
+EX=\frac1\lambda,\qquad DX=\frac1{\lambda^2}.
+$$
+
+3）正态分布
+
+① 一般正态分布　$X\sim N(\mu,\sigma^2)$
+
+$$
+f(x)=\frac1{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}},\quad(-\infty<x<+\infty,\sigma>0).
+$$
+
+$$
+EX=\mu,\qquad DX=\sigma^2.
+$$
+
+② 标准正态分布　$X\sim N(0,1)$
+
+$$
+\varphi(x)=\frac1{\sqrt{2\pi}}e^{-\frac{x^2}{2}}\quad(-\infty<x<+\infty).
+$$
+
+性质：$\Phi(-x)=1-\Phi(x)$；$\Phi(0)=\dfrac12$；$P\{|X|\le a\}=2\Phi(a)-1$。
+
+上 $\alpha$ 分位点：
+
+设 $X\sim N(0,1)$，对于给定的 $\alpha(0<\alpha<1)$，如果 $u_\alpha$ 满足条件
+
+$$
+P\{X>u_\alpha\}=\alpha,
+$$
+
+则称 $u_\alpha$ 为标准正态分布的上 $\alpha$ 分位点。
+
+③ 标准正态分布与一般正态分布的关系
+
+正态分布 $X\sim N(\mu,\sigma^2)$，通过线性变换 $Z=\dfrac{X-\mu}{\sigma}$ 变为标准正态分布。
+
+### 5. 一维随机变量函数的分布
+
+（1）离散型
+
+问题：若 $P(X=x_i)=p_i$，$Y=g(X)$，求 $Y$ 的分布律。
+
+方法：
+
+$$
+P(Y=y_j)=\sum_{g(x_i)=y_j}P(X=x_i).
+$$
+
+（2）连续型
+
+问题：$X\sim f_X(x)$，$Y=g(X)$，求 $Y$ 的分布密度。
+
+方法：分布函数法
+
+$$
+F_Y(y)=P(Y\le y)=P(g(X)\le y)=\int_{g(x)\le y}f_X(x)\,dx,
+$$
+
+$$
+f_Y(y)=F'_Y(y).
+$$

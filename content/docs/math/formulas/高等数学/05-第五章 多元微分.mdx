@@ -1,0 +1,198 @@
+---
+title: "第五章 多元微分"
+---
+
+## 第五章 多元微分
+
+### 1. 偏导数定义
+
+$$
+f'_x(x,y)=\lim_{\Delta x\to0}\frac{f(x+\Delta x,y)-f(x,y)}{\Delta x};
+$$
+
+$$
+f'_y(x,y)=\lim_{\Delta y\to0}\frac{f(x,y+\Delta y)-f(x,y)}{\Delta y}.
+$$
+
+### 2. 可微判定步骤
+
+① 写出全增量
+
+$$
+\Delta z=f(x_0+\Delta x,y_0+\Delta y)-f(x_0,y_0);
+$$
+
+② 写出线性增量 $A\Delta x+B\Delta y$，其中
+
+$$
+A=f'_x(x_0,y_0),\qquad B=f'_y(x_0,y_0);
+$$
+
+③ 作极限
+
+$$
+\lim_{\substack{\Delta x\to0\\\Delta y\to0}}
+\frac{\Delta z-(A\Delta x+B\Delta y)}{\sqrt{(\Delta x)^2+(\Delta y)^2}},
+$$
+
+若该极限等于 $0$，则 $z=f(x,y)$ 在点 $(x_0,y_0)$ 处可微，否则就不可微。
+
+### 3. 链式求导规则
+
+1. 设 $y=f[g(x)]$，则
+
+$$
+\frac{dy}{dx}=\frac{d\{f[g(x)]\}}{dx}=\frac{d\{f[g(x)]\}}{d[g(x)]}\cdot\frac{d[g(x)]}{dx}.
+$$
+
+2. 设 $z=f(u,v)$，$u=u(x,y)$，$v=v(x,y)$，则
+
+$$
+\frac{\partial z}{\partial x}=\frac{\partial z}{\partial u}\frac{\partial u}{\partial x}+\frac{\partial z}{\partial v}\frac{\partial v}{\partial x},
+$$
+
+$$
+\frac{\partial z}{\partial y}=\frac{\partial z}{\partial u}\frac{\partial u}{\partial y}+\frac{\partial z}{\partial v}\frac{\partial v}{\partial y}.
+$$
+
+3. 设 $z=f(u,v)$，$u=u(t)$，$v=v(t)$，则
+
+$$
+\frac{dz}{dt}=\frac{\partial z}{\partial u}\frac{du}{dt}+\frac{\partial z}{\partial v}\frac{dv}{dt}.
+$$
+
+### 4. 隐函数求导法
+
+设以下所给函数的偏导数均连续。
+
+**（1）一个方程的情形。**
+
+设 $F(x,y,z)=0$，$P_0(x_0,y_0,z_0)$，若满足：① $F(P_0)=0$；② $F'_z(P_0)\ne0$，则在点 $P_0$ 的某邻域内可确定 $z=z(x,y)$，且有
+
+$$
+\frac{\partial z}{\partial x}=-\frac{F'_x}{F'_z},\qquad
+\frac{\partial z}{\partial y}=-\frac{F'_y}{F'_z}.
+$$
+
+**（2）方程组的情形。**
+
+设
+
+$$
+\begin{cases}
+F(x,y,z)=0,\\
+G(x,y,z)=0,
+\end{cases}
+$$
+
+当满足
+
+$$
+\frac{\partial(F,G)}{\partial(y,z)}=
+\begin{vmatrix}
+\dfrac{\partial F}{\partial y} & \dfrac{\partial F}{\partial z}\\
+\dfrac{\partial G}{\partial y} & \dfrac{\partial G}{\partial z}
+\end{vmatrix}\ne0
+$$
+
+时，可确定
+
+$$
+\begin{cases}
+y=y(x),\\
+z=z(x).
+\end{cases}
+$$
+
+且有
+
+$$
+\frac{dy}{dx}=-\frac{\dfrac{\partial(F,G)}{\partial(x,z)}}{\dfrac{\partial(F,G)}{\partial(y,z)}}
+=-\frac{
+\begin{vmatrix}
+\dfrac{\partial F}{\partial x} & \dfrac{\partial F}{\partial z}\\
+\dfrac{\partial G}{\partial x} & \dfrac{\partial G}{\partial z}
+\end{vmatrix}}
+{
+\begin{vmatrix}
+\dfrac{\partial F}{\partial y} & \dfrac{\partial F}{\partial z}\\
+\dfrac{\partial G}{\partial y} & \dfrac{\partial G}{\partial z}
+\end{vmatrix}},
+$$
+
+$$
+\frac{dz}{dx}=-\frac{\dfrac{\partial(F,G)}{\partial(y,x)}}{\dfrac{\partial(F,G)}{\partial(y,z)}}
+=-\frac{
+\begin{vmatrix}
+\dfrac{\partial F}{\partial y} & \dfrac{\partial F}{\partial x}\\
+\dfrac{\partial G}{\partial y} & \dfrac{\partial G}{\partial x}
+\end{vmatrix}}
+{
+\begin{vmatrix}
+\dfrac{\partial F}{\partial y} & \dfrac{\partial F}{\partial z}\\
+\dfrac{\partial G}{\partial y} & \dfrac{\partial G}{\partial z}
+\end{vmatrix}}.
+$$
+
+### 5. 全微分形式不变形
+
+设 $z=f(u,v)$，$u=u(x,y)$，$v=v(x,y)$，如果 $f(u,v)$、$u(x,y)$、$v(x,y)$ 分别有连续偏导数，则复合函数 $z=f(u,v)$ 在 $(x,y)$ 处的全微分仍可表示为
+
+$$
+dz=\frac{\partial z}{\partial u}\,du+\frac{\partial z}{\partial v}\,dv,
+$$
+
+即无论 $u,v$ 是自变量还是中间变量，上式总成立。
+
+### 6. 二元函数取极值的充分条件（无条件极值）
+
+设 $z=f(x,y)$ 在点 $(x_0,y_0)$ 的某邻域内有连续的二阶偏导数，且
+
+$$
+f'_x(x_0,y_0)=0,\qquad f'_y(x_0,y_0)=0;
+$$
+
+$$
+A=f''_{xx}(x_0,y_0),\qquad B=f''_{xy}(x_0,y_0),\qquad C=f''_{yy}(x_0,y_0).
+$$
+
+1. 若 $AC-B^2>0$，则 $(x_0,y_0)$ 是 $z=f(x,y)$ 的一个极值点，且当 $A>0$ 时，$(x_0,y_0)$ 为极小值点；当 $A<0$ 时，$(x_0,y_0)$ 为极大值点。
+2. 若 $AC-B^2<0$，则 $(x_0,y_0)$ 不是 $z=f(x,y)$ 的极值点。
+3. 若 $AC-B^2=0$，则无法判定 $(x_0,y_0)$ 是否为极值点，此时应考虑利用极值点的定义进行判断。
+
+### 7. 条件极值与拉氏数乘法
+
+求目标函数 $u=f(x,y,z)$ 在约束条件
+
+$$
+\begin{cases}
+\varphi(x,y,z)=0,\\
+\psi(x,y,z)=0
+\end{cases}
+$$
+
+下的最值的步骤：
+
+① 构造辅助函数
+
+$$
+F(x,y,z,\lambda,\mu)=f(x,y,z)+\lambda\varphi(x,y,z)+\mu\psi(x,y,z);
+$$
+
+② 令
+
+$$
+\begin{cases}
+F'_x=f'_x+\lambda\varphi'_x+\mu\psi'_x=0,\\
+F'_y=f'_y+\lambda\varphi'_y+\mu\psi'_y=0,\\
+F'_z=f'_z+\lambda\varphi'_z+\mu\psi'_z=0,\\
+F'_\lambda=\varphi(x,y,z)=0,\\
+F'_\mu=\psi(x,y,z)=0;
+\end{cases}
+$$
+
+辅助函数自变量个数 $=$ 目标函数自变量个数 $+$ 约束条件个数。
+
+③ 解上述方程组得备选点 $P_i\ (i=1,2,3,\cdots,n)$，并求 $f(P_i)$，取其最大值为 $u_{\max}$，最小值为 $u_{\min}$；
+
+④ 根据实际问题，必存在最值，所得即为所求。

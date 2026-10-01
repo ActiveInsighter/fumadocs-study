@@ -1,0 +1,145 @@
+---
+title: "第七章 参数估计与假设检验"
+---
+
+## 第七章 参数估计与假设检验
+
+### 1. 矩估计
+
+（1）原理：样本的 $k$ 阶原点矩依概率收敛于总体的 $k$ 阶原点矩。
+
+（2）解题步骤（待估参数为 $k$ 个 $\theta_1,\theta_2,\cdots,\theta_k$）
+
+① 求出总体的 $k$ 阶原点矩 $\mu_k=EX^k\ (k=1,2,\cdots)$；
+
+② 令样本的 $k$ 阶原点矩 $A_k=\dfrac{1}{n}\sum_{i=1}^{n}X_i^k$ 等于总体的 $k$ 阶原点矩，即令
+
+$$
+EX^k=\frac{1}{n}\sum_{i=1}^{n}X_i^k\qquad (k=1,2,\cdots);
+$$
+
+③ 解上面的方程组，得 $\theta_i$ 的矩估计量为 $\hat{\theta}_i(X_1,X_2,\cdots,X_n)$，则 $\theta_i$ 的矩估计值为 $\hat{\theta}_i(x_1,x_2,\cdots,x_n)$。
+
+【注】当待估参数为 1 个时，通常令 $EX=\dfrac{1}{n}\sum_{i=1}^{n}X_i$，即可解得 $\theta$ 的矩估计量与相应的矩估计值。
+
+### 2. 最大似然估计法
+
+（1）$X$ 为连续型随机变量
+
+设总体 $X$ 的密度函数为 $f(x;\theta)$，$X_1,X_2,\cdots,X_n$ 为取自 $X$ 的样本，则
+
+$$
+L(x_1,x_2,\cdots,x_n;\theta)=\prod_{i=1}^{n}f(x_i;\theta)
+$$
+
+称为似然函数，$L(x_1,x_2,\cdots,x_n;\theta)$ 关于 $\theta$ 的最大值点 $\hat{\theta}$，称为 $\theta$ 的最大似然估计。
+
+（2）$X$ 为离散型随机变量
+
+设总体 $X$ 的分布律 $P\{X=a_i\}=p(a_i;\theta),i=1,2,\cdots$，$X_1,X_2,\cdots,X_n$ 为取自 $X$ 的样本，则 $X_1,X_2,\cdots,X_n$ 的联合分布律
+
+$$
+L(x_1,x_2,\cdots,x_n;\theta)=\prod_{i=1}^{n}p(x_i;\theta),\qquad x_i\text{ 为 }a_i\ (i=1,2,\cdots)\text{ 中的某一个数}
+$$
+
+称为似然函数，$L(x_1,x_2,\cdots,x_n;\theta)$ 关于 $\theta$ 的最大值点 $\hat{\theta}$，称为 $\theta$ 的最大似然估计。
+
+【注】上面（1）、（2）中的 $\theta$ 可以是多个待估参数 $(\theta_1,\theta_2,\cdots,\theta_k)$。
+
+（3）最大似然估计的解题步骤（待估参数为 $k$ 个 $\theta_1,\theta_2,\cdots,\theta_k$）
+
+① 写出似然函数
+
+$$
+L(x_1,x_2,\cdots,x_n;\theta_1,\theta_2,\cdots,\theta_k)=\prod_{i=1}^{n}p(x_i;\theta_1,\theta_2,\cdots,\theta_k),\qquad \text{（离散型）}
+$$
+
+$$
+L(x_1,x_2,\cdots,x_n;\theta_1,\theta_2,\cdots,\theta_k)=\prod_{i=1}^{n}f(x_i;\theta_1,\theta_2,\cdots,\theta_k),\qquad \text{（连续型）}
+$$
+
+② 取对数 $\ln L$；
+
+③ 若 $\ln L$ 对 $\theta_1,\theta_2,\cdots,\theta_k$ 可微，求偏导数
+
+$$
+\frac{\partial\ln L}{\partial\theta_i},\qquad i=1,2,\cdots,k;
+$$
+
+判断方程组
+
+$$
+\frac{\partial\ln L}{\partial\theta_i}=0
+$$
+
+是否有解。若有解，则其解即为所求最大似然估计；若无解则要考虑极大似然估计的意义（使似然函数取得最大值），此时，估计值常在 $\theta_i$ 的边界点上达到。
+
+【注】对于只有一个未知参数只需将步骤③中求偏导变为一元函数求导即可。
+
+### 3. 估计量的无偏性、有效性、一致性（相合性）
+
+（1）无偏性
+
+如果 $\theta$ 的估计量 $\hat{\theta}(X_1,X_2,\cdots,X_n)$ 的数学期望 $E\hat{\theta}$ 存在，且 $E\hat{\theta}=\theta$，则称 $\hat{\theta}(X_1,X_2,\cdots,X_n)$ 是未知参数 $\theta$ 的无偏估计量。
+
+（2）有效性
+
+$\hat{\theta}_1(X_1,X_2,\cdots,X_n)$ 和 $\hat{\theta}_2(X_1,X_2,\cdots,X_n)$ 都是未知参数 $\theta$ 的无偏估计量，若
+
+$$
+D(\hat{\theta}_1)\le D(\hat{\theta}_2),
+$$
+
+且至少对于某一个 $\theta\in\Theta$ 左式中的不等号成立，则称 $\hat{\theta}_1(X_1,X_2,\cdots,X_n)$ 比 $\hat{\theta}_2(X_1,X_2,\cdots,X_n)$ 更有效。
+
+（3）一致性（相合性）
+
+若对任意 $\varepsilon>0$，有
+
+$$
+\lim_{n\to\infty}P\{|\hat{\theta}-\theta|<\varepsilon\}=1,
+$$
+
+则称 $\hat{\theta}$ 为 $\theta$ 的一致估计量。
+
+### 4. 区间估计
+
+单正态总体的区间估计。
+
+设 $X\sim N(\mu,\sigma^2)$，$X_1,X_2,\cdots,X_n$ 为随机样本，样本均值为 $\overline{X}$，样本方差为 $S^2$。
+
+| 未知参数 | 已知条件 | 置信度为 $1-\alpha$ 的置信区间 |
+| --- | --- | --- |
+| $\mu$ | $\sigma^2$ 已知 | $\left(\overline{X}-U_{\alpha/2}\dfrac{\sigma}{\sqrt{n}},\ \overline{X}+U_{\alpha/2}\dfrac{\sigma}{\sqrt{n}}\right)$ |
+| $\mu$ | $\sigma^2$ 未知 | $\left(\overline{X}-t_{\alpha/2}(n-1)\dfrac{S}{\sqrt{n}},\ \overline{X}+t_{\alpha/2}(n-1)\dfrac{S}{\sqrt{n}}\right)$ |
+| $\sigma^2$ | $\mu$ 已知 | $\left(\dfrac{\sum_{i=1}^{n}(X_i-\mu)^2}{\chi_{\alpha/2}^2(n)},\ \dfrac{\sum_{i=1}^{n}(X_i-\mu)^2}{\chi_{1-\alpha/2}^2(n)}\right)$ |
+| $\sigma^2$ | $\mu$ 未知 | $\left(\dfrac{(n-1)S^2}{\chi_{\alpha/2}^2(n-1)},\ \dfrac{(n-1)S^2}{\chi_{1-\alpha/2}^2(n-1)}\right)$ |
+
+### 5. 假设检验
+
+（1）假设检验的两类错误
+
+1）第一类错误（弃真错误）
+
+当 $H_0$ 为真时，而样本值却落入了拒绝域，选择拒绝原假设 $H_0$，记犯此类错误的概率为 $\alpha$，即
+
+$$
+P\{\text{否定 }H_0\mid H_0\text{ 为真}\}=\alpha.
+$$
+
+2）第二类错误（纳伪错误）
+
+当 $H_0$ 为假时，而样本值不在拒绝域，选择接受原假设 $H_0$，记犯此类错误的概率为 $\beta$，即
+
+$$
+P\{\text{接受 }H_0\mid H_0\text{ 为假}\}=\beta.
+$$
+
+（2）显著水平为 $\alpha$ 的单正态总体均值和方差的假设检验
+
+| 原假设 $H_0$ | 备择假设 $H_1$ | 已知条件 | 检验统计量 | $H_0$ 的拒绝域 |
+| --- | --- | --- | --- | --- |
+| $\mu=\mu_0$ | $\mu\ne\mu_0$ | $\sigma^2$ 已知 | $U=\dfrac{\overline{X}-\mu_0}{\sigma_0/\sqrt{n}}\sim N(0,1)$ | $|U|>u_{\alpha/2}$ |
+| $\mu=\mu_0$ | $\mu\ne\mu_0$ | $\sigma^2$ 未知 | $T=\dfrac{\overline{X}-\mu_0}{S/\sqrt{n}}\sim t(n-1)$ | $|T|>t_{\alpha/2}(n-1)$ |
+| $\sigma^2=\sigma_0^2$ | $\sigma^2\ne\sigma_0^2$ | $\mu$ 已知 | $\chi^2=\dfrac{1}{\sigma_0^2}\sum_{i=1}^{n}(X_i-\mu_0)^2\sim\chi^2(n)$ | $\chi^2>\chi_{\alpha/2}^2(n)$ 或 $\chi^2<\chi_{1-\alpha/2}^2(n)$ |
+| $\sigma^2=\sigma_0^2$ | $\sigma^2\ne\sigma_0^2$ | $\mu$ 未知 | $\chi^2=\dfrac{(n-1)S^2}{\sigma_0^2}\sim\chi^2(n-1)$ | $\chi^2>\chi_{\alpha/2}^2(n-1)$ 或 $\chi^2<\chi_{1-\alpha/2}^2(n-1)$ |

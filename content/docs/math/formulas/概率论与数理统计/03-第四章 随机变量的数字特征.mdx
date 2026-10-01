@@ -1,0 +1,284 @@
+---
+title: "第四章 随机变量的数字特征"
+---
+
+## 第四章 随机变量的数字特征
+
+### 1. 一维随机变量的数学期望
+
+（1）离散型
+
+设随机变量 $X$ 的分布律为 $P\{X=x_i\}=p_i(i=1,2,\cdots)$，若级数 $\displaystyle\sum_{i=1}^{\infty}x_ip_i$ 绝对收敛，则称
+
+$$
+EX=\sum_{i=1}^{\infty}x_ip_i
+$$
+
+为随机变量 $X$ 的数学期望。
+
+（2）连续型
+
+设连续型随机变量 $X$ 的概率密度为 $f(x)$，若积分 $\displaystyle\int_{-\infty}^{+\infty}xf(x)\,dx$ 绝对收敛，则称
+
+$$
+EX=\int_{-\infty}^{+\infty}xf(x)\,dx
+$$
+
+为 $X$ 的数学期望。
+
+（3）随机变量函数 $Y=g(X)$ 的期望
+
+设 $X$ 是一个随机变量，$g(x)$ 为连续实函数。令 $Y=g(X)$。
+
+1）离散型
+
+若 $X$ 的分布律为 $P\{X=x_i\}=p_i(i=1,2,\cdots)$，则
+
+$$
+EY=E[g(X)]=\sum_{i=1}^{\infty}g(x_i)p_i.
+$$
+
+2）连续型
+
+若 $X$ 的密度函数为 $f_X(x)$，则
+
+$$
+EY=E[g(X)]=\int_{-\infty}^{+\infty}g(x)f_X(x)\,dx.
+$$
+
+### 2. 二维随机变量的数学期望
+
+（1）离散型
+
+设 $(X,Y)$ 的概率分布为
+
+$$
+P\{X=x_i,Y=y_j\}=p_{ij}\quad(i,j=1,2,\cdots),
+$$
+
+则
+
+$$
+EX=\sum_i x_ip_{i\cdot}=\sum_i\sum_jx_ip_{ij},
+$$
+
+$$
+EY=\sum_j y_jp_{\cdot j}=\sum_i\sum_jy_jp_{ij}.
+$$
+
+（2）连续型
+
+设 $(X,Y)$ 的联合概率密度为 $\varphi(x,y)$，则
+
+$$
+EX=\int_{-\infty}^{+\infty}xf_X(x)\,dx
+=\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}xf(x,y)\,dx\,dy,
+$$
+
+$$
+EY=\int_{-\infty}^{+\infty}yf_Y(y)\,dy
+=\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}yf(x,y)\,dx\,dy.
+$$
+
+（3）随机变量函数 $Z=g(X,Y)$ 的期望
+
+设 $(X,Y)$ 为二维随机变量，$g(x,y)$ 为二元连续实函数，令 $Z=g(X,Y)$。
+
+1）离散型
+
+若 $(X,Y)$ 的联合分布律为 $P\{X=x_i,Y=y_j\}=p_{ij}$，$i,j=1,2,\cdots$，则
+
+$$
+EZ=E[g(X,Y)]=\sum_{i=1}^{\infty}\sum_{j=1}^{\infty}g(x_i,y_j)p_{ij}.
+$$
+
+2）连续型
+
+若 $(X,Y)$ 的联合密度函数为 $f(x,y)$，则
+
+$$
+EZ=E[g(X,Y)]=\int_{-\infty}^{+\infty}\int_{-\infty}^{+\infty}g(x,y)f(x,y)\,dx\,dy.
+$$
+
+### 3. 最值的数学期望
+
+若 $X_i(i=1,2,\cdots,n;n\ge2)$ 独立同分布，其分布函数为 $F(x)$，概率密度为 $f(x)$，记 $Y=\min\{X_1,X_2,\cdots,X_n\}$，$Z=\max\{X_1,X_2,\cdots,X_n\}$，则
+
+$$
+F_Y(y)=1-[1-F(y)]^n,\qquad
+f_Y(y)=n[1-F(y)]^{n-1}f(y)
+\Rightarrow
+EY=\int_{-\infty}^{+\infty}yf_Y(y)\,dy;
+$$
+
+$$
+F_Z(z)=[F(z)]^n,\qquad
+f_Z(z)=n[F(z)]^{n-1}f(z)
+\Rightarrow
+EZ=\int_{-\infty}^{+\infty}zf_Z(z)\,dz.
+$$
+
+### 4. 数学期望的性质
+
+（1）$E(C)=C$，$E(EX)=EX$；
+
+（2）$E(CX)=CEX$；
+
+（3）$E(k_1X\pm k_2Y)=k_1EX\pm k_2EY$；
+
+（4）若 $X$ 与 $Y$ 相互独立，则有 $E(XY)=EXEY$。
+
+### 5. 方差
+
+（1）随机变量 $X$ 的方差定义
+
+设 $X$ 是一个随机变量，如果 $E(X-EX)^2$ 存在，则称 $DX=E(X-EX)^2$ 为 $X$ 的方差，称 $\sqrt{DX}$ 为标准差或均方差。
+
+（2）方差的计算公式
+
+$$
+DX=EX^2-(EX)^2.
+$$
+
+【注】解题时，常用此公式计算 $EX^2=DX+(EX)^2$。
+
+（3）方差的性质
+
+1）$D(C)=0$，$D[E(X)]=0$，$D[D(X)]=0$；
+
+2）$D(CX)=C^2DX$；
+
+3）$D(C_1X+C_2)=C_1^2D(X)$；
+
+4）$D(X\pm Y)=DX+DY\pm2\operatorname{cov}(X,Y)$；
+
+5）若 $X,Y$ 相互独立，则 $D(X\pm Y)=DX+DY$。
+
+### 6. 常用分布的 EX、DX
+
+① $0-1$ 分布，$EX=p$，$DX=p-p^2=(1-p)p$。
+
+② $X\sim B(n,p)$，$EX=np$，$DX=np(1-p)$。
+
+③ $X\sim P(\lambda)$，$EX=\lambda$，$DX=\lambda$。
+
+④ $X\sim G(p)$，$EX=\dfrac1p$，$DX=\dfrac{1-p}{p^2}$。
+
+⑤ $X\sim U(a,b)$，$EX=\dfrac{a+b}{2}$，$DX=\dfrac{(b-a)^2}{12}$。
+
+⑥ $X\sim E(\lambda)$，$EX=\dfrac1\lambda$，$DX=\dfrac1{\lambda^2}$。
+
+⑦ $X\sim N(\mu,\sigma^2)$，$EX=\mu$，$DX=\sigma^2$。
+
+⑧ $X\sim\chi^2(n)$，$EX=n$，$DX=2n$。
+
+### 7. 亚当夏娃公式（24年数一真题可用，非考纲内公式）
+
+条件期望
+
+在 $Y=y$ 条件下 $X$ 的数学期望称为条件数学期望。
+
+① $(X,Y)\sim p_{ij}$。
+
+$$
+E(X\mid Y=y)=\sum_i x_iP\{X=x_i\mid Y=y\}.
+$$
+
+② $(X,Y)\sim f(x,y)$。
+
+$$
+E(X\mid Y=y)=\int_{-\infty}^{+\infty}x f(x\mid y)\,dx.
+$$
+
+同理，可定义 $E(Y\mid X=x)$。
+
+条件方差
+
+$$
+D(X\mid Y)=E(X^2\mid Y)-[E(X\mid Y)]^2.
+$$
+
+亚当公式
+
+设 $(X,Y)$ 是二维随机变量，且 $EX$ 存在，则
+
+$$
+EX=E[E(X\mid Y)].
+$$
+
+夏娃公式
+
+$$
+DX=E[D(X\mid Y)]+D[E(X\mid Y)].
+$$
+
+### 8. 协方差
+
+（1）定义
+
+$$
+\operatorname{cov}(X,Y)=E[(X-EX)(Y-EY)].
+$$
+
+（2）计算公式
+
+$$
+\operatorname{cov}(X,Y)=EXY-EXEY.
+$$
+
+（3）性质
+
+1）$\operatorname{cov}(X,Y)=\operatorname{cov}(Y,X)$；
+
+2）$\operatorname{cov}(X,X)=DX$；
+
+3）$\operatorname{cov}(aX,bY)=ab\operatorname{cov}(X,Y)$；
+
+4）$\operatorname{cov}(X,C)=0$；
+
+5）$\operatorname{cov}(k_1X_1\pm k_2X_2,Y)=k_1\operatorname{cov}(X_1,Y)\pm k_2\operatorname{cov}(X_2,Y)$；
+
+6）若 $X$ 与 $Y$ 相互独立，则 $\operatorname{cov}(X,Y)=0$。
+
+### 9. 相关系数
+
+（1）定义
+
+$$
+\rho_{XY}=\frac{\operatorname{cov}(X,Y)}{\sqrt{DX}\sqrt{DY}}.
+$$
+
+（2）相关系数的性质
+
+1）$|\rho_{XY}|\le1$；
+
+2）$|\rho_{XY}|=1\Leftrightarrow P\{Y=aX+b\}=1\ (a\ne0)$，且当 $a>0$ 时，$\rho_{XY}=1$；$a<0$ 时，$\rho_{XY}=-1$。
+
+（3）不相关的等价说法
+
+$$
+\rho_{XY}=0
+\Leftrightarrow \operatorname{cov}(X,Y)=0
+\Leftrightarrow EXY=EXEY
+\Leftrightarrow D(X\pm Y)=DX+DY.
+$$
+
+（4）不相关与独立的关系
+
+1）$X,Y$ 相互独立 $\Rightarrow X$ 与 $Y$ 不相关，反之不成立；
+
+2）若 $(X,Y)\sim N(\mu_1,\mu_2;\sigma_1^2,\sigma_2^2;\rho)$，则 $X$ 与 $Y$ 独立和 $X$ 与 $Y$ 不相关等价。
+
+### 10. 切比雪夫不等式
+
+设随机变量 $X$ 的期望 $EX$、方差 $DX$ 都存在，则对任意 $\varepsilon>0$ 均有
+
+$$
+P\{|X-EX|\ge\varepsilon\}\le\frac{DX}{\varepsilon^2};
+$$
+
+或
+
+$$
+P\{|X-EX|<\varepsilon\}\ge1-\frac{DX}{\varepsilon^2}.
+$$

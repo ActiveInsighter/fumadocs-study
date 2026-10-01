@@ -1,0 +1,378 @@
+---
+title: "第八章 向量代数、空间几何与场论初步"
+---
+
+## 第八章 向量代数、空间几何与场论初步
+
+### 1. 向量代数运算
+
+（1）向量 $a$ 的方向余弦
+
+设向量的坐标表示为 $a=xi+yj+zk=(x,y,z)$。
+
+$$
+\cos\alpha=\frac{x}{\sqrt{x^2+y^2+z^2}},\qquad
+\cos\beta=\frac{y}{\sqrt{x^2+y^2+z^2}},\qquad
+\cos\gamma=\frac{z}{\sqrt{x^2+y^2+z^2}}.
+$$
+
+（2）数量积（点积、内积）
+
+设 $a=(x_1,y_1,z_1),\ b=(x_2,y_2,z_2)$，则向量 $a$ 与 $b$ 的数量积为
+
+$$
+a\cdot b=|a||b|\cos\widehat{(a,b)}=x_1x_2+y_1y_2+z_1z_2.
+$$
+
+（3）向量积（叉积、外积）
+
+设两向量 $a$ 与 $b$，若另一个向量 $c$，满足条件：
+
+① $|c|=|a||b|\sin\widehat{(a,b)}$；
+
+② $c\perp a,\ c\perp b$，即 $c$ 垂直于 $a,b$ 所确定的平面；
+
+③ $a,b,c$ 成右手系。
+
+则向量 $c$ 称为向量 $a$ 与 $b$ 的向量积，记为 $c=a\times b$，利用坐标可表示为
+
+$$
+a\times b=
+\begin{vmatrix}
+i&j&k\\
+x_1&y_1&z_1\\
+x_2&y_2&z_2
+\end{vmatrix}
+=
+\begin{vmatrix}
+y_1&z_1\\
+y_2&z_2
+\end{vmatrix}i
+-
+\begin{vmatrix}
+x_1&z_1\\
+x_2&z_2
+\end{vmatrix}j
++
+\begin{vmatrix}
+x_1&y_1\\
+x_2&y_2
+\end{vmatrix}k.
+$$
+
+（4）混合积
+
+设有三个向量 $a=(x_1,y_1,z_1),\ b=(x_2,y_2,z_2),\ c=(x_3,y_3,z_3)$，先作 $a,b$ 的向量积 $a\times b$，再与 $c$ 作数量积 $(a\times b)\cdot c$，则其称为 $a,b,c$ 的混合积，记为 $[a,b,c]$，利用坐标可表示为
+
+$$
+[a,b,c]=(a\times b)\cdot c=
+\begin{vmatrix}
+x_1&y_1&z_1\\
+x_2&y_2&z_2\\
+x_3&y_3&z_3
+\end{vmatrix}.
+$$
+
+**【注】** $|[a,b,c]|$ 表示以 $a,b,c$ 为棱的平行六面体体积，注意不要忘记绝对值号。
+
+### 2. 直线与平面方程
+
+（1）平面方程
+
+一般式：$Ax+By+Cz+D=0$。
+
+点法式：$A(x-x_0)+B(y-y_0)+C(z-z_0)=0$，平面过 $(x_0,y_0,z_0)$ 点，法向量为 $n=(A,B,C)$。
+
+截距式：$\displaystyle\frac{x}{a}+\frac{y}{b}+\frac{z}{c}=1$。
+
+（2）空间直线方程
+
+一般式：
+
+$$
+\begin{cases}
+A_1x+B_1y+C_1z+D_1=0,\\
+A_2x+B_2y+C_2z+D_2=0.
+\end{cases}
+$$
+
+参数式：
+
+$$
+\begin{cases}
+x=x_0+lt,\\
+y=y_0+mt,\\
+z=z_0+nt,
+\end{cases}
+$$
+
+直线过 $(x_0,y_0,z_0)$，方向向量为 $s=(l,m,n)$。
+
+标准式（对称式）：
+
+$$
+\frac{x-x_0}{l}=\frac{y-y_0}{m}=\frac{z-z_0}{n},
+$$
+
+过 $(x_0,y_0,z_0)$，方向向量为 $s=(l,m,n)$。
+
+（3）平面间、直线间、直线与平面间关系
+
+设平面 $\pi_1,\pi_2$，直线 $L_1,L_2$ 方程如下：
+
+平面 $\pi_1:A_1x+B_1y+C_1z+D_1=0$，$n_1=(A_1,B_1,C_1)$；
+
+平面 $\pi_2:A_2x+B_2y+C_2z+D_2=0$，$n_2=(A_2,B_2,C_2)$；
+
+直线 $L_1:\displaystyle\frac{x-x_1}{l_1}=\frac{y-y_1}{m_1}=\frac{z-z_1}{n_1}$，$s_1=(l_1,m_1,n_1)$；
+
+直线 $L_2:\displaystyle\frac{x-x_2}{l_2}=\frac{y-y_2}{m_2}=\frac{z-z_2}{n_2}$，$s_2=(l_2,m_2,n_2)$。
+
+1）两平面 $\pi_1,\pi_2$ 间的位置关系
+
+①
+
+$$
+\pi_1\parallel\pi_2
+\Longleftrightarrow n_1\parallel n_2
+\Longleftrightarrow \frac{A_1}{A_2}=\frac{B_1}{B_2}=\frac{C_1}{C_2}
+\Longleftrightarrow n_1\times n_2=0.
+$$
+
+②
+
+$$
+\pi_1\perp\pi_2
+\Longleftrightarrow n_1\perp n_2
+\Longleftrightarrow A_1A_2+B_1B_2+C_1C_2=0
+\Longleftrightarrow n_1\cdot n_2=0.
+$$
+
+③ 平面 $\pi_1,\pi_2$ 间的夹角 $\theta\left(0\le\theta\le\dfrac{\pi}{2}\right)$ 为
+
+$$
+\cos\theta=\frac{|n_1\cdot n_2|}{|n_1||n_2|}
+=\frac{|A_1A_2+B_1B_2+C_1C_2|}{\sqrt{A_1^2+B_1^2+C_1^2}\sqrt{A_2^2+B_2^2+C_2^2}}.
+$$
+
+2）两直线 $L_1,L_2$ 间的位置关系
+
+①
+
+$$
+L_1\parallel L_2
+\Longleftrightarrow s_1\parallel s_2
+\Longleftrightarrow \frac{l_1}{l_2}=\frac{m_1}{m_2}=\frac{n_1}{n_2}
+\Longleftrightarrow s_1\times s_2=0.
+$$
+
+②
+
+$$
+L_1\perp L_2
+\Longleftrightarrow s_1\perp s_2
+\Longleftrightarrow l_1l_2+m_1m_2+n_1n_2=0
+\Longleftrightarrow s_1\cdot s_2=0.
+$$
+
+③ 直线 $L_1,L_2$ 间的夹角 $\theta\left(0\le\theta\le\dfrac{\pi}{2}\right)$ 为
+
+$$
+\cos\theta=\frac{|s_1\cdot s_2|}{|s_1||s_2|}
+=\frac{|l_1l_2+m_1m_2+n_1n_2|}{\sqrt{l_1^2+m_1^2+n_1^2}\sqrt{l_2^2+m_2^2+n_2^2}}.
+$$
+
+3）直线 $L_1$ 与平面 $\pi_1$ 间的位置关系
+
+①
+
+$$
+L_1\parallel\pi_1
+\Longleftrightarrow s_1\perp n_1
+\Longleftrightarrow A_1l_1+B_1m_1+C_1n_1=0
+\Longleftrightarrow s_1\cdot n_1=0.
+$$
+
+②
+
+$$
+L_1\perp\pi_1
+\Longleftrightarrow s_1\parallel n_1
+\Longleftrightarrow \frac{A_1}{l_1}=\frac{B_1}{m_1}=\frac{C_1}{n_1}
+\Longleftrightarrow s_1\times n_1=0.
+$$
+
+③ 直线 $L_1$ 与平面 $\pi_1$ 间的夹角 $\theta\left(0\le\theta\le\dfrac{\pi}{2}\right)$ 为
+
+$$
+\sin\theta=\frac{|s_1\cdot n_1|}{|s_1||n_1|}
+=\frac{|A_1l_1+B_1m_1+C_1n_1|}{\sqrt{l_1^2+m_1^2+n_1^2}\sqrt{A_1^2+B_1^2+C_1^2}}.
+$$
+
+（4）点到平面的距离
+
+点 $M(x_0,y_0,z_0)$ 到平面 $Ax+By+Cz+D=0$ 的距离
+
+$$
+d=\frac{|Ax_0+By_0+Cz_0+D|}{\sqrt{A^2+B^2+C^2}}.
+$$
+
+### 3. 空间曲线
+
+（1）旋转曲面
+
+设 $L$ 是平面 $zOx$ 上的一条曲线，其方程为
+
+$$
+\begin{cases}
+f(x,z)=0,\\
+y=0,
+\end{cases}
+$$
+
+则 $L$ 绕 $x$ 轴旋转一周产生的旋转面方程为
+
+$$
+f\left(x,\pm\sqrt{y^2+z^2}\right)=0.
+$$
+
+$L$ 绕 $z$ 轴旋转一周产生的旋转面方程为
+
+$$
+f\left(\pm\sqrt{x^2+y^2},z\right)=0.
+$$
+
+（2）九类二次曲面
+
+椭圆锥面
+
+$$
+\frac{x^2}{a^2}+\frac{y^2}{b^2}=z^2.
+$$
+
+椭球面
+
+$$
+\frac{x^2}{a^2}+\frac{y^2}{b^2}+\frac{z^2}{c^2}=1.
+$$
+
+单叶双曲面
+
+$$
+\frac{x^2}{a^2}+\frac{y^2}{b^2}-\frac{z^2}{c^2}=1.
+$$
+
+双叶双曲面
+
+$$
+\frac{x^2}{a^2}-\frac{y^2}{b^2}-\frac{z^2}{c^2}=1.
+$$
+
+椭圆抛物面
+
+$$
+\frac{x^2}{a^2}+\frac{y^2}{b^2}=\pm z.
+$$
+
+双曲抛物面
+
+$$
+\frac{x^2}{a^2}-\frac{y^2}{b^2}=\pm z.
+$$
+
+椭圆柱面
+
+$$
+\frac{x^2}{a^2}+\frac{y^2}{b^2}=1.
+$$
+
+双曲柱面
+
+$$
+\frac{x^2}{a^2}-\frac{y^2}{b^2}=1.
+$$
+
+抛物柱面
+
+$$
+x^2=ay.
+$$
+
+### 4. 空间曲线在坐标面上的投影
+
+空间曲线在某坐标面上的投影曲线，简称为曲线在坐标面上的投影。
+
+设空间曲线 $L$ 的一般方程是
+
+$$
+\begin{cases}
+F(x,y,z)=0,\\
+G(x,y,z)=0,
+\end{cases}
+$$
+
+消去 $z$ 得投影柱面方程 $H(x,y)=0$，则 $L$ 在 $xOy$ 平面上投影曲线的方程就是
+
+$$
+\begin{cases}
+H(x,y)=0,\\
+z=0.
+\end{cases}
+$$
+
+### 5. 空间曲线的切线及法平面方程
+
+空间曲线 $\Gamma$ 的参数方程为
+
+$$
+\begin{cases}
+x=x(t),\\
+y=y(t),\\
+z=z(t),
+\end{cases}
+$$
+
+则 $\Gamma$ 在点 $(x_0,y_0,z_0)$（对应参数 $t=t_0$）处的切线方程为
+
+$$
+\frac{x-x_0}{x'(t_0)}=\frac{y-y_0}{y'(t_0)}=\frac{z-z_0}{z'(t_0)}.
+$$
+
+法平面方程为
+
+$$
+x'(t_0)(x-x_0)+y'(t_0)(y-y_0)+z'(t_0)(z-z_0)=0.
+$$
+
+### 6. 空间曲面在其点上某点处的切平面和法线方程
+
+设曲面 $\Sigma$ 的方程为 $F(x,y,z)=0$，则在 $\Sigma$ 上一点 $(x_0,y_0,z_0)$ 处的切平面方程为
+
+$$
+F_x'\big|_{(x_0,y_0,z_0)}(x-x_0)+F_y'\big|_{(x_0,y_0,z_0)}(y-y_0)+F_z'\big|_{(x_0,y_0,z_0)}(z-z_0)=0.
+$$
+
+法线方程为
+
+$$
+\frac{x-x_0}{F_x'\big|_{(x_0,y_0,z_0)}}
+=\frac{y-y_0}{F_y'\big|_{(x_0,y_0,z_0)}}
+=\frac{z-z_0}{F_z'\big|_{(x_0,y_0,z_0)}}.
+$$
+
+### 7. 方向导数与梯度
+
+（1）方向导数
+
+$$
+\left.\frac{\partial f}{\partial l}\right|_{(x_0,y_0)}
+=f_x'(x_0,y_0)\cos\alpha+f_y'(x_0,y_0)\cos\beta,
+$$
+
+其中 $(\cos\alpha,\cos\beta)$ 是 $l$ 方向的方向余弦。
+
+（2）梯度
+
+$$
+\operatorname{grad}f(x_0,y_0)=f_x'(x_0,y_0)\boldsymbol{i}+f_y'(x_0,y_0)\boldsymbol{j}.
+$$

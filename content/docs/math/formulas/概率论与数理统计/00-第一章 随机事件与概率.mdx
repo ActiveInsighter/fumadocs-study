@@ -1,0 +1,125 @@
+---
+title: "第一章 随机事件与概率"
+---
+
+## 第一章 随机事件与概率
+
+### 1. 事件的运算律
+
+交换律：$A\cup B=B\cup A$；$A\cap B=B\cap A$。
+
+结合律：$A\cup(B\cup C)=(A\cup B)\cup C$；$A\cap(B\cap C)=(A\cap B)\cap C$。
+
+分配律：$A\cup(B\cap C)=(A\cup B)\cap(A\cup C)$；$A\cap(B\cup C)=(A\cap B)\cup(A\cap C)$。
+
+德·摩根律（对偶律）：$\overline{A\cup B}=\bar A\cap\bar B$，$\overline{A\cap B}=\bar A\cup\bar B$。
+
+### 2. 概率五大计算公式
+
+（1）加法公式
+
+$$
+P(A\cup B)=P(A)+P(B)-P(AB),
+$$
+
+$$
+P(A\cup B\cup C)=P(A)+P(B)+P(C)-P(AB)-P(BC)-P(AC)+P(ABC).
+$$
+
+（2）减法公式　$P(B-A)=P(B)-P(AB)$。
+
+（3）乘法公式
+
+若 $P(A)>0$，则 $P(AB)=P(B\mid A)P(A)$；若 $P(B)>0$，则 $P(AB)=P(A\mid B)P(B)$。
+
+若 $P(AB)>0$，则
+
+$$
+P(ABC)=P(C\mid AB)P(B\mid A)P(A)=P(C\mid AB)P(A\mid B)P(B).
+$$
+
+（4）全概率公式
+
+$$
+P(A)=\sum_{i=1}^{n}P(A\mid B_i)P(B_i),
+$$
+
+其中 $B_iB_j=\varnothing\ (i\ne j)$，$\displaystyle\bigcup_{i=1}^{n}B_i=\Omega$。
+
+（5）贝叶斯公式
+
+$$
+P(B_j\mid A)=\frac{P(A\mid B_j)P(B_j)}{\displaystyle\sum_{i=1}^{n}P(A\mid B_i)P(B_i)},
+$$
+
+其中 $B_iB_j=\varnothing\ (i\ne j)$，$\displaystyle\bigcup_{i=1}^{n}B_i=\Omega$。
+
+【注】上述公式中事件 $B_i$ 的个数可以是可列个。
+
+### 3. 事件的独立性
+
+$A$ 与 $B$ 独立 $\Longleftrightarrow P(AB)=P(A)P(B)$。
+
+$A,B,C$ 两两独立 $\Longleftrightarrow$
+
+$$
+\begin{cases}
+P(AB)=P(A)P(B),\\
+P(AC)=P(A)P(C),\\
+P(BC)=P(B)P(C).
+\end{cases}
+$$
+
+$A,B,C$ 相互独立 $\Longleftrightarrow$
+
+$$
+\begin{cases}
+P(AB)=P(A)P(B),\\
+P(BC)=P(B)P(C),\\
+P(AC)=P(A)P(C),\\
+P(ABC)=P(A)P(B)P(C).
+\end{cases}
+$$
+
+### 4. 独立的性质与结论
+
+（1）若事件 $A,B$ 相互独立，则 $A$ 与 $\bar B$，$\bar A$ 与 $B$，$\bar A$ 与 $\bar B$ 也相互独立。
+
+（2）独立的等价说法：若 $0<P(A)<1$，则
+
+$$
+\begin{aligned}
+&\text{事件 }A,B\text{ 独立}\Longleftrightarrow P(AB)=P(A)P(B)\\
+&\Longleftrightarrow P(B)=P(B\mid A)\\
+&\Longleftrightarrow P(B)=P(B\mid\bar A)\\
+&\Longleftrightarrow P(B\mid A)=P(B\mid\bar A).
+\end{aligned}
+$$
+
+（3）若 $A_1,A_2,\cdots,A_m,B_1,B_2,\cdots,B_n$ 相互独立，则 $f(A_1,A_2,\cdots,A_m)$ 与 $g(B_1,B_2,\cdots,B_n)$ 也相互独立，其中 $f(\cdot),g(\cdot)$ 分别表示对相应事件作任意事件运算。
+
+（4）若 $P(A)=0$ 或 $P(A)=1$，则 $A$ 与任何事件 $B$ 都相互独立。
+
+### 5. 独立、互斥、互逆的关系
+
+（1）$A$ 与 $B$ 互逆 $\Rightarrow A$ 与 $B$ 互斥，但反之不一定成立；
+
+（2）$A$ 与 $B$ 互斥（或互逆）且均为非零概率事件 $\Rightarrow A$ 与 $B$ 不独立；
+
+（3）$A$ 与 $B$ 相互独立且均为非零概率事件 $\Rightarrow A$ 与 $B$ 不互斥。
+
+【注】一般情况下，独立和互斥无关，独立推不出互斥，互斥也推不出独立。
+
+### 6. 利用最值关系求概率
+
+① $\{\max\{X,Y\}\le a\}=\{X\le a\}\cap\{Y\le a\}$
+
+② $\{\max\{X,Y\}>a\}=\{X>a\}\cup\{Y>a\}$
+
+③ $\{\min\{X,Y\}\le a\}=\{X\le a\}\cup\{Y\le a\}$
+
+④ $\{\min\{X,Y\}>a\}=\{X>a\}\cap\{Y>a\}$
+
+⑤ $\{\max\{X,Y\}\le a\}\subseteq\{\min\{X,Y\}\le a\}$
+
+⑥ $\{\min\{X,Y\}>a\}\subseteq\{\max\{X,Y\}>a\}$

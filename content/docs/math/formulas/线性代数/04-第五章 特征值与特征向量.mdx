@@ -1,0 +1,138 @@
+---
+title: "第五章 特征值与特征向量"
+---
+
+## 第五章 特征值与特征向量
+
+### 1. 特征值与特征向量的性质
+
+（1）设 $\lambda_1,\lambda_2,\cdots,\lambda_n$ 是 $n$ 阶方阵 $A$ 的 $n$ 个特征值，则
+
+$$
+\lambda_1+\lambda_2+\cdots+\lambda_n=a_{11}+a_{22}+\cdots+a_{nn},
+$$
+
+$$
+\lambda_1\lambda_2\cdots\lambda_n=|A|.
+$$
+
+（2）矩阵 $A$ 对应于不同特征值的特征向量线性无关。
+
+（3）矩阵 $A$ 的 $k$ 重特征值 $\lambda$ 至多有 $k$ 个线性无关的特征向量。特别地，当 $A$ 有 $n$ 个不同的特征值时（没有重根），$A$ 有 $n$ 个线性无关的特征向量。
+
+（4）设 $n$ 阶方阵 $A$ 的特征值为 $\lambda$，$A$ 的属于特征值 $\lambda$ 的特征向量为 $\alpha$，则
+
+| 矩阵 | $A$ | $A+kE$ | $kA$ | $A^k$ | $f(A)$ | $A^{-1}$ | $A^*$ | $A^T$ | $P^{-1}AP$ |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 特征值 | $\lambda$ | $\lambda+k$ | $k\lambda$ | $\lambda^k$ | $f(\lambda)$ | $\dfrac1\lambda$ | $\dfrac{|A|}{\lambda}$ | $\lambda$ | $\lambda$ |
+| 特征向量 | $\alpha$ | $\alpha$ | $\alpha$ | $\alpha$ | $\alpha$ | $\alpha$ | $\alpha$ | 不确定 | $P^{-1}\alpha$ |
+
+### 2. 矩阵相似的性质与重要结论
+
+$$
+A\text{ 与 }B\text{ 相似}\Rightarrow A\text{ 与 }B\text{ 有相同的特征多项式，即 }|A-\lambda E|=|B-\lambda E|,
+$$
+
+$$
+\Rightarrow A\text{ 与 }B\text{ 有完全相同的特征值（但是特征向量不一定相同）},
+$$
+
+$$
+\Rightarrow |A|=|B|=\lambda_1\lambda_2\cdots\lambda_n，\qquad \sum a_{ii}=\sum b_{ii},
+$$
+
+$$
+\Rightarrow A\text{ 与 }B\text{ 等价，}\quad r(A)=r(B),
+$$
+
+$$
+\Rightarrow A^T\text{ 与 }B^T\text{ 相似，}\quad A^{-1}\text{ 与 }B^{-1}\text{ 相似}.
+$$
+
+重要结论：
+
+1. $A\sim B\Rightarrow A^T\sim B^T,\ A^{-1}\sim B^{-1},\ A^*\sim B^*$（后面两个要求 $A$ 可逆）；
+2. $A\sim B\Rightarrow A^m\sim B^m,\ f(A)\sim f(B)$；
+3. $A\sim B,\ B\sim\Lambda\Rightarrow A\sim\Lambda$；
+4. $A\sim\Lambda,\ B\sim\Lambda\Rightarrow A\sim B$；
+5. $A\sim C,\ B\sim D\Rightarrow \begin{bmatrix}A&O\\O&B\end{bmatrix}\sim\begin{bmatrix}C&O\\O&D\end{bmatrix}$。
+
+### 3. 矩阵可相似对角化的条件
+
+充要条件：
+
+1. $A$ 有 $n$ 个线性无关的特征向量 $\Longleftrightarrow A\sim\Lambda$；
+2. $n_i=n-r(\lambda_iE-A)\Longleftrightarrow A\sim\Lambda$。
+
+充分条件：
+
+1. $A$ 是实对称矩阵 $\Rightarrow A\sim\Lambda$；
+2. $A$ 有 $n$ 个互异特征值 $\Rightarrow A\sim\Lambda$；
+3. $A^2=A\Rightarrow A\sim\Lambda$；
+4. $A^2=E\Rightarrow A\sim\Lambda$；
+5. $r(A)=1$ 且 $\operatorname{tr}(A)\ne0\Rightarrow A\sim\Lambda$。
+
+必要条件：
+
+$$
+A\sim\Lambda\Rightarrow r(A)=\text{非零特征值的个数（重根按重数算）}.
+$$
+
+否定条件：
+
+1. $A\ne O,\ A^k=O$（$k$ 为大于 $1$ 的整数）$\Rightarrow A$ 不可相似对角化；
+2. $A$ 的特征值全为 $k$，但 $A\ne kE\Rightarrow A$ 不可相似对角化。
+
+### 4. 对角化的步骤
+
+（1）求出 $A$ 的特征值 $\lambda_1,\lambda_2,\cdots,\lambda_n$；
+
+（2）求出 $A$ 的 $n$ 个线性无关的特征向量 $\alpha_1,\alpha_2,\cdots,\alpha_n$；
+
+（3）令
+
+$$
+P=(\alpha_1,\alpha_2,\cdots,\alpha_n),\qquad
+\Lambda=\begin{pmatrix}
+\lambda_1&&0\\
+&\lambda_2&\\
+&&\ddots\\
+0&&&\lambda_n
+\end{pmatrix},
+$$
+
+（注意次序要一致），则 $P^{-1}AP=\Lambda$。
+
+### 5. 正交矩阵相关结论
+
+（1）若 $A$ 为正交矩阵，则
+
+$$
+A^TA=E\Longleftrightarrow A^{-1}=A^T
+$$
+
+$$
+\Longleftrightarrow A\text{ 由规范正交基组成}
+$$
+
+$$
+\Longleftrightarrow A^T\text{ 是正交矩阵}
+$$
+
+$$
+\Longleftrightarrow A^{-1}\text{ 是正交矩阵}
+$$
+
+$$
+\Longleftrightarrow A^*\text{ 是正交矩阵}
+$$
+
+$$
+\Longleftrightarrow -A\text{ 是正交矩阵}.
+$$
+
+> 即组成 $A$ 的每一行（列）均为两两正交的单位向量。
+
+（2）若 $A,B$ 为同阶正交矩阵，则 $AB$ 为正交矩阵，但 $A+B$ 不一定为正交矩阵。
+
+（3）若 $A$ 为正交矩阵，则其实特征值的取值范围为 $\{-1,1\}$。

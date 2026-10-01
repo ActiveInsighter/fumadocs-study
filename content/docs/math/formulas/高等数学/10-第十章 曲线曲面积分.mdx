@@ -1,0 +1,340 @@
+---
+title: "第十章 曲线曲面积分"
+---
+
+## 第十章 曲线曲面积分
+
+### 1. 曲线积分化为定积分
+
+（1）若曲线 $L:y=\varphi(x),\ a\le x\le b$，则
+
+① 第一类曲线积分
+
+$$
+\int_L f(x,y)\,ds
+=\int_a^b f[x,\varphi(x)]\sqrt{1+[\varphi'(x)]^2}\,dx.
+$$
+
+② 第二类曲线积分
+
+$$
+\int_L P(x,y)\,dx+Q(x,y)\,dy
+=\int_a^b\{P[x,\varphi(x)]+Q[x,\varphi(x)]\varphi'(x)\}\,dx.
+$$
+
+（2）若曲线 $L:x=x(t),y=y(t),z=z(t)$，其中 $a\le t\le\beta$（第一类），从 $A$（起点）到 $B$（终点）（第二类）分段光滑，被积函数连续，则
+
+① 第一类曲线积分
+
+$$
+\int_L f(x,y,z)\,ds
+=\int_a^\beta f[x(t),y(t),z(t)]\sqrt{x'^2(t)+y'^2(t)+z'^2(t)}\,dt.
+$$
+
+② 第二类曲线积分
+
+$$
+\int_C P\,dx+Q\,dy+R\,dz
+=\int_a^\beta\{P[x(t),y(t),z(t)]x'(t)+Q[x(t),y(t),z(t)]y'(t)+R[x(t),y(t),z(t)]z'(t)\}\,dt.
+$$
+
+### 2. 第一类曲线积分的简化
+
+（1）若 $L$ 关于 $y$ 轴对称，则
+
+$$
+\int_L f(x,y)\,ds=
+\begin{cases}
+0, & \text{若 }f(-x,y)=-f(x,y),\\[4pt]
+2\displaystyle\int_{L_1}f(x,y)\,ds, & \text{若 }f(-x,y)=f(x,y).
+\end{cases}
+$$
+
+其中 $L_1$ 是 $L$ 在 $y$ 轴右方的部分；
+
+（2）若 $L$ 关于 $x$ 轴对称，则
+
+$$
+\int_L f(x,y)\,ds=
+\begin{cases}
+0, & \text{若 }f(x,-y)=-f(x,y),\\[4pt]
+2\displaystyle\int_{L_1}f(x,y)\,ds, & \text{若 }f(x,-y)=f(x,y).
+\end{cases}
+$$
+
+其中 $L_1$ 是 $L$ 在 $y$ 轴上方的部分。
+
+（3）轮换对称性
+
+如果积分区域关于变量 $x,y$ 具有轮换对称性（即 $x$ 换成 $y$，$y$ 换成 $x$，其表达式不变），则
+
+$$
+\int_L f(x,y)\,ds
+=\int_L f(y,x)\,ds
+=\frac12\int_L[f(x,y)+f(y,x)]\,ds.
+$$
+
+### 3. 第一类曲面积分化为二重积分
+
+$S:z=z(x,y),(x,y)\in D_{xy}$ 分块光滑，$f(x,y,z)$ 在 $S$ 上连续，则
+
+$$
+\iint_S f(x,y,z)\,dS
+=\iint_{D_{xy}}f[x,y,z(x,y)]\sqrt{1+z_x'^2+z_y'^2}\,d\sigma.
+$$
+
+向其余两个坐标面投影类似。
+
+### 4. 第二类曲面积分化为重积分
+
+（1）若 $S:z=z(x,y),(x,y)\in D_{xy}$ 分块光滑，$P(x,y,z),Q(x,y,z),R(x,y,z)$ 连续，则
+
+$$
+\iint_S P\,dydz+Q\,dzdx+R\,dxdy
+=\pm\iint_{D_{xy}}
+\left[P(x,y,z)\left(-\frac{\partial z}{\partial x}\right)
++Q(x,y,z)\left(-\frac{\partial z}{\partial y}\right)
++R(x,y,z)\right]dxdy.
+$$
+
+上式中，曲面 $S$ 的方向为上侧时取“$+$”，$S$ 的方向为下侧时取“$-$”。
+
+（2）若 $S:y=y(x,z),(x,z)\in D_{xz}$ 分块光滑，$P(x,y,z),Q(x,y,z),R(x,y,z)$ 连续，则
+
+$$
+\iint_S P\,dydz+Q\,dzdx+R\,dxdy
+=\pm\iint_{D_{xz}}
+\left[P(x,y,z)\left(-\frac{\partial y}{\partial x}\right)
++Q(x,y,z)
++R(x,y,z)\left(-\frac{\partial y}{\partial z}\right)\right]dxdz.
+$$
+
+上式中，曲面 $S$ 的方向为右侧取“$+$”，$S$ 的方向为左侧取“$-$”。
+
+（3）若 $S:x=x(y,z),(y,z)\in D_{yz}$ 分块光滑，$P(x,y,z),Q(x,y,z),R(x,y,z)$ 连续，则
+
+$$
+\iint_S P\,dydz+Q\,dzdx+R\,dxdy
+=\pm\iint_{D_{yz}}
+\left[P(x,y,z)
++Q(x,y,z)\left(-\frac{\partial x}{\partial y}\right)
++R(x,y,z)\left(-\frac{\partial x}{\partial z}\right)\right]dydz.
+$$
+
+上式中，曲面 $S$ 的方向为前侧取“$+$”，$S$ 的方向为后侧取“$-$”。
+
+### 5. 格林公式（第二类曲线积分与二重积分的关系）
+
+设闭区域 $D$ 由分段光滑的曲线 $L$ 围成，函数 $P(x,y)$ 和 $Q(x,y)$ 在 $D$ 上具有一阶连续偏导数，则有
+
+$$
+\oint_L P\,dx+Q\,dy
+=\iint_D\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)dxdy,
+$$
+
+其中 $L$ 为 $D$ 的取正向的边界曲线。
+
+平面曲线积分与路径无关的四个等价条件（格林公式的应用）：
+
+设函数 $P(x,y),Q(x,y)$ 在单连通区域 $D$ 内具有一阶连续偏导数，则
+
+$$
+\int_L P\,dx+Q\,dy\text{ 与路径无关}
+\Longleftrightarrow
+\frac{\partial Q}{\partial x}=\frac{\partial P}{\partial y},\ \forall(x,y)\in D
+$$
+
+$$
+\Longleftrightarrow
+\oint_L P\,dx+Q\,dy=0,
+\quad L\text{ 为 }D\text{ 内任一简单分段光滑封闭曲线}
+$$
+
+$$
+\Longleftrightarrow
+\text{存在函数 }u(x,y),(x,y)\in D,\text{ 使 }du(x,y)=P\,dx+Q\,dy,
+$$
+
+此时
+
+$$
+u(x,y)=\int_{(x_0,y_0)}^{(x,y)}P\,dx+Q\,dy.
+$$
+
+### 6. 高斯公式（第二类曲面积分与三重积分的关系）
+
+设空间闭区域 $\Omega$ 是由分片光滑的闭曲面 $\Sigma$ 所围成的，函数 $P(x,y,z),Q(x,y,z),R(x,y,z)$ 在 $\Omega$ 上具有一阶连续偏导数，则
+
+$$
+\oiint_{\Sigma}P\,dydz+Q\,dzdx+R\,dxdy
+=\iiint_{\Omega}\left(\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}\right)dv,
+$$
+
+其中 $\Sigma$ 是 $\Omega$ 的整个边界曲面的外侧，$\cos\alpha,\cos\beta,\cos\gamma$ 是 $\Sigma$ 上点 $(x,y,z)$ 处的法向量的方向余弦。
+
+### 7. 斯托克斯公式（空间曲线积分与第二类曲面积分的关系）
+
+设 $\Gamma$ 为分段光滑的空间有向闭曲线，$\Sigma$ 是以 $\Gamma$ 为边界的分片光滑的有向曲面，$\Gamma$ 的正向与 $\Sigma$ 的侧符合右手规则，$P,Q,R$ 在包含曲面 $\Sigma$ 在内的一个空间区域内具有一阶连续偏导数，则有
+
+$$
+\oint_{\Gamma}P\,dx+Q\,dy+R\,dz
+=\iint_{\Sigma}\left(\frac{\partial R}{\partial y}-\frac{\partial Q}{\partial z}\right)dydz
++\left(\frac{\partial P}{\partial z}-\frac{\partial R}{\partial x}\right)dzdx
++\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)dxdy
+$$
+
+$$
+=\iint_{\Sigma}
+\begin{vmatrix}
+dydz & dzdx & dxdy\\
+\dfrac{\partial}{\partial x} & \dfrac{\partial}{\partial y} & \dfrac{\partial}{\partial z}\\
+P & Q & R
+\end{vmatrix}
+=\iint_{\Sigma}
+\begin{vmatrix}
+\cos\alpha & \cos\beta & \cos\gamma\\
+\dfrac{\partial}{\partial x} & \dfrac{\partial}{\partial y} & \dfrac{\partial}{\partial z}\\
+P & Q & R
+\end{vmatrix}dS.
+$$
+
+其中 $\boldsymbol n=(\cos\alpha,\cos\beta,\cos\gamma)$ 为 $\Sigma$ 的单位法向量。
+
+### 8. 通量、散度、旋度
+
+（1）通量
+
+设
+
+$$
+\boldsymbol A(x,y,z)=P(x,y,z)\boldsymbol i+Q(x,y,z)\boldsymbol j+R(x,y,z)\boldsymbol k,
+$$
+
+$P,Q,R$ 有一阶连续偏导数，$\Sigma$ 为场内一有向曲面，$\boldsymbol n$ 为 $\Sigma$ 上点 $(x,y,z)$ 处的单位法向量，则
+
+$$
+\iint_{\Sigma}\boldsymbol A\cdot\boldsymbol n\,dS
+$$
+
+称为 $\boldsymbol A$ 通过曲面 $\Sigma$ 向着指定侧的通量（流量）。
+
+（2）散度
+
+设
+
+$$
+\boldsymbol A(x,y,z)=P(x,y,z)\boldsymbol i+Q(x,y,z)\boldsymbol j+R(x,y,z)\boldsymbol k,
+$$
+
+则称 $\dfrac{\partial P}{\partial x}+\dfrac{\partial Q}{\partial y}+\dfrac{\partial R}{\partial z}$ 为 $\boldsymbol A$ 在点 $(x,y,z)$ 处的散度，记
+
+$$
+\operatorname{div}\boldsymbol A
+=\frac{\partial P}{\partial x}+\frac{\partial Q}{\partial y}+\frac{\partial R}{\partial z}.
+$$
+
+（3）旋度
+
+设
+
+$$
+\boldsymbol A(x,y,z)=P(x,y,z)\boldsymbol i+Q(x,y,z)\boldsymbol j+R(x,y,z)\boldsymbol k,
+$$
+
+则旋度为
+
+$$
+\operatorname{rot}\boldsymbol A
+=\left(\frac{\partial R}{\partial y}-\frac{\partial Q}{\partial z}\right)\boldsymbol i
++\left(\frac{\partial P}{\partial z}-\frac{\partial R}{\partial x}\right)\boldsymbol j
++\left(\frac{\partial Q}{\partial x}-\frac{\partial P}{\partial y}\right)\boldsymbol k
+=\begin{vmatrix}
+\boldsymbol i & \boldsymbol j & \boldsymbol k\\
+\dfrac{\partial}{\partial x} & \dfrac{\partial}{\partial y} & \dfrac{\partial}{\partial z}\\
+P & Q & R
+\end{vmatrix}.
+$$
+
+### 9. 多元积分的应用
+
+（1）求曲顶柱体的体积
+
+如果 $\Omega$ 的底面在坐标平面上，则 $\Omega$ 的体积为
+
+$$
+V=\iiint_{\Omega}|1|\,dv,
+$$
+
+或
+
+$$
+V=\iint_D|z(x,y)|\,dxdy,
+$$
+
+其中 $D$ 是 $\Omega$ 在 $xOy$ 面上的投影。
+
+（2）空间曲面的面积
+
+设曲面 $S$ 由方程 $z=f(x,y)$ 给出，$D_{xy}$ 为曲面 $S$ 在 $xOy$ 面上的投影区域，函数 $f(x,y)$ 在 $D_{xy}$ 上具有连续偏导数 $f_x(x,y)$ 和 $f_y(x,y)$，则曲面面积
+
+$$
+A=\iint_{D_{xy}}\sqrt{1+\left(\frac{\partial z}{\partial x}\right)^2+\left(\frac{\partial z}{\partial y}\right)^2}\,dxdy.
+$$
+
+（3）质心
+
+设平面薄片 $D$ 的面密度为 $\rho(x,y)$，假定 $\rho(x,y)$ 在 $D$ 上连续，薄片的质心坐标 $(\bar{x},\bar{y})$ 为
+
+$$
+\bar{x}=\frac{\iint_D x\rho(x,y)\,d\sigma}{\iint_D\rho(x,y)\,d\sigma},\qquad
+\bar{y}=\frac{\iint_D y\rho(x,y)\,d\sigma}{\iint_D\rho(x,y)\,d\sigma}.
+$$
+
+设空间立体 $\Omega$ 的体密度为 $\rho(x,y,z)$，假定 $\rho(x,y,z)$ 在 $\Omega$ 上连续，该立体的质心坐标 $(\bar{x},\bar{y},\bar{z})$ 为
+
+$$
+\bar{x}=\frac{\iiint_{\Omega}x\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv},\qquad
+\bar{y}=\frac{\iiint_{\Omega}y\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv},\qquad
+\bar{z}=\frac{\iiint_{\Omega}z\rho(x,y,z)\,dv}{\iiint_{\Omega}\rho(x,y,z)\,dv}.
+$$
+
+（4）转动惯量
+
+设薄片 $D$ 的面密度为 $\rho(x,y)$，假定 $\rho(x,y)$ 在 $D$ 上连续。该薄片对于 $x$ 轴、$y$ 轴的转动惯量为 $I_x,I_y$，则
+
+$$
+I_x=\iint_D y^2\rho(x,y)\,d\sigma,\qquad
+I_y=\iint_D x^2\rho(x,y)\,d\sigma.
+$$
+
+设空间立体 $\Omega$ 的体密度为 $\rho(x,y,z)$，假定 $\rho(x,y,z)$ 在 $\Omega$ 上连续，该立体对 $x$ 轴、$y$ 轴、$z$ 轴的转动惯量为 $I_x,I_y,I_z$，则
+
+$$
+I_x=\iiint_{\Omega}(y^2+z^2)\rho(x,y,z)\,dv,\qquad
+I_y=\iiint_{\Omega}(x^2+z^2)\rho(x,y,z)\,dv,\qquad
+I_z=\iiint_{\Omega}(x^2+y^2)\rho(x,y,z)\,dv.
+$$
+
+（5）空间物体对质点的引力
+
+设物体占有空间区域 $\Omega$，在点 $(x,y,z)$ 处的密度为 $\rho(x,y,z)$，$\Omega$ 外有一质点 $M_0(x_0,y_0,z_0)$，其质量为 $m_0$，假定 $\rho(x,y,z)$ 在 $\Omega$ 上连续，则物体对质点的引力为
+
+$$
+\boldsymbol F=\{F_x,F_y,F_z\},
+$$
+
+其中
+
+$$
+F_x=\iiint_{\Omega}\frac{Gm_0\rho(x,y,z)(x-x_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv,
+$$
+
+$$
+F_y=\iiint_{\Omega}\frac{Gm_0\rho(x,y,z)(y-y_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv,
+$$
+
+$$
+F_z=\iiint_{\Omega}\frac{Gm_0\rho(x,y,z)(z-z_0)}{[(x-x_0)^2+(y-y_0)^2+(z-z_0)^2]^{3/2}}\,dv.
+$$
+
+$G$ 为引力常数。

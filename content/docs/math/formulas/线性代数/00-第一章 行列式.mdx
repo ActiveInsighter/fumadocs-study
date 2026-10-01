@@ -1,0 +1,177 @@
+---
+title: "第一章 行列式"
+---
+
+## 第一章 行列式
+
+### 1. 行列式的性质
+
+**性质 1**　行列互换，其值不变，即 $|A|=|A^{\mathrm T}|$。
+
+**性质 2**　行列式中某行（列）元素全为零，则行列式为零。
+
+**性质 3**　行列式中的两行（列）元素相等或对应成比例，则行列式为零。
+
+**性质 4**　行列式中某行（列）元素均是两个元素之和，则可拆成两个行列式之和，即
+
+$$
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+\vdots&\vdots&&\vdots\\
+a_{i1}+b_{i1}&a_{i2}+b_{i2}&\cdots&a_{in}+b_{in}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}
+=
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+\vdots&\vdots&&\vdots\\
+a_{i1}&a_{i2}&\cdots&a_{in}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}
++
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+\vdots&\vdots&&\vdots\\
+b_{i1}&b_{i2}&\cdots&b_{in}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}.
+$$
+
+**性质 5**　行列式中两行（列）互换，行列式的值反号。
+
+**性质 6**　行列式中某行（列）元素有公因子 $k(k\ne0)$，则 $k$ 可提到行列式外面，即
+
+$$
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+\vdots&\vdots&&\vdots\\
+ka_{i1}&ka_{i2}&\cdots&ka_{in}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}
+=k
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+\vdots&\vdots&&\vdots\\
+a_{i1}&a_{i2}&\cdots&a_{in}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}.
+$$
+
+**性质 7**　行列式中某行（列）的 $k$ 倍加到另一行（列），行列式的值不变。
+
+### 2. 数字型行列式常用公式
+
+（1）
+
+$$
+\begin{vmatrix}
+a_{11}&0&\cdots&0\\
+0&a_{22}&\cdots&0\\
+\vdots&\vdots&\ddots&\vdots\\
+0&0&\cdots&a_{nn}
+\end{vmatrix}
+=
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+0&a_{22}&\cdots&a_{2n}\\
+\vdots&\vdots&\ddots&\vdots\\
+0&0&\cdots&a_{nn}
+\end{vmatrix}
+=
+\begin{vmatrix}
+a_{11}&0&\cdots&0\\
+a_{21}&a_{22}&\cdots&0\\
+\vdots&\vdots&\ddots&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}
+=a_{11}a_{22}\cdots a_{nn}.
+$$
+
+$$
+\begin{vmatrix}
+0&0&\cdots&\lambda_1\\
+0&\cdots&\lambda_2&*\\
+\vdots&\iddots&\vdots&\vdots\\
+\lambda_n&*&\cdots&*
+\end{vmatrix}
+=(-1)^{\frac{n(n-1)}2}\lambda_1\lambda_2\cdots\lambda_n.
+$$
+
+（2）设 $A$ 是 $m$ 阶方阵，$B$ 是 $n$ 阶方阵，则
+
+①
+
+$$
+\begin{vmatrix}
+A&O\\
+O&B
+\end{vmatrix}
+=
+\begin{vmatrix}
+A&C\\
+O&B
+\end{vmatrix}
+=
+\begin{vmatrix}
+A&O\\
+C&B
+\end{vmatrix}
+=|A||B|.
+$$
+
+②
+
+$$
+\begin{vmatrix}
+O&A\\
+B&O
+\end{vmatrix}
+=
+\begin{vmatrix}
+O&A\\
+B&C
+\end{vmatrix}
+=
+\begin{vmatrix}
+C&A\\
+B&O
+\end{vmatrix}
+=(-1)^{mn}|A||B|.
+$$
+
+（3）范德蒙行列式
+
+$$
+D_n=
+\begin{vmatrix}
+1&1&1&\cdots&1\\
+x_1&x_2&x_3&\cdots&x_n\\
+x_1^2&x_2^2&x_3^2&\cdots&x_n^2\\
+\vdots&\vdots&\vdots&&\vdots\\
+x_1^{n-1}&x_2^{n-1}&x_3^{n-1}&\cdots&x_n^{n-1}
+\end{vmatrix}
+=\prod_{1\le j<i\le n}(x_i-x_j).
+$$
+
+### 3. 抽象型行列式的常用公式
+
+设 $A,B$ 为 $n$ 阶方阵，则
+
+（1）$|A^{\mathrm T}|=|A|$。
+
+（2）$|\lambda A|=\lambda^n|A|$。
+
+（3）$|AB|=|BA|=|A||B|$，$|A^k|=|A|^k$。
+
+（4）$|A^{-1}|=\dfrac1{|A|}$（若 $A$ 可逆）。
+
+（5）$|A^*|=|A|^{n-1}\ (n\ge2)$。
+
+（6）$|A|=\lambda_1\lambda_2\cdots\lambda_n$，其中 $\lambda_1,\lambda_2,\cdots,\lambda_n$ 是 $A$ 的 $n$ 个特征值。
+
+（7）若 $A$ 与 $B$ 相似，则 $|A|=|B|$。

@@ -1,0 +1,172 @@
+---
+title: "第六章 二次型"
+---
+
+## 第六章 二次型
+
+### 1. 标准正交化
+
+将一线性无关的向量组（以 $\alpha_1,\alpha_2,\alpha_3$ 为例）化为标准正交向量组的方法：
+
+步骤 1. 施密特正交化：
+
+$$
+\beta_1=\alpha_1,
+$$
+
+$$
+\beta_2=\alpha_2-\frac{(\alpha_2,\beta_1)}{(\beta_1,\beta_1)}\beta_1,
+$$
+
+$$
+\beta_3=\alpha_3-\frac{(\alpha_3,\beta_1)}{(\beta_1,\beta_1)}\beta_1-\frac{(\alpha_3,\beta_2)}{(\beta_2,\beta_2)}\beta_2.
+$$
+
+步骤 2. 规范化（单位化）：
+
+$$
+\gamma_1=\frac{\beta_1}{\|\beta_1\|},\qquad
+\gamma_2=\frac{\beta_2}{\|\beta_2\|},\qquad
+\gamma_3=\frac{\beta_3}{\|\beta_3\|}.
+$$
+
+### 2. 正交相似对角化的步骤
+
+（1）求出对称阵 $A$ 的特征值 $\lambda_1,\lambda_2,\cdots,\lambda_n$；
+
+（2）求出 $A$ 的 $n$ 个线性无关的特征向量 $\alpha_1,\alpha_2,\cdots,\alpha_n$；
+
+（3）将 $\alpha_1,\alpha_2,\cdots,\alpha_n$ 正交化和单位化，得到 $\beta_1,\beta_2,\cdots,\beta_n$；
+
+（4）令
+
+$$
+Q=(\beta_1,\beta_2,\cdots,\beta_n),\qquad
+\Lambda=\begin{pmatrix}
+\lambda_1&&0\\
+&\lambda_2&\\
+&&\ddots\\
+0&&&\lambda_n
+\end{pmatrix},
+$$
+
+则 $Q^{-1}AQ=Q^TAQ=\Lambda$。
+
+### 3. 化二次型为标准型的方法
+
+（1）正交变换法
+
+1. 写出二次型 $f$ 的矩阵 $A$；
+2. 求出 $A$ 的特征值 $\lambda_1,\lambda_2,\cdots,\lambda_n$；
+3. 求出 $A$ 的 $n$ 个线性无关的特征向量 $\alpha_1,\alpha_2,\cdots,\alpha_n$；
+4. 将 $\alpha_1,\alpha_2,\cdots,\alpha_n$ 正交化和单位化，得正交规范向量组 $\beta_1,\beta_2,\cdots,\beta_n$；
+5. 构造正交阵 $Q=(\beta_1,\beta_2,\cdots,\beta_n)$，令 $x=Qy$，得二次型的标准形
+
+$$
+f=\lambda_1y_1^2+\lambda_2y_2^2+\cdots+\lambda_ny_n^2.
+$$
+
+（2）配方法
+
+1. 设二次型中含有平方项，不妨设包含 $x_1^2$ 项，即系数 $a_{11}\ne0$，则对所有含 $x_1$ 的项配方；配方后余下各项不再含 $x_1$，再对所有含 $x_2$ 的项配方，……，直至所有项都在各自完全平方项中。引入新变量 $y_1,y_2,\cdots,y_n$，由 $y=C^{-1}x$，得
+
+$$
+f=k_1y_1^2+k_2y_2^2+\cdots+k_ny_n^2.
+$$
+
+2. 若二次型中不含平方项，但有混合项，不妨设有 $x_1x_2$ 项，即系数 $a_{12}\ne0$，则可令
+
+$$
+x_1=y_1+y_2,\quad x_2=y_1-y_2,\quad x_3=y_3,\quad\cdots,\quad x_n=y_n,
+$$
+
+经此变换，二次型中出现平方项 $a_{12}y_1^2-a_{12}y_2^2$，再按步骤（1）进行配方。
+
+### 4. 相似与合同
+
+【判断相似】
+
+（1）若 $P^{-1}AP=B$，则 $A$ 与 $B$ 相似。
+
+（2）若 $A$ 与 $B$ 相似，$B$ 与 $C$ 相似，则 $A$ 与 $C$ 相似。
+
+（3）设 $A$ 与 $B$ 均可相似对角化，则
+
+$$
+A\text{ 与 }B\text{ 相似}\Longleftrightarrow A\text{ 与 }B\text{ 有完全相同的特征值}.
+$$
+
+【判断合同】
+
+（1）若 $C^TAC=B$，则 $A$ 与 $B$ 合同。
+
+（2）若 $A$ 与 $B$ 合同，$B$ 与 $C$ 合同，则 $A$ 与 $C$ 合同。
+
+（3）实对称矩阵 $A$ 与 $B$ 合同 $\Longleftrightarrow A$ 与 $B$ 有相同的正、负惯性指数。
+
+【相似与合同的关系】
+
+（1）普通矩阵相似不一定合同，合同也不一定相似。
+
+（2）实对称矩阵相似一定合同。
+
+### 5. 正定的充要条件
+
+$f(x)=x^TAx$ 为正定二次型（或对称阵 $A$ 为正定矩阵）的充分必要条件有：
+
+1. 对任何 $x\ne0$，都有 $x^TAx>0$；
+2. $f$ 的正惯性指数为 $n$；
+3. 存在可逆矩阵 $C$，使得 $A=C^TC$，即 $A$ 与 $E$ 合同；
+4. $A$ 的所有特征值全为正数；
+5. $A$ 的各阶顺序主子式都大于 $0$，即
+
+$$
+a_{11}>0,\quad
+\begin{vmatrix}a_{11}&a_{12}\\a_{21}&a_{22}\end{vmatrix}>0,\quad\cdots,\quad
+\begin{vmatrix}
+a_{11}&a_{12}&\cdots&a_{1n}\\
+a_{21}&a_{22}&\cdots&a_{2n}\\
+\vdots&\vdots&&\vdots\\
+a_{n1}&a_{n2}&\cdots&a_{nn}
+\end{vmatrix}>0.
+$$
+
+### 6. 正定的重要结论
+
+① 若 $A$ 正定，则 $kA,A^{-1},A^*,A^m,C^TAC$ 正定（$k>0$，$m$ 为正整数，$|C|\ne0$）。
+
+② 若 $A,B$ 正定，则 $A+B$ 正定，$\begin{bmatrix}A&O\\O&B\end{bmatrix}$ 正定。
+
+③ 若 $A,B$ 正定，则 $AB$ 正定的充要条件是 $AB=BA$。
+
+④ 若 $A$ 正定且是正交矩阵，则 $A=E$。
+
+### 7. 柯西不等式（24年数一真题考察，非考纲内公式）
+
+设实对称矩阵 $A_{n\times n}$ 正定，证明：对于任给的 $n$ 维列向量 $\alpha,\beta$，均有
+
+$$
+(\alpha^TA\alpha)(\beta^TA\beta)\ge(\alpha^TA\beta)^2.
+$$
+
+【注】事实上，$A$ 可放宽至半正定。
+
+### 8. 二次型的最值问题
+
+若 $A$ 的特征值大小排序为 $\lambda_1\le\lambda_2\le\cdots\le\lambda_n$，则
+
+① $\lambda_1x^Tx\le x^TAx\le\lambda_nx^Tx$。
+
+② 若 $x^Tx=1$，则 $f_{\min}=\lambda_1$，$f_{\max}=\lambda_n$。
+
+### 9. 二次型的几何应用
+
+二次曲面 $f(x_1,x_2,x_3)=1$ 的类型：
+
+| $\lambda_1,\lambda_2,\lambda_3$ 的符号 | $f(x_1,x_2,x_3)=1$ |
+| --- | --- |
+| 3 正 | 椭球面 |
+| 2 正 1 负 | 单叶双曲面 |
+| 1 正 2 负 | 双叶双曲面 |
+| 2 正 1 零 | 椭圆柱面 |
+| 1 正 1 负 1 零 | 双曲柱面 |

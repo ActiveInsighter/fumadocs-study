@@ -1,0 +1,256 @@
+---
+title: "第四章 微分方程"
+---
+
+## 第四章 微分方程
+
+### 1. 可分离变量方程
+
+$$
+f_1(x)g_1(y)\,dx+f_2(x)g_2(y)\,dy=0,
+$$
+
+分离变量两边同除 $g_1(y)f_2(x)\ne0$，得
+
+$$
+\frac{f_1(x)}{f_2(x)}\,dx+\frac{g_2(y)}{g_1(y)}\,dy=0,
+$$
+
+然后两边积分即可。
+
+### 2. 齐次方程
+
+$$
+y'=f\!\left(\frac{y}{x}\right).
+$$
+
+令 $u=\dfrac{y}{x}$，则 $y=ux$，$y'=u+x\dfrac{du}{dx}$，于是原方程可化为
+
+$$
+u+x\frac{du}{dx}=f(u)
+\Rightarrow
+\frac{du}{f(u)-u}=\frac{dx}{x}
+\Rightarrow
+\int\frac{du}{f(u)-u}=\ln|x|+C.
+$$
+
+求出积分后，再以 $\dfrac{y}{x}$ 代替 $u$，便得所给齐次方程的通解。
+
+### 3. 一阶线性方程
+
+$$
+y'+p(x)y=q(x),
+$$
+
+求解公式：
+
+$$
+y=\left[\int q(x)e^{\int p(x)\,dx}\,dx+C\right]e^{-\int p(x)\,dx}.
+$$
+
+### 4. 伯努利方程
+
+$$
+y'+p(x)y=q(x)y^n,\qquad n\ne0,1.
+$$
+
+令 $z=y^{1-n}$，则方程化为
+
+$$
+\frac1{1-n}\frac{dz}{dx}+p(x)z=q(x)
+\Rightarrow
+\frac{dz}{dx}+(1-n)p(x)z=(1-n)q(x),
+$$
+
+变形后已是一阶线性方程，可直接带入公式。
+
+### 5. 全微分方程
+
+$$
+M(x,y)\,dx+N(x,y)\,dy=0
+$$
+
+为全微分方程
+
+$$
+\Longleftrightarrow\qquad \frac{\partial M}{\partial y}=\frac{\partial N}{\partial x}.
+$$
+
+通解为
+
+$$
+u(x,y)=\int_{x_0}^{x}M(x,y_0)\,dx+\int_{y_0}^{y}N(x,y)\,dy=C.
+$$
+
+### 6. 二阶常系数线性微分方程
+
+$$
+y''+py'+qy=0,
+$$
+
+其中 $p,q$ 均为常数。
+
+特征方程：
+
+$$
+\lambda^2+p\lambda+q=0.
+$$
+
+1. 当 $\lambda_1,\lambda_2$ 为互异实根时，微分方程通解为
+
+$$
+y(x)=C_1e^{\lambda_1x}+C_2e^{\lambda_2x}.
+$$
+
+2. 当 $\lambda_1=\lambda_2$ 时，通解为
+
+$$
+y(x)=(C_1+C_2x)e^{\lambda_1x}.
+$$
+
+3. 当 $\lambda=\alpha\pm i\beta$（复根）时，通解为
+
+$$
+y(x)=e^{\alpha x}(C_1\cos\beta x+C_2\sin\beta x).
+$$
+
+### 7. 二阶常系数线性非齐次方程
+
+$$
+y''+py'+qy=f(x),
+$$
+
+其中 $p,q$ 均为常数。
+
+通解的求解步骤：
+
+1. 求对应的齐次方程的通解 $Y(x)$；
+2. 用待定系数法求出非齐次方程的特解 $y^*(x)$；
+3. 写出非齐次方程的通解为 $y^*(x)+Y(x)$。
+
+### 8. 二阶常系数非齐次线性方程的非齐次项与特解的关系
+
+| 非齐次项 | 特解 $y^*(x)$ 的形式 |
+| --- | --- |
+| $f(x)=P_n(x)e^{ax}$，其中 $P_n(x)$ 为 $x$ 的 $n$ 次多项式 | $a$ 不是特征根：$y^*(x)=R_n(x)e^{ax}$；$a$ 是特征方程的单根：$y^*(x)=xR_n(x)e^{ax}$；$a$ 是特征方程的重根：$y^*(x)=x^2R_n(x)e^{ax}$。其中 $R_n(x)$ 为 $n$ 次多项式的一般形式 |
+| $f(x)=P_n(x)e^{\alpha x}\sin\beta x$ 或 $f(x)=P_n(x)e^{\alpha x}\cos\beta x$，其中 $P_n(x)$ 为 $n$ 次多项式的一般形式 | $y^*(x)=x^ke^{\alpha x}[Q_n(x)\cos\beta x+W_n(x)\sin\beta x]$。$\alpha\pm i\beta$ 不是特征根时 $k=0$；$\alpha\pm i\beta$ 是特征根时 $k=1$。其中 $Q_n(x),W_n(x)$ 为 $n$ 次多项式的一般形式 |
+
+### 9. 二阶可降阶微分方程
+
+若是 $y''$，则：
+
+1. 能写成 $y''=f(x,y')$ 或 $y''=f(y')$。
+
+   ① 缺 $y$，令 $y'=p$，$y''=p'$，则原方程变为一阶方程
+
+   $$
+   \frac{dp}{dx}=f(x,p)
+   $$
+
+   或
+
+   $$
+   \frac{dp}{dx}=f(p).
+   $$
+
+   ② 若求得其通解为 $p=\varphi(x,C_1)$，即 $y'=\varphi(x,C_1)$，则原方程的通解为
+
+   $$
+   y=\int\varphi(x,C_1)\,dx+C_2.
+   $$
+
+2. 能写成 $y''=f(y,y')$。
+
+   ① 缺 $x$，令 $y'=p$，则
+
+   $$
+   y''=\frac{dp}{dx}=\frac{dp}{dy}\frac{dy}{dx}=\frac{dp}{dy}\,p,
+   $$
+
+   则原方程变为一阶方程
+
+   $$
+   p\frac{dp}{dy}=f(y,p).
+   $$
+
+   ② 若求得其通解为 $p=\varphi(y,C_1)$，则由 $p=\dfrac{dy}{dx}$ 得
+
+   $$
+   \frac{dy}{dx}=\varphi(y,C_1),
+   $$
+
+   分离变量得
+
+   $$
+   \frac{dy}{\varphi(y,C_1)}=dx.
+   $$
+
+   ③ 两边积分得
+
+   $$
+   \int\frac{dy}{\varphi(y,C_1)}=x+C_2,
+   $$
+
+   即可求得原方程的通解。
+
+### 10. 二阶以上的常系数线性齐次微分方程
+
+$n$ 阶常系数线性齐次微分方程的一般形式是：
+
+$$
+y^{(n)}+p_1y^{(n-1)}+p_2y^{(n-2)}+\cdots+p_{n-1}y'+p_ny=0,
+$$
+
+其中 $p_i\ (i=1,2,\cdots,n)$ 为常数。
+
+相应的特征方程为
+
+$$
+\lambda^n+p_1\lambda^{n-1}+p_2\lambda^{n-2}+\cdots+p_{n-1}\lambda+p_n=0.
+$$
+
+1. 若特征方程有 $n$ 个不同的实根 $\lambda_1,\lambda_2,\cdots,\lambda_n$，则方程通解
+
+$$
+y=C_1e^{\lambda_1x}+C_2e^{\lambda_2x}+\cdots+C_ne^{\lambda_nx}.
+$$
+
+2. 若 $\lambda_0$ 为特征方程的 $k$ 重实根 $(k\le n)$，则方程通解中含有
+
+$$
+(C_1+C_2x+\cdots+C_kx^{k-1})e^{\lambda_0x}.
+$$
+
+3. 若 $\alpha\pm i\beta$ 为特征方程的 $k$ 重共轭复根 $(2k\le n)$，则方程通解中含有
+
+$$
+e^{\alpha x}\left[(C_1+C_2x+\cdots+C_kx^{k-1})\cos\beta x+(D_1+D_2x+\cdots+D_kx^{k-1})\sin\beta x\right].
+$$
+
+### 11. 欧拉方程
+
+形如
+
+$$
+x^2y''+axy'+by=f(x)
+$$
+
+的微分方程称为二阶欧拉方程，其中 $a,b$ 是常数。
+
+求解方法：当 $x>0$ 时，作变量代换 $x=e^t$，则
+
+$$
+\frac{dy}{dx}=\frac{dy}{dt}\frac{dt}{dx}=\frac1x\frac{dy}{dt},
+$$
+
+$$
+\frac{d^2y}{dx^2}=\frac1{x^2}\left(\frac{d^2y}{dt^2}-\frac{dy}{dt}\right).
+$$
+
+原欧拉方程变为
+
+$$
+\frac{d^2y}{dt^2}+(a-1)\frac{dy}{dt}+by=f(e^t),
+$$
+
+这是一个以 $t$ 为自变量、$y$ 为未知函数的二阶线性常系数微分方程。当 $x<0$ 时，通过变量代换 $x=-e^t$，可类似求解。

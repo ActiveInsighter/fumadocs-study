@@ -1,0 +1,139 @@
+---
+title: "第六章 二重积分"
+---
+
+## 第六章 二重积分
+
+### 1. 几个重要边界曲线
+
+**心形线**
+
+$$
+r=a(1-\cos\theta),
+$$
+
+$$
+r=a(1+\cos\theta).
+$$
+
+**双纽线**
+
+$$
+r^2=a^2\sin2\theta,
+$$
+
+$$
+r^2=a^2\cos2\theta.
+$$
+
+**摆线**
+
+$$
+\begin{cases}
+x=r(t-\sin t),\\
+y=r(1-\cos t).
+\end{cases}
+$$
+
+**星形线**
+
+$$
+\begin{cases}
+x=a\cos^3t,\\
+y=a\sin^3t.
+\end{cases}
+$$
+
+**螺旋线**
+
+$$
+r=a\theta.
+$$
+
+### 2. 不同坐标系下的表示
+
+直角坐标系下的二重积分表示：
+
+$$
+\iint_D f(x,y)\,d\sigma=\iint_D f(x,y)\,dxdy.
+$$
+
+极坐标系下的二重积分表示：
+
+$$
+\iint_D f(x,y)\,d\sigma=\iint_D f(r\cos\theta,r\sin\theta)\,r\,drd\theta.
+$$
+
+### 3. 二重积分的普通对称性
+
+① 如果积分区域 $D$ 关于 $x$ 轴对称，则二重积分
+
+$$
+\iint_D f(x,y)\,d\sigma=
+\begin{cases}
+0, & f(x,-y)=-f(x,y),\\
+2\displaystyle\iint_{D_1}f(x,y)\,d\sigma, & f(x,-y)=f(x,y).
+\end{cases}
+$$
+
+其中，$D_1$ 为 $D$ 在 $y\ge0$ 的部分。
+
+② 如果积分区域 $D$ 关于 $y$ 轴对称，则二重积分
+
+$$
+\iint_D f(x,y)\,d\sigma=
+\begin{cases}
+0, & f(-x,y)=-f(x,y),\\
+2\displaystyle\iint_{D_1}f(x,y)\,d\sigma, & f(-x,y)=f(x,y).
+\end{cases}
+$$
+
+其中，$D_1$ 为 $D$ 在 $x\ge0$ 的部分。
+
+③ 如果 $D$ 关于直线 $y=x$ 对称，则
+
+$$
+\iint_D f(x,y)\,d\sigma
+=\iint_D f(y,x)\,d\sigma
+=\frac12\iint_D[f(x,y)+f(y,x)]\,d\sigma.
+$$
+
+### 4. 轮换对称性
+
+若将 $D$ 中的 $x,y$ 对调后，$D$ 不变，则有
+
+$$
+I=\iint_D f(x,y)\,dxdy=\iint_D f(y,x)\,dxdy.
+$$
+
+### 5. 和式极限
+
+$$
+\iint_D f(x,y)\,d\sigma
+=\lim_{n\to\infty}\sum_{i=1}^{n}\sum_{j=1}^{n}
+f\left(a+\frac{b-a}{n}i,\ c+\frac{d-c}{n}j\right)
+\cdot\frac{b-a}{n}\cdot\frac{d-c}{n}.
+$$
+
+这里的 $D$ 不是一般的平面有界闭区域，而是一个长方形区域 $[a,b]\times[c,d]$。
+
+### 6. 几何应用
+
+曲顶为 $z=z(x,y),(x,y)\in D_{xy}$ 的柱体体积
+
+$$
+V=\iint_{D_{xy}}|z(x,y)|\,d\sigma.
+$$
+
+总质量
+
+$$
+m=\iint_D\rho(x,y)\,d\sigma.
+$$
+
+重心坐标
+
+$$
+\bar{x}=\frac{\iint_Dx\rho(x,y)\,d\sigma}{\iint_D\rho(x,y)\,d\sigma},\qquad
+\bar{y}=\frac{\iint_Dy\rho(x,y)\,d\sigma}{\iint_D\rho(x,y)\,d\sigma}.
+$$
