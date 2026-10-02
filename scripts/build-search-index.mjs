@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { buildZBSearchIndex } from './zbsearch-index.mjs';
+import { canonicalizeZBSearchManifest } from './canonicalize-zbsearch.mjs';
 import { finalizeSearchManifest } from './search-manifest.mjs';
 
 function formatMiB(bytes) {
@@ -13,6 +14,7 @@ async function main() {
   }
   const outputFile = path.resolve(process.argv[2] ?? 'public/search-index.json');
   const index = await buildZBSearchIndex({ outputFile });
+  await canonicalizeZBSearchManifest({ manifestFile: outputFile });
   const routing = await finalizeSearchManifest({ manifestFile: outputFile });
 
   console.log(

@@ -20,10 +20,10 @@ const projectEntries = [
   'app',
   'components',
   'content',
-  'lib',
   'data',
-  'styles',
+  'lib',
   'public',
+  'styles',
   '.source',
   'next-env.d.ts',
   'package.json',
@@ -105,7 +105,8 @@ async function prepareStage(stageRoot) {
     await copyProjectEntry(stageRoot, entry);
   }
 
-  // Dynamic MDX lastModified reads the original repository history.
+  // Fumadocs' lastModified plugin resolves timestamps from Git during Dynamic
+  // MDX compilation. Expose the original history without copying it into the stage.
   const gitDirectory = path.join(projectRoot, '.git').replaceAll('\\', '/');
   await writeFile(path.join(stageRoot, '.git'), `gitdir: ${gitDirectory}\n`);
 

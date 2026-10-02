@@ -86,7 +86,7 @@ jobs:
 
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts
 
 
   search:
@@ -831,6 +831,19 @@ jobs:
               throw new Error('Long table header content did not activate horizontal overflow.');
             }
             console.log('[browser-check] bold boundaries and table overflow typography passed');
+
+            // Verify the content-addressed ZBSearch files through the actual UI.
+            await page.keyboard.down('Control');
+            await page.keyboard.press('k');
+            await page.keyboard.up('Control');
+            await page.waitForSelector('[role="dialog"] input', { timeout: 30000 });
+            await page.type('[role="dialog"] input', '二叉树');
+            await page.waitForFunction(
+              () => Array.from(document.querySelectorAll('[role="dialog"] a[href]'))
+                .some((a) => a.getAttribute('href')?.startsWith('/docs/')),
+              { timeout: 60000 },
+            );
+            console.log('[browser-check] static ZBSearch returns real document links');
           } finally {
             await browser.close();
           }
