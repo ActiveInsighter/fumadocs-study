@@ -106,7 +106,10 @@ async function prepareStage(stageRoot) {
   }
 
   // Fumadocs' lastModified plugin resolves timestamps from Git during Dynamic
-  // MDX compilation. Expose the original history without copying it into the stage.
+  // MDX compilation. The isolated static stage deliberately does not copy the
+  // repository history, so expose the original Git directory through the
+  // standard worktree pointer file instead. This keeps per-page timestamps
+  // accurate without duplicating the full .git directory into the build stage.
   const gitDirectory = path.join(projectRoot, '.git').replaceAll('\\', '/');
   await writeFile(path.join(stageRoot, '.git'), `gitdir: ${gitDirectory}\n`);
 
@@ -128,9 +131,12 @@ async function prepareStage(stageRoot) {
 
 function runProcess(command, args, { cwd, env, label }) {
   const startedAt = Date.now();
-  const useShell = process.platform === 'win32' && path.extname(command).toLowerCase() === '.cmd';
 
   return new Promise((resolve, reject) => {
+    // Windows command shims such as next.cmd need a shell, but the Node
+    // executable itself must be spawned directly so paths like
+    // `C:\\Program Files\\nodejs\\node.exe` are not split at the space.
+    const useShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
     const child = spawn(command, args, {
       cwd,
       env,
@@ -164,6 +170,10 @@ function runNextBuild(stageRoot, buildId) {
     process.platform === 'win32' ? 'next.cmd' : 'next',
   );
 
+  // Next 16 uses Turbopack by default. Fumadocs Dynamic Mode keeps document
+  // bodies out of the initial bundler graph and compiles them on demand during
+  // static generation, so retain Turbopack's incremental graph and filesystem
+  // cache instead of falling back to webpack.
   return runProcess(nextCommand, ['build'], {
     cwd: stageRoot,
     env: {
@@ -275,11 +285,7 @@ async function main() {
   const { shardCount, shardIndex } = getShardCoordinates();
   const ownsGlobalAssets = shardCount === 1 || shardIndex === 0;
   const buildId = process.env.STATIC_DOCS_BUILD_ID || (await computeStaticBuildId(projectRoot));
-
-  console.log(
-    `[static-docs] Shard ${shardIndex}/${shardCount}; global search/markdown owner: ${ownsGlobalAssets ? 'yes' : 'no'}.`,
-  );
-  console.log(`[static-docs] Shared build id: ${buildId}.`);
+  console.log(`[static-docs] Shard ${shardIndex}/${shardCount}; shared build id: ${buildId}.`);
 
   try {
     await cleanStagePreservingBuildCache(stageRoot);
@@ -293,23 +299,17 @@ async function main() {
     console.log(`[timing] prepare_static_stage=${formatSeconds(Date.now() - prepareStartedAt)}`);
     logRunnerResources();
 
-    // Search is independent from the Next export. Shard 0 overlaps it with SSG;
-    // the other shards skip global work entirely because their payload contains
-    // only uniquely-owned rendered documentation routes.
+    // Separate CI jobs own search and HTML. Standalone builds retain the
+    // sequential order to keep memory bounded on smaller machines.
     const buildStartedAt = Date.now();
-    const nextPromise = runNextBuild(stageRoot, buildId);
-    const searchPromise = ownsGlobalAssets ? runSearchBuild(staticSearchRoot) : Promise.resolve(null);
-    const [nextTiming, searchTiming] = await Promise.all([nextPromise, searchPromise]);
-    const buildDurationMs = Date.now() - buildStartedAt;
+    const nextTiming = await runNextBuild(stageRoot, buildId);
     logRunnerResources();
-    console.log(`[timing] parallel_build_wall=${formatSeconds(buildDurationMs)}`);
-    if (searchTiming) {
-      console.log(
-        `[timing] parallel_build_sum=${formatSeconds(nextTiming.durationMs + searchTiming.durationMs)}`,
-      );
-    } else {
-      console.log('[timing] global_search_skipped=1');
-    }
+    const searchTiming = ownsGlobalAssets ? await runSearchBuild(staticSearchRoot) : null;
+    const buildDurationMs = Date.now() - buildStartedAt;
+    console.log(`[timing] sequential_build_wall=${formatSeconds(buildDurationMs)}`);
+    console.log(
+      `[timing] sequential_build_sum=${formatSeconds(nextTiming.durationMs + (searchTiming?.durationMs ?? 0))}`,
+    );
 
     const assembleStartedAt = Date.now();
     await rm(staticOutputRoot, { recursive: true, force: true });
@@ -318,9 +318,7 @@ async function main() {
     console.log(`[timing] assemble_static_and_search=${formatSeconds(Date.now() - assembleStartedAt)}`);
 
     const markdownStartedAt = Date.now();
-    const markdownCount = ownsGlobalAssets
-      ? await generateStaticMarkdownRoutes(staticOutputRoot)
-      : 0;
+    const markdownCount = ownsGlobalAssets ? await generateStaticMarkdownRoutes(staticOutputRoot) : 0;
     console.log(`[timing] direct_markdown_build=${formatSeconds(Date.now() - markdownStartedAt)}`);
 
     const summaryStartedAt = Date.now();
