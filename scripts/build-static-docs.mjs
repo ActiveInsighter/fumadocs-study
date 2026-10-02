@@ -3,6 +3,7 @@ import { cpus, freemem, totalmem } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import { computeStaticBuildId } from './static-build-id.mjs';
 import { shouldIncludeInStaticDocsProject } from './static-docs-config.mjs';
 import {
   buildStaticMarkdownDocument,
@@ -15,7 +16,10 @@ const staticOutputRoot = path.join(projectRoot, '.static-docs');
 const staticStageRoot = path.join(projectRoot, '.static-docs-stage');
 const staticSearchRoot = path.join(projectRoot, '.static-search-output');
 
+// Tailwind respects this ignore file when scanning the isolated project.
+// Without it restored .next/cache files become accidental utility sources.
 const projectEntries = [
+  '.gitignore',
   'app',
   'components',
   'content',
@@ -46,6 +50,18 @@ function formatSeconds(ms) {
 
 function formatMiB(bytes) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
+}
+
+function getShardCoordinates() {
+  const shardCount = Number.parseInt(process.env.STATIC_DOCS_SHARD_COUNT ?? '1', 10);
+  const shardIndex = Number.parseInt(process.env.STATIC_DOCS_SHARD_INDEX ?? '0', 10);
+  if (!Number.isInteger(shardCount) || shardCount < 1) {
+    throw new Error(`Invalid static docs shard count: ${shardCount}.`);
+  }
+  if (!Number.isInteger(shardIndex) || shardIndex < 0 || shardIndex >= shardCount) {
+    throw new Error(`Invalid static docs shard ${shardIndex}/${shardCount}.`);
+  }
+  return { shardCount, shardIndex };
 }
 
 async function copyProjectEntry(stageRoot, relativePath) {
@@ -149,7 +165,7 @@ function runProcess(command, args, { cwd, env, label }) {
   });
 }
 
-function runNextBuild(stageRoot) {
+function runNextBuild(stageRoot, buildId) {
   const nextCommand = path.join(
     projectRoot,
     'node_modules',
@@ -167,6 +183,7 @@ function runNextBuild(stageRoot) {
       ...process.env,
       NEXT_TELEMETRY_DISABLED: '1',
       STATIC_DOCS_BUILD: '1',
+      STATIC_DOCS_BUILD_ID: buildId,
     },
     label: 'next_static_build_turbopack',
   });
@@ -268,6 +285,10 @@ function logRunnerResources() {
 async function main() {
   const totalStartedAt = Date.now();
   const stageRoot = staticStageRoot;
+  const { shardCount, shardIndex } = getShardCoordinates();
+  const ownsGlobalAssets = shardCount === 1 || shardIndex === 0;
+  const buildId = process.env.STATIC_DOCS_BUILD_ID || (await computeStaticBuildId(projectRoot));
+  console.log(`[static-docs] Shard ${shardIndex}/${shardCount}; shared build id: ${buildId}.`);
 
   try {
     await cleanStagePreservingBuildCache(stageRoot);
@@ -281,27 +302,26 @@ async function main() {
     console.log(`[timing] prepare_static_stage=${formatSeconds(Date.now() - prepareStartedAt)}`);
     logRunnerResources();
 
-    // First isolate the Dynamic MDX + bounded SSG effect with sequential heavy
-    // processes. Once peak memory is proven safe, Next and ZBSearch can run in
-    // parallel again to recover end-to-end deployment latency.
+    // Separate CI jobs own search and HTML. Standalone builds retain the
+    // sequential order to keep memory bounded on smaller machines.
     const buildStartedAt = Date.now();
-    const nextTiming = await runNextBuild(stageRoot);
+    const nextTiming = await runNextBuild(stageRoot, buildId);
     logRunnerResources();
-    const searchTiming = await runSearchBuild(staticSearchRoot);
+    const searchTiming = ownsGlobalAssets ? await runSearchBuild(staticSearchRoot) : null;
     const buildDurationMs = Date.now() - buildStartedAt;
     console.log(`[timing] sequential_build_wall=${formatSeconds(buildDurationMs)}`);
     console.log(
-      `[timing] sequential_build_sum=${formatSeconds(nextTiming.durationMs + searchTiming.durationMs)}`,
+      `[timing] sequential_build_sum=${formatSeconds(nextTiming.durationMs + (searchTiming?.durationMs ?? 0))}`,
     );
 
     const assembleStartedAt = Date.now();
     await rm(staticOutputRoot, { recursive: true, force: true });
     await cp(path.join(stageRoot, 'out'), staticOutputRoot, { recursive: true });
-    await copyDirectoryContents(staticSearchRoot, staticOutputRoot);
+    if (ownsGlobalAssets) await copyDirectoryContents(staticSearchRoot, staticOutputRoot);
     console.log(`[timing] assemble_static_and_search=${formatSeconds(Date.now() - assembleStartedAt)}`);
 
     const markdownStartedAt = Date.now();
-    const markdownCount = await generateStaticMarkdownRoutes(staticOutputRoot);
+    const markdownCount = ownsGlobalAssets ? await generateStaticMarkdownRoutes(staticOutputRoot) : 0;
     console.log(`[timing] direct_markdown_build=${formatSeconds(Date.now() - markdownStartedAt)}`);
 
     const summaryStartedAt = Date.now();

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { buildZBSearchIndex } from './zbsearch-index.mjs';
+import { canonicalizeZBSearchManifest } from './canonicalize-zbsearch.mjs';
 import { finalizeSearchManifest } from './search-manifest.mjs';
 
 function formatMiB(bytes) {
@@ -7,8 +8,13 @@ function formatMiB(bytes) {
 }
 
 async function main() {
+  if (process.env.STATIC_DOCS_SKIP_SEARCH_BUILD === '1') {
+    console.log('[search] Dedicated search job owns search assets.');
+    return;
+  }
   const outputFile = path.resolve(process.argv[2] ?? 'public/search-index.json');
   const index = await buildZBSearchIndex({ outputFile });
+  await canonicalizeZBSearchManifest({ manifestFile: outputFile });
   const routing = await finalizeSearchManifest({ manifestFile: outputFile });
 
   console.log(

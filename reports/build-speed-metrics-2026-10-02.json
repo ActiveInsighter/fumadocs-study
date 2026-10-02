@@ -1,0 +1,443 @@
+{
+  "repository": "ActiveInsighter/fumadocs-study",
+  "note": "GitHub step timestamps are rounded to seconds. Full workflows have different upload/cache and queue conditions; wall-time ratios are observations, not isolated causal estimates.",
+  "runs": [
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/36981886966",
+      "commit": "ae7c01dde9a28153b14aa617045417471a617389",
+      "conclusion": "success",
+      "workflow_wall_seconds": 651.0,
+      "critical_build_step_seconds": 380.0,
+      "sum_shard_build_step_seconds": null,
+      "search_step_seconds": null,
+      "merge_step_seconds": null,
+      "deploy_step_seconds": 171.0,
+      "build_steps": [
+        {
+          "job": "Deploy Worker Static Assets",
+          "seconds": 380.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 414.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37002034265",
+      "commit": "87257b57398ddf98348cf0441db6f512d244a984",
+      "conclusion": "failure",
+      "workflow_wall_seconds": 821.0,
+      "critical_build_step_seconds": null,
+      "sum_shard_build_step_seconds": null,
+      "search_step_seconds": null,
+      "merge_step_seconds": null,
+      "deploy_step_seconds": null,
+      "build_steps": [],
+      "failed_jobs": [
+        "Benchmark async"
+      ],
+      "package_ready_seconds": null
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37002379525",
+      "commit": "19fee29de21d8c8d200f7ad9c1fe0dce7eb60716",
+      "conclusion": "success",
+      "workflow_wall_seconds": 208.0,
+      "critical_build_step_seconds": 113.0,
+      "sum_shard_build_step_seconds": 388.0,
+      "search_step_seconds": 47.0,
+      "merge_step_seconds": 8.0,
+      "deploy_step_seconds": null,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 3 of 4",
+          "seconds": 110.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 4",
+          "seconds": 113.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 4",
+          "seconds": 88.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 4",
+          "seconds": 77.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 188.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37002752277",
+      "commit": "8cdc1c2696bbb8fae6fcbdb5513352214511c46d",
+      "conclusion": "failure",
+      "workflow_wall_seconds": 531.0,
+      "critical_build_step_seconds": 87.0,
+      "sum_shard_build_step_seconds": 589.0,
+      "search_step_seconds": 54.0,
+      "merge_step_seconds": 14.0,
+      "deploy_step_seconds": 271.0,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 2 of 8",
+          "seconds": 77.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 8",
+          "seconds": 61.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 8",
+          "seconds": 87.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 8",
+          "seconds": 86.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 5 of 8",
+          "seconds": 51.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 6 of 8",
+          "seconds": 78.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 4 of 8",
+          "seconds": 87.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 7 of 8",
+          "seconds": 62.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [
+        "Merge and deploy Worker Static Assets"
+      ],
+      "package_ready_seconds": null
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37003665068",
+      "commit": "b51778a49593177c0b7db0b364852e948ab620e0",
+      "conclusion": "success",
+      "workflow_wall_seconds": 196.0,
+      "critical_build_step_seconds": 99.0,
+      "sum_shard_build_step_seconds": 360.0,
+      "search_step_seconds": 51.0,
+      "merge_step_seconds": 7.0,
+      "deploy_step_seconds": null,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 0 of 4",
+          "seconds": 81.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 4",
+          "seconds": 99.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 4",
+          "seconds": 87.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 4",
+          "seconds": 93.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 173.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37004147145",
+      "commit": "4cb766c8b9447ae0292ed61a2597c48ec111a2ff",
+      "conclusion": "success",
+      "workflow_wall_seconds": 164.0,
+      "critical_build_step_seconds": 70.0,
+      "sum_shard_build_step_seconds": 460.0,
+      "search_step_seconds": 55.0,
+      "merge_step_seconds": 14.0,
+      "deploy_step_seconds": null,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 0 of 8",
+          "seconds": 53.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 8",
+          "seconds": 62.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 6 of 8",
+          "seconds": 59.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 8",
+          "seconds": 70.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 8",
+          "seconds": 59.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 7 of 8",
+          "seconds": 52.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 5 of 8",
+          "seconds": 60.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 4 of 8",
+          "seconds": 45.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 141.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37004640251",
+      "commit": "b9622ee4b5386840e25faf91845b46d38d0836b8",
+      "conclusion": "success",
+      "workflow_wall_seconds": 228.0,
+      "critical_build_step_seconds": 62.0,
+      "sum_shard_build_step_seconds": 437.0,
+      "search_step_seconds": 54.0,
+      "merge_step_seconds": 14.0,
+      "deploy_step_seconds": 42.0,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 7 of 8",
+          "seconds": 52.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 8",
+          "seconds": 51.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 4 of 8",
+          "seconds": 62.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 5 of 8",
+          "seconds": 54.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 6 of 8",
+          "seconds": 47.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 8",
+          "seconds": 53.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 8",
+          "seconds": 62.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 150.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37005268545",
+      "commit": "b892dfefea31758edacc22dec782c319445337a0",
+      "conclusion": "success",
+      "workflow_wall_seconds": 390.0,
+      "critical_build_step_seconds": 63.0,
+      "sum_shard_build_step_seconds": 469.0,
+      "search_step_seconds": 52.0,
+      "merge_step_seconds": 13.0,
+      "deploy_step_seconds": 195.0,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 5 of 8",
+          "seconds": 60.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 8",
+          "seconds": 58.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 8",
+          "seconds": 63.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 8",
+          "seconds": 62.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 4 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 6 of 8",
+          "seconds": 58.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 7 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 162.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37005920979",
+      "commit": "b892dfefea31758edacc22dec782c319445337a0",
+      "conclusion": "success",
+      "workflow_wall_seconds": 209.0,
+      "critical_build_step_seconds": 99.0,
+      "sum_shard_build_step_seconds": 331.0,
+      "search_step_seconds": 52.0,
+      "merge_step_seconds": 6.0,
+      "deploy_step_seconds": null,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 3 of 4",
+          "seconds": 64.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 4",
+          "seconds": 92.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 4",
+          "seconds": 99.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 4",
+          "seconds": 76.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 185.0
+    },
+    {
+      "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37006354883",
+      "commit": "b892dfefea31758edacc22dec782c319445337a0",
+      "conclusion": "success",
+      "workflow_wall_seconds": 252.0,
+      "critical_build_step_seconds": 64.0,
+      "sum_shard_build_step_seconds": 476.0,
+      "search_step_seconds": 52.0,
+      "merge_step_seconds": 13.0,
+      "deploy_step_seconds": 49.0,
+      "build_steps": [
+        {
+          "job": "Weighted static shard 5 of 8",
+          "seconds": 60.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 2 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 6 of 8",
+          "seconds": 56.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 0 of 8",
+          "seconds": 64.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 1 of 8",
+          "seconds": 61.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 3 of 8",
+          "seconds": 61.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 7 of 8",
+          "seconds": 57.0,
+          "conclusion": "success"
+        },
+        {
+          "job": "Weighted static shard 4 of 8",
+          "seconds": 61.0,
+          "conclusion": "success"
+        }
+      ],
+      "failed_jobs": [],
+      "package_ready_seconds": 159.0
+    }
+  ],
+  "dynamic_same_runner_trial": {
+    "run_url": "https://github.com/ActiveInsighter/fumadocs-study/actions/runs/37002034265",
+    "dynamic_job_conclusion": "success",
+    "overall_conclusion": "failure",
+    "cold_wall_seconds": 403.06,
+    "warm_wall_seconds": 382.65,
+    "async_result": "runner shutdown / exit 143; no valid completed measurement"
+  },
+  "final_upload_comparison": {
+    "first": {
+      "uploaded": 3147,
+      "reused": 1821
+    },
+    "repeat_same_commit": {
+      "uploaded": 31,
+      "reused": 4937
+    }
+  },
+  "package_ready_definition": "Seconds from workflow createdAt to successful Validate Cloudflare asset package completion; includes queue, dependency restoration, search/pages, artifact transfer, merge and validation, excludes Wrangler dry-run and deployment."
+}

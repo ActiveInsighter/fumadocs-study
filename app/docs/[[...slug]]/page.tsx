@@ -2,6 +2,9 @@ import { getMDXComponents } from '@/components/mdx';
 import { getPageMDXComponents } from '@/components/mdx/page-components';
 import { WordCardsProvider } from '@/components/vocabulary/word-cards';
 import { source } from '@/lib/source';
+import { shardStaticDocParams } from '@/lib/static-doc-shards';
+import { statSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
@@ -23,8 +26,27 @@ type PageParameters = {
 
 export const dynamicParams = false;
 
+// https://nextjs.org/docs/app/api-reference/functions/generate-static-params
+function getStaticDocBuildWeight(param: { slug?: string[] }) {
+  const page = source.getPage(param.slug);
+  if (!page) return 1;
+
+  try {
+    return statSync(resolve(process.cwd(), 'content/docs', page.path)).size;
+  } catch {
+    return 1;
+  }
+}
+
 export function generateStaticParams() {
-  return source.generateParams();
+  const shardCount = Number.parseInt(process.env.STATIC_DOCS_SHARD_COUNT ?? '1', 10);
+  const shardIndex = Number.parseInt(process.env.STATIC_DOCS_SHARD_INDEX ?? '0', 10);
+  return shardStaticDocParams(
+    source.generateParams(),
+    shardCount,
+    shardIndex,
+    getStaticDocBuildWeight,
+  );
 }
 
 export default async function Page({ params }: PageParameters) {
