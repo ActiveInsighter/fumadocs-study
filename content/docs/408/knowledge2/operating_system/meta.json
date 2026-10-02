@@ -6,5 +6,6 @@
     "03-memory-management",
     "04-file-management",
     "05-io-management"
-  ]
+  ],
+  "defaultOpen": false
 }

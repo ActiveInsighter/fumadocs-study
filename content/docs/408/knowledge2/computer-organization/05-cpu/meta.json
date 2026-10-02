@@ -6,5 +6,6 @@
     "03-interrupt-exception",
     "04-pipeline",
     "05-parallel-multicore"
-  ]
+  ],
+  "defaultOpen": false
 }

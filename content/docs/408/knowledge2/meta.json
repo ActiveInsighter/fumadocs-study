@@ -7,5 +7,6 @@
     "computer-organization",
     "operating_system",
     "computer_network"
-  ]
+  ],
+  "defaultOpen": false
 }

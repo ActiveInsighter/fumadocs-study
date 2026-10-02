@@ -4,5 +4,6 @@
     "01-file-basics-open",
     "02-allocation-directory-links",
     "03-filesystem-free-space"
-  ]
+  ],
+  "defaultOpen": false
 }

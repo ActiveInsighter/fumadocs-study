@@ -9,5 +9,6 @@
     "04-core-values",
     "05-morality",
     "06-rule-of-law"
-  ]
+  ],
+  "defaultOpen": false
 }

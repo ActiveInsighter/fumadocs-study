@@ -1,0 +1,839 @@
+---
+title: "第七节 场论（数一）"
+description: "考研数学专题总结：梯度、散度、旋度、拉普拉斯算子及其与高斯公式、斯托克斯公式和势场的联系"
+---
+
+```mindmap
+# 场论
+
+## 数量场
+- $u=u(x,y,z)$
+- 梯度 $\operatorname{grad}u=\nabla u$
+- 指向增长最快方向
+
+## 向量场
+- $\mathbf F=(P,Q,R)$
+- 散度
+  - $\operatorname{div}\mathbf F=P_x+Q_y+R_z$
+  - 描述源汇强弱
+- 旋度
+  - $\operatorname{rot}\mathbf F=\nabla\times\mathbf F$
+  - 描述局部旋转
+
+## 二阶算子
+- $\operatorname{div}(\operatorname{grad}u)$
+- $=\Delta u$
+- $=u_{xx}+u_{yy}+u_{zz}$
+
+## 与积分公式的联系
+- 高斯公式
+  - 散度 ↔ 闭曲面通量
+- 斯托克斯公式
+  - 旋度 ↔ 闭曲线环流
+- 梯度场
+  - 线积分与路径无关
+  - 闭路积分为 $0$
+
+## 径向函数
+- $r=\sqrt{x^2+y^2+z^2}$
+- $\nabla r=\mathbf r/r$
+- $\Delta r=2/r$
+- $\Delta\ln r=1/r^2$
+
+## 高频题型
+- 直接求散度
+- 直接求旋度
+- 先叉积再求散度
+- $\operatorname{div}(\operatorname{grad}u)$
+- 径向场的奇点判断
+
+## 看到什么 → 想到什么
+- div → 三个对应偏导相加
+- rot → 三个交叉偏导
+- div grad → 拉普拉斯
+- grad → 势函数/全微分
+- $\mathbf r/r^3$ → 原点奇点
+```
+
+## 一、本节真正考什么
+
+原分类真题共 **6 道**，分别来自 1989、1993、2001、2016、2018、2026 年。
+
+题量很少，但并不意味着不重要。因为场论中的三个算子
+
+$$
+\operatorname{grad},
+\qquad
+\operatorname{div},
+\qquad
+\operatorname{rot}
+$$
+
+实际上贯穿了：
+
+- 方向导数与梯度；
+- 第二类曲线积分；
+- 第二类曲面积分；
+- 高斯公式；
+- 斯托克斯公式；
+- 势函数与路径无关。
+
+所以这一节应当作为前面知识的“向量分析总接口”来复习。
+
+---
+
+## 二、三种场与三个核心算子
+
+### 1. 数量场
+
+若空间每一点对应一个实数
+
+$$
+u=u(x,y,z),
+$$
+
+则称为数量场。
+
+例如：
+
+- 温度场；
+- 密度场；
+- 势函数。
+
+### 2. 向量场
+
+若空间每一点对应一个向量
+
+$$
+\mathbf F(x,y,z)=P\mathbf i+Q\mathbf j+R\mathbf k,
+$$
+
+则称为向量场。
+
+例如：
+
+- 速度场；
+- 力场；
+- 流量场。
+
+---
+
+## 三、梯度：从数量场得到向量场
+
+对数量场 $u(x,y,z)$，梯度定义为
+
+$$
+\boxed{
+\operatorname{grad}u
+=
+\nabla u
+=
+(u_x,u_y,u_z)
+}.
+$$
+
+梯度方向是函数增长最快的方向，其模是最大方向导数。
+
+这一结论在前面的“方向导数与梯度”已经出现；在这里更重要的是把它与线积分联系起来：
+
+$$
+\nabla u\cdot d\mathbf r=du.
+$$
+
+所以若向量场是梯度场
+
+$$
+\mathbf F=\nabla u,
+$$
+
+则
+
+$$
+\int_L\mathbf F\cdot d\mathbf r
+=
+\int_Ldu
+=u(B)-u(A).
+$$
+
+对闭曲线有
+
+$$
+\boxed{
+\oint_L\nabla u\cdot d\mathbf r=0
+}.
+$$
+
+李林 880 中有一道直接练习：
+
+$$
+I=\oint_L\operatorname{grad}\sin(x+y+z)\cdot d\mathbf s.
+$$
+
+因为
+
+$$
+\operatorname{grad}\sin(x+y+z)\cdot d\mathbf s
+=d[\sin(x+y+z)],
+$$
+
+故
+
+$$
+\boxed{I=0}.
+$$
+
+这就是“梯度场 → 全微分 → 闭路积分为零”的最短链条。
+
+---
+
+## 四、散度：向量场的源汇强度
+
+设
+
+$$
+\mathbf F=(P,Q,R),
+$$
+
+则散度为
+
+$$
+\boxed{
+\operatorname{div}\mathbf F
+=
+\nabla\cdot\mathbf F
+=P_x+Q_y+R_z
+}.
+$$
+
+记忆时一定注意：
+
+> 第一个分量对 $x$ 求导，第二个分量对 $y$ 求导，第三个分量对 $z$ 求导，然后相加。
+
+### 1989 年真题：最基础的直接计算
+
+向量场
+
+$$
+\mathbf u
+=(xy^2,ye^z,x\ln(1+z^2)).
+$$
+
+则
+
+$$
+\operatorname{div}\mathbf u
+=y^2+e^z+\frac{2xz}{1+z^2}.
+$$
+
+代入
+
+$$
+P(1,1,0)
+$$
+
+得到
+
+$$
+\boxed{2}.
+$$
+
+### 散度最重要的外部联系
+
+高斯公式：
+
+$$
+\boxed{
+\oiint_{\partial\Omega}
+\mathbf F\cdot\mathbf n\,dS
+=
+\iiint_\Omega
+\operatorname{div}\mathbf F\,dV
+}.
+$$
+
+所以散度是“单位体积的净流出强度”。
+
+---
+
+## 五、旋度：向量场的局部旋转
+
+设
+
+$$
+\mathbf F=(P,Q,R).
+$$
+
+旋度为
+
+$$
+\boxed{
+\operatorname{rot}\mathbf F
+=
+\nabla\times\mathbf F
+=
+(R_y-Q_z,
+P_z-R_x,
+Q_x-P_y)
+}.
+$$
+
+也可以用行列式记忆：
+
+$$
+\nabla\times\mathbf F
+=
+\begin{vmatrix}
+\mathbf i&\mathbf j&\mathbf k\\
+\partial_x&\partial_y&\partial_z\\
+P&Q&R
+\end{vmatrix}.
+$$
+
+### 2016 年真题
+
+$$
+\mathbf A=(x+y+z,xy,z).
+$$
+
+逐项得
+
+$$
+\operatorname{rot}\mathbf A
+=
+(0,1,y-1).
+$$
+
+即
+
+$$
+\boxed{\{0,1,y-1\}}.
+$$
+
+### 2018 年真题
+
+$$
+\mathbf F=(xy,-yz,xz).
+$$
+
+有
+
+$$
+\operatorname{rot}\mathbf F
+=(y,-z,-x).
+$$
+
+代入 $(1,1,0)$：
+
+$$
+\boxed{
+\operatorname{rot}\mathbf F(1,1,0)
+=(1,0,-1)
+=\boldsymbol i-\boldsymbol k
+}.
+$$
+
+### 旋度最重要的外部联系
+
+斯托克斯公式：
+
+$$
+\boxed{
+\oint_{\partial S}\mathbf F\cdot d\mathbf r
+=
+\iint_S
+(\operatorname{rot}\mathbf F)\cdot\mathbf n\,dS
+}.
+$$
+
+所以旋度描述向量场在局部产生环流的能力。
+
+---
+
+## 六、$\operatorname{div}(\operatorname{grad}u)$：拉普拉斯算子
+
+对数量场 $u$，有
+
+$$
+\operatorname{grad}u
+=(u_x,u_y,u_z).
+$$
+
+再求散度：
+
+$$
+\boxed{
+\operatorname{div}(\operatorname{grad}u)
+=
+\Delta u
+=u_{xx}+u_{yy}+u_{zz}
+}.
+$$
+
+所以看到
+
+$$
+\operatorname{div}(\operatorname{grad}u)
+$$
+
+不要分两次机械展开，应直接想到“拉普拉斯”。
+
+---
+
+## 七、题型一：径向函数的拉普拉斯
+
+### 1993 年真题：$u=\ln r$
+
+设
+
+$$
+u=\ln\sqrt{x^2+y^2+z^2}=\ln r.
+$$
+
+题目求
+
+$$
+\operatorname{div}(\operatorname{grad}u).
+$$
+
+先有
+
+$$
+\nabla u
+=
+\left(
+\frac{x}{r^2},
+\frac{y}{r^2},
+\frac{z}{r^2}
+\right).
+$$
+
+再求散度得
+
+$$
+\boxed{
+\Delta\ln r
+=
+\frac1{r^2}
+=
+\frac1{x^2+y^2+z^2}
+}.
+$$
+
+### 2001 年真题：$u=r$
+
+设
+
+$$
+r=\sqrt{x^2+y^2+z^2}.
+$$
+
+有
+
+$$
+\nabla r
+=
+\left(
+\frac{x}{r},
+\frac{y}{r},
+\frac{z}{r}
+\right).
+$$
+
+进一步
+
+$$
+\boxed{
+\Delta r=\frac2r
+}.
+$$
+
+在点 $(1,-2,2)$ 处，
+
+$$
+r=3,
+$$
+
+因此
+
+$$
+\boxed{\frac23}.
+$$
+
+### 两个公式建议成组记忆
+
+在三维空间、$r\ne0$ 时：
+
+$$
+\boxed{
+\Delta r=\frac2r
+},
+$$
+
+$$
+\boxed{
+\Delta\ln r=\frac1{r^2}
+}.
+$$
+
+但考试中仍应理解推导，而不是只背结果。
+
+---
+
+## 八、题型二：先做向量运算，再求散度或旋度
+
+### 2026 年真题：先叉积再求散度
+
+给
+
+$$
+\mathbf v_1=(0,x,z),
+\qquad
+\mathbf v_2=(y,0,1),
+$$
+
+令
+
+$$
+\mathbf F=\mathbf v_1\times\mathbf v_2.
+$$
+
+先计算
+
+$$
+\mathbf F
+=
+\begin{vmatrix}
+\mathbf i&\mathbf j&\mathbf k\\
+0&x&z\\
+y&0&1
+\end{vmatrix}
+=(x,yz,-xy).
+$$
+
+再求散度：
+
+$$
+\operatorname{div}\mathbf F
+=1+z+0.
+$$
+
+所以
+
+$$
+\boxed{1+z}.
+$$
+
+这道题代表一个很自然的新变化：
+
+> 不再直接把 $P,Q,R$ 给出来，而是先经过叉积、线性组合或其他向量运算，再让你求 div / rot。
+
+---
+
+## 九、径向反平方场：场论与高斯公式的桥梁
+
+李正元练习中给出
+
+$$
+\mathbf E=\frac{q}{r^3}\mathbf r,
+\qquad
+\mathbf r=(x,y,z).
+$$
+
+在 $r\ne0$ 时，可算得
+
+$$
+\boxed{
+\operatorname{div}\mathbf E=0
+},
+$$
+
+$$
+\boxed{
+\operatorname{rot}\mathbf E=\mathbf0
+}.
+$$
+
+而且
+
+$$
+\nabla\left(\frac1r\right)
+=-\frac{\mathbf r}{r^3},
+$$
+
+所以
+
+$$
+\mathbf E
+=-q\nabla\left(\frac1r\right).
+$$
+
+这说明它在 $r\ne0$ 的区域内是梯度场，因此旋度为零。
+
+但必须强调：
+
+$$
+r=0
+$$
+
+处向量场无定义。
+
+这与前一节 2009 年真题完全衔接：虽然原点外散度为零，但若闭曲面包围原点，通量仍为 $4\pi$ 型常数，不能无视奇点直接使用高斯公式。
+
+---
+
+## 十、三个算子的结构关系
+
+在足够光滑的条件下，有两个极重要恒等式。
+
+### 1. 梯度场的旋度为零
+
+$$
+\boxed{
+\operatorname{rot}(\operatorname{grad}u)
+=
+\nabla\times(\nabla u)
+=
+\mathbf0
+}.
+$$
+
+这解释了为什么势函数对应的线积分路径无关。
+
+### 2. 旋度场的散度为零
+
+$$
+\boxed{
+\operatorname{div}(\operatorname{rot}\mathbf F)
+=
+\nabla\cdot(\nabla\times\mathbf F)
+=0
+}.
+$$
+
+这与“边界的边界为空”这一几何思想相呼应。
+
+虽然分类真题目前主要考直接计算，但这两个恒等式非常适合与高斯、斯托克斯综合命题。
+
+---
+
+## 十一、梯度、散度、旋度不要混
+
+| 对象 | 输入 | 输出 | 公式 |
+|---|---|---|---|
+| 梯度 $\operatorname{grad}u$ | 数量场 | 向量场 | $(u_x,u_y,u_z)$ |
+| 散度 $\operatorname{div}\mathbf F$ | 向量场 | 数量场 | $P_x+Q_y+R_z$ |
+| 旋度 $\operatorname{rot}\mathbf F$ | 向量场 | 向量场 | $(R_y-Q_z,P_z-R_x,Q_x-P_y)$ |
+| 拉普拉斯 $\Delta u$ | 数量场 | 数量场 | $u_{xx}+u_{yy}+u_{zz}$ |
+
+最常见概念错误就是把输出类型搞混。
+
+例如：
+
+- 散度不可能是三维向量；
+- 旋度不可能只是一个数；
+- 梯度不是“把三个偏导相加”。
+
+---
+
+## 十二、和前面章节的统一理解
+
+### 1. 梯度 ↔ 方向导数
+
+单位方向 $\mathbf e$ 上的方向导数为
+
+$$
+D_{\mathbf e}u
+=\nabla u\cdot\mathbf e.
+$$
+
+### 2. 散度 ↔ 高斯公式
+
+$$
+\text{闭曲面总通量}
+=
+\iiint\operatorname{div}\mathbf F\,dV.
+$$
+
+### 3. 旋度 ↔ 斯托克斯公式
+
+$$
+\text{闭曲线环流}
+=
+\iint\operatorname{rot}\mathbf F\cdot\mathbf n\,dS.
+$$
+
+### 4. 梯度场 ↔ 路径无关
+
+若
+
+$$
+\mathbf F=\nabla u,
+$$
+
+则
+
+$$
+\int_A^B\mathbf F\cdot d\mathbf r
+=u(B)-u(A).
+$$
+
+这四条关系一旦串起来，场论就不再是最后几页孤立的公式。
+
+---
+
+## 十三、真题演化
+
+### 早期：直接公式计算
+
+1989 年直接求散度，1993、2001 年考
+
+$$
+\operatorname{div}(\operatorname{grad}u).
+$$
+
+重点是偏导计算。
+
+### 中期：旋度成为固定考点
+
+2016、2018 年连续出现直接求旋度，要求对三维旋度公式非常熟练。
+
+### 2026：开始叠加向量代数
+
+先给两个向量场
+
+$$
+\mathbf v_1,
+\qquad
+\mathbf v_2,
+$$
+
+构造
+
+$$
+\mathbf F=\mathbf v_1\times\mathbf v_2,
+$$
+
+再求散度。
+
+因此未来非常自然的变化包括：
+
+- $\operatorname{div}(f\mathbf F)$；
+- $\operatorname{rot}(f\mathbf F)$；
+- 先点积/叉积，再求 div 或 rot；
+- 与高斯、斯托克斯积分公式组合；
+- 径向场加入平移奇点。
+
+---
+
+## 十四、看到什么 → 想到什么
+
+| 题面 | 立即想到 |
+|---|---|
+| $\operatorname{grad}u$ | $(u_x,u_y,u_z)$ |
+| $\operatorname{div}(P,Q,R)$ | $P_x+Q_y+R_z$ |
+| $\operatorname{rot}(P,Q,R)$ | $(R_y-Q_z,P_z-R_x,Q_x-P_y)$ |
+| $\operatorname{div}(\operatorname{grad}u)$ | $\Delta u$ |
+| $u=u(r)$ | 先利用径向结构 |
+| $\mathbf F=\nabla u$ | 旋度为零，线积分路径无关 |
+| 闭曲面通量 | 高斯公式 + div |
+| 闭曲线环流 | 斯托克斯公式 + rot |
+| $\mathbf r/r^3$ | 原点奇点，先检查定义域 |
+| 先给叉积构造 $\mathbf F$ | 先完成向量运算，再做微分算子 |
+
+---
+
+## 十五、最容易错的地方
+
+### 错误 1：旋度第二分量符号写反
+
+推荐固定记忆
+
+$$
+(R_y-Q_z,
+P_z-R_x,
+Q_x-P_y).
+$$
+
+### 错误 2：求散度时交叉求导
+
+散度只取
+
+$$
+P_x,
+\quad Q_y,
+\quad R_z.
+$$
+
+### 错误 3：只算公式，不看定义域
+
+像
+
+$$
+\frac{\mathbf r}{r^3}
+$$
+
+在原点无定义。涉及高斯公式时，这会直接改变结论。
+
+### 错误 4：看到 $\operatorname{div}(\operatorname{grad}u)$ 还逐层写很久
+
+应立即写成
+
+$$
+\Delta u=u_{xx}+u_{yy}+u_{zz}.
+$$
+
+### 错误 5：混淆 $\mathbf r$ 与 $r$
+
+通常
+
+$$
+\mathbf r=(x,y,z),
+$$
+
+而
+
+$$
+r=|\mathbf r|=\sqrt{x^2+y^2+z^2}.
+$$
+
+---
+
+## 十六、本节统一结论
+
+场论的核心不是四个孤立公式，而是一条完整链条：
+
+$$
+\boxed{
+\text{数量场}
+\xrightarrow{\nabla}
+\text{梯度场}
+\xrightarrow{\text{线积分}}
+\text{势差}
+}
+$$
+
+以及
+
+$$
+\boxed{
+\text{向量场}
+\xrightarrow{\operatorname{div}}
+\text{体内源汇}
+\xrightarrow{\text{高斯}}
+\text{边界通量}
+}
+$$
+
+和
+
+$$
+\boxed{
+\text{向量场}
+\xrightarrow{\operatorname{rot}}
+\text{局部旋转}
+\xrightarrow{\text{斯托克斯}}
+\text{边界环流}
+}.
+$$
+
+把这三条链真正连起来，本章“重积分—曲线积分—曲面积分—场论”就形成了一个统一体系。

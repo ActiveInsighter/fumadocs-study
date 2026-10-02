@@ -9,5 +9,6 @@
     "04-instruction-set",
     "05-cpu",
     "06-bus"
-  ]
+  ],
+  "defaultOpen": false
 }

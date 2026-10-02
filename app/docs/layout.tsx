@@ -11,7 +11,11 @@ import type { ReactNode } from 'react';
 
 export default function DocsRootLayout({ children }: { children: ReactNode }) {
   return (
-    <DocsLayout tree={source.getPageTree()} {...baseOptions()}>
+    <DocsLayout
+      tree={source.getPageTree()}
+      {...baseOptions()}
+      sidebar={{ defaultOpenLevel: 0 }}
+    >
       {children}
     </DocsLayout>
   );

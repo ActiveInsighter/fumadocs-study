@@ -5,5 +5,6 @@
     "02-mac-contention",
     "03-lan-ethernet-wlan",
     "04-switch-bridge-summary"
-  ]
+  ],
+  "defaultOpen": false
 }

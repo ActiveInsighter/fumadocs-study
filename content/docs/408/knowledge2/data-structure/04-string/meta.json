@@ -4,5 +4,6 @@
     "01-string-basics",
     "02-kmp",
     "03-nextval-summary"
-  ]
+  ],
+  "defaultOpen": false
 }
