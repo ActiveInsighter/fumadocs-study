@@ -878,11 +878,15 @@ jobs:
             await page.waitForSelector('[role="dialog"] input', { timeout: 30000 });
             await page.type('[role="dialog"] input', '二叉树');
             await page.waitForFunction(
-              () => Array.from(document.querySelectorAll('[role="dialog"] a[href]'))
-                .some((a) => a.getAttribute('href')?.startsWith('/docs/')),
+              () => document.querySelector('[role="dialog"] button[aria-selected="true"]') !== null,
               { timeout: 60000 },
             );
-            console.log('[browser-check] static ZBSearch returns real document links');
+            await page.keyboard.press('Enter');
+            await page.waitForFunction(
+              () => location.pathname.startsWith('/docs/') && !document.querySelector('[role="dialog"] input'),
+              { timeout: 60000 },
+            );
+            console.log('[browser-check] static ZBSearch selected result -> ' + await page.evaluate(() => location.pathname));
           } finally {
             await browser.close();
           }
