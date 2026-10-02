@@ -4,5 +4,6 @@
     "01-number-systems-integers",
     "02-floating-point",
     "03-type-conversion"
-  ]
+  ],
+  "defaultOpen": false
 }

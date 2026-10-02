@@ -4,5 +4,6 @@
     "01-io-basics-control",
     "02-buffer-allocation-spooling",
     "03-disk-management-scheduling"
-  ]
+  ],
+  "defaultOpen": false
 }

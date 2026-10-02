@@ -4,5 +4,6 @@
     "01-basic-concepts-complexity",
     "02-algorithm-design-patterns",
     "03-answering-strategy-summary"
-  ]
+  ],
+  "defaultOpen": false
 }

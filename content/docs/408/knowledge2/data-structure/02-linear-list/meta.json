@@ -4,5 +4,6 @@
     "01-linear-list-sequential",
     "02-linked-list",
     "03-comparison-algorithms"
-  ]
+  ],
+  "defaultOpen": false
 }

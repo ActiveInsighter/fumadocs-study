@@ -6,5 +6,6 @@
     "03-synchronization",
     "04-classic-sync",
     "05-deadlock"
-  ]
+  ],
+  "defaultOpen": false
 }

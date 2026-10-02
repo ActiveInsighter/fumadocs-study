@@ -8,5 +8,6 @@
     "04-network-layer",
     "05-transport-layer",
     "06-application-layer"
-  ]
+  ],
+  "defaultOpen": false
 }

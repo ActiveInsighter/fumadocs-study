@@ -10,5 +10,6 @@
     "word-cards-demo",
     "claude-benchmarks",
     "chart-components"
-  ]
+  ],
+  "defaultOpen": false
 }

@@ -21,5 +21,6 @@
     "15-one-country-two-systems",
     "16-major-country-diplomacy",
     "17-full-strict-party-governance"
-  ]
+  ],
+  "defaultOpen": false
 }

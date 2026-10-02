@@ -10,5 +10,6 @@
     "06-eigenvalues-eigenvectors",
     "07-similarity-diagonalization",
     "08-quadratic-forms"
-  ]
+  ],
+  "defaultOpen": false
 }

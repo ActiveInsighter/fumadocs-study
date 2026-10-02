@@ -10,5 +10,6 @@
     "06-graph",
     "07-search",
     "08-sorting"
-  ]
+  ],
+  "defaultOpen": false
 }

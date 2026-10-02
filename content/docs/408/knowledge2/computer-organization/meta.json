@@ -7,5 +7,6 @@
     "04-instruction-system",
     "05-cpu",
     "06-bus-io"
-  ]
+  ],
+  "defaultOpen": false
 }

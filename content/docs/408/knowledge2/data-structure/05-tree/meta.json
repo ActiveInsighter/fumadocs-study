@@ -6,5 +6,6 @@
     "03-search-balanced-tree",
     "04-huffman-coding",
     "05-union-find-summary"
-  ]
+  ],
+  "defaultOpen": false
 }

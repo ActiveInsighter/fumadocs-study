@@ -4,5 +4,6 @@
     "01-bus",
     "02-io-interface-transfer",
     "03-dma-channel"
-  ]
+  ],
+  "defaultOpen": false
 }

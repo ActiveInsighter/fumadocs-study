@@ -10,5 +10,6 @@
     "05-tree",
     "06-graph",
     "07-search"
-  ]
+  ],
+  "defaultOpen": false
 }
