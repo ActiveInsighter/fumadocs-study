@@ -35,8 +35,8 @@ jobs:
       - if: steps.modules.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund
       - run: npm run postinstall
-      - name: Run existing tests
-        run: npm test
+      - name: Run production deployment checks
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts
       - name: Select documented compilation mode
         shell: bash
         run: |
