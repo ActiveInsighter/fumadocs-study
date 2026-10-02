@@ -8,6 +8,9 @@ export function getStaticDocsConfig() {
   return {
     output: 'export',
     trailingSlash: true,
+    // All parallel exports must use the same application identity.
+    // https://nextjs.org/docs/app/api-reference/config/next-config-js/generateBuildId
+    generateBuildId: () => process.env.STATIC_DOCS_BUILD_ID ?? 'fumadocs-study-static-local',
     images: {
       unoptimized: true,
     },
