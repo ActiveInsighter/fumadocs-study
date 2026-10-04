@@ -8,7 +8,7 @@
  */
 
 #docs-body figure.shiki [role='region'] {
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
 #docs-body :where(code):not(:where(pre code, .not-prose code)) {
