@@ -4,535 +4,726 @@ title: "二、相似对角化：大题·相似变换矩阵及相似对角阵的�
 
 # 大题·相似变换矩阵及相似对角阵的计算与相似对角化的综合应用
 
-```mindmap
-# 相似对角化：构造与综合应用
+## 一、本节考什么：从“能否对角化”走到“真正把 $P$ 和 $\Lambda$ 求出来”
 
-## 构造 $P$
-- 求全部特征值
-- 求各特征子空间基
-- 按 $\Lambda$ 对角元顺序排成列
-- $AP=P\Lambda$
+相似对角化大题的完整任务一般有四层：
 
-## 已知一组非标准基
-- $R=(\alpha_1,\ldots,\alpha_n)$
-- 从 $A\alpha_j$ 的坐标写出 $B$
-- $AR=RB$
-- $B=R^{-1}AR$
-- 先对角化 $B$ 再还原到 $A$
+1. 求特征值；
+2. 判断重特征值是否有足够多的线性无关特征向量；
+3. 求各特征空间的一组基；
+4. 按列组成
+   $$
+   P=(\alpha_1,\ldots,\alpha_n),
+   $$
+   使
+   $$
+   P^{-1}AP=\Lambda.
+   $$
 
-## Krylov 基
-- $P=(\alpha,A\alpha,\ldots)$
-- 递推关系给出最后一列
-- 直接得到 $P^{-1}AP$
+真正高水平的题会把这四层藏起来，例如：
 
-## 参数构造
-- 重根先满足代数条件
-- 再用 $r(A-\lambda E)=n-m$
-- 最后求特征向量构造 $P$
+- 给 $A\alpha,A^2\alpha$ 的递推关系；
+- 给 $A$ 与另一个非对角矩阵 $B$ 相似；
+- 给一组抽象基 $\alpha_1,\alpha_2,\alpha_3$ 上的作用；
+- 要求计算 $A^n$、$|A-cE|$、矩阵递推或另一个矩阵的高次幂。
 
-## 矩阵幂
-- 对角化法 $A^n=P\Lambda^nP^{-1}$
-- 插值降幂法
-  - 在各特征值处匹配 $t^n$
-  - 用低次多项式表示 $A^n$
-
-## 同时对角化
-- 两矩阵都可对角化
-- 常用充分/判别信号：可交换
-- 若 $B=f(A)$ 或有理函数
-  - 与 $A$ 共用特征向量
-
-## 易错点
-- 求 $P$ 时列与特征值错位
-- 只求特征值不求特征空间
-- 把任意给定向量直接当特征基
-- 算高次幂时机械连乘
-```
-
-## 1. 构造题的本质：把“特征向量基”写成矩阵
-
-若 $A$ 可相似对角化，取 $n$ 个线性无关特征向量
+近十年数学一中，2016、2019、2020 的大题非常有代表性：
 
 $$
-A\alpha_i=\lambda_i\alpha_i,
+\boxed{
+\text{对角化不是终点，而是计算高次矩阵、递推和相似变换的工具}
+}
 $$
-
-令
-
-$$
-P=(\alpha_1,\ldots,\alpha_n),
-\qquad
-\Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_n),
-$$
-
-则
-
-$$
-AP=P\Lambda,
-$$
-
-从而
-
-$$
-P^{-1}AP=\Lambda.
-$$
-
-因此所有“求相似变换矩阵”的大题都应围绕两件事展开：
-
-1. 找到一组特征向量基；
-2. 保证 $P$ 的列顺序与 $\Lambda$ 的对角元顺序一一对应。
-
-如果题目给的不是标准坐标下的矩阵，而是给出 $A$ 对若干向量的作用，则应先把这些向量当作一组基，写出 $A$ 在这组基下的表示，再去对角化。这是本文件最重要的综合技巧。
 
 ---
 
-## 2. 题型一：参数由“可对角化”反推，再构造 $P$
+## 二、核心知识与方法
 
-### 2.1 标准模型
+### 1. 标准对角化流程
 
-题目给出含参数矩阵，已知“相似于对角矩阵”。这句话不是结论，而是强条件：
-
-- 先由特征多项式确定重根；
-- 再把重根的几何重数补足；
-- 对三阶二重根 $\lambda_0$，通常要求
+求
 
 $$
-r(A-\lambda_0E)=1.
+P^{-1}AP=\Lambda
 $$
 
-参数确定后，再求特征向量。
+的标准流程是：
 
-### 2.2 真题：2003 年“参数只出现在特征向量结构里”
-
-7. **【2003-2-10分】** 若矩阵
-
-$$
- A=\begin{pmatrix}
-2&2&0\\
-8&2&a\\
-0&0&6
-\end{pmatrix}
-$$
-
-相似于对角矩阵 $ \Lambda$，试确定常数 $ a$ 的值；并求可逆矩阵 $ P$，使 $ P^{-1}AP=\Lambda$。
-
-<details>
-<summary>答案与解析</summary>
-
-**答案：**
-$$
- a=0.
-$$
-
-可取
-
-$$
- P=\begin{pmatrix}
-1&0&1\\
-2&0&-2\\
-0&1&0
-\end{pmatrix},
-\qquad
-\Lambda=\begin{pmatrix}
-6&0&0\\
-0&6&0\\
-0&0&-2
-\end{pmatrix},
-$$
-
-则 $ P^{-1}AP=\Lambda$。
-
-**解析：**
-
-由于 $ A$ 为分块上三角矩阵，其特征多项式为
-
-$$
-\begin{aligned}
- |\lambda E-A|
-&=\begin{vmatrix}
-\lambda-2&-2&0\\
--8&\lambda-2&-a\\
-0&0&\lambda-6
-\end{vmatrix}\\
-&=(\lambda-6)\begin{vmatrix}
-\lambda-2&-2\\
--8&\lambda-2
-\end{vmatrix}\\
-&=(\lambda-6)\bigl[(\lambda-2)^2-16\bigr]\\
-&=(\lambda-6)^2(\lambda+2).
-\end{aligned}
-$$
-
-故 $ A$ 的特征值为
-
-$$
- \lambda_1=\lambda_2=6,
-\qquad
-\lambda_3=-2.
-$$
-
-其中 $ \lambda=6$ 为二重特征值。矩阵 $ A$ 可相似于对角矩阵的充要条件是该特征值对应的特征子空间维数为 $ 2$，即
-
-$$
- \dim\ker(A-6E)=2,
-$$
-
-等价于
-
-$$
- r(A-6E)=1.
-$$
-
-而
-
-$$
- A-6E=\begin{pmatrix}
--4&2&0\\
-8&-4&a\\
-0&0&0
-\end{pmatrix}.
-$$
-
-前两行在 $ a=0$ 时线性相关，此时矩阵的秩为 $ 1$；若 $ a\ne0$，则前两行线性无关，矩阵的秩为 $ 2$。因此必须有
-
-$$
- a=0.
-$$
-
-此时
-
-$$
- A=\begin{pmatrix}
-2&2&0\\
-8&2&0\\
-0&0&6
-\end{pmatrix}.
-$$
-
-当 $ \lambda=6$ 时，解
-
-$$
- (A-6E)\alpha=0,
-$$
-
-得到
-
-$$
- -4x_1+2x_2=0,
-$$
-
-即 $ x_2=2x_1$，而 $ x_3$ 为自由变量。因此可取两个线性无关的特征向量
-
-$$
- \alpha_1=\begin{pmatrix}1\\2\\0\end{pmatrix},
-\qquad
-\alpha_2=\begin{pmatrix}0\\0\\1\end{pmatrix}.
-$$
-
-当 $ \lambda=-2$ 时，解
-
-$$
- (A+2E)\alpha=0,
-$$
-
-可取特征向量
-
-$$
- \alpha_3=\begin{pmatrix}1\\-2\\0\end{pmatrix}.
-$$
-
-令
-
-$$
- P=(\alpha_1,\alpha_2,\alpha_3)
-=\begin{pmatrix}
-1&0&1\\
-2&0&-2\\
-0&1&0
-\end{pmatrix}.
-$$
-
-由于
-
-$$
- |P|=4\ne0,
-$$
-
-故 $ P$ 可逆。又
-
-$$
- AP=P\operatorname{diag}(6,6,-2),
-$$
-
-所以
-
-$$
- P^{-1}AP=\operatorname{diag}(6,6,-2).
-$$
-
-</details>
-
-这道题特别值得反复做，因为参数 $a$ **不影响特征多项式**，但会影响重特征值对应的特征空间维数。
-
-这说明参数题不能只盯着
+**第一步：求特征多项式**
 
 $$
 |\lambda E-A|.
 $$
 
-有些参数根本不改变特征值，却决定矩阵能否对角化。此时真正的主角是
+**第二步：求全部特征值及代数重数。**
+
+**第三步：对每个特征值 $\lambda_i$ 解**
 
 $$
-A-\lambda_0E
+(A-\lambda_iE)x=0.
 $$
 
-的秩。
+**第四步：检查特征向量总数是否达到 $n$。**
 
-### 2.3 高价值练习：同一模型的更纯粹版本
-
-3. 已知
+**第五步：按特征值顺序组列**
 
 $$
- A=
-\begin{bmatrix}
--4&-10&0\\
-1&3&0\\
-3&x&1
-\end{bmatrix}
+P=(\alpha_1,\ldots,\alpha_n),
+\qquad
+\Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_n).
 $$
 
-可对角化，求可逆矩阵 $ P$ 及对角矩阵 $ \Lambda$，使 $ P^{-1}AP=\Lambda$。
+只要列的对应关系一致，就有
+
+$$
+AP=P\Lambda.
+$$
+
+### 2. 含参数时，先利用相似不变量减少计算
+
+若已知
+
+$$
+A\sim B,
+$$
+
+可先用
+
+$$
+\operatorname{tr}A=\operatorname{tr}B,
+\qquad
+|A|=|B|,
+$$
+
+或比较特征多项式确定参数。
+
+如果 $B$ 已是上三角矩阵，特征值可以直接从对角元读出，通常比对 $A$ 展开三阶行列式更省事。
+
+### 3. 若目标矩阵 $B$ 不是对角阵，求 $P$ 要用 $AP=PB$
+
+这是 2019 数一/二/三大题的关键。
+
+若
+
+$$
+B=
+\begin{pmatrix}
+\lambda_1&*&0\\
+0&\lambda_2&0\\
+0&0&\lambda_3
+\end{pmatrix},
+$$
+
+那么 $P$ 的列不一定全是 $A$ 的普通特征向量。
+
+设
+
+$$
+P=(p_1,p_2,p_3),
+$$
+
+直接由
+
+$$
+AP=PB
+$$
+
+逐列得到对 $p_i$ 的方程，往往比试图先把 $A,B$ 各自对角化更直接。
+
+### 4. 抽象基上的作用：先求“坐标矩阵”
+
+若 $\alpha_1,\ldots,\alpha_n$ 线性无关，并给出
+
+$$
+A\alpha_j=\sum_i b_{ij}\alpha_i,
+$$
+
+令
+
+$$
+C=(\alpha_1,\ldots,\alpha_n),
+$$
+
+则
+
+$$
+AC=CB,
+\qquad
+\boxed{C^{-1}AC=B}.
+$$
+
+所以问题先转化为一个具体矩阵 $B$ 的特征值/对角化，再把 $B$ 的特征向量坐标乘回 $C$。
+
+### 5. 循环向量基：$P=(\alpha,A\alpha,\ldots)$
+
+若二维题中 $\alpha$ 不是 $A$ 的特征向量，则
+
+$$
+\alpha,A\alpha
+$$
+
+线性无关，因此
+
+$$
+P=(\alpha,A\alpha)
+$$
+
+可逆。
+
+若又有
+
+$$
+A^2\alpha=c_0\alpha+c_1A\alpha,
+$$
+
+则
+
+$$
+AP=(A\alpha,A^2\alpha)
+=P
+\begin{pmatrix}
+0&c_0\\
+1&c_1
+\end{pmatrix}.
+$$
+
+所以
+
+$$
+\boxed{P^{-1}AP=
+\begin{pmatrix}0&c_0\\1&c_1\end{pmatrix}}.
+$$
+
+这是 2020 数学一大题的核心模型，也与 2001 数学一的三阶循环基题完全同源。
+
+### 6. 高次幂：优先降成低次多项式或对角化
+
+若 $A$ 可对角化：
+
+$$
+A=P\Lambda P^{-1},
+$$
+
+则
+
+$$
+\boxed{A^m=P\Lambda^mP^{-1}}.
+$$
+
+若只需要某个高次幂，还可以构造低次多项式 $p(t)$，使其在所有特征值上满足
+
+$$
+p(\lambda_i)=\lambda_i^m,
+$$
+
+从而在可对角化条件下得到
+
+$$
+A^m=p(A).
+$$
+
+当阶数小、特征值少时，这种“插值降幂”往往比完整求 $P^{-1}$ 更快。
+
+---
+
+## 三、常见题型一：已知 $A\sim B$，先求参数，再按 $AP=PB$ 求相似变换矩阵
+
+### 2019 数学一/二/三真题
+
+4. **【2019-123-11分】** 已知矩阵
+
+$$
+ A=\begin{pmatrix}
+-2&-2&1\\
+2&x&-2\\
+0&0&-2
+\end{pmatrix}
+$$
+
+与
+
+$$
+ B=\begin{pmatrix}
+2&1&0\\
+0&-1&0\\
+0&0&y
+\end{pmatrix}
+$$
+
+相似。
+
+（1）求 $ x,y$；
+
+（2）求可逆矩阵 $ P$，使得 $ P^{-1}AP=B$。
 
 <details>
 <summary>答案与解析</summary>
 
 **答案：**
-由可对角化条件得
+（1）
 
 $$
- x=6.
+ x=3,\qquad y=-2.
 $$
 
-可取
+（2）可取
 
 $$
- P=
-\begin{bmatrix}
--5&-2&0\\
-1&1&0\\
-3&0&1
-\end{bmatrix},
-\qquad
-\Lambda=
-\begin{bmatrix}
--2&0&0\\
-0&1&0\\
-0&0&1
-\end{bmatrix}.
+ P=\begin{pmatrix}
+1&-1&1\\
+-2&0&-2\\
+0&0&-4
+\end{pmatrix},
 $$
 
 此时
 
 $$
- P^{-1}AP=\Lambda.
+ P^{-1}AP=B.
 $$
 
 **解析：**
 
-矩阵 $ A$ 为分块下三角矩阵，因此
+由于 $ A$ 与 $ B$ 相似，它们具有相同的特征多项式。
+
+先计算 $ A$ 的特征多项式：
 
 $$
- \begin{aligned}
-|\lambda E-A|
-&=(\lambda-1)
-\begin{vmatrix}
-\lambda+4&10\\
--1&\lambda-3
+\begin{aligned}
+ |\lambda E-A|
+&=\begin{vmatrix}
+\lambda+2&2&-1\\
+-2&\lambda-x&2\\
+0&0&\lambda+2
 \end{vmatrix}\\
-&=(\lambda-1)\bigl[(\lambda+4)(\lambda-3)+10\bigr]\\
-&=(\lambda-1)(\lambda^2+\lambda-2)\\
-&=(\lambda-1)^2(\lambda+2).
+&=(\lambda+2)
+\begin{vmatrix}
+\lambda+2&2\\
+-2&\lambda-x
+\end{vmatrix}\\
+&=(\lambda+2)\big[(\lambda+2)(\lambda-x)+4\big].
 \end{aligned}
 $$
 
-故 $ A$ 的特征值为
+而 $ B$ 为上三角矩阵，其特征值为
 
 $$
- \lambda=-2,
-\qquad
-\lambda=1,
+ 2,-1,y.
 $$
 
-其中 $ 1$ 是二重特征值。
-
-由于 $ A$ 可对角化，因此二重特征值 $ \lambda=1$ 必须有两个线性无关的特征向量，即
+矩阵 $ A$ 显然有特征值 $ -2$，因此由相似矩阵特征值相同可知
 
 $$
- \dim N(A-E)=2.
+ y=-2.
 $$
 
-而
+于是 $ A$ 的另外两个特征值应为 $ 2,-1$，故
 
 $$
- A-E=
-\begin{bmatrix}
--5&-10&0\\
-1&2&0\\
-3&x&0
-\end{bmatrix}.
+ (\lambda+2)(\lambda-x)+4=(\lambda-2)(\lambda+1).
 $$
 
-要使零空间维数为 $ 2$，必须有
+展开两边：
 
 $$
- r(A-E)=1.
+ \lambda^2+(2-x)\lambda-2x+4
+=\lambda^2-\lambda-2.
 $$
 
-前两行已经成比例，因此第三行也必须与第二行成比例。由
+比较系数得
 
 $$
- (3,x)=3(1,2)
+ 2-x=-1,
 $$
 
-得到
+所以
 
 $$
- \boxed{x=6}.
+ x=3.
 $$
 
-下面求特征向量。
-
-当 $ \lambda=-2$ 时，解
+下面求 $ P$。令
 
 $$
- (A+2E)X=0.
+ P=(p_1,p_2,p_3).
 $$
 
-在 $ x=6$ 时，
+由
 
 $$
- A+2E=
-\begin{bmatrix}
--2&-10&0\\
-1&5&0\\
-3&6&3
-\end{bmatrix}.
+ AP=PB
 $$
 
-由方程组得
+可知各列应满足
 
 $$
- x_1=-5x_2,
-\qquad
-x_3=3x_2.
+ Ap_1=2p_1,
 $$
 
-故可取属于 $ \lambda=-2$ 的特征向量
-
 $$
- \alpha_1=(-5,1,3)^T.
+ Ap_2=p_1-p_2,
 $$
 
-当 $ \lambda=1$ 时，
-
 $$
- A-E=
-\begin{bmatrix}
--5&-10&0\\
-1&2&0\\
-3&6&0
-\end{bmatrix},
+ Ap_3=-2p_3.
 $$
 
-其方程等价于
+当 $ x=3$ 时，
 
 $$
- x_1+2x_2=0,
+ A=\begin{pmatrix}
+-2&-2&1\\
+2&3&-2\\
+0&0&-2
+\end{pmatrix}.
 $$
 
-而 $ x_3$ 为自由变量。因此可取两个线性无关的特征向量
+对特征值 $ 2$，解
 
 $$
- \alpha_2=(-2,1,0)^T,
-\qquad
-\alpha_3=(0,0,1)^T.
+ (A-2E)p_1=0,
 $$
 
-以这三个特征向量为列构造矩阵
+可取
 
 $$
- P=(\alpha_1,\alpha_2,\alpha_3)
-=
-\begin{bmatrix}
--5&-2&0\\
-1&1&0\\
-3&0&1
-\end{bmatrix}.
+ p_1=\begin{pmatrix}1\\-2\\0\end{pmatrix}.
 $$
 
-由于
+再解
 
 $$
- |P|=-3\ne0,
+ (A+E)p_2=p_1,
 $$
 
-故 $ P$ 可逆。按列向量对应的特征值排列，取
+可取
 
 $$
- \Lambda=\operatorname{diag}(-2,1,1).
+ p_2=\begin{pmatrix}-1\\0\\0\end{pmatrix}.
 $$
 
-于是
+对特征值 $ -2$，解
 
 $$
- \boxed{P^{-1}AP=\Lambda}.
+ (A+2E)p_3=0,
+$$
+
+可取
+
+$$
+ p_3=\begin{pmatrix}1\\-2\\-4\end{pmatrix}.
+$$
+
+因此可取
+
+$$
+ P=(p_1,p_2,p_3)
+=\begin{pmatrix}
+1&-1&1\\
+-2&0&-2\\
+0&0&-4
+\end{pmatrix}.
+$$
+
+并且
+
+$$
+ |P|=8\ne0,
+$$
+
+故 $ P$ 可逆。直接验证得
+
+$$
+ AP=PB,
+$$
+
+从而
+
+$$
+ P^{-1}AP=B.
 $$
 
 </details>
 
-这道练习训练一个很经典的结构：矩阵已经通过分块形式轻易暴露了二重特征值，参数唯一作用就是控制
+### 题型提炼
+
+这道题最值得掌握的不是最后的 $P$，而是两层转换：
+
+**第一层：** 用相似矩阵特征值相同先求 $x,y$。
+
+由于 $B$ 为上三角矩阵，其谱直接可见；$A$ 又明显含特征值 $-2$，所以参数很快被锁定。
+
+**第二层：** 目标矩阵 $B$ 不是对角阵，所以不能简单令 $P$ 的三列全是特征向量。应该直接写
 
 $$
-\dim N(A-E).
+AP=PB.
 $$
 
-做完以后应形成通用反应：
+若
 
-> **已知重根固定、参数仍未知时，很可能要从特征空间维数而不是特征方程里找参数。**
+$$
+P=(p_1,p_2,p_3),
+$$
+
+由 $B$ 的各列得到：
+
+$$
+Ap_1=2p_1,
+$$
+
+$$
+Ap_2=p_1-p_2,
+$$
+
+$$
+Ap_3=-2p_3.
+$$
+
+这里第二列是一个**广义特征向量式方程**，这是比“普通对角化”更进一步的相似变换构造。
 
 ---
 
-## 3. 题型二：已知一组线性无关向量及 $A$ 对它们的作用
+## 四、常见题型二：循环向量基——不求 $A$ 元素也能求相似矩阵
 
-### 3.1 为什么这类题不应先求 $A$
+### 2020 数学一/二/三真题
 
-若题目给出线性无关向量
+5. **【2020-123-11分】** 设 $ A$ 为2阶矩阵，$ P=(\alpha,A\alpha)$，其中 $ \alpha$ 是非零向量且不是 $ A$ 的特征向量。
 
-$$
-\alpha_1,\alpha_2,\ldots,\alpha_n
-$$
+（1）证明 $ P$ 为可逆矩阵；
 
-以及 $A\alpha_j$ 在这些向量下的线性表示，令
+（2）若
 
 $$
-R=(\alpha_1,\ldots,\alpha_n).
+ A^2\alpha+A\alpha-6\alpha=0,
 $$
 
-把每个 $A\alpha_j$ 的坐标放在第 $j$ 列，就得到矩阵 $B$，满足
+求 $ P^{-1}AP$，并判断 $ A$ 是否相似于对角矩阵。
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：**
+（1）$ P$ 可逆。
+
+（2）
 
 $$
-AR=RB,
+ P^{-1}AP=\begin{pmatrix}
+0&6\\
+1&-1
+\end{pmatrix}.
+$$
+
+矩阵 $ A$ 可以相似对角化，且
+
+$$
+ A\sim\begin{pmatrix}
+2&0\\
+0&-3
+\end{pmatrix}.
+$$
+
+**解析：**
+
+（1）证明 $ P$ 可逆。
+
+矩阵
+
+$$
+ P=(\alpha,A\alpha)
+$$
+
+的两列分别为 $ \alpha$ 与 $ A\alpha$。
+
+若这两个向量线性相关，则存在常数 $ k$，使
+
+$$
+ A\alpha=k\alpha.
+$$
+
+由于 $ \alpha\ne0$，这说明 $ \alpha$ 是 $ A$ 的特征向量，与题设矛盾。
+
+所以 $ \alpha$ 与 $ A\alpha$ 线性无关。它们是两个线性无关的二维列向量，因此
+
+$$
+ |P|\ne0,
+$$
+
+故 $ P$ 可逆。
+
+（2）求 $ P^{-1}AP$。
+
+由
+
+$$
+ P=(\alpha,A\alpha),
+$$
+
+有
+
+$$
+ AP=(A\alpha,A^2\alpha).
+$$
+
+题设给出
+
+$$
+ A^2\alpha+A\alpha-6\alpha=0,
 $$
 
 即
 
 $$
-B=R^{-1}AR.
+ A^2\alpha=6\alpha-A\alpha.
 $$
 
-因此 $A$ 与一个通常更简单的 $B$ 相似。求 $A$ 的特征值、判断可对角化、构造特征向量，都可以转移到 $B$ 上完成。
+因此
 
-### 3.2 真题：2005 年把“换基矩阵—特征值—对角化”串成一题
+$$
+\begin{aligned}
+ AP
+&=(A\alpha,6\alpha-A\alpha)\\
+&=(\alpha,A\alpha)
+\begin{pmatrix}
+0&6\\
+1&-1
+\end{pmatrix}.
+\end{aligned}
+$$
+
+于是
+
+$$
+ AP=P\begin{pmatrix}
+0&6\\
+1&-1
+\end{pmatrix}.
+$$
+
+左乘 $ P^{-1}$，得
+
+$$
+ P^{-1}AP=\begin{pmatrix}
+0&6\\
+1&-1
+\end{pmatrix}.
+$$
+
+记
+
+$$
+ C=\begin{pmatrix}
+0&6\\
+1&-1
+\end{pmatrix}.
+$$
+
+则其特征多项式为
+
+$$
+\begin{aligned}
+ |\lambda E-C|
+&=\begin{vmatrix}
+\lambda&-6\\
+-1&\lambda+1
+\end{vmatrix}\\
+&=\lambda(\lambda+1)-6\\
+&=(\lambda-2)(\lambda+3).
+\end{aligned}
+$$
+
+所以 $ C$ 有两个不同的特征值
+
+$$
+ 2,-3.
+$$
+
+因此 $ C$ 可相似对角化。又 $ A$ 与 $ C$ 相似，故 $ A$ 也可相似对角化，并且
+
+$$
+ A\sim\begin{pmatrix}
+2&0\\
+0&-3
+\end{pmatrix}.
+$$
+
+</details>
+
+### 母题模型
+
+如果题目出现
+
+$$
+P=(\alpha,A\alpha),
+$$
+
+以及
+
+$$
+A^2\alpha+c_1A\alpha+c_0\alpha=0,
+$$
+
+那么无需知道 $A$ 的任何元素，直接写
+
+$$
+A^2\alpha=-c_0\alpha-c_1A\alpha.
+$$
+
+于是
+
+$$
+AP=(A\alpha,A^2\alpha)
+=P
+\begin{pmatrix}
+0&-c_0\\
+1&-c_1
+\end{pmatrix}.
+$$
+
+此时特征多项式正是
+
+$$
+\lambda^2+c_1\lambda+c_0.
+$$
+
+因此向量递推式实际上已经把 $A$ 在这组基下的矩阵完全告诉了你。
+
+### 李林 880 三阶变式
+
+1. 设 $A$ 是 $3$ 阶方阵，$\alpha$ 为 $3$ 维列向量，$P = (\alpha, A\alpha, A^2\alpha)$ 为可逆矩阵，$B = P^{-1}AP$，且 $A^3\alpha + 2A^2\alpha = 3A\alpha$，则 $|A+E| =$ ________.
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：** $-4$
+
+**解析：**
+
+**解析：** 由 $B = P^{-1}AP$, 知 $AP = PB$, 故
+$$AP = A(\alpha, A\alpha, A^2\alpha) = (A\alpha, A^2\alpha, A^3\alpha) = (A\alpha, A^2\alpha, 3A\alpha - 2A^2\alpha)$$
+$$= (\alpha, A\alpha, A^2\alpha) \begin{pmatrix} 0 & 0 & 0 \\ 1 & 0 & 3 \\ 0 & 1 & -2 \end{pmatrix} = PB,$$
+得 $B = \begin{pmatrix} 0 & 0 & 0 \\ 1 & 0 & 3 \\ 0 & 1 & -2 \end{pmatrix}$, 则
+$$|A + E| = |PBP^{-1} + PP^{-1}| = |P| \cdot |B + E| \cdot |P^{-1}|$$
+$$= |B + E| = \begin{vmatrix} 1 & 0 & 0 \\ 1 & 1 & 3 \\ 0 & 1 & -1 \end{vmatrix} = -4.$$
+
+</details>
+
+二维、三维的本质完全一致：
+
+$$
+\boxed{
+\alpha,A\alpha,A^2\alpha,\ldots
+\text{构成基}
+\Rightarrow
+\text{递推关系的系数就是相似矩阵最后一列}
+}
+$$
+
+---
+
+## 五、常见题型三：抽象向量组上的作用——先化成坐标矩阵再对角化
+
+### 2005 数学四经典题
 
 9. **【2005-4-6分】** 设 $ A$ 为3阶矩阵，$ \alpha_1$，$ \alpha_2$，$ \alpha_3$ 是线性无关的三维列向量，且满足
 
@@ -747,305 +938,93 @@ $$
 
 </details>
 
-这道题的统一理解是：
+### 李林 880 同型练习
 
-1. 题目首先在基 $\alpha_1,\alpha_2,\alpha_3$ 下给出线性变换；
-2. 先得到表示矩阵 $B$；
-3. 对 $B$ 求特征向量 $v$；
-4. 再通过
+5. 设 $A$ 是 $3$ 阶矩阵, $\alpha_1, \alpha_2, \alpha_3$ 是线性无关的 $3$ 维列向量, 且 $A\alpha_1 = \alpha_1 + \alpha_2 + \alpha_3, A\alpha_2 = 2\alpha_2 + \alpha_3, A\alpha_3 = 2\alpha_2 + 3\alpha_3$.求:
 
-$$
-Rv
-$$
+$(I)$ $A$ 的全部特征值;
 
-把 $B$ 的特征向量还原成 $A$ 的特征向量。
-
-这里的关键公式是：若
-
-$$
-Bv=\lambda v,
-$$
-
-则
-
-$$
-A(Rv)=R(Bv)=\lambda(Rv).
-$$
-
-所以 $Rv$ 自动成为 $A$ 的特征向量。
-
-### 3.3 变式方向
-
-同类题完全可以把已知关系改成：
-
-$$
-A\alpha_1=c_{11}\alpha_1+\cdots+c_{n1}\alpha_n,
-$$
-
-或给出
-
-$$
-A(\alpha_1,\ldots,\alpha_n)=(\alpha_1,\ldots,\alpha_n)B.
-$$
-
-表面写法不同，本质完全一致。
-
----
-
-## 4. 题型三：Krylov 基——$P=(\alpha,A\alpha,\ldots)$
-
-### 4.1 题型信号
-
-看到
-
-$$
-P=(\alpha,A\alpha)
-$$
-
-或更高阶的
-
-$$
-P=(\alpha,A\alpha,A^2\alpha,\ldots),
-$$
-
-不要先算 $P^{-1}$。应直接算
-
-$$
-AP.
-$$
-
-若题目给出关于 $A^k\alpha$ 的递推关系，就可以把 $AP$ 的每一列在 $P$ 的列基下表示，从而直接得到 $P^{-1}AP$。
-
-### 4.2 真题：2020 年把“线性无关证明”和“伴随型矩阵”结合
-
-5. **【2020-123-11分】** 设 $ A$ 为2阶矩阵，$ P=(\alpha,A\alpha)$，其中 $ \alpha$ 是非零向量且不是 $ A$ 的特征向量。
-
-（1）证明 $ P$ 为可逆矩阵；
-
-（2）若
-
-$$
- A^2\alpha+A\alpha-6\alpha=0,
-$$
-
-求 $ P^{-1}AP$，并判断 $ A$ 是否相似于对角矩阵。
+$(II)$ 可逆矩阵 $P$ 及 $\Lambda$, 使得 $P^{-1}AP = \Lambda$, 并计算 $|A - 2E|$.
 
 <details>
 <summary>答案与解析</summary>
 
-**答案：**
-（1）$ P$ 可逆。
-
-（2）
-
-$$
- P^{-1}AP=\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
-$$
-
-矩阵 $ A$ 可以相似对角化，且
-
-$$
- A\sim\begin{pmatrix}
-2&0\\
-0&-3
-\end{pmatrix}.
-$$
+**答案：** 特征值为 $1,1,4$；$|A-2E|=2$，可逆矩阵 $P$ 见解析。
 
 **解析：**
 
-（1）证明 $ P$ 可逆。
-
-矩阵
-
-$$
- P=(\alpha,A\alpha)
-$$
-
-的两列分别为 $ \alpha$ 与 $ A\alpha$。
-
-若这两个向量线性相关，则存在常数 $ k$，使
-
-$$
- A\alpha=k\alpha.
-$$
-
-由于 $ \alpha\ne0$，这说明 $ \alpha$ 是 $ A$ 的特征向量，与题设矛盾。
-
-所以 $ \alpha$ 与 $ A\alpha$ 线性无关。它们是两个线性无关的二维列向量，因此
-
-$$
- |P|\ne0,
-$$
-
-故 $ P$ 可逆。
-
-（2）求 $ P^{-1}AP$。
+**解析：** (I) 由已知, 有
+$$A(\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3) = (\boldsymbol{\alpha}_1 + \boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3, 2\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3, 2\boldsymbol{\alpha}_2 + 3\boldsymbol{\alpha}_3) = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3) \begin{pmatrix} 1 & 0 & 0 \\ 1 & 2 & 2 \\ 1 & 1 & 3 \end{pmatrix} \quad \text{①}$$
+记 $B = \begin{pmatrix} 1 & 0 & 0 \\ 1 & 2 & 2 \\ 1 & 1 & 3 \end{pmatrix}$, 由 $\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3$ 线性无关, 记 $C = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3)$, 则 $C$ 可逆.
+由 ① 式, 知 $\boldsymbol{AC} = \boldsymbol{CB}$, 即 $C^{-1}\boldsymbol{AC} = B$, 因此 $A$ 与 $B$ 有相同的特征值.
 
 由
+$$|\lambda E - B| = \begin{vmatrix} \lambda - 1 & 0 & 0 \\ -1 & \lambda - 2 & -2 \\ -1 & -1 & \lambda - 3 \end{vmatrix} = (\lambda - 1)^2(\lambda - 4) = 0,$$
+得 $B$ 的特征值为 $1, 1, 4$, 即为 $A$ 的全部特征值.
+($\text{II}$) 先求 $B$ 的特征向量.
+对 $\lambda_1 = \lambda_2 = 1$, 由 $(E - B)x = 0$, 可解得基础解系为
+$$\eta_1 = (-1, 1, 0)^{\text{T}}, \eta_2 = (-2, 0, 1)^{\text{T}};$$
+对 $\lambda_3 = 4$, 由 $(4E - B)x = 0$, 可解得基础解系为 $\eta_3 = (0, 1, 1)^{\text{T}}$.
+令 $P_1 = (\eta_1, \eta_2, \eta_3)$, 则
+$$P_1^{-1} B P_1 = \Lambda = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 4 \end{pmatrix},$$
+于是 $P_1^{-1} C^{-1} A C P_1 = \Lambda$, 即 $(C P_1)^{-1} A (C P_1) = \Lambda$. 令
+$$P = C P_1 = (\alpha_1, \alpha_2, \alpha_3) \begin{pmatrix} -1 & -2 & 0 \\ 1 & 0 & 1 \\ 0 & 1 & 1 \end{pmatrix} = (-\alpha_1 + \alpha_2, -2\alpha_1 + \alpha_3, \alpha_2 + \alpha_3),$$
+则 $P^{-1} A P = \Lambda$.
+又由 $A \sim \Lambda$, 则 $A - 2E \sim \Lambda - 2E$, 故 $|A - 2E| = |\Lambda - 2E| = \begin{vmatrix} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & 2 \end{vmatrix} = 2$.
+
+</details>
+
+### 统一解法
+
+令
 
 $$
- P=(\alpha,A\alpha),
+C=(\alpha_1,\alpha_2,\alpha_3).
 $$
 
-有
+题目给出的三条 $A\alpha_i$ 关系，就是
 
 $$
- AP=(A\alpha,A^2\alpha).
+AC=CB.
 $$
 
-题设给出
+所以
 
 $$
- A^2\alpha+A\alpha-6\alpha=0,
+C^{-1}AC=B.
 $$
 
-即
+接下来只需对具体数值矩阵 $B$ 求特征值与特征向量。
+
+若 $B$ 的特征向量为 $v_i$，则
 
 $$
- A^2\alpha=6\alpha-A\alpha.
+Bv_i=\lambda_i v_i.
+$$
+
+两边左乘 $C$：
+
+$$
+ACv_i=CBv_i=\lambda_i Cv_i.
 $$
 
 因此
 
 $$
-\begin{aligned}
- AP
-&=(A\alpha,6\alpha-A\alpha)\\
-&=(\alpha,A\alpha)
-\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
-\end{aligned}
+\boxed{Cv_i\text{ 是 }A\text{ 的特征向量}}.
 $$
 
-于是
+这就是为什么最后的 $P$ 往往是
 
 $$
- AP=P\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
+P=C(v_1,v_2,v_3).
 $$
-
-左乘 $ P^{-1}$，得
-
-$$
- P^{-1}AP=\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
-$$
-
-记
-
-$$
- C=\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
-$$
-
-则其特征多项式为
-
-$$
-\begin{aligned}
- |\lambda E-C|
-&=\begin{vmatrix}
-\lambda&-6\\
--1&\lambda+1
-\end{vmatrix}\\
-&=\lambda(\lambda+1)-6\\
-&=(\lambda-2)(\lambda+3).
-\end{aligned}
-$$
-
-所以 $ C$ 有两个不同的特征值
-
-$$
- 2,-3.
-$$
-
-因此 $ C$ 可相似对角化。又 $ A$ 与 $ C$ 相似，故 $ A$ 也可相似对角化，并且
-
-$$
- A\sim\begin{pmatrix}
-2&0\\
-0&-3
-\end{pmatrix}.
-$$
-
-</details>
-
-这道题有两个非常重要的模板。
-
-**模板一：证明 $P=(\alpha,A\alpha)$ 可逆。**
-
-若两列相关，就有
-
-$$
-A\alpha=k\alpha,
-$$
-
-与“$\alpha$ 不是特征向量”矛盾。
-
-**模板二：由递推关系直接写列坐标。**
-
-由
-
-$$
-A^2\alpha=6\alpha-A\alpha
-$$
-
-可直接得到
-
-$$
-AP=(A\alpha,A^2\alpha)
-=P
-\begin{pmatrix}
-0&6\\
-1&-1
-\end{pmatrix}.
-$$
-
-整个过程都不需要知道 $A$ 的具体元素。
 
 ---
 
-## 5. 题型四：用对角化或谱插值计算高次矩阵幂
+## 六、常见题型四：高次矩阵幂——对角化、插值降幂、递推同时出现
 
-### 5.1 两种主方法
-
-若 $A$ 可对角化，最标准的是
-
-$$
-A=P\Lambda P^{-1}
-\Longrightarrow
-A^n=P\Lambda^nP^{-1}.
-$$
-
-但如果只要求 $A^n$，而 $P^{-1}$ 计算很繁琐，可以使用“谱插值降幂”：若 $A$ 有 $s$ 个互异特征值 $\lambda_1,\ldots,\lambda_s$，找次数不超过 $s-1$ 的多项式 $q(t)$，使
-
-$$
-q(\lambda_i)=\lambda_i^n.
-$$
-
-当 $A$ 可对角化时，就有
-
-$$
-A^n=q(A).
-$$
-
-三阶且只有三个互异特征值时，常可把高次幂化成
-
-$$
-A^n=c_0E+c_1A+c_2A^2.
-$$
-
-### 5.2 真题：2016 年高次幂与矩阵方程综合
+### 2016 数学一/二/三真题
 
 3. **【2016-123-11分】** 已知矩阵
 
@@ -1214,384 +1193,704 @@ $$
 
 </details>
 
-这道题表面看是 $A^{99}$，实际上考两层结构：
+### 为什么这道题重要
 
-1. 利用互异特征值把 $A^{99}$ 降到低次多项式；
-2. 从
+表面任务是求 $A^{99}$ 和 $B^{100}$，但其结构是：
+
+1. $A$ 有三个互异特征值，所以可对角化；
+2. 在三个特征值上构造二次多项式 $p(t)$，使
+   $$
+   p(\lambda_i)=\lambda_i^{99};
+   $$
+3. 于是
+   $$
+   A^{99}=p(A),
+   $$
+   把 99 次幂降成 $A,A^2$；
+4. 再由
+   $$
+   B^2=BA
+   $$
+   递推得到
+   $$
+   B^{100}=BA^{99}.
+   $$
+
+这是“相似对角化 + 多项式函数 + 矩阵递推”的典型综合题。
+
+### 方法选择
+
+若已经有 $P,\Lambda$，可以用
 
 $$
-B^2=BA
+A^{99}=P\Lambda^{99}P^{-1}.
 $$
 
-推出
-
-$$
-B^n=BA^{n-1},
-$$
-
-然后把 $BA^{99}$ 的列解释成 $\alpha_1,\alpha_2,\alpha_3$ 的线性组合。
-
-它说明“相似对角化”常常不是题目的最后一步，而是计算复杂矩阵表达式的工具。
+若只要最终矩阵且特征值不多，用插值把 $t^{99}$ 降成低次多项式通常更快。
 
 ---
 
-## 6. 题型五：同时相似对角化
+## 七、常见题型五：结构矩阵直接对角化
 
-### 6.1 基本思想
+### 2004 数学三经典题：常对角元 + 常非对角元
 
-如果希望同一个可逆矩阵 $P$ 满足
+8. **【2004-3-13分】** 设 $ n$ 阶矩阵
 
 $$
-P^{-1}AP=\Lambda_A,
-\qquad
-P^{-1}BP=\Lambda_B,
+ A=\begin{pmatrix}
+1&b&\cdots&b\\
+b&1&\cdots&b\\
+\vdots&\vdots&&\vdots\\
+b&b&\cdots&1
+\end{pmatrix}.
 $$
 
-那么 $P$ 的列必须同时是 $A$ 与 $B$ 的特征向量。
+（1）求特征值和特征向量；
 
-对可对角化矩阵而言，“可交换”是同时对角化问题中的核心信号。特别是在实对称矩阵情形，若两矩阵可交换，就可以寻找共同的正交特征向量基。
-
-### 6.2 高价值练习：同一个 $P$ 的判定
-
-2. 以下两个矩阵，可用同一可逆矩阵$P$相似对角化的是( ).
-
-A. $\begin{bmatrix}1&1\\1&0\end{bmatrix},\begin{bmatrix}0&1\\1&1\end{bmatrix}$
-
-B. $\begin{bmatrix}1&1\\1&-1\end{bmatrix},\begin{bmatrix}-1&1\\1&1\end{bmatrix}$
-
-C. $\begin{bmatrix}0&1\\1&1\end{bmatrix},\begin{bmatrix}-1&1\\1&0\end{bmatrix}$
-
-D. $\begin{bmatrix}0&1\\1&-1\end{bmatrix},\begin{bmatrix}-1&1\\1&0\end{bmatrix}$
-
-<details>
-<summary>答案与解析</summary>
-
-**答案：** C
-
-**解析：**
-
-题中各矩阵均为实对称矩阵，因而都可对角化。两个可对角化矩阵能够被同一个可逆矩阵同时相似对角化的充要条件是二者可交换。
-
-直接计算各组的交换子$XY-YX$，只有C中的两个矩阵满足
-$$
- XY=YX.
-$$
-例如C中
-$$
- X=\begin{bmatrix}0&1\\1&1\end{bmatrix},
-\qquad
-Y=\begin{bmatrix}-1&1\\1&0\end{bmatrix},
-$$
-有
-$$
- XY=YX
-=\begin{bmatrix}1&0\\0&1\end{bmatrix}.
-$$
-所以选C。
-
-</details>
-
-这道题值得保留，因为它把“每个矩阵单独可对角化”和“能否用同一个 $P$ 对角化”明确区分开来。
-
-单独都可对角化远远不够，必须存在共同特征向量基。
-
-### 6.3 更进一步：若 $B$ 是 $A$ 的函数，共用特征向量
-
-7. 设
-$$
- A=\begin{bmatrix}2&1&0\\1&2&0\\a&1&b\end{bmatrix}
-$$
-恰有2个不同的特征值且可相似对角化，$a>0$，$(A+E)(E-B)=E$。
-(1)求$a,b$的值；
-(2)求可以使$A,B$同时相似对角化的可逆矩阵$P$。
+（2）求可逆矩阵 $ P$，使得 $ P^{-1}AP$ 为对角矩阵。
 
 <details>
 <summary>答案与解析</summary>
 
 **答案：**
-$$
- a=1,
-\qquad b=1.
-$$
-可取
-$$
- P=\begin{bmatrix}
--1&0&1\\
-1&0&1\\
-0&1&1
-\end{bmatrix}.
-$$
-此时
-$$
- P^{-1}AP=\operatorname{diag}(1,1,3),
-$$
-并且
-$$
- P^{-1}BP=\operatorname{diag}\left(\frac12,\frac12,\frac34\right).
-$$
-
-**解析：**
-
-$A$为分块下三角矩阵，其特征值为$1,3,b$。题设恰有两个不同特征值，所以
-$$
- b=1\quad\text{或}\quad b=3.
-$$
-
-若$b=1$，则$\lambda=1$为二重特征值。要求可相似对角化，必须有
-$$
- \dim N(A-E)=2,
-$$
-即$r(A-E)=1$。此时
-$$
- A-E=\begin{bmatrix}1&1&0\\1&1&0\\a&1&0\end{bmatrix},
-$$
-故需$a=1$。
-
-若$b=3$，类似地要求$\lambda=3$的特征子空间维数为2，可得$a=-1$，与$a>0$矛盾。
-
-所以
-$$
- a=b=1.
-$$
-此时$\lambda=1$对应两个线性无关特征向量，可取
-$$
- \xi_1=\begin{bmatrix}-1\\1\\0\end{bmatrix},
-\qquad
-\xi_2=\begin{bmatrix}0\\0\\1\end{bmatrix},
-$$
-而$\lambda=3$可取
-$$
- \xi_3=\begin{bmatrix}1\\1\\1\end{bmatrix}.
-$$
-令$P=[\xi_1,\xi_2,\xi_3]$，即得题中$P$。
-
-又
-$$
- (A+E)(E-B)=E
-$$
-给出
-$$
- B=E-(A+E)^{-1},
-$$
-所以$B$是$A$的有理函数，必与$A$被同一个$P$对角化。若$A$的特征值为$\lambda$，则$B$对应特征值为
-$$
- 1-\frac1{\lambda+1}=\frac\lambda{\lambda+1},
-$$
-从而分别为$\frac12,\frac12,\frac34$。
-
-</details>
-
-该题中
+$ A$ 的特征值为
 
 $$
-(A+E)(E-B)=E
+ \lambda_1=1+(n-1)b,
 $$
 
-可化为
+其对应特征向量可取
 
 $$
-B=E-(A+E)^{-1}.
+ \alpha_1=(1,1,\ldots,1)^T;
 $$
 
-因此 $B$ 是 $A$ 的有理函数。若
+以及
 
 $$
-A\xi=\lambda\xi,
+ \lambda_2=1-b,
+$$
+
+其代数重数与几何重数均为 $ n-1$，对应特征子空间为
+
+$$
+ V_{1-b}=\left\{x=(x_1,\ldots,x_n)^T:\sum_{i=1}^{n}x_i=0\right\}.
+$$
+
+可取该特征子空间的一组基
+
+$$
+ \alpha_k=e_1-e_k,
+\qquad k=2,3,\ldots,n,
+$$
+
+其中 $ e_k$ 为第 $ k$ 个标准单位列向量。
+
+令
+
+$$
+ P=(\alpha_1,\alpha_2,\ldots,\alpha_n),
 $$
 
 则
 
 $$
-B\xi=\left(1-\frac1{\lambda+1}\right)\xi.
+ P^{-1}AP
+=\operatorname{diag}\bigl(1+(n-1)b,\underbrace{1-b,\ldots,1-b}_{n-1\text{ 个}}\bigr).
 $$
 
-所以一旦找到 $A$ 的特征向量基，同一个 $P$ 会自动把 $B$ 也对角化。
+**解析：**
 
-这是非常有命题价值的变式：未来不一定直接告诉“$A,B$ 可交换”，而可能通过函数关系隐含“共用特征向量”。
+记
+
+$$
+ \mathbf{1}=(1,1,\ldots,1)^T,
+$$
+
+并令 $ J=\mathbf{1}\mathbf{1}^T$ 为全 $ 1$ 矩阵，则
+
+$$
+ A=(1-b)E+bJ.
+$$
+
+首先，由于
+
+$$
+ J\mathbf{1}=n\mathbf{1},
+$$
+
+所以
+
+$$
+\begin{aligned}
+ A\mathbf{1}
+&=(1-b)\mathbf{1}+bJ\mathbf{1}\\
+&=(1-b)\mathbf{1}+bn\mathbf{1}\\
+&=[1+(n-1)b]\mathbf{1}.
+\end{aligned}
+$$
+
+故
+
+$$
+ \lambda_1=1+(n-1)b
+$$
+
+是 $ A$ 的一个特征值，对应特征向量为 $ \mathbf{1}$。
+
+再设 $ x=(x_1,\ldots,x_n)^T$ 满足
+
+$$
+ \sum_{i=1}^{n}x_i=0.
+$$
+
+则
+
+$$
+ Jx=\mathbf{1}(\mathbf{1}^Tx)=0,
+$$
+
+从而
+
+$$
+ Ax=(1-b)x.
+$$
+
+因此，所有分量之和为零的非零向量都是特征值 $ 1-b$ 的特征向量。该子空间由一个线性方程确定，所以维数为 $ n-1$。
+
+可取
+
+$$
+ \alpha_2=e_1-e_2,
+\quad
+\alpha_3=e_1-e_3,
+\quad\ldots\quad,
+\alpha_n=e_1-e_n.
+$$
+
+下面说明 $ \alpha_1,\alpha_2,\ldots,\alpha_n$ 线性无关。若
+
+$$
+ c_1\alpha_1+c_2\alpha_2+\cdots+c_n\alpha_n=0,
+$$
+
+比较第 $ k$ 个分量（$ k\ge2$），得
+
+$$
+ c_1-c_k=0,
+$$
+
+即 $ c_k=c_1$。再比较第一个分量，得
+
+$$
+ c_1+c_2+\cdots+c_n=nc_1=0.
+$$
+
+故 $ c_1=c_2=\cdots=c_n=0$，于是这些向量线性无关。
+
+令
+
+$$
+ P=(\alpha_1,\alpha_2,\ldots,\alpha_n),
+$$
+
+则 $ P$ 可逆，且
+
+$$
+ AP
+=P\operatorname{diag}\bigl(1+(n-1)b,1-b,\ldots,1-b\bigr).
+$$
+
+因此
+
+$$
+ P^{-1}AP
+=\operatorname{diag}\bigl(1+(n-1)b,1-b,\ldots,1-b\bigr).
+$$
+
+当 $ b=0$ 时，两个特征值相同，且 $ A=E$，上述结论仍然成立。
+
+</details>
+
+这类矩阵应先识别为
+
+$$
+A=(1-b)E+bJ,
+$$
+
+其中 $J$ 是全 $1$ 矩阵。
+
+空间自然分解成
+
+$$
+\operatorname{span}\{\mathbf 1\}
+\oplus
+\{x:\mathbf 1^Tx=0\}.
+$$
+
+在第一部分上
+
+$$
+J\mathbf 1=n\mathbf 1,
+$$
+
+在第二部分上
+
+$$
+Jx=0.
+$$
+
+因此直接得到两个特征值：
+
+$$
+1+(n-1)b,
+\qquad
+1-b.
+$$
+
+这比展开 $n$ 阶特征行列式高效得多，也是“结构观察优先于暴力计算”的经典母题。
 
 ---
 
-## 7. 构造 $P$ 时的标准检查表
+## 八、常见题型六：相似于给定矩阵后再求对角化
 
-### 7.1 第一步：先确认真的可对角化
-
-不能一见特征值就开始求 $P$。有重特征值时，先验证足够多的线性无关特征向量存在。
-
-### 7.2 第二步：每个特征子空间取一组基
-
-若 $\lambda_i$ 的代数重数为 $m_i$，可对角化时应从
+有些题先给
 
 $$
-N(A-\lambda_iE)
+A\sim B,
 $$
 
-中取 $m_i$ 个线性无关向量。
+而 $B$ 本身不是对角阵，但比 $A$ 结构更简单。策略是：
 
-### 7.3 第三步：列顺序必须和 $\Lambda$ 对齐
+1. 先从 $B$ 的结构读出特征值；
+2. 用迹、行列式或特征多项式确定 $A$ 中参数；
+3. 再直接对 $A$ 求特征向量，构造 $P$；
+4. 或先对 $B$ 对角化，再利用相似关系复合变换矩阵。
+
+### 2015 数学一/二/三真题
+
+10. **【2015-123-11分】** 设矩阵
+
+$$
+ A=\begin{pmatrix}
+0&2&-3\\
+-1&3&-3\\
+1&-2&a
+\end{pmatrix}
+$$
+
+相似于矩阵
+
+$$
+ B=\begin{pmatrix}
+1&-2&0\\
+0&b&0\\
+0&3&1
+\end{pmatrix}.
+$$
+
+（1）求 $ a,b$ 的值；
+
+（2）求可逆矩阵 $ P$，使 $ P^{-1}AP$ 为对角矩阵。
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：**
+（1）
+
+$$
+ a=4,\qquad b=5.
+$$
+
+（2）可取
+
+$$
+ P=\begin{pmatrix}
+2&-3&-1\\
+1&0&-1\\
+0&1&1
+\end{pmatrix},
+$$
+
+则
+
+$$
+ P^{-1}AP=\operatorname{diag}(1,1,5).
+$$
+
+**解析：**
+
+由于 $ A$ 与 $ B$ 相似，所以它们的迹和行列式分别相等。
+
+先比较迹：
+
+$$
+ \operatorname{tr}(A)=a+3,
+\qquad
+\operatorname{tr}(B)=b+2,
+$$
+
+故
+
+$$
+ b=a+1.
+$$
+
+再比较行列式：
+
+$$
+\begin{aligned}
+ |A|
+&=\begin{vmatrix}
+0&2&-3\\
+-1&3&-3\\
+1&-2&a
+\end{vmatrix}\\
+&=2a-3,
+\end{aligned}
+$$
+
+而
+
+$$
+ |B|=b.
+$$
+
+因此
+
+$$
+ b=2a-3.
+$$
+
+联立
+
+$$
+ b=a+1,
+\qquad
+b=2a-3,
+$$
+
+得
+
+$$
+ a=4,
+\qquad
+b=5.
+$$
+
+于是
+
+$$
+ A=\begin{pmatrix}
+0&2&-3\\
+-1&3&-3\\
+1&-2&4
+\end{pmatrix}.
+$$
+
+其特征多项式为
+
+$$
+\begin{aligned}
+ |\lambda E-A|
+&=\begin{vmatrix}
+\lambda&-2&3\\
+1&\lambda-3&3\\
+-1&2&\lambda-4
+\end{vmatrix}\\
+&=(\lambda-1)^2(\lambda-5).
+\end{aligned}
+$$
+
+故特征值为
+
+$$
+ \lambda=1\ \text{（二重）},
+\qquad
+\lambda=5.
+$$
+
+当 $ \lambda=1$ 时，解
+
+$$
+ (A-E)x=0,
+$$
+
+可取两个线性无关的特征向量
+
+$$
+ \xi_1=\begin{pmatrix}2\\1\\0\end{pmatrix},
+\qquad
+\xi_2=\begin{pmatrix}-3\\0\\1\end{pmatrix}.
+$$
+
+当 $ \lambda=5$ 时，解
+
+$$
+ (A-5E)x=0,
+$$
+
+可取特征向量
+
+$$
+ \xi_3=\begin{pmatrix}-1\\-1\\1\end{pmatrix}.
+$$
+
+令
+
+$$
+ P=(\xi_1,\xi_2,\xi_3)
+=\begin{pmatrix}
+2&-3&-1\\
+1&0&-1\\
+0&1&1
+\end{pmatrix}.
+$$
+
+由于
+
+$$
+ |P|=4\ne0,
+$$
+
+所以 $ P$ 可逆。由
+
+$$
+ AP=P\operatorname{diag}(1,1,5),
+$$
+
+得到
+
+$$
+ P^{-1}AP=\operatorname{diag}(1,1,5).
+$$
+
+</details>
+
+这类题还提醒：相似链可以复合。
 
 若
 
 $$
-P=(\alpha_1,\alpha_2,\alpha_3),
-$$
-
-其中 $\alpha_i$ 对应 $\lambda_i$，则
-
-$$
-P^{-1}AP=\operatorname{diag}(\lambda_1,\lambda_2,\lambda_3).
-$$
-
-交换 $P$ 的两列，对角阵中对应的两个特征值也必须交换。
-
-### 7.4 第四步：一般不必真正求 $P^{-1}$ 验证
-
-最省时间的验证方式是检查
-
-$$
-AP=P\Lambda.
-$$
-
-这是构造题中应优先采用的验算方法。
-
----
-
-## 8. 真题命题方式的演化
-
-### 8.1 早期：直接给矩阵，求特征值和 $P$
-
-1988—2003 年大量题目采用
-
-$$
-\text{求参数}\to\text{求特征向量}\to\text{构造 }P
-$$
-
-的标准链条。
-
-### 8.2 2005：转向“非标准基下的矩阵表示”
-
-2005 年题目不直接给 $A$ 的元素，而给 $A$ 对一组线性无关向量的作用。考查从
-
-$$
-AR=RB
-$$
-
-理解相似的换基本质。
-
-### 8.3 2016：对角化成为高次幂和矩阵方程的工具
-
-题目最终目标不再是“求 $P$”，而是求 $A^{99}$、$B^{100}$。相似对角化退居为中间技术。
-
-### 8.4 2020：Krylov 基与递推关系
-
-2020 年直接用
-
-$$
-P=(\alpha,A\alpha)
-$$
-
-建立一组自然基，把抽象矩阵变成低阶伴随型矩阵，体现出更强的结构化命题倾向。
-
-### 8.5 练习题提示的下一步：同时对角化
-
-练习资料已经出现“同一个 $P$ 同时对角化两个矩阵”的问题，以及 $B=f(A)$ 型关系。这类题非常适合在真题中作为综合升级。
-
----
-
-## 9. 未来可能的合理变式
-
-### 9.1 不直接给矩阵 $A$，只给 $A$ 在一组基上的作用
-
-可能要求先求表示矩阵 $B$，再完成：
-
-- 特征值；
-- 可对角化判定；
-- $A^n$；
-- 某个矩阵多项式。
-
-### 9.2 把 Krylov 基扩展到三阶
-
-例如给出
-
-$$
-P=(\alpha,A\alpha,A^2\alpha)
-$$
-
-和
-
-$$
-A^3\alpha=c_0\alpha+c_1A\alpha+c_2A^2\alpha,
-$$
-
-直接要求求 $P^{-1}AP$。此时矩阵的列几乎可以直接写出。
-
-### 9.3 将参数可对角化与矩阵幂综合
-
-先用
-
-$$
-r(A-\lambda E)=n-m
-$$
-
-确定参数，再用所得对角化结构计算 $A^n$，是非常自然的两阶段综合题。
-
-### 9.4 同时对角化改成隐含函数关系
-
-不给 $AB=BA$，而给
-
-$$
-B=(A+cE)^{-1},
-\quad
-B=A^2+aA+bE,
-$$
-
-要求找同一个 $P$。此时核心仍然是“$A$ 的特征向量也是 $B$ 的特征向量”。
-
----
-
-## 10. 本文件最终应形成的解题模板
-
-### 模板 A：含参数且已知可对角化
-
-$$
-\text{特征多项式}
-\to
-\text{确定重根}
-\to
-r(A-\lambda E)=n-m
-\to
-\text{定参数}
-\to
-\text{求特征向量}
-\to
-P.
-$$
-
-### 模板 B：给一组线性无关向量及 $A$ 的作用
-
-$$
-R=(\alpha_1,\ldots,\alpha_n),
+C^{-1}AC=B,
 \qquad
-AR=RB
+S^{-1}BS=\Lambda,
 $$
 
-先研究 $B$，再通过 $Rv$ 把特征向量还原到 $A$。
+则
 
-### 模板 C：给 $P=(\alpha,A\alpha,\ldots)$
+$$
+(CS)^{-1}A(CS)=\Lambda.
+$$
 
-直接计算 $AP$，用递推关系写列坐标，不求 $P^{-1}$。
+这正是抽象基题中“先换基到 $B$，再把 $B$ 对角化”的一般原理。
 
-### 模板 D：求 $A^n$
+---
 
-优先判断：
+## 九、练习题中的高质量综合模型
 
-- 对角化后算 $P\Lambda^nP^{-1}$ 是否简单；
-- 若不简单，能否在特征值处插值，把 $A^n$ 降成低次多项式。
+### 李林 880：由 $BA$ 的列关系直接得到 $B$ 的坐标矩阵
 
-### 模板 E：两个矩阵用同一个 $P$
+1. 已知 $A = (\alpha_1, \alpha_2, \alpha_3)$ 是 $3$ 阶可逆矩阵，$B$ 是 $3$ 阶矩阵，且 $BA = (\alpha_1, -4\alpha_3, -\alpha_2)$。求：
+$(I)$ $B$ 的全部特征值；
+$(II)$ 可逆矩阵 $P$ 和对角矩阵 $\Lambda$，使得 $P^{-1}BP = \Lambda$。
 
-检查是否有共同特征向量基；尤其留意：
+<details>
+<summary>答案与解析</summary>
 
-- 两矩阵可交换；
-- 一个矩阵是另一个矩阵的多项式或有理函数。
+**答案：** $B$ 的特征值为 $1,2,-2$；对角化矩阵见解析。
 
-真正掌握本节后，应把“求 $P$”理解成**选择一组最合适的特征向量基**，而不是一项孤立的矩阵计算任务。
+**解析：**
+
+**解析：** (I) 由已知, 有
+$$BA = B(\alpha_1, \alpha_2, \alpha_3) = (B\alpha_1, B\alpha_2, B\alpha_3)$$
+$$= (\alpha_1, -4\alpha_3, -\alpha_2) = (\alpha_1, \alpha_2, \alpha_3) \begin{pmatrix} 1 & 0 & 0 \\ 0 & 0 & -1 \\ 0 & -4 & 0 \end{pmatrix}.$$
+
+记 $C = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 0 & -1 \\ 0 & -4 & 0 \end{pmatrix}$ ，则 $BA = AC$ ，故 $A^{-1}BA = C$ 。
+
+又由于
+$$|\lambda E - C| = \begin{vmatrix} \lambda - 1 & 0 & 0 \\ 0 & \lambda & 1 \\ 0 & 4 & \lambda \end{vmatrix} = (\lambda - 1)(\lambda - 2)(\lambda + 2) = 0$$
+
+得 $C$ 的特征值为 $\lambda_1 = 1, \lambda_2 = 2, \lambda_3 = -2$ ，也是 $B$ 的特征值。
+（II）求 $C$ 的特征向量。
+对于 $\lambda_1 = 1$ ，由 $(1E - C)x = 0$ ，得 $\boldsymbol{\xi}_1 = (1, 0, 0)^{\text{T}}$ ；
+对于 $\lambda_2 = 2$ ，由 $(2E - C)x = 0$ ，得 $\boldsymbol{\xi}_2 = \left(0, -\dfrac{1}{2}, 1\right)^{\text{T}}$ ；
+对于 $\lambda_3 = -2$ ，由 $(-2E - C)x = 0$ ，得 $\boldsymbol{\xi}_3 = \left(0, \dfrac{1}{2}, 1\right)^{\text{T}}$ 。
+
+令 $P_1 = (\boldsymbol{\xi}_1, \boldsymbol{\xi}_2, \boldsymbol{\xi}_3) = \begin{pmatrix} 1 & 0 & 0 \\ 0 & -\dfrac{1}{2} & \dfrac{1}{2} \\ 0 & 1 & 1 \end{pmatrix}$ ，则
+$$P_1^{-1}CP_1 = \boldsymbol{\Lambda} = \text{diag}(1, 2, -2)$$ 。①
+
+将 $A^{-1}BA = C$ 代入 ① 式，得 $P_1^{-1}A^{-1}BAP_1 = \boldsymbol{\Lambda}$ ，即 $(AP_1)^{-1}B(AP_1) = \boldsymbol{\Lambda}$ 。令
+$$P = AP_1 = (\boldsymbol{\alpha}_1, \boldsymbol{\alpha}_2, \boldsymbol{\alpha}_3) \begin{pmatrix} 1 & 0 & 0 \\ 0 & -\dfrac{1}{2} & \dfrac{1}{2} \\ 0 & 1 & 1 \end{pmatrix}$$
+$$= \left(\boldsymbol{\alpha}_1, -\frac{1}{2}\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3, \frac{1}{2}\boldsymbol{\alpha}_2 + \boldsymbol{\alpha}_3\right)$$ ，
+
+则 $P$ 为所求可逆矩阵，使得 $P^{-1}BP = \boldsymbol{\Lambda}$ 。
+
+</details>
+
+这道题与 2005 真题形成镜像：
+
+- 真题给 $A\alpha_i$；
+- 练习给 $B(\alpha_1,\alpha_2,\alpha_3)$。
+
+本质都是
+
+$$
+\boxed{TP=PC\Rightarrow P^{-1}TP=C}.
+$$
+
+看到“矩阵乘一个由向量作列组成的可逆矩阵”，就应立即把右侧每一列在原基下的坐标读出来。
+
+---
+
+## 十、真题命题规律
+
+### 1. 2016：对角化服务于高次幂
+
+直接求 $A^{99}$ 当然很难，但特征值只有三个，一旦把 $t^{99}$ 在谱上做低次插值，高次幂立刻降阶。
+
+### 2. 2019：从对角化推广到一般相似标准形
+
+目标 $B$ 不是对角矩阵，要求考生真正理解
+
+$$
+AP=PB,
+$$
+
+而不是只会“把特征向量排成 $P$”。这是对相似定义更本质的考查。
+
+### 3. 2020：从具体矩阵转向抽象向量
+
+题目完全不给 $A$ 的元素，只给
+
+$$
+\alpha,A\alpha,A^2\alpha
+$$
+
+之间的关系，就能写出 $P^{-1}AP$。这说明命题越来越强调线性变换与基的理解。
+
+### 4. 老真题仍是现代题的重要母题
+
+2001 的
+
+$$
+(x,Ax,A^2x)
+$$
+
+与 2020 的
+
+$$
+(\alpha,A\alpha)
+$$
+
+本质完全相同；2005 的抽象基坐标矩阵，也与近年“给向量关系求特征值”的题一脉相承。
+
+所以复习时不要按年份孤立记题，而要按以下统一模型归类：
+
+$$
+\boxed{
+\text{选基}
+\to
+\text{写出线性变换在该基下的矩阵}
+\to
+\text{利用相似关系计算}
+}
+$$
+
+---
+
+## 十一、重要变式与进一步出题方向
+
+### 变式 1：由递推关系求 $A^n\alpha$
+
+若
+
+$$
+A^k\alpha=c_0\alpha+c_1A\alpha+\cdots+c_{k-1}A^{k-1}\alpha,
+$$
+
+且前 $k$ 个向量线性无关，则它们构成一个不变子空间的基，$A$ 在该基下对应一个伴随型矩阵。题目可以进一步要求：
+
+- 求特征值；
+- 求 $A^n\alpha$；
+- 求 $|A+cE|$；
+- 判断是否对角化。
+
+### 变式 2：目标矩阵不是对角阵
+
+若给定
+
+$$
+P^{-1}AP=B
+$$
+
+且 $B$ 含非零上三角元，不应机械地把 $P$ 的所有列都当特征向量，而应逐列展开
+
+$$
+AP=PB.
+$$
+
+### 变式 3：同时对角化
+
+若两个矩阵 $A,B$ 可交换，且其中一个具有互异特征值，则另一个会保持前者的一维特征子空间，因此常可在同一组特征向量基下同时对角化。这一模型在后续实对称矩阵与综合题中非常重要。
+
+### 变式 4：对角化后计算矩阵函数
+
+一旦
+
+$$
+A=P\Lambda P^{-1},
+$$
+
+就可以推广到
+
+$$
+f(A)=Pf(\Lambda)P^{-1}.
+$$
+
+考研中常见：
+
+$$
+A^n,
+\quad
+A^{-1},
+\quad
+(A+cE)^n,
+\quad
+A^m+cA^k,
+$$
+
+本质都是在特征值上做标量运算。
+
+---
+
+## 十二、本节复习框架
+
+相似对角化大题可统一成三个层次：
+
+$$
+\boxed{
+\begin{array}{c}
+\text{第一层：谱——求特征值}\\
+\downarrow\\
+\text{第二层：基——求足够多的线性无关特征向量}\\
+\downarrow\\
+\text{第三层：应用——高次幂、行列式、递推、参数}
+\end{array}
+}
+$$
+
+最关键的两个公式是：
+
+$$
+\boxed{AP=P\Lambda}
+$$
+
+与更一般的
+
+$$
+\boxed{AP=PB}.
+$$
+
+前者是对角化，后者是一般相似变换。真正理解第二条以后，抽象向量题、循环基题、非对角目标矩阵题都会归结为同一个方法。
