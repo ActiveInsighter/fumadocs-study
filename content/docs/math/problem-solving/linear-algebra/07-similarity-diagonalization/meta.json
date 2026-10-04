@@ -2,10 +2,9 @@
   "title": "模块七：相似与相似对角化",
   "pages": [
     "index",
-    "01",
-    "02-01",
-    "02-02",
-    "03"
+    "01-一、相似关系的判断与计算",
+    "02-similarity-diagonalization",
+    "03-三、实对称矩阵"
   ],
   "defaultOpen": false
 }
