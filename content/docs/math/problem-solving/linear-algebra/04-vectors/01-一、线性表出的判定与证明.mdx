@@ -1,0 +1,747 @@
+---
+title: "一、线性表出的判定与证明"
+---
+
+# 一、线性表出的判定与证明
+
+“线性表出”是向量章节最核心的语言之一。考研中它很少只问“能不能表示”这么简单，而是不断换外壳：**参数取值、表示唯一性、向量组等价、公共可表示向量、列空间关系、正交投影、与矩阵乘法结合**。近十年尤其明显：2019 年把参数、向量组等价与具体表示式放在一道大题中；2022 年直接考两个含参向量组何时等价；2023 年又把“可由两组向量同时表示”改造成两个子空间求交的问题。
+
+本节最重要的不是记题型，而是建立统一模型：
+
+$$
+\text{线性表出}\Longleftrightarrow\text{线性方程组有解}
+\Longleftrightarrow\text{增广前后秩相等}
+\Longleftrightarrow\text{属于某个生成子空间}.
+$$
+
+## 1. 核心知识与方法
+
+### 1.1 一个向量能否由一组向量线性表出
+
+设
+
+$$
+A=(\alpha_1,\alpha_2,\cdots,\alpha_m),
+$$
+
+要判断向量 $\beta$ 能否由 $\alpha_1,\ldots,\alpha_m$ 线性表出，就是判断方程
+
+$$
+Ax=\beta
+$$
+
+是否有解。因此
+
+$$
+\beta\in\operatorname{span}\{\alpha_1,\ldots,\alpha_m\}
+\iff
+r(A)=r(A,\beta).
+$$
+
+这是所有“能否线性表出”问题的第一原则。
+
+### 1.2 表示唯一、无穷多表示与不能表示
+
+设 $A$ 有 $m$ 列，则：
+
+$$
+\begin{cases}
+r(A)<r(A,\beta),&\beta\text{不能由该向量组表示},\\[2mm]
+r(A)=r(A,\beta)=m,&\beta\text{可唯一表示},\\[2mm]
+r(A)=r(A,\beta)<m,&\beta\text{可表示但表示不唯一}.
+\end{cases}
+$$
+
+因此遇到含参数问题时，不要只算 $|A|$。行列式只能快速判断“满列秩”的情形；当 $|A|=0$ 时必须继续比较
+
+$$
+r(A)\quad\text{与}\quad r(A,\beta).
+$$
+
+这正是经典参数讨论题最常设置的陷阱。
+
+### 1.3 “任意向量都可由它们表出”的等价条件
+
+若 $\alpha_1,\ldots,\alpha_n$ 都是 $n$ 维向量，则以下命题等价：
+
+$$
+\text{任意 }\beta\in\mathbb R^n\text{ 均可由 }\alpha_1,\ldots,\alpha_n\text{ 表出},
+$$
+
+$$
+r(\alpha_1,\ldots,\alpha_n)=n,
+$$
+
+$$
+\alpha_1,\ldots,\alpha_n\text{ 线性无关},
+$$
+
+$$
+|\alpha_1,\ldots,\alpha_n|\ne0.
+$$
+
+换言之，这 $n$ 个向量构成 $\mathbb R^n$ 的一组基。
+
+### 1.4 向量组之间的线性表出
+
+设
+
+$$
+A=(\alpha_1,\ldots,\alpha_m),\qquad
+B=(\beta_1,\ldots,\beta_s).
+$$
+
+“向量组 $B$ 可由向量组 $A$ 线性表示”等价于存在矩阵 $C$ 使
+
+$$
+B=AC.
+$$
+
+本质上是
+
+$$
+\operatorname{Col}(B)\subseteq\operatorname{Col}(A).
+$$
+
+秩语言为
+
+$$
+r(A,B)=r(A).
+$$
+
+特别地，由 $B=AC$ 立即有
+
+$$
+r(B)\le r(A).
+$$
+
+### 1.5 两个向量组等价
+
+向量组 $A$ 与 $B$ 等价，是指二者能相互线性表示，也就是张成同一个子空间：
+
+$$
+\operatorname{span}\{\alpha_i\}
+=
+\operatorname{span}\{\beta_j\}.
+$$
+
+最实用的判据是
+
+$$
+r(A)=r(B)=r(A,B).
+$$
+
+如果两组都是 $n$ 个 $n$ 维线性无关向量，那么它们都张成 $\mathbb R^n$，自然等价。
+
+但要特别警惕：仅有
+
+$$
+r(A)=r(B)
+$$
+
+并不能推出两个向量组等价，因为两个同维子空间完全可能方向不同。
+
+### 1.6 用系数矩阵处理“新向量组由旧向量组合而成”
+
+若
+
+$$
+(\beta_1,\ldots,\beta_s)
+=
+(\alpha_1,\ldots,\alpha_m)C,
+$$
+
+则 $C$ 记录了每个 $\beta_j$ 在 $\alpha$ 向量组下的组合系数。
+
+如果 $\alpha_1,\ldots,\alpha_m$ 线性无关，则映射
+
+$$
+x\mapsto (\alpha_1,\ldots,\alpha_m)x
+$$
+
+在系数空间上是单射，因此：
+
+- $\beta$ 组的秩等于 $r(C)$；
+- 当 $m=s$ 时，$\beta$ 组线性无关当且仅当 $|C|\ne0$；
+- 若 $C$ 可逆，则两个向量组等价。
+
+这是“抽象向量题数值化”的核心技巧。
+
+### 1.7 “以少表多，多者必相关”
+
+若 $r$ 个向量 $\beta_1,\ldots,\beta_r$ 都可由 $s$ 个向量 $\alpha_1,\ldots,\alpha_s$ 线性表示，则
+
+$$
+r(\beta_1,\ldots,\beta_r)\le s.
+$$
+
+所以如果 $r>s$，那么 $\beta_1,\ldots,\beta_r$ 必线性相关。
+
+逆否命题也非常常考：若 $\beta_1,\ldots,\beta_r$ 线性无关且都可由 $\alpha_1,\ldots,\alpha_s$ 表示，则一定有
+
+$$
+r\le s.
+$$
+
+### 1.8 求“既可由甲组表示，又可由乙组表示”的向量
+
+设
+
+$$
+U=\operatorname{span}\{\alpha_1,\ldots,\alpha_p\},
+\qquad
+V=\operatorname{span}\{\beta_1,\ldots,\beta_q\}.
+$$
+
+题目要求的就是
+
+$$
+U\cap V.
+$$
+
+计算时设
+
+$$
+\gamma=Ax=By,
+$$
+
+即
+
+$$
+Ax-By=0.
+$$
+
+于是解齐次方程组
+
+$$
+(A,-B)
+\begin{pmatrix}x\\y\end{pmatrix}=0.
+$$
+
+若只问“是否一定存在非零公共向量”，可直接用维数公式：
+
+$$
+\dim(U\cap V)=\dim U+\dim V-\dim(U+V).
+$$
+
+例如两个二维子空间都位于 $\mathbb R^3$ 中，则
+
+$$
+\dim(U\cap V)\ge2+2-3=1.
+$$
+
+### 1.9 正交向量组中的线性表出
+
+若 $\alpha_1,\ldots,\alpha_m$ 两两正交且均非零，设
+
+$$
+\gamma=\sum_{i=1}^m k_i\alpha_i,
+$$
+
+则与 $\alpha_j$ 作内积可直接得到
+
+$$
+k_j=\frac{\gamma^T\alpha_j}{\alpha_j^T\alpha_j}.
+$$
+
+若题目给出
+
+$$
+\gamma^T\alpha_j=\beta^T\alpha_j,
+$$
+
+则
+
+$$
+k_j=\frac{\beta^T\alpha_j}{\alpha_j^T\alpha_j}.
+$$
+
+这就是正交投影思想。
+
+## 2. 常见题型
+
+### 题型一：参数向量的“能表示 / 唯一表示 / 多种表示”统一讨论
+
+> **练习题｜李林 880·第十二章·基础题·解答题 3**
+>
+> 3. 设 $\alpha_1 = (1, 0, 2, 3)^T, \alpha_2 = (1, 1, 3, 5)^T, \alpha_3 = (1, -1, a, 1)^T, \beta = (1, b, 4, 7)^T$，问 $a, b$ 为何值时，$\beta$ 不能由 $\alpha_1, \alpha_2, \alpha_3$ 线性表示；$a, b$ 为何值时，$\beta$ 可由 $\alpha_1, \alpha_2, \alpha_3$ 线性表示，并写出表达式。
+
+这题是非常标准的母题。化简后的关键结构可写成
+
+$$
+\begin{pmatrix}
+* & * & * & *\\
+0 & * & * & *\\
+0 & 0 & a-1 & 2-b\\
+0 & 0 & 0 & 4-2b
+\end{pmatrix}.
+$$
+
+于是直接分三层：
+
+- $b\ne2$：出现矛盾行，不能表示；
+- $b=2,a\ne1$：三个主元，唯一表示；
+- $b=2,a=1$：秩下降但仍相容，无穷多表示。
+
+**识别要点：** 题目若同时问“不能表示、唯一表示、不唯一表示”，本质一定是线性方程组解的三种情形。
+
+**易错点：** 只算 $|A|$。$|A|\ne0$ 的确说明唯一表示，但 $|A|=0$ 后还有“无解”和“无穷多解”两种，必须继续看增广矩阵。
+
+### 题型二：两个向量组何时等价——2022 真题
+
+> **真题｜2022 数一/数二/数三 5 分**
+>
+> 2. **【2022-123-5分】** 设
+>
+> $$
+>
+> \alpha_1=\begin{pmatrix}\lambda\\1\\1\end{pmatrix},\quad
+> \alpha_2=\begin{pmatrix}1\\\lambda\\1\end{pmatrix},\quad
+> \alpha_3=\begin{pmatrix}1\\1\\\lambda\end{pmatrix},\quad
+> \alpha_4=\begin{pmatrix}1\\\lambda\\\lambda^2\end{pmatrix}.
+> $$
+>
+> 若向量组 $ \alpha_1,\alpha_2,\alpha_3$ 与 $ \alpha_1,\alpha_2,\alpha_4$ 等价，则 $ \lambda$ 的取值范围是（ ）。
+>
+> - A. $ \{\lambda\mid\lambda\in\mathbb R\}$
+> - B. $ \{\lambda\mid\lambda\in\mathbb R,\lambda\ne-1\}$
+> - C. $ \{\lambda\mid\lambda\in\mathbb R,\lambda\ne-1,\lambda\ne-2\}$
+> - D. $ \{\lambda\mid\lambda\in\mathbb R,\lambda\ne-2\}$
+
+这类题的核心不是分别判断两个向量组的秩，而是判断它们是否张成同一空间。
+
+有
+
+$$
+|\alpha_1,\alpha_2,\alpha_3|=(\lambda-1)^2(\lambda+2),
+$$
+
+$$
+|\alpha_1,\alpha_2,\alpha_4|=(\lambda-1)^2(\lambda+1)^2.
+$$
+
+因此先筛出特殊参数
+
+$$
+\lambda=1,-1,-2.
+$$
+
+再分别代入：
+
+- $\lambda=1$ 时四个向量都相同，两组仍等价；
+- $\lambda=-1$ 时两组秩不同；
+- $\lambda=-2$ 时两组秩不同。
+
+故排除 $-1,-2$。
+
+**通用策略：**
+
+$$
+\text{先用满秩解决一般值}
+\longrightarrow
+\text{再只讨论使行列式为零的特殊值}.
+$$
+
+### 题型三：等价向量组 + 参数 + 具体表示式——2019 综合题
+
+> **真题｜2019 数二/数三 11 分**
+>
+> 4. **【2019-23-11分】** 已知向量组
+>
+> $$
+>
+> \text{Ⅰ：}\quad
+> \alpha_1=\begin{pmatrix}1\\1\\4\end{pmatrix},\quad
+> \alpha_2=\begin{pmatrix}1\\0\\4\end{pmatrix},\quad
+> \alpha_3=\begin{pmatrix}1\\2\\a^2+3\end{pmatrix},
+> $$
+>
+> $$
+>
+> \text{Ⅱ：}\quad
+> \beta_1=\begin{pmatrix}1\\1\\a+3\end{pmatrix},\quad
+> \beta_2=\begin{pmatrix}0\\2\\1-a\end{pmatrix},\quad
+> \beta_3=\begin{pmatrix}1\\3\\a^2+3\end{pmatrix}.
+> $$
+>
+> 若向量组Ⅰ与向量组Ⅱ等价，求 $ a$ 的取值，并将 $ \beta_3$ 用 $ \alpha_1,\alpha_2,\alpha_3$ 线性表示。
+
+这类大题体现了“等价”真正的充要条件：
+
+$$
+r(A)=r(B)=r(A,B).
+$$
+
+计算可得
+
+$$
+|A|=-(a-1)(a+1),
+\qquad
+|B|=2(a-1)(a+1).
+$$
+
+因此：
+
+- $a\ne\pm1$ 时两组都为 $\mathbb R^3$ 的基，必等价；
+- $a=1$ 时虽都降秩，但拼接后仍只有秩 $2$，所以等价；
+- $a=-1$ 时两组各自秩均为 $2$，但拼接秩变成 $3$，所以不等价。
+
+最终
+
+$$
+a\ne-1.
+$$
+
+此外，直接观察可得
+
+$$
+\beta_3=\alpha_1-\alpha_2+\alpha_3.
+$$
+
+这题最值得记住的反例是
+
+$$
+r(A)=r(B)\not\Rightarrow A,B\text{ 两向量组等价}.
+$$
+
+### 题型四：两个生成子空间的交——2023 真题
+
+> **真题｜2023 数一/数二/数三 5 分**
+>
+> 4. **【2023-123-5分】** 已知向量
+>
+> $$
+>
+> \alpha_1=\begin{pmatrix}1\\2\\3\end{pmatrix},\quad
+> \alpha_2=\begin{pmatrix}2\\1\\1\end{pmatrix},\quad
+> \beta_1=\begin{pmatrix}2\\5\\9\end{pmatrix},\quad
+> \beta_2=\begin{pmatrix}1\\0\\1\end{pmatrix}.
+> $$
+>
+> 若 $ \gamma$ 既可由 $ \alpha_1,\alpha_2$ 线性表示，又可由 $ \beta_1,\beta_2$ 线性表示，则 $ \gamma=$（ ）。
+>
+> - A. $ k\begin{pmatrix}3\\3\\4\end{pmatrix},\ k\in\mathbb R$
+> - B. $ k\begin{pmatrix}3\\5\\10\end{pmatrix},\ k\in\mathbb R$
+> - C. $ k\begin{pmatrix}-1\\1\\2\end{pmatrix},\ k\in\mathbb R$
+> - D. $ k\begin{pmatrix}1\\5\\8\end{pmatrix},\ k\in\mathbb R$
+
+设
+
+$$
+\gamma=x_1\alpha_1+x_2\alpha_2=y_1\beta_1+y_2\beta_2.
+$$
+
+等价于
+
+$$
+x_1\alpha_1+x_2\alpha_2-y_1\beta_1-y_2\beta_2=0.
+$$
+
+解这个齐次方程组可得公共方向，最终
+
+$$
+\gamma=k(1,5,8)^T.
+$$
+
+**统一模型：**
+
+$$
+\operatorname{span}\{\alpha_1,\alpha_2\}
+\cap
+\operatorname{span}\{\beta_1,\beta_2\}.
+$$
+
+若出现在选择题中，最快方法往往是逐个验证选项中的方向向量是否同时属于两个张成空间。
+
+### 题型五：抽象证明“两个二维子空间必有非零交”——高质量变式
+
+> **练习题｜张宇·向量组·强化题 7**
+>
+> 7. 设3维列向量$\alpha_1,\alpha_2$线性无关，$\beta_1,\beta_2$线性无关.\
+> (1) 证明：存在3维非零列向量$\xi$，$\xi$既可由$\alpha_1,\alpha_2$线性表示，也可由$\beta_1,\beta_2$线性表示；\
+> (2)若$\alpha_1=[1,-2,3]^T$，$\alpha_2=[2,1,1]^T$，$\beta_1=[-2,1,4]^T$，$\beta_2=[-5,-3,5]^T$，求既可由$\alpha_1,\alpha_2$线性表示，也可由$\beta_1,\beta_2$线性表示的所有非零列向量$\xi$.
+
+第一问完全不需要计算。令
+
+$$
+U=\operatorname{span}\{\alpha_1,\alpha_2\},
+\quad
+V=\operatorname{span}\{\beta_1,\beta_2\}.
+$$
+
+因为两组各自线性无关，
+
+$$
+\dim U=\dim V=2.
+$$
+
+又
+
+$$
+\dim(U+V)\le3,
+$$
+
+所以
+
+$$
+\dim(U\cap V)=\dim U+\dim V-\dim(U+V)\ge1.
+$$
+
+这说明“公共可表示向量”不只是解方程模型，还可以上升到维数公式。真题 2023 已考具体的 $U\cap V$，合理升级方向就是不给具体数值，改为证明交空间非零，或者进一步问其维数。
+
+### 题型六：经典三分类大题——2004 真题
+
+> **经典真题｜2004 13 分**
+>
+> 6. **【2004-3-13分】** 设
+>
+> $$
+>
+> \alpha_1=\begin{pmatrix}1\\2\\0\end{pmatrix},\quad
+> \alpha_2=\begin{pmatrix}1\\a+2\\-3a\end{pmatrix},\quad
+> \alpha_3=\begin{pmatrix}-1\\-b-2\\a+2b\end{pmatrix},\quad
+> \beta=\begin{pmatrix}1\\3\\-3\end{pmatrix}.
+> $$
+>
+> 试讨论当 $ a,b$ 为何值时：
+>
+> （1）$ \beta$ 不能由 $ \alpha_1,\alpha_2,\alpha_3$ 线性表示；
+>
+> （2）$ \beta$ 可由 $ \alpha_1,\alpha_2,\alpha_3$ 唯一地线性表示，并求出表示式；
+>
+> （3）$ \beta$ 可由 $ \alpha_1,\alpha_2,\alpha_3$ 线性表示，但表示式不唯一，并求出表示式。
+
+这道题完整呈现了线性表出的三种状态，是这一节最经典的母题之一。
+
+先算
+
+$$
+|A|=a(a-b).
+$$
+
+- $a\ne0$ 且 $a\ne b$：$A$ 可逆，唯一表示；
+- $a=0$：增广后不相容，不能表示；
+- $a=b\ne0$：$r(A)=r(A,\beta)=2<3$，有无穷多种表示。
+
+复习时应把这道题看成固定模板：
+
+$$
+\boxed{
+|A|\ne0\Rightarrow\text{唯一};\qquad
+|A|=0\Rightarrow\text{继续比较秩}.
+}
+$$
+
+## 3. 易错点与方法选择
+
+### 3.1 “向量组等价”不等于“矩阵等价”
+
+矩阵等价只要求同型矩阵秩相同；向量组等价要求张成空间相同。因此两个同型矩阵可能满足
+
+$$
+r(A)=r(B)
+$$
+
+而列向量组并不等价。
+
+### 3.2 “线性相关”只保证至少一个向量能由其余向量表示
+
+若 $\alpha_1,\ldots,\alpha_m$ 线性相关，只能推出**至少有一个**向量可由其余向量表示，不能推出“任意一个都可以”。
+
+若已知前 $m-1$ 个向量线性无关而全组相关，才能确定 $\alpha_m$ 可由前 $m-1$ 个向量唯一表示。
+
+### 3.3 表示唯一性取决于表示向量组是否线性无关
+
+若 $\beta$ 可由 $\alpha_1,\ldots,\alpha_m$ 表示，则：
+
+- $\alpha_1,\ldots,\alpha_m$ 线性无关 $\Rightarrow$ 表示唯一；
+- $\alpha_1,\ldots,\alpha_m$ 线性相关 $\Rightarrow$ 只要有一个表示，就会有无穷多个表示。
+
+因为若
+
+$$
+Ax_0=\beta,
+$$
+
+且存在非零 $z$ 满足 $Az=0$，则
+
+$$
+A(x_0+tz)=\beta
+$$
+
+对任意 $t$ 都成立。
+
+### 3.4 公共可表示向量要防止漏掉零向量
+
+两个子空间的交一定包含零向量。题目若问“非零向量”，最终参数必须注明
+
+$$
+t\ne0.
+$$
+
+若问“所有向量”，则必须允许 $t=0$。
+
+## 4. 真题命题规律
+
+### 4.1 不变的核心：仍然是“方程是否有解”
+
+无论题目写成：
+
+- $\beta$ 能否由某组向量表示；
+- 两组向量是否等价；
+- 某列空间是否包含另一列空间；
+- 某向量是否同时属于两个生成空间；
+- 表示是否唯一；
+
+最终仍可统一成
+
+$$
+Ax=b
+$$
+
+或
+
+$$
+Ax=By.
+$$
+
+### 4.2 变化的外壳：从“单个向量”升级到“子空间关系”
+
+早期真题更常直接问某向量能否表示、表示是否唯一。近年的明显趋势是：
+
+- 2019：两组向量等价 + 参数 + 表示式；
+- 2022：两个含参向量组何时等价；
+- 2023：两个二维生成子空间求交；
+- 2023 数一：再加入内积条件，把线性表出改造成正交投影。
+
+因此复习时要从“解一个方程组”上升到“判断列空间关系”。
+
+### 4.3 特殊参数越来越重要
+
+近年选择题常先让一般参数对应满秩，然后把真正难点藏在少数使行列式为零的参数中。
+
+固定习惯应是：
+
+$$
+\text{先求临界参数}\longrightarrow\text{再逐个代入验证}.
+$$
+
+不要因为两边行列式都为零就直接判断等价或不等价。
+
+### 4.4 与秩、方程组、正交性的综合越来越多
+
+这一节天然连接：
+
+$$
+\text{线性表出}
+\leftrightarrow
+\text{秩}
+\leftrightarrow
+\text{方程组}
+\leftrightarrow
+\text{子空间}.
+$$
+
+若再加入内积，就得到正交投影；加入特征向量，就可能转化为不变子空间问题。因此它是线性代数各模块之间非常重要的连接点。
+
+## 5. 重要变式与进一步出题方向
+
+### 5.1 从“一个向量能否表示”改成“对任意向量都能表示”
+
+这会把问题从
+
+$$
+r(A)=r(A,\beta)
+$$
+
+升级为
+
+$$
+r(A)=n.
+$$
+
+若 $A$ 为 $n$ 阶方阵，则进一步等价于 $|A|\ne0$。
+
+### 5.2 从“等价”改成“一个向量组可由另一个表示”
+
+只保留单向包含：
+
+$$
+\operatorname{span}(B)\subseteq\operatorname{span}(A)
+\iff
+r(A,B)=r(A).
+$$
+
+常与“秩大小”结合，考“以少表多，多者必相关”。
+
+### 5.3 两个子空间求交加入参数
+
+可把 2023 真题改成
+
+$$
+U(a)=\operatorname{span}\{\alpha_1(a),\alpha_2(a)\},
+\qquad
+V=\operatorname{span}\{\beta_1,\beta_2\},
+$$
+
+再问 $\dim(U(a)\cap V)$ 随 $a$ 如何变化。此时既可用拼接矩阵秩，也可用
+
+$$
+\dim(U\cap V)=\dim U+\dim V-\dim(U+V).
+$$
+
+### 5.4 线性表出与正交投影结合
+
+若 $\alpha_1,\ldots,\alpha_m$ 两两正交，可以设置
+
+$$
+\gamma\in\operatorname{span}\{\alpha_1,\ldots,\alpha_m\},
+$$
+
+同时要求
+
+$$
+(\beta-\gamma)^T\alpha_i=0.
+$$
+
+这实际上是在求 $\beta$ 在该子空间上的正交投影：
+
+$$
+\gamma=
+\sum_{i=1}^m
+\frac{\beta^T\alpha_i}{\alpha_i^T\alpha_i}\alpha_i.
+$$
+
+### 5.5 用矩阵乘法隐藏“列向量组等价”
+
+若
+
+$$
+C=AB
+$$
+
+且 $B$ 可逆，则
+
+$$
+A=CB^{-1}.
+$$
+
+所以 $A$ 与 $C$ 的列向量组能相互表示，从而等价。以后看到“右乘可逆矩阵”，要立即想到“列空间不变”；看到“左乘可逆矩阵”，则要想到“行空间不变”。
+
+## 6. 本节复习结论
+
+遇到线性表出问题，建议固定按以下顺序判断：
+
+1. **单个向量能否表示：** 写成 $Ax=\beta$，比较 $r(A)$ 与 $r(A,\beta)$；
+2. **是否唯一：** 再比较 $r(A)$ 与未知数个数；
+3. **两个向量组是否等价：** 检查 $r(A)=r(B)=r(A,B)$；
+4. **公共可表示向量：** 解 $Ax=By$，本质是求两个子空间的交；
+5. **抽象组合向量：** 优先构造系数矩阵；
+6. **含参数：** 先找满秩的一般值，再单独核查临界值；
+7. **有正交条件：** 优先用内积直接提取系数。
+
+真正需要记住的一句话是：
+
+$$
+\boxed{\text{“线性表出”就是“属于哪个生成子空间”，计算上就是“方程组是否有解”。}}
+$$
