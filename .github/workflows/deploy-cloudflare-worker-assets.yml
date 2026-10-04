@@ -856,9 +856,9 @@ jobs:
                   formattingCheck.leakedMarkers.join(' | '),
               );
             }
-            if (formattingCheck.tableFontSize !== '17px') {
+            if (formattingCheck.tableFontSize !== '16px') {
               throw new Error(
-                'Expected docs table font-size 17px, got ' + formattingCheck.tableFontSize,
+                'Expected docs table font-size 16px, got ' + formattingCheck.tableFontSize,
               );
             }
             if (formattingCheck.headWhiteSpace !== 'nowrap') {
