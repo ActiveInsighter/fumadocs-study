@@ -3,7 +3,7 @@
   "pages": [
     "index",
     "01-一、相似关系的判断与计算",
-    "02-二、相似对角化",
+    "02-similarity-diagonalization",
     "03-三、实对称矩阵"
   ],
   "defaultOpen": false
