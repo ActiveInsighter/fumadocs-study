@@ -98,7 +98,7 @@ jobs:
 
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts
+        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts tests/knowledge2-layout.test.ts
 
 
   search:
@@ -155,8 +155,8 @@ jobs:
 
           const root = process.env.SEARCH_ROOT;
           const manifest = JSON.parse(readFileSync(path.join(root, 'search-index.json'), 'utf8'));
-          if (manifest.pages !== 780) {
-            throw new Error(`Expected 780 searchable pages, received ${manifest.pages}.`);
+          if (manifest.pages !== 865) {
+            throw new Error(`Expected 865 searchable pages, received ${manifest.pages}.`);
           }
           if (!Array.isArray(manifest.categories) || manifest.categories.length < 5) {
             throw new Error('Search manifest is missing module categories.');
@@ -271,7 +271,7 @@ jobs:
           test ! -e .static-docs/search-index.json
           test ! -e .static-docs/search
           if [[ "${STATIC_DOCS_SHARD_INDEX}" == '0' ]]; then
-            test "${markdown}" = '780'
+            test "${markdown}" = '865'
           else
             test "${markdown}" = '0'
           fi
@@ -434,8 +434,8 @@ jobs:
 
           const root = process.env.SEARCH_ROOT;
           const manifest = JSON.parse(readFileSync(path.join(root, 'search-index.json'), 'utf8'));
-          if (manifest.pages !== 780) {
-            throw new Error(`Expected 780 searchable pages after merge, received ${manifest.pages}.`);
+          if (manifest.pages !== 865) {
+            throw new Error(`Expected 865 searchable pages after merge, received ${manifest.pages}.`);
           }
 
           const resolveAsset = (url) => path.join(root, String(url).replace(/^\/+/, ''));
@@ -459,8 +459,8 @@ jobs:
           set -euo pipefail
           doc_routes="$(find .static-docs/docs -type f -name index.html | wc -l | tr -d ' ')"
           markdown="$(find .static-docs/docs -type f -name '*.md' | wc -l | tr -d ' ')"
-          test "${doc_routes}" = '781'
-          test "${markdown}" = '780'
+          test "${doc_routes}" = '866'
+          test "${markdown}" = '865'
           test -s .static-docs/search-index.json
           test -s .static-docs/docs/__next.docs.txt
           node scripts/verify-static-asset-references.mjs .static-docs
