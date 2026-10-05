@@ -1,57 +1,46 @@
 ---
 title: "栈与队列"
-description: "顺序栈、链栈、循环队列、链式队列及其核心操作与判空判满。"
+description: "栈、顺序栈、链栈、循环队列与链式队列的结构、操作、判空判满及复杂度。"
 ---
 
-栈和队列都是**操作受限的线性表**：栈只允许在一端进行插入和删除，队列则分别在队尾插入、队头删除。数组依靠连续存储和下标映射实现随机访问，也是特殊矩阵压缩存储的基础。
+栈和队列都属于**操作受限的线性表**：它们并没有改变“线性关系”本身，而是限制了插入、删除发生的位置。
 
-本章在 408 中的主要考点包括：
+| 结构 | 插入位置 | 删除位置 | 核心特性 |
+| --- | --- | --- | --- |
+| 栈 | 栈顶 | 栈顶 | 后进先出 LIFO |
+| 队列 | 队尾 | 队头 | 先进先出 FIFO |
 
-* 栈的后进先出特性、顺序栈与链栈；
-* 队列的先进先出特性、循环队列的判空与判满；
-* 多维数组的地址计算；
-* 对称矩阵、三角矩阵、三对角矩阵的压缩存储；
-* 稀疏矩阵的三元组表与十字链表；
-* 中缀表达式求值、中缀转后缀、后缀表达式求值；
-* 固定入栈序列对应的合法出栈序列；
-* 卡特兰数。
+<Callout type="info" title="本节复习主线">
+不要只背 `Push`、`Pop`、`EnQueue`、`DeQueue` 的代码。408 更常考的是：**指针/下标的语义是什么，由此如何推出空、满、长度和元素位置**。
+</Callout>
 
 <InlineSvg src="/images/data-structure/data-structure-array-001.svg" alt="栈队列与数组知识结构" />
 
-| 模块   | 408 重点               |
-| ---- | -------------------- |
-| 栈    | 栈顶指针、入栈/出栈、顺序栈与链栈    |
-| 队列   | 循环队列、判空/判满、队列长度、链式队列 |
-| 数组   | 行主序与列主序、二维数组地址计算     |
-| 特殊矩阵 | 对称矩阵、三角矩阵、三对角矩阵压缩下标  |
-| 稀疏矩阵 | 三元组表、十字链表            |
-| 栈的应用 | 表达式求值、中缀转后缀、出栈序列     |
-| 计数问题 | 卡特兰数                 |
-
----
-
-## 一、栈
-
-> **复习优先级：中。**
-> 栈的定义本身考查不算多，但栈是表达式求值、递归、树和图遍历等算法的重要基础。
->
-> **真题考察：** 2015 年第 1 题、2017 年第 2 题、2025 年第 2 题。
-
-### 1. 栈的基本概念
-
-**栈（Stack）**&#x2060;是一种只允许在表的一端进行插入和删除操作的线性表。
-
-允许操作的一端称为**栈顶（Top）**，另一端称为**栈底（Bottom）**。
-
-栈遵循：
-
-**后进先出（LIFO，Last In First Out）**
-
-即最后进入栈中的元素最先离开。
+## 1. 栈的基本概念
 
 <InlineSvg src="/images/data-structure/data-structure-array-stack-001.svg" alt="PUSH POP" />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-002.svg" alt="0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈" />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-003.svg" alt="图示" />
+<InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt="a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底" />
 
-例如依次执行：
+> **真题标签**
+>
+> 2015 年第 1 题、2017 年第 2 题、2025 年第 2 题涉及栈的性质、应用或相关判断。
+
+### 1.1 定义与逻辑特性
+
+**栈（Stack）**只允许在线性表的一端进行插入和删除。
+
+- 允许操作的一端称为**栈顶（top）**；
+- 另一端称为**栈底（bottom）**；
+- 插入元素称为**入栈 / 压栈（push）**；
+- 删除栈顶元素称为**出栈 / 弹栈（pop）**。
+
+栈满足：
+
+> **后进先出（LIFO, Last In First Out）**。
+
+例如按顺序执行：
 
 ```text
 push(A)
@@ -59,72 +48,76 @@ push(B)
 push(C)
 ```
 
-栈中元素为：
+栈状态为：
 
 ```text
-栈顶
- C
- B
- A
-栈底
+栈顶 -> C
+        B
+栈底 -> A
 ```
 
-此时执行一次 `pop()`，得到的一定是 `C`。
+下一次 `pop()` 得到的一定是 `C`。
 
----
+### 1.2 栈的常见抽象操作
 
-### 2. 栈的基本操作
+| 操作 | 含义 |
+| --- | --- |
+| `InitStack` | 初始化空栈 |
+| `Push` | 元素入栈 |
+| `Pop` | 删除并返回栈顶元素 |
+| `GetTop` / `Peek` | 读取栈顶元素但不删除 |
+| `StackEmpty` | 判断栈空 |
+| `StackFull` | 顺序栈中判断是否达到容量上限 |
 
-常见操作如下：
+栈最重要的限制是：
 
-| 操作                | 含义          |
-| ----------------- | ----------- |
-| `InitStack`       | 初始化栈        |
-| `Push`            | 将元素压入栈顶     |
-| `Pop`             | 删除并返回栈顶元素   |
-| `GetTop` / `Peek` | 读取栈顶元素，但不删除 |
-| `StackEmpty`      | 判断栈是否为空     |
-| `StackFull`       | 顺序栈中判断栈是否已满 |
+> **不能越过栈顶直接访问或删除内部元素。**
 
-栈的核心限制是：
+### 1.3 栈的典型应用
 
-> **只能访问当前栈顶元素。**
+常见应用包括：
 
----
+- 函数调用与运行时调用栈；
+- 递归过程的保存与回退；
+- 括号匹配；
+- 表达式求值与中缀/后缀转换；
+- 深度优先搜索；
+- 回溯算法。
 
-## 二、顺序栈
+<Callout type="warn" title="栈 ≠ 递归的唯一实现方式">
+把递归程序改写成非递归程序时，**不一定必须显式使用栈**。只有在需要保存递归层次状态、回退信息时，栈才是最自然的模拟结构。
+</Callout>
 
-### 1. 基本结构
+## 2. 顺序栈
 
-**顺序栈**是在顺序表基础上实现的栈，通常使用数组保存元素，并设置一个变量 `top` 表示栈顶位置。
+### 2.1 基本思想与 `top` 的两种常见约定
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-002.svg" alt="0 1 2 3 4 5 6 7 top A B C D E F G H 0 1 2 3 4 5 6 7 top A B C D 0 1 2 3 4 5 6 7 top 栈空 栈满 A B C D E 0 1 2 3 4 5 6 7 top A B C D E 0 1 2 3 4 5 6 7 top E 入栈 A B C D 0 1 2 3 4 5 6 7 top 栈顶元素出栈" />
+顺序栈通常使用数组保存元素，再用一个下标记录栈顶位置。
 
-一种最常见的约定是：
+本章采用最常见的约定：
 
-* `top = -1`：栈为空；
-* `top = 0`：数组第一个元素为栈顶；
-* `top = MAX_SIZE - 1`：栈满。
+> **`top` 指向当前栈顶元素。**
 
-因此：
+于是：
 
-$$
-\text{栈中元素个数}=top+1
-$$
+- 空栈：`top == -1`；
+- 第一个元素入栈后：`top == 0`；
+- 数组容量为 `MAX_SIZE` 时，栈满：`top == MAX_SIZE - 1`；
+- 栈中元素个数：$top+1$。
 
-下图展示了空栈、入栈、出栈和栈满时 `top` 的变化：
+<Callout type="warn" title="先确认 top 的语义">
+有些题目规定 `top` 指向“下一个可插入位置”，此时空栈、栈满和入栈/出栈语句都会改变。**不要脱离题目定义机械套公式。**
+</Callout>
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-003.svg" alt="图示" />
-
----
-
-### 2. 顺序栈定义
+### 2.2 结构定义、初始化与判空判满
 
 ```c
 #define MAX_SIZE 100
 
+typedef int ElementType;
+
 typedef struct {
-    int data[MAX_SIZE];
+    ElementType data[MAX_SIZE];
     int top;
 } SeqStack;
 ```
@@ -137,34 +130,32 @@ void InitStack(SeqStack *S) {
 }
 ```
 
-判断栈空：
+判空：
 
 ```c
-bool StackEmpty(SeqStack *S) {
+bool StackEmpty(const SeqStack *S) {
     return S->top == -1;
 }
 ```
 
-判断栈满：
+判满：
 
 ```c
-bool StackFull(SeqStack *S) {
+bool StackFull(const SeqStack *S) {
     return S->top == MAX_SIZE - 1;
 }
 ```
 
----
+### 2.3 入栈
 
-### 3. 入栈
+逻辑过程：
 
-入栈过程：
-
-1. 判断栈是否已满；
-2. 栈顶指针后移；
-3. 写入新元素。
+1. 判断栈满；
+2. `top` 向上移动一格；
+3. 在新栈顶位置写入元素。
 
 ```c
-bool Push(SeqStack *S, int x) {
+bool Push(SeqStack *S, ElementType x) {
     if (StackFull(S)) {
         return false;
     }
@@ -174,34 +165,18 @@ bool Push(SeqStack *S, int x) {
 }
 ```
 
-关键语句：
+由于本节规定 `top` 指向当前栈顶元素，所以必须：
+
+> **先 `++top`，再写入数据。**
+
+时间复杂度：$O(1)$。
+
+### 2.4 出栈与读取栈顶
+
+出栈：
 
 ```c
-S->data[++S->top] = x;
-```
-
-即：
-
-> **先移动 `top`，再存数据。**
-
-时间复杂度为：
-
-$$
-O(1)
-$$
-
----
-
-### 4. 出栈
-
-出栈过程：
-
-1. 判断栈是否为空；
-2. 读取栈顶元素；
-3. 栈顶指针前移。
-
-```c
-bool Pop(SeqStack *S, int *x) {
+bool Pop(SeqStack *S, ElementType *x) {
     if (StackEmpty(S)) {
         return false;
     }
@@ -211,22 +186,12 @@ bool Pop(SeqStack *S, int *x) {
 }
 ```
 
-即：
+必须先取出旧栈顶，再让 `top--`。
 
-> **先读取栈顶元素，再令 `top--`。**
-
-时间复杂度为：
-
-$$
-O(1)
-$$
-
----
-
-### 5. 获取栈顶元素
+读取栈顶但不删除：
 
 ```c
-bool GetTop(SeqStack *S, int *x) {
+bool GetTop(const SeqStack *S, ElementType *x) {
     if (StackEmpty(S)) {
         return false;
     }
@@ -236,295 +201,325 @@ bool GetTop(SeqStack *S, int *x) {
 }
 ```
 
-注意：
+二者时间复杂度均为 $O(1)$。
 
-`GetTop` **不会改变 `top`**。
+### 2.5 共享栈
 
----
+当两个栈共用一个数组时，可以让它们分别从数组两端向中间增长：
 
-## 三、链栈
+```text
+栈 1 -->                    <-- 栈 2
+[   ][   ][   ][   ][   ][   ][   ]
+```
 
-### 1. 基本结构
+若：
 
-栈也可以使用单链表实现，称为**链栈**。
+- `top1` 从左向右增长；
+- `top2` 从右向左增长；
 
-<InlineSvg src="/images/data-structure/data-structure-array-stack-004.svg" alt="a 1 a 2 a n NULL head 栈增长方向 栈顶 栈底" />
-
-为了使入栈和出栈都保持常数时间，通常把链表的**头部作为栈顶**。
-
-本节采用带头结点的链栈：
-
-* `head` 为哨兵结点，不保存有效数据；
-* `head->next` 指向栈顶元素；
-* `head->next == NULL` 表示栈空。
-
-这样：
-
-* 入栈使用头插法；
-* 出栈删除第一个有效结点。
-
-二者时间复杂度均为：
+则典型栈满条件为：
 
 $$
-O(1)
+top_1+1=top_2
 $$
 
----
+共享栈的意义在于：两个栈可以动态共享空闲空间，降低“一边溢出、另一边仍空闲”的浪费。
 
-### 2. 数据结构
+## 3. 链栈
+
+### 3.1 为什么通常把链表头部作为栈顶
+
+链栈使用链式存储实现栈。
+
+对于单链表，如果把**链表头部**作为栈顶：
+
+- 入栈 = 头插；
+- 出栈 = 删除首元结点；
+
+两者均可在 $O(1)$ 时间完成。
+
+如果把单链表尾部作为栈顶，而又没有前驱指针，则删除尾结点时需要寻找前驱，出栈可能退化为 $O(n)$。
+
+### 3.2 带头结点链栈
+
+本节采用带头结点的实现：
+
+```text
+head -> [哨兵] -> [栈顶] -> ... -> [栈底] -> NULL
+```
+
+结构定义：
 
 ```c
-typedef struct Node {
-    int data;
-    struct Node *next;
-} Node;
+typedef struct StackNode {
+    ElementType data;
+    struct StackNode *next;
+} StackNode;
 
 typedef struct {
-    Node *head;
+    StackNode *head;
 } LinkedStack;
 ```
 
 初始化：
 
 ```c
-LinkedStack *InitStack(void) {
-    LinkedStack *S =
-        (LinkedStack *)malloc(sizeof(LinkedStack));
-
-    S->head = (Node *)malloc(sizeof(Node));
-    S->head->next = NULL;
-
-    return S;
-}
-```
-
----
-
-### 3. 入栈
-
-```c
-void Push(LinkedStack *S, int x) {
-    Node *p = (Node *)malloc(sizeof(Node));
-
-    p->data = x;
-    p->next = S->head->next;
-    S->head->next = p;
-}
-```
-
-本质就是：
-
-> **在头结点之后进行头插。**
-
----
-
-### 4. 出栈
-
-```c
-bool Pop(LinkedStack *S, int *x) {
-    if (S->head->next == NULL) {
+bool InitStack(LinkedStack *S) {
+    S->head = (StackNode *)malloc(sizeof(StackNode));
+    if (S->head == NULL) {
         return false;
     }
 
-    Node *p = S->head->next;
-
-    *x = p->data;
-    S->head->next = p->next;
-
-    free(p);
+    S->head->next = NULL;
     return true;
 }
 ```
 
----
-
-### 5. 获取栈顶元素和判空
+判空：
 
 ```c
-bool GetTop(LinkedStack *S, int *x) {
-    if (S->head->next == NULL) {
+bool StackEmpty(const LinkedStack *S) {
+    return S->head->next == NULL;
+}
+```
+
+### 3.3 入栈：头插
+
+```c
+bool Push(LinkedStack *S, ElementType x) {
+    StackNode *p =
+        (StackNode *)malloc(sizeof(StackNode));
+
+    if (p == NULL) {
+        return false;
+    }
+
+    p->data = x;
+    p->next = S->head->next;
+    S->head->next = p;
+    return true;
+}
+```
+
+指针修改顺序的本质是：
+
+```text
+先让新结点接住旧栈顶，再让 head 指向新结点。
+```
+
+时间复杂度：$O(1)$。
+
+### 3.4 出栈与取栈顶
+
+```c
+bool Pop(LinkedStack *S, ElementType *x) {
+    if (StackEmpty(S)) {
+        return false;
+    }
+
+    StackNode *p = S->head->next;
+    *x = p->data;
+    S->head->next = p->next;
+    free(p);
+
+    return true;
+}
+```
+
+取栈顶：
+
+```c
+bool GetTop(const LinkedStack *S, ElementType *x) {
+    if (StackEmpty(S)) {
         return false;
     }
 
     *x = S->head->next->data;
     return true;
 }
-
-bool StackEmpty(LinkedStack *S) {
-    return S->head->next == NULL;
-}
 ```
 
----
+时间复杂度均为 $O(1)$。
 
-### 6. 顺序栈与链栈对比
+### 3.5 顺序栈与链栈比较
 
-| 对比项  | 顺序栈      | 链栈               |
-| ---- | -------- | ---------------- |
-| 存储   | 连续空间     | 链式空间             |
-| 入栈   | $O(1)$ | $O(1)$         |
-| 出栈   | $O(1)$ | $O(1)$         |
-| 最大容量 | 通常预先确定   | 可动态增长            |
-| 额外空间 | 无结点指针    | 每个结点需要指针         |
-| 局部性  | 好        | 较差               |
-| 栈满   | 可能发生     | 内存耗尽前通常不存在固定容量问题 |
+| 对比项 | 顺序栈 | 链栈 |
+| --- | --- | --- |
+| 存储 | 连续数组 | 链式结点 |
+| 入栈 | $O(1)$ | $O(1)$ |
+| 出栈 | $O(1)$ | $O(1)$ |
+| 容量 | 通常有固定数组上限 | 可随结点申请动态增长 |
+| 附加空间 | 无每结点指针域 | 每结点有指针开销 |
+| 空间局部性 | 通常较好 | 通常较差 |
+| “栈满” | 数组容量耗尽 | 通常表现为动态内存申请失败 |
 
-> **易错点：**
-> 链栈若把链表尾部作为栈顶，在单链表中删除尾结点需要寻找其前驱，会导致出栈退化为 $O(n)$。因此一般使用链表头部作为栈顶。
-
----
-
-## 四、队列
-
-> **复习优先级：中。**
-> 循环队列的 `front`、`rear`、队空、队满以及元素个数计算是高频易错点。
->
-> **真题考察：**
->
-> * 选择题：2010 年第 2 题、2011 年第 3 题、2014 年第 3 题、2016 年第 3 题、2021 年第 2 题；
-> * 解答题：2019 年第 42 题。
-
-### 1. 队列的定义
-
-**队列（Queue）**&#x2060;是一种只允许：
-
-* 在**队尾（rear）**&#x2060;插入元素；
-* 在**队头（front）**&#x2060;删除元素；
-
-的线性表。
-
-因此队列遵循：
-
-**先进先出（FIFO，First In First Out）**
+## 4. 队列的基本概念
 
 <InlineSvg src="/images/data-structure/data-structure-array-queue-001.svg" alt="Back Front Enqueue Dequeue" />
 
-例如依次入队：
+> **真题标签**
+>
+> 2010 年第 2 题、2011 年第 3 题、2014 年第 3 题、2016 年第 3 题、2021 年第 2 题，以及 2019 年第 42 题涉及队列、循环队列或相关应用。
+
+### 4.1 定义与逻辑特性
+
+**队列（Queue）**只允许：
+
+- 在**队尾（rear）**插入元素；
+- 在**队头（front）**删除元素。
+
+因此满足：
+
+> **先进先出（FIFO, First In First Out）**。
+
+若依次入队：
 
 ```text
-A → B → C
+A -> B -> C
 ```
 
-那么出队顺序只能是：
+正常出队顺序只能是：
 
 ```text
-A → B → C
+A -> B -> C
 ```
 
----
+### 4.2 常见抽象操作
 
-### 2. 基本操作
+| 操作 | 含义 |
+| --- | --- |
+| `InitQueue` | 初始化队列 |
+| `EnQueue` | 队尾入队 |
+| `DeQueue` | 队头出队 |
+| `GetHead` | 读取队头元素 |
+| `QueueEmpty` | 判断队空 |
+| `QueueFull` | 顺序/循环队列中判断是否已满 |
 
-| 操作           | 含义        |
-| ------------ | --------- |
-| `InitQueue`  | 初始化队列     |
-| `EnQueue`    | 队尾入队      |
-| `DeQueue`    | 队头出队      |
-| `GetHead`    | 获取队头元素    |
-| `QueueEmpty` | 判断队空      |
-| `QueueFull`  | 循环队列中判断队满 |
+### 4.3 队列的典型应用
 
----
+队列常用于：
 
-## 五、顺序队列与假溢出
+- 进程/任务排队；
+- 打印缓冲；
+- 广度优先搜索；
+- 树的层序遍历；
+- 网络与 I/O 缓冲；
+- 生产者—消费者模型。
 
-顺序队列使用数组保存元素，并维护：
-
-* `front`：队头位置；
-* `rear`：队尾位置。
-
-如果简单地让两个指针不断向数组右侧移动，会出现一个问题：
-
-> 数组前部虽然已经出现空闲空间，但 `rear` 已经到达数组末尾，无法继续入队。
-
-这称为**假溢出（False Overflow）**。
+## 5. 顺序队列与假溢出
 
 <InlineSvg src="/images/data-structure/data-structure-array-queue-002.svg" alt="front rear front a b c d e rear front e rear 空队 5个元素入队 出队4次 再出队一次 会出现 “假溢出”" />
 
-解决方法是：
+### 5.1 普通顺序队列的问题
 
-> **把数组逻辑上首尾相连，形成循环队列。**
+如果简单用数组，并让 `front`、`rear` 只向右移动：
 
----
+```text
+已出队区域 | 当前元素区域 | 未使用区域
+```
 
-## 六、循环队列
+随着出队操作进行，数组前部会出现已经释放的位置；但 `rear` 一旦走到数组末端，仍然无法继续向右插入。
 
-### 1. 基本思想
+此时可能出现：
 
-循环队列把数组视为一个环。
+> 数组中明明还有空闲单元，却无法继续入队。
 
-当 `rear` 到达数组最后一个位置之后，再继续移动时回到数组开头。
+这称为**假溢出（false overflow）**。
+
+### 5.2 解决思路：把数组逻辑上连成环
+
+让指针走到数组末端后回到开头，即形成**循环队列**。
+
+若数组长度为 `MaxSize`，指针向前移动一格统一写为：
+
+$$
+next(x)=(x+1)\bmod MaxSize
+$$
+
+## 6. 循环队列
+
+### 6.1 本章采用的指针约定
 
 <InlineSvg src="/images/data-structure/data-structure-array-queue-003.svg" alt="0 1 2 3 4 front rear 0 1 2 3 4 a b c d front rear 队空 入队4个元素，队满" />
 
-指针移动统一写成：
+以下统一采用：
 
-$$
-\text{next}(x)=(x+1)\bmod MaxSize
-$$
+- `front` 指向**当前队头元素**；
+- `rear` 指向**下一个待插入位置**。
 
----
+初始时：
 
-### 2. 为什么不能简单用 `front == rear` 同时表示队空和队满
+```text
+front = rear = 0
+```
 
-若：
+入队时：先在 `rear` 位置写入，再让 `rear` 前移。
 
-* 队空时规定 `front == rear`；
-* 队满后 `rear` 经过一圈也可能重新等于 `front`；
+出队时：先读取 `front` 位置，再让 `front` 前移。
 
-那么两种状态无法区分。
+<Callout type="warn" title="循环队列题第一步：读懂 front / rear">
+有些教材令 `rear` 指向“当前队尾元素”。定义一变，队空、队满、长度、队尾下标都会改变。考试中必须先以题目定义为准。
+</Callout>
 
-常见解决方案有三种：
+### 6.2 为什么队空和队满不能都直接写 `front == rear`
 
-1. **牺牲一个存储单元**；
-2. 额外维护队列元素个数 `size`；
-3. 额外设置一个状态标志。
-
-408 中最常见的是第一种。
-
----
-
-### 3. 牺牲一个存储单元
-
-设数组容量为 `MaxSize`。
-
-#### 队空
+若队空时规定：
 
 $$
 front=rear
 $$
 
-#### 队满
+当数组恰好装满后，`rear` 绕一圈也可能重新追上 `front`。若没有其他信息，就无法区分“空”和“满”。
+
+常见解决方案有三种：
+
+1. **牺牲一个存储单元**；
+2. 额外维护元素个数 `size`；
+3. 额外维护状态标志 `tag`。
+
+408 最常见的是第一种。
+
+### 6.3 方案一：牺牲一个存储单元
+
+设数组容量为 `MaxSize`。
+
+**队空：**
+
+$$
+front=rear
+$$
+
+**队满：**
 
 $$
 (rear+1)\bmod MaxSize=front
 $$
 
-因此实际最多只能存：
+**最大可存元素数：**
 
 $$
 MaxSize-1
 $$
 
-个元素。
-
-#### 队列长度
+**当前队列长度：**
 
 $$
 L=(rear-front+MaxSize)\bmod MaxSize
 $$
 
-这个公式是循环队列选择题中的重要结论。
+**真正队尾元素的位置：**
 
----
+$$
+(rear-1+MaxSize)\bmod MaxSize
+$$
 
-### 4. 循环队列实现
+### 6.4 循环队列实现
 
 ```c
 #define MAX_SIZE 100
 
 typedef struct {
-    int data[MAX_SIZE];
+    ElementType data[MAX_SIZE];
     int front;
     int rear;
 } CircularQueue;
@@ -539,68 +534,56 @@ void InitQueue(CircularQueue *Q) {
 }
 ```
 
-判断队空：
+判空：
 
 ```c
-bool QueueEmpty(CircularQueue *Q) {
+bool QueueEmpty(const CircularQueue *Q) {
     return Q->front == Q->rear;
 }
 ```
 
-判断队满：
+判满：
 
 ```c
-bool QueueFull(CircularQueue *Q) {
+bool QueueFull(const CircularQueue *Q) {
     return (Q->rear + 1) % MAX_SIZE == Q->front;
 }
 ```
 
----
+### 6.5 入队、出队和读取队首/队尾
 
-### 5. 入队
+入队：
 
 ```c
-bool EnQueue(CircularQueue *Q, int x) {
+bool EnQueue(CircularQueue *Q, ElementType x) {
     if (QueueFull(Q)) {
         return false;
     }
 
     Q->data[Q->rear] = x;
     Q->rear = (Q->rear + 1) % MAX_SIZE;
-
     return true;
 }
 ```
 
-这里的约定是：
-
-> `rear` 指向**下一个待插入位置**，而不是当前最后一个元素。
-
----
-
-### 6. 出队
+出队：
 
 ```c
-bool DeQueue(CircularQueue *Q, int *x) {
+bool DeQueue(CircularQueue *Q, ElementType *x) {
     if (QueueEmpty(Q)) {
         return false;
     }
 
     *x = Q->data[Q->front];
     Q->front = (Q->front + 1) % MAX_SIZE;
-
     return true;
 }
 ```
 
----
-
-### 7. 获取队首与队尾元素
-
-队首元素：
+读取队头：
 
 ```c
-bool GetHead(CircularQueue *Q, int *x) {
+bool GetHead(const CircularQueue *Q, ElementType *x) {
     if (QueueEmpty(Q)) {
         return false;
     }
@@ -610,127 +593,150 @@ bool GetHead(CircularQueue *Q, int *x) {
 }
 ```
 
-由于 `rear` 指向下一个待插入位置，因此真正的队尾元素位于：
-
-$$
-(rear-1+MaxSize)\bmod MaxSize
-$$
-
-对应代码：
+读取队尾：
 
 ```c
-bool GetRear(CircularQueue *Q, int *x) {
+bool GetRear(const CircularQueue *Q, ElementType *x) {
     if (QueueEmpty(Q)) {
         return false;
     }
 
-    *x = Q->data[
-        (Q->rear - 1 + MAX_SIZE) % MAX_SIZE
-    ];
-
+    int index =
+        (Q->rear - 1 + MAX_SIZE) % MAX_SIZE;
+    *x = Q->data[index];
     return true;
 }
 ```
 
-> **易错点：**
-> 一定先确认题目对 `front` 和 `rear` 的定义。不同教材可能令 `rear` 指向“队尾元素”或“队尾元素的下一个位置”，相应公式也会发生变化。
+以上核心操作均为 $O(1)$。
 
----
+### 6.6 方案二：维护 `size`
 
-## 七、链式队列
+若数组容量为 `MaxSize`，再维护当前元素个数：
 
-### 1. 基本结构
+```c
+int size;
+```
 
-**链式队列**通常使用带头结点的单链表实现。
+则：
+
+```text
+队空：size == 0
+队满：size == MaxSize
+```
+
+此时所有 `MaxSize` 个数组单元都可以使用。
+
+### 6.7 方案三：维护状态标志
+
+也可以允许 `front == rear` 同时出现在空和满两种状态，再增加一个标志记录最后一次改变队列的是入队还是出队。
+
+这种方法的关键不是死记具体标志值，而是理解：
+
+> **当两个下标本身不足以唯一表示队列状态时，就必须增加额外状态信息。**
+
+### 6.8 双端队列
+
+**双端队列（Deque）**允许在队头、队尾两端进行插入和删除。
+
+受限形式包括：
+
+- **输入受限双端队列**：只允许一端入队，但两端都可出队；
+- **输出受限双端队列**：两端都可入队，但只允许一端出队。
+
+判断某个序列能否产生时，应根据允许的端点操作逐步模拟，而不能直接套普通队列的 FIFO 结论。
+
+## 7. 链式队列
+
+### 7.1 带头结点链式队列
 
 <InlineSvg src="/images/data-structure/data-structure-array-queue-004.svg" alt="a 1 a 2 a n NULL head rear front 队头 队尾 队列方向" />
 
-维护两个指针：
-
-* `front`：指向头结点；
-* `rear`：指向最后一个有效结点。
-
-真正的队头元素是：
+典型结构为：
 
 ```text
-front->next
+front
+  |
+  v
+[头结点] -> [a1] -> [a2] -> ... -> [an] <- rear
 ```
 
-空队列时：
+本节规定：
 
-```text
-front == rear
-```
+- `front` 指向头结点；
+- `rear` 指向最后一个有效结点；
+- 真正队头元素为 `front->next`；
+- 空队列时 `front == rear`，且二者都指向头结点。
 
-并且二者都指向头结点。
-
----
-
-### 2. 结构定义
+结构定义：
 
 ```c
-typedef struct QNode {
-    int data;
-    struct QNode *next;
-} QNode;
+typedef struct QueueNode {
+    ElementType data;
+    struct QueueNode *next;
+} QueueNode;
 
 typedef struct {
-    QNode *front;
-    QNode *rear;
+    QueueNode *front;
+    QueueNode *rear;
 } LinkQueue;
 ```
 
-初始化：
+### 7.2 初始化与判空
 
 ```c
-void InitQueue(LinkQueue *Q) {
-    QNode *head =
-        (QNode *)malloc(sizeof(QNode));
+bool InitQueue(LinkQueue *Q) {
+    QueueNode *head =
+        (QueueNode *)malloc(sizeof(QueueNode));
+
+    if (head == NULL) {
+        return false;
+    }
 
     head->next = NULL;
-
     Q->front = head;
     Q->rear = head;
+    return true;
 }
 ```
 
----
+```c
+bool QueueEmpty(const LinkQueue *Q) {
+    return Q->front == Q->rear;
+}
+```
 
-### 3. 入队
-
-链式队列从队尾插入：
+### 7.3 入队：尾插
 
 ```c
-void EnQueue(LinkQueue *Q, int x) {
-    QNode *p =
-        (QNode *)malloc(sizeof(QNode));
+bool EnQueue(LinkQueue *Q, ElementType x) {
+    QueueNode *p =
+        (QueueNode *)malloc(sizeof(QueueNode));
+
+    if (p == NULL) {
+        return false;
+    }
 
     p->data = x;
     p->next = NULL;
 
     Q->rear->next = p;
     Q->rear = p;
+    return true;
 }
 ```
 
-时间复杂度：
+只修改常数个指针，时间复杂度为 $O(1)$。
 
-$$
-O(1)
-$$
-
----
-
-### 4. 出队
+### 7.4 出队：删除首元结点
 
 ```c
-bool DeQueue(LinkQueue *Q, int *x) {
-    if (Q->front == Q->rear) {
+bool DeQueue(LinkQueue *Q, ElementType *x) {
+    if (QueueEmpty(Q)) {
         return false;
     }
 
-    QNode *p = Q->front->next;
-
+    QueueNode *p = Q->front->next;
     *x = p->data;
     Q->front->next = p->next;
 
@@ -743,38 +749,28 @@ bool DeQueue(LinkQueue *Q, int *x) {
 }
 ```
 
-当删除的结点同时也是队尾结点时，说明原队列只有一个有效元素。
+关键特殊情况是：**队列原来只有一个有效结点**。
 
-此时必须执行：
+删除后必须执行：
 
 ```c
 Q->rear = Q->front;
 ```
 
-否则 `rear` 会成为悬空指针。
+否则 `rear` 仍指向已经释放的结点，成为悬空指针。
 
----
+### 7.5 循环队列与链式队列比较
 
-### 5. 判空
+| 对比项 | 循环队列 | 链式队列 |
+| --- | --- | --- |
+| 存储 | 连续数组 | 链式结点 |
+| 入队 | $O(1)$ | $O(1)$ |
+| 出队 | $O(1)$ | $O(1)$ |
+| 容量 | 通常固定 | 动态增长 |
+| 附加开销 | 不需要每结点指针 | 每结点有指针域 |
+| 空间局部性 | 通常较好 | 通常较差 |
+| 溢出 | 数组容量达到上限 | 动态内存申请失败 |
 
-```c
-bool QueueEmpty(LinkQueue *Q) {
-    return Q->front == Q->rear;
-}
-```
-
----
-
-### 6. 循环队列与链式队列比较
-
-| 对比项  | 循环队列     | 链式队列     |
-| ---- | -------- | -------- |
-| 存储方式 | 连续       | 链式       |
-| 入队   | $O(1)$ | $O(1)$ |
-| 出队   | $O(1)$ | $O(1)$ |
-| 容量   | 通常固定     | 动态变化     |
-| 空间利用 | 无指针域     | 每个结点需要指针 |
-| 局部性  | 好        | 较差       |
-| 溢出   | 数组空间耗尽   | 内存耗尽     |
-
----
+<Callout type="info" title="一条统一解题原则">
+无论顺序栈、循环队列还是链式队列，先把**每个指针/下标到底指向什么**写清楚，再推导操作。只要语义清楚，空、满、长度和代码都能自然推出。
+</Callout>

@@ -1,32 +1,36 @@
 ---
 title: "BST、AVL 与红黑树"
-description: "二叉排序树、AVL 平衡二叉树和红黑树的核心操作与比较。"
+description: "二叉排序树、AVL 平衡二叉树和红黑树的核心性质、操作、复杂度与比较。"
 ---
 
 ## 十三、二叉排序树 BST
+
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-012.svg" alt="8 3 10 1 6 4 7 14 13" />
 
 > **真题考察**
 >
 > * 选择题：2011 年第 7 题、2013 年第 6 题、2017 年第 8 题、2018 年第 6 题、2020 年第 5 题、2024 年第 7 题
 > * 解答题：2022 年第 41 题、2026 年第 41 题
 
-**二叉排序树（Binary Search Tree，BST）**&#x2060;又称二叉查找树。
+**二叉排序树（Binary Search Tree，BST）**，也称二叉查找树，是一种利用关键字大小关系组织结点的二叉树。
 
-对于任意结点：
+对任意结点 `root`，若关键字互不相同，则满足：
 
-1. 左子树中所有关键字均小于该结点；
-2. 右子树中所有关键字均大于该结点；
-3. 左右子树本身也分别是 BST。
+1. 左子树中所有关键字都小于 `root` 的关键字；
+2. 右子树中所有关键字都大于 `root` 的关键字；
+3. 左、右子树本身也分别是 BST。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-012.svg" alt="8 3 10 1 6 4 7 14 13" />
+<Callout type="info" title="BST 的核心判定性质">
+对 BST 做**中序遍历**，一定得到关键字的递增序列。反过来，若一棵二叉树的中序序列严格递增，则它满足 BST 的大小关系。
+</Callout>
 
-因此 BST 的一个核心性质是：
+若题目允许重复关键字，则重复关键字究竟放左侧还是右侧必须由题目或实现约定决定，不能自行假设。
 
-> **对 BST 进行中序遍历，可以得到递增有序序列。**
-
-### 1. 结点结构
+### 13.1 BST 结点结构
 
 ```c
+#include <stdlib.h>
+
 typedef struct TreeNode {
     int data;
     struct TreeNode* left;
@@ -34,60 +38,56 @@ typedef struct TreeNode {
 } TreeNode;
 
 TreeNode* newNode(int data) {
-    TreeNode* node =
-        (TreeNode*)malloc(sizeof(TreeNode));
-
+    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));
     node->data = data;
     node->left = NULL;
     node->right = NULL;
-
     return node;
 }
 ```
 
-### 2. 查找
+### 13.2 查找
+
+查找关键字 `key` 时，每到一个结点只需要三选一：
+
+* `key == root->data`：查找成功；
+* `key < root->data`：只进入左子树；
+* `key > root->data`：只进入右子树。
 
 ```c
-TreeNode* search(TreeNode* root, int data) {
-    if (root == NULL || root->data == data) {
+TreeNode* search(TreeNode* root, int key) {
+    if (root == NULL || root->data == key) {
         return root;
     }
 
-    if (data < root->data) {
-        return search(root->left, data);
+    if (key < root->data) {
+        return search(root->left, key);
     }
 
-    return search(root->right, data);
+    return search(root->right, key);
 }
 ```
 
-每次查找只进入左、右子树中的一个，因此时间复杂度取决于树高：
+一次查找最多沿根到某个结点的一条路径进行，因此：
 
 $$
 T=O(h)
 $$
 
-若树较平衡：
+其中 $h$ 是树高。
 
-$$
-h=O(\log n)
-$$
+* 若 BST 形态较平衡，$h=O(\log n)$；
+* 若插入顺序使其退化成单支树，$h=O(n)$。
 
-若 BST 极度退化成链表：
-
-$$
-h=O(n)
-$$
-
-所以最坏查找复杂度为：
+所以普通 BST **不能保证**查找一定为 $O(\log n)$，其最坏时间复杂度为：
 
 $$
 O(n)
 $$
 
-### 3. 插入
+### 13.3 插入与插入序列
 
-BST 插入首先执行一次查找，找到应该出现的位置，再把新结点作为叶结点插入。
+BST 插入本质上是一次查找：若最终走到空指针位置，就把新结点接在那里。
 
 ```c
 TreeNode* insert(TreeNode* root, int data) {
@@ -105,72 +105,80 @@ TreeNode* insert(TreeNode* root, int data) {
 }
 ```
 
-插入顺序会显著影响最终 BST 的形态。
+同一组关键字采用不同插入顺序，可能得到完全不同的 BST。
 
-例如：
+例如依次插入：
 
 ```text
 1, 2, 3, 4, 5
 ```
 
-按此顺序插入会得到近似单链表的结构，从而失去 BST 理想情况下的高效查找性能。
+会形成向右倾斜的单支树，查找性能退化到线性级。
 
-### 4. 删除
+而若先插入中间关键字，例如：
+
+```text
+3, 2, 4, 1, 5
+```
+
+树形会明显更平衡。
+
+<Callout type="warning" title="常见命题方式">
+给定一棵 BST，题目可能要求判断“哪些插入序列能生成该树”。做题时从根开始递归判断：根必须最先出现；之后左子树关键字和右子树关键字可以交错出现，但各自在本子树内部仍必须满足相同的生成约束。
+</Callout>
+
+### 13.4 删除
 
 <InlineSvg src="/images/data-structure/data-structure-tree-btree-013.svg" alt="BST 删除节点的三种情况 情况 1：叶子节点 直接删除，无需后续处理 删除前 8 3 12 1 5 删 1 删除后 8 3 12 5 情况 2：只有一个子节点 用唯一子树替代被删节点 删除前 8 3 12 5 删 3 删除后 8 5 12 把唯一子节点 5 提到原位置 情况 3：两个子节点 用 中序后继（右子树最小） 或 中序前驱（左子树最大） 顶替，再递归删除该后继/前驱 删除前（删 8） 8 3 12 1 6 10 14 中序后继 = 10 ① 值替换 ② 删原 10 " />
 
-BST 删除分三种情况。
+BST 删除首先像查找一样定位目标结点，然后按其孩子数量分类。
 
-#### 情况一：叶结点
+| 待删结点情况 | 处理方式 |
+| --- | --- |
+| 叶结点 | 直接删除 |
+| 只有一个孩子 | 让唯一孩子接替其位置 |
+| 有两个孩子 | 用中序前驱或中序后继替换，再删除该前驱/后继 |
 
-直接删除即可。
+对于有两个孩子的结点：
 
-#### 情况二：只有一个孩子
+* **中序前驱** = 左子树中的最大结点；
+* **中序后继** = 右子树中的最小结点。
 
-让唯一的孩子直接接替被删除结点的位置。
-
-#### 情况三：存在两个孩子
-
-可以用：
-
-* **中序前驱**：左子树中的最大结点；
-* **中序后继**：右子树中的最小结点；
-
-替换待删除结点，再删除原来的前驱或后继。
+因为前驱和后继在相应子树中不可能同时拥有两个孩子，所以替换之后，问题会转化成删除“至多有一个孩子”的结点。
 
 ```c
+TreeNode* findMin(TreeNode* root) {
+    while (root != NULL && root->left != NULL) {
+        root = root->left;
+    }
+    return root;
+}
+
 TreeNode* deleteNode(TreeNode* root, int data) {
     if (root == NULL) {
-        return root;
+        return NULL;
     }
 
     if (data < root->data) {
-        root->left =
-            deleteNode(root->left, data);
+        root->left = deleteNode(root->left, data);
     } else if (data > root->data) {
-        root->right =
-            deleteNode(root->right, data);
+        root->right = deleteNode(root->right, data);
     } else {
         if (root->left == NULL) {
             TreeNode* temp = root->right;
             free(root);
             return temp;
-        } else if (root->right == NULL) {
+        }
+
+        if (root->right == NULL) {
             TreeNode* temp = root->left;
             free(root);
             return temp;
         }
 
-        TreeNode* temp =
-            findMin(root->right);
-
-        root->data = temp->data;
-
-        root->right =
-            deleteNode(
-                root->right,
-                temp->data
-            );
+        TreeNode* successor = findMin(root->right);
+        root->data = successor->data;
+        root->right = deleteNode(root->right, successor->data);
     }
 
     return root;
@@ -179,302 +187,254 @@ TreeNode* deleteNode(TreeNode* root, int data) {
 
 > **做题技巧**
 >
-> 删除具有两个孩子的结点时，不要试图直接“大范围重连”。先找前驱或后继进行值替换，问题就会转换成删除一个至多只有一个孩子的结点。
+> 删除有两个孩子的结点时，不要直接“大范围重连”。优先使用**前驱/后继替换法**，既容易保证 BST 性质，也便于手算。
+
+### 13.5 查找成功与失败路径
+
+BST 的平均查找性能与树形密切相关。
+
+* 查找成功：终止于某个真实结点；
+* 查找失败：终止于某个空孩子位置。
+
+因此分析平均查找长度时，要先确认题目是在算：
+
+1. 成功 ASL；
+2. 失败 ASL；
+3. 是否假设各关键字或各失败区间等概率。
+
+不能只看到“BST”就直接套 $O(\log n)$。
 
 ---
 
 ## 十四、AVL 平衡二叉树
 
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-014.svg" alt="图示" />
+
 > **真题考察**
 >
 > * 选择题：2009 年第 4 题、2010 年第 4 题、2012 年第 4 题、2013 年第 3 题、2015 年第 4 题、2019 年第 4 题、2021 年第 6 题、2026 年第 8 题
 
-**AVL 树**是一棵特殊的 BST。
+**AVL 树**首先是一棵 BST，其额外要求是：任意结点的左、右子树高度之差的绝对值不超过 1。
 
-对于任意结点，定义平衡因子：
+定义平衡因子：
 
 $$
-BF=
-h_{\text{left}}
--
-h_{\text{right}}
+BF=h_{\text{left}}-h_{\text{right}}
 $$
 
-AVL 要求：
+AVL 树要求：
 
 $$
 |BF|\le1
 $$
 
-因此一个结点的平衡因子只能为：
+因此每个结点的平衡因子只能是：
 
 ```text
--1、0、+1
+-1, 0, +1
 ```
 
-AVL 通过限制左右子树高度差，使树高始终保持：
+AVL 通过旋转保持严格的高度平衡，使树高为：
 
 $$
 O(\log n)
 $$
 
-因此查找、插入、删除的复杂度都可以维持在：
+因而查找、插入和删除都可以保持 $O(\log n)$ 数量级。
 
-$$
-O(\log n)
-$$
+### 14.1 最小不平衡子树
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-014.svg" alt="图示" />
+插入新结点后，从插入点沿祖先方向向上检查平衡因子。
 
-### 1. 最小不平衡子树
+遇到的**第一个满足 $|BF|>1$ 的祖先结点**，称为最小不平衡子树的根。
 
-插入新结点后，从新结点沿祖先方向向上检查。
+修复时只需要围绕这棵最小不平衡子树进行旋转；旋转后仍必须同时满足：
 
-遇到的**第一个平衡因子绝对值大于 1 的结点**，就是最小不平衡子树的根。
+1. BST 的中序有序性不变；
+2. 高度重新满足 AVL 条件。
 
-旋转只需要围绕这棵最小不平衡子树进行。
+### 14.2 四种失衡类型
 
----
+设最小不平衡子树根为 $A$。判断 LL、RR、LR、RL，关键是看“从 $A$ 到新结点的前两步方向”。
 
-### 2. 四种旋转类型
+| 类型 | 新结点位置 | 调整 |
+| --- | --- | --- |
+| LL | $A$ 的左孩子的左子树 | 对 $A$ 右旋 |
+| RR | $A$ 的右孩子的右子树 | 对 $A$ 左旋 |
+| LR | $A$ 的左孩子的右子树 | 先左旋左孩子，再右旋 $A$ |
+| RL | $A$ 的右孩子的左子树 | 先右旋右孩子，再左旋 $A$ |
 
-判断方法：
-
-> 看新结点相对于最小不平衡子树根结点所在的方向。
+<Callout type="info" title="记忆方法">
+LL、RR 是“同向折下去”，做一次**反方向单旋**；LR、RL 是“之字形”，先把折线旋成同向，再做第二次旋转。
+</Callout>
 
 #### LL 型
 
-新结点位于：
-
 ```text
-A 的左孩子的左子树
+        A                  B
+       /                  / \
+      B       ->         C   A
+     /
+    C
 ```
 
-执行：
-
-```text
-A 右旋
-```
+对 $A$ **右旋**。
 
 #### RR 型
 
-新结点位于：
-
 ```text
-A 的右孩子的右子树
+    A                       B
+     \                     / \
+      B        ->         A   C
+       \
+        C
 ```
 
-执行：
-
-```text
-A 左旋
-```
+对 $A$ **左旋**。
 
 #### LR 型
 
-新结点位于：
-
-```text
-A 的左孩子的右子树
-```
-
-执行：
-
-```text
-先对 A 的左孩子左旋
-再对 A 右旋
-```
+先对 $A$ 的左孩子左旋，再对 $A$ 右旋。
 
 #### RL 型
 
-新结点位于：
-
-```text
-A 的右孩子的左子树
-```
-
-执行：
-
-```text
-先对 A 的右孩子右旋
-再对 A 左旋
-```
-
-汇总如下：
-
-| 失衡类型 | 调整      |
-| ---- | ------- |
-| LL   | 右旋      |
-| RR   | 左旋      |
-| LR   | 先左旋，再右旋 |
-| RL   | 先右旋，再左旋 |
-
 <InlineSvg src="/images/data-structure/data-structure-tree-btree-015.svg" alt="A B (+1) (0) B L B R A R h A B (+2) (+1) B L B R A R h h+1 X X Insert X into B L LL Rotation B A B R A R B L h+1 X h h h (0) (0) A B (-1) (0) B L B R A L h h Insert X into B R A B (-2) (-1) B L B R A L h X h h+1 RR Rotation B A A L B L h (0" />
 
-> **记忆**
->
-> LL、RR 是“同向”，只旋一次。
->
-> LR、RL 是“折线”，先把折线拉直，再做一次单旋。
+先对 $A$ 的右孩子右旋，再对 $A$ 左旋。
 
-### 3. AVL 结点定义
+### 14.3 旋转为什么不会破坏 BST 性质
+
+以右旋为例，旋转前局部关键字满足：
+
+$$
+T_1 < x < T_2 < y < T_3
+$$
+
+右旋后这些部分的中序次序仍然是：
+
+$$
+T_1,\ x,\ T_2,\ y,\ T_3
+$$
+
+所以旋转只改变局部父子关系，不改变中序关键字顺序。
+
+这也是判断手工旋转是否正确的最好检查方法：
+
+> **旋转前后做一次局部中序遍历，关键字顺序必须一致。**
+
+### 14.4 AVL 结点、高度与平衡因子
 
 ```c
-struct TreeNode {
+typedef struct AVLNode {
     int data;
-    struct TreeNode* left;
-    struct TreeNode* right;
+    struct AVLNode* left;
+    struct AVLNode* right;
     int height;
-};
+} AVLNode;
 ```
 
-### 4. 左旋
+若约定空树高度为 0、叶结点高度为 1：
 
 ```c
-struct TreeNode* leftRotate(
-    struct TreeNode* x
-) {
-    struct TreeNode* y = x->right;
-    struct TreeNode* T2 = y->left;
+int getHeight(AVLNode* node) {
+    return node == NULL ? 0 : node->height;
+}
+
+void updateHeight(AVLNode* node) {
+    int hl = getHeight(node->left);
+    int hr = getHeight(node->right);
+    node->height = (hl > hr ? hl : hr) + 1;
+}
+
+int getBalanceFactor(AVLNode* node) {
+    if (node == NULL) {
+        return 0;
+    }
+    return getHeight(node->left) - getHeight(node->right);
+}
+```
+
+### 14.5 左旋与右旋
+
+左旋：
+
+```c
+AVLNode* leftRotate(AVLNode* x) {
+    AVLNode* y = x->right;
+    AVLNode* T2 = y->left;
 
     y->left = x;
     x->right = T2;
 
     updateHeight(x);
     updateHeight(y);
-
     return y;
 }
 ```
 
-### 5. 右旋
+右旋：
 
 ```c
-struct TreeNode* rightRotate(
-    struct TreeNode* y
-) {
-    struct TreeNode* x = y->left;
-    struct TreeNode* T2 = x->right;
+AVLNode* rightRotate(AVLNode* y) {
+    AVLNode* x = y->left;
+    AVLNode* T2 = x->right;
 
     x->right = y;
     y->left = T2;
 
     updateHeight(y);
     updateHeight(x);
-
     return x;
 }
 ```
 
-### 6. 高度与平衡因子
+注意更新高度的顺序：应先更新旋转后位于下方的旧根，再更新新的子树根。
+
+### 14.6 AVL 插入框架
+
+AVL 插入可以理解为：
+
+1. 先按普通 BST 插入；
+2. 回溯时更新高度；
+3. 检查平衡因子；
+4. 找到失衡类型并旋转。
 
 ```c
-int getHeight(struct TreeNode* node) {
+AVLNode* insertAVL(AVLNode* node, int data) {
     if (node == NULL) {
-        return 0;
-    }
-
-    return node->height;
-}
-
-int getBalanceFactor(
-    struct TreeNode* node
-) {
-    if (node == NULL) {
-        return 0;
-    }
-
-    return
-        getHeight(node->left)
-        - getHeight(node->right);
-}
-```
-
-更新高度：
-
-```c
-void updateHeight(
-    struct TreeNode* node
-) {
-    int leftHeight =
-        getHeight(node->left);
-
-    int rightHeight =
-        getHeight(node->right);
-
-    node->height =
-        (
-            leftHeight > rightHeight
-                ? leftHeight
-                : rightHeight
-        ) + 1;
-}
-```
-
-### 7. AVL 插入完整框架
-
-```c
-struct TreeNode* insert(
-    struct TreeNode* node,
-    int data
-) {
-    // 1. 普通 BST 插入
-    if (node == NULL) {
-        return createNode(data);
+        AVLNode* p = (AVLNode*)malloc(sizeof(AVLNode));
+        p->data = data;
+        p->left = p->right = NULL;
+        p->height = 1;
+        return p;
     }
 
     if (data < node->data) {
-        node->left =
-            insert(node->left, data);
+        node->left = insertAVL(node->left, data);
     } else if (data > node->data) {
-        node->right =
-            insert(node->right, data);
+        node->right = insertAVL(node->right, data);
     } else {
         return node;
     }
 
-    // 2. 更新高度
     updateHeight(node);
+    int bf = getBalanceFactor(node);
 
-    // 3. 计算平衡因子
-    int balanceFactor =
-        getBalanceFactor(node);
+    if (bf > 1 && data < node->left->data) {
+        return rightRotate(node);              // LL
+    }
 
-    // 4. LL
-    if (
-        balanceFactor > 1
-        && data < node->left->data
-    ) {
+    if (bf < -1 && data > node->right->data) {
+        return leftRotate(node);               // RR
+    }
+
+    if (bf > 1 && data > node->left->data) {
+        node->left = leftRotate(node->left);   // LR
         return rightRotate(node);
     }
 
-    // 5. RR
-    if (
-        balanceFactor < -1
-        && data > node->right->data
-    ) {
-        return leftRotate(node);
-    }
-
-    // 6. LR
-    if (
-        balanceFactor > 1
-        && data > node->left->data
-    ) {
-        node->left =
-            leftRotate(node->left);
-
-        return rightRotate(node);
-    }
-
-    // 7. RL
-    if (
-        balanceFactor < -1
-        && data < node->right->data
-    ) {
-        node->right =
-            rightRotate(node->right);
-
+    if (bf < -1 && data < node->right->data) {
+        node->right = rightRotate(node->right); // RL
         return leftRotate(node);
     }
 
@@ -482,73 +442,114 @@ struct TreeNode* insert(
 }
 ```
 
+<Callout type="warning" title="插入与删除的判断不要混用">
+插入时可以借助“新关键字与孩子关键字的大小关系”判断 LL/RR/LR/RL；删除后不存在唯一的“新插入关键字”，通常应根据子树平衡因子继续判断旋转类型。
+</Callout>
+
+### 14.7 AVL 最少结点数与最大高度
+
+若 $N_h$ 表示高度为 $h$ 的 AVL 树所需的最少结点数，则为了让高度尽可能大、结点尽可能少，根的两棵子树高度应分别为 $h-1$ 和 $h-2$：
+
+$$
+N_h=N_{h-1}+N_{h-2}+1
+$$
+
+在“空树高度为 0、叶结点高度为 1”的约定下：
+
+$$
+N_0=0,\qquad N_1=1
+$$
+
+其增长速度与 Fibonacci 数列同阶，因此 AVL 树高度是 $O(\log n)$。
+
 > **408 复习重点**
 >
-> 不需要死记完整 AVL 代码。应重点掌握：
+> AVL 题最重要的不是背整段代码，而是会：
 >
-> * 如何计算 BF；
-> * 如何找到最小不平衡子树；
-> * 如何判断 LL、RR、LR、RL；
-> * 旋转后如何保持 BST 的中序有序性质。
+> * 计算平衡因子；
+> * 找最小不平衡子树；
+> * 判断 LL、RR、LR、RL；
+> * 旋转后检查 BST 中序有序性；
+> * 根据递推式分析 AVL 的最少结点数。
 
 ---
 
 ## 十五、红黑树
 
-**红黑树（Red-Black Tree）**&#x2060;也是一种自平衡二叉搜索树。
+<InlineSvg src="/images/data-structure/data-structure-tree-btree-016.svg" alt="红黑树及黑色 NIL 哨兵" />
 
-它不像 AVL 那样严格要求：
+**红黑树（Red-Black Tree）**也是一种自平衡二叉搜索树。
+
+它不像 AVL 那样直接要求：
 
 $$
 |BF|\le1
 $$
 
-而是使用结点颜色和黑高约束维持**近似平衡**。
+而是利用颜色与黑高约束保持**近似平衡**。
 
-<InlineSvg src="/images/data-structure/data-structure-tree-btree-016.svg" alt="红黑树及黑色 NIL 哨兵" />
+### 15.1 红黑树的基本性质
 
-典型红黑树满足：
+通常把空孩子看成黑色 NIL 叶结点。典型定义满足：
 
-1. 每个结点要么为红色，要么为黑色；
+1. 每个结点非红即黑；
 2. 根结点为黑色；
-3. 所有空孩子使用黑色 NIL 哨兵表示；
-4. 红色结点的孩子不能是红色，即不存在两个连续红结点；
-5. 从任一结点到其所有后代 NIL 的简单路径都包含相同数量的黑结点。
+3. 所有 NIL 叶结点为黑色；
+4. 红结点的两个孩子都是黑色，即不存在连续两个红结点；
+5. 从任一结点到其所有后代 NIL 叶结点的简单路径，所含黑结点数相同。
 
-第 5 条中的黑色结点数量称为**黑高**。
+第 5 条中的这个数量称为该结点的**黑高（black-height）**。
 
-利用这些性质可以证明红黑树高度保持在：
+<Callout type="info" title="为什么红黑树不会退化成链表">
+性质 4 限制红结点不能连续出现，性质 5 又要求各根到叶路径具有相同黑高，因此最长路径至多约为最短路径的 2 倍，树高仍保持对数级。
+</Callout>
 
-$$
-O(\log n)
-$$
+### 15.2 高度上界
 
-更具体地，具有 $n$ 个内部结点的红黑树高度满足数量级上界：
+具有 $n$ 个内部结点的红黑树高度 $h$ 满足：
 
 $$
 h\le2\log_2(n+1)
 $$
 
-因此搜索、插入和删除均可保持对数级复杂度。
+因此其查找、插入、删除都保持：
 
-### AVL 与红黑树比较
+$$
+O(\log n)
+$$
 
-| 特性   | AVL                | 红黑树               |       |             |
-| ---- | ------------------ | ----------------- | ----- | ----------- |
-| 本质   | BST                | BST               |       |             |
-| 平衡要求 | 严格                 | 相对宽松              |       |             |
-| 平衡条件 | 任意结点 (             | BF                | \le1) | 颜色、红结点限制、黑高 |
-| 树高   | $O(\log n)$，通常较矮 | $O(\log n)$     |       |             |
-| 查找   | 通常路径较短             | 同样为 $O(\log n)$ |       |             |
-| 更新   | 平衡约束严格             | 常通过旋转与重新着色维护      |       |             |
-| 典型特点 | 查找性能优秀             | 插入、删除时维护成本通常更灵活   |       |             |
+注意这里说的是**渐近复杂度保证**。红黑树不要求每个结点左右子树高度差都不超过 1，所以它通常没有 AVL 那样“矮”。
+
+### 15.3 插入与删除维护思想
+
+红黑树先按 BST 规则完成结构修改，再通过：
+
+* 重新着色；
+* 左旋；
+* 右旋；
+
+恢复红黑性质。
+
+408 复习中更重要的是理解红黑树性质及复杂度，而不是机械背完整修复代码。
+
+### 15.4 AVL 与红黑树比较
+
+| 特性 | AVL | 红黑树 |
+| --- | --- | --- |
+| 本质 | BST | BST |
+| 平衡方式 | 直接限制左右子树高度差 | 通过颜色与黑高约束近似平衡 |
+| 局部条件 | 任意结点满足 $|BF|\le1$ | 无连续红结点、各路径黑高一致等 |
+| 树高 | $O(\log n)$，通常更矮 | $O(\log n)$，高度上界更宽松 |
+| 查找 | 通常路径较短 | 同样保证 $O(\log n)$ |
+| 插入/删除维护 | 平衡约束严格，可能需要更多高度维护 | 常结合旋转与重新着色，更新更灵活 |
+| 典型取舍 | 更强调查找路径短 | 更强调动态更新下的综合性能 |
 
 > **易混淆点**
 >
-> AVL 和红黑树都首先是 **BST**。
+> AVL 与红黑树都首先是 **BST**，所以二者都满足：
 >
-> 因此它们都满足：
+> **中序遍历得到关键字有序序列。**
 >
-> **中序遍历得到有序序列。**
+> 但“是 BST”并不自动意味着“平衡”；普通 BST 仍可能退化到高度 $O(n)$。
 
 ---

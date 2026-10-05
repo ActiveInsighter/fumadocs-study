@@ -5,148 +5,187 @@ description: "查找章节高频易错点、方法总表与真题复习索引。
 
 ## 12. 本章高频易错点
 
-#### 折半查找
+### 12.1 顺序查找与折半查找
 
-* 必须基于有序表；
-* 适合可以随机访问的顺序存储结构；
-* 普通链表不适合直接做高效折半查找；
-* 偶数个元素时左右中点选择会影响判定树形状。
+* 顺序查找对有序性、存储方式要求最低，平均时间为 $O(n)$；
+* 折半查找必须建立在**有序表**上，并且需要高效随机访问中间位置；
+* 普通链表即使有序，也不适合直接实现高效的标准折半查找；
+* 元素个数为偶数时，取左中点还是右中点会改变具体判定树形状和部分结点的比较次数；
+* 计算失败 ASL 时，要看题目采用的判定树/外部结点口径。
 
-#### B 树
+### 12.2 B 树
 
-牢记：
+$m$ 阶 B 树最先记住：
 
 $$
-m\text{ 阶}
-\Rightarrow
 \text{最多 }m\text{ 棵子树}
 $$
 
+因此一个结点最多有：
+
 $$
-\Rightarrow
-\text{最多 }m-1\text{ 个关键字}
+m-1
 $$
 
-非根结点的最少关键字数为：
+个关键字。
+
+除根结点外，非叶结点至少有：
+
+$$
+\left\lceil\frac m2\right\rceil
+$$
+
+棵子树，因此至少有：
 
 $$
 \left\lceil\frac m2\right\rceil-1
 $$
 
-插入的核心：
+个关键字。
+
+插入的核心链条：
 
 ```text
-叶结点插入
-→ 溢出
-→ 分裂
+定位叶结点
+→ 插入关键字
+→ 溢出则分裂
 → 中间关键字上移
+→ 必要时向根继续传播
 ```
 
-删除的核心：
+删除的核心链条：
 
 ```text
-不足
-→ 能借则借
-→ 不能借则合并
+删除关键字
+→ 结点下溢？
+├─ 否：结束
+└─ 是：兄弟够借？
+   ├─ 是：借关键字并经父结点调整
+   └─ 否：与兄弟合并，必要时向上继续处理
 ```
 
-#### B+ 树
+### 12.3 B+ 树
 
-核心不是死记关键字数，而是抓住：
+B+ 树不要只背阶数公式，应先抓住结构本质：
 
 ```text
 内部结点：索引
-叶结点：数据
-叶结点之间：有序链表
+叶结点：保存完整数据/记录指针
+叶结点之间：按关键字有序链接
 ```
 
-查找实际记录必须到达叶结点。
+因此：
 
-#### 散列表
+* 查找实际记录最终必须到达叶结点；
+* 内部结点出现的关键字可以在叶结点再次出现；
+* 顺序遍历叶链非常适合范围查询。
 
-散列函数：
+### 12.4 散列表
+
+散列表中最容易混淆的两个角色：
 
 ```text
-负责确定初始地址
+散列函数
+→ 决定初始散列地址
+
+冲突处理方法
+→ 初始位置冲突后决定下一步去哪里
 ```
 
-冲突处理方法：
+开放定址删除不能把槽位直接恢复为普通空槽，通常需要 `DELETED` 墓碑，否则可能提前截断其他元素的探测路径。
 
-```text
-负责初始地址被占用以后去哪里
-```
-
-二者不要混为一谈。
-
-#### 开放定址删除
-
-不能直接恢复成普通空槽。
-
-通常需要：
-
-```text
-DELETED
-```
-
-标记，否则可能破坏后续元素的查找路径。
-
-#### ASL
-
-最重要的区别：
+ASL 的平均对象必须分清：
 
 ```text
 成功 ASL
-→ 对已有元素求平均
+→ 对已存元素的成功查找长度求平均
 
 失败 ASL
-→ 对可能的初始散列地址求平均
+→ 对题目规定的可能初始地址/失败入口求平均
 ```
 
-失败查找最后遇到空槽：
+若失败查找必须访问一个空槽才能确认不存在，则**最后访问空槽的那一次也计入查找长度**。
 
-> **空槽对应的那一次探测也要计算。**
+### 12.5 一眼排错表
+
+| 看到的说法 | 判断 |
+| --- | --- |
+| “折半查找只要有序即可高效使用” | 错，还要求能高效定位中点 |
+| “$m$ 阶 B 树每个结点最多 $m$ 个关键字” | 错，最多 $m-1$ 个 |
+| “B+ 树查找命中内部结点关键字即可取得记录” | 通常错，记录查找需到叶结点 |
+| “开放定址删除后直接置空” | 错，可能破坏探测链 |
+| “失败 ASL 的分母永远等于散列表长度” | 错，要看初始地址值域/题设状态 |
+| “散列表最坏查找一定是 $O(1)$” | 错，严重冲突可退化为 $O(n)$ |
+| “拉链法装填因子不能大于 1” | 错，拉链法允许 $\alpha>1$ |
 
 ---
 
 ## 13. 查找方法总表
 
-| 方法   | 基本思想       | 结构要求   | 平均效率             | 主要考点        |
-| ---- | ---------- | ------ | ---------------- | ----------- |
-| 顺序查找 | 逐个比较       | 无特殊要求  | $O(n)$         | ASL、适用条件    |
-| 折半查找 | 每次舍弃一半     | 有序顺序表  | $O(\log n)$    | 判定树、比较次数    |
-| 分块查找 | 先查块，再查块内   | 块间有序   | 介于两者之间           | 索引表、ASL     |
-| BST  | 利用左小右大     | 二叉搜索树  | 平均 $O(\log n)$ | 树高决定效率      |
-| AVL  | 保持高度平衡     | 平衡 BST | $O(\log n)$    | 平衡调整        |
-| 红黑树  | 弱平衡        | 红黑树    | $O(\log n)$    | 高度有界        |
-| B 树  | 多路平衡查找     | 多路平衡树  | $O(\log n)$    | 阶数、插入、删除    |
-| B+ 树 | 内部索引、叶子存数据 | 多路平衡树  | $O(\log n)$    | 与 B 树比较     |
-| 散列表  | 关键字直接映射地址  | 散列函数   | 平均 $O(1)$      | 冲突、ASL、装填因子 |
+| 方法 | 核心思想 | 主要前提/结构 | 典型平均性能 | 408 高频考点 |
+| --- | --- | --- | --- | --- |
+| 顺序查找 | 逐个比较 | 无特殊要求 | $O(n)$ | 成功/失败 ASL、哨兵 |
+| 折半查找 | 每次排除约一半 | 有序顺序表 | $O(\log n)$ | 判定树、比较次数、失败结点 |
+| 分块查找 | 先查索引，再查块内 | 块间有序 | 介于顺序与折半之间 | 分块方式、ASL |
+| BST | 利用左小右大 | 二叉搜索树 | 取决于树高 | 查找路径、插入删除 |
+| AVL | 严格控制高度差 | 平衡 BST | $O(\log n)$ | LL/RR/LR/RL 调整 |
+| 红黑树 | 维持近似平衡 | 红黑树 | $O(\log n)$ | 性质、高度上界 |
+| B 树 | 多路平衡查找 | 多路平衡树 | $O(\log n)$ | 阶、关键字界、分裂合并 |
+| B+ 树 | 内部索引、叶层存数据并串链 | 多路平衡树 | $O(\log n)$ | 与 B 树比较、范围查询 |
+| 散列表 | 关键字直接映射地址 | 散列函数 + 冲突处理 | 平均接近 $O(1)$ | 探测序列、ASL、装填因子 |
+
+### 13.1 结构选择的统一思路
+
+遇到“应该选择什么查找结构”类题，可以按需求逐层判断：
+
+```text
+数据规模小 / 无序 / 结构简单
+→ 顺序查找
+
+有序 + 顺序存储 + 静态查询多
+→ 折半查找
+
+动态有序集合，主要在内存中
+→ BST / AVL / 红黑树
+
+数据量大、外存 I/O 成本高
+→ B 树 / B+ 树
+
+只关心按 key 精确查询，且可接受无序存储
+→ 散列表
+```
+
+<Callout type="info" title="复杂度相同，不代表适用场景相同">
+
+AVL、红黑树、B/B+ 树的渐近查找复杂度都可写成 $O(\log n)$，但 AVL 更强调严格平衡，红黑树更适合频繁动态更新，B/B+ 树则通过高分支数降低外存访问层数。
+
+</Callout>
 
 ---
 
 ## 14. 408 真题与原始配套资源
 
-### 数组查找
+### 14.1 数组查找
 
 视频：
 
 * [顺序和折半查找](https://www.bilibili.com/cheese/play/ep2796770)
 * [分块查找](https://www.bilibili.com/cheese/play/ep2796771)
 
-相关选择题：
-
-* [2010 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2010/#9)
-* [2015 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2015/#7)
-* [2016 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2016/#9)
-* [2023 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2023/#8)
-* [2024 年第 5 题](https://www.csgraduates.com/study_methods/408quiz/2024/#5)
-* [2025 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2025/#7)
+> **真题考察**
+>
+> * [2010 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2010/#9)
+> * [2015 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2015/#7)
+> * [2016 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2016/#9)
+> * [2023 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2023/#8)
+> * [2024 年第 5 题](https://www.csgraduates.com/study_methods/408quiz/2024/#5)
+> * [2025 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2025/#7)
 
 原始专题：
 
 * [数组查找](https://www.csgraduates.com/data_structure/search/array/)
 
-### B 树与 B+ 树
+### 14.2 B 树与 B+ 树
 
 视频：
 
@@ -156,23 +195,23 @@ DELETED
 * [B 树删除](https://www.bilibili.com/cheese/play/ep2796785)
 * [B+ 树](https://www.bilibili.com/cheese/play/ep2796786)
 
-B 树相关选择题：
+> **B 树真题考察**
+>
+> * [2009 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2009/#8)
+> * [2012 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2012/#9)
+> * [2013 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2013/#10)
+> * [2014 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2014/#9)
+> * [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
+> * [2018 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2018/#8)
+> * [2020 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2020/#10)
+> * [2022 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2022/#8)
+> * [2023 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2023/#7)
+> * [2025 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2025/#8)
 
-* [2009 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2009/#8)
-* [2012 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2012/#9)
-* [2013 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2013/#10)
-* [2014 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2014/#9)
-* [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
-* [2018 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2018/#8)
-* [2020 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2020/#10)
-* [2022 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2022/#8)
-* [2023 年第 7 题](https://www.csgraduates.com/study_methods/408quiz/2023/#7)
-* [2025 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2025/#8)
-
-B+ 树相关选择题：
-
-* [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
-* [2017 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2017/#9)
+> **B+ 树真题考察**
+>
+> * [2016 年第 10 题](https://www.csgraduates.com/study_methods/408quiz/2016/#10)
+> * [2017 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2017/#9)
 
 原始专题：
 
@@ -182,7 +221,7 @@ B 树交互演示：
 
 * [B-Tree Visualization](https://www.cs.usfca.edu/~galles/visualization/BTree.html)
 
-### 散列表
+### 14.3 散列表
 
 视频：
 
@@ -194,22 +233,27 @@ B 树交互演示：
 * [查找成功的平均查找长度](https://www.bilibili.com/cheese/play/ep2807351)
 * [查找失败的平均查找长度](https://www.bilibili.com/cheese/play/ep2807349)
 
-相关选择题：
-
-* [2011 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2011/#9)
-* [2014 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2014/#8)
-* [2018 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2018/#9)
-* [2019 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2019/#8)
-* [2022 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2022/#9)
-* [2023 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2023/#9)
-* [2025 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2025/#9)
-
-相关综合题：
-
-* [2010 年第 41 题](https://www.csgraduates.com/study_methods/408quiz/2010/#41)
-* [2013 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2013/#42)
-* [2024 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2024/#42)
+> **真题考察**
+>
+> * [2011 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2011/#9)
+> * [2014 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2014/#8)
+> * [2018 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2018/#9)
+> * [2019 年第 8 题](https://www.csgraduates.com/study_methods/408quiz/2019/#8)
+> * [2022 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2022/#9)
+> * [2023 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2023/#9)
+> * [2025 年第 9 题](https://www.csgraduates.com/study_methods/408quiz/2025/#9)
+> * [2010 年第 41 题](https://www.csgraduates.com/study_methods/408quiz/2010/#41)
+> * [2013 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2013/#42)
+> * [2024 年第 42 题](https://www.csgraduates.com/study_methods/408quiz/2024/#42)
 
 原始专题：
 
 * [散列表查找](https://www.csgraduates.com/data_structure/search/hash/)
+
+---
+
+<Callout type="info" title="本章最终复习顺序">
+
+建议最后按 **折半查找判定树 → B 树性质与分裂合并 → B+ 树差异 → 散列表探测过程 → 成功/失败 ASL** 的顺序复习。选择题先抓定义边界，计算题再严格按题目给定的下标、阶数、探测规则和计数口径作答。
+
+</Callout>

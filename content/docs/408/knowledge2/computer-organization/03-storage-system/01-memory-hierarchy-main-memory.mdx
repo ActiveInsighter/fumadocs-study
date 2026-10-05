@@ -1,471 +1,513 @@
 ---
 title: "存储层次与主存组织"
-description: "第 3 章 存储系统：存储层次与主存组织。存储层次、主存组织、Cache、虚拟存储器、磁盘、RAID 与 SSD。"
+description: "第 3 章 存储系统：存储层次、SRAM/DRAM、ROM/Flash、多模块存储器与主存芯片扩展。"
 ---
 
-存储系统的核心目标，是在**速度、容量和成本**之间取得平衡。408 对本章的考查通常不是孤立记忆某个器件，而是把**主存组织、Cache、页表/TLB、虚拟地址到物理地址转换**串成一条完整访存链路。
+存储系统的本质，是用**层次化结构**同时追求“快、大、便宜”。408 在本章很少只考器件名词，更常把**主存组织、Cache、TLB、页表与地址位数**放进同一道题。
 
-> **408 复习主线**
+<Callout type="info" title="本章统一做题主线">
+
+遇到存储系统综合题，按下面顺序拆解：
+
+1. 先确认**编址单位**：按字节、按字还是按其他单位；
+2. 再确认**容量与位宽**：地址位数、数据位数、块/页大小；
+3. 判断当前层次解决的是**容量问题**还是**速度问题**；
+4. 地址划分一律从**最低位偏移**开始，再算索引，最后剩余高位是 Tag；
+5. TLB Miss、Page Fault、Cache Miss 分属不同层次，绝不能混为一谈。
+
+</Callout>
+
+> **真题覆盖**
 >
-> 1. 先掌握 SRAM、DRAM、ROM/Flash 的基本特性，以及 DRAM 的行列复用与刷新。
-> 2. 再掌握主存的多体交叉与芯片扩展，尤其是地址线、数据线和片选线的分工。
-> 3. Cache 是本章第一核心：映射方式、地址划分、替换算法、写策略必须会计算。
-> 4. 虚拟存储器是第二核心：页表、TLB、缺页异常和 Cache 要能连成完整流程。
-> 5. 磁盘部分重点掌握 CHS、平均存取时间、数据传输率；RAID 和 SSD 以概念辨析为主。
+> - SRAM/DRAM 与刷新：2010 Q16、2010 Q22、2011 Q14、2011 Q15、2015 Q17、2026 Q15。
+> - 主存芯片扩展与多体存储：2009 Q15、2010 Q15、2014 Q15、2015 Q18、2016 Q16、2017 Q13、2018 Q17、2021 Q15、2022 Q17、2026 Q15；2012 Q43 为综合题。
+>
+> 题号用于定位考查范围。
 
-## 1. 存储层次与基本存储器
+---
 
-### 1.1 存储系统的层次结构
-
-计算机不会只使用一种存储器。越靠近 CPU 的存储器通常越快、越贵、容量越小；越远离 CPU，容量越大、单位成本越低，但访问速度越慢。
+## 1. 存储层次、局部性与命中
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-001.svg" alt="存储系统层次结构" />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-002.svg" alt="RAM 基本特性" />
 
-典型层次从上到下为：
+典型存储层次可概括为：
 
-* 寄存器（Registers）
-* L1 Cache
-* L2 Cache
-* L3 Cache
-* 主存（DRAM）
-* 本地辅助存储，如 SSD、HDD
-* 更远端的辅助存储，如分布式文件系统、远程存储
+```text
+寄存器
+  ↓
+L1 / L2 / L3 Cache
+  ↓
+主存 DRAM
+  ↓
+SSD / HDD 等辅助存储
+```
 
-它们之间遵循一个非常重要的思想：**上一层可以看作下一层的高速缓冲**。
+一般越靠近 CPU：
 
-| 层次    | 典型实现       | 容量 | 速度 | 主要管理者     |
-| ----- | ---------- | -- | -- | --------- |
-| 寄存器   | 触发器        | 极小 | 最快 | 编译器、CPU   |
-| Cache | SRAM       | 小  | 很快 | 硬件        |
-| 主存    | DRAM       | 大  | 较慢 | 硬件 + 操作系统 |
-| 辅存    | Flash / 磁盘 | 很大 | 更慢 | 操作系统、文件系统 |
+- 速度越快；
+- 容量越小；
+- 单位容量成本越高。
 
-> **不要死记现代硬件的具体纳秒数。** 原资料给出的寄存器、Cache、DRAM、SSD、HDD 延迟只能用于建立数量级直觉；408 更重视相对快慢、层次关系和计算模型。
+越远离 CPU，则趋势相反。
 
-Cache—主存层次主要解决 **CPU 与主存的速度差距**，通常由硬件自动管理；主存—辅存层次主要解决 **主存容量不足**，核心机制是虚拟存储器，由硬件与操作系统协同完成。
+上一层通常保存下一层中**近期最可能被访问的一部分内容**。这一思想能成立，根本依据是程序的**局部性**：
+
+- **时间局部性**：刚访问过的数据/指令，短期内可能再次访问；
+- **空间局部性**：刚访问某地址后，其附近地址可能很快被访问。
+
+<Callout type="warning" title="速度层次与容量层次不要混淆">
+
+- Cache—主存主要缓解 **CPU 与 DRAM 的速度差距**，核心管理通常由硬件完成；
+- 主存—辅存主要扩展**可见地址空间与有效容量**，虚拟存储需要 MMU 与操作系统协同。
+
+</Callout>
 
 ---
 
-### 1.2 RAM：随机存取存储器
-
-<InlineSvg src="/images/computer-organization/computer-organization-storage-defs-002.svg" alt="RAM 基本特性" />
-
-RAM（Random-Access Memory）是半导体随机存取存储器。这里的“随机存取”是指：只要给定地址，就能直接访问相应位置，不必像磁带那样依次经过前面的数据。
-
-RAM 通常具有以下特点：
-
-* 支持随机访问；
-* 可读可写；
-* 主流 RAM 为易失性存储器，断电后数据丢失；
-* SRAM 与 DRAM 是 408 最重要的两类 RAM。
-
-#### 1.2.1 SRAM
+## 2. SRAM：高速、无需刷新，但仍然易失
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-003.svg" alt="SRAM 存储单元" />
 
-SRAM（Static RAM）使用双稳态触发器保存 1 bit 数据，经典单元通常采用 6 个晶体管，因此具有：
+SRAM（Static RAM）用双稳态电路保存状态，经典单元常用 6T 结构。
 
-* 只要不断电，状态即可稳定保持；
-* 不需要周期性刷新；
-* 速度快；
-* 集成度相对低；
-* 单位容量成本较高。
+主要特征：
 
-典型用途是 CPU 的 Cache，以及其他容量较小但要求高速的片上存储结构。
+- 不需要周期性刷新；
+- 访问速度快；
+- 集成度较低；
+- 单位容量成本高；
+- 断电后数据仍会丢失。
 
-#### 1.2.2 DRAM
+因此 SRAM 常用于 Cache、片上高速缓冲等容量较小但性能要求高的场景。
+
+| 对比项 | SRAM |
+| --- | --- |
+| 基本单元 | 双稳态电路，经典 6T |
+| 是否刷新 | 不需要 |
+| 易失性 | 易失 |
+| 速度 | 快 |
+| 集成度 | 较低 |
+| 典型用途 | Cache |
+
+<Callout type="warning" title="“Static” 不等于“Non-volatile”">
+SRAM 的“静态”只表示**只要持续供电就不需要刷新**，并不表示断电后仍能保存数据。
+</Callout>
+
+---
+
+## 3. DRAM：1T1C、行列组织与刷新
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-004.svg" alt="DRAM 1T1C 存储单元" />
 
-DRAM（Dynamic RAM）通常采用“1 个晶体管 + 1 个电容”的 1T1C 单元。电容上的电荷表示 0 或 1。
+DRAM（Dynamic RAM）典型单元为“1 个晶体管 + 1 个电容”，用电容电荷表示 0/1。
 
-其特点是：
+主要特征：
 
-* 单元结构简单，集成度高；
-* 单位容量成本低；
-* 适合构成大容量主存；
-* 电容会漏电，因此必须刷新；
-* 速度通常慢于 SRAM。
+- 集成度高；
+- 单位容量成本低；
+- 适合构成大容量主存；
+- 电容会漏电，需要周期性刷新；
+- 访问速度通常慢于 SRAM。
 
-##### 二维阵列与行、列地址
+### 3.1 二维阵列与完整地址
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-005.svg" alt="DRAM 行列地址结构" />
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-006.svg" alt="DRAM 位平面、Cell 与可寻址单元" />
 
-理解 DRAM 内部组织时，要区分三个概念：
-
-* **Cell（存储单元）**：实际保存 1 bit 的基本单元；
-* **Bit Plane（位平面）**：由大量 Cell 组成的二维阵列，一个位平面负责一个数据位；
-* **Addressable Location（可寻址单元）**：相同行、列位置上的多个位平面 Cell 同时被选中，共同构成一次读出的多 bit 数据。
-
-若一个位平面有 R 行、C 列，则定位一个 Cell 所需的完整地址位数为：
+若一个 DRAM 位平面有 $R$ 行、$C$ 列，则定位某个 Cell 所需的完整地址信息为
 
 $$
-\log_2 R+\log_2 C
+\log_2R+\log_2C
 $$
 
-例如，一个 64K × 4 bit 的 DRAM 可以把每个位平面组织成 256 × 256：
+例如 64K 个位置：
 
 $$
 64K=2^{16}=2^8\times2^8
 $$
 
-因此完整地址需要 16 bit，其中 8 bit 行地址、8 bit 列地址；4 个位平面同时输出，得到 4 bit 数据。
+可组织成 $256\times256$，完整定位需要 16 bit，其中行、列各 8 bit。
 
-> **易错点：** DRAM 的“行地址 + 列地址”是芯片内部定位方式，不等于 CPU 看到的“物理地址字段”。CPU 地址要先经过存储控制器，再形成芯片所需的行、列控制信号。
+若芯片规格为 `64K × 4 bit`，可以理解为 4 个位平面同时在相同行列位置输出，共组成 4 bit 数据。
 
-##### 行列地址复用
+### 3.2 行列地址复用
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-007.svg" alt="DRAM 行列地址复用" />
 
-DRAM 为减少芯片地址引脚数量，常把**同一组地址引脚分两次使用**：
+DRAM 为减少地址引脚，常让**同一组引脚分两次传输地址**：
 
-1. 先送行地址，并由 RAS 锁存；
-2. 再送列地址，并由 CAS 锁存。
+1. 先送行地址并锁存；
+2. 再送列地址并锁存。
 
-若阵列有 R 行、C 列，则复用后外部地址引脚数量只需满足：
-
-$$
-\max\left(\log_2 R,\log_2 C\right)
-$$
-
-例如 64K × 4 bit、内部 256 × 256 的芯片，完整地址是 16 bit，但只需 8 根复用地址引脚。
-
-再如 16M × 4 bit，若组织为 4K × 4K：
+若阵列为 $R\times C$，复用后地址引脚至少需要
 
 $$
-16M=2^{24}=2^{12}\times2^{12}
+\max(\log_2R,\log_2C)
 $$
 
-完整地址共 24 bit，但复用后只需 12 根地址引脚。
+例如内部为 $256\times256$，虽然完整地址有 16 bit，但复用后只需要 8 根地址引脚。
 
-SRAM 内部也可能采用二维阵列，但为了追求速度，典型 SRAM 接口不会像 DRAM 那样依赖 RAS/CAS 分时复用来接收完整地址。
+<Callout type="warning" title="地址信息量 ≠ 地址引脚数">
+DRAM 仍然需要完整的行、列地址信息，只是通过**分时复用**减少外部引脚数量。不能因为只有 8 根地址引脚，就认为只能表示 $2^8$ 个存储位置。
+</Callout>
 
-##### DRAM 刷新
+### 3.3 DRAM 刷新
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-008.svg" alt="DRAM 刷新原理" />
-
-DRAM 电容会漏电，所以必须在规定的刷新周期内把每一行重新恢复一次。刷新可以理解为：
-
-**读出一行 → 感应放大 → 写回同一行。**
-
-刷新通常按**行**进行，而不是按单个 Cell 或整个芯片一次完成。
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-009.svg" alt="DRAM 三种刷新方式" />
 
-常见刷新方式如下：
+刷新本质上是重新恢复逐渐衰减的电荷。教材模型通常按**行**刷新，而不是逐 Cell 刷新。
 
-| 刷新方式 | 基本做法                 | 特点                    |
-| ---- | -------------------- | --------------------- |
-| 集中刷新 | 在一段连续“死区”内集中刷新所有行    | 控制简单，但 CPU 可能连续等待较长时间 |
-| 分散刷新 | 每个存取周期中安排一次普通访问与一次刷新 | 无长死区，但刷新频繁，平均存取性能受影响  |
-| 异步刷新 | 均匀地周期性刷新一行           | 折中方案，等待窗口较短           |
+常见三种刷新方式：
 
-若刷新周期为 T，芯片共有 N 行，则异步刷新中相邻两次单行刷新之间的时间间隔近似为：
+| 方式 | 做法 | 特点 |
+| --- | --- | --- |
+| 集中刷新 | 在一段连续时间内刷新全部行 | 有明显“死区” |
+| 分散刷新 | 每个存取周期都安排刷新 | 无长死区，但频繁占用周期 |
+| 异步刷新 | 在刷新周期内均匀刷新各行 | 折中方案，408 最常计算 |
+
+若刷新周期为 $T$，共有 $N$ 行，则异步刷新中相邻两次单行刷新间隔约为
 
 $$
 \frac{T}{N}
 $$
 
-#### 1.2.3 SRAM 与 DRAM 对比
+---
+
+## 4. SRAM 与 DRAM 高频对比
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-010.svg" alt="SRAM 与 DRAM 对比" />
 
-| 对比项    | SRAM         | DRAM      |
-| ------ | ------------ | --------- |
-| 基本单元   | 双稳态触发器，经典 6T | 1T1C      |
-| 是否刷新   | 不需要          | 需要        |
-| 速度     | 快            | 较慢        |
-| 集成度    | 较低           | 高         |
-| 单位容量成本 | 高            | 低         |
-| 典型用途   | Cache        | 主存        |
-| 地址接口   | 通常一次给出完整地址   | 常采用行列地址复用 |
+| 对比项 | SRAM | DRAM |
+| --- | --- | --- |
+| 经典基本单元 | 6T 双稳态电路 | 1T1C |
+| 是否刷新 | 否 | 是 |
+| 速度 | 快 | 较慢 |
+| 集成度 | 较低 | 高 |
+| 单位容量成本 | 高 | 低 |
+| 地址接口 | 通常一次给出完整地址 | 常采用行列地址复用 |
+| 典型用途 | Cache | 主存 |
+| 断电保持 | 否 | 否 |
 
-> **408 高频辨析：** “静态/动态”描述的是是否需要刷新，不是“是否易失”。SRAM 和 DRAM 都属于易失性存储器。
+记忆关键词：
 
-**原资料真题索引：** 2010 Q16、2010 Q22、2011 Q14、2011 Q15、2015 Q17、2026 Q15。
+```text
+SRAM：快、贵、无需刷新 → Cache
+DRAM：密、便宜、要刷新 → 主存
+```
 
 ---
 
-### 1.3 ROM 与非易失性存储器
+## 5. ROM、EEPROM 与 Flash
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-011.svg" alt="ROM 基本特性" />
-
-ROM（Read-Only Memory）强调**非易失性和以读为主**。断电后内容仍能保存，常用于固件、启动程序和嵌入式控制程序。
-
-“只读”不能机械理解成“任何 ROM 都永远无法改写”。不同 ROM 家族的可编程能力不同，有些只能制造时写入，有些可通过专门方式擦除和重写。
-
-#### 1.3.1 RAM 与 ROM
-
-| 对比项  | RAM      | ROM / ROM 家族中的非易失存储 |
-| ---- | -------- | ------------------- |
-| 随机访问 | 支持       | 通常也支持               |
-| 读写   | 可频繁随机读写  | 以读为主，写入受限或更慢        |
-| 断电   | 数据通常丢失   | 数据保留                |
-| 典型用途 | 运行时程序与数据 | 固件、启动代码、配置等         |
-
-> **易错点：** RAM 与 ROM 都可以“随机访问”。RAM 的 R 是 Random，不是 Read。
-
-#### 1.3.2 MROM
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-012.svg" alt="MROM" />
-
-MROM（Mask ROM）在芯片制造阶段通过掩膜固定内容，出厂后无法修改。适合需求固定、批量很大的产品。
-
-#### 1.3.3 PROM
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-013.svg" alt="PROM" />
-
-PROM（Programmable ROM）出厂时为空白，由用户一次性烧录；写入后通常不可恢复，因此属于 OTP（One-Time Programmable）。
-
-#### 1.3.4 EPROM
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-014.svg" alt="EPROM" />
-
-EPROM（Erasable Programmable ROM）可使用紫外线照射擦除，再通过编程器写入。一般需要整片擦除，并且操作较慢、较繁琐。
-
-#### 1.3.5 EEPROM
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-015.svg" alt="EEPROM" />
 
-EEPROM（Electrically Erasable Programmable ROM）使用电信号擦除和编程，不必像 EPROM 那样使用紫外线。它可在电路中更新，传统 EEPROM 常支持较细粒度、甚至按字节擦写，但写入速度明显慢于普通 RAM，擦写次数也有限。
+ROM 家族强调**非易失性**和“以读为主”，但不同类型的可改写能力差异很大。
 
-#### 1.3.6 Flash
+| 类型 | 写入/擦除方式 | 是否可重复改写 |
+| --- | --- | --- |
+| MROM | 制造时固定 | 否 |
+| PROM | 用户一次烧录 | 通常否 |
+| EPROM | 紫外线擦除后重写 | 是 |
+| EEPROM | 电擦除、电写入 | 是 |
+| Flash | 电擦除，通常按块组织 | 是 |
+
+### 5.1 RAM 与 ROM 的关键差异
+
+RAM 与 ROM **都可以随机访问**。主要区别不在“能否按地址直接访问”，而在：
+
+- 是否易失；
+- 写入是否频繁、方便；
+- 典型使用场景。
+
+<Callout type="warning" title="RAM 的 R 是 Random，不是 Read">
+“ROM 能不能随机访问”是经典陷阱。ROM 通常也支持按地址直接读取。
+</Callout>
+
+### 5.2 Flash
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-016.svg" alt="Flash 存储器" />
 
-Flash 是电可擦写的非易失性半导体存储器，可看作 EEPROM 技术发展的重要分支。与传统 EEPROM 相比，它更强调**按块擦除、高密度和较低单位容量成本**。
+Flash 是可电擦写的非易失性半导体存储器，通常具有：
 
-常见用途包括：
+- 高密度；
+- 按块擦除；
+- 写入/擦除慢于读取；
+- 擦写次数有限。
 
-* SSD；
-* U 盘；
-* SD 卡；
-* 手机、嵌入式设备存储；
-* BIOS / UEFI 固件存储。
+常见应用：
 
-> **408 语境：** 许多教材把 Flash 放在 ROM 家族中讲解，因此考试时按教材分类作答即可；从技术特性看，它是**可反复改写的非易失性存储器**，不能理解成真正“一次写死”的只读存储器。
+- SSD；
+- U 盘；
+- SD 卡；
+- 手机和嵌入式存储；
+- BIOS / UEFI 固件存储。
 
-Flash 的擦写寿命有限，具体次数随存储单元类型、工艺和控制策略而变化，不应把某一个数量级当成绝对常数。
+Flash 在 408 教材中常被放入 ROM 家族讨论，但它并不是“一次写死”。
 
-#### 1.3.7 CD-ROM
+### 5.3 CD-ROM
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-defs-017.svg" alt="CD-ROM" />
 
-CD-ROM 是光学只读存储介质，生产时写入，用户通常只能读取。它属于**辅助存储器**，并不是半导体 ROM。其容量典型约数百 MB，访问依赖光盘旋转和光学读取，速度远低于半导体存储器。
+CD-ROM 是**光学只读辅助存储介质**，不是半导体 ROM。它应归入外存/辅存层次理解。
 
 ---
 
-## 2. 主存组织：多模块存储器与容量扩展
+## 6. 单体多字存储器：一次取更宽的数据
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-001.svg" alt="多模块存储器整体分类" />
-
-多模块存储器有两类主要目标：
-
-* **提高带宽或一次访问的数据量**：单体多字、多体交叉；
-* **扩大主存容量或字长**：位扩展、字扩展、字位扩展。
-
-> **先判断题目在问“性能”还是“容量”。** 多体交叉通常解决吞吐率；芯片位/字扩展解决容量和数据宽度。
-
-### 2.1 单体多字存储器
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-002.svg" alt="单体多字存储器" />
 
-普通存储器一次给出一个地址，返回一个 m bit 的存储字；单体多字存储器则让一个地址对应 n 个连续存储字，一次读出 n 个字，因此数据通路宽度可以达到：
+若一个普通存储器一次读出一个 $m$ bit 存储字，单体多字存储器可以让一次地址访问得到 $n$ 个连续字，则一次数据通路宽度可达
 
 $$
-nm\ \text{bit}
+nm\text{ bit}
 $$
 
-若顺序访问连续数据，理论数据带宽可以显著增加。
+它适合连续数据访问，但要注意：
 
-但它与“多个存储体独立并行接受不同地址请求”不同：单体多字更像是**一次取出更宽的一组连续数据**，并不意味着能独立处理 n 个随机请求。
+> 单体多字是“一次取出更宽的一组连续数据”，并不意味着多个存储体能够独立接受多个随机请求。
+
+因此它与多体交叉存储器的并行机制不同。
 
 ---
 
-### 2.2 多体交叉存储器
+## 7. 多体交叉：高位交叉与低位交叉
 
-多体交叉把主存划分为多个可以相对独立工作的存储体（Bank）。重点是两种编址方式。
+设主存被划分为 $m$ 个可相对独立工作的 Bank。
 
-#### 2.2.1 高位交叉编址
+### 7.1 高位交叉
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-003.svg" alt="高位交叉编址" />
-
-高位交叉中，**高位地址用于选择存储体，低位地址是体内地址**。因此连续地址往往集中在同一个存储体内。
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-004.svg" alt="高位交叉存储器结构" />
 
-以 4 个存储体、每体 n 个字为例：
+高位地址选择 Bank，低位地址选择体内位置。
 
-* M0 保存 0 到 n−1；
-* M1 保存 n 到 2n−1；
-* M2 保存 2n 到 3n−1；
-* M3 保存 3n 到 4n−1。
+结果是：
 
-所以访问一串连续地址时，它们会连续落入同一存储体，难以发挥多个 Bank 的并行性。
+- 一段连续地址往往先集中在同一个 Bank；
+- 适合模块化扩容；
+- 不利于连续地址并行访问。
 
-> 部分教材也把它称为“连续编址”。408 中真正用于提高连续访存吞吐率的重点是**低位交叉**。
+以 4 个 Bank、每体 $n$ 个字为例：
 
-#### 2.2.2 低位交叉编址
+```text
+M0：0 ~ n-1
+M1：n ~ 2n-1
+M2：2n ~ 3n-1
+M3：3n ~ 4n-1
+```
+
+### 7.2 低位交叉
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-005.svg" alt="低位交叉编址" />
-
-低位交叉中，**低位地址用于选择存储体，高位地址是体内地址**。因此连续地址被轮流分配到各存储体。
-
-以 4 体为例：
-
-* 地址 0、4、8、……在 M0；
-* 地址 1、5、9、……在 M1；
-* 地址 2、6、10、……在 M2；
-* 地址 3、7、11、……在 M3。
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-006.svg" alt="低位交叉存储器硬件结构" />
 
-如果存储体数为 m，则连续字地址 A 所在存储体可写为：
+低位地址选择 Bank，高位地址作为体内地址。
+
+若 Bank 数为 $m$，字地址为 $A$，则：
 
 $$
 \text{Bank}(A)=A\bmod m
 $$
 
-体内地址可写为：
-
 $$
-\left\lfloor\frac{A}{m}\right\rfloor
+\text{BankOffset}(A)=\left\lfloor\frac{A}{m}\right\rfloor
 $$
 
-#### 2.2.3 为什么低位交叉能提高带宽
+4 体低位交叉时：
+
+```text
+M0：0, 4, 8, 12, ...
+M1：1, 5, 9, 13, ...
+M2：2, 6, 10, 14, ...
+M3：3, 7, 11, 15, ...
+```
+
+因此连续地址会轮流落到不同 Bank，更利于流水并行。
+
+---
+
+## 8. 低位交叉的时间模型与带宽
 
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-007.svg" alt="单个存储体的存储周期" />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-memory-008.svg" alt="低位交叉连续访问时序" />
+<InlineSvg src="/images/computer-organization/computer-organization-storage-memory-009.svg" alt="多体交叉流水时序示意" />
 
-设一个存储体从开始一次访问，到能够再次接收新请求所需的最短时间为存储周期 T。
+设单个 Bank 的存储周期为 $T$，共有 $m$ 个低位交叉 Bank。
 
-若有 m 个低位交叉存储体，且请求连续、各 Bank 可以流水工作，则理想情况下相邻请求可每隔：
+若题目假设：
+
+- 连续访问；
+- 各 Bank 可并行工作；
+- 总线和控制器不构成瓶颈；
+
+则理想情况下，稳态可每隔约
 
 $$
 \frac{T}{m}
 $$
 
-发出一次。
+启动一次新的连续访问请求。
 
-<InlineSvg src="/images/computer-organization/computer-organization-storage-memory-008.svg" alt="低位交叉连续访问时序" />
+对于连续读取 $n$ 个字，典型教材模型常写成：
 
-因此稳态吞吐率理论上可以接近单体存储器的 m 倍，但**单个字自身的访问延迟并没有缩短为原来的 m 分之一**。
+$$
+T_{\text{total}}
+\approx
+T+(n-1)\frac{T}{m}
+$$
 
-> **高频易错点：** 多体交叉提高的是连续访问的**带宽/吞吐率**，不是把一个 Bank 的存储周期 T 变短。
+首个结果仍要经历一次完整访问，之后才体现流水吞吐。
 
-原资料还用 P1、P2、P3 三阶段描述一次访存：地址装入、内部读写、数据送出。当最耗时阶段可以与其他 Bank 的操作重叠时，就形成类似流水线的效果。
-
-<InlineSvg src="/images/computer-organization/computer-organization-storage-memory-009.svg" alt="多体交叉流水时序示意" />
+<Callout type="warning" title="多体交叉提高吞吐率，不等于单字延迟缩短">
+多体交叉主要让**不同 Bank 的访问重叠**。单个 Bank 自身的存储周期 $T$ 并没有变成 $T/m$。
+</Callout>
 
 ---
 
-### 2.3 主存容量扩展
+## 9. 存储芯片规格：先看“字数 × 字长”
+
+芯片规格 `M × N bit` 的含义是：
+
+- 共有 $M$ 个可寻址存储字；
+- 每个存储字宽 $N$ bit。
+
+因此芯片总容量为
+
+$$
+M\times N\text{ bit}
+$$
+
+做芯片扩展题时先问：
+
+1. 目标需要多少**字**？
+2. 每个字需要多少 **bit**？
+3. 当前芯片的“字数”和“字长”分别差多少倍？
+
+---
+
+## 10. 位扩展、字扩展与字位扩展
+
+### 10.1 位扩展：增加字长
+
+若目标字数不变，只需把每个字变宽，则多个芯片在**同一地址**下并行工作。
+
+例如用 `16K × 8 bit` 构成 `16K × 32 bit`：
+
+$$
+\frac{32}{8}=4
+$$
+
+需要 4 片并联。
+
+连接规律：
+
+- 地址线共用；
+- 通常同时片选；
+- 每片负责数据总线的一部分。
+
+### 10.2 字扩展：增加字数
+
+例如用 `16K × 8 bit` 构成 `64K × 8 bit`：
+
+$$
+\frac{64K}{16K}=4
+$$
+
+需要 4 片，数据位宽不变。
+
+每片内部有 $16K=2^{14}$ 个位置，因此低 14 位接芯片地址端；额外的高位用于片选。
+
+若总共 64K 个地址，需要 16 位地址：
+
+```text
+A15 A14 | A13 ... A0
+ 片选    | 片内地址
+```
+
+### 10.3 字位扩展
 
 ![存储芯片基本结构](/images/computer-organization/computer-organization-storage-memory-010.png)
-
-若芯片规格写成 M × N，含义是：**M 个存储字，每字 N bit**。
-
-扩展方式先看“字数够不够”和“字长够不够”：
-
-* 字数不变、字长增加：位扩展；
-* 字长不变、字数增加：字扩展；
-* 两者都增加：字位扩展。
-
-#### 2.3.1 位扩展
-
 ![位扩展法](/images/computer-organization/computer-organization-storage-memory-011.png)
-
-位扩展让多个芯片在**同一个地址**下并行输出不同的数据位。
-
-例如用 16K × 8 bit 芯片构成 16K × 32 bit 存储器，需要芯片数：
-
-$$
-\frac{16K\times32}{16K\times8}=4
-$$
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-014.svg" alt="16K×8 位扩展为 16K×32" />
-
-连接原则：
-
-* 4 片芯片的地址端接收相同的地址；
-* 4 片通常同时被片选；
-* 每片负责 32 bit 数据总线中的 8 bit；
-* 一次访问共同组成一个 32 bit 存储字。
-
-若最终存储器按字节编址，16K × 32 bit 的总容量是：
-
-$$
-16K\times4\text{ B}=64\text{ KB}
-$$
-
-因此 CPU 需要 16 bit 字节地址。低 2 bit 用于指出 32 bit 字内部的字节偏移，剩余地址用于定位 16K 个存储字。
-
-> **易错点：** 位扩展是“把一个存储字变宽”，不是“一个地址取出多个连续字”，所以不能把它和单体多字存储器混为一谈。
-
-#### 2.3.2 字扩展
-
 ![字扩展法](/images/computer-organization/computer-organization-storage-memory-012.png)
-
-字扩展用于增加可寻址字数。多个芯片的数据位宽相同，但各芯片负责不同的地址区间。
-
-例如用 16K × 8 bit 芯片构成 64K × 8 bit，需要：
-
-$$
-\frac{64K\times8}{16K\times8}=4
-$$
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-015.svg" alt="16K×8 字扩展为 64K×8" />
-
-64K × 8 bit 共需 16 bit 地址。每片内部只有 16K 个位置，因此芯片内部需要 14 bit 地址；剩余高 2 bit 可经译码器产生 4 路片选信号。
-
-可将地址空间理解为：
-
-| 高 2 位 | 被选芯片 | 地址范围        |
-| ----- | ---- | ----------- |
-| 00    | 芯片 0 | 0000H～3FFFH |
-| 01    | 芯片 1 | 4000H～7FFFH |
-| 10    | 芯片 2 | 8000H～BFFFH |
-| 11    | 芯片 3 | C000H～FFFFH |
-
-因此字扩展中最重要的连接规律是：**低位地址进芯片内部，高位地址负责片选。**
-
-#### 2.3.3 字位扩展
-
 ![字位扩展法](/images/computer-organization/computer-organization-storage-memory-013.png)
-
-字位扩展同时扩大字数和字长。
-
-例如用 16K × 8 bit 构成 32K × 16 bit：
-
-$$
-\frac{32K\times16}{16K\times8}=4
-$$
-
-可以理解为：
-
-* 先用 2 片并行完成 8 bit → 16 bit 的位扩展；
-* 再准备两组这样的 16K × 16 bit 组，用片选完成 16K → 32K 的字扩展。
-
 <InlineSvg src="/images/computer-organization/computer-organization-storage-memory-016.svg" alt="16K×8 字位扩展为 32K×16" />
 
-若系统按字节编址，则 32K × 16 bit 的总容量为：
+若字数和字长都要扩大，则分别计算两个倍数：
 
 $$
-32K\times2\text{ B}=64\text{ KB}
+N_{\text{chips}}
+=
+\frac{\text{目标字数}}{\text{单片字数}}
+\times
+\frac{\text{目标字长}}{\text{单片字长}}
 $$
 
-CPU 仍需要 16 bit 地址。其中低 1 bit 是 16 bit 字内部的字节偏移，芯片内部需要 14 bit 定位 16K 个字，剩余高位用于选择两组芯片。
+例如用 `16K × 8 bit` 构成 `32K × 16 bit`：
 
-> **做题模板**
->
-> 1. 先统一容量单位，判断是按字还是按字节编址。
-> 2. 算“横向需要几片”解决字长，即位扩展倍数。
-> 3. 算“纵向需要几组”解决字数，即字扩展倍数。
-> 4. 低位中的字节/字内偏移先扣除。
-> 5. 中间若干位接芯片地址端。
-> 6. 剩余高位用于片选译码。
-
-**原资料真题索引：** 选择题 2009 Q15、2010 Q15、2014 Q15、2015 Q18、2016 Q16、2017 Q13、2018 Q17、2021 Q15、2022 Q17、2026 Q15；综合题 2012 Q43。
+$$
+\frac{32K}{16K}\times\frac{16}{8}=2\times2=4
+$$
 
 ---
+
+## 11. 主存扩展题的地址线分配模板
+
+这是主存芯片题最稳定的解法。
+
+### 第一步：确定编址单位
+
+若按字节编址，一个 $W$ bit 存储字内部含
+
+$$
+\frac{W}{8}
+$$
+
+个字节，因此字内偏移位数为
+
+$$
+\log_2\frac{W}{8}
+$$
+
+例如 32 bit 字按字节编址：
+
+$$
+\log_2 4=2
+$$
+
+最低 2 位只选择一个字中的字节。
+
+### 第二步：确定芯片内部地址位
+
+若单片有 $M=2^k$ 个存储字，则需要 $k$ 位选择片内字。
+
+### 第三步：剩余高位做片选
+
+若纵向需要 $g$ 组，则至少需要
+
+$$
+\lceil\log_2g\rceil
+$$
+
+位参与片选译码。
+
+<Callout type="info" title="一套固定检查表">
+
+```text
+CPU 地址
+= 高位片选
++ 芯片内部地址
++ 最低位字内/字节偏移
+```
+
+先扣最低位偏移，再给芯片内部地址，最后才分配高位片选。这样最不容易把“字地址”和“字节地址”混淆。
+
+</Callout>
