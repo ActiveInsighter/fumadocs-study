@@ -1,9 +1,13 @@
 {
   "title": "第 2 章 数据的表示和运算",
   "pages": [
-    "01-number-systems-integers",
-    "02-floating-point",
-    "03-type-conversion"
+    "01-number-systems-coding",
+    "02-integer-representation-complement",
+    "03-arithmetic-circuits-flags",
+    "04-multiply-divide-alu",
+    "05-ieee754-representation",
+    "06-floating-point-arithmetic",
+    "07-type-conversion-review"
   ],
   "defaultOpen": false
 }

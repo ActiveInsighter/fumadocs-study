@@ -1,11 +1,14 @@
 {
   "title": "第 5 章 树与二叉树",
   "pages": [
-    "01-tree-basics",
-    "02-binary-tree",
-    "03-search-balanced-tree",
-    "04-huffman-coding",
-    "05-union-find-summary"
+    "01-tree-concepts-storage",
+    "02-tree-forest-conversion-traversal",
+    "03-binary-tree-properties-storage",
+    "04-binary-tree-traversal-threading-rebuild",
+    "05-bst",
+    "06-avl-redblack",
+    "07-huffman-coding",
+    "08-union-find-review"
   ],
   "defaultOpen": false
 }

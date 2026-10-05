@@ -785,7 +785,7 @@ jobs:
             console.log('[browser-check] Fumadocs multilingual code tabs rendered and switched to Java');
 
             const formattingPath =
-              '/docs/408/knowledge2/operating_system/05-io-management/02-buffer-allocation-spooling/';
+              '/docs/408/knowledge2/data-structure/01-introduction/01-basic-concepts/';
             await page.goto(base + formattingPath, {
               waitUntil: 'networkidle2',
               timeout: 120000,
@@ -798,12 +798,12 @@ jobs:
               }
 
               const expectedStrong = [
-                '缓冲区（Buffer）',
-                '磁盘高速缓存（Disk Cache）',
-                '循环缓冲（Circular Buffer）',
-                '缓冲池（Buffer Pool）',
-                'DCT（Device Control Table，设备控制表）',
-                'SPOOLing（Simultaneous Peripheral Operations On-Line）',
+                '数据（Data）',
+                '数据元素（Data Element）',
+                '数据项（Data Item）',
+                '数据对象（Data Object）',
+                '数据结构（Data Structure）',
+                '算法（Algorithm）',
               ];
               const strongTexts = Array.from(body.querySelectorAll('strong')).map(
                 (element) => element.textContent?.trim() ?? '',
