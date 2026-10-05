@@ -1,10 +1,15 @@
 {
   "title": "第 3 章 内存管理",
+  "description": "连续分配、分页与分段、虚拟内存、页框分配与回收、页面置换、内存映射文件及性能分析。",
   "pages": [
-    "01-contiguous-allocation",
-    "02-paging-segmentation-virtual",
-    "03-page-replacement",
-    "04-mmap-summary"
+    "01-memory-basics-contiguous",
+    "02-dynamic-partition-buddy",
+    "03-paging-address-translation",
+    "04-segmentation-segmented-paging",
+    "05-virtual-memory-demand-paging",
+    "06-frame-allocation-thrashing-performance",
+    "07-page-replacement-algorithms",
+    "08-mmap-review"
   ],
   "defaultOpen": false
 }

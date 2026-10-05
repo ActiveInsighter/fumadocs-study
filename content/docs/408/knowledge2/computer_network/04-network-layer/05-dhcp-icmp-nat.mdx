@@ -1,0 +1,198 @@
+---
+title: "4.5 DHCP、ICMP、ping/traceroute 与 NAT"
+description: "掌握 DHCP DORA、ICMP 差错/查询报文、ping 与 traceroute 的机制，以及 NAT/PAT 的地址和端口转换。"
+---
+
+这一节的四个协议/机制分别回答四个问题：
+
+```text
+DHCP：我刚入网，网络参数从哪来？
+ICMP：IP 转发出问题时怎么报告？
+ping/traceroute：如何诊断连通性和路径？
+NAT：私网地址如何共享公网地址？
+```
+
+> **真题标签**
+>
+> DHCP：2025 年第 36 题；2015、2022 年综合题。
+>
+> ICMP：2010 年第 36 题、2012 年第 33 题。
+>
+> NAT：2023 年第 38 题、2025 年第 37 题；2019、2020 年综合题。
+
+## 4.5.1 DHCP 能配置哪些参数
+
+DHCP（Dynamic Host Configuration Protocol）可自动分配：
+
+- IPv4 地址；
+- 子网掩码；
+- 默认网关；
+- DNS 服务器；
+- 租约时间等。
+
+客户端/服务器使用 UDP：
+
+| 角色 | UDP 端口 |
+| --- | ---: |
+| DHCP Server | 67 |
+| DHCP Client | 68 |
+
+## 4.5.2 DHCP DORA
+
+### Discover
+
+客户端刚接入时还没有可正常使用的地址，典型报文：
+
+```text
+DHCP DISCOVER
+源 IP：0.0.0.0
+目的 IP：255.255.255.255
+```
+
+### Offer
+
+服务器提供候选配置，例如地址、掩码、网关、DNS 和租期。
+
+### Request
+
+客户端从一个或多个 Offer 中选择，并发送 DHCP REQUEST。常用广播可让其他 DHCP 服务器知道自己的 Offer 未被选中。
+
+### ACK
+
+被选中的服务器发送 DHCP ACK，确认租约；失败时可发送 NAK。
+
+记忆：
+
+```text
+Discover → Offer → Request → ACK
+D             O        R        A
+```
+
+## 4.5.3 ICMP 的定位
+
+ICMP（Internet Control Message Protocol）用于 IP 主机和路由器之间传递**差错报告与控制/诊断信息**。
+
+ICMP 报文由 IP 承载，IPv4 `Protocol=1`。
+
+ICMP 不是可靠传输协议，也不是“替 IP 修复丢包”的协议。
+
+## 4.5.4 常见 ICMP 报文
+
+| 类别 | 典型报文 | 常见场景 |
+| --- | --- | --- |
+| 差错报告 | Destination Unreachable | 网络/主机/协议/端口不可达，或 DF 禁止分片 |
+| 差错报告 | Time Exceeded | TTL 归零、分片重组超时 |
+| 差错报告 | Redirect | 告知主机存在更合适的下一跳 |
+| 差错报告 | Parameter Problem | IP 首部存在无法处理的问题 |
+| 查询/诊断 | Echo Request / Reply | ping |
+
+传统教材中还可能出现 Source Quench、Timestamp 等历史内容，理解其类别即可，复习优先级低于上表主线。
+
+## 4.5.5 ping 为什么能测 RTT
+
+ping 主要使用：
+
+```text
+ICMP Echo Request
+ICMP Echo Reply
+```
+
+源主机记录请求发出与响应返回的时间差，即可估算 RTT；连续发送还可观察丢包情况。
+
+## 4.5.6 traceroute 为什么能看到中间路由器
+
+traceroute 的核心不是“路由器主动上报路径”，而是源主机故意发送一系列 TTL 逐渐增大的探测报文：
+
+```text
+TTL=1 → 第 1 台路由器 TTL 归零
+TTL=2 → 第 2 台路由器 TTL 归零
+TTL=3 → 第 3 台路由器 TTL 归零
+...
+```
+
+每个中间路由器在 TTL 归零后通常返回：
+
+```text
+ICMP Time Exceeded
+```
+
+于是源主机按顺序知道各跳地址。
+
+不同系统到达最终目的主机时，可能使用 ICMP Echo Reply 或 ICMP Port Unreachable 等信号判定探测结束。
+
+<Callout type="info" title="两条诊断机制速记">
+`ping = Echo Request/Reply`；`traceroute = TTL 递增 + Time Exceeded`。
+</Callout>
+
+## 4.5.7 NAT 为什么存在
+
+NAT（Network Address Translation）最常见用途是：
+
+```text
+大量私有 IPv4 主机
+        ↓
+一个或少量公网 IPv4 地址
+```
+
+三段私有 IPv4 地址块：
+
+```text
+10.0.0.0/8
+172.16.0.0/12
+192.168.0.0/16
+```
+
+私有地址可在不同组织内部重复使用，但不能直接作为普通公网可路由地址使用。
+
+## 4.5.8 NAT 与 PAT/NAPT
+
+若只改写 IP 地址，是基本 NAT；家庭路由器更常见的是同时改写传输层端口，以一个公网地址复用大量连接，常称 PAT/NAPT。
+
+映射示意：
+
+| 内部地址 | 内部端口 | 公网地址 | 公网端口 | 协议 |
+| --- | ---: | --- | ---: | --- |
+| `192.168.1.10` | 51000 | `203.0.113.8` | 40001 | TCP |
+| `192.168.1.11` | 51000 | `203.0.113.8` | 40002 | TCP |
+
+## 4.5.9 出站与返回方向
+
+### 内网 → 公网
+
+典型改写：
+
+```text
+源私网 IP:源端口
+→
+公网 IP:NAT 分配端口
+```
+
+### 公网响应 → 内网
+
+到达 NAT 公网地址后，通过映射表反查：
+
+```text
+目的公网 IP:公网端口
+→
+对应的私网 IP:私网端口
+```
+
+NAT 改写 IP/端口后，相应的 IP、TCP/UDP 校验信息也需保持一致。
+
+<Callout type="warn" title="NAT 不等于防火墙">
+NAT 会隐藏内部地址并形成连接映射，但“地址转换”与“安全策略过滤”不是同一个概念，不能直接把 NAT 定义成防火墙。
+</Callout>
+
+## 4.5.10 一次新主机上网可以怎样串起来
+
+```text
+① DHCP 获得 IP / Mask / Gateway / DNS
+② 判断目标是否跨网段
+③ ARP 获得默认网关 MAC
+④ 发给网关
+⑤ NAT 把私网源地址/端口映射成公网地址/端口
+⑥ 路由器逐跳转发
+⑦ 若途中 TTL 归零等异常，可产生 ICMP
+```
+
+这条链就是网络综合题最常见的“地址 + 协议 + 逐跳变化”主线。

@@ -1,0 +1,521 @@
+---
+title: "3.2 队列：循环队列与链式队列"
+description: "队列的 FIFO 特性、假溢出、循环队列判空判满与长度计算、链式队列及不同 front/rear 约定。"
+---
+
+队列同样是操作受限的线性表，但限制方式与栈相反：元素从一端进入，从另一端离开。
+
+408 对队列最喜欢考的不是“先进先出”的定义，而是**循环队列的指针语义、判空判满、长度计算，以及链式队列删除最后一个元素时的指针维护**。
+
+---
+
+## 3.2.1 队列的定义与 FIFO 特性
+
+**队列（Queue）**&#x2060;规定：
+
+- 在**队尾（rear）**&#x2060;插入元素；
+- 在**队头（front）**&#x2060;删除元素。
+
+因此遵循：
+
+> **先进先出（FIFO，First In First Out）**。
+
+若依次入队：
+
+```text
+A, B, C
+```
+
+且中间没有其他特殊操作，那么出队顺序只能是：
+
+```text
+A, B, C
+```
+
+常见抽象操作：
+
+| 操作 | 含义 |
+| --- | --- |
+| `InitQueue` | 初始化队列 |
+| `EnQueue` | 队尾入队 |
+| `DeQueue` | 队头出队 |
+| `GetHead` | 读取队头 |
+| `QueueEmpty` | 判断队空 |
+| `QueueFull` | 顺序循环队列中判断队满 |
+
+> **真题标签｜2010、2011、2014、2016、2021 选择题；2019 第 42 题**
+>
+> 高频考法是给定 `front`、`rear` 的定义和若干操作，要求计算队列长度、有效元素位置或判断队满条件。
+
+---
+
+## 3.2.2 普通顺序队列为什么会产生“假溢出”
+
+若用数组实现普通顺序队列，让 `front`、`rear` 只向高下标方向移动：
+
+```text
+0 1 2 3 4 5
+      ↑     ↑
+    front  rear
+```
+
+不断出队后，数组前部已经空闲，但若 `rear` 到达数组末尾，仍然无法继续向右插入。
+
+这种“还有空位但按当前规则不能利用”的现象称为：
+
+> **假溢出（False Overflow）**。
+
+解决思路不是搬动所有元素，而是让下标在数组末尾后回到开头，即构造**循环队列**。
+
+---
+
+## 3.2.3 循环队列的模运算
+
+设物理数组长度为 `MaxSize`，下标范围：
+
+```text
+0 ... MaxSize-1
+```
+
+循环移动一步统一表示为：
+
+$$
+next(x)=(x+1)\bmod MaxSize
+$$
+
+例如 `MaxSize=6`：
+
+```text
+0 → 1 → 2 → 3 → 4 → 5 → 0 → ...
+```
+
+模运算是循环队列所有公式的基础。
+
+---
+
+## 3.2.4 为什么队空与队满不能都用 `front == rear`
+
+如果规定：
+
+```text
+front == rear  表示队空
+```
+
+那么队列装满一整圈后，`rear` 也可能再次追上 `front`，同样出现：
+
+```text
+front == rear
+```
+
+因此必须额外区分两种状态。
+
+常见方法有三种：
+
+1. **牺牲一个存储单元**；
+2. 额外维护元素个数 `size`；
+3. 额外维护状态标志。
+
+408 最常见的是第一种。
+
+---
+
+## 3.2.5 经典约定：`rear` 指向下一个待插入位置
+
+本节采用：
+
+```text
+front 指向当前队头元素
+rear  指向下一个待插入位置
+```
+
+并牺牲一个数组单元。
+
+### 队空
+
+$$
+front=rear
+$$
+
+### 队满
+
+若 `rear` 再前进一步就碰到 `front`：
+
+$$
+(rear+1)\bmod MaxSize=front
+$$
+
+### 最大有效容量
+
+物理数组长度为 `MaxSize`，实际最多保存：
+
+$$
+MaxSize-1
+$$
+
+个元素。
+
+### 当前队列长度
+
+$$
+L=(rear-front+MaxSize)\bmod MaxSize
+$$
+
+这个公式本质是在环形下标上计算从 `front` 到 `rear` 的前向距离。
+
+---
+
+## 3.2.6 循环队列结构与基本操作
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    ElementType data[MAX_SIZE];
+    int front;
+    int rear;
+} CircularQueue;
+```
+
+初始化：
+
+```c
+void InitQueue(CircularQueue *Q) {
+    Q->front = 0;
+    Q->rear = 0;
+}
+```
+
+判空：
+
+```c
+bool QueueEmpty(CircularQueue *Q) {
+    return Q->front == Q->rear;
+}
+```
+
+判满：
+
+```c
+bool QueueFull(CircularQueue *Q) {
+    return (Q->rear + 1) % MAX_SIZE == Q->front;
+}
+```
+
+---
+
+## 3.2.7 入队与出队
+
+### 入队
+
+在当前约定下，`rear` 就是即将写入的位置：
+
+```c
+bool EnQueue(CircularQueue *Q, ElementType x) {
+    if (QueueFull(Q))
+        return false;
+
+    Q->data[Q->rear] = x;
+    Q->rear = (Q->rear + 1) % MAX_SIZE;
+    return true;
+}
+```
+
+逻辑顺序：
+
+```text
+判满 → 写 data[rear] → rear 前移
+```
+
+### 出队
+
+```c
+bool DeQueue(CircularQueue *Q, ElementType *x) {
+    if (QueueEmpty(Q))
+        return false;
+
+    *x = Q->data[Q->front];
+    Q->front = (Q->front + 1) % MAX_SIZE;
+    return true;
+}
+```
+
+逻辑顺序：
+
+```text
+判空 → 读取 data[front] → front 前移
+```
+
+两者时间复杂度均为：
+
+$$
+O(1)
+$$
+
+---
+
+## 3.2.8 队头与队尾元素的位置
+
+在当前约定下：
+
+- 队头元素就在 `data[front]`；
+- `rear` 指向空位，所以真正的队尾元素在 `rear` 的前一个循环位置。
+
+队尾下标为：
+
+$$
+(rear-1+MaxSize)\bmod MaxSize
+$$
+
+```c
+bool GetHead(CircularQueue *Q, ElementType *x) {
+    if (QueueEmpty(Q))
+        return false;
+
+    *x = Q->data[Q->front];
+    return true;
+}
+
+bool GetRear(CircularQueue *Q, ElementType *x) {
+    if (QueueEmpty(Q))
+        return false;
+
+    int pos = (Q->rear - 1 + MAX_SIZE) % MAX_SIZE;
+    *x = Q->data[pos];
+    return true;
+}
+```
+
+---
+
+## 3.2.9 循环队列公式的推导方法
+
+与其死记，不如统一用“环上距离”推导。
+
+设：
+
+```text
+front = f
+rear  = r
+数组长度 = m
+```
+
+若 `r >= f`，长度显然为：
+
+$$
+r-f
+$$
+
+若 `r < f`，说明跨过了数组末尾：
+
+$$
+(m-f)+r
+$$
+
+两种情况合并为：
+
+$$
+(r-f+m)\bmod m
+$$
+
+这就是经典长度公式。
+
+> **真题标签｜循环队列定位题**
+>
+> 若题目把 `rear` 定义为“当前队尾元素的位置”，而不是“下一个待插入位置”，公式必须重新推导，不能机械套本节结论。
+
+---
+
+## 3.2.10 额外计数法与标志法
+
+### 维护 `size`
+
+若额外保存当前元素数：
+
+```text
+size == 0        → 队空
+size == MaxSize  → 队满
+```
+
+这时无需牺牲一个数组单元，整个数组都可以使用。
+
+### 维护最后一次操作类型 / 状态位
+
+也可以让：
+
+```text
+front == rear
+```
+
+同时可能表示队空或队满，再通过额外状态判断具体是哪一种。
+
+因此看到 `front == rear` 时，不能脱离题目约定直接断言“队空”。
+
+---
+
+## 3.2.11 链式队列的结构
+
+链式队列通常用带头结点的单链表实现，并维护两个指针：
+
+- `front`：指向头结点；
+- `rear`：指向最后一个有效结点。
+
+结构：
+
+```text
+front
+  ↓
+[头结点] → [a1] → [a2] → ... → [an]
+                                  ↑
+                                 rear
+```
+
+真正的队头元素是：
+
+```c
+front->next
+```
+
+空队列时：
+
+```text
+front == rear
+```
+
+且二者都指向头结点。
+
+---
+
+## 3.2.12 链式队列初始化与入队
+
+```c
+typedef struct QNode {
+    ElementType data;
+    struct QNode *next;
+} QNode;
+
+typedef struct {
+    QNode *front;
+    QNode *rear;
+} LinkQueue;
+```
+
+初始化：
+
+```c
+bool InitQueue(LinkQueue *Q) {
+    QNode *head = (QNode *)malloc(sizeof(QNode));
+    if (head == NULL)
+        return false;
+
+    head->next = NULL;
+    Q->front = head;
+    Q->rear = head;
+    return true;
+}
+```
+
+队尾入队：
+
+```c
+bool EnQueue(LinkQueue *Q, ElementType x) {
+    QNode *p = (QNode *)malloc(sizeof(QNode));
+    if (p == NULL)
+        return false;
+
+    p->data = x;
+    p->next = NULL;
+
+    Q->rear->next = p;
+    Q->rear = p;
+    return true;
+}
+```
+
+由于直接维护 `rear`，入队为：
+
+$$
+O(1)
+$$
+
+---
+
+## 3.2.13 链式队列出队：删除最后一个元素时必须修复 `rear`
+
+```c
+bool DeQueue(LinkQueue *Q, ElementType *x) {
+    if (Q->front == Q->rear)
+        return false;
+
+    QNode *p = Q->front->next;
+    *x = p->data;
+    Q->front->next = p->next;
+
+    if (Q->rear == p)
+        Q->rear = Q->front;
+
+    free(p);
+    return true;
+}
+```
+
+最容易漏掉的是：
+
+```c
+if (Q->rear == p)
+    Q->rear = Q->front;
+```
+
+若原队列只有一个有效元素，删除它以后：
+
+- `front` 仍指向头结点；
+- `rear` 若不重置，就会继续指向已经 `free` 的结点，成为**悬空指针**。
+
+判空：
+
+```c
+bool QueueEmpty(LinkQueue *Q) {
+    return Q->front == Q->rear;
+}
+```
+
+---
+
+## 3.2.14 循环队列与链式队列比较
+
+| 对比项 | 循环队列 | 链式队列 |
+| --- | --- | --- |
+| 存储 | 连续 | 链式 |
+| 入队 | $O(1)$ | $O(1)$ |
+| 出队 | $O(1)$ | $O(1)$ |
+| 容量 | 通常固定 | 动态变化 |
+| 指针额外空间 | 无结点指针域 | 每个结点有指针域 |
+| 局部性 | 较好 | 较差 |
+| 固定容量溢出 | 可能 | 一般只受内存限制 |
+
+---
+
+## 3.2.15 本节易错点速查
+
+1. **先确认 `rear` 指向“队尾元素”还是“下一个空位”。**
+2. 在“`rear` 指向下一空位 + 牺牲一格”约定下：
+
+$$
+front=rear \Rightarrow \text{队空}
+$$
+
+$$
+(rear+1)\bmod MaxSize=front \Rightarrow \text{队满}
+$$
+
+$$
+L=(rear-front+MaxSize)\bmod MaxSize
+$$
+
+3. `rear` 指向下一空位时，真正队尾下标是：
+
+$$
+(rear-1+MaxSize)\bmod MaxSize
+$$
+
+4. 链式队列删除唯一元素后，必须让 `rear` 回到头结点。
+5. 队列是 FIFO，但“队头 / 队尾指针具体指哪里”属于实现约定，不是逻辑定义。

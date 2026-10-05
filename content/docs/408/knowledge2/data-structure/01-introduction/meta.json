@@ -1,9 +1,10 @@
 {
   "title": "第 1 章 绪论",
   "pages": [
-    "01-basic-concepts-complexity",
-    "02-algorithm-design-patterns",
-    "03-answering-strategy-summary"
+    "01-basic-concepts",
+    "02-complexity-analysis",
+    "03-algorithm-design",
+    "04-review-summary"
   ],
   "defaultOpen": false
 }

@@ -1,0 +1,238 @@
+---
+title: "3.6 IEEE 802.11、CSMA/CA、RTS/CTS 与地址字段"
+description: "掌握无线局域网的 CSMA/CA、随机退避、SIFS/DIFS、RTS/CTS、NAV，以及 802.11 数据帧地址 1/2/3/4 的判断。"
+---
+
+无线局域网不能直接把经典以太网的 CSMA/CD 原样搬过来，核心原因包括：
+
+- 无线站发送时很难同时可靠检测其他微弱无线信号；
+- 信号受衰减、遮挡和干扰影响明显；
+- 存在隐藏结点问题。
+
+因此 IEEE 802.11 典型使用 **CSMA/CA（Collision Avoidance）**。
+
+> **真题标签**
+>
+> CSMA/CA：2017-35、2018-35、2020-37、2024-36、2026-35。\
+> 802.11 地址判断：2022-47。
+
+## 3.6.1 WLAN 中几个角色
+
+- **STA**：Station，无线站点；
+- **AP**：Access Point，无线接入点；
+- **BSS**：Basic Service Set，基本服务集；
+- **BSSID**：BSS 标识，在基础设施网络中通常与 AP 的 MAC 相关；
+- **DS**：Distribution System，连接 AP 的分布式系统。
+
+隐藏结点的典型拓扑：
+
+```text
+A ───── B ───── C
+```
+
+A、C 都能和 B 通信，但 A 与 C 互相听不到。于是 A、C 可能同时认为信道空闲并向 B 发送。
+
+## 3.6.2 普通 CSMA/CA 流程
+
+典型 DCF 流程可以简化为：
+
+```text
+监听信道
+→ 信道持续空闲 DIFS
+→ 随机退避
+→ 发送 DATA
+→ 等待 SIFS
+→ 接收方发送 ACK
+```
+
+退避计数规则：
+
+- 信道空闲 → 退避计数递减；
+- 信道变忙 → **冻结**计数；
+- 再次空闲并满足规定间隔后 → 从剩余值继续倒计时；
+- 计数归零 → 获得发送机会。
+
+如果未收到 ACK，发送方认为本次传输失败，通常扩大竞争窗口后重新退避。
+
+<Callout type="warn" title="没收到 ACK 不等于一定发生碰撞">
+无线传输失败还可能来自 DATA 损坏、ACK 损坏、干扰或接收端未正确接收。ACK 的作用是确认成功，不是直接“检测碰撞”。
+</Callout>
+
+## 3.6.3 IFS：为什么 ACK 能优先发送
+
+常见帧间间隔：
+
+| IFS | 含义 | 典型用途 |
+| --- | --- | --- |
+| SIFS | Short IFS | ACK、CTS 等立即响应 |
+| PIFS | PCF IFS | 传统 PCF |
+| DIFS | DCF IFS | 普通竞争发送 |
+
+长度关系：
+
+$$
+SIFS<PIFS<DIFS
+$$
+
+因此当前交换中的 ACK、CTS 等响应只等较短的 SIFS，就能在其他站点重新以 DIFS 竞争之前优先发送。
+
+## 3.6.4 RTS/CTS：降低隐藏结点代价
+
+可选的 RTS/CTS 流程：
+
+```text
+DIFS
+→ Backoff
+→ RTS
+→ SIFS
+→ CTS
+→ SIFS
+→ DATA
+→ SIFS
+→ ACK
+```
+
+作用：
+
+- 缓解隐藏结点问题；
+- 预约信道；
+- 让其他站点提前避让；
+- 即使发生竞争碰撞，也尽量让碰撞落在较短的 RTS 上，而不是长 DATA 上。
+
+RTS/CTS **不能保证绝对零碰撞**，多个站仍可能同时发送 RTS。
+
+## 3.6.5 NAV：虚拟载波监听
+
+802.11 同时使用：
+
+1. **物理载波监听**：真的听无线信道；
+2. **虚拟载波监听**：根据帧中的 Duration 维护 NAV。
+
+NAV（Network Allocation Vector）本质上是一个倒计时计时器，表示信道在未来一段时间已经被预约。
+
+只有：
+
+```text
+物理信道空闲
+且 NAV = 0
+```
+
+站点才认为可以参与新的竞争。
+
+忽略传播时延时，若 RTS 之后还剩：
+
+```text
+SIFS + CTS + SIFS + DATA + SIFS + ACK
+```
+
+则：
+
+$$
+NAV_{RTS}=3T_{SIFS}+T_{CTS}+T_{DATA}+T_{ACK}
+$$
+
+CTS 之后还剩：
+
+```text
+SIFS + DATA + SIFS + ACK
+```
+
+所以：
+
+$$
+NAV_{CTS}=2T_{SIFS}+T_{DATA}+T_{ACK}
+$$
+
+做题时 Duration 的真正含义通常是：
+
+> **当前帧发送结束后，这次完整交换还需要占用信道多久。**
+
+## 3.6.6 802.11 数据帧为什么有多个地址
+
+无线帧不仅需要表达最终二层源/目的，还需要说明**当前无线这一跳**的发送者和接收者。
+
+常见符号：
+
+- **RA**：Receiver Address，当前无线跳接收者；
+- **TA**：Transmitter Address，当前无线跳发送者；
+- **SA**：Source Address，当前二层帧的原始源；
+- **DA**：Destination Address，当前二层帧最终目的；
+- **BSSID**：基本服务集标识。
+
+| To DS | From DS | Address 1 | Address 2 | Address 3 | Address 4 |
+| ---: | ---: | --- | --- | --- | --- |
+| 0 | 0 | DA / RA | SA / TA | BSSID | 无 |
+| 1 | 0 | BSSID / RA | SA / TA | DA | 无 |
+| 0 | 1 | DA / RA | BSSID / TA | SA | 无 |
+| 1 | 1 | RA | TA | DA | SA |
+
+408 最常见的是 STA 与 AP 之间两种。
+
+## 3.6.7 STA → AP
+
+```text
+To DS = 1
+From DS = 0
+```
+
+因此：
+
+- Address 1：AP/BSSID，当前无线接收者 RA；
+- Address 2：STA，当前无线发送者 TA，同时也是 SA；
+- Address 3：当前二层目的 DA。
+
+速记：
+
+```text
+STA → AP：A1=AP，A2=STA，A3=DA
+```
+
+## 3.6.8 AP → STA
+
+```text
+To DS = 0
+From DS = 1
+```
+
+因此：
+
+- Address 1：目的 STA，DA/RA；
+- Address 2：AP/BSSID，TA；
+- Address 3：SA。
+
+速记：
+
+```text
+AP → STA：A1=STA，A2=AP，A3=SA
+```
+
+> **2022-47 典型考法**
+>
+> 给出 AP、无线主机和有线侧主机的 MAC 地址，要求判断 Address 1/2/3。先判方向（To DS / From DS），再填当前无线跳的 RA/TA，最后确定 SA/DA。
+
+## 3.6.9 MAC 地址不会跨路由器直接延续
+
+若 IP 目的主机在远程网络，当前二层帧的 DA 通常是**下一跳路由器接口的 MAC**，而不是远程主机 MAC。
+
+路由器每转发一次 IP 分组，都需要重新进行二层封装，因此：
+
+- IP 源/目的通常端到端保持（NAT 等机制另论）；
+- MAC 源/目的逐跳变化。
+
+<Callout type="info" title="802.11 地址题总口诀">
+RA/TA 看“当前无线这一跳”；SA/DA 看“当前二层帧的源和目的”。先看 To DS/From DS，再填地址，比死背字段更稳。
+</Callout>
+
+## 3.6.10 无线链路时间题
+
+若题目问“发送 DATA 到收到 ACK 最少多久”，要按题目起点判断是否已经完成竞争。
+
+例如若从**DATA 开始发送**计时，通常只需考虑：
+
+```text
+DATA 发送时间 + SIFS + ACK 发送时间
+```
+
+若从“站点准备发送”计时，还可能需要 DIFS、退避、RTS/CTS 等。
+
+因此先圈出计时区间，再累加对应事件，避免把所有 802.11 时间都机械相加。

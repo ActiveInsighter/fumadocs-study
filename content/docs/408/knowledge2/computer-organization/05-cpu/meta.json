@@ -1,11 +1,14 @@
 {
   "title": "第 5 章 中央处理器",
   "pages": [
-    "01-cpu-structure-registers",
-    "02-controller-microprogram",
-    "03-interrupt-exception",
-    "04-pipeline",
-    "05-parallel-multicore"
+    "01-cpu-datapath-registers",
+    "02-instruction-cycle-rtl-control-signals",
+    "03-controller-microprogram",
+    "04-interrupt-exception-system-call",
+    "05-pipeline-basics-performance",
+    "06-pipeline-hazards-forwarding",
+    "07-advanced-pipeline-ilp",
+    "08-parallel-multicore-review"
   ],
   "defaultOpen": false
 }

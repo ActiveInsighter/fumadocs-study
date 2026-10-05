@@ -1,10 +1,14 @@
 {
   "title": "第 3 章 数据链路层",
   "pages": [
-    "01-framing-error-arq",
-    "02-mac-contention",
-    "03-lan-ethernet-wlan",
-    "04-switch-bridge-summary"
+    "01-functions-framing",
+    "02-error-control-crc-hamming",
+    "03-arq-sliding-window",
+    "04-arq-utilization",
+    "05-mac-csma-cd",
+    "06-wlan-csma-ca",
+    "07-ethernet-vlan-ppp",
+    "08-switch-review"
   ],
   "defaultOpen": false
 }

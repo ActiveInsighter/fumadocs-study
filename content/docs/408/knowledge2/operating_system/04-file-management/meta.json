@@ -1,9 +1,15 @@
 {
   "title": "第 4 章 文件管理",
+  "description": "文件抽象与保护、打开文件管理、文件物理结构、混合索引、目录、链接、文件系统、VFS、挂载与外存空闲空间管理。",
   "pages": [
-    "01-file-basics-open",
-    "02-allocation-directory-links",
-    "03-filesystem-free-space"
+    "01-file-basics-metadata-protection",
+    "02-open-files-system-calls",
+    "03-file-allocation",
+    "04-hybrid-index-calculation",
+    "05-directory-path",
+    "06-links",
+    "07-filesystem-vfs-mount",
+    "08-free-space-review"
   ],
   "defaultOpen": false
 }
