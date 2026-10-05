@@ -1,16 +1,10 @@
 {
   "title": "第 3 章 存储系统",
   "pages": [
-    "01-hierarchy-semiconductor-memory",
-    "02-dram-organization-refresh",
-    "03-main-memory-organization-expansion",
-    "04-cache-principles-mapping",
-    "05-cache-replacement-write-performance",
-    "06-virtual-memory-page-table",
-    "07-multilevel-page-table-tlb",
-    "08-integrated-memory-access",
-    "09-secondary-storage-hdd",
-    "10-ssd-raid-review"
+    "01-memory-hierarchy-main-memory",
+    "02-cache",
+    "03-virtual-memory-tlb",
+    "04-secondary-storage"
   ],
   "defaultOpen": false
 }

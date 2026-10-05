@@ -1,0 +1,456 @@
+---
+title: "LAN、Ethernet、WLAN、VLAN 与 PPP"
+description: "第 3 章 数据链路层：LAN、Ethernet、WLAN、VLAN 与 PPP。组帧、差错控制、ARQ、介质访问控制、以太网、WLAN、交换机与网桥。"
+---
+
+## 二十六、局域网 LAN
+
+局域网通常覆盖：
+
+* 家庭；
+* 办公室；
+* 校园；
+* 企业园区。
+
+决定局域网技术特性的三个主要因素是：
+
+1. 网络拓扑；
+2. 传输介质；
+3. **介质访问控制方法**。
+
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-001.svg" alt={"图 1"} />
+
+典型拓扑包括：
+
+* 总线形；
+* 星形；
+* 环形；
+* 复合拓扑。
+
+现代有线 LAN 的主流实现是**交换式以太网**。
+
+---
+
+## 二十七、以太网 Ethernet
+
+以太网已经成为现代有线局域网的主流技术。
+
+经典共享式 Ethernet 采用 CSMA/CD；现代交换式全双工 Ethernet 通常不存在碰撞，因此不再需要 CSMA/CD 执行碰撞处理。
+
+---
+
+### 1. Ethernet 命名
+
+经典名称例如：
+
+```text
+10BASE5
+10BASE2
+10BASE-T
+10BASE-FL
+```
+
+基本规则：
+
+```text
+速率 + BASE + 介质
+```
+
+例如：
+
+#### 10BASE-T
+
+* `10`：10 Mbps；
+* `BASE`：基带传输；
+* `T`：Twisted Pair，双绞线。
+
+#### 10BASE-FL
+
+* `10`：10 Mbps；
+* `BASE`：基带；
+* `FL`：光纤链路。
+
+| 标准        | 介质    | 拓扑  |
+| --------- | ----- | --- |
+| 10BASE5   | 粗同轴电缆 | 总线  |
+| 10BASE2   | 细同轴电缆 | 总线  |
+| 10BASE-T  | 双绞线   | 星形  |
+| 10BASE-FL | 光纤    | 点到点 |
+
+---
+
+## 二十八、Ethernet 帧格式
+
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-002.svg" alt={"图 2"} />
+
+完整线上传输可以理解为：
+
+```text
+Preamble
+SFD
+Destination MAC
+Source MAC
+Type/Length
+Data + Padding
+FCS
+```
+
+---
+
+### 1. 前导码
+
+Preamble：
+
+```text
+7 B
+```
+
+作用：
+
+> 帮助接收方实现时钟同步。
+
+---
+
+### 2. SFD
+
+Start Frame Delimiter：
+
+```text
+1 B
+```
+
+典型：
+
+```text
+10101011
+```
+
+表示正式帧内容即将开始。
+
+> Preamble 和 SFD 属于物理层辅助字段，通常**不计入 Ethernet 帧的 64～1518 B 长度**。
+
+---
+
+### 3. MAC 首部
+
+#### Destination MAC
+
+```text
+6 B
+```
+
+#### Source MAC
+
+```text
+6 B
+```
+
+#### Type / Length
+
+```text
+2 B
+```
+
+Ethernet II 中常作为 EtherType。
+
+IEEE 802.3 中也可以表示长度。
+
+---
+
+### 4. 数据字段
+
+普通 Ethernet 有效载荷：
+
+```text
+46 ～ 1500 B
+```
+
+如果实际上层数据不足 46 B：
+
+> 必须进行 Padding，使数据字段至少达到 46 B。
+
+---
+
+### 5. FCS
+
+```text
+4 B
+```
+
+采用 CRC 进行差错检测。
+
+---
+
+## 二十九、Ethernet 最小与最大帧
+
+不含 Preamble 和 SFD：
+
+最小：
+
+$$
+6+6+2+46+4=64\text{ B}
+$$
+
+最大：
+
+$$
+6+6+2+1500+4=1518\text{ B}
+$$
+
+所以：
+
+```text
+普通 Ethernet Frame：64 ～ 1518 B
+```
+
+经典 Ethernet MTU：
+
+```text
+1500 B
+```
+
+注意：
+
+> **MTU 是帧负载最大长度，不是整个 Ethernet 帧大小。**
+
+802.1Q VLAN 再插入 4 B VLAN Tag 后，普通最大 Ethernet 帧通常变成：
+
+```text
+1522 B
+```
+
+---
+
+## 三十、无线局域网 WLAN
+
+802.11 帧主要分为：
+
+* 管理帧；
+* 控制帧；
+* 数据帧。
+
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-003.svg" alt={"图 3"} />
+
+802.11 数据帧首部长度不是固定 30 B：
+
+* 常见基础数据帧首部约为 24 B；
+* 若出现 Address 4 可增加到 30 B；
+* QoS、HT Control 等字段还可能进一步增加。
+
+FCS：
+
+```text
+4 B
+```
+
+源材料中的地址判断规则可归纳为：
+
+| 场景       | Address 1 | Address 2 | Address 3 |
+| -------- | --------- | --------- | --------- |
+| STA → AP | AP / RA   | STA / TA  | DA        |
+| AP → STA | STA / RA  | AP / TA   | SA        |
+
+---
+
+## 三十一、VLAN
+
+VLAN：
+
+> Virtual Local Area Network，虚拟局域网。
+
+作用：
+
+> **在同一套物理交换网络上划分多个彼此隔离的逻辑广播域。**
+
+例如：
+
+```text
+VLAN 10：财务
+VLAN 20：技术
+VLAN 30：人事
+```
+
+默认情况下：
+
+> 不同 VLAN 之间不能直接进行二层通信。
+
+跨 VLAN 通信必须经过：
+
+* 路由器；
+* 或三层交换机。
+
+<InlineSvg src="/images/computer-network/computer-network-datalink-lan-004.svg" alt={"图 4"} />
+
+---
+
+### 1. IEEE 802.1Q
+
+VLAN Tag 由 **IEEE 802.1Q** 定义。
+
+标签长度：
+
+```text
+4 B
+```
+
+插在：
+
+```text
+Source MAC
+↓
+802.1Q Tag
+↓
+Type/Length
+```
+
+之间。
+
+其中 VLAN ID 为 12 位：
+
+$$
+2^{12}=4096
+$$
+
+因此共有 4096 个编码值。
+
+实际：
+
+* VID 0 保留用于优先级标记；
+* VID 4095 保留；
+* 常规可配置 VLAN ID 通常为 1～4094。
+
+> **易错**
+>
+> VLAN 划分的是**广播域**。
+>
+> 一台普通二层交换机如果没有 VLAN，所有端口通常仍属于同一个广播域。
+
+---
+
+## 三十二、HDLC
+
+HDLC：
+
+> High-Level Data Link Control，高级数据链路控制。
+
+属于：
+
+> **面向比特的数据链路层协议。**
+
+主要特点：
+
+* 面向比特；
+* 支持同步链路；
+* 可以用于点对点或多点链路；
+* 使用帧结构进行控制；
+* 使用 CRC 检错；
+* 使用 `01111110` 作为标志字段；
+* 使用**零比特填充**实现透明传输。
+
+因此看到 HDLC 和：
+
+```text
+01111110
+```
+
+应立即联想到：
+
+> **零比特填充。**
+
+---
+
+## 三十三、PPP
+
+PPP：
+
+> Point-to-Point Protocol，点对点协议。
+
+用于两个节点之间的点对点链路。
+
+常见于早期：
+
+* 拨号网络；
+* 串行链路；
+* DSL 等接入环境。
+
+PPP 的重要特点：
+
+> **PPP 本身不提供可靠重传、序号和流量控制。**
+
+它可以使用 FCS：
+
+> 检测错误帧，然后丢弃。
+
+但不会像 ARQ 那样自动通过链路层重传恢复。
+
+PPP 主要包含：
+
+* **LCP**：建立、配置和测试数据链路；
+* **NCP**：配置不同网络层协议；
+* 可选身份验证机制。
+
+因此应区分：
+
+| 协议                       | 差错检测  | 自动重传 |
+| ------------------------ | ----- | ---- |
+| CRC                      | 有     | 无    |
+| PPP                      | 有 FCS | 无    |
+| Stop-and-Wait / GBN / SR | 可结合检错 | 有    |
+
+---
+
+## 三十四、MAC 地址
+
+MAC 地址通常为：
+
+```text
+48 bit = 6 B
+```
+
+常用十六进制表示：
+
+```text
+00:1A:2B:3C:4D:5E
+```
+
+在 408 的常规模型中，可把 MAC 地址理解为：
+
+> **数据链路层中标识网络接口的地址。**
+
+传统全球单播 MAC 地址由：
+
+* IEEE 分配给厂商的 OUI；
+* 厂商自行分配的接口标识部分；
+
+共同组成。
+
+实际系统也允许本地管理 MAC 地址和地址随机化，因此“所有 MAC 地址都永久烧录且绝对全球唯一”属于考试中的简化描述，不应作为现实系统的绝对结论。
+
+---
+
+### 1. 广播 MAC
+
+广播地址：
+
+```text
+FF:FF:FF:FF:FF:FF
+```
+
+同一广播域内的设备都可能接收到广播帧。
+
+---
+
+### 2. MAC 与 IP 地址
+
+| 地址  | 层次    | 主要用途       |
+| --- | ----- | ---------- |
+| MAC | 数据链路层 | 当前链路上的帧交付  |
+| IP  | 网络层   | 跨网络逻辑寻址与路由 |
+
+经过路由器转发时：
+
+> 二层帧需要重新封装，因此源/目的 MAC 会随每一跳改变。
+
+通常 IP 数据报的源/目的 IP 在端到端转发过程中保持不变；涉及 NAT 等机制时另当别论。
+
+---

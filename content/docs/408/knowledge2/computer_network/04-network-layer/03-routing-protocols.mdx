@@ -1,0 +1,360 @@
+---
+title: "路由与 RIP、OSPF、BGP"
+description: "第 4 章 网络层：路由与 RIP、OSPF、BGP。IPv4/CIDR、分片、ARP/DHCP/ICMP/NAT、路由协议、IPv6 与 SDN。"
+---
+
+## 16. 什么是路由
+
+在 IP 网络中，目标主机通常并不与源主机直接相连，IP 数据报需要经过若干路由器。
+
+例如，PC1 希望访问另一个子网中的 PC2：
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-012.svg" alt={"路由算法 图 12"} />
+
+路由器必须知道：
+
+```text
+目的网络应该从哪里走？
+```
+
+获取路由的方法主要有：
+
+* **直连路由**
+* **静态路由**
+* **动态路由**
+
+### 16.1 静态路由与动态路由
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-001.svg" alt={"路由算法 图 1"} />
+
+| 项目    | 静态路由    | 动态路由        |
+| ----- | ------- | ----------- |
+| 建立方式  | 管理员手工配置 | 路由协议自动学习    |
+| 网络变化  | 不自动适应   | 可以自动更新      |
+| 配置复杂度 | 小型网络中较低 | 协议机制更复杂     |
+| 资源消耗  | 低       | 需要协议计算与通信   |
+| 适合环境  | 小型、稳定网络 | 中大型、变化较多的网络 |
+
+---
+
+## 17. 自治系统与路由协议分类
+
+> **真题考察**
+>
+> * 选择题：2010 年第 35 题、2017 年第 37 题、2026 年第 38 题
+> * 解答题：2013 年第 47 题、2014 年第 42 题、2024 年第 47 题
+
+### 17.1 自治系统 AS
+
+自治系统（Autonomous System，AS）是一组由同一管理机构控制，并采用统一路由策略的网络。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-002.svg" alt={"路由算法 图 2"} />
+
+例如：
+
+* ISP
+* 大型企业
+* 大学校园网
+
+都可能形成一个自治系统。
+
+### 17.2 IGP 与 EGP
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-003.svg" alt={"路由算法 图 3"} />
+
+根据使用范围，路由协议可以分为：
+
+#### IGP
+
+Interior Gateway Protocol，内部网关协议。
+
+用于：
+
+```text
+一个 AS 内部
+```
+
+典型协议：
+
+* RIP
+* OSPF
+
+#### EGP
+
+Exterior Gateway Protocol，外部网关协议。
+
+用于：
+
+```text
+不同 AS 之间
+```
+
+目前 Internet 中实际使用的核心外部路由协议是：
+
+```text
+BGP
+```
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-004.svg" alt={"路由算法 图 4"} />
+
+### 17.3 RIP、OSPF、BGP 对比
+
+| 项目   | RIP             | OSPF       | BGP           |
+| ---- | --------------- | ---------- | ------------- |
+| 类型   | IGP             | IGP        | EGP           |
+| 基本思想 | 距离向量            | 链路状态       | 路径向量          |
+| 底层承载 | UDP             | 直接封装在 IP 中 | TCP           |
+| 主要算法 | Bellman-Ford 思想 | Dijkstra   | 策略驱动          |
+| 路由信息 | 目的网络与距离         | 链路状态       | 网络前缀与路径属性     |
+| 信息传播 | 相邻路由器逐跳交换       | LSA 泛洪     | BGP 邻居会话      |
+| 全网拓扑 | 不掌握             | AS 内获得拓扑图  | 不构造完整内部拓扑图    |
+| 更新方式 | 周期更新为主          | 链路变化触发更新为主 | 路由变化触发更新      |
+| 典型规模 | 较小网络            | 中大型 AS 内部  | Internet 跨 AS |
+
+---
+
+## 18. RIP 与距离向量算法
+
+RIP（Routing Information Protocol）是一种典型的 **距离向量路由协议**。
+
+### 18.1 距离向量
+
+一个距离向量表项通常包含：
+
+* 目的网络
+* 距离 / 度量值
+* 下一跳
+
+例如：
+
+| 目的网络             | 距离 | 下一跳 |
+| ---------------- | -: | --- |
+| `192.168.1.0/24` |  0 | 直连  |
+| `192.168.2.0/24` |  1 | B   |
+| `192.168.3.0/24` |  1 | C   |
+
+RIP 使用 **跳数** 作为度量值。
+
+最重要的数字：
+
+```text
+15 跳：最大可达距离
+16 跳：不可达
+```
+
+### 18.2 RIP 更新过程
+
+> **真题考察**
+>
+> * 选择题：2021 年第 37 题
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-005.svg" alt={"路由算法 图 5"} />
+
+基本过程：
+
+1. 路由器首先知道自己的直连网络。
+2. 周期性向邻居发送距离向量。
+3. 接收邻居的距离向量。
+4. 把经过邻居的链路代价加到邻居距离上。
+5. 与当前路由进行比较。
+6. 若发现更优路径则更新。
+7. 多次交换后逐渐收敛。
+
+RIP 典型周期更新间隔为约 30 秒。
+
+### 18.3 Bellman-Ford 思想
+
+若路由器 `x` 要计算到目的网络 `y` 的距离，可以比较所有邻居 `v`：
+
+$$
+D_x(y)
+=
+\min_v
+\left\{
+c(x,v)+D_v(y)
+\right\}
+$$
+
+其中：
+
+* `c(x,v)`：从当前路由器到邻居的代价。
+* `D_v(y)`：邻居到目的网络的距离。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-006.svg" alt={"路由算法 图 6"} />
+
+对于 RIP，每经过一个相邻路由器可以理解为跳数增加 1。
+
+### 18.4 坏消息传得慢
+
+距离向量算法经典问题是：
+
+> **好消息传得快，坏消息传得慢。**
+
+例如：
+
+```text
+A --- B --- C --- X
+```
+
+正常情况下：
+
+```text
+C → X：1 跳
+B → X：2 跳
+A → X：3 跳
+```
+
+如果 `C --- X` 链路突然断开，B 和 A 可能仍然互相从对方那里学习“到 X 的路径”。
+
+于是距离可能：
+
+```text
+4 → 5 → 6 → 7 → ...
+```
+
+不断增大，直到达到 RIP 的：
+
+```text
+16 = 不可达
+```
+
+这称为 **计数到无穷（Count to Infinity）**。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-007.svg" alt={"路由算法 图 7"} />
+
+产生问题的根本原因是：
+
+* 路由器只知道邻居告诉自己的距离。
+* 不掌握完整网络拓扑。
+* 不知道某条路由是否又绕回了自己。
+
+实际协议可以通过：
+
+* 水平分割
+* 毒性逆转
+* 触发更新
+
+等方法缓解部分环路问题，但距离向量协议仍存在固有收敛局限。
+
+---
+
+## 19. OSPF 与链路状态算法
+
+OSPF（Open Shortest Path First）属于 **链路状态型 IGP**。
+
+相比 RIP：
+
+```text
+RIP：
+我告诉邻居“我距离各网络多远”
+
+OSPF：
+我告诉整个区域“我和谁相连、链路代价是多少”
+```
+
+### 19.1 链路状态通告
+
+路由器把自己的邻接关系、链路代价等信息形成 **链路状态通告（LSA）**。
+
+LSA 通过泛洪机制在 OSPF 区域中传播。
+
+因此区域中的路由器能够获得较一致的链路状态信息。
+
+### 19.2 LSDB
+
+LSDB（Link State Database，链路状态数据库）保存收到的链路状态信息。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-008.svg" alt={"路由算法 图 8"} />
+
+示意：
+
+| LSA 类型 | 路由器 | 链路   | 链路类型 | Cost | 邻接对象 |
+| ------ | --- | ---- | ---- | ---: | ---- |
+| Router | R1  | NetA | 广播链路 |   10 | R2   |
+| Router | R1  | NetC | 广播链路 |    5 | —    |
+| Router | R2  | NetA | 广播链路 |   10 | R1   |
+| Router | R2  | NetB | 广播链路 |   15 | R4   |
+| Router | R2  | R3   | 点对点  |   20 | R3   |
+| Router | R3  | R2   | 点对点  |   20 | R2   |
+| Router | R3  | R4   | 点对点  |   10 | R4   |
+| Router | R4  | NetB | 广播链路 |   15 | R2   |
+| Router | R4  | R3   | 点对点  |   10 | R3   |
+
+每台路由器根据 LSDB 构造网络拓扑，再运行 **Dijkstra 最短路径算法**。
+
+### 19.3 RIP 与 OSPF 的本质区别
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-009.svg" alt={"路由算法 图 9"} />
+
+| 项目     | 距离向量 / RIP      | 链路状态 / OSPF |
+| ------ | --------------- | ----------- |
+| 知道什么   | 到各目的网络的距离       | 网络链路拓扑      |
+| 信息发送给谁 | 邻居              | 泛洪到区域内路由器   |
+| 发送什么   | 距离向量            | 链路状态        |
+| 最短路算法  | Bellman-Ford 思想 | Dijkstra    |
+| 全局视角   | 无               | 有           |
+| 路由环问题  | 更明显             | 相对较少        |
+| 收敛速度   | 通常较慢            | 通常较快        |
+
+---
+
+## 20. BGP
+
+BGP（Border Gateway Protocol，边界网关协议）用于 **自治系统之间的路由选择**。
+
+它属于：
+
+```text
+路径向量协议（Path Vector）
+```
+
+Internet 当前广泛使用 BGP-4。
+
+### 20.1 BGP 发言人
+
+一个 AS 中可以有多个运行 BGP 的路由器，对外与其他 AS 建立 BGP 会话。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-010.svg" alt={"路由算法 图 10"} />
+
+### 20.2 路径向量
+
+BGP 不只是告诉邻居：
+
+```text
+“这个网络离我多少跳”
+```
+
+而会携带一系列路径属性，例如经过的 AS 路径。
+
+<InlineSvg src="/images/computer-network/computer-network-network-route-011.svg" alt={"路由算法 图 11"} />
+
+BGP 可以依据策略决定：
+
+* 是否接受某条路由。
+* 是否向其他邻居传播。
+* 哪条路径作为最佳路径。
+* 是否撤销某个网络前缀。
+
+因此：
+
+> **BGP 的目标并不是简单寻找数学意义上的最短路径，而是进行策略驱动的跨 AS 路由选择。**
+
+### 20.3 BGP 的传输层协议
+
+BGP 建立在：
+
+```text
+TCP
+```
+
+之上，使用可靠的邻居会话交换路由信息。
+
+### 20.4 更新机制
+
+BGP 不像 RIP 那样周期性发送整张路由表，而是在路由发生变化时发送 UPDATE，例如：
+
+* 新前缀出现。
+* 路由属性变化。
+* 某个前缀失效并被撤销。
+
+---

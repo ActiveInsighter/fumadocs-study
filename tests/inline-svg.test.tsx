@@ -88,9 +88,8 @@ describe('InlineSvg', () => {
     expect(fallbackHtml).not.toContain('https://www.drawio.com/');
   });
 
-  it('requires any SVG images in 知识点总结2 to use existing InlineSvg assets', () => {
+  it('converts every SVG image in 知识点总结2 to InlineSvg', () => {
     const files = releaseDocsRoots.flatMap(getMdxFiles);
-    expect(files.length).toBeGreaterThan(0);
     const source = files.map((file) => readFileSync(file, 'utf8')).join('\n');
 
     expect(source).not.toMatch(/!\[[^\r\n]*\]\(\/images\/[^)\s]+\.svg\)/u);
@@ -98,6 +97,8 @@ describe('InlineSvg', () => {
     const references = [...source.matchAll(/<InlineSvg\s+src="([^"]+\.svg)"/gu)].map(
       ([, src]) => src,
     );
+    expect(references.length).toBeGreaterThan(0);
+
     for (const src of references) {
       expect(src, relative(process.cwd(), releaseDocsRoots[0])).toMatch(
         /^\/images\/[\w./-]+\.svg$/u,

@@ -1,14 +1,10 @@
 {
   "title": "第 6 章 应用层",
   "pages": [
-    "01-application-model-protocol-map",
-    "02-dns-hierarchy-records-servers",
-    "03-dns-resolution-cache-timing",
-    "04-ftp-control-data-active-passive",
-    "05-email-smtp-pop3-imap-mime",
-    "06-www-http-message-method-status",
-    "07-http-connection-cookie-timing",
-    "08-application-integrated-flow-review"
+    "01-model-dns",
+    "02-ftp",
+    "03-email",
+    "04-web-http"
   ],
   "defaultOpen": false
 }

@@ -1,12 +1,10 @@
 {
   "title": "第 2 章 物理层",
   "pages": [
-    "01-communication-basics-delay",
-    "02-channel-capacity-nyquist-shannon",
-    "03-coding-modulation",
-    "04-switching-pipeline-virtual-circuit",
-    "05-transmission-media",
-    "06-physical-devices-review"
+    "01-communication-basics",
+    "02-coding-modulation",
+    "03-switching",
+    "04-media-devices"
   ],
   "defaultOpen": false
 }

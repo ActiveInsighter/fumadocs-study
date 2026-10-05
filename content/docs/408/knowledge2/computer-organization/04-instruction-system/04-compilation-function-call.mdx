@@ -1,0 +1,813 @@
+---
+title: "编译、控制结构与函数调用"
+description: "第 4 章 指令系统：编译、控制结构与函数调用。ISA、指令格式、寻址方式、数据对齐、大小端、汇编指令与函数调用。"
+---
+
+## 38. 从高级语言到机器代码
+
+> **真题考查**
+>
+> * 选择题：2022 年第 20 题
+
+传统 C 程序从源代码到可执行程序一般经历：
+
+```text
+源代码
+  ↓
+预处理
+  ↓
+扩展后的源代码
+  ↓
+编译
+  ↓
+汇编代码
+  ↓
+汇编
+  ↓
+目标文件
+  ↓
+链接
+  ↓
+可执行文件
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-001.svg" alt={"预处理器 编译器 汇编器 链接器 源代码 扩展代码 汇编代码 目标文件 可执行程序"} />
+
+---
+
+### 38.1 预处理
+
+预处理器主要完成：
+
+* 展开 `#include`
+* 宏替换 `#define`
+* 处理条件编译
+* 通常还会处理注释等文本级内容
+
+输出仍然是高级语言形式。
+
+---
+
+### 38.2 编译
+
+编译阶段把高级语言翻译成汇编语言或中间代码再生成汇编代码。
+
+典型过程包括：
+
+* 词法分析；
+* 语法分析；
+* 语义分析；
+* 中间代码生成；
+* 优化；
+* 目标代码生成。
+
+> **易错**
+>
+> 在广义语境中，“编译”有时表示从源码到可执行文件的全部过程。
+>
+> 但在“预处理—编译—汇编—链接”四阶段模型中：
+>
+> * 编译：高级语言 → 汇编语言
+> * 汇编：汇编语言 → 机器代码目标文件
+
+---
+
+### 38.3 汇编
+
+汇编器（Assembler）把：
+
+```text
+汇编指令
+```
+
+翻译成：
+
+```text
+机器码
+```
+
+并生成目标文件。
+
+---
+
+### 38.4 链接
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-002.svg" alt={"源文件 源文件 源文件 源文件 目标文件 目标文件 目标文件 目标文件 链接器 运行库 可执行程序"} />
+
+链接器主要负责：
+
+1. **符号解析**
+
+   * 找到函数和全局变量的定义。
+2. **重定位**
+
+   * 确定最终地址并修正代码中的地址引用。
+3. **合并各段**
+
+   * 合并不同目标文件中的代码和数据。
+
+---
+
+### 38.5 静态链接与动态链接
+
+#### 静态链接
+
+把需要的库目标代码复制进最终可执行文件。
+
+特点：
+
+* 可执行文件通常更大；
+* 库代码成为程序的一部分；
+* 运行时不需要再加载相应动态库文件。
+
+#### 动态链接
+
+可执行文件只保留对共享库的引用，程序装入或运行时再加载：
+
+* `.so`
+* `.dll`
+
+等共享库。
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-003.svg" alt={"链接方式对比 静态链接 编译时： 源代码 main.c 静态库 lib.a 可执行文件 app.exe 主程序代码 库代码副本 运行时： 独立运行 完全独立的 二进制文件 动态链接 编译时： 源代码 main.c 动态库引用 lib.so/.dll 可执行文件 app.exe 主程序代码 库引用 动态库文件 lib.so / lib.dll 运行时： 可执行文件 运行中 动态库 运行时加载 动态加载"} />
+
+---
+
+## 39. C 语言选择结构与汇编
+
+> **真题考查**
+>
+> * 解答题：2010 年第 44 题、2014 年第 44 题、2019 年第 45 题、2024 年第 44 题
+
+例如：
+
+```c
+if (a > b) {
+    max = a;
+} else {
+    max = b;
+}
+```
+
+典型汇编结构：
+
+```asm
+cmp eax, ebx
+jle else_label
+
+mov max, eax
+jmp endif_label
+
+else_label:
+mov max, ebx
+
+endif_label:
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-004.svg" alt={"selection_structure"} />
+
+可以抽象为：
+
+```text
+比较
+ ↓
+条件跳转
+ ├─ 条件成立 → 分支 A
+ └─ 条件不成立 → 分支 B
+ ↓
+合流
+```
+
+> **做汇编综合题**
+>
+> 先识别：
+>
+> * `CMP`
+> * 条件跳转
+> * 无条件跳转
+> * 标签
+>
+> 再恢复高级语言控制结构。
+
+---
+
+## 40. while 循环与汇编
+
+C：
+
+```c
+while (count < 10) {
+    count++;
+}
+```
+
+汇编：
+
+```asm
+start:
+cmp ecx, 10
+jge end
+
+inc ecx
+jmp start
+
+end:
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-005.svg" alt={"while_loop"} />
+
+结构：
+
+```text
+条件判断
+   ↓
+条件不成立 → 退出
+   ↓
+循环体
+   ↓
+跳回判断
+```
+
+核心是：
+
+> **先判断，再执行。**
+
+---
+
+## 41. do-while 循环与汇编
+
+C：
+
+```c
+do {
+    count++;
+} while (count < 10);
+```
+
+汇编：
+
+```asm
+start:
+inc ecx
+cmp ecx, 10
+jl start
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-006.svg" alt={"do_while_loop"} />
+
+特点：
+
+> **先执行，再判断，因此循环体至少执行一次。**
+
+---
+
+## 42. for 循环与汇编
+
+C：
+
+```c
+for (int i = 0; i < 10; i++) {
+    sum += i;
+}
+```
+
+汇编：
+
+```asm
+mov ecx, 0
+mov eax, 0
+
+loop_start:
+cmp ecx, 10
+jge loop_end
+
+add eax, ecx
+inc ecx
+jmp loop_start
+
+loop_end:
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-007.svg" alt={"for_loop"} />
+
+逻辑结构：
+
+```text
+初始化
+  ↓
+条件判断 ←─────────┐
+  ↓                │
+循环体             │
+  ↓                │
+更新变量 ──────────┘
+```
+
+---
+
+## 43. 函数调用与栈帧
+
+函数调用是第 4 章中最容易与：
+
+* 寻址方式；
+* 控制转移；
+* 存储系统；
+* CPU
+
+形成综合题的内容之一。
+
+本节用经典 **32 位 x86 cdecl** 模型解释基本原理。
+
+> 不同 ISA、操作系统 ABI、编译器优化等级生成的实际代码可能不同，考试应优先服从题设。
+
+---
+
+### 43.1 caller 与 callee
+
+例如：
+
+```c
+void func() {
+    add(1, 2);
+}
+```
+
+此时：
+
+* `func`：caller
+* `add`：callee
+
+<InlineSvg src="/images/computer-organization/computer-organization-instruction-high-low-language-008.svg" alt={"x86 cdecl 调用约定栈帧示意图"} />
+
+---
+
+### 43.2 经典函数调用流程
+
+可以分为：
+
+1. caller 准备 callee 参数；
+2. 执行 `CALL`；
+3. CALL 保存返回地址并跳转；
+4. callee 保存旧栈帧基址；
+5. 建立自己的栈帧；
+6. 为局部变量分配栈空间；
+7. 执行函数体；
+8. 返回值放入约定位置；
+9. 恢复栈帧；
+10. 执行 `RET`；
+11. caller 清理参数或按调用约定处理。
+
+---
+
+## 44. 函数定义的汇编实现
+
+C：
+
+```c
+int add(int x, int y) {
+    return x + y;
+}
+```
+
+经典 32 位 x86 示例：
+
+```asm
+.globl _add
+_add:
+    push ebp
+    mov  ebp, esp
+
+    mov  eax, [ebp+8]
+    add  eax, [ebp+12]
+
+    mov  esp, ebp
+    pop  ebp
+    ret
+```
+
+进入函数后：
+
+```text
+[ebp]       旧 EBP
+[ebp+4]     返回地址
+[ebp+8]     第一个参数
+[ebp+12]    第二个参数
+```
+
+因此：
+
+```asm
+mov eax, [ebp+8]
+```
+
+取得参数 `x`。
+
+```asm
+add eax, [ebp+12]
+```
+
+加上参数 `y`。
+
+返回值保存在：
+
+```text
+EAX
+```
+
+---
+
+## 45. 函数调用示例
+
+C：
+
+```c
+void func() {
+    int sum = add(3, 5);
+    int var = sum * 2;
+}
+```
+
+典型汇编：
+
+```asm
+.globl _func
+_func:
+    push ebp
+    mov  ebp, esp
+
+    sub  esp, 8
+
+    push 5
+    push 3
+    call _add
+    add  esp, 8
+
+    mov  [ebp-4], eax
+
+    mov  eax, [ebp-4]
+    shl  eax, 1
+    mov  [ebp-8], eax
+
+    mov  esp, ebp
+    pop  ebp
+    ret
+```
+
+其中：
+
+```asm
+push 5
+push 3
+```
+
+在经典 cdecl 中按从右向左顺序传递参数。
+
+```asm
+call _add
+```
+
+完成：
+
+```text
+返回地址压栈
++
+跳转到 add
+```
+
+函数返回后：
+
+```asm
+add esp, 8
+```
+
+由 caller 清理两个 4 Byte 参数。
+
+---
+
+### 45.1 栈帧结构
+
+```text
+                  高地址
++--------------------------------+
+| caller 的其他数据              |
++--------------------------------+
+| 参数2              [ebp+12]    |
++--------------------------------+
+| 参数1              [ebp+8]     |
++--------------------------------+
+| 返回地址            [ebp+4]     |
++--------------------------------+
+| caller 的 EBP       [ebp]       | ← EBP
++--------------------------------+
+| 局部变量1           [ebp-4]     |
++--------------------------------+
+| 局部变量2           [ebp-8]     |
++--------------------------------+
+| ...                            |
++--------------------------------+
+                  低地址
+```
+
+这与前面的**基址寻址**正好联系起来：
+
+$$
+EA=EBP+\mathrm{offset}
+$$
+
+其中：
+
+* 正偏移：常访问参数、返回地址；
+* 负偏移：常访问局部变量。
+
+---
+
+## 46. CALL、RET 与栈帧必须串起来理解
+
+函数调用综合题可以按下列流程分析：
+
+```text
+caller
+  │
+  ├─ 参数入栈
+  │
+  ├─ CALL
+  │    ├─ 返回地址压栈
+  │    └─ PC ← callee
+  │
+callee
+  │
+  ├─ push ebp
+  ├─ mov ebp, esp
+  ├─ sub esp, n
+  │
+  ├─ 执行函数
+  │
+  ├─ 返回值 → eax
+  │
+  ├─ mov esp, ebp
+  ├─ pop ebp
+  └─ RET
+       │
+       └─ 栈顶返回地址 → PC
+```
+
+这实际上同时涉及：
+
+* 堆栈寻址；
+* 基址寻址；
+* 数据传送；
+* 控制转移；
+* PC；
+* SP；
+* BP；
+* 汇编与高级语言。
+
+---
+
+## 47. 本章高频易错点
+
+#### 47.1 地址字段不一定是内存地址
+
+它可以表示：
+
+* 内存地址；
+* 寄存器号；
+* 立即数；
+* 位移量。
+
+---
+
+#### 47.2 寻址方式针对操作数
+
+例如：
+
+```asm
+MOV AX, 10
+```
+
+同时包含：
+
+* AX：寄存器寻址；
+* 10：立即寻址。
+
+---
+
+#### 47.3 直接寻址与立即寻址
+
+```asm
+MOV R1, 1000
+```
+
+通常表示：
+
+> 把数值 1000 放进 R1。
+
+而：
+
+```asm
+MOV R1, [1000]
+```
+
+表示：
+
+> 去地址 1000 取数据。
+
+即：
+
+```text
+1000      → 数据本身：立即数
+[1000]    → 1000 是地址：直接寻址
+```
+
+---
+
+#### 47.4 寄存器寻址与寄存器间接寻址
+
+```asm
+MOV R1, R2
+```
+
+R2 中保存的是**操作数本身**。
+
+```asm
+MOV R1, [R2]
+```
+
+R2 中保存的是**操作数地址**。
+
+---
+
+#### 47.5 PC 相对寻址用哪个 PC？
+
+做题时一定看题设。
+
+若 CPU 在计算偏移前已经完成取指，PC 通常已指向下一条指令，因此：
+
+$$
+Target=PC_{\text{next}}+offset
+$$
+
+---
+
+#### 47.6 小端不是“数字倒过来”
+
+例如：
+
+```text
+0x12345678
+```
+
+小端内存：
+
+```text
+78 56 34 12
+```
+
+改变的是**各字节的存储顺序**，不是每个字节内部 bit 的顺序。
+
+---
+
+#### 47.7 signed 和 unsigned 条件跳转不能混用
+
+同一条 `CMP` 之后：
+
+* signed：重点看 SF、OF；
+* unsigned：重点看 CF。
+
+---
+
+#### 47.8 CALL 不等于普通 JMP
+
+两者都会改变 PC，但：
+
+> `CALL` 还必须保存返回地址。
+
+因此才能配合 `RET` 回来。
+
+---
+
+#### 47.9 栈向低地址增长时
+
+PUSH：
+
+```text
+SP 先减小
+再写入数据
+```
+
+POP：
+
+```text
+先读取数据
+SP 再增大
+```
+
+---
+
+#### 47.10 对齐与大小端是两个完全不同的问题
+
+* 对齐：一个对象**从什么地址开始**；
+* 大小端：对象内部多个字节**按什么顺序排列**。
+
+---
+
+## 48. 408 一页式复习框架
+
+```text
+第 4 章 指令系统
+│
+├─ ISA
+│  ├─ 软件与硬件接口
+│  └─ ISA ≠ 微架构
+│
+├─ 指令格式
+│  ├─ 操作码
+│  ├─ 地址码
+│  ├─ 零/一/二/三地址
+│  ├─ 定长/变长
+│  └─ 扩展操作码
+│
+├─ 寻址方式
+│  ├─ 立即
+│  ├─ 寄存器
+│  ├─ 直接
+│  ├─ 间接
+│  ├─ 基址
+│  ├─ 变址
+│  ├─ 相对
+│  └─ 堆栈
+│
+├─ 数据存放
+│  ├─ 数据对齐
+│  └─ 大端/小端
+│
+├─ 指令集风格
+│  ├─ CISC
+│  ├─ RISC
+│  └─ Intel / AT&T
+│
+├─ 常用指令
+│  ├─ MOV
+│  ├─ PUSH / POP
+│  ├─ ADD / SUB
+│  ├─ MUL / DIV
+│  ├─ AND / OR / XOR / NOT
+│  ├─ CMP
+│  ├─ SHL / SHR / SAR
+│  ├─ JMP / Jxx
+│  └─ CALL / RET
+│
+└─ 高级语言到底层
+   ├─ 预处理
+   ├─ 编译
+   ├─ 汇编
+   ├─ 链接
+   ├─ if
+   ├─ while / do-while / for
+   └─ 函数调用与栈帧
+```
+
+---
+
+### 49. 最后记忆
+
+#### 指令
+
+> **操作码告诉 CPU“做什么”，寻址方式告诉 CPU“数据在哪里”。**
+
+#### 寻址
+
+> **先求 EA，再取操作数。**
+
+#### 相对寻址
+
+$$
+Target=PC_{\text{next}}+offset
+$$
+
+#### 小端
+
+> **低位字节放低地址。**
+
+#### 大端
+
+> **高位字节放低地址。**
+
+#### 栈
+
+> **经典 x86 栈向低地址增长：PUSH 先减 SP，POP 后加 SP。**
+
+#### 比较
+
+> **CMP 只改标志，不保存减法结果。**
+
+#### signed 与 unsigned
+
+> **signed 比较看 SF/OF，unsigned 比较看 CF。**
+
+#### 函数调用
+
+> **CALL 保存返回地址并跳转，RET 取回返回地址并恢复控制流。**
+
+#### ISA
+
+> **ISA 规定做什么，微架构决定怎么实现。**

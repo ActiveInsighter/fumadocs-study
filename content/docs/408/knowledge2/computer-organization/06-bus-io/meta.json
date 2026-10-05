@@ -1,12 +1,9 @@
 {
   "title": "第 6 章 总线与输入/输出系统",
   "pages": [
-    "01-bus-basics-structure",
-    "02-bus-transaction-timing-performance",
-    "03-io-interface-port-addressing",
-    "04-programmed-io-interrupt",
-    "05-dma-controller-cycle-stealing",
-    "06-channel-io-comparison-review"
+    "01-bus",
+    "02-io-interface-transfer",
+    "03-dma-channel"
   ],
   "defaultOpen": false
 }

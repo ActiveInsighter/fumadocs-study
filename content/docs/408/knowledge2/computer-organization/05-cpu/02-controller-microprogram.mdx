@@ -1,0 +1,498 @@
+---
+title: "控制器与微程序控制"
+description: "第 5 章 中央处理器：控制器与微程序控制。CPU 数据通路、寄存器、控制器、异常中断、流水线与多处理机。"
+---
+
+## 5.5 控制器
+
+> **复习重点**
+>
+> 1. 看懂并书写 **寄存器传送语言 RTL**；
+> 2. 根据数据通路推出 **控制信号**；
+> 3. 区分 **硬布线控制器** 与 **微程序控制器**；
+> 4. 区分 **指令、微程序、微指令、微命令、微操作**。
+
+> **历年真题范围**
+>
+> 选择题：2025 年第 19 题。
+> 解答题：2022 年第 43 题、2026 年第 44 题。
+
+---
+
+### 5.5.1 控制器的功能
+
+控制器主要承担：
+
+* **指令控制**：取指、分析指令、形成下一条指令地址；
+* **操作控制**：产生完成当前指令所需的各种微操作信号；
+* **时间控制**：保证各种操作在正确时刻、按照正确顺序执行；
+* **异常和中断控制**：在特殊事件发生时改变正常控制流。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-001.svg" alt="控制器基本组成" />
+
+控制器通常可以抽象为：
+
+* 指令控制部分；
+* 时序控制部分；
+* 控制信号发生部分。
+
+---
+
+### 5.5.2 指令控制
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-002.svg" alt="指令控制器工作过程" />
+
+其基本工作过程为：
+
+```text
+PC / CS:IP
+   ↓
+形成取指地址
+   ↓
+访问存储器
+   ↓
+指令 → IR
+   ↓
+指令译码
+   ↓
+产生执行控制信息
+```
+
+与此同时，还要形成正常顺序执行时的下一条指令地址。
+
+---
+
+### 5.5.3 时序控制
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-003.svg" alt="指令周期、机器周期与时钟周期" />
+
+应区分三个概念：
+
+#### 时钟周期
+
+CPU 最基本的时序单位。
+
+#### 机器周期 / CPU 周期
+
+完成某个较完整基本操作所需的一段时间，一般包含若干时钟周期。
+
+#### 指令周期
+
+取出并执行一条完整机器指令所需要的全部时间。
+
+通常满足：
+
+```text
+指令周期
+  └─ 一个或多个机器周期
+       └─ 一个或多个时钟周期
+```
+
+不同指令的指令周期不一定相同。
+
+例如：
+
+```text
+MOV R1, [addr]
+```
+
+至少需要完成：
+
+1. 地址送入地址寄存器；
+2. 启动存储器读；
+3. 数据进入数据寄存器；
+4. 数据写入 `R1`。
+
+这些操作必须满足明确的先后关系。
+
+---
+
+### 5.5.4 控制信号发生
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-004.svg" alt="控制信号发生器" />
+
+控制信号大体可分为：
+
+* CPU **内部控制信号**；
+* 面向存储器和 I/O 的 **系统总线控制信号**。
+
+例如：
+
+* `MemR`：存储器读；
+* `MemW`：存储器写；
+* `Rout`：寄存器内容送出；
+* `Rin`：数据写入寄存器；
+* `ALUop`：指定 ALU 运算；
+* `MUXop`：控制多路选择器。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-005.svg" alt="典型 CPU 内部数据通路与控制信号" />
+
+> **易错点**
+>
+> `Rout` 表示该寄存器驱动数据通路，是“读出”；
+> `Rin` 表示把数据锁存进该寄存器，是“写入”。
+
+---
+
+## 5.6 寄存器传送语言 RTL
+
+RTL（Register Transfer Language）用于描述 CPU 内部的 **微操作和数据传送**。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-006.svg" alt="寄存器传送语言 RTL" />
+
+常见符号：
+
+| 写法       | 含义             |
+| -------- | -------------- |
+| `R1, R2` | 通用寄存器          |
+| `PC`     | 程序计数器          |
+| `IR`     | 指令寄存器          |
+| `MAR`    | 存储器地址寄存器       |
+| `MDR`    | 存储器数据寄存器       |
+| `M[x]`   | 地址 `x` 对应的存储单元 |
+| `←`      | 从右向左传送         |
+| `,`      | 可在同一时钟周期并行执行   |
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-007.svg" alt="RTL 基本语法" />
+
+---
+
+### 5.6.1 基本操作
+
+#### 寄存器传送
+
+```text
+R1 ← R2
+```
+
+表示将 `R2` 的内容送入 `R1`。
+
+#### 运算
+
+```text
+R1 ← R2 + R3
+```
+
+表示 ALU 完成加法，并把结果写入 `R1`。
+
+#### 并行微操作
+
+```text
+MAR ← PC, PC ← PC + 4
+```
+
+只要数据通路资源允许，两项可以在同一个时钟周期完成。
+
+#### 顺序微操作
+
+```text
+MAR ← PC
+MDR ← M[MAR]
+IR  ← MDR
+```
+
+三行通常表示不同的时钟节拍。
+
+#### 存储器读
+
+```text
+MAR ← PC
+MDR ← M[MAR]
+```
+
+#### 存储器写
+
+```text
+MAR ← R1
+MDR ← R2
+M[MAR] ← MDR
+```
+
+---
+
+## 5.7 一条指令对应的控制信号
+
+以下使用：
+
+```text
+ADD R0, (R1)
+```
+
+作为例子。
+
+含义：
+
+```text
+R0 ← R0 + M[R1]
+```
+
+---
+
+### 5.7.1 取指与译码
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-008.svg" alt="取指与译码阶段数据通路" />
+
+一种典型实现可以写成：
+
+| 时钟 | 微操作            | 典型控制信号                    |
+| -- | -------------- | ------------------------- |
+| C1 | `MAR ← PC`     | `PCout, MARin`            |
+| C2 | `MDR ← M[MAR]` | `MemR, MDRin`             |
+| C3 | `IR ← MDR`     | `MDRout, IRin`            |
+| C4 | `T2 ← PC + 1`  | `PCout, MUXop, Add, T2in` |
+| C5 | `PC ← T2`      | `T2out, PCin`             |
+| C6 | 指令译码           | 译码逻辑                      |
+
+这里的 `PC + 1` 只是抽象表示，实际增量由指令编址方式和指令字长决定。
+
+---
+
+### 5.7.2 执行、访存和写回
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-009.svg" alt="ADD R0 (R1) 执行阶段数据通路" />
+
+典型过程：
+
+| 时钟  | 微操作             | 控制信号                |
+| --- | --------------- | ------------------- |
+| C7  | `MAR ← R1`      | `R1out, MARin`      |
+| C8  | `MDR ← M[MAR]`  | `MemR, MDRin`       |
+| C9  | `T1 ← R0`       | `R0out, T1in`       |
+| C10 | `T2 ← MDR + T1` | `MDRout, Add, T2in` |
+| C11 | `R0 ← T2`       | `T2out, R0in`       |
+
+> **做数据通路大题的方法**
+>
+> 不要死背控制信号表。先写出 RTL 微操作，再逐项回答：
+>
+> * 谁提供源数据？
+> * 谁接收数据？
+> * 是否经过 ALU？
+> * ALU 做什么？
+> * 是否访问主存？
+>
+> 控制信号自然就能推出。
+
+---
+
+## 5.8 控制器的两种实现方式
+
+> **历年真题范围**
+>
+> 硬布线/微程序控制相关：2009 年第 17、19 题，2012 年第 18 题，2014 年第 18 题，2024 年第 13 题等。
+
+---
+
+### 5.8.1 硬布线控制器
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-010.svg" alt="硬布线控制器结构" />
+
+硬布线控制器利用：
+
+* 指令译码结果；
+* 当前时序状态；
+* 条件标志；
+* 外部控制信号
+
+经过固定的组合逻辑直接产生微操作控制信号。
+
+其本质可看成一个 **有限状态机**。
+
+某控制信号通常是若干逻辑条件的组合，例如：
+
+$$
+C_i
+=
+f(
+\text{Opcode},
+\text{Timing},
+\text{Flags},
+\text{State}
+)
+$$
+
+#### 特点
+
+| 特点         | 说明               |
+| ---------- | ---------------- |
+| 速度快        | 无需读取控制存储器        |
+| 控制路径直接     | 组合逻辑直接生成控制信号     |
+| 修改困难       | 修改指令控制逻辑往往需要修改硬件 |
+| 复杂指令系统设计困难 | 控制逻辑规模可能迅速增大     |
+
+因此，硬布线控制通常具有较高速度。
+
+---
+
+### 5.8.2 微程序控制器
+
+微程序控制并不是“普通软件控制 CPU”。
+
+它仍然属于 **硬件控制器的一种实现方式**，只是把控制信号编码成微指令，存放于专门的 **控制存储器** 中。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-011.svg" alt="微程序控制器基本结构" />
+
+核心部件通常包括：
+
+* 控制存储器 `CM`；
+* 微地址寄存器 / 微程序计数器 `µPC`；
+* 微指令寄存器 `µIR`；
+* 微地址形成部件；
+* 微命令译码/输出逻辑。
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-012.svg" alt="控制存储器中的微指令" />
+
+基本过程：
+
+```text
+机器指令进入 IR
+      ↓
+根据操作码形成微程序入口地址
+      ↓
+µPC 指向控制存储器
+      ↓
+取出微指令到 µIR
+      ↓
+产生一组微命令
+      ↓
+形成下一微地址
+      ↓
+继续执行下一条微指令
+```
+
+---
+
+### 5.8.3 微命令、微操作、微指令和微程序
+
+这是高频概念辨析。
+
+#### 微操作
+
+CPU 内部完成的最基本操作，例如：
+
+```text
+MAR ← PC
+```
+
+#### 微命令
+
+控制器发出的、使某个微操作发生的控制信号，例如：
+
+```text
+PCout
+MARin
+```
+
+#### 微指令
+
+一条微指令包含 **一组可以同时发出的微命令**，通常还包括下一微地址信息。
+
+#### 微程序
+
+为完成 **一条机器指令** 而执行的一组微指令序列。
+
+关系可以记成：
+
+```text
+机器指令
+   ↓
+微程序
+   ↓
+多条微指令
+   ↓
+每条微指令包含若干微命令
+   ↓
+微命令控制微操作
+```
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-016.svg" alt="指令、微程序、微指令与微命令关系" />
+
+---
+
+## 5.9 微指令编码
+
+### 5.9.1 直接编码
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-013.svg" alt="微指令直接编码" />
+
+每一位直接控制一条微命令：
+
+```text
+D7 D6 D5 D4 ...
+│  │  │
+│  │  └─ ALU_ADD
+│  └──── RB_load
+└─────── RA_load
+```
+
+优点：
+
+* 无需进一步译码；
+* 控制速度快；
+* 并行性高。
+
+缺点：
+
+* 微指令字很长；
+* 控制存储器容量大。
+
+通常具有较强的 **水平型微指令** 特征。
+
+---
+
+### 5.9.2 字段编码
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-014.svg" alt="微指令字段编码" />
+
+把互斥的微命令分到同一字段中，再通过译码产生具体微命令。
+
+例如：
+
+```text
+F1：寄存器操作
+00 → 无操作
+01 → RA_load
+10 → RB_load
+
+F2：ALU
+00 → 无操作
+01 → ADD
+10 → SUB
+```
+
+不同字段之间可以同时发出控制信号。
+
+特点：
+
+* 微指令更短；
+* 控制存储器容量更小；
+* 需要译码；
+* 并行能力相对直接编码有所下降。
+
+---
+
+### 5.9.3 混合编码
+
+<InlineSvg src="/images/computer-organization/computer-organization-cpu-controller-015.svg" alt="微指令混合编码" />
+
+部分重要控制信号直接编码，其他微命令采用字段编码，以折中：
+
+* 微指令长度；
+* 控制速度；
+* 并行能力；
+* 控制存储器容量。
+
+---
+
+### 5.9.4 硬布线与微程序控制对比
+
+| 比较项    | 硬布线         | 微程序            |
+| ------ | ----------- | -------------- |
+| 控制信号来源 | 固定组合逻辑      | 控制存储器中的微指令     |
+| 速度     | 快           | 相对较慢           |
+| 修改     | 困难          | 相对容易           |
+| 复杂指令实现 | 较困难         | 较方便            |
+| 设计灵活性  | 低           | 高              |
+| 典型思想   | 用电路“算出”控制信号 | 从控制存储器“读出”控制信号 |
+
+---
