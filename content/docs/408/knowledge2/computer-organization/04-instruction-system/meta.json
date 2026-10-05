@@ -1,13 +1,10 @@
 {
   "title": "第 4 章 指令系统",
   "pages": [
-    "01-isa-format-opcode",
-    "02-addressing-effective-address",
-    "03-alignment-endian-risc-cisc",
-    "04-assembly-data-arithmetic",
-    "05-branch-call-system-io",
-    "06-compiler-control-flow",
-    "07-function-call-stack-review"
+    "01-isa-addressing",
+    "02-alignment-endian-risc-cisc",
+    "03-assembly-instructions",
+    "04-compilation-function-call"
   ],
   "defaultOpen": false
 }

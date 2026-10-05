@@ -1,15 +1,11 @@
 {
   "title": "第 2 章 进程管理",
-  "description": "进程线程、IPC、CPU 调度、同步互斥、经典同步问题、死锁与银行家算法。",
   "pages": [
-    "01-process-thread-state",
-    "02-ipc-thread-model",
-    "03-scheduling-context-switch",
-    "04-mutual-exclusion-primitives",
-    "05-semaphore-monitor",
-    "06-sync-modeling-method",
-    "07-classic-sync-problems",
-    "08-deadlock-banker-review"
+    "01-process-thread-ipc",
+    "02-scheduling",
+    "03-synchronization",
+    "04-classic-sync",
+    "05-deadlock"
   ],
   "defaultOpen": false
 }

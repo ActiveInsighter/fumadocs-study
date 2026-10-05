@@ -2,9 +2,8 @@
   "title": "第 4 章 串（字符串）",
   "pages": [
     "01-string-basics",
-    "02-pattern-matching-naive",
-    "03-kmp-next",
-    "04-nextval-review"
+    "02-kmp",
+    "03-nextval-summary"
   ],
   "defaultOpen": false
 }

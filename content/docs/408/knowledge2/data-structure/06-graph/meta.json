@@ -1,13 +1,10 @@
 {
   "title": "第 6 章 图",
   "pages": [
-    "01-graph-concepts-properties",
-    "02-graph-storage",
-    "03-dfs-bfs",
-    "04-mst",
-    "05-shortest-path",
-    "06-topological-sort",
-    "07-critical-path-review"
+    "01-basics-storage",
+    "02-traversal-mst",
+    "03-shortest-topology",
+    "04-critical-path-summary"
   ],
   "defaultOpen": false
 }

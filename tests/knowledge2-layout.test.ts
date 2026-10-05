@@ -65,7 +65,7 @@ describe('408 knowledge2 documentation layout', () => {
           summaryRoot,
           'computer-organization',
           '05-cpu',
-          '08-parallel-multicore-review.mdx',
+          '05-parallel-multicore.mdx',
         ),
       ),
     ).toBe(true);

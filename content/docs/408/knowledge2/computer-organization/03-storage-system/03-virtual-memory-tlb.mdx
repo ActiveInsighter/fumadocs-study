@@ -1,0 +1,406 @@
+---
+title: "虚拟存储器、页表与 TLB"
+description: "第 3 章 存储系统：虚拟存储器、页表与 TLB。存储层次、主存组织、Cache、虚拟存储器、磁盘、RAID 与 SSD。"
+---
+
+## 4. 虚拟存储器、页表与 TLB
+
+虚拟存储器的关键思想不是“让磁盘变成更慢的内存”这么简单，而是给每个进程提供独立、连续的**虚拟地址空间**，再通过页表把虚拟页映射到实际物理页框。
+
+### 4.1 物理内存与虚拟内存
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-001.svg" alt="物理内存与进程虚拟地址空间" />
+
+物理内存就是实际 RAM。进程运行时，当前驻留的代码和数据最终要放在物理页框中才能被 CPU 访问。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-002.svg" alt="虚拟内存概念" />
+
+不同进程都可以拥有从相同低地址开始的虚拟空间，但相同虚拟地址可以映射到完全不同的物理页框。
+
+虚拟存储带来的主要好处包括：
+
+* 每个进程获得独立地址空间，增强隔离；
+* 程序不必关心物理内存的离散分布；
+* 只装入当前需要的页面，可以运行虚拟空间大于实际主存容量的程序；
+* 页级权限便于实现读/写/执行保护；
+* 还可以通过多个虚拟页映射同一物理页实现共享。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-003.svg" alt="请求分页与虚拟页面映射" />
+
+---
+
+### 4.2 页面划分与地址结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-004.svg" alt="虚拟地址和物理地址的页式划分" />
+
+虚拟地址被划分为：
+
+* VPN：Virtual Page Number，虚拟页号；
+* VPO：Virtual Page Offset，页内偏移。
+
+物理地址被划分为：
+
+* PPN：Physical Page Number，物理页号/页框号；
+* PPO：Physical Page Offset，页内偏移。
+
+因为虚拟页与物理页框大小相同，所以地址翻译只替换页号，页内偏移原样保留：
+
+$$
+\text{VPO}=\text{PPO}
+$$
+
+若页面大小为 P 字节且按字节编址，则页内偏移位数为：
+
+$$
+p=\log_2 P
+$$
+
+若虚拟地址宽度为 V bit，则 VPN 位数为：
+
+$$
+V-p
+$$
+
+若物理地址宽度为 M bit，则 PPN 位数为：
+
+$$
+M-p
+$$
+
+> **高频做题顺序：** 页面大小 → 页内偏移位数 → VPN/PPN 位数。页内偏移在 VA 和 PA 中不变。
+
+---
+
+### 4.3 MMU：地址翻译机构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-005.svg" alt="MMU 地址翻译" />
+
+MMU（Memory Management Unit）位于 CPU 的存储访问路径上，负责按照当前进程的地址转换信息，把虚拟地址翻译成物理地址，同时配合完成访问权限检查。
+
+在 408 的典型模型中：
+
+* 操作系统负责创建、维护页表并处理缺页异常；
+* 正常访存时，硬件 MMU 使用 TLB/页表完成地址翻译；
+* 页表基址寄存器指出当前进程顶级页表的位置。
+
+---
+
+### 4.4 页表与页表项
+
+页表记录“虚拟页 → 物理页框”的映射。通常每个进程有自己的页表。
+
+#### 4.4.1 单级页表
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-006.svg" alt="单级页表映射" />
+
+虚拟页号 VPN 直接作为页表索引，找到对应 PTE（Page Table Entry）。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-007.svg" alt="单级页表结构" />
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-008.svg" alt="页表项 PTE 字段" />
+
+PTE 中常见字段包括：
+
+* **PPN**：物理页框号；
+* **Present / Valid**：页面映射当前是否有效/是否在内存，具体语义以体系结构和题设为准；
+* **Dirty**：页面是否被修改；
+* **Accessed / Reference**：页面是否近期被访问；
+* **Protection**：读、写、执行等权限；
+* **Cache 属性**：是否允许缓存等控制信息。
+
+VPN 通常由页表下标隐含，因此不必在每个 PTE 中重复保存完整 VPN。
+
+#### 4.4.2 单级页表地址翻译
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-009.svg" alt="单级页表地址字段" />
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-010.svg" alt="VPN 索引页表并形成物理地址" />
+
+步骤：
+
+1. 从虚拟地址取 VPN 和 VPO；
+2. VPN 索引页表；
+3. 检查页表项有效性与权限；
+4. 若页面已驻留，取出 PPN；
+5. 拼接 PPN 与原 VPO，得到物理地址。
+
+即：
+
+$$
+\text{PA}=\text{PPN}\;\Vert\;\text{VPO}
+$$
+
+其中符号表示按位拼接。
+
+##### 例：地址字段拆分
+
+虚拟地址空间 16 MB，则虚拟地址宽度为：
+
+$$
+\log_2 16\text{ MB}=24\text{ bit}
+$$
+
+物理内存 1 MB，则物理地址宽度为：
+
+$$
+\log_2 1\text{ MB}=20\text{ bit}
+$$
+
+页面大小 4 KB，因此页内偏移：
+
+$$
+\log_2 4\text{ KB}=12\text{ bit}
+$$
+
+所以：
+
+$$
+\text{VPN bits}=24-12=12
+$$
+
+$$
+\text{PPN bits}=20-12=8
+$$
+
+对虚拟地址 `0x321654`：
+
+* VPN = `0x321`；
+* VPO = `0x654`。
+
+查页表得到 PPN 后，只需把 PPN 与 `0x654` 拼接即可得到最终物理地址。
+
+---
+
+### 4.5 为什么需要多级页表
+
+若 32 bit 虚拟地址、页面 4 KB：
+
+$$
+\text{VPN bits}=32-12=20
+$$
+
+单级页表需要：
+
+$$
+2^{20}
+$$
+
+个 PTE。若每个 PTE 占 4 B，则一张完整单级页表需要：
+
+$$
+2^{20}\times4\text{ B}=4\text{ MB}
+$$
+
+而每个进程实际使用的虚拟空间通常是稀疏的，因此给每个进程预留完整大页表非常浪费。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-011.svg" alt="多级页表地址划分" />
+
+多级页表把 VPN 再拆成多段：第一级索引顶级页表，得到下一级页表地址；继续索引，直到末级 PTE 得到 PPN。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-012.svg" alt="多级页表按需分配" />
+
+核心优势是：**只为实际使用到的虚拟地址区域分配下级页表。**
+
+若某一级索引字段有 b bit，则该级页表最多有：
+
+$$
+2^b
+$$
+
+个表项。
+
+做多级页表题时不要背“二级就是各 10 bit”之类结论，应根据：
+
+* 虚拟地址位数；
+* 页面大小；
+* PTE 大小；
+* 一页能容纳多少 PTE；
+* 题目指定层数；
+
+逐级求索引位数。
+
+> **重要修正思路：** 多级页表节省的是“未使用虚拟空间对应的下级页表占用”，并不会减少一个已经完成页表遍历的地址中 VPN 本身需要表达的信息量。
+
+---
+
+### 4.6 进程切换与 PTBR
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-013.svg" alt="进程切换与页表切换" />
+
+不同进程拥有不同页表，因此进程切换时必须让 MMU 改用新进程的页表。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-014.svg" alt="PTBR、MMU 与多进程页表" />
+
+PTBR（Page Table Base Register）保存当前进程顶级页表的基址。进程的 PCB 会保存恢复运行所需的地址空间上下文；调度到该进程时，操作系统装载相应页表基址。
+
+在 x86-64 中常用 CR3 作为相关寄存器的典型例子。
+
+> **注意：** “进程切换就是换 PTBR”只是地址转换部分的抽象。完整上下文切换还包括通用寄存器、程序计数器、栈等状态；TLB 还可能需要刷新，或借助 ASID/PCID 一类标识区分不同地址空间。
+
+---
+
+### 4.7 TLB：页表的高速缓存
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-015.svg" alt="TLB 与页表的关系" />
+
+页表通常位于主存。若每次普通数据访问前都要先访问主存中的页表，会显著增加开销。因此 MMU 内设置 TLB（Translation Lookaside Buffer），缓存近期使用的页表映射。
+
+TLB 的核心映射是：
+
+$$
+\text{VPN}\rightarrow\text{PPN}
+$$
+
+#### 4.7.1 TLB 存储结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-016.svg" alt="TLB 表项结构" />
+
+TLB 表项通常包含：
+
+* Valid；
+* 用于识别 VPN 的 Tag；
+* PPN；
+* 权限等控制位；
+* 某些实现还会保留访问、修改或地址空间标识等信息。
+
+#### 4.7.2 TLB 与 Cache 的区别
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-017.svg" alt="TLB 与 Cache 地址结构对比" />
+
+| 项目    | TLB          | Cache            |
+| ----- | ------------ | ---------------- |
+| 缓存的内容 | 地址映射         | 实际数据块/指令块        |
+| 主要键   | VPN          | 主存块对应的 Tag/Index |
+| 输出    | PPN          | 数据               |
+| 主要作用  | VA → PA 翻译加速 | PA 对应数据访问加速      |
+
+在 408 典型模型中，先通过 TLB/页表得到物理地址，再用物理地址访问 Cache。
+
+#### 4.7.3 TLB 地址结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-018.svg" alt="TLB 地址字段与翻译" />
+
+TLB 也可以采用直接映射、全相联或组相联，因此 VPN 可能进一步分成：
+
+* TLB Tag；
+* TLB 行号或组号。
+
+若命中，则直接得到 PPN；若未命中，只说明“转换不在 TLB 中”，还必须查页表。
+
+> **最重要的辨析：TLB Miss ≠ Page Fault。**
+>
+> * TLB Miss：翻译缓存没命中，去查页表即可；
+> * Page Fault：查到 PTE 后发现所需页面当前不在内存（在题目的请求分页模型下），需要操作系统介入调页。
+
+**原资料 TLB 真题索引：** 选择题 2014 Q28、2015 Q16、2020 Q15、2024 Q17、2026 Q19、2026 Q29；综合题 2009 Q46、2011 Q44、2016 Q45、2018 Q44、2021 Q44。
+
+---
+
+### 4.8 请求分页、缺页与页面替换
+
+请求分页的思想是：页面不必在进程启动时全部装入主存，而是在第一次真正访问时再按需装入。
+
+若所需页面不在主存，就会触发缺页异常（中文教材常称“缺页中断”）。
+
+#### 4.8.1 页面替换
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-019.svg" alt="页面替换的 Victim Frame" />
+
+若发生缺页：
+
+* 有空闲页框：直接分配；
+* 没有空闲页框：使用页面置换算法选一个 Victim Frame。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-020.svg" alt="物理内存与交换区" />
+
+若被淘汰页面已经修改（Dirty=1），需要在丢弃前把新内容写回后备存储；若是可以从文件重新读取的干净页面，实际系统未必需要写入交换区。408 题通常按照题目给定的“脏页写回”模型处理。
+
+常见页面置换算法，如 FIFO、LRU、Clock、改进型 Clock，应与操作系统章节的页面置换知识结合掌握。
+
+---
+
+### 4.9 从虚拟地址到最终数据：完整访存流程
+
+这是本章最值得形成“脑内流程图”的部分。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-021.svg" alt="CPU、MMU、TLB、Cache 与内存的访存路径" />
+
+一次典型访存可以拆成两个阶段：
+
+1. **地址翻译：VA → PA**；
+2. **数据访问：PA → Cache / 主存**。
+
+#### 4.9.1 虚拟地址翻译
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-022.svg" alt="虚拟地址翻译与缺页处理总流程" />
+
+正常逻辑可以整理为：
+
+1. CPU 生成 VA；
+2. MMU 做地址范围和权限相关检查；
+3. 用 VPN 查 TLB；
+4. TLB 命中：直接得到 PPN；
+5. TLB 未命中：查页表；
+6. 若 PTE 表明页面已驻留且权限合法，取 PPN，并把转换装入 TLB；
+7. 若页面不在主存，触发缺页异常；
+8. 操作系统找到空闲页框，或选择一个牺牲页框；
+9. 若牺牲页为脏页，先写回后备存储；
+10. 从磁盘/后备存储把目标页装入页框；
+11. 更新页表以及必要的 TLB 状态；
+12. 重新执行产生缺页的指令，完成地址翻译。
+
+#### 4.9.2 缺页异常处理
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-023.svg" alt="缺页异常处理" />
+
+缺页属于一种**异常（Exception）**：它由当前指令访问某个页面触发，操作系统处理结束后，通常重新执行该指令。
+
+> 若地址本身非法或权限不允许，系统可能产生保护类异常并终止/处理进程，而不是把它当成“从磁盘调页即可恢复”的普通缺页。因此做题时要区分“未驻留”与“非法访问”。
+
+**原资料缺页相关真题索引：** 选择题 2011 Q28、2012 Q28、2013 Q30、2019 Q14、2022 Q29；综合题 2014 Q45、2023 Q44、2024 Q45、2025 Q43。
+
+#### 4.9.3 得到物理地址后的 Cache 访问
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-024.svg" alt="物理地址访问 Cache 的流程" />
+
+得到 PA 后：
+
+1. 根据 Cache 映射方式，把 PA 划分成 Tag、行/组索引、块内偏移；
+2. 找到候选 Cache 行；
+3. 检查 Valid 与 Tag；
+4. 命中则直接读写对应块内数据；
+5. 未命中则访问主存中相应块；
+6. 若目标 Cache 位置没有空行，则执行替换；
+7. 若被替换块采用回写法且 Dirty=1，先写回主存；
+8. 调入新主存块，更新 Tag、Valid、Dirty 等元数据；
+9. 按读/写策略完成本次访问。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-virtual-025.svg" alt="VA 到 TLB、页表、PA、Cache、Memory 的总流程" />
+
+可以把整章最核心的链路压缩为：
+
+```text
+CPU 产生 VA
+   ↓
+拆出 VPN + VPO
+   ↓
+查 TLB
+   ├─ 命中 → 得到 PPN
+   └─ 未命中 → 查页表
+                ├─ 页面驻留 → 得到 PPN，并更新 TLB
+                └─ 页面不在内存 → 缺页异常 → 调页/置换 → 更新页表 → 重试
+   ↓
+PPN + VPO → PA
+   ↓
+按 PA 查 Cache
+   ├─ 命中 → 访问 Cache 数据
+   └─ 未命中 → 访问主存 → 必要时替换/回写 → 填充 Cache
+```
+
+> **综合题检查表：** 看到 VA、TLB、页表、Cache 同时出现时，严格按“先地址翻译，后物理访存”的依赖关系做。每一级都分别判断命中/未命中，不要把 TLB Miss、缺页、Cache Miss 混成一件事。
+
+**原资料虚拟存储器总真题索引：** 选择题 2012 Q25、2023 Q28、2023 Q30、2024 Q16、2024 Q18、2024 Q25、2025 Q23、2025 Q27、2026 Q24、2026 Q28；综合题 2009 Q46、2011 Q44、2013 Q46、2014 Q45、2015 Q46、2016 Q45、2018 Q44、2019 Q46、2020 Q46、2023 Q43、2024 Q44、2024 Q45、2025 Q43。
+
+**原资料页表相关真题索引：** 选择题 2010 Q29、2014 Q28、2014 Q32、2019 Q31、2021 Q29、2022 Q15、2026 Q19、2026 Q28；综合题 2013 Q46、2015 Q46、2017 Q45、2024 Q45。
+
+---

@@ -1,0 +1,317 @@
+---
+title: "外存、RAID、SSD 与复习框架"
+description: "第 3 章 存储系统：外存、RAID、SSD 与复习框架。存储层次、主存组织、Cache、虚拟存储器、磁盘、RAID 与 SSD。"
+---
+
+## 5. 外存：机械硬盘、RAID 与 SSD
+
+### 5.1 机械硬盘基本结构
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-001.svg" alt="机械硬盘盘片、磁头、磁道与柱面" />
+
+机械硬盘由一个或多个盘片、磁头和机械臂等组成。
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-002.svg" alt="磁道、扇区、柱面和磁头" />
+
+关键概念：
+
+* **盘片（Platter）**：旋转的磁性介质；
+* **盘面（Surface）**：盘片可记录数据的一面；
+* **磁头（Head）**：负责对应盘面的读写；
+* **磁道（Track）**：盘面上同心圆形记录区域；
+* **柱面（Cylinder）**：不同盘面上半径相同的磁道集合；
+* **扇区（Sector）**：磁道进一步划分的基本存储单元，常见逻辑/物理扇区大小有 512 B、4 KB 等。
+
+可以把结构关系记成：
+
+```text
+磁盘
+├─ 盘片
+│  ├─ 盘面
+│  │  ├─ 磁道
+│  │  │  └─ 扇区
+│  │  └─ ...
+│  └─ ...
+└─ 同一半径的各盘面磁道 → 柱面
+```
+
+---
+
+### 5.2 CHS 地址
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-003.svg" alt="CHS 地址结构" />
+
+传统 CHS 用三个量定位数据：
+
+* C：Cylinder，柱面号；
+* H：Head，磁头/盘面号；
+* S：Sector，扇区号。
+
+若有 C 个柱面、H 个盘面、每磁道 S 个扇区，则理论编码位数分别为：
+
+$$
+\left\lceil\log_2 C\right\rceil
+$$
+
+$$
+\left\lceil\log_2 H\right\rceil
+$$
+
+$$
+\left\lceil\log_2 S\right\rceil
+$$
+
+总位数为三者之和。
+
+例如：1000 个柱面、4 个盘面、每磁道 32 个扇区：
+
+$$
+\left\lceil\log_2 1000\right\rceil=10
+$$
+
+$$
+\log_2 4=2
+$$
+
+$$
+\log_2 32=5
+$$
+
+因此共需：
+
+$$
+10+2+5=17\text{ bit}
+$$
+
+例如 `(C=500, H=2, S=15)` 就能描述一个具体位置。
+
+**原资料 CHS 真题索引：** 2013 Q25；综合题 2019 Q44、2022 Q44。
+
+---
+
+### 5.3 磁盘性能指标
+
+#### 5.3.1 平均存取时间
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-004.svg" alt="寻道、旋转等待与传输" />
+
+机械硬盘访问一个扇区主要包括：
+
+1. 寻道：把磁头移动到目标磁道；
+2. 旋转等待：等目标扇区旋转到磁头下方；
+3. 数据传输。
+
+因此可写为：
+
+$$
+T_{\text{access}}
+=
+T_{\text{seek}}
++
+T_{\text{rotation}}
++
+T_{\text{transfer}}
+$$
+
+若磁盘转速为 r 转/秒，平均旋转等待约为半圈：
+
+$$
+T_{\text{rotation,avg}}=\frac{1}{2r}
+$$
+
+若题目给出 rpm，应先换成转/秒：
+
+$$
+r=\frac{\text{rpm}}{60}
+$$
+
+#### 5.3.2 数据传输率
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-005.svg" alt="磁盘数据传输率" />
+
+若磁盘每秒转 r 圈，每条磁道能连续传输 N 字节，则理想连续数据传输率为：
+
+$$
+D_r=rN
+$$
+
+其中 N 可以由“每磁道扇区数 × 每扇区字节数”得到。
+
+现代磁盘常采用 ZBR（Zone Bit Recording），外圈磁道可容纳更多扇区，因此真实磁盘并不一定所有磁道都具有完全相同的扇区数；408 计算题以题设模型为准。
+
+**原资料磁盘性能真题索引：** 2013 Q21、2015 Q20；综合题 2019 Q44。
+
+---
+
+### 5.4 RAID
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-006.svg" alt="RAID 条带与校验示意" />
+
+RAID 全称为 **Redundant Array of Independent Disks**。它把多块物理磁盘组织成一个逻辑磁盘系统，通过数据分布和冗余机制改善性能、可靠性或两者兼顾。
+
+常见思想：
+
+* **Striping（条带化）**：把数据分散到多块盘，提高并行吞吐率；
+* **Mirroring（镜像）**：保存完整副本，提高可靠性；
+* **Parity（校验）**：利用校验信息在部分磁盘故障时恢复数据。
+
+典型级别：
+
+* RAID 0：条带化，无冗余；
+* RAID 1：镜像；
+* RAID 5：分布式单校验；
+* RAID 6：分布式双校验。
+
+> **辨析：** Cache 可以提高性能，但普通 Cache 本身不等于冗余可靠性机制；RAID 的“可靠性”来源于镜像/校验等冗余数据。
+
+原资料将 RAID 标为相对低优先级，真题索引为 2013 Q20。
+
+---
+
+### 5.5 SSD
+
+![](/images/computer-organization/computer-organization-storage-storage-007.jpg)
+
+SSD（Solid State Drive）主要使用 NAND Flash 存储数据，不依赖高速旋转盘片和机械磁头，因此：
+
+* 没有机械寻道与旋转等待；
+* 随机访问延迟显著低于 HDD；
+* 抗震性更好、噪声低；
+* 顺序和随机性能通常更高；
+* Flash 单元具有有限擦写寿命，需要主控执行磨损均衡、垃圾回收、ECC 等管理。
+
+SSD 并不是“逻辑上不会出现文件碎片”，而是**碎片不会像 HDD 那样额外引入机械寻道成本**，因此通常无需进行传统机械硬盘式碎片整理。
+
+#### HDD 与 SSD 对比
+
+<InlineSvg src="/images/computer-organization/computer-organization-storage-storage-008.svg" alt="HDD 与 SSD 对比" />
+
+| 项目      | HDD     | SSD         |
+| ------- | ------- | ----------- |
+| 介质      | 磁性盘片    | NAND Flash  |
+| 寻址方式    | 机械 + 电子 | 电子          |
+| 是否有机械寻道 | 有       | 无           |
+| 随机访问延迟  | 高       | 低           |
+| 顺序吞吐    | 较低      | 通常更高        |
+| 抗震      | 较差      | 较好          |
+| 单位大容量成本 | 通常较低    | 通常较高        |
+| 主要寿命约束  | 机械部件等   | Flash 擦写寿命等 |
+
+原图中的速度、延迟数值应视为**典型数量级示意**，并非 408 要求背诵的固定参数。
+
+---
+
+## 6. 本章高频易错点总表
+
+| 易错点                         | 正确理解                          |
+| --------------------------- | ----------------------------- |
+| SRAM 的“静态”意味着非易失            | 错。静态只表示不需刷新，SRAM 仍是易失性        |
+| DRAM 一个地址需要的完整地址位数等于芯片地址引脚数 | 错。DRAM 可用行列地址复用减少引脚           |
+| RAM 才是随机访问，ROM 不能随机访问       | 错。ROM 通常也可随机读；差异主要在写入和断电保持    |
+| Flash 绝对不能改写                | 错。Flash 可电擦写，只是写入方式与 RAM 不同   |
+| 高位交叉能让连续地址分散到各 Bank         | 错。低位交叉才让连续地址轮流落到不同 Bank       |
+| 多体交叉把单次访问延迟缩短 m 倍           | 错。主要提高连续请求的吞吐率                |
+| n 路组相联表示有 n 组               | 错。表示每组有 n 行                   |
+| Cache Miss 就是缺页             | 错。Cache 管物理数据块，缺页是虚拟页面不在主存    |
+| TLB Miss 就是缺页               | 错。TLB Miss 后先查页表，只有页面不驻留才触发缺页 |
+| 页内偏移在地址翻译中变化                | 错。页面与页框同大小，所以 VPO=PPO         |
+| Write-Back 命中时立即写主存         | 错。先改 Cache 并置 Dirty，淘汰时再写回    |
+| Write-Through 一定需要 Dirty 位  | 通常不需要，因为每次写都同步主存              |
+| SSD 完全不存在碎片                 | 不准确。逻辑碎片仍可存在，只是无机械寻道惩罚        |
+
+## 7. 408 一页式做题框架
+
+### 7.1 主存芯片扩展
+
+先问四件事：
+
+1. 目标总容量是多少？
+2. 单芯片多少字、每字多少 bit？
+3. 位扩展需要几片并联？
+4. 字扩展需要几组，哪些高位做片选？
+
+总芯片数：
+
+$$
+N_{\text{chips}}
+=
+\frac{\text{目标字数}}{\text{单片字数}}
+\times
+\frac{\text{目标字长}}{\text{单片字长}}
+$$
+
+### 7.2 Cache 地址划分
+
+按顺序算：
+
+$$
+\text{块内偏移位数}
+=
+\log_2(\text{块大小，按地址单位计})
+$$
+
+再根据映射方式求行号或组号，最后：
+
+$$
+\text{Tag 位数}
+=
+\text{物理地址位数}
+-
+\text{索引位数}
+-
+\text{块内偏移位数}
+$$
+
+### 7.3 页式地址转换
+
+先由页面大小求偏移：
+
+$$
+\text{页内偏移位数}
+=
+\log_2(\text{页面大小})
+$$
+
+再求：
+
+$$
+\text{VPN 位数}
+=
+\text{VA 位数}
+-
+\text{页内偏移位数}
+$$
+
+$$
+\text{PPN 位数}
+=
+\text{PA 位数}
+-
+\text{页内偏移位数}
+$$
+
+最后牢记：
+
+$$
+\text{PA}=\text{PPN}\;\Vert\;\text{VPO}
+$$
+
+### 7.4 综合访存
+
+固定顺序：
+
+```text
+VA
+→ TLB
+→（TLB Miss 才查）Page Table
+→（页面不驻留才）Page Fault
+→ PA
+→ Cache
+→（Cache Miss 才）Main Memory
+```
+
+只要始终分清这三种“未命中”发生在哪一层，本章综合题就不会乱：
+
+* **TLB Miss**：地址转换缓存没命中；
+* **Page Fault**：页面当前不在主存；
+* **Cache Miss**：目标物理数据块当前不在 Cache。

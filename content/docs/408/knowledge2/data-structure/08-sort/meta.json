@@ -1,14 +1,10 @@
 {
   "title": "第 8 章 排序",
   "pages": [
-    "01-sort-basics-simple",
-    "02-shell-merge",
-    "03-quick-select",
-    "04-heap-sort",
-    "05-distribution-review",
-    "06-external-runs",
-    "07-multiway-tree",
-    "08-summary"
+    "01-basic-internal-sort",
+    "02-advanced-internal-sort",
+    "03-external-sort",
+    "04-summary"
   ],
   "defaultOpen": false
 }

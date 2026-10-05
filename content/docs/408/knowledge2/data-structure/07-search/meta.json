@@ -1,11 +1,10 @@
 {
   "title": "第 7 章 查找",
   "pages": [
-    "01-search-basics-linear",
-    "02-btree-properties-search",
-    "03-btree-update-bplus",
-    "04-hash-collision",
-    "05-hash-asl-review"
+    "01-basic-linear-search",
+    "02-b-tree-bplus",
+    "03-hash-table",
+    "04-summary"
   ],
   "defaultOpen": false
 }

@@ -1,13 +1,9 @@
 {
   "title": "第 5 章 I/O 管理",
   "pages": [
-    "01-io-device-interface-software",
-    "02-io-control-methods",
-    "03-buffer-cache",
-    "04-device-allocation-spooling",
-    "05-disk-structure-format-management",
-    "06-disk-scheduling",
-    "07-ssd-wear-review"
+    "01-io-basics-control",
+    "02-buffer-allocation-spooling",
+    "03-disk-management-scheduling"
   ],
   "defaultOpen": false
 }
