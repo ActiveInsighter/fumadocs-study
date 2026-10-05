@@ -9,7 +9,7 @@ description: "第 6 章 总线与输入/输出系统：I/O 系统层次、接口
 <InlineSvg src="/images/computer-organization/computer-organization-bus-io-002.svg" alt={"CPU 发出指令 / 处理数据 内存 存放程序与数据 主机 (Host) I/O 总线 地址线 · 数据线 · 控制线 I/O 接口 设备控制器 控制逻辑 · 寄存器 接口插座 物理连接端口 接口电缆 USB · SATA · HDMI · VGA ... 外设 键盘 鼠标 显示器 磁盘 打印机 主机侧 系统总线 桥接层 外部线缆 外设侧"} />
 <InlineSvg src="/images/computer-organization/computer-organization-bus-io-003.svg" alt={"核心 / 缓存 IMC（内存控制器） PCIe 控制器 DMA 控制器等 PCH / 芯片组 （南桥） 高速互联（如 DMI） SATA 控制器 USB 控制器 硬盘 / SSD 鼠标 / 键盘 / U盘等 CPU (SoC) 主存（DDR4/DDR5） 内存总线 NVMe SSD 显卡 PCIe 总线 PCIe 总线"} />
 
-**I/O 系统（Input/Output System）**负责主机和外部设备之间的信息交换。
+**I/O 系统（Input/Output System）**&#x2060;负责主机和外部设备之间的信息交换。
 
 以主机为参照：
 
@@ -59,7 +59,7 @@ CPU 与外设通常不能直接简单相连，因为二者存在：
 - 控制时序差异；
 - 电气特性差异。
 
-因此需要 **I/O 接口（I/O Interface）**在中间协调。
+因此需要 **I/O 接口（I/O Interface）**&#x2060;在中间协调。
 
 ### 11.1 五类核心功能
 
@@ -329,7 +329,7 @@ $$
 > - 选择题：2013 年第 22 题、2017 年第 32 题、2019 年第 22 题、2020 年第 22 题、2024 年第 22 题、2025 年第 21 题
 > - 解答题：2009 年第 43 题、2012 年第 43 题、2022 年第 44 题
 
-**DMA（Direct Memory Access）**允许设备数据在 DMA 控制逻辑组织下直接与主存交换，而不再由 CPU 指令逐字、逐字节搬运。
+**DMA（Direct Memory Access）**&#x2060;允许设备数据在 DMA 控制逻辑组织下直接与主存交换，而不再由 CPU 指令逐字、逐字节搬运。
 
 核心分工：
 

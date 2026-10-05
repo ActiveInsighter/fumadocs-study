@@ -29,7 +29,7 @@ description: "第 5 章 I/O 管理：磁盘初始化、引导、坏块管理与�
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-001.svg" alt={"磁盘物理格式化过程"} />
 
-**物理格式化（低级格式化）**建立磁盘介质上的底层存储组织，例如：
+**物理格式化（低级格式化）**&#x2060;建立磁盘介质上的底层存储组织，例如：
 
 - 扇区等物理记录结构；
 - 扇区控制信息；
@@ -54,7 +54,7 @@ description: "第 5 章 I/O 管理：磁盘初始化、引导、坏块管理与�
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-003.svg" alt={"引导程序 分区入口 1 分区入口 2 分区入口 3 分区入口 4 引导签名 分区标志 起始 CHS 地址 分区类型 结束 CHS 地址 起始 LBA 扇区数量 %3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%"} />
 
-**MBR（Master Boot Record，主引导记录）**位于传统磁盘布局的起始位置，经典结构包含：
+**MBR（Master Boot Record，主引导记录）**&#x2060;位于传统磁盘布局的起始位置，经典结构包含：
 
 - 引导代码；
 - 分区表；
@@ -67,7 +67,7 @@ description: "第 5 章 I/O 管理：磁盘初始化、引导、坏块管理与�
 
 #### GPT
 
-**GPT（GUID Partition Table）**是现代系统常见的分区表格式，典型优点包括：
+**GPT（GUID Partition Table）**&#x2060;是现代系统常见的分区表格式，典型优点包括：
 
 - 支持更大容量磁盘；
 - 支持更多分区；
@@ -77,14 +77,14 @@ description: "第 5 章 I/O 管理：磁盘初始化、引导、坏块管理与�
 许多实现默认预留约 128 个分区表项，但具体数量取决于实现与分区表空间。
 
 <Callout type="warning" title="GPT 与 UEFI 不在同一层">
-**GPT 是磁盘分区表格式，UEFI 是固件接口。**它们经常配套出现，但不能把二者当成同一个概念。
+**GPT 是磁盘分区表格式，UEFI 是固件接口。**&#x2060;它们经常配套出现，但不能把二者当成同一个概念。
 </Callout>
 
 ### 15.3 逻辑格式化
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-004.svg" alt={"逻辑格式化概念图"} />
 
-**逻辑格式化（高级格式化）**是在一个分区中建立文件系统结构。
+**逻辑格式化（高级格式化）**&#x2060;是在一个分区中建立文件系统结构。
 
 它会创建[文件系统结构](/docs/408/knowledge2/operating_system/04-file-management/03-filesystem-free-space/)，例如：
 
@@ -270,7 +270,7 @@ SCAN / C-SCAN 尤其依赖第 3、4 项。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-008.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 FCFS FCFS Time Time Text is not SVG - cannot display"} />
 
-**FCFS（First Come First Served）**严格按照请求到达顺序访问磁道。
+**FCFS（First Come First Served）**&#x2060;严格按照请求到达顺序访问磁道。
 
 例如请求顺序为：
 
@@ -310,7 +310,7 @@ FCFS 就按该顺序访问。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-009.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 SSTF SSTF Text is not SVG - cannot display"} />
 
-**SSTF（Shortest Seek Time First）**每一步都从尚未完成的请求中选择：
+**SSTF（Shortest Seek Time First）**&#x2060;每一步都从尚未完成的请求中选择：
 
 > **距离当前磁头位置最近的请求。**
 
@@ -391,7 +391,7 @@ FCFS 就按该顺序访问。
 
 <InlineSvg src="/images/operating-system/operating-system-io-device-disks-011.svg" alt={"0 0 18 18 38 38 39 39 55 55 58 58 90 90 100 100 150 150 160 160 184 184 200 200 C-SCAN C-SCAN Text is not SVG - cannot display"} />
 
-**C-SCAN（Circular SCAN）**只在一个固定方向上正式服务请求。
+**C-SCAN（Circular SCAN）**&#x2060;只在一个固定方向上正式服务请求。
 
 典型过程：
 

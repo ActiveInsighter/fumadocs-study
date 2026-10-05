@@ -203,7 +203,7 @@ CPU 执行一条机器指令时，常抽象为：
 add eax, ebx
 ```
 
-汇编程序需要由**汇编器（Assembler）**转换为目标机器代码。
+汇编程序需要由**汇编器（Assembler）**&#x2060;转换为目标机器代码。
 
 ### 5.3 高级语言
 
@@ -354,9 +354,9 @@ gcc -c hello.c -o hello.o
 
 同步数字电路依靠周期性时钟信号协调状态变化。
 
-**时钟周期（Clock Cycle）**记为 $T_{\mathrm{clk}}$，是相邻同类型有效时钟边沿之间的时间。
+**时钟周期（Clock Cycle）**&#x2060;记为 $T_{\mathrm{clk}}$，是相邻同类型有效时钟边沿之间的时间。
 
-**主频（Clock Frequency）**记为 $f$，表示每秒包含多少个时钟周期。
+**主频（Clock Frequency）**&#x2060;记为 $f$，表示每秒包含多少个时钟周期。
 
 二者互为倒数：
 
@@ -444,7 +444,7 @@ I3               IF   ID   EX
 
 ### 10.1 CPI
 
-**CPI（Cycles Per Instruction）**表示平均每条指令消耗多少个时钟周期。
+**CPI（Cycles Per Instruction）**&#x2060;表示平均每条指令消耗多少个时钟周期。
 
 若：
 
@@ -477,7 +477,7 @@ $$
 
 ### 10.2 IPC
 
-**IPC（Instructions Per Cycle）**表示平均每个时钟周期完成多少条指令。
+**IPC（Instructions Per Cycle）**&#x2060;表示平均每个时钟周期完成多少条指令。
 
 在同一统计区间内：
 
@@ -647,7 +647,7 @@ $$
 
 ### 13.1 IPS
 
-**IPS（Instructions Per Second）**表示平均每秒执行多少条机器指令：
+**IPS（Instructions Per Second）**&#x2060;表示平均每秒执行多少条机器指令：
 
 $$
 \mathrm{IPS}
@@ -665,7 +665,7 @@ $$
 
 ### 13.2 MIPS
 
-**MIPS（Million Instructions Per Second）**表示每秒执行多少百万条指令：
+**MIPS（Million Instructions Per Second）**&#x2060;表示每秒执行多少百万条指令：
 
 $$
 \mathrm{MIPS}
@@ -691,7 +691,7 @@ MIPS 的局限是：不同 ISA 的“一条指令”完成的工作量可能完�
 
 <InlineSvg src="/images/computer-organization/computer-organization-overview-performance-004.svg" alt={"FLOPS_units"} />
 
-**FLOPS（Floating-point Operations Per Second）**表示每秒完成多少次浮点运算。
+**FLOPS（Floating-point Operations Per Second）**&#x2060;表示每秒完成多少次浮点运算。
 
 常见单位：
 
@@ -714,7 +714,7 @@ MIPS 的局限是：不同 ISA 的“一条指令”完成的工作量可能完�
 
 ### 14.1 响应时间
 
-**响应时间（Response Time）**关注：
+**响应时间（Response Time）**&#x2060;关注：
 
 > 完成一个任务需要多长时间。
 
@@ -722,7 +722,7 @@ MIPS 的局限是：不同 ISA 的“一条指令”完成的工作量可能完�
 
 ### 14.2 吞吐量
 
-**吞吐量（Throughput）**关注：
+**吞吐量（Throughput）**&#x2060;关注：
 
 > 单位时间内系统能完成多少个任务。
 
@@ -777,7 +777,7 @@ MIPS 的局限是：不同 ISA 的“一条指令”完成的工作量可能完�
 
 ### 15.4 数据通路宽度
 
-**数据通路宽度（Data Path Width）**表示某条内部或外部数据通路一次可以并行传送多少位。
+**数据通路宽度（Data Path Width）**&#x2060;表示某条内部或外部数据通路一次可以并行传送多少位。
 
 若一条数据总线宽度为 64 bit，只能说明**一次并行传送的数据位宽上限**；实际带宽还取决于总线频率、每周期传输次数、协议开销、等待周期和利用率等因素。
 
