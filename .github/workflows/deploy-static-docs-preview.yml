@@ -238,6 +238,7 @@ jobs:
           echo "deployment_url=${deployment_url}" >> "${GITHUB_OUTPUT}"
 
       - name: Verify deployed routes from the runner
+        id: verify
         shell: bash
         run: |
           set -euo pipefail
@@ -290,7 +291,7 @@ jobs:
           echo 'RSC rewrite payloads match the deduplicated local sources.'
 
       - name: Diagnose EdgeOne deployment status
-        if: ${{ failure() && steps.deploy.outcome == 'success' }}
+        if: ${{ always() && (steps.deploy.outcome == 'failure' || steps.verify.outcome == 'failure') }}
         shell: bash
         run: |
           set -euo pipefail
