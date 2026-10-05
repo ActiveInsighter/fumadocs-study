@@ -327,6 +327,36 @@ jobs:
             }))
           }' "${response_file}"
 
+          failed_deployment_id="$(jq -r '[.Data.Response.Deployments[]? | select(.Status == "Failed")][0].DeploymentId // empty' "${response_file}")"
+          if [[ -n "${failed_deployment_id}" ]]; then
+            sdk_dir="${RUNNER_TEMP}/makers-sdk"
+            mkdir -p "${sdk_dir}"
+            npm install --prefix "${sdk_dir}" --no-audit --no-fund '@edgeone/makers-sdk@0.1.0' >/dev/null
+            cat > "${sdk_dir}/get-deployment-log.mjs" <<'EOF'
+          import { writeFile } from 'node:fs/promises';
+          import { Makers } from '@edgeone/makers-sdk';
+
+          const makers = new Makers({ token: process.env.EDGEONE_API_TOKEN, region: 'global' });
+          const { logUrl } = await makers.deployments.getLog({
+            projectId: 'makers-vhp1u9ywp8a4',
+            deploymentId: process.env.DEPLOYMENT_ID,
+          });
+          const response = await fetch(logUrl);
+          const body = await response.text();
+          if (!response.ok) throw new Error(`Build log request failed (${response.status})`);
+          await writeFile(`${process.env.RUNNER_TEMP}/edgeone-build.log`, body);
+          console.log(`Build log fetched: HTTP ${response.status}, ${body.length} characters`);
+          EOF
+            (
+              cd "${sdk_dir}"
+              DEPLOYMENT_ID="${failed_deployment_id}" node ./get-deployment-log.mjs
+            )
+            rg -ni -C 2 'error|failed|limit|invalid|denied|exceed|quota|too many|not found|unsupported|exception' \
+              "${RUNNER_TEMP}/edgeone-build.log" \
+              | sed -E 's#(https?://[^[:space:]]+)#[URL REDACTED]#g' \
+              | tail -n 160 || true
+          fi
+
       - name: Write deployment summary
         if: always()
         shell: bash
