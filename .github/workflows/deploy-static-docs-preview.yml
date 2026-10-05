@@ -336,7 +336,7 @@ jobs:
           import { writeFile } from 'node:fs/promises';
           import { Makers } from '@edgeone/makers-sdk';
 
-          const makers = new Makers({ token: process.env.EDGEONE_API_TOKEN, region: 'global' });
+          const makers = new Makers({ token: process.env.EDGEONE_API_TOKEN, region: 'china' });
           const { logUrl } = await makers.deployments.getLog({
             projectId: 'makers-vhp1u9ywp8a4',
             deploymentId: process.env.DEPLOYMENT_ID,
