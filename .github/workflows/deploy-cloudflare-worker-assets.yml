@@ -871,6 +871,27 @@ jobs:
             }
             console.log('[browser-check] bold boundaries and table overflow typography passed');
 
+            for (const diagramPath of [
+              '/docs/408/knowledge2/data-structure/01-introduction/01-basic-concepts/',
+              '/docs/408/knowledge2/data-structure/01-introduction/04-review-summary/',
+              '/docs/408/knowledge2/data-structure/02-linear-list/04-algorithms-summary/',
+            ]) {
+              await page.goto(base + diagramPath, {
+                waitUntil: 'networkidle2',
+                timeout: 120000,
+              });
+              await page.waitForSelector(
+                '#docs-body svg[aria-roledescription="flowchart-v2"]',
+                { timeout: 30000 },
+              );
+              const diagramText = await page.evaluate(() => document.body.innerText);
+              if (diagramText.includes('Syntax error in text') ||
+                  diagramText.includes('This page couldn’t load')) {
+                throw new Error('Mermaid diagram failed to render on ' + diagramPath);
+              }
+              console.log('[browser-check] Mermaid diagram rendered on ' + diagramPath);
+            }
+
             // Verify the content-addressed ZBSearch files through the actual UI.
             await page.keyboard.down('Control');
             await page.keyboard.press('k');
