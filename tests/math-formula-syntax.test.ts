@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import katex from 'katex';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 type MathSegment = {
   value: string;
@@ -301,10 +301,11 @@ function findForbiddenControlCharacters(source: string): Array<{
 }
 
 describe('math document formulas', () => {
-  it('renders every formula with KaTeX and rejects corrupted LaTeX escapes', () => {
+  it('renders every formula with KaTeX without parse errors or warnings', () => {
     const files = walkMarkdownFiles(mathRoot);
     const failures: string[] = [];
     let formulaCount = 0;
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     expect(files.length).toBeGreaterThan(0);
 
@@ -341,6 +342,8 @@ describe('math document formulas', () => {
           continue;
         }
 
+        warnSpy.mockClear();
+
         try {
           katex.renderToString(segment.value, {
             displayMode: segment.displayMode,
@@ -356,8 +359,18 @@ describe('math document formulas', () => {
             )}"`,
           );
         }
+
+        for (const warning of warnSpy.mock.calls) {
+          failures.push(
+            `${relative}:${line}: KaTeX warning: ${warning.map(String).join(' ')}; formula="${compactSnippet(
+              segment.value,
+            )}"`,
+          );
+        }
       }
     }
+
+    warnSpy.mockRestore();
 
     if (failures.length > 0) {
       throw new Error(
