@@ -51,7 +51,27 @@ Flynn 按**指令流数量**与**数据流数量**分类：
 
 多指令流、多数据流。现代多核 CPU 和多处理器系统通常属于 MIMD。
 
-### 30.2 SIMD 与 SIMT
+### 30.2 向量处理器：一条向量指令处理一串元素
+
+向量处理器提供向量寄存器和向量运算指令，一条指令可描述对多个数据元素的同类运算。例如：
+
+```text
+VADD V1, V2, V3
+```
+
+可理解为把 `V2`、`V3` 中对应元素逐项相加后写入 `V1`。它利用的是**数据级并行性**，与 SIMD 思想密切相关。
+
+典型特点：
+
+- 一条向量指令覆盖多个标量操作，降低取指/译码开销；
+- 向量功能部件可采用深流水，提高连续数据处理吞吐率；
+- 是否能高效执行取决于数据是否适合批量、规则地处理。
+
+<Callout type="warning" title="向量处理器 ≠ 多核 MIMD">
+向量处理器主要让“一条指令作用于多个数据元素”；多核 MIMD 则允许多个核心执行不同指令流。二者可以同时存在于同一台现代计算机中。
+</Callout>
+
+### 30.3 SIMD 与 SIMT
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-005.svg" alt="SIMT Warp 分支分歧" />
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-006.svg" alt="MIMD 并行处理" />
@@ -64,12 +84,12 @@ SIMT（Single Instruction, Multiple Threads）常用于描述 GPU 的线程执�
 
 > SIMT 不是“每个线程在同一时刻随意执行完全不同指令”。
 
-### 30.3 并发与并行
+### 30.4 并发与并行
 
 - **并发**：多个任务在一段时间内都取得进展，单核通过切换也可实现；
 - **并行**：多个任务在同一时刻真正同时执行，需要多个执行资源。
 
-### 30.4 物理核心
+### 30.5 物理核心
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-007.svg" alt="单核与多核处理器" />
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-008.svg" alt="CPU 物理核心" />
@@ -83,12 +103,20 @@ SIMT（Single Instruction, Multiple Threads）常用于描述 GPU 的线程执�
 
 更高层 Cache 可能被多个核心共享，因此不能说“每个核心一定拥有完全独立的全部 Cache”。
 
-### 30.5 SMT 与逻辑处理器
+### 30.6 硬件多线程、SMT 与逻辑处理器
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-009.svg" alt="物理核心与逻辑处理器" />
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-010.svg" alt="软件线程、逻辑核心和物理核心" />
 
-SMT（Simultaneous Multithreading）允许一个物理核心同时维护多个硬件线程。
+硬件多线程的目标，是在线程因 Cache Miss、数据相关等原因暂时无法充分利用流水线时，用另一个线程填补空闲资源。常见形式可按“切换粒度”理解：
+
+| 方式 | 基本思想 | 同一周期是否可发射多个线程的指令 |
+| --- | --- | --- |
+| 粗粒度多线程 | 某线程遇到较长停顿后才切换 | 通常否 |
+| 细粒度多线程 | 几乎按周期在不同线程间轮换 | 通常否 |
+| SMT | 同一周期可从多个线程选择并发发射 | 可以 |
+
+SMT（Simultaneous Multithreading）允许一个物理核心同时维护多个硬件线程，并在同一周期共享超标量执行资源。
 
 例如：
 
@@ -114,7 +142,7 @@ SMT（Simultaneous Multithreading）允许一个物理核心同时维护多个�
 
 > **逻辑核心 ≠ 完整物理核心。SMT 的目标主要是提高资源利用率和线程吞吐率，而不是把执行能力简单翻倍。**
 
-### 30.6 共享内存多处理机
+### 30.7 共享内存多处理机
 
 <InlineSvg src="/images/computer-organization/computer-organization-cpu-multicore-011.svg" alt="共享内存多处理机" />
 
@@ -133,8 +161,33 @@ P3 ─┘
 - 负载均衡；
 - 多 Cache 环境下的缓存一致性。
 
+共享内存机器还可按内存访问时间是否均匀理解：
+
+- **UMA**：各处理器访问共享主存的基本延迟较均匀；
+- **NUMA**：内存物理上分布在不同结点，访问本地内存通常快于远端内存。
+
+### 30.8 为什么核心数增加后加速会越来越难
+
+若程序中可并行比例为 $p$，使用 $N$ 个处理资源，忽略其他额外开销时，Amdahl 定律给出理论加速比：
+
+$$
+S(N)=\frac{1}{(1-p)+\frac{p}{N}}
+$$
+
+当 $N\to\infty$：
+
+$$
+S_{max}=\frac{1}{1-p}
+$$
+
+例如只有 $90\%$ 的工作可并行，则无论增加多少核心，理想加速比上限也只有：
+
+$$
+\frac{1}{0.1}=10
+$$
+
 <Callout type="info" title="处理器越多不等于线性加速">
-并行程序仍受串行部分、同步开销、通信、Cache 与主存带宽限制，因此增加核心数不会自动带来等比例性能增长。
+实际系统还存在同步、通信、缓存一致性、内存带宽和负载不均衡等开销，因此真实加速通常比 Amdahl 理想上限更低。
 </Callout>
 
 ---
@@ -158,6 +211,9 @@ P3 ─┘
 | 多周期处理器就是流水线 | 多周期不要求多条指令重叠 |
 | 五级流水中 WAR/WAW 一定造成冲突 | 经典顺序五级流水主要关注 RAW |
 | 有 Forwarding 就不会 Stall | 紧邻 Load-Use 通常仍需停顿 |
+| 乱序执行可以消除所有数据相关 | 只能绕开可调度等待并消除部分名称相关，RAW 真相关仍存在 |
+| SIMD、向量处理器、多核是同一概念 | 前两者主要利用数据级并行，多核 MIMD 可执行不同指令流 |
+| 硬件多线程只有 SMT 一种 | 还可有粗粒度、细粒度多线程 |
 | 逻辑核心等于物理核心 | SMT 线程共享大量执行资源 |
 
 ### 31.2 CPU 综合题分析顺序
@@ -180,7 +236,16 @@ P3 ─┘
 ⑧ 按 Forwarding、Stall、Flush 重新排时序
       ↓
 ⑨ 若有异常/中断：判断断点、现场、入口与返回位置
+      ↓
+⑩ 若有多发射/乱序：再判断发射宽度、相关、资源和提交顺序
 ```
+
+### 31.3 本章四条贯穿主线
+
+1. **状态线**：PC、寄存器、FLAGS 等保存“程序现在处于什么状态”；
+2. **数据线**：操作数沿寄存器、总线、MUX、ALU、存储器流动；
+3. **控制线**：控制器在正确时刻产生微命令，让数据线按指令语义动作；
+4. **时间线**：单周期、多周期、流水线、乱序、多核都在回答“这些动作如何在时间上组织和重叠”。
 
 本章最终应形成的整体认识是：
 

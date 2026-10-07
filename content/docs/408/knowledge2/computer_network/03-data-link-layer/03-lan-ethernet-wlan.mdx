@@ -19,6 +19,15 @@ description: "第 3 章 数据链路层：局域网、Ethernet 帧、WLAN、VLAN
 
 典型拓扑有总线形、星形、环形等。现代有线 LAN 的主流实现是**交换式 Ethernet**。
 
+IEEE 802 将数据链路层在局域网语境下常概念性地分为两个子层：
+
+| 子层 | 主要职责 |
+| --- | --- |
+| LLC（Logical Link Control） | 向网络层提供较统一的逻辑链路接口 |
+| MAC（Media Access Control） | MAC 地址、帧格式、介质访问控制等 |
+
+实际 Ethernet II 中常直接通过 EtherType 指明上层协议，因此做题时不应机械认为“每个以太网帧里都显式存在 LLC 首部”；但从 IEEE 802 的体系结构角度，**MAC 子层负责与具体局域网介质访问密切相关的功能**是重要结论。
+
 <Callout type="info" title="物理拓扑与逻辑工作方式可不同">
 
 例如 10BASE-T 在物理上常呈星形连接到 Hub，但 Hub 仍构成共享介质的逻辑广播/碰撞环境；连接到 Switch 后则变成交换式点到点链路。
@@ -48,6 +57,17 @@ description: "第 3 章 数据链路层：局域网、Ethernet 帧、WLAN、VLAN
 
 其中 `BASE` 表示基带传输。
 
+<Callout type="info" title="Ethernet II 与 IEEE 802.3 的 Type/Length 字段">
+
+两者 MAC 帧骨架很相似，但 2 B 字段的解释不同：
+
+- **Ethernet II**：该字段通常作为 EtherType，直接指出上层协议；
+- **IEEE 802.3**：该字段传统上表示数据字段长度，上层协议识别由 LLC/SNAP 等进一步完成。
+
+408 若只给普通 Ethernet 帧结构，通常按题目明确的字段语义作答，不必主动混用两套格式。
+
+</Callout>
+
 ---
 
 ## 28. Ethernet 帧格式
@@ -70,7 +90,7 @@ Preamble | SFD | Destination MAC | Source MAC | Type/Length | Data+Padding | FCS
 | Data + Padding | 46～1500 B | 上层数据，不足 46 B 时填充 |
 | FCS | 4 B | CRC 检错 |
 
-Preamble 和 SFD 是物理层发送辅助字段，通常**不计入 64～1518 B 的 Ethernet MAC 帧长度**。
+Preamble 和 SFD 是物理层发送辅助字段，通常**不计入 64～1518 B 的 Ethernet MAC 帧长度**。FCS 对 MAC 帧相关字段进行 CRC 检测，Preamble 与 SFD 也不属于 MAC 帧 FCS 保护范围。
 
 ---
 
@@ -167,6 +187,17 @@ $$
 
 其中 VID 0 与 4095 具有保留/特殊用途，常规可配置 VLAN ID 通常为 1～4094。
 
+常见交换机场景还要区分：
+
+- **Access 端口**：通常面向终端，属于一个 VLAN；
+- **Trunk 端口**：常用于交换机之间或交换机与三层设备之间，可承载多个 VLAN，通常借助 802.1Q Tag 区分。
+
+同一个二层交换机上，不同 VLAN 的广播帧默认不会互相跨越。交换机的转发与泛洪也应在**当前 VLAN 的逻辑范围内**理解。
+
+> **真题范围**
+>
+> 2026 年第 36 题：给定交换机端口 VLAN 划分和帧的 SA/DA，判断某主机是否能收到帧。关键是先限定 VLAN，再区分已知单播、未知单播和广播。
+
 <Callout type="warning" title="VLAN 与交换机默认行为">
 
 普通二层交换机的不同端口会分隔碰撞域，但若未配置 VLAN，通常仍在同一个广播域中；VLAN 才是在二层逻辑上进一步划分广播域。
@@ -199,7 +230,13 @@ HDLC + 01111110
 
 ---
 
-## 33. PPP
+## 33. 广域网基础与 PPP
+
+广域网（WAN）通常覆盖比 LAN 更大的地理范围，常借助运营商链路把相距较远的网络或路由器连接起来。408 在这一部分的重点不是运营商工程细节，而是理解：
+
+- WAN 链路经常是**点到点**连接；
+- 数据链路层协议只负责当前链路，不负责端到端跨网路由；
+- PPP 是典型的点到点数据链路层协议。
 
 PPP（Point-to-Point Protocol）服务于点对点链路。
 
@@ -212,6 +249,14 @@ PPP 中常见组成：
 - **LCP**：建立、配置、测试数据链路；
 - **NCP**：配置不同网络层协议；
 - 可选身份认证机制。
+
+PPP 帧的典型逻辑结构可记为：
+
+```text
+Flag | Address | Control | Protocol | Information | FCS | Flag
+```
+
+其中 `Protocol` 指明 Information 中承载的上层协议，`FCS` 用于检错。PPP 的透明传输会随底层链路类型采用相应的转义/填充规则；做题时以题目给定的同步/异步链路模型为准。
 
 | 机制/协议 | 能否检错 | 是否自行可靠重传 |
 | --- | --- | --- |
@@ -242,6 +287,13 @@ $$
 ```text
 FF:FF:FF:FF:FF:FF
 ```
+
+MAC 地址首字节的低两位在标准语义中还常用于区分：
+
+- **I/G 位**：单播（Individual）还是组播（Group）；
+- **U/L 位**：全球管理（Universally administered）还是本地管理（Locally administered）。
+
+这也解释了为什么现实设备可以使用本地管理或随机化 MAC 地址；“MAC 地址一定是厂商永久烧录且永不变化”并不是严格结论。
 
 ### 34.1 MAC 与 IP 的职责
 
