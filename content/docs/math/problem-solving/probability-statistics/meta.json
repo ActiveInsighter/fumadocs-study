@@ -3,13 +3,10 @@
   "pages": [
     "index",
     "01-random-events-probability",
-    "02-univariate-distributions",
-    "03-multivariate-distributions",
-    "04-random-variable-functions",
-    "05-numerical-characteristics",
-    "06-limit-theorems",
-    "07-statistical-foundations",
-    "08-estimation-hypothesis-testing"
+    "02-random-variables-distributions",
+    "03-numerical-characteristics",
+    "04-limit-theorems",
+    "05-statistical-foundations"
   ],
   "defaultOpen": false
 }
