@@ -76,7 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           started="$(date +%s)"
-          npm test -- tests/static-docs-build.test.ts
+          npm test -- tests/static-docs-build.test.ts tests/math-formula-syntax.test.ts
           echo "- Static/search tests: $(($(date +%s) - started))s" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Restore Next/Turbopack build cache
