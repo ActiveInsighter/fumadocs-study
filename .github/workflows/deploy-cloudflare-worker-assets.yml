@@ -98,7 +98,7 @@ jobs:
 
       - name: Run static deployment tests
         shell: bash
-        run: npm test -- tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts
+        run: npm test -- tests/knowledge2-navigation.test.ts tests/knowledge2-layout.test.ts tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts
 
 
   search:
@@ -149,14 +149,15 @@ jobs:
           search_files="$(find /tmp/static-search-output -type f | wc -l | tr -d ' ')"
           search_bytes="$(du -sb /tmp/static-search-output | awk '{print $1}')"
           echo "search_files=${search_files} search_bytes=${search_bytes}"
-          SEARCH_ROOT=/tmp/static-search-output node --input-type=module <<'NODE'
+          SOURCE_DOC_COUNT="$(find content/docs -type f \( -name '*.md' -o -name '*.mdx' \) | wc -l | tr -d ' ')" SEARCH_ROOT=/tmp/static-search-output node --input-type=module <<'NODE'
           import { existsSync, readFileSync } from 'node:fs';
           import path from 'node:path';
 
           const root = process.env.SEARCH_ROOT;
           const manifest = JSON.parse(readFileSync(path.join(root, 'search-index.json'), 'utf8'));
-          if (manifest.pages !== 780) {
-            throw new Error(`Expected 780 searchable pages, received ${manifest.pages}.`);
+          const expectedPages = Number(process.env.SOURCE_DOC_COUNT);
+          if (!Number.isSafeInteger(expectedPages) || expectedPages < 1 || manifest.pages !== expectedPages) {
+            throw new Error(`Expected ${expectedPages} searchable source pages, received ${manifest.pages}.`);
           }
           if (!Array.isArray(manifest.categories) || manifest.categories.length < 5) {
             throw new Error('Search manifest is missing module categories.');
@@ -271,7 +272,8 @@ jobs:
           test ! -e .static-docs/search-index.json
           test ! -e .static-docs/search
           if [[ "${STATIC_DOCS_SHARD_INDEX}" == '0' ]]; then
-            test "${markdown}" = '780'
+            expected_pages="$(find content/docs -type f \( -name '*.md' -o -name '*.mdx' \) | wc -l | tr -d ' ')"
+            test "${markdown}" = "${expected_pages}"
           else
             test "${markdown}" = '0'
           fi
@@ -428,14 +430,15 @@ jobs:
           cp -a /tmp/static-search/search .static-docs/search
           search_files="$(find .static-docs/search -type f | wc -l | tr -d ' ')"
           echo "merged_search_files=${search_files}"
-          SEARCH_ROOT="${PWD}/.static-docs" node --input-type=module <<'NODE'
+          SOURCE_DOC_COUNT="$(find content/docs -type f \( -name '*.md' -o -name '*.mdx' \) | wc -l | tr -d ' ')" SEARCH_ROOT="${PWD}/.static-docs" node --input-type=module <<'NODE'
           import { existsSync, readFileSync } from 'node:fs';
           import path from 'node:path';
 
           const root = process.env.SEARCH_ROOT;
           const manifest = JSON.parse(readFileSync(path.join(root, 'search-index.json'), 'utf8'));
-          if (manifest.pages !== 780) {
-            throw new Error(`Expected 780 searchable pages after merge, received ${manifest.pages}.`);
+          const expectedPages = Number(process.env.SOURCE_DOC_COUNT);
+          if (!Number.isSafeInteger(expectedPages) || expectedPages < 1 || manifest.pages !== expectedPages) {
+            throw new Error(`Expected ${expectedPages} searchable source pages after merge, received ${manifest.pages}.`);
           }
 
           const resolveAsset = (url) => path.join(root, String(url).replace(/^\/+/, ''));
@@ -459,8 +462,13 @@ jobs:
           set -euo pipefail
           doc_routes="$(find .static-docs/docs -type f -name index.html | wc -l | tr -d ' ')"
           markdown="$(find .static-docs/docs -type f -name '*.md' | wc -l | tr -d ' ')"
-          test "${doc_routes}" = '781'
-          test "${markdown}" = '780'
+          expected_pages="$(find content/docs -type f \( -name '*.md' -o -name '*.mdx' \) | wc -l | tr -d ' ')"
+          expected_routes="${expected_pages}"
+          if [[ ! -f content/docs/index.md && ! -f content/docs/index.mdx ]]; then
+            expected_routes="$((expected_routes + 1))"
+          fi
+          test "${doc_routes}" = "${expected_routes}"
+          test "${markdown}" = "${expected_pages}"
           test -s .static-docs/search-index.json
           test -s .static-docs/docs/__next.docs.txt
           node scripts/verify-static-asset-references.mjs .static-docs
@@ -870,6 +878,8 @@ jobs:
               throw new Error('Long table header content did not activate horizontal overflow.');
             }
             console.log('[browser-check] bold boundaries and table overflow typography passed');
+
+            await require('./scripts/verify-knowledge2-navigation.cjs').verifyKnowledge2Navigation(page, base);
 
             // Verify the content-addressed ZBSearch files through the actual UI.
             await page.keyboard.down('Control');
