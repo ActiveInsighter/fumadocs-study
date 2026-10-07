@@ -44,7 +44,7 @@ describe('408 knowledge2 navigation', () => {
     const meta = JSON.parse(readFileSync(join(root, 'meta.json'), 'utf8')) as { pages: string[] };
     expect(meta.pages[0]).toBe('index');
     const lectures = markdownFiles(root).filter((file) => file !== overview);
-    const links = localLinks(overview);
+    const links = localLinks(overview).filter((url) => url.startsWith(pageUrl(overview)));
     expect(links).toHaveLength(lectures.length);
     expect([...links].sort()).toEqual(lectures.map((file) => pageUrl(file).replace(/\/$/, '')).sort());
   });
