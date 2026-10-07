@@ -618,8 +618,18 @@ jobs:
 
           wait_for_route '/'
 
-          homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
-          if ! grep -Fq 'href="/docs/politics/"' <<<"${homepage}" || ! grep -Fq 'href="/blog/"' <<<"${homepage}"; then
+          homepage=''
+          homepage_ready=false
+          for attempt in $(seq 1 18); do
+            homepage="$(curl --silent --show-error --max-time 60 -L "${base_url}/")"
+            if grep -Fq 'href="/docs/politics/"' <<<"${homepage}" && grep -Fq 'href="/blog/"' <<<"${homepage}"; then
+              homepage_ready=true
+              break
+            fi
+            echo "Root HTML content attempt ${attempt}/18 is not ready; retrying."
+            sleep 5
+          done
+          if [[ "${homepage_ready}" != true ]]; then
             echo '::error::Cloudflare root route did not render the expected study homepage links.'
             printf '%s' "${homepage}" | head -c 1200
             echo
@@ -633,6 +643,12 @@ jobs:
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
             '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
+            '/docs/math/problem-solving/linear-algebra/' \
+            '/docs/math/problem-solving/linear-algebra/02-matrices/' \
+            '/docs/math/problem-solving/linear-algebra/02-matrices/01-%E7%AC%AC%E4%B8%80%E8%8A%82-%E7%9F%A9%E9%98%B5%E6%80%A7%E8%B4%A8%E4%B8%8E%E8%BF%90%E7%AE%97/' \
+            '/docs/math/problem-solving/probability-statistics/' \
+            '/docs/math/problem-solving/probability-statistics/01-random-events-probability/' \
+            '/docs/math/problem-solving/probability-statistics/01-random-events-probability/01-%E9%9A%8F%E6%9C%BA%E4%BA%8B%E4%BB%B6%E5%92%8C%E6%A6%82%E7%8E%87%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%A7%E8%B4%A8/' \
             '/docs/algorithm/' \
             '/docs/algorithm/08-binary-tree/28-bst-lca/'; do
             wait_for_route "${path}"
