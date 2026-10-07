@@ -2,6 +2,7 @@
   "title": "数据结构",
   "description": "考研 408 数据结构知识点系统总结",
   "pages": [
+    "index",
     "01-introduction",
     "02-linear-list",
     "03-stack-queue-array",
