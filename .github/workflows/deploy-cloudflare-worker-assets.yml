@@ -663,6 +663,10 @@ jobs:
           echo "Markdown Content-Type verified as UTF-8: ${markdown_content_type}"
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
 
+      - name: Ensure Git history for update-date verification
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        run: node scripts/ensure-git-history.mjs
+
       - name: Verify client navigation in Headless Chrome
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
         shell: bash
