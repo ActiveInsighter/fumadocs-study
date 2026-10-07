@@ -871,6 +871,8 @@ jobs:
             }
             console.log('[browser-check] bold boundaries and table overflow typography passed');
 
+            await require('./scripts/verify-knowledge2-navigation.cjs').verifyKnowledge2Navigation(page, base);
+
             // Verify the content-addressed ZBSearch files through the actual UI.
             await page.keyboard.down('Control');
             await page.keyboard.press('k');

@@ -1,6 +1,7 @@
 {
   "title": "计算机组成原理",
   "pages": [
+    "index",
     "01-computer-system-overview",
     "02-data-representation",
     "03-storage-system",

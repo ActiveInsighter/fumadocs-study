@@ -37,7 +37,7 @@ describe('408 knowledge2 navigation', () => {
     expect(missing).toEqual([]);
   });
 
-  it.each(courses)('%s has an overview linking to every lecture in sidebar order', (course) => {
+  it.each(courses)('%s has an overview linking to every lecture', (course) => {
     const root = join(summaryRoot, course);
     const overview = join(root, 'index.mdx');
     expect(existsSync(overview), `${course} overview is missing`).toBe(true);

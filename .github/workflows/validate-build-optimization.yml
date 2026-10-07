@@ -24,4 +24,4 @@ jobs:
       - if: steps.modules.outputs.cache-hit != 'true'
         run: npm ci --no-audit --no-fund
       - run: npm run postinstall
-      - run: npm test -- tests/knowledge2-navigation.test.ts tests/knowledge2-layout.test.ts tests/search-determinism.test.ts tests/static-doc-shards.test.ts tests/static-build-id.test.ts tests/static-asset-references.test.ts tests/static-docs-build.test.ts tests/cloudflare-static-assets.test.ts tests/remark-strong-boundary.test.ts tests/normalize-strong-boundaries.test.ts tests/inline-svg.test.tsx tests/svg-style.test.ts
+      - run: npm test

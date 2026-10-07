@@ -103,6 +103,7 @@ describe('study module metadata structure', () => {
       'computer_network',
     ]);
     expect(coursesComputerOrganizationMeta.pages).toEqual([
+      'index',
       '01-computer-system-overview',
       '02-data-representation',
       '03-storage-system',
@@ -111,16 +112,18 @@ describe('study module metadata structure', () => {
       '06-bus-io',
     ]);
     expect(coursesDataStructureMeta.pages).toEqual([
+      'index',
       '01-introduction',
       '02-linear-list',
       '03-stack-queue-array',
       '04-string',
-      '05-tree-binary-tree',
+      '05-tree',
       '06-graph',
       '07-search',
       '08-sort',
     ]);
     expect(coursesOperatingSystemMeta.pages).toEqual([
+      'index',
       '01-computer-system-overview',
       '02-process-management',
       '03-memory-management',
@@ -128,6 +131,7 @@ describe('study module metadata structure', () => {
       '05-io-management',
     ]);
     expect(coursesComputerNetworkMeta.pages).toEqual([
+      'index',
       '01-network-architecture',
       '02-physical-layer',
       '03-data-link-layer',
