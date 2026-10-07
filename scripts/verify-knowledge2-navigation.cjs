@@ -41,7 +41,7 @@ async function verifyKnowledge2Navigation(page, base) {
     for (const [slug, title] of courses) {
       const course = summary + slug + '/';
       await page.goto(base + summary, { waitUntil: 'networkidle2', timeout: 120000 });
-      await page.click(`#docs-body a[href="${course}"]`);
+      await page.locator(`#docs-body a[href="${course}"]`).click();
       await verifyDocument(course);
       const heading = await page.$eval('article h1', (element) => element.textContent.trim());
       if (heading !== title) throw new Error('Unexpected course heading: ' + heading);
@@ -51,14 +51,14 @@ async function verifyKnowledge2Navigation(page, base) {
       if (lectures.length < 2) throw new Error('Course overview has no lecture navigation: ' + course);
 
       for (const lecture of [lectures[0], lectures.at(-1)]) {
-        await page.click(`#docs-body a[href="${lecture}"]`);
+        await page.locator(`#docs-body a[href="${lecture}"]`).click();
         await verifyDocument(lecture);
         await page.goBack({ waitUntil: 'networkidle2', timeout: 120000 });
         await verifyDocument(course);
       }
-      await page.click(`#docs-body a[href="${summary}"]`);
+      await page.locator(`#docs-body a[href="${summary}"]`).click();
       await verifyDocument(summary);
-      await page.click('#nd-subnav button[aria-label="Open Sidebar"]');
+      await page.locator('#nd-subnav button[aria-label="Open Sidebar"]').click();
       for (const folder of ['408 知识点总结 2（优化版）', title]) {
         const found = await page.evaluate((label) => {
           const button = Array.from(document.querySelectorAll('#nd-sidebar-mobile button'))
@@ -70,8 +70,9 @@ async function verifyKnowledge2Navigation(page, base) {
         if (!found) throw new Error('Mobile sidebar is missing folder: ' + folder);
       }
       const sidebarLink = `#nd-sidebar-mobile a[href="${course}"]`;
-      await page.waitForSelector(sidebarLink, { visible: true, timeout: 30000 });
-      await page.click(sidebarLink);
+      // Locator clicks wait for a stable, visible target during accordion animation.
+      // https://pptr.dev/guides/page-interactions#clicking-an-element-using-locators
+      await page.locator(sidebarLink).click();
       await verifyDocument(course);
       await page.waitForSelector('#nd-subnav button[aria-label="Open Sidebar"]', { timeout: 30000 });
       console.log('[browser-check] mobile knowledge2 overview, lectures, back navigation and sidebar passed: ' + slug);
