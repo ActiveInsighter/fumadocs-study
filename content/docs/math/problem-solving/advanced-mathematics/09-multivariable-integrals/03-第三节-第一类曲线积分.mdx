@@ -10,12 +10,12 @@ description: "考研数学题型总结：模块九 多元函数积分学——�
 第一类曲线积分
 
 $$
-\\int_L f(x,y,z)\\,ds
+\int_L f(x,y,z)\,ds
 $$
 
 本质上是“沿曲线按弧长加权求和”。它与第二类曲线积分最大的区别是：**$ds$ 没有方向，因此第一类曲线积分与曲线的走向无关。**
 
-这一节独立真题数量不多，近十年最典型的是 2018 数一：球面与过球心平面的交线是大圆，再利用 $x,y,z$ 的轮换对称计算 $\\oint_Lxy\\,ds$。早期真题与李林、张宇、李正元练习则系统补全了参数化、曲线方程代入、对称性、分段曲线和空间圆周等母题。
+这一节独立真题数量不多，近十年最典型的是 2018 数一：球面与过球心平面的交线是大圆，再利用 $x,y,z$ 的轮换对称计算 $\oint_Lxy\,ds$。早期真题与李林、张宇、李正元练习则系统补全了参数化、曲线方程代入、对称性、分段曲线和空间圆周等母题。
 
 真正需要掌握的不是很多公式，而是三个动作：
 
@@ -27,34 +27,34 @@ $$
 
 #### 1. 第一类曲线积分的定义
 
-设曲线 $L$ 被分成若干小弧段 $\\Delta s_k$，在每段上任取一点 $(\\xi_k,\\eta_k,\\zeta_k)$，若极限
+设曲线 $L$ 被分成若干小弧段 $\Delta s_k$，在每段上任取一点 $(\xi_k,\eta_k,\zeta_k)$，若极限
 
 $$
-\\lim_{\\lambda\\to0}\\sum_{k=1}^n
-f(\\xi_k,\\eta_k,\\zeta_k)\\Delta s_k
+\lim_{\lambda\to0}\sum_{k=1}^n
+f(\xi_k,\eta_k,\zeta_k)\Delta s_k
 $$
 
 存在，则记为
 
 $$
-\\int_Lf(x,y,z)\\,ds.
+\int_Lf(x,y,z)\,ds.
 $$
 
-若 $f\\equiv1$，则
+若 $f\equiv1$，则
 
 $$
-\\int_L1\\,ds
+\int_L1\,ds
 $$
 
 就是曲线 $L$ 的弧长。
 
 #### 2. 与方向无关
 
-因为 $ds\\ge0$，所以
+因为 $ds\ge0$，所以
 
 $$
-\\int_{A\\to B}f\\,ds
-=\\int_{B\\to A}f\\,ds.
+\int_{A\to B}f\,ds
+=\int_{B\to A}f\,ds.
 $$
 
 因此第一类曲线积分不需要“正向、逆向、起点终点”的方向判断。
@@ -66,26 +66,26 @@ $$
 若
 
 $$
-L:y=y(x),\\qquad a\\le x\\le b,
+L:y=y(x),\qquad a\le x\le b,
 $$
 
 则
 
 $$
-ds=\\sqrt{1+[y'(x)]^2}\\,dx,
+ds=\sqrt{1+[y'(x)]^2}\,dx,
 $$
 
 从而
 
 $$
-\\int_Lf(x,y)ds
-=\\int_a^bf(x,y(x))\\sqrt{1+[y'(x)]^2}dx.
+\int_Lf(x,y)ds
+=\int_a^bf(x,y(x))\sqrt{1+[y'(x)]^2}dx.
 $$
 
 若写成 $x=x(y)$，同理
 
 $$
-ds=\\sqrt{1+[x'(y)]^2}dy.
+ds=\sqrt{1+[x'(y)]^2}dy.
 $$
 
 #### 4. 参数方程曲线
@@ -93,34 +93,34 @@ $$
 若平面曲线
 
 $$
-x=x(t),\\qquad y=y(t),\\qquad \\alpha\\le t\\le\\beta,
+x=x(t),\qquad y=y(t),\qquad \alpha\le t\le\beta,
 $$
 
 则
 
 $$
-ds=\\sqrt{[x'(t)]^2+[y'(t)]^2}dt.
+ds=\sqrt{[x'(t)]^2+[y'(t)]^2}dt.
 $$
 
 空间曲线
 
 $$
-x=x(t),\\quad y=y(t),\\quad z=z(t),
+x=x(t),\quad y=y(t),\quad z=z(t),
 $$
 
 则
 
 $$
-ds=\\sqrt{[x'(t)]^2+[y'(t)]^2+[z'(t)]^2}dt.
+ds=\sqrt{[x'(t)]^2+[y'(t)]^2+[z'(t)]^2}dt.
 $$
 
 于是
 
 $$
-\\int_Lf(x,y,z)ds
-=\\int_\\alpha^\\beta
+\int_Lf(x,y,z)ds
+=\int_\alpha^\beta
 f(x(t),y(t),z(t))
-\\sqrt{x'^2+y'^2+z'^2}dt.
+\sqrt{x'^2+y'^2+z'^2}dt.
 $$
 
 **参数方向任意，最后只要保证参数区间覆盖曲线一次即可。**
@@ -146,7 +146,7 @@ $$
 则
 
 $$
-\\int_L(x^2+y^2)ds=R^2\\int_Lds.
+\int_L(x^2+y^2)ds=R^2\int_Lds.
 $$
 
 再如平面交线上若
@@ -166,7 +166,7 @@ $$
 若 $L$ 关于 $y$ 轴对称，且被积函数关于 $x$ 为奇函数，则
 
 $$
-\\int_Lf(x,y)ds=0.
+\int_Lf(x,y)ds=0.
 $$
 
 ##### （2）关于坐标轴/坐标面对称
@@ -178,45 +178,45 @@ $$
 如果空间曲线在 $x,y,z$ 变量轮换后保持不变，则可能有
 
 $$
-\\oint_Lx^2ds
-=\\oint_Ly^2ds
-=\\oint_Lz^2ds,
+\oint_Lx^2ds
+=\oint_Ly^2ds
+=\oint_Lz^2ds,
 $$
 
 以及
 
 $$
-\\oint_Lxyds
-=\\oint_Lyzds
-=\\oint_Lzxds.
+\oint_Lxyds
+=\oint_Lyzds
+=\oint_Lzxds.
 $$
 
 2018 数一正是这一思想的代表。
 
 #### 7. 圆周上的平均值思想
 
-若 $L$ 是圆周，周长为 $2\\pi R$，很多积分可理解为“周长 × 圆周平均值”。
+若 $L$ 是圆周，周长为 $2\pi R$，很多积分可理解为“周长 × 圆周平均值”。
 
 例如单位圆：
 
 $$
-\\oint_Lx^2ds=\\oint_Ly^2ds=\\pi.
+\oint_Lx^2ds=\oint_Ly^2ds=\pi.
 $$
 
 若圆心不在原点，可写
 
 $$
-\\mathbf r=\\mathbf c+\\mathbf u,
+\mathbf r=\mathbf c+\mathbf u,
 $$
 
-其中 $\\mathbf u$ 在圆所在平面内绕圆心旋转。线性项平均为 $0$，二次项可用对称性求平均。这是张宇练习中空间圆周题的高效方法。
+其中 $\mathbf u$ 在圆所在平面内绕圆心旋转。线性项平均为 $0$，二次项可用对称性求平均。这是张宇练习中空间圆周题的高效方法。
 
 #### 8. 分段曲线必须分段积分
 
-若 $L=L_1\\cup L_2\\cup\\cdots$，则
+若 $L=L_1\cup L_2\cup\cdots$，则
 
 $$
-\\int_Lf\\,ds=\\sum_i\\int_{L_i}f\\,ds.
+\int_Lf\,ds=\sum_i\int_{L_i}f\,ds.
 $$
 
 扇形边界、由直线段与圆弧拼成的闭曲线是典型。
@@ -231,11 +231,11 @@ $$
 
 > **【1989 数一真题】** 设平面曲线 $L$ 为下半圆周
 > $$
-> y=-\\sqrt{1-x^2},
+> y=-\sqrt{1-x^2},
 > $$
 > 则曲线积分
 > $$
-> \\int_L(x^2+y^2)ds=\\underline{\\qquad}.
+> \int_L(x^2+y^2)ds=\underline{\qquad}.
 > $$
 
 单位圆周上恒有
@@ -247,14 +247,14 @@ $$
 故
 
 $$
-\\int_L(x^2+y^2)ds
-=\\int_L1\\,ds.
+\int_L(x^2+y^2)ds
+=\int_L1\,ds.
 $$
 
-$L$ 是单位圆下半圆，弧长为 $\\pi$，所以
+$L$ 是单位圆下半圆，弧长为 $\pi$，所以
 
 $$
-I=\\pi.
+I=\pi.
 $$
 
 **识别点：** 在参数化之前先检查曲线方程能否把被积函数变成常数。
@@ -265,11 +265,11 @@ $$
 
 > **【2009 数一真题】** 已知曲线
 > $$
-> L:y=x^2,\\qquad 0\\le x\\le\\sqrt2,
+> L:y=x^2,\qquad 0\le x\le\sqrt2,
 > $$
 > 则
 > $$
-> \\int_Lx\\,ds=\\underline{\\qquad}.
+> \int_Lx\,ds=\underline{\qquad}.
 > $$
 
 因为
@@ -281,14 +281,14 @@ $$
 所以
 
 $$
-ds=\\sqrt{1+4x^2}dx.
+ds=\sqrt{1+4x^2}dx.
 $$
 
 于是
 
 $$
-I=\\int_0^{\\sqrt2}x\\sqrt{1+4x^2}dx
-=\\frac{13}{6}.
+I=\int_0^{\sqrt2}x\sqrt{1+4x^2}dx
+=\frac{13}{6}.
 $$
 
 这是一类最基础的“曲线积分 $ightarrow$ 一元定积分”题。
@@ -299,30 +299,30 @@ $$
 
 > **【1998 数一真题】** 设 $L$ 为椭圆
 > $$
-> \\frac{x^2}{4}+\\frac{y^2}{3}=1,
+> \frac{x^2}{4}+\frac{y^2}{3}=1,
 > $$
 > 其周长记为 $a$，则
 > $$
-> \\oint_L(2xy+3x^2+4y^2)ds=\\underline{\\qquad}.
+> \oint_L(2xy+3x^2+4y^2)ds=\underline{\qquad}.
 > $$
 
 椭圆关于两坐标轴对称，因此
 
 $$
-\\oint_L2xy\\,ds=0.
+\oint_L2xy\,ds=0.
 $$
 
 又在椭圆上
 
 $$
 3x^2+4y^2
-=12\\left(\\frac{x^2}{4}+\\frac{y^2}{3}\\right)=12.
+=12\left(\frac{x^2}{4}+\frac{y^2}{3}\right)=12.
 $$
 
 所以
 
 $$
-I=12\\oint_Lds=12a.
+I=12\oint_Lds=12a.
 $$
 
 这题把**对称消项 + 曲线方程代入**两个技巧合在一起，是第一类曲线积分最经典的母题之一。
@@ -333,19 +333,19 @@ $$
 > $$
 > 求
 > $$
-> \\oint_L(x^3+y^2)ds.
+> \oint_L(x^3+y^2)ds.
 > $$
 
 $x^3$ 关于 $y$ 轴反对称，积分为 $0$；而
 
 $$
-\\oint_Ly^2ds=\\pi,
+\oint_Ly^2ds=\pi,
 $$
 
 故答案为
 
 $$
-\\pi.
+\pi.
 $$
 
 ---
@@ -361,21 +361,21 @@ $$
 > $$
 > 相交而成，求
 > $$
-> \\oint_Lxy\\,ds=\\underline{\\qquad}.
+> \oint_Lxy\,ds=\underline{\qquad}.
 > $$
 
 平面过球心，因此 $L$ 是单位球上的大圆，周长
 
 $$
-2\\pi.
+2\pi.
 $$
 
 由于曲线在 $x,y,z$ 之间完全轮换对称，令
 
 $$
-A=\\oint_Lx^2ds
-=\\oint_Ly^2ds
-=\\oint_Lz^2ds.
+A=\oint_Lx^2ds
+=\oint_Ly^2ds
+=\oint_Lz^2ds.
 $$
 
 在 $L$ 上
@@ -387,21 +387,21 @@ $$
 故
 
 $$
-3A=\\oint_L1\\,ds=2\\pi,
+3A=\oint_L1\,ds=2\pi,
 $$
 
 所以
 
 $$
-A=\\frac{2\\pi}{3}.
+A=\frac{2\pi}{3}.
 $$
 
 再令
 
 $$
-B=\\oint_Lxyds
-=\\oint_Lyzds
-=\\oint_Lzxds.
+B=\oint_Lxyds
+=\oint_Lyzds
+=\oint_Lzxds.
 $$
 
 因为
@@ -419,13 +419,13 @@ $$
 故
 
 $$
-B=-\\frac A2=-\\frac\\pi3.
+B=-\frac A2=-\frac\pi3.
 $$
 
 最终
 
 $$
-\\boxed{-\\frac\\pi3}.
+\boxed{-\frac\pi3}.
 $$
 
 **这道题不需要参数化。** 它真正考的是空间几何 + 轮换对称 + 曲线方程恒等式。
@@ -436,14 +436,14 @@ $$
 
 > **【李正元练习】** 设 $L$ 为曲线
 > $$
-> \\begin{cases}
+> \begin{cases}
 > x^2+y^2+z^2=a^2,\\\\
 > y+z=0,
-> \\end{cases}
+> \end{cases}
 > $$
 > 求
 > $$
-> I=\\int_L(x^2+3y+3z)ds.
+> I=\int_L(x^2+3y+3z)ds.
 > $$
 
 沿 $L$ 有
@@ -461,34 +461,34 @@ $$
 只需计算
 
 $$
-I=\\int_Lx^2ds.
+I=\int_Lx^2ds.
 $$
 
 平面过球心，交线是半径为 $a$ 的大圆。可取
 
 $$
-x=a\\cos t,
+x=a\cos t,
 $$
 
 $$
-y=\\frac{a}{\\sqrt2}\\sin t,
+y=\frac{a}{\sqrt2}\sin t,
 $$
 
 $$
-z=-\\frac{a}{\\sqrt2}\\sin t,
+z=-\frac{a}{\sqrt2}\sin t,
 $$
 
-$0\\le t\\le2\\pi$，且
+$0\le t\le2\pi$，且
 
 $$
-ds=a\\,dt.
+ds=a\,dt.
 $$
 
 于是
 
 $$
-I=a^3\\int_0^{2\\pi}\\cos^2t\\,dt
-=\\pi a^3.
+I=a^3\int_0^{2\pi}\cos^2t\,dt
+=\pi a^3.
 $$
 
 此题和 2018 真题属于同一大类：**球面与过球心平面的交线 = 大圆。**
@@ -499,38 +499,38 @@ $$
 
 > **【李林 880】** 设 $L$ 为由
 > $$
-> r=a\\quad(a>0),\\qquad \\theta=0,\\qquad \\theta=\\frac\\pi4
+> r=a\quad(a>0),\qquad \theta=0,\qquad \theta=\frac\pi4
 > $$
 > 所围凸平面区域的边界，计算
 > $$
-> I=\\int_Le^{\\sqrt{x^2+y^2}}ds.
+> I=\int_Le^{\sqrt{x^2+y^2}}ds.
 > $$
 
 边界由三段组成：
 
-- $L_1$：$y=0$，$0\\le x\\le a$；
-- $L_2$：圆弧 $r=a$，$0\\le\\theta\\le\\pi/4$；
+- $L_1$：$y=0$，$0\le x\le a$；
+- $L_2$：圆弧 $r=a$，$0\le\theta\le\pi/4$；
 - $L_3$：直线 $y=x$，从圆弧端点回到原点。
 
 分别计算：
 
 $$
-\\int_{L_1}e^{\\sqrt{x^2+y^2}}ds=e^a-1,
+\int_{L_1}e^{\sqrt{x^2+y^2}}ds=e^a-1,
 $$
 
 $$
-\\int_{L_2}e^{\\sqrt{x^2+y^2}}ds
-=e^a\\cdot a\\frac\\pi4,
+\int_{L_2}e^{\sqrt{x^2+y^2}}ds
+=e^a\cdot a\frac\pi4,
 $$
 
 $$
-\\int_{L_3}e^{\\sqrt{x^2+y^2}}ds=e^a-1.
+\int_{L_3}e^{\sqrt{x^2+y^2}}ds=e^a-1.
 $$
 
 所以
 
 $$
-I=\\left(2+\\frac{\\pi a}{4}\\right)e^a-2.
+I=\left(2+\frac{\pi a}{4}\right)e^a-2.
 $$
 
 **母题意义：** 分段曲线的不同部分可以分别采用直角坐标参数、极坐标参数；不必强行统一一种参数。
@@ -539,7 +539,7 @@ $$
 
 #### 题型七：空间圆不经过原点——“圆心 + 平面内圆周平均”
 
-> **【张宇 1000】** 设 $\\Gamma$ 为曲面
+> **【张宇 1000】** 设 $\Gamma$ 为曲面
 > $$
 > x^2+y^2+z^2=1
 > $$
@@ -549,19 +549,19 @@ $$
 > $$
 > 的交线，求
 > $$
-> \\oint_\\Gamma(y^2+2x-z)ds.
+> \oint_\Gamma(y^2+2x-z)ds.
 > $$
 
 交线是圆。球心到平面的垂足为
 
 $$
-C\\left(\\frac13,\\frac13,\\frac13\\right),
+C\left(\frac13,\frac13,\frac13\right),
 $$
 
 圆半径
 
 $$
-R=\\sqrt{1-\\frac13}=\\sqrt{\\frac23}.
+R=\sqrt{1-\frac13}=\sqrt{\frac23}.
 $$
 
 由于圆周关于圆心对称，$x,z$ 在圆周上的平均值都为 $1/3$，所以线性部分
@@ -573,13 +573,13 @@ $$
 的圆周平均值为
 
 $$
-\\frac13.
+\frac13.
 $$
 
 而 $y^2$ 可通过“圆心坐标平方 + 平面内波动平方的平均值”求出。最终积分为
 
 $$
-\\frac{4\\pi}{3}\\sqrt{\\frac23}.
+\frac{4\pi}{3}\sqrt{\frac23}.
 $$
 
 这类题说明：空间圆周积分未必需要显式参数化，**几何平均 + 对称性**往往更快。
@@ -594,7 +594,7 @@ $$
 
 - 球面与过球心平面相交为大圆；
 - 曲线在 $x,y,z$ 间轮换对称；
-- 用两条恒等式联立求 $\\oint xy\\,ds$。
+- 用两条恒等式联立求 $\oint xy\,ds$。
 
 这说明命题重点已经从“会不会算弧长元素”转向“会不会利用曲线自身几何关系”。
 
@@ -603,7 +603,7 @@ $$
 无论题面多复杂，本质始终是
 
 $$
-\\int_Lf\\,ds.
+\int_Lf\,ds.
 $$
 
 一旦能让 $f$ 在曲线上变成常数，问题立即退化为弧长；一旦曲线有对称性，很多项立即消失。
@@ -649,13 +649,13 @@ $$
 要求
 
 $$
-\\oint_Lx^2ds,
+\oint_Lx^2ds,
 $$
 
 或
 
 $$
-\\oint_L(ax+by+cz)^2ds.
+\oint_L(ax+by+cz)^2ds.
 $$
 
 如果平面对坐标不再完全轮换对称，就需要选取平面内正交基或利用投影矩阵思想处理。
@@ -665,11 +665,11 @@ $$
 如
 
 $$
-\\int_L|x|ds,
+\int_L|x|ds,
 $$
 
 $$
-\\int_L\\sqrt{(x-a)^2+(y-b)^2}ds.
+\int_L\sqrt{(x-a)^2+(y-b)^2}ds.
 $$
 
 这会迫使考生按对称点、象限或参数区间分段。
@@ -684,16 +684,16 @@ $$
 
 #### 4. 与质心/质量结合
 
-若线密度为 $\\rho(x,y,z)$，则
+若线密度为 $\rho(x,y,z)$，则
 
 $$
-m=\\int_L\\rho\\,ds,
+m=\int_L\rho\,ds,
 $$
 
 线形物体质心
 
 $$
-\\bar x=\\frac{1}{m}\\int_Lx\\rho\\,ds,
+\bar x=\frac{1}{m}\int_Lx\rho\,ds,
 $$
 
 其余类似。
@@ -712,14 +712,14 @@ $$
 4. 仍不能处理，再选择最自然的参数；
 5. 写
    $$
-   ds=\\sqrt{x'^2+y'^2+z'^2}dt
+   ds=\sqrt{x'^2+y'^2+z'^2}dt
    $$
    化成定积分。
 
 必须牢牢记住：
 
 $$
-\\boxed{\\text{第一类曲线积分与方向无关}}
+\boxed{\text{第一类曲线积分与方向无关}}
 $$
 
 因此它的核心不是方向，而是**曲线几何 + 弧长元素 + 对称性**。
