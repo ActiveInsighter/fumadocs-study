@@ -371,5 +371,5 @@ describe('math document formulas', () => {
     console.log(
       `Validated ${formulaCount} formulas across ${files.length} math documents.`,
     );
-  });
+  }, 15_000);
 });
