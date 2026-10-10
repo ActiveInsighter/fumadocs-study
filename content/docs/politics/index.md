@@ -8,5 +8,5 @@ description: "考研政治学习模块导航。"
 ## 课程目录
 
 - [考研政治系统讲义](./exam-politics/)
-- [考点总结](/docs/politics/topic-summary)：1010 版，五个科目、52 篇章节。
+- [考点总结](/docs/politics/topic-summary)：1010-2 版，五个科目、52 篇章节，按资料包口径归档 421 道分类真题。
 - [肖1000题](./xiao-1000/)
