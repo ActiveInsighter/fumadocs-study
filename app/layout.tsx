@@ -3,6 +3,7 @@ import 'katex/dist/katex.css';
 import './surface-overrides.css';
 import './claude-benchmarks.css';
 import { SearchProvider } from '@/components/search-provider';
+import { getSiteOrigin } from '@/lib/site-url';
 import type { Metadata } from 'next';
 import { Inter, Source_Serif_4 } from 'next/font/google';
 import type { ReactNode } from 'react';
@@ -27,11 +28,17 @@ const sourceSerif4 = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteOrigin()),
   title: {
     default: '考研学习',
     template: '%s | 考研学习',
   },
   description: '按政治、英语、数学与专业课组织的考研学习知识库。',
+  openGraph: {
+    type: 'website',
+    locale: 'zh_CN',
+    siteName: '考研学习',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

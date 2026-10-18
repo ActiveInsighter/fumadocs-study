@@ -44,7 +44,9 @@ export const CollapsedSidebarFolder: SidebarPageTreeComponents['Folder'] = ({
           {item.name}
         </SidebarFolderTrigger>
       )}
-      <SidebarFolderContent className="relative flex flex-col gap-0.5 pt-0.5">
+      {/* Keep collapsed links in the static HTML (hidden="until-found") so
+          crawlers and AI browsers can discover every page from any page. */}
+      <SidebarFolderContent hiddenUntilFound className="relative flex flex-col gap-0.5 pt-0.5">
         {children}
       </SidebarFolderContent>
     </SidebarFolder>

@@ -203,6 +203,15 @@ export function StudyHome() {
                 </li>
               ))}
             </ul>
+            <p className="mt-4 text-xs text-[var(--ink-soft)] dark:text-muted-foreground">
+              {/* Plain-text index of every page; lets AI browsers reach all docs from the homepage. */}
+              <a
+                href="/llms.txt"
+                className="underline decoration-[var(--line)] underline-offset-4 transition-colors hover:text-[var(--ink)] dark:decoration-border dark:hover:text-foreground"
+              >
+                全部文档目录
+              </a>
+            </p>
           </nav>
         </div>
       </section>

@@ -1,6 +1,7 @@
 import { getMDXComponents } from '@/components/mdx';
 import { getPageMDXComponents } from '@/components/mdx/page-components';
 import { WordCardsProvider } from '@/components/vocabulary/word-cards';
+import { toCanonicalPagePath, toMarkdownPath } from '@/lib/site-url';
 import { source } from '@/lib/source';
 import { shardStaticDocParams } from '@/lib/static-doc-shards';
 import { statSync } from 'node:fs';
@@ -56,7 +57,7 @@ export default async function Page({ params }: PageParameters) {
 
   const data = await page.data.load();
   const MDX = data.body;
-  const markdownUrl = `${page.url}.md`;
+  const markdownUrl = toMarkdownPath(page.url);
   const isVocabularyPage = page.path.startsWith('english/vocabulary/');
   const useFullPage = Boolean(page.data.full) || isVocabularyPage;
   const pageComponents = getPageMDXComponents(page.path);
@@ -105,8 +106,20 @@ export async function generateMetadata({
   const page = source.getPage(slug);
   if (!page) notFound();
 
+  const canonical = toCanonicalPagePath(page.url);
+
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: {
+      canonical,
+      types: { 'text/markdown': toMarkdownPath(page.url) },
+    },
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      title: page.data.title,
+      description: page.data.description,
+    },
   };
 }
