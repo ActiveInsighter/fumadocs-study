@@ -1,4 +1,9 @@
-import { getSiteOrigin, toAbsoluteSiteUrl } from '@/lib/site-url';
+import {
+  getSiteOrigin,
+  toAbsoluteSiteUrl,
+  toCanonicalPagePath,
+  toMarkdownPath,
+} from '@/lib/site-url';
 import { source } from '@/lib/source';
 
 type TreeNode = ReturnType<typeof source.getPageTree>['children'][number];
@@ -39,9 +44,8 @@ export function buildLLMIndex(siteOrigin = getSiteOrigin()) {
     '',
   ];
 
-  const markdownUrl = (url: string) =>
-    toAbsoluteSiteUrl(`/llms.mdx${url}`, siteOrigin);
-  const browserUrl = (url: string) => toAbsoluteSiteUrl(url, siteOrigin);
+  const markdownUrl = (url: string) => toAbsoluteSiteUrl(toMarkdownPath(url), siteOrigin);
+  const browserUrl = (url: string) => toAbsoluteSiteUrl(toCanonicalPagePath(url), siteOrigin);
 
   function emitPage(url: string, indent = '') {
     const page = pageByUrl.get(url);

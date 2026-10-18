@@ -1,5 +1,5 @@
-import { toAbsoluteSiteUrl } from '@/lib/site-url';
-import { source } from '@/lib/source';
+import { toAbsoluteSiteUrl, toCanonicalPagePath } from '@/lib/site-url';
+import { blogSource, source } from '@/lib/source';
 import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
@@ -7,9 +7,15 @@ export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = source.getPages().map((page) => ({
-    url: toAbsoluteSiteUrl(page.url),
+    url: toAbsoluteSiteUrl(toCanonicalPagePath(page.url)),
     changeFrequency: 'weekly',
     priority: 0.7,
+  }));
+
+  const posts: MetadataRoute.Sitemap = blogSource.getPages().map((post) => ({
+    url: toAbsoluteSiteUrl(toCanonicalPagePath(post.url)),
+    changeFrequency: 'monthly',
+    priority: 0.4,
   }));
 
   return [
@@ -24,10 +30,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
     {
-      url: toAbsoluteSiteUrl('/llms.mdx'),
-      changeFrequency: 'weekly',
-      priority: 0.5,
+      url: toAbsoluteSiteUrl('/blog/'),
+      changeFrequency: 'monthly',
+      priority: 0.4,
     },
     ...pages,
+    ...posts,
   ];
 }
