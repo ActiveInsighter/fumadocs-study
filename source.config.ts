@@ -1,5 +1,6 @@
 import { remarkMdxMermaid, remarkStructure } from 'fumadocs-core/mdx-plugins';
 import { remarkMdxMindmap } from './lib/mdx/remark-mindmap';
+import { remarkJsonRender } from './lib/mdx/remark-json-render';
 import { remarkStrongBoundaryRepair } from './lib/mdx/remark-strong-boundary';
 import { pageSchema } from 'fumadocs-core/source/schema';
 import { defineCollections, defineConfig, defineDocs } from 'fumadocs-mdx/config';
@@ -57,6 +58,7 @@ export default defineConfig({
       remarkMath,
       remarkMdxMermaid,
       remarkMdxMindmap,
+      remarkJsonRender,
     ],
     // Do not make production builds depend on third-party image hosts.
     remarkImageOptions: { external: false },

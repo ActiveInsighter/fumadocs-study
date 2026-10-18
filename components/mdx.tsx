@@ -9,6 +9,7 @@ import {
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
 import { InlineSvg } from '@/components/mdx/inline-svg';
+import { SmartUI } from '@/components/smart-ui';
 import { WordCardModeToggle, WordCards } from '@/components/vocabulary/word-cards';
 import * as AccordionComponents from 'fumadocs-ui/components/accordion';
 import * as FilesComponents from 'fumadocs-ui/components/files';
@@ -41,6 +42,7 @@ export function getMDXComponents(components?: MDXComponents) {
     Mermaid,
     MindMap,
     InlineSvg,
+    SmartUI,
     StudyAreaChart,
     StudyBarChart,
     StudyHistogram,

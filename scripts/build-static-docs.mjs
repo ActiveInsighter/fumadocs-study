@@ -7,12 +7,14 @@ import { computeStaticBuildId } from './static-build-id.mjs';
 import { shouldIncludeInStaticDocsProject } from './static-docs-config.mjs';
 import {
   buildStaticMarkdownDocument,
+  getStaticDocsPageUrl,
   isStaticDocSourceFile,
 } from './static-docs-markdown.mjs';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(scriptDirectory, '..');
-const staticOutputRoot = path.join(projectRoot, '.static-docs');
+const previewDocPath = process.env.STATIC_DOCS_ONLY_PATH;
+const staticOutputRoot = path.join(projectRoot, previewDocPath ? '.static-docs-preview' : '.static-docs');
 const staticStageRoot = path.join(projectRoot, '.static-docs-stage');
 const staticSearchRoot = path.join(projectRoot, '.static-search-output');
 
@@ -177,7 +179,8 @@ function runNextBuild(stageRoot, buildId) {
   // bodies out of the initial bundler graph and compiles them on demand during
   // static generation, so retain Turbopack's incremental graph and filesystem
   // cache instead of falling back to webpack.
-  return runProcess(nextCommand, ['build'], {
+  const args = previewDocPath ? ['build', '--debug-build-paths=app/docs/**/page.tsx'] : ['build'];
+  return runProcess(nextCommand, args, {
     cwd: stageRoot,
     env: {
       ...process.env,
@@ -240,6 +243,7 @@ async function generateStaticMarkdownRoutes(outputRoot) {
 
   for (const sourcePath of sourceFiles) {
     const relativePath = path.relative(contentRoot, sourcePath).replaceAll('\\', '/');
+    if (previewDocPath && getStaticDocsPageUrl(relativePath) !== `/docs/${previewDocPath}`) continue;
     const { outputPath, markdown } = await buildStaticMarkdownDocument(sourcePath, relativePath);
     const destinationPath = path.join(outputRoot, outputPath);
 
@@ -286,9 +290,10 @@ async function main() {
   const totalStartedAt = Date.now();
   const stageRoot = staticStageRoot;
   const { shardCount, shardIndex } = getShardCoordinates();
-  const ownsGlobalAssets = shardCount === 1 || shardIndex === 0;
+  const ownsGlobalAssets = !previewDocPath && (shardCount === 1 || shardIndex === 0);
   const buildId = process.env.STATIC_DOCS_BUILD_ID || (await computeStaticBuildId(projectRoot));
   console.log(`[static-docs] Shard ${shardIndex}/${shardCount}; shared build id: ${buildId}.`);
+  if (previewDocPath) console.log(`[static-docs] Local preview only: /docs/${previewDocPath}; no full search index or production output.`);
 
   try {
     await cleanStagePreservingBuildCache(stageRoot);
@@ -321,7 +326,7 @@ async function main() {
     console.log(`[timing] assemble_static_and_search=${formatSeconds(Date.now() - assembleStartedAt)}`);
 
     const markdownStartedAt = Date.now();
-    const markdownCount = ownsGlobalAssets ? await generateStaticMarkdownRoutes(staticOutputRoot) : 0;
+    const markdownCount = ownsGlobalAssets || previewDocPath ? await generateStaticMarkdownRoutes(staticOutputRoot) : 0;
     console.log(`[timing] direct_markdown_build=${formatSeconds(Date.now() - markdownStartedAt)}`);
 
     const summaryStartedAt = Date.now();

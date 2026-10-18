@@ -1,0 +1,12 @@
+{
+  "htmlPages": [
+    ".static-docs-preview/docs/408/knowledge/smart-ui-demo/index.html"
+  ],
+  "markdownPages": [
+    ".static-docs-preview/docs/408/knowledge/smart-ui-demo.md"
+  ],
+  "jsonRenderFences": 3,
+  "hasPaperAnswer": true,
+  "hasNoApiRoutes": true,
+  "productionOutputUntouched": true
+}

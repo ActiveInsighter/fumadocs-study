@@ -40,6 +40,13 @@ function getStaticDocBuildWeight(param: { slug?: string[] }) {
 }
 
 export function generateStaticParams() {
+  // A local smoke build retains the real docs layout but exports one document.
+  const previewPath = process.env.STATIC_DOCS_ONLY_PATH;
+  if (process.env.STATIC_DOCS_BUILD === '1' && previewPath) {
+    const params = source.generateParams().filter((param) => (param.slug ?? []).join('/') === previewPath);
+    if (params.length !== 1) throw new Error(`Unknown static preview document: ${previewPath}`);
+    return params;
+  }
   const shardCount = Number.parseInt(process.env.STATIC_DOCS_SHARD_COUNT ?? '1', 10);
   const shardIndex = Number.parseInt(process.env.STATIC_DOCS_SHARD_INDEX ?? '0', 10);
   return shardStaticDocParams(

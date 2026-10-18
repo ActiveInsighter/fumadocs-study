@@ -90,6 +90,7 @@ describe('study module metadata structure', () => {
     expect(coursesKnowledgeMeta.pages).toEqual([
       'index',
       'mind-map-demo',
+      'smart-ui-demo',
       'data-structures',
       'computer-organization',
       'operating-systems',

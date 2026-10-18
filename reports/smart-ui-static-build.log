@@ -1,0 +1,54 @@
+
+> fumadocs-vercel@0.1.0 build:static-docs
+> node scripts/prepare-static-build-cache.mjs && node scripts/run-static-docs-build.mjs && node scripts/write-docs-entry.mjs && node scripts/dedupe-static-rsc.mjs && node scripts/normalize-static-unicode-paths.mjs && node scripts/analyze-static-output.mjs
+
+[static-docs] Turbopack cache claude-benchmarks-layout-v1 for fumadocs-study is compatible.
+[static-docs] Node heap ceiling for static build children: 4096 MiB.
+[static-docs] Shard 0/1; shared build id: fumadocs-study-static-299d43e30344c2fd.
+[static-docs] Next build cache state: warm candidate.
+[timing] prepare_static_stage=2.11s
+[static-docs] Runner resources: 4 logical CPUs; 15985.61 MiB total memory; 8017.80 MiB free memory.
+▲ Next.js 16.3.3 (Turbopack)
+[MDX] generated files in 1100.87576ms
+✓ Running next.config.mjs took 1888ms
+- Experiments (use with caution):
+  · staticGenerationMaxConcurrency: 2
+  · staticGenerationMinPagesPerWorker: 50
+  · staticGenerationRetryCount: 1
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 38.0s
+  Running TypeScript ...
+  Finished TypeScript in 15.7s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/824) ...
+  Generating static pages using 3 workers (55/824)
+  Generating static pages using 3 workers (139/824)
+  Generating static pages using 3 workers (206/824)
+  Generating static pages using 3 workers (289/824)
+No character metrics for '①' in style 'Main-Regular' and mode 'text'
+No character metrics for '②' in style 'Main-Regular' and mode 'text'
+No character metrics for '③' in style 'Main-Regular' and mode 'text'
+No character metrics for '④' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑤' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑥' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑦' in style 'Main-Regular' and mode 'text'
+No character metrics for '①' in style 'Main-Regular' and mode 'text'
+No character metrics for '②' in style 'Main-Regular' and mode 'text'
+No character metrics for '③' in style 'Main-Regular' and mode 'text'
+No character metrics for '④' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑤' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑥' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑦' in style 'Main-Regular' and mode 'text'
+No character metrics for '⑧' in style 'Main-Regular' and mode 'text'
+No character metrics for '①' in style 'Main-Regular' and mode 'text'
+No character metrics for '②' in style 'Main-Regular' and mode 'text'
+No character metrics for '③' in style 'Main-Regular' and mode 'text'
+No character metrics for '④' in style 'Main-Regular' and mode 'text'
+  Generating static pages using 3 workers (371/824)
+  Generating static pages using 3 workers (412/824)
+[static-docs] Build failed. Error: next_static_build_turbopack failed with exit code 143.
+    at ChildProcess.<anonymous> (file:///home/dev/Documents/Project/fumadocs-study/scripts/build-static-docs.mjs:160:9)
+    at ChildProcess.wrapper (node:events:639:12)
+    at ChildProcess.emit (node:events:514:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:324:12)

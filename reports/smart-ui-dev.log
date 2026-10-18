@@ -1,0 +1,83 @@
+
+> fumadocs-vercel@0.1.0 dev
+> npm run search:build && next dev --hostname 0.0.0.0 --port 3018
+
+
+> fumadocs-vercel@0.1.0 search:build
+> node scripts/build-search-index.mjs public/search-index.json
+
+[zbsearch] Core: 5 routed shard(s), 814 page records; raw 6.39 MiB, brotli 0.90 MiB.
+[zbsearch] Body: 47 routed shard(s), 29617 section chunks; raw 107.14 MiB, brotli 13.73 MiB.
+[zbsearch] Category routing: 5 Bloom summaries; internal manifest 1.42 MiB raw.
+[zbsearch] /search/core-408-0-cf10212ae3e9.json: 155 records; raw 1.27 MiB; brotli 0.19 MiB; route 8 KiB.
+[zbsearch] /search/core-algorithm-0-ebd542e0ea7e.json: 273 records; raw 2.36 MiB; brotli 0.33 MiB; route 8 KiB.
+[zbsearch] /search/core-english-0-deeac7516189.json: 22 records; raw 0.05 MiB; brotli 0.01 MiB; route 2 KiB.
+[zbsearch] /search/core-math-0-3497b96b1492.json: 188 records; raw 1.36 MiB; brotli 0.19 MiB; route 8 KiB.
+[zbsearch] /search/core-politics-0-230bab68cdfd.json: 176 records; raw 1.35 MiB; brotli 0.19 MiB; route 8 KiB.
+[zbsearch] /search/body-408-0-f9f0862fb2c3.json: 1 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-408-exam-0-6c34479b6ad1.json: 1 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-408-knowledge-0-d7a1f7869498.json: 3033 records; raw 8.22 MiB; brotli 1.09 MiB; route 8 KiB.
+[zbsearch] /search/body-408-knowledge2-0a-18db0d382530.json: 1369 records; raw 5.48 MiB; brotli 0.76 MiB; route 8 KiB.
+[zbsearch] /search/body-408-knowledge2-0b-8ff6e169bde3.json: 1263 records; raw 5.08 MiB; brotli 0.71 MiB; route 8 KiB.
+[zbsearch] /search/body-408-problem-solving-0a-c8d93252b2ed.json: 1753 records; raw 5.34 MiB; brotli 0.65 MiB; route 8 KiB.
+[zbsearch] /search/body-408-problem-solving-0b-cbfb8da78ac6.json: 1761 records; raw 5.26 MiB; brotli 0.64 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-0-52b0f47d11a4.json: 3 records; raw 0.02 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-algorithm-01-basics-0-497368e87d05.json: 222 records; raw 0.94 MiB; brotli 0.12 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-02-array-0-81f9b36401bf.json: 245 records; raw 1.08 MiB; brotli 0.13 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-03-linked-list-0-0905007b37a1.json: 219 records; raw 1.02 MiB; brotli 0.12 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-04-hash-table-0-799abd961480.json: 385 records; raw 1.15 MiB; brotli 0.15 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-05-string-0-9fc700ab6ff3.json: 211 records; raw 0.93 MiB; brotli 0.11 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-06-two-pointers-0-151334f16eab.json: 440 records; raw 1.19 MiB; brotli 0.15 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-07-stack-queue-0-fce58fe317b1.json: 419 records; raw 1.08 MiB; brotli 0.13 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-08-binary-tree-0-34f8362535d0.json: 1066 records; raw 4.40 MiB; brotli 0.48 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-09-backtracking-0-01cc14f186f8.json: 704 records; raw 2.47 MiB; brotli 0.31 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-10-greedy-0-077dcfb4d350.json: 883 records; raw 2.93 MiB; brotli 0.39 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-11-dynamic-programming-0-497daa99b742.json: 1747 records; raw 4.94 MiB; brotli 0.63 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-12-monotonic-stack-0-28032384326a.json: 28 records; raw 0.20 MiB; brotli 0.03 MiB; route 4 KiB.
+[zbsearch] /search/body-algorithm-13-graph-0-4ca3c6dc69dd.json: 1035 records; raw 3.47 MiB; brotli 0.47 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-14-extra-problems-0-1b3022abb710.json: 841 records; raw 2.57 MiB; brotli 0.34 MiB; route 8 KiB.
+[zbsearch] /search/body-algorithm-0-1b1a50d93b39.json: 2 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-0-2118f8a1c50f.json: 2 records; raw 0.02 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-chart-components-0-4832fc1e0c39.json: 8 records; raw 0.02 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-claude-benchmarks-0-6868cf8b2618.json: 3 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-phrases-0-ab8798d81184.json: 6 records; raw 0.03 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-supplement-vocabulary-0-215a693d3a95.json: 5 records; raw 0.02 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-english-vocabulary-0-3cada8f12e06.json: 10 records; raw 0.05 MiB; brotli 0.01 MiB; route 2 KiB.
+[zbsearch] /search/body-english-word-cards-demo-0-9bb5170d2607.json: 1 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-math-0-7dcf5f516589.json: 3 records; raw 0.02 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-math-exam-0-60ad63797f84.json: 1 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-math-formulas-0-33f82889463f.json: 220 records; raw 0.63 MiB; brotli 0.08 MiB; route 8 KiB.
+[zbsearch] /search/body-math-knowledge-0-ca8685034d5a.json: 2122 records; raw 5.89 MiB; brotli 0.70 MiB; route 8 KiB.
+[zbsearch] /search/body-math-mind-maps-0-d55a242fa893.json: 35 records; raw 0.07 MiB; brotli 0.01 MiB; route 2 KiB.
+[zbsearch] /search/body-math-problem-solving-0a-db9c02e6fb65.json: 2252 records; raw 7.82 MiB; brotli 0.96 MiB; route 8 KiB.
+[zbsearch] /search/body-math-problem-solving-0b-5fd52b323e1b.json: 2208 records; raw 7.53 MiB; brotli 0.92 MiB; route 8 KiB.
+[zbsearch] /search/body-math-supplements-0-fc212d114f0c.json: 973 records; raw 2.98 MiB; brotli 0.39 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-0-8e96c6237fe4.json: 2 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-politics-exam-politics-0-b6a3cdb7c7e9.json: 2 records; raw 0.01 MiB; brotli 0.00 MiB; route 2 KiB.
+[zbsearch] /search/body-politics-ideology-morality-law-0-93f68434b197.json: 449 records; raw 1.99 MiB; brotli 0.25 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-mao-zedong-thought-0-b68235d35036.json: 479 records; raw 2.37 MiB; brotli 0.30 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-marxism-principles-0-b7600395578c.json: 492 records; raw 2.48 MiB; brotli 0.32 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-modern-chinese-history-0-7c9c4049837d.json: 572 records; raw 3.38 MiB; brotli 0.44 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-topic-summary-0-8eec4e9b954d.json: 1139 records; raw 7.89 MiB; brotli 1.10 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-xi-jinping-thought-0-e8de90101ab6.json: 834 records; raw 4.27 MiB; brotli 0.54 MiB; route 8 KiB.
+[zbsearch] /search/body-politics-xiao-1000-0-f651a62aecd8.json: 168 records; raw 1.83 MiB; brotli 0.27 MiB; route 8 KiB.
+[search] 814 pages, 29617 body records, 5 core shard(s), 47 body shard(s).
+[search] Public manifest 1.01 MiB raw; 5 category router(s), 0.42 MiB router metadata raw.
+▲ Next.js 16.3.3 (Turbopack)
+- Local:         http://localhost:3018
+- Network:       http://0.0.0.0:3018
+✓ Ready in 1765ms
+[MDX] generated files in 1599.415928ms
+✓ Running next.config.mjs took 3.1s
+[MDX] started dev server
+⨯ Another next dev server is already running.
+
+- Local:        http://localhost:3019
+- PID:          1013821
+- Dir:          /home/dev/Documents/Project/fumadocs-study
+- Log:          .next/dev/logs/next-development.log
+
+You can access the existing server at http://localhost:3019,
+or run kill 1013821 to stop it and start a new one.
+[MDX] closing dev server
+[?25h

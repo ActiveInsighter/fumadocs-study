@@ -1,0 +1,252 @@
+---
+title: "智能 UI 文档实验室"
+description: "用 json-render 把 AI 生成的 JSON 变成能答题、调参数和追踪进度的学习文档。"
+---
+
+学习文档可以让你边读边做。下面的练习都来自文档中的 `json-render` 代码块：AI 选择组件、编排内容并连接状态，网站负责把 JSON 渲染为真实的交互界面。
+
+这些示例在浏览器本地运行，打开页面即可操作。状态仅保留在当前页面，每个练习相互独立；刷新页面或点击「重置」恢复初始值；切换到「JSON」标签可以查看并复制生成该界面的源码。
+
+## 先做一道 Cache 判断题
+
+直接映射 Cache 中，一个内存块只对应一个固定的 Cache 行。请先选择，再查看解析；你也可以修改选项，观察反馈如何变化。
+
+```json-render
+{
+  "root": "quiz",
+  "state": { "answer": "", "submitted": false },
+  "elements": {
+    "quiz": {
+      "type": "Card",
+      "props": { "title": "两个内存块，可以共用一个 Cache 行吗？", "description": "设 Cache 有 8 行，采用直接映射。" },
+      "children": ["question", "submit", "empty", "correct", "incorrect"]
+    },
+    "question": {
+      "type": "Choice",
+      "props": {
+        "label": "内存块 3 和内存块 11 会映射到哪一行？",
+        "options": [
+          { "label": "A. 都映射到第 3 行", "value": "A" },
+          { "label": "B. 分别映射到第 3 行和第 4 行", "value": "B" },
+          { "label": "C. 可以放入任意空闲行", "value": "C" }
+        ],
+        "value": { "$bindState": "/answer" }
+      },
+      "children": []
+    },
+    "submit": {
+      "type": "Button",
+      "props": { "label": "查看解析" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/submitted", "value": true } } },
+      "children": []
+    },
+    "empty": {
+      "type": "Text",
+      "props": { "text": "先选择一个答案，再看看你的判断。", "tone": "muted" },
+      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "eq": "" }],
+      "children": []
+    },
+    "correct": {
+      "type": "Text",
+      "props": { "text": "答对了。3 mod 8 = 3，11 mod 8 = 3。两个块竞争同一行，不能同时驻留在这一行。", "tone": "success" },
+      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "eq": "A" }],
+      "children": []
+    },
+    "incorrect": {
+      "type": "Text",
+      "props": { "text": "再想一想：行号 = 内存块号 mod Cache 行数。3 和 11 除以 8 的余数都是 3；任意放置属于全相联映射。", "tone": "warning" },
+      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "neq": "A" }, { "$state": "/answer", "neq": "" }],
+      "children": []
+    }
+  }
+}
+```
+
+**纸面结论：答案 A。** 行号由块号取模决定，冲突块需要通过不同的标记区分。
+
+## 拖动地址，观察位段变化
+
+假设内存按字节编址，地址宽度为 16 位，每块 16 字节，Cache 有 8 行。块内偏移占 4 位，行号占 3 位，其余 9 位是标记。行号从 0 开始计数。
+
+把地址从 52 拖到 53，只有偏移变化；到 64 时切换至下一行；到 180 时，仍落在第 3 行，标记已经改变。滑块可以用方向键精确调整，也可以点击预设地址。
+
+```json-render
+{
+  "root": "cache",
+  "state": { "address": 52 },
+  "elements": {
+    "cache": {
+      "type": "Card",
+      "props": { "title": "把一个内存地址拆开", "description": "16 位地址 / 每块 16 字节 / Cache 共 8 行" },
+      "children": ["address", "presets", "bits"]
+    },
+    "address": {
+      "type": "Slider",
+      "props": { "label": "字节地址", "min": 0, "max": 255, "step": 1, "value": { "$bindState": "/address" } },
+      "children": []
+    },
+    "presets": {
+      "type": "Stack",
+      "props": { "direction": "horizontal" },
+      "children": ["sameBlock", "nextBlock", "conflict"]
+    },
+    "sameBlock": {
+      "type": "Button", "props": { "label": "地址 53：同一块", "variant": "secondary" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 53 } } },
+      "children": []
+    },
+    "nextBlock": {
+      "type": "Button", "props": { "label": "地址 64：下一行", "variant": "secondary" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 64 } } },
+      "children": []
+    },
+    "conflict": {
+      "type": "Button", "props": { "label": "地址 180：冲突块", "variant": "secondary" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 180 } } },
+      "children": []
+    },
+    "bits": {
+      "type": "MemoryAddress",
+      "props": { "address": { "$state": "/address" }, "blockBytes": 16, "lines": 8 },
+      "children": []
+    }
+  }
+}
+```
+
+**纸面校验：** 地址 52 对应块 3、行 3、偏移 4、标记 0。地址 180 对应块 11、行 3、偏移 4、标记 1。两者低 7 位相同，因此映射到同一行。
+
+## 把知识点变成复习清单
+
+下面的复习卡没有固定模板：组件排列、任务文字和状态连接都由 JSON 决定。勾选后进度立即更新，三个任务全部完成时出现下一步建议。
+
+```json-render
+{
+  "root": "review",
+  "state": { "mapping": false, "address": false, "conflict": false },
+  "elements": {
+    "review": {
+      "type": "Card",
+      "props": { "title": "今天的 Cache 复习", "description": "完成一个任务，就勾选一项。此清单仅用于当前页面练习。" },
+      "children": ["mapping", "address", "conflict", "progress", "finished"]
+    },
+    "mapping": {
+      "type": "Toggle",
+      "props": { "label": "能解释直接映射、全相联、组相联的区别", "checked": { "$bindState": "/mapping" } },
+      "children": []
+    },
+    "address": {
+      "type": "Toggle",
+      "props": { "label": "能独立计算标记、行号、块内偏移的位数", "checked": { "$bindState": "/address" } },
+      "children": []
+    },
+    "conflict": {
+      "type": "Toggle",
+      "props": { "label": "能举出两个发生映射冲突的内存块", "checked": { "$bindState": "/conflict" } },
+      "children": []
+    },
+    "progress": {
+      "type": "Progress",
+      "props": { "label": "本节掌握进度", "values": [{ "$state": "/mapping" }, { "$state": "/address" }, { "$state": "/conflict" }] },
+      "children": []
+    },
+    "finished": {
+      "type": "Text",
+      "props": { "text": "三个目标都完成了。下一步：给一组访存地址，手算 Cache 命中率。", "tone": "success" },
+      "visible": [{ "$state": "/mapping" }, { "$state": "/address" }, { "$state": "/conflict" }],
+      "children": []
+    }
+  }
+}
+```
+
+**纸面复习目标：** 区分映射方式、计算地址位段、判断映射冲突；然后练习命中率计算。
+
+## 组件一览
+
+下面是目前支持的全部组件：文本语气、单选、滑块、复选、两种按钮、进度条、嵌套卡片和 Cache 地址分解。它们共用同一套黑白、圆角的视觉规范，在明暗主题下保持一致。
+
+```json-render
+{
+  "root": "gallery",
+  "state": { "choice": "b", "level": 40, "done": true, "address": 1234 },
+  "elements": {
+    "gallery": {
+      "type": "Card",
+      "props": { "title": "组件一览", "description": "每个组件各出现一次，改变控件即可看到状态联动。" },
+      "children": ["tones", "choice", "level", "actions", "nested"]
+    },
+    "tones": {
+      "type": "Stack",
+      "props": { "direction": "vertical" },
+      "children": ["normal", "muted", "success", "warning"]
+    },
+    "normal": { "type": "Text", "props": { "text": "普通文本：用于题干和说明。", "tone": "normal" }, "children": [] },
+    "muted": { "type": "Text", "props": { "text": "次要文本：用于补充信息。", "tone": "muted" }, "children": [] },
+    "success": { "type": "Text", "props": { "text": "成功反馈：答案正确，并给出理由。", "tone": "success" }, "children": [] },
+    "warning": { "type": "Text", "props": { "text": "提示反馈：指出常见误区，引导重新思考。", "tone": "warning" }, "children": [] },
+    "choice": {
+      "type": "Choice",
+      "props": {
+        "label": "Cache 行号由什么决定？",
+        "options": [
+          { "label": "A. 块号 mod Cache 行数", "value": "a" },
+          { "label": "B. 块内偏移", "value": "b" }
+        ],
+        "value": { "$bindState": "/choice" }
+      },
+      "children": []
+    },
+    "level": {
+      "type": "Slider",
+      "props": { "label": "掌握程度", "min": 0, "max": 100, "step": 10, "value": { "$bindState": "/level" } },
+      "children": []
+    },
+    "actions": {
+      "type": "Stack",
+      "props": { "direction": "horizontal" },
+      "children": ["primary", "secondary"]
+    },
+    "primary": {
+      "type": "Button", "props": { "label": "设为 90%" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/level", "value": 90 } } },
+      "children": []
+    },
+    "secondary": {
+      "type": "Button", "props": { "label": "设为 10%", "variant": "secondary" },
+      "on": { "press": { "action": "setState", "params": { "statePath": "/level", "value": 10 } } },
+      "children": []
+    },
+    "nested": {
+      "type": "Card",
+      "props": { "title": "嵌套卡片", "description": "内层卡片自动使用描边，外层保持无框。" },
+      "children": ["done", "progress", "bits"]
+    },
+    "done": { "type": "Toggle", "props": { "label": "已完成本节复习", "checked": { "$bindState": "/done" } }, "children": [] },
+    "progress": { "type": "Progress", "props": { "label": "完成度", "values": [{ "$state": "/done" }] }, "children": [] },
+    "bits": { "type": "MemoryAddress", "props": { "address": { "$state": "/address" }, "blockBytes": 32, "lines": 16 }, "children": [] }
+  }
+}
+```
+
+**纸面校验：** 地址 1234 = 38×32 + 18，块号 38，行号 38 mod 16 = 6，标记 2，块内偏移 18。
+
+## 让 AI 生成你自己的交互文档
+
+1. 打开并复制[完整生成提示词](/smart-ui/authoring-prompt.md)，把它发给你使用的 AI。
+2. 再提供主题、知识材料和你希望读者完成的操作。组件的属性约束已经包含在提示词中。
+3. 将生成的完整 Markdown 保存为学习目录里的 `.md` 或 `.mdx` 文档；添加侧边栏导航后，本地预览或正常构建即可显示交互。
+
+例如，可以在完整提示词之后追加：
+
+> 请生成一篇面向考研 408 的「进程与线程」学习文档，先解释资源分配与调度的区别，再生成一道单选判断题和一个三项复习清单。选错时解释误区，选对时给出理由。普通正文中也要保留答案和解析。使用目录中已有的组件，不要创造新组件。
+
+也可以要求 AI 改写上面的例子：
+
+> 请把 Cache 例子改成 32 字节一块、16 行 Cache。保持 16 位字节地址，初始地址为 52；用两个预设按钮展示同一块和映射冲突。同步更新正文中的位数和校验算例。
+
+支持的组件包括 `Stack`、`Card`、`Text`、`Choice`、`Slider`、`Toggle`、`Button`、`Progress`、`MemoryAddress`。AI 可以组合这些组件，新增组件则需要先补充目录和 React 实现。
+
+本次验证采用**写作时生成、阅读时交互**的流程。页面没有模型 API 或聊天接口；自然语言由你正在使用的 AI 生成文档，阅读页面不需要 API Key。JSON 不合法时，该交互块会显示校验信息，正文继续保留。
+
+技术来源：[Vercel Labs json-render](https://github.com/vercel-labs/json-render) · [官方文档](https://json-render.dev/docs)。

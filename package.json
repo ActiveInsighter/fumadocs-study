@@ -16,10 +16,14 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck": "next typegen && tsc --noEmit",
-    "check": "npm run typecheck && npm run build"
+    "check": "npm run typecheck && npm run build",
+    "smart-ui:catalog": "node --experimental-strip-types scripts/export-smart-ui-catalog.mjs",
+    "build:smart-ui-demo": "npm run smart-ui:catalog && node scripts/build-smart-ui-demo.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@json-render/core": "0.21.1",
+    "@json-render/react": "0.21.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fumadocs-core": "16.14.0",
@@ -39,7 +43,8 @@
     "remark-math": "6.0.0",
     "remark-mdx": "3.1.1",
     "tailwind-merge": "^3.5.0",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.1.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@next/env": "16.3.3",

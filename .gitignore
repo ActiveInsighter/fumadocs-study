@@ -37,7 +37,9 @@ next-env.d.ts
 # deployment staging
 /.deploy-tmp
 /.static-docs
+/.static-docs-preview
 /.static-docs-stage*
+/.playwright-cli/
 
 # system files
 .DS_Store
