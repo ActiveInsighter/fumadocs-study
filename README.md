@@ -67,6 +67,8 @@ file at 25,000,000 bytes to stay below EdgeOne's single-file limit.
 
 ## Deployment
 
+The production site and canonical URL origin are `https://fumadocscf.any1.tech`.
+
 Production documentation deployments run in GitHub Actions and are uploaded to
 Cloudflare Workers Static Assets. The documentation package is a pure static
 CDN build:
