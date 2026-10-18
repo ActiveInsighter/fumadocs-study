@@ -37,7 +37,7 @@ describe('crawler discovery metadata', () => {
 
   it('defaults to the production study domain', () => {
     vi.stubEnv('NEXT_PUBLIC_SITE_URL', '');
-    expect(toAbsoluteSiteUrl('/')).toBe('https://fumadocs.any1.tech/');
+    expect(toAbsoluteSiteUrl('/')).toBe('https://fumadocscf.any1.tech/');
   });
 
   it('allows crawling and advertises the sitemap', () => {
