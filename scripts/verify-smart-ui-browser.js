@@ -1,82 +1,97 @@
-// Playwright CLI: playwright-cli -s=fumadocs-smart-ui run-code --filename=scripts/verify-smart-ui-browser.js
-// Open the intended dev or static-preview URL in that browser session first.
+// Open /docs/408/knowledge/smart-ui-demo/ first, then run with Playwright CLI.
 async (page) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
-  const feedback = (scope, text) => scope.locator('[data-slot="smart-text"]').filter({ hasText: text });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.reload();
-  await page.locator('[data-smart-ui-ready="true"]').nth(3).waitFor();
-  assert(await page.locator('[data-smart-ui]').count() === 4, 'Expected four rendered examples');
-  const [quiz, cache, review, gallery] = [0, 1, 2, 3].map((index) => page.locator('[data-smart-ui]').nth(index));
+  await page.locator('[data-smart-ui-ready="true"]').nth(5).waitFor();
+  assert(await page.locator('[data-smart-ui]').count() === 6, 'Expected six official component examples');
+  const [quiz, plan, knowledge, overlays, choices, content] = [0, 1, 2, 3, 4, 5].map((i) => page.locator('[data-smart-ui]').nth(i));
+  assert(await quiz.getByRole('button', { name: '查看解析', exact: true }).evaluate((el) => getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)'), 'Official component CSS is missing');
 
   await quiz.getByRole('button', { name: '查看解析', exact: true }).click();
-  await feedback(quiz, '先选择一个答案').waitFor();
-  await quiz.getByRole('radio', { name: 'B. 分别映射', exact: false }).check();
-  await feedback(quiz, '再想一想').waitFor();
-  await quiz.getByRole('radio', { name: 'A. 都映射', exact: false }).check();
-  await feedback(quiz, '答对了').waitFor();
+  await quiz.getByText('还没有选择答案', { exact: true }).waitFor();
+  await quiz.getByRole('radio', { name: '两次', exact: true }).check();
+  await quiz.getByText('再想一想', { exact: true }).waitFor();
+  await quiz.getByRole('radio', { name: '三次', exact: true }).check();
+  await quiz.getByText('答对了', { exact: true }).waitFor();
+  await quiz.getByRole('tab', { name: 'JSON', exact: true }).click();
+  assert((await quiz.locator('[data-slot="smart-ui-source"]').innerText()).includes('"Radio"'), 'Missing official Radio JSON');
+  await quiz.getByRole('tab', { name: '预览', exact: true }).click();
+  assert(await quiz.getByRole('radio', { name: '三次', exact: true }).isChecked(), 'JSON switch lost state');
+
+  await plan.getByRole('textbox', { name: '计划名称', exact: true }).fill('TCP 专项复习');
+  await plan.getByRole('textbox', { name: '复习笔记', exact: true }).fill('区分 SYN 与 FIN 消耗的序号。');
+  await plan.getByRole('combobox').click();
+  await page.getByRole('option', { name: '操作系统', exact: true }).click();
+  await plan.getByRole('slider').press('ArrowRight');
+  assert(await plan.getByRole('slider').getAttribute('aria-valuenow') === '50', 'Slider binding failed');
+  await plan.locator('[data-slot=progress-indicator][style*="-50%"]').waitFor();
+  await plan.getByRole('checkbox', { name: '今天的复习已完成', exact: true }).check();
+  await plan.getByRole('switch').uncheck();
+  assert(await plan.getByText('当前科目：操作系统；计划专注 50 分钟。', { exact: true }).isVisible(), 'Template state did not update');
+
+  await knowledge.getByRole('tab', { name: '四次挥手', exact: true }).click();
+  await knowledge.getByText('FIN，对端进入 LAST-ACK', { exact: true }).waitFor();
+  await knowledge.getByRole('button', { name: '为什么要等待 2MSL？', exact: true }).click();
+  await knowledge.getByText(/TIME-WAIT 允许重发最后的 ACK/).waitFor();
+
+  await overlays.getByRole('button', { name: '查看学习建议', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '学习建议', exact: true });
+  await dialog.waitFor();
+  assert(await dialog.getByText(/先画出通信双方/).isVisible(), 'Dialog content missing');
+  await page.keyboard.press('Escape');
+  await dialog.waitFor({ state: 'hidden' });
+  await overlays.getByRole('button', { name: '打开复习清单', exact: true }).click();
+  const drawer = page.getByRole('dialog', { name: '复习清单', exact: true });
+  await drawer.waitFor();
+  await page.keyboard.press('Escape');
+  await drawer.waitFor({ state: 'hidden' });
+  await overlays.getByRole('button', { name: '什么是主动回忆？', exact: true }).click();
+  await page.getByText('合上资料，用自己的话复述知识，再对照原文查漏补缺。', { exact: true }).waitFor();
+  await page.keyboard.press('Escape');
+  await overlays.getByRole('button', { name: '安排下一步', exact: true }).click();
+  await page.getByRole('menuitem', { name: '加入本周计划', exact: true }).click();
+  await overlays.getByText('已选择：加入本周计划', { exact: true }).waitFor();
+  await overlays.getByRole('button', { name: '展开：如何使用这份清单', exact: true }).click();
+  await overlays.getByText('先解释概念，再做一道题，最后记录错误原因。', { exact: true }).waitFor();
+
+  await choices.getByRole('button', { name: '标记为重点', exact: true }).click();
+  assert(await choices.getByRole('button', { name: '标记为重点', exact: true }).getAttribute('aria-pressed') === 'true', 'Toggle failed');
+  await choices.getByRole('radio', { name: '做题', exact: true }).check();
+  await choices.getByRole('button', { name: '加练', exact: true }).click();
+  await choices.getByRole('link', { name: '2', exact: true }).click();
+  await choices.getByText('当前：做题 · 加练 · 第 2 页', { exact: true }).waitFor();
+  await content.getByRole('button', { name: 'Next slide' }).click();
+  assert(await content.getByRole('img', { name: '黑白线稿：笔记本与学习卡片' }).evaluate((img) => img.complete && img.naturalWidth > 0), 'Image missing');
+
   await quiz.getByRole('button', { name: '重置交互', exact: true }).click();
-  await quiz.locator('input:checked').waitFor({ state: 'hidden' });
-  assert(await quiz.locator('input:checked').count() === 0, 'Quiz did not reset');
-  assert(!await feedback(quiz, '答对了').isVisible(), 'Feedback survived reset');
-
-  assert(await cache.getByText('内存块 3 映射到 Cache 第 3 行，块内偏移 4 字节。', { exact: true }).isVisible(), 'Initial address result is incorrect');
-  await cache.getByRole('button', { name: '地址 180：冲突块', exact: true }).click();
-  await cache.getByText('内存块 11 映射到 Cache 第 3 行，块内偏移 4 字节。', { exact: true }).waitFor();
-  await cache.getByRole('slider').press('ArrowRight');
-  await cache.getByText('内存块 11 映射到 Cache 第 3 行，块内偏移 5 字节。', { exact: true }).waitFor();
-  await cache.getByRole('button', { name: '地址 64：下一行', exact: true }).click();
-  await cache.getByText('内存块 4 映射到 Cache 第 4 行，块内偏移 0 字节。', { exact: true }).waitFor();
-
-  // The JSON tab keeps preview state alive and exposes a highlighted, copyable source view.
-  await cache.getByRole('tab', { name: 'JSON' }).click();
-  await cache.locator('[data-slot="smart-ui-source"]').waitFor();
-  assert((await cache.locator('[data-slot="smart-ui-source"]').innerText()).includes('"MemoryAddress"'), 'JSON source is missing the component type');
-  await cache.getByRole('tab', { name: '预览' }).click();
-  assert(await cache.getByRole('slider').inputValue() === '64', 'Switching tabs lost preview state');
-
-  for (const checkbox of await review.getByRole('checkbox').all()) await checkbox.check();
-  await review.locator('progress[value="3"]').waitFor();
-  assert(await feedback(review, '三个目标都完成了').isVisible(), 'Completion feedback missing');
-  assert(await quiz.locator('input:checked').count() === 0, 'State leaked between examples');
-  await review.getByRole('button', { name: '重置交互', exact: true }).click();
-  await review.locator('progress[value="0"]').waitFor();
-  assert(await cache.getByRole('slider').inputValue() === '64', 'Reset affected another example');
-
-  await gallery.getByRole('button', { name: '设为 90%', exact: true }).click();
-  assert(await gallery.getByRole('slider').inputValue() === '90', 'Gallery preset button failed');
-  await gallery.getByRole('checkbox').uncheck();
-  await gallery.locator('progress[value="0"]').waitFor();
-
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.screenshot({ path: 'reports/smart-ui-desktop.png', fullPage: true });
-  await gallery.scrollIntoViewIfNeeded();
-  await quiz.screenshot({ path: 'reports/smart-ui-quiz-light.png' });
-  await cache.screenshot({ path: 'reports/smart-ui-cache-light.png' });
-  await gallery.screenshot({ path: 'reports/smart-ui-gallery-light.png' });
-  await cache.getByRole('tab', { name: 'JSON' }).click();
-  await cache.screenshot({ path: 'reports/smart-ui-json-light.png' });
-  await page.evaluate(() => document.documentElement.classList.add('dark'));
-  await cache.screenshot({ path: 'reports/smart-ui-json-dark.png' });
-  await cache.getByRole('tab', { name: '预览' }).click();
-  await cache.screenshot({ path: 'reports/smart-ui-cache-dark.png' });
-  await gallery.screenshot({ path: 'reports/smart-ui-gallery-dark.png' });
-  await page.screenshot({ path: 'reports/smart-ui-desktop-dark.png', fullPage: true });
+  assert(await quiz.getByRole('radio', { name: '三次', exact: true }).isChecked() === false, 'Reset failed');
+  assert(await plan.getByRole('textbox', { name: '计划名称', exact: true }).inputValue() === 'TCP 专项复习', 'Reset leaked across blocks');
   await page.evaluate(() => document.documentElement.classList.remove('dark'));
+  await page.screenshot({ path: 'reports/smart-ui-official-light.png', fullPage: true });
+  await page.evaluate(() => document.documentElement.classList.add('dark'));
+  await page.screenshot({ path: 'reports/smart-ui-official-dark.png', fullPage: true });
 
   await page.setViewportSize({ width: 375, height: 812 });
-  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Mobile page overflows horizontally');
-  await cache.screenshot({ path: 'reports/smart-ui-cache-mobile.png' });
-  await page.evaluate(() => document.documentElement.classList.add('dark'));
-  await gallery.screenshot({ path: 'reports/smart-ui-gallery-dark-mobile.png' });
-  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Dark mobile page overflows');
-
-  const prompt = await page.request.get(new URL('/smart-ui/authoring-prompt.md', page.url()).href);
-  assert(prompt.ok() && (await prompt.text()).includes('不是 JSONL patches'), 'Authoring prompt download failed');
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Mobile page overflows');
+  for (const block of [quiz, plan, knowledge, overlays, choices, content]) {
+    assert(await block.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), 'A mobile block clips its content');
+  }
+  await page.setViewportSize({ width: 375, height: 1100 });
+  await plan.locator('[data-slot=card]').first().screenshot({ path: 'reports/smart-ui-official-mobile.png' });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await overlays.getByRole('button', { name: '查看学习建议', exact: true }).click();
+  await dialog.waitFor();
+  assert(await dialog.evaluate((el) => el.getBoundingClientRect().right <= innerWidth && el.getBoundingClientRect().left >= 0), 'Mobile dialog overflows');
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => document.documentElement.classList.remove('dark'));
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Light mobile page overflows');
   await page.reload();
-  await page.locator('[data-smart-ui-ready="true"]').nth(3).waitFor();
-  assert(await page.locator('[data-smart-ui]').nth(1).getByRole('slider').inputValue() === '52', 'Refresh did not restore initial state');
+  await page.locator('[data-smart-ui-ready="true"]').nth(5).waitFor();
+  assert(await plan.getByRole('slider').getAttribute('aria-valuenow') === '45', 'Refresh did not restore initial state');
   assert(errors.length === 0, `Browser exceptions: ${errors.join('; ')}`);
-  return { passed: true, examples: 4, pageErrors: errors };
+  return { passed: true, examples: 6, components: 36, pageErrors: errors };
 }

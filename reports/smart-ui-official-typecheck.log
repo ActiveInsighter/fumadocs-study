@@ -1,0 +1,22 @@
+
+> fumadocs-vercel@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+[MDX] generated files in 727.7869110000001ms
+Generating route types...
+✓ Types generated successfully
+tests/cloudflare-static-assets.test.ts(4,1): error TS2578: Unused '@ts-expect-error' directive.
+tests/cloudflare-static-assets.test.ts(10,8): error TS7016: Could not find a declaration file for module '../scripts/prepare-cloudflare-static-assets.mjs'. '/home/dev/Documents/Project/fumadocs-study/scripts/prepare-cloudflare-static-assets.mjs' implicitly has an 'any' type.
+tests/cloudflare-static-assets.test.ts(43,13): error TS7006: Parameter 'line' implicitly has an 'any' type.
+tests/cloudflare-static-assets.test.ts(44,16): error TS7006: Parameter 'line' implicitly has an 'any' type.
+tests/cloudflare-static-assets.test.ts(46,29): error TS7006: Parameter 'line' implicitly has an 'any' type.
+tests/document-publishing.test.ts(83,9): error TS2307: Cannot find module '../app/download/tasks/[taskRecordId]/[version]/[messageRecordId]/[format]/route' or its corresponding type declarations.
+tests/normalize-strong-boundaries.test.ts(2,49): error TS7016: Could not find a declaration file for module '../scripts/normalize-strong-boundaries.mjs'. '/home/dev/Documents/Project/fumadocs-study/scripts/normalize-strong-boundaries.mjs' implicitly has an 'any' type.
+tests/static-asset-references.test.ts(5,50): error TS7016: Could not find a declaration file for module '../scripts/verify-static-asset-references.mjs'. '/home/dev/Documents/Project/fumadocs-study/scripts/verify-static-asset-references.mjs' implicitly has an 'any' type.
+tests/static-build-id.test.ts(5,38): error TS7016: Could not find a declaration file for module '../scripts/static-build-id.mjs'. '/home/dev/Documents/Project/fumadocs-study/scripts/static-build-id.mjs' implicitly has an 'any' type.
+tests/static-docs-build.test.ts(6,1): error TS2578: Unused '@ts-expect-error' directive.
+tests/static-docs-build.test.ts(17,8): error TS7016: Could not find a declaration file for module '../scripts/zbsearch-index.mjs'. '/home/dev/Documents/Project/fumadocs-study/scripts/zbsearch-index.mjs' implicitly has an 'any' type.
+tests/static-docs-build.test.ts(174,48): error TS7006: Parameter 'item' implicitly has an 'any' type.
+tests/static-docs-build.test.ts(225,44): error TS7006: Parameter 'record' implicitly has an 'any' type.
+tests/static-docs-build.test.ts(228,40): error TS7006: Parameter 'record' implicitly has an 'any' type.
+tests/static-docs-build.test.ts(229,44): error TS7006: Parameter 'record' implicitly has an 'any' type.

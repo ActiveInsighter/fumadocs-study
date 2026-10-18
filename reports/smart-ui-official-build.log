@@ -1,0 +1,57 @@
+
+> fumadocs-vercel@0.1.0 build:smart-ui-demo
+> npm run smart-ui:catalog && node scripts/build-smart-ui-demo.mjs
+
+
+> fumadocs-vercel@0.1.0 smart-ui:catalog
+> node --experimental-strip-types scripts/export-smart-ui-catalog.mjs
+
+(node:1058608) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/dev/Documents/Project/fumadocs-study/lib/smart-ui/catalog.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/dev/Documents/Project/fumadocs-study/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Exported 36 official components, document guide and upstream prompt.
+[static-docs] Node heap ceiling for static build children: 4096 MiB.
+[static-docs] Shard 0/1; shared build id: fumadocs-study-static-77b475fb86af6fdf.
+[static-docs] Local preview only: /docs/408/knowledge/smart-ui-demo; no full search index or production output.
+[static-docs] Next build cache state: warm candidate.
+[timing] prepare_static_stage=1.95s
+[static-docs] Runner resources: 4 logical CPUs; 15985.61 MiB total memory; 8217.08 MiB free memory.
+▲ Next.js 16.3.3 (Turbopack)
+[MDX] generated files in 488.372394ms
+✓ Running next.config.mjs took 1023ms
+- Experiments (use with caution):
+  · staticGenerationMaxConcurrency: 2
+  · staticGenerationMinPagesPerWorker: 50
+  · staticGenerationRetryCount: 1
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.3s
+  Running TypeScript ...
+⚠ `experimental.useTypeScriptCli` checks the complete TypeScript project; `--debug-build-paths` does not limit type checking.
+  Finished TypeScript in 6.9s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/3) ...
+✓ Generating static pages using 3 workers (3/3) in 2.3s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /_not-found
+└   /docs/[[...slug]]
+  └ ● /docs/408/knowledge/smart-ui-demo
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+
+[timing] next_static_build_turbopack=18.18s
+[static-docs] Runner resources: 4 logical CPUs; 15985.61 MiB total memory; 7612.19 MiB free memory.
+[timing] sequential_build_wall=18.19s
+[timing] sequential_build_sum=18.18s
+[timing] assemble_static_and_search=1.28s
+[timing] direct_markdown_build=0.03s
+[timing] static_output_scan=0.06s
+[static-docs] Published 1048 static files (191.49 MiB).
+[static-docs] Generated 1 direct markdown routes.
+[static-docs] Largest file: 8.23 MiB .static-docs-preview/search/body-408-knowledge-0-ead92d620592.json
+[timing] static_package_total=21.64s

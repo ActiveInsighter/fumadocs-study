@@ -1,252 +1,910 @@
 ---
-title: "智能 UI 文档实验室"
-description: "用 json-render 把 AI 生成的 JSON 变成能答题、调参数和追踪进度的学习文档。"
+title: 官方智能 UI 组件体验
+description: 使用 json-render 官方 36 个 shadcn 组件构建交互学习文档。
 ---
 
-学习文档可以让你边读边做。下面的练习都来自文档中的 `json-render` 代码块：AI 选择组件、编排内容并连接状态，网站负责把 JSON 渲染为真实的交互界面。
+这里有六个可以直接操作的例子：答题、计划、知识速查、补充资料、选择切换和内容展示。每块都可以切换到 JSON 查看内容，或点击重置恢复初始状态。
 
-这些示例在浏览器本地运行，打开页面即可操作。状态仅保留在当前页面，每个练习相互独立；刷新页面或点击「重置」恢复初始值；切换到「JSON」标签可以查看并复制生成该界面的源码。
+## 即时答题
 
-## 先做一道 Cache 判断题
-
-直接映射 Cache 中，一个内存块只对应一个固定的 Cache 行。请先选择，再查看解析；你也可以修改选项，观察反馈如何变化。
+用单选题检验基础概念。纸面答案：三次握手。
 
 ```json-render
 {
-  "root": "quiz",
-  "state": { "answer": "", "submitted": false },
+  "root": "root",
   "elements": {
-    "quiz": {
+    "root": {
       "type": "Card",
-      "props": { "title": "两个内存块，可以共用一个 Cache 行吗？", "description": "设 Cache 有 8 行，采用直接映射。" },
-      "children": ["question", "submit", "empty", "correct", "incorrect"]
+      "props": {
+        "title": "TCP 连接建立，需要几次握手？",
+        "description": "选择答案后查看解析；改选答案会立即更新反馈。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "subject",
+        "question",
+        "submit",
+        "empty",
+        "correct",
+        "wrong"
+      ]
+    },
+    "subject": {
+      "type": "Badge",
+      "props": {
+        "variant": "secondary",
+        "text": "408 · 计算机网络"
+      },
+      "children": []
     },
     "question": {
-      "type": "Choice",
+      "type": "Radio",
       "props": {
-        "label": "内存块 3 和内存块 11 会映射到哪一行？",
+        "value": {
+          "$bindState": "/answer"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "请选择握手次数",
+        "name": "official-quiz-answer",
         "options": [
-          { "label": "A. 都映射到第 3 行", "value": "A" },
-          { "label": "B. 分别映射到第 3 行和第 4 行", "value": "B" },
-          { "label": "C. 可以放入任意空闲行", "value": "C" }
-        ],
-        "value": { "$bindState": "/answer" }
+          "两次",
+          "三次",
+          "四次"
+        ]
       },
       "children": []
     },
     "submit": {
       "type": "Button",
-      "props": { "label": "查看解析" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/submitted", "value": true } } },
-      "children": []
+      "props": {
+        "variant": "primary",
+        "disabled": null,
+        "label": "查看解析"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "setState",
+          "params": {
+            "statePath": "/submitted",
+            "value": true
+          }
+        }
+      }
     },
     "empty": {
-      "type": "Text",
-      "props": { "text": "先选择一个答案，再看看你的判断。", "tone": "muted" },
-      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "eq": "" }],
-      "children": []
+      "type": "Alert",
+      "props": {
+        "message": "先选一个选项，再查看解析。",
+        "type": "warning",
+        "title": "还没有选择答案"
+      },
+      "children": [],
+      "visible": [
+        {
+          "$state": "/submitted",
+          "eq": true
+        },
+        {
+          "$state": "/answer",
+          "eq": ""
+        }
+      ]
     },
     "correct": {
-      "type": "Text",
-      "props": { "text": "答对了。3 mod 8 = 3，11 mod 8 = 3。两个块竞争同一行，不能同时驻留在这一行。", "tone": "success" },
-      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "eq": "A" }],
-      "children": []
+      "type": "Alert",
+      "props": {
+        "message": "三次握手同步双方初始序号，并确认双方收发能力。",
+        "type": "success",
+        "title": "答对了"
+      },
+      "children": [],
+      "visible": [
+        {
+          "$state": "/submitted",
+          "eq": true
+        },
+        {
+          "$state": "/answer",
+          "eq": "三次"
+        }
+      ]
     },
-    "incorrect": {
-      "type": "Text",
-      "props": { "text": "再想一想：行号 = 内存块号 mod Cache 行数。3 和 11 除以 8 的余数都是 3；任意放置属于全相联映射。", "tone": "warning" },
-      "visible": [{ "$state": "/submitted" }, { "$state": "/answer", "neq": "A" }, { "$state": "/answer", "neq": "" }],
-      "children": []
+    "wrong": {
+      "type": "Alert",
+      "props": {
+        "message": "建立连接通常是三次握手；常见的四次过程是连接释放。",
+        "type": "info",
+        "title": "再想一想"
+      },
+      "children": [],
+      "visible": [
+        {
+          "$state": "/submitted",
+          "eq": true
+        },
+        {
+          "$state": "/answer",
+          "neq": "三次"
+        },
+        {
+          "$state": "/answer",
+          "neq": ""
+        }
+      ]
     }
+  },
+  "state": {
+    "answer": "",
+    "submitted": false
   }
 }
 ```
 
-**纸面结论：答案 A。** 行号由块号取模决定，冲突块需要通过不同的标记区分。
+## 复习计划
 
-## 拖动地址，观察位段变化
-
-假设内存按字节编址，地址宽度为 16 位，每块 16 字节，Cache 有 8 行。块内偏移占 4 位，行号占 3 位，其余 9 位是标记。行号从 0 开始计数。
-
-把地址从 52 拖到 53，只有偏移变化；到 64 时切换至下一行；到 180 时，仍落在第 3 行，标记已经改变。滑块可以用方向键精确调整，也可以点击预设地址。
+输入框、下拉选择、滑块和进度条共享本块状态。这里的计划只保存在当前页面中。
 
 ```json-render
 {
-  "root": "cache",
-  "state": { "address": 52 },
+  "root": "root",
   "elements": {
-    "cache": {
+    "root": {
       "type": "Card",
-      "props": { "title": "把一个内存地址拆开", "description": "16 位地址 / 每块 16 字节 / Cache 共 8 行" },
-      "children": ["address", "presets", "bits"]
+      "props": {
+        "title": "安排一次专注复习",
+        "description": "填写主题，拖动滑块，记录今天的学习计划。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "grid",
+        "duration",
+        "progress",
+        "done",
+        "summary"
+      ]
     },
-    "address": {
+    "grid": {
+      "type": "Grid",
+      "props": {
+        "columns": 2,
+        "gap": "lg",
+        "className": "grid-cols-1 sm:grid-cols-2"
+      },
+      "children": [
+        "name",
+        "topic",
+        "notes",
+        "reminder"
+      ]
+    },
+    "name": {
+      "type": "Input",
+      "props": {
+        "type": null,
+        "placeholder": "例如：复习 TCP 连接管理",
+        "value": {
+          "$bindState": "/name"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "计划名称",
+        "name": "official-plan-name"
+      },
+      "children": []
+    },
+    "topic": {
+      "type": "Select",
+      "props": {
+        "placeholder": "选择科目",
+        "value": {
+          "$bindState": "/topic"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "学习科目",
+        "name": "official-plan-topic",
+        "options": [
+          "计算机网络",
+          "操作系统",
+          "数据结构",
+          "计算机组成原理"
+        ]
+      },
+      "children": []
+    },
+    "notes": {
+      "type": "Textarea",
+      "props": {
+        "placeholder": "记下一个容易混淆的知识点…",
+        "rows": 3,
+        "value": {
+          "$bindState": "/notes"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "复习笔记",
+        "name": "official-plan-notes"
+      },
+      "children": []
+    },
+    "reminder": {
+      "type": "Switch",
+      "props": {
+        "checked": {
+          "$bindState": "/reminder"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "结束时提醒我回顾",
+        "name": "official-plan-reminder"
+      },
+      "children": []
+    },
+    "duration": {
       "type": "Slider",
-      "props": { "label": "字节地址", "min": 0, "max": 255, "step": 1, "value": { "$bindState": "/address" } },
-      "children": []
-    },
-    "presets": {
-      "type": "Stack",
-      "props": { "direction": "horizontal" },
-      "children": ["sameBlock", "nextBlock", "conflict"]
-    },
-    "sameBlock": {
-      "type": "Button", "props": { "label": "地址 53：同一块", "variant": "secondary" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 53 } } },
-      "children": []
-    },
-    "nextBlock": {
-      "type": "Button", "props": { "label": "地址 64：下一行", "variant": "secondary" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 64 } } },
-      "children": []
-    },
-    "conflict": {
-      "type": "Button", "props": { "label": "地址 180：冲突块", "variant": "secondary" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/address", "value": 180 } } },
-      "children": []
-    },
-    "bits": {
-      "type": "MemoryAddress",
-      "props": { "address": { "$state": "/address" }, "blockBytes": 16, "lines": 8 },
-      "children": []
-    }
-  }
-}
-```
-
-**纸面校验：** 地址 52 对应块 3、行 3、偏移 4、标记 0。地址 180 对应块 11、行 3、偏移 4、标记 1。两者低 7 位相同，因此映射到同一行。
-
-## 把知识点变成复习清单
-
-下面的复习卡没有固定模板：组件排列、任务文字和状态连接都由 JSON 决定。勾选后进度立即更新，三个任务全部完成时出现下一步建议。
-
-```json-render
-{
-  "root": "review",
-  "state": { "mapping": false, "address": false, "conflict": false },
-  "elements": {
-    "review": {
-      "type": "Card",
-      "props": { "title": "今天的 Cache 复习", "description": "完成一个任务，就勾选一项。此清单仅用于当前页面练习。" },
-      "children": ["mapping", "address", "conflict", "progress", "finished"]
-    },
-    "mapping": {
-      "type": "Toggle",
-      "props": { "label": "能解释直接映射、全相联、组相联的区别", "checked": { "$bindState": "/mapping" } },
-      "children": []
-    },
-    "address": {
-      "type": "Toggle",
-      "props": { "label": "能独立计算标记、行号、块内偏移的位数", "checked": { "$bindState": "/address" } },
-      "children": []
-    },
-    "conflict": {
-      "type": "Toggle",
-      "props": { "label": "能举出两个发生映射冲突的内存块", "checked": { "$bindState": "/conflict" } },
+      "props": {
+        "label": "专注时长（分钟）",
+        "min": 15,
+        "max": 90,
+        "step": 5,
+        "value": {
+          "$bindState": "/minutes"
+        }
+      },
       "children": []
     },
     "progress": {
       "type": "Progress",
-      "props": { "label": "本节掌握进度", "values": [{ "$state": "/mapping" }, { "$state": "/address" }, { "$state": "/conflict" }] },
-      "children": []
-    },
-    "finished": {
-      "type": "Text",
-      "props": { "text": "三个目标都完成了。下一步：给一组访存地址，手算 Cache 命中率。", "tone": "success" },
-      "visible": [{ "$state": "/mapping" }, { "$state": "/address" }, { "$state": "/conflict" }],
-      "children": []
-    }
-  }
-}
-```
-
-**纸面复习目标：** 区分映射方式、计算地址位段、判断映射冲突；然后练习命中率计算。
-
-## 组件一览
-
-下面是目前支持的全部组件：文本语气、单选、滑块、复选、两种按钮、进度条、嵌套卡片和 Cache 地址分解。它们共用同一套黑白、圆角的视觉规范，在明暗主题下保持一致。
-
-```json-render
-{
-  "root": "gallery",
-  "state": { "choice": "b", "level": 40, "done": true, "address": 1234 },
-  "elements": {
-    "gallery": {
-      "type": "Card",
-      "props": { "title": "组件一览", "description": "每个组件各出现一次，改变控件即可看到状态联动。" },
-      "children": ["tones", "choice", "level", "actions", "nested"]
-    },
-    "tones": {
-      "type": "Stack",
-      "props": { "direction": "vertical" },
-      "children": ["normal", "muted", "success", "warning"]
-    },
-    "normal": { "type": "Text", "props": { "text": "普通文本：用于题干和说明。", "tone": "normal" }, "children": [] },
-    "muted": { "type": "Text", "props": { "text": "次要文本：用于补充信息。", "tone": "muted" }, "children": [] },
-    "success": { "type": "Text", "props": { "text": "成功反馈：答案正确，并给出理由。", "tone": "success" }, "children": [] },
-    "warning": { "type": "Text", "props": { "text": "提示反馈：指出常见误区，引导重新思考。", "tone": "warning" }, "children": [] },
-    "choice": {
-      "type": "Choice",
       "props": {
-        "label": "Cache 行号由什么决定？",
-        "options": [
-          { "label": "A. 块号 mod Cache 行数", "value": "a" },
-          { "label": "B. 块内偏移", "value": "b" }
-        ],
-        "value": { "$bindState": "/choice" }
+        "max": 100,
+        "label": "时长刻度（0–100 分钟）",
+        "value": {
+          "$state": "/minutes"
+        }
       },
       "children": []
     },
-    "level": {
-      "type": "Slider",
-      "props": { "label": "掌握程度", "min": 0, "max": 100, "step": 10, "value": { "$bindState": "/level" } },
+    "done": {
+      "type": "Checkbox",
+      "props": {
+        "checked": {
+          "$bindState": "/done"
+        },
+        "checks": null,
+        "validateOn": null,
+        "label": "今天的复习已完成",
+        "name": "official-plan-done"
+      },
       "children": []
     },
-    "actions": {
-      "type": "Stack",
-      "props": { "direction": "horizontal" },
-      "children": ["primary", "secondary"]
-    },
-    "primary": {
-      "type": "Button", "props": { "label": "设为 90%" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/level", "value": 90 } } },
+    "summary": {
+      "type": "Text",
+      "props": {
+        "variant": "muted",
+        "text": {
+          "$template": "当前科目：${/topic}；计划专注 ${/minutes} 分钟。"
+        }
+      },
       "children": []
-    },
-    "secondary": {
-      "type": "Button", "props": { "label": "设为 10%", "variant": "secondary" },
-      "on": { "press": { "action": "setState", "params": { "statePath": "/level", "value": 10 } } },
-      "children": []
-    },
-    "nested": {
-      "type": "Card",
-      "props": { "title": "嵌套卡片", "description": "内层卡片自动使用描边，外层保持无框。" },
-      "children": ["done", "progress", "bits"]
-    },
-    "done": { "type": "Toggle", "props": { "label": "已完成本节复习", "checked": { "$bindState": "/done" } }, "children": [] },
-    "progress": { "type": "Progress", "props": { "label": "完成度", "values": [{ "$state": "/done" }] }, "children": [] },
-    "bits": { "type": "MemoryAddress", "props": { "address": { "$state": "/address" }, "blockBytes": 32, "lines": 16 }, "children": [] }
+    }
+  },
+  "state": {
+    "topic": "计算机网络",
+    "name": "",
+    "notes": "",
+    "minutes": 45,
+    "done": false,
+    "reminder": true
   }
 }
 ```
 
-**纸面校验：** 地址 1234 = 38×32 + 18，块号 38，行号 38 mod 16 = 6，标记 2，块内偏移 18。
+## 标签页与知识折叠
 
-## 让 AI 生成你自己的交互文档
+这里用官方表格与标签页展示 TCP 学习内容；展开问题可查看解释。
 
-1. 打开并复制[完整生成提示词](/smart-ui/authoring-prompt.md)，把它发给你使用的 AI。
-2. 再提供主题、知识材料和你希望读者完成的操作。组件的属性约束已经包含在提示词中。
-3. 将生成的完整 Markdown 保存为学习目录里的 `.md` 或 `.mdx` 文档；添加侧边栏导航后，本地预览或正常构建即可显示交互。
+```json-render
+{
+  "root": "root",
+  "elements": {
+    "root": {
+      "type": "Card",
+      "props": {
+        "title": "TCP 连接管理速查",
+        "description": "切换建立与释放，对照报文和状态变化。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "tabs",
+        "terms"
+      ]
+    },
+    "tabs": {
+      "type": "Tabs",
+      "props": {
+        "defaultValue": "connect",
+        "value": {
+          "$bindState": "/tab"
+        },
+        "tabs": [
+          {
+            "label": "三次握手",
+            "value": "connect"
+          },
+          {
+            "label": "四次挥手",
+            "value": "close"
+          }
+        ]
+      },
+      "children": [
+        "handshake",
+        "release"
+      ]
+    },
+    "handshake": {
+      "type": "Table",
+      "props": {
+        "caption": "连接建立：SYN 消耗一个序号。",
+        "columns": [
+          "次序",
+          "方向",
+          "报文"
+        ],
+        "rows": [
+          [
+            "1",
+            "客户端 → 服务端",
+            "SYN，seq=x"
+          ],
+          [
+            "2",
+            "服务端 → 客户端",
+            "SYN+ACK，seq=y，ack=x+1"
+          ],
+          [
+            "3",
+            "客户端 → 服务端",
+            "ACK，ack=y+1"
+          ]
+        ]
+      },
+      "children": [],
+      "visible": {
+        "$state": "/tab",
+        "eq": "connect"
+      }
+    },
+    "release": {
+      "type": "Table",
+      "props": {
+        "caption": "常见四报文释放过程；ACK 和 FIN 也可能合并发送。",
+        "columns": [
+          "次序",
+          "方向",
+          "报文 / 状态"
+        ],
+        "rows": [
+          [
+            "1",
+            "主动关闭方 → 对端",
+            "FIN，进入 FIN-WAIT-1"
+          ],
+          [
+            "2",
+            "对端 → 主动关闭方",
+            "ACK，对端进入 CLOSE-WAIT"
+          ],
+          [
+            "3",
+            "对端 → 主动关闭方",
+            "FIN，对端进入 LAST-ACK"
+          ],
+          [
+            "4",
+            "主动关闭方 → 对端",
+            "ACK，主动关闭方进入 TIME-WAIT"
+          ]
+        ]
+      },
+      "children": [],
+      "visible": {
+        "$state": "/tab",
+        "eq": "close"
+      }
+    },
+    "terms": {
+      "type": "Accordion",
+      "props": {
+        "type": "multiple",
+        "items": [
+          {
+            "title": "为什么建立连接不能只用两次？",
+            "content": "第三次握手使服务端确认客户端收到了自己的初始序号，并降低旧连接请求造成误建立的风险。"
+          },
+          {
+            "title": "为什么要等待 2MSL？",
+            "content": "TIME-WAIT 允许重发最后的 ACK，并让旧连接的报文段在网络中消失。"
+          }
+        ]
+      },
+      "children": []
+    }
+  },
+  "state": {
+    "tab": "connect"
+  }
+}
+```
 
-例如，可以在完整提示词之后追加：
+## 弹窗、抽屉与提示
 
-> 请生成一篇面向考研 408 的「进程与线程」学习文档，先解释资源分配与调度的区别，再生成一道单选判断题和一个三项复习清单。选错时解释误区，选对时给出理由。普通正文中也要保留答案和解析。使用目录中已有的组件，不要创造新组件。
+打开补充内容、选择下一步，再通过关闭按钮、Esc 或遮罩回到正文。
 
-也可以要求 AI 改写上面的例子：
+```json-render
+{
+  "root": "root",
+  "elements": {
+    "root": {
+      "type": "Card",
+      "props": {
+        "title": "按需展开学习资料",
+        "description": "把补充说明留在弹窗或抽屉中，保持正文简洁。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "actions",
+        "popover",
+        "tooltip",
+        "menu",
+        "selected",
+        "details",
+        "dialog",
+        "drawer"
+      ]
+    },
+    "actions": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "sm",
+        "align": "center",
+        "justify": null,
+        "className": null
+      },
+      "children": [
+        "open-dialog",
+        "open-drawer"
+      ]
+    },
+    "open-dialog": {
+      "type": "Button",
+      "props": {
+        "variant": "primary",
+        "disabled": null,
+        "label": "查看学习建议"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "setState",
+          "params": {
+            "statePath": "/dialog",
+            "value": true
+          }
+        }
+      }
+    },
+    "open-drawer": {
+      "type": "Button",
+      "props": {
+        "variant": "secondary",
+        "disabled": null,
+        "label": "打开复习清单"
+      },
+      "children": [],
+      "on": {
+        "press": {
+          "action": "setState",
+          "params": {
+            "statePath": "/drawer",
+            "value": true
+          }
+        }
+      }
+    },
+    "popover": {
+      "type": "Popover",
+      "props": {
+        "trigger": "什么是主动回忆？",
+        "content": "合上资料，用自己的话复述知识，再对照原文查漏补缺。"
+      },
+      "children": []
+    },
+    "tooltip": {
+      "type": "Tooltip",
+      "props": {
+        "text": "MSL 术语提示",
+        "content": "Maximum Segment Lifetime：报文段最大生存时间。"
+      },
+      "children": []
+    },
+    "menu": {
+      "type": "DropdownMenu",
+      "props": {
+        "value": {
+          "$bindState": "/menu"
+        },
+        "label": "安排下一步",
+        "items": [
+          {
+            "label": "稍后复习",
+            "value": "稍后复习"
+          },
+          {
+            "label": "加入本周计划",
+            "value": "加入本周计划"
+          }
+        ]
+      },
+      "children": []
+    },
+    "selected": {
+      "type": "Text",
+      "props": {
+        "variant": "muted",
+        "text": {
+          "$template": "已选择：${/menu}"
+        }
+      },
+      "children": []
+    },
+    "details": {
+      "type": "Collapsible",
+      "props": {
+        "defaultOpen": false,
+        "title": "展开：如何使用这份清单"
+      },
+      "children": [
+        "detail-text"
+      ]
+    },
+    "detail-text": {
+      "type": "Text",
+      "props": {
+        "variant": null,
+        "text": "先解释概念，再做一道题，最后记录错误原因。"
+      },
+      "children": []
+    },
+    "dialog": {
+      "type": "Dialog",
+      "props": {
+        "description": "一次只解决一个具体问题。",
+        "title": "学习建议",
+        "openPath": "/dialog"
+      },
+      "children": [
+        "advice"
+      ]
+    },
+    "advice": {
+      "type": "Text",
+      "props": {
+        "variant": null,
+        "text": "先画出通信双方，再逐条写出 SYN、ACK、FIN 和序号变化。"
+      },
+      "children": []
+    },
+    "drawer": {
+      "type": "Drawer",
+      "props": {
+        "description": "关闭抽屉后，勾选状态仍会保留在本块。",
+        "title": "复习清单",
+        "openPath": "/drawer"
+      },
+      "children": [
+        "drawer-text"
+      ]
+    },
+    "drawer-text": {
+      "type": "Text",
+      "props": {
+        "variant": null,
+        "text": "① 回忆握手顺序　② 对照序号　③ 解释 TIME-WAIT"
+      },
+      "children": []
+    }
+  },
+  "state": {
+    "dialog": false,
+    "drawer": false,
+    "menu": "稍后复习"
+  }
+}
+```
 
-> 请把 Cache 例子改成 32 字节一块、16 行 Cache。保持 16 位字节地址，初始地址为 52；用两个预设按钮展示同一块和映射冲突。同步更新正文中的位数和校验算例。
+## 切换选择与分页
 
-支持的组件包括 `Stack`、`Card`、`Text`、`Choice`、`Slider`、`Toggle`、`Button`、`Progress`、`MemoryAddress`。AI 可以组合这些组件，新增组件则需要先补充目录和 React 实现。
+试试不同的选择方式，观察下方文字同步变化。分页只切换本示例的页码。
 
-本次验证采用**写作时生成、阅读时交互**的流程。页面没有模型 API 或聊天接口；自然语言由你正在使用的 AI 生成文档，阅读页面不需要 API Key。JSON 不合法时，该交互块会显示校验信息，正文继续保留。
+```json-render
+{
+  "root": "root",
+  "elements": {
+    "root": {
+      "type": "Card",
+      "props": {
+        "title": "选择你的复习节奏",
+        "description": "切换按钮、按钮组与分页都使用官方状态绑定。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "toggle",
+        "modes",
+        "priorities",
+        "pagination",
+        "current"
+      ]
+    },
+    "toggle": {
+      "type": "Toggle",
+      "props": {
+        "pressed": {
+          "$bindState": "/toggle"
+        },
+        "variant": "outline",
+        "label": "标记为重点"
+      },
+      "children": []
+    },
+    "modes": {
+      "type": "ToggleGroup",
+      "props": {
+        "type": "single",
+        "value": {
+          "$bindState": "/mode"
+        },
+        "items": [
+          {
+            "label": "精读",
+            "value": "精读"
+          },
+          {
+            "label": "做题",
+            "value": "做题"
+          },
+          {
+            "label": "回顾",
+            "value": "回顾"
+          }
+        ]
+      },
+      "children": []
+    },
+    "priorities": {
+      "type": "ButtonGroup",
+      "props": {
+        "selected": {
+          "$bindState": "/priority"
+        },
+        "buttons": [
+          {
+            "label": "常规",
+            "value": "常规"
+          },
+          {
+            "label": "加练",
+            "value": "加练"
+          }
+        ]
+      },
+      "children": []
+    },
+    "pagination": {
+      "type": "Pagination",
+      "props": {
+        "page": {
+          "$bindState": "/page"
+        },
+        "totalPages": 5
+      },
+      "children": []
+    },
+    "current": {
+      "type": "Text",
+      "props": {
+        "variant": "muted",
+        "text": {
+          "$template": "当前：${/mode} · ${/priority} · 第 ${/page} 页"
+        }
+      },
+      "children": []
+    }
+  },
+  "state": {
+    "toggle": false,
+    "mode": "精读",
+    "priority": "常规",
+    "page": 1
+  }
+}
+```
 
-技术来源：[Vercel Labs json-render](https://github.com/vercel-labs/json-render) · [官方文档](https://json-render.dev/docs)。
+## 内容展示与加载状态
+
+所有组件沿用相同的站点主题，明暗模式会自动适配。
+
+```json-render
+{
+  "root": "root",
+  "elements": {
+    "root": {
+      "type": "Card",
+      "props": {
+        "title": "学习资料与内容展示",
+        "description": "图片、头像、轮播以及加载状态的默认组件。",
+        "maxWidth": null,
+        "centered": null,
+        "className": null
+      },
+      "children": [
+        "heading",
+        "author",
+        "cover",
+        "separator",
+        "carousel",
+        "loading",
+        "link"
+      ]
+    },
+    "heading": {
+      "type": "Heading",
+      "props": {
+        "level": "h3",
+        "text": "把知识整理成自己的笔记"
+      },
+      "children": []
+    },
+    "author": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "md",
+        "align": "center",
+        "justify": null,
+        "className": null
+      },
+      "children": [
+        "avatar",
+        "intro"
+      ]
+    },
+    "avatar": {
+      "type": "Avatar",
+      "props": {
+        "src": null,
+        "size": "md",
+        "name": "学习者"
+      },
+      "children": []
+    },
+    "intro": {
+      "type": "Text",
+      "props": {
+        "variant": "lead",
+        "text": "今天从一个小问题开始。"
+      },
+      "children": []
+    },
+    "cover": {
+      "type": "Image",
+      "props": {
+        "src": "/smart-ui/study-notes.svg",
+        "width": 640,
+        "height": 180,
+        "alt": "黑白线稿：笔记本与学习卡片"
+      },
+      "children": []
+    },
+    "separator": {
+      "type": "Separator",
+      "props": {
+        "orientation": "horizontal"
+      },
+      "children": []
+    },
+    "carousel": {
+      "type": "Carousel",
+      "props": {
+        "items": [
+          {
+            "title": "主动回忆",
+            "description": "不看答案，先尝试解释。"
+          },
+          {
+            "title": "间隔复习",
+            "description": "隔一段时间重新检索记忆。"
+          },
+          {
+            "title": "交错练习",
+            "description": "把相近概念放在一起辨析。"
+          },
+          {
+            "title": "错误归因",
+            "description": "区分概念不清和计算失误。"
+          }
+        ]
+      },
+      "children": []
+    },
+    "loading": {
+      "type": "Stack",
+      "props": {
+        "direction": "vertical",
+        "gap": "md",
+        "align": "stretch",
+        "justify": null,
+        "className": null
+      },
+      "children": [
+        "loading-label",
+        "skeleton",
+        "spinner"
+      ]
+    },
+    "loading-label": {
+      "type": "Text",
+      "props": {
+        "variant": "caption",
+        "text": "以下是加载状态的外观示例。"
+      },
+      "children": []
+    },
+    "skeleton": {
+      "type": "Skeleton",
+      "props": {
+        "width": "100%",
+        "height": "24px",
+        "rounded": false
+      },
+      "children": []
+    },
+    "spinner": {
+      "type": "Spinner",
+      "props": {
+        "size": "sm",
+        "label": "加载状态示例"
+      },
+      "children": []
+    },
+    "link": {
+      "type": "Link",
+      "props": {
+        "label": "查看完整官方组件目录",
+        "href": "https://json-render.dev/docs/api/shadcn"
+      },
+      "children": []
+    }
+  },
+  "state": {}
+}
+```
+
+## 用 AI 编写同类文档
+
+下载[文档写作约定](/smart-ui/authoring-prompt.md)，连同你的学习主题和资料交给 AI。这里使用的全部 36 个组件来自官方组件库。
+
+需要查阅框架本身的生成规则时，可查看[官方原始 JSONL 提示词](/smart-ui/upstream-prompt.md)。

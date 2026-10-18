@@ -6,6 +6,10 @@
 @source '../lib';
 @source '../content';
 @source '../data';
+/* Scan the official components bundled in the dependency. */
+@source '../node_modules/@json-render/shadcn/dist';
+/* The static export copies app/ one directory deeper and reuses root dependencies. */
+@source '../../node_modules/@json-render/shadcn/dist';
 
 @import 'fumadocs-ui/css/black.css';
 @import 'fumadocs-ui/css/preset.css';
