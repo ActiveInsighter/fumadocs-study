@@ -14,7 +14,7 @@ Open `http://localhost:3000/docs`.
 ## Interactive AI-authored documents
 
 `json-render` fences in Markdown/MDX render as interactive study components.
-Try `/docs/408/knowledge/smart-ui-demo` for six interactive examples covering all 36 official
+Try `/docs/408/knowledge/smart-ui-demo` for three focused learning examples and an optional gallery of the 36 official
 `@json-render/shadcn` components. Copy `/smart-ui/authoring-prompt.md` into your AI tool
 to generate compatible documents. See [the authoring and validation guide](docs/smart-ui.md).
 

@@ -40,7 +40,7 @@ export function JsonSource({ code }: { code: string }) {
         type="button"
         onClick={copy}
         aria-label={copied ? '已复制 JSON' : '复制 JSON'}
-        className="absolute top-2.5 right-3 z-10 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="absolute top-1.5 right-2 z-10 inline-flex size-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
       >
         {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
       </button>

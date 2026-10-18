@@ -3,6 +3,7 @@ import { compile } from '@mdx-js/mdx';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { shadcnComponentDefinitions } from '@json-render/shadcn/catalog';
+import { resolveElementProps } from '@json-render/core';
 import { studyCatalog } from '../lib/smart-ui/catalog';
 import { parseStudySpec } from '../lib/smart-ui/validate';
 import { remarkJsonRender } from '../lib/mdx/remark-json-render';
@@ -19,7 +20,7 @@ describe('official smart UI integration', () => {
   it('uses all 36 upstream schemas unchanged and covers them in real documents', () => {
     expect(studyCatalog.data.components).toBe(shadcnComponentDefinitions);
     expect(studyCatalog.componentNames).toHaveLength(36);
-    expect(examples).toHaveLength(6);
+    expect(examples).toHaveLength(4);
     const used = new Set<string>();
     for (const code of examples) {
       const spec = parseStudySpec(code);
@@ -91,7 +92,7 @@ describe('official smart UI integration', () => {
     expect(() => parseStudySpec(JSON.stringify(link))).toThrow(/字面量/);
     expect(() => parseStudySpec('{"__proto__":{}}')).toThrow(/键/);
     expect(() => parseStudySpec(' '.repeat(100001))).toThrow(/100 KB/);
-    const plan = JSON.parse(examples[1]); plan.elements.duration.props.min = 100;
+    const plan = JSON.parse(examples[2]); plan.elements.duration.props.min = 100;
     expect(() => parseStudySpec(JSON.stringify(plan))).toThrow(/范围/);
   });
 
@@ -112,6 +113,26 @@ describe('official smart UI integration', () => {
     expect(source).toContain('aria-label="复制 JSON"');
     expect(source).toContain('&lt;script&gt;');
     expect(readFileSync('app/global.css', 'utf8')).toContain("@source '../node_modules/@json-render/shadcn/dist'");
+  });
+
+  it('counts real completed tasks independently of the focus duration', () => {
+    const plan = parseStudySpec(examples[2]);
+    for (let count = 0; count <= 3; count++) {
+      const state = { ...plan.state, minutes: 90, concept: count >= 1, practice: count >= 2, review: count >= 3 };
+      const progress = resolveElementProps(plan.elements.progress.props, { stateModel: state });
+      const completion = resolveElementProps(plan.elements.completion.props, { stateModel: state });
+      expect(progress.value).toBe(Math.round(count / 3 * 100));
+      expect(completion.text).toContain(`${count} / 3`);
+    }
+  });
+
+  it('starts main examples without redundant cards and keeps secondary controls optional', () => {
+    for (const code of examples.slice(0, 3)) {
+      const spec = parseStudySpec(code);
+      expect(spec.elements[spec.root].type).toBe('Stack');
+    }
+    expect(document).toContain('<summary>展开组件体验区</summary>');
+    expect(document).toContain('组件可以自定义吗');
   });
 });
 

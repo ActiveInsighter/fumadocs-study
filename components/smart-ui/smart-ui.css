@@ -1,6 +1,100 @@
-/* Official components keep their markup and variants; the site owns the theme. */
+/* Site presentation of the unchanged official component implementations. */
+.smart-ui {
+  --smart-ui-control-height: 2.75rem;
+  scroll-margin-top: 8rem;
+}
+
+.smart-ui :where(button, input, [role="tab"]) {
+  touch-action: manipulation;
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+}
+
+/* A preview frame already provides a surface. Flatten only a root Card;
+   actual nested content cards retain the official structure and borders. */
+.smart-ui-canvas > [data-slot="card"] {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.smart-ui-canvas > [data-slot="card"] > :is([data-slot="card-header"], [data-slot="card-content"]) {
+  padding-inline: 0;
+}
+
 .smart-ui [data-slot="card"] {
   box-shadow: none;
+}
+
+.smart-ui :is([data-slot="card"], [data-slot="card-content"], [data-slot="tabs"], .grid > *) {
+  min-width: 0;
+}
+
+/* overflow-x:auto implicitly made overflow-y:auto. A one-pixel descendant
+   overflow then created the vertical scrollbar seen on Android. Let tabs wrap
+   and size to their content instead of creating a scroll container. */
+.smart-ui [data-slot="tabs-list"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: fit-content;
+  max-width: 100%;
+  height: auto;
+  min-height: var(--smart-ui-control-height);
+  padding: 0.25rem;
+  overflow: visible;
+}
+
+.smart-ui [data-slot="tabs-trigger"] {
+  flex: 0 1 auto;
+  height: auto;
+  min-height: var(--smart-ui-control-height);
+  padding: 0.375rem 0.75rem;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.smart-ui [data-slot="tabs-list"][data-variant="default"] > [data-slot="tabs-trigger"]::after {
+  display: none;
+}
+
+.smart-ui-canvas [data-slot="tabs"] {
+  gap: 1rem;
+}
+
+/* Tables are readable in place, including at 320px and with enlarged text.
+   Keep their real table semantics and allow control fields/captions to wrap. */
+#docs-body .smart-ui [data-slot="table"] {
+  width: 100%;
+  table-layout: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+#docs-body .smart-ui :is([data-slot="table-head"], [data-slot="table-cell"], [data-slot="table-caption"]) {
+  height: auto;
+  padding: 0.75rem 0.5rem;
+  vertical-align: top;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+#docs-body .smart-ui [data-slot="table-head"] {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+#docs-body .smart-ui [data-slot="table-caption"] {
+  margin-top: 0;
+  text-align: start;
+}
+
+.smart-ui [data-slot="table-container"] {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 }
 
 .smart-ui [data-slot="alert"] {
@@ -11,39 +105,86 @@
 
 .smart-ui [data-slot="alert-description"] {
   color: var(--muted-foreground);
+  line-height: 1.7;
 }
 
-.smart-ui [data-slot="card"],
-.smart-ui [data-slot="card-content"],
-.smart-ui .grid > * {
-  min-width: 0;
-}
-
-.smart-ui [role="radiogroup"] label,
 .smart-ui [data-slot="label"] {
   line-height: 1.6;
 }
 
-.smart-ui [data-slot="table-container"] {
-  max-width: 100%;
-  overflow-x: auto;
+.smart-ui [data-slot="radio-group"] > div {
+  min-height: var(--smart-ui-control-height);
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
-.smart-ui [data-slot="tabs-list"] {
-  max-width: 100%;
-  overflow-x: auto;
+.smart-ui [data-slot="radio-group"] > div:has([data-state="checked"]) {
+  border-color: var(--foreground);
+  background: var(--muted);
 }
 
-/* Upstream carousel arrows sit outside its viewport; reserve their gutter. */
+.smart-ui [data-slot="radio-group-item"] {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+}
+
+.smart-ui [data-slot="radio-group"] label {
+  flex: 1;
+  margin: 0;
+}
+
+.smart-ui [data-slot="button"] {
+  min-height: var(--smart-ui-control-height);
+  height: auto;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.smart-ui :is([data-slot="input"], [data-slot="select-trigger"], [data-slot="toggle"]) {
+  min-height: var(--smart-ui-control-height);
+}
+
+.smart-ui [data-slot="smart-ui-source"] {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* Keep arrows inside the content area without shrinking the slide viewport. */
 .smart-ui [data-slot="carousel"] {
-  width: calc(100% - 6rem);
-  margin-inline: 3rem;
+  width: 100%;
+  padding-bottom: 3.25rem;
+}
+
+.smart-ui :is([data-slot="carousel-previous"], [data-slot="carousel-next"]) {
+  top: auto;
+  bottom: 0;
+  transform: none;
+  min-height: var(--smart-ui-control-height);
+  width: var(--smart-ui-control-height);
+}
+
+.smart-ui [data-slot="carousel-previous"] { left: 0; }
+.smart-ui [data-slot="carousel-next"] { right: 0; }
+
+.smart-ui [data-slot="pagination-content"] {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.smart-ui [data-slot="pagination-link"] {
+  min-height: var(--smart-ui-control-height);
+}
+
+@media (max-width: 40rem) {
+  .smart-ui :is([data-slot="input"], [data-slot="textarea"], [data-slot="select-trigger"]) {
+    font-size: 1rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .smart-ui *,
-  .smart-ui *::before,
-  .smart-ui *::after {
+  .smart-ui *, .smart-ui *::before, .smart-ui *::after {
     animation: none !important;
     transition: none !important;
   }

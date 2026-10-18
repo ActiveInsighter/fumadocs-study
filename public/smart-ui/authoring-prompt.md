@@ -4,7 +4,7 @@
 
 1. 输出中文 Markdown；交互块使用 ```json-render 围栏，里面放完整的 JSON spec（不是 JSONL patches），不输出 import、JSX 或 JavaScript。
 
-2. 使用官方 @json-render/shadcn 的全部 36 个组件和原始属性。每个 spec 包含 root、elements、state；每个元素包含 type、props、children。可空属性使用 null，不能改用本项目旧版 Choice、MemoryAddress 或 Progress.values。
+2. 目录提供官方 @json-render/shadcn 的 36 个组件；按学习内容选用必要组件，不要求每篇或每块全部展示。使用原始属性。每个 spec 包含 root、elements、state；每个元素包含 type、props、children。可空属性使用 null，不能改用旧版 Choice、MemoryAddress 或 Progress.values。
 
 3. 使用官方 $state 读取状态、$bindState 双向绑定、$template 拼接文字、$cond/$then/$else 选择属性值，以及元素级 visible 条件。状态路径使用 JSON Pointer。每块状态独立，刷新或重置会恢复。
 
@@ -14,7 +14,9 @@
 
 6. 使用官方内置 variant；布局类只用于 Card/Stack/Grid 的 className，例如 grid-cols-1 sm:grid-cols-2。颜色、字体、圆角沿用站点主题，不写固定颜色。Input/Checkbox/Radio 等 name 在整篇文档内唯一。
 
-7. 每块最多 100 个元素，深度不超过 20，JSON 不超过 100 KB。正文保留题目、答案和解释。图片和链接只使用站内路径或 HTTPS 地址。
+7. 交互块默认用纵向 Stack（align: stretch）作为根；标题放在正文中，避免重复标题和卡片套卡片。Table 使用短表头，长字段用换行分开；不要把表格横向滚动当成手机适配。Progress 统计实际完成度，不用专注时长冒充完成进度。
+
+8. 每块最多 100 个元素，深度不超过 20，JSON 不超过 100 KB。正文保留题目、答案和解释。图片和链接只使用站内路径或 HTTPS 地址。
 
 ## 官方组件目录
 
@@ -1957,28 +1959,28 @@
   "root": "root",
   "elements": {
     "root": {
-      "type": "Card",
+      "type": "Stack",
       "props": {
-        "title": "TCP 连接建立，需要几次握手？",
-        "description": "选择答案后查看解析；改选答案会立即更新反馈。",
-        "maxWidth": null,
-        "centered": null,
+        "direction": "vertical",
+        "gap": "lg",
+        "align": "stretch",
+        "justify": null,
         "className": null
       },
       "children": [
-        "subject",
+        "context",
         "question",
-        "submit",
-        "empty",
+        "actions",
         "correct",
-        "wrong"
+        "wrong",
+        "explanation"
       ]
     },
-    "subject": {
-      "type": "Badge",
+    "context": {
+      "type": "Text",
       "props": {
-        "variant": "secondary",
-        "text": "408 · 计算机网络"
+        "variant": "body",
+        "text": "直接映射 Cache：每块 16 B，共 8 行。比较字节地址 52 和 180。"
       },
       "children": []
     },
@@ -1990,22 +1992,51 @@
         },
         "checks": null,
         "validateOn": null,
-        "label": "请选择握手次数",
-        "name": "official-quiz-answer",
+        "label": "这两个地址的内存块会映射到哪里？",
+        "name": "cache-quiz-answer",
         "options": [
-          "两次",
-          "三次",
-          "四次"
+          "同一行，属于冲突块",
+          "不同行，互不影响"
         ]
       },
-      "children": []
+      "children": [],
+      "on": {
+        "change": {
+          "action": "setState",
+          "params": {
+            "statePath": "/submitted",
+            "value": false
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "Stack",
+      "props": {
+        "direction": "horizontal",
+        "gap": "sm",
+        "align": "center",
+        "justify": null,
+        "className": null
+      },
+      "children": [
+        "submit",
+        "open-explanation"
+      ]
     },
     "submit": {
       "type": "Button",
       "props": {
         "variant": "primary",
-        "disabled": null,
-        "label": "查看解析"
+        "disabled": {
+          "$cond": {
+            "$state": "/answer",
+            "eq": ""
+          },
+          "$then": true,
+          "$else": false
+        },
+        "label": "检查答案"
       },
       "children": [],
       "on": {
@@ -2018,31 +2049,30 @@
         }
       }
     },
-    "empty": {
-      "type": "Alert",
+    "open-explanation": {
+      "type": "Button",
       "props": {
-        "message": "先选一个选项，再查看解析。",
-        "type": "warning",
-        "title": "还没有选择答案"
+        "variant": "secondary",
+        "disabled": null,
+        "label": "查看推导"
       },
       "children": [],
-      "visible": [
-        {
-          "$state": "/submitted",
-          "eq": true
-        },
-        {
-          "$state": "/answer",
-          "eq": ""
+      "on": {
+        "press": {
+          "action": "setState",
+          "params": {
+            "statePath": "/explanation",
+            "value": true
+          }
         }
-      ]
+      }
     },
     "correct": {
       "type": "Alert",
       "props": {
-        "message": "三次握手同步双方初始序号，并确认双方收发能力。",
+        "message": "52 的块号是 3，180 的块号是 11；3 mod 8 与 11 mod 8 都等于 3。它们的标记不同，所以会发生冲突。",
         "type": "success",
-        "title": "答对了"
+        "title": "判断正确：都映射到第 3 行"
       },
       "children": [],
       "visible": [
@@ -2052,16 +2082,16 @@
         },
         {
           "$state": "/answer",
-          "eq": "三次"
+          "eq": "同一行，属于冲突块"
         }
       ]
     },
     "wrong": {
       "type": "Alert",
       "props": {
-        "message": "建立连接通常是三次握手；常见的四次过程是连接释放。",
-        "type": "info",
-        "title": "再想一想"
+        "message": "先用地址除以块大小取整，得到内存块号；再对 Cache 行数取模。不能直接拿地址对行数取模来判断块的映射。",
+        "type": "warning",
+        "title": "再检查一次“行号”的计算"
       },
       "children": [],
       "visible": [
@@ -2071,18 +2101,52 @@
         },
         {
           "$state": "/answer",
-          "neq": "三次"
-        },
-        {
-          "$state": "/answer",
-          "neq": ""
+          "eq": "不同行，互不影响"
         }
       ]
+    },
+    "explanation": {
+      "type": "Dialog",
+      "props": {
+        "description": "字节地址 → 内存块号 → Cache 行号",
+        "title": "从地址推到 Cache 行号",
+        "openPath": "/explanation"
+      },
+      "children": [
+        "formula",
+        "calculation",
+        "conclusion"
+      ]
+    },
+    "formula": {
+      "type": "Text",
+      "props": {
+        "variant": "code",
+        "text": "内存块号 = ⌊地址 / 16⌋\n行号 = 内存块号 mod 8"
+      },
+      "children": []
+    },
+    "calculation": {
+      "type": "Text",
+      "props": {
+        "variant": null,
+        "text": "地址 52：块号 3，行号 3，块内偏移 4 B。\n地址 180：块号 11，行号 3，块内偏移 4 B。"
+      },
+      "children": []
+    },
+    "conclusion": {
+      "type": "Text",
+      "props": {
+        "variant": null,
+        "text": "结论：偏移相同、行号相同，但不是同一个内存块。"
+      },
+      "children": []
     }
   },
   "state": {
     "answer": "",
-    "submitted": false
+    "submitted": false,
+    "explanation": false
   }
 }
 ```

@@ -43,7 +43,7 @@ body:has([data-claude-full-bleed='true']) {
  * not enough to keep columns readable; cells explicitly stay on one line and
  * the wrapper becomes the horizontal scroll container.
  */
-#docs-body :where(div):has(> table) {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *)) {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
@@ -55,7 +55,7 @@ body:has([data-claude-full-bleed='true']) {
   scrollbar-width: thin;
 }
 
-#docs-body :where(div):has(> table) > table {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *)) > table {
   width: max-content;
   min-width: 100%;
   max-width: none;
@@ -63,8 +63,8 @@ body:has([data-claude-full-bleed='true']) {
   background: var(--background) !important;
 }
 
-#docs-body :where(div):has(> table) > table :where(th, td),
-#docs-body :where(div):has(> table) > table :where(th *, td *) {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *)) > table :where(th, td),
+#docs-body :where(div):has(> table):not(:where(.smart-ui *)) > table :where(th *, td *) {
   /*
    * Fumadocs can attach wrapping utilities to header descendants. Make both
    * header and body cells participate in the same intrinsic-width calculation,
@@ -75,16 +75,16 @@ body:has([data-claude-full-bleed='true']) {
   word-break: normal !important;
 }
 
-#docs-body :where(div):has(> table)::-webkit-scrollbar {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *))::-webkit-scrollbar {
   height: 0.5rem;
   background: var(--background);
 }
 
-#docs-body :where(div):has(> table)::-webkit-scrollbar-track {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *))::-webkit-scrollbar-track {
   background: var(--background);
 }
 
-#docs-body :where(div):has(> table)::-webkit-scrollbar-thumb {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *))::-webkit-scrollbar-thumb {
   border: 2px solid var(--background);
   border-radius: 999px;
   background-color: color-mix(
@@ -94,7 +94,7 @@ body:has([data-claude-full-bleed='true']) {
   );
 }
 
-#docs-body :where(div):has(> table)::-webkit-scrollbar-thumb:hover {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *))::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(
     in oklch,
     var(--foreground) 44%,

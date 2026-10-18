@@ -4,20 +4,36 @@
 
 ## 查看示例
 
-打开 `/docs/408/knowledge/smart-ui-demo/`，六个例子覆盖全部 36 个组件：
+打开 `/docs/408/knowledge/smart-ui-demo/`，主页面有三个学习场景：
 
-1. 即时答题：Radio、Button、Alert、Badge、Card。
-2. 复习计划：Input、Textarea、Select、Switch、Checkbox、Slider、Progress、Grid。
-3. TCP 知识速查：Tabs、Table、Accordion。
-4. 补充资料：Dialog、Drawer、Popover、Tooltip、DropdownMenu、Collapsible、Stack。
-5. 复习节奏：Toggle、ToggleGroup、ButtonGroup、Pagination。
-6. 内容展示：Heading、Text、Avatar、Image、Separator、Carousel、Skeleton、Spinner、Link。
+1. Cache 映射判断：选择答案、检查推理、打开推导过程；改选后清除旧反馈。
+2. TCP 报文对照：握手与挥手切换，报文字段逐行展示，手机无需横向拖动。
+3. 一轮复习：设置科目与具体问题，独立设置专注时长，按三个任务计算进度。
+
+其他官方组件放在“展开组件体验区”中，按需打开。主场景和可选区域合计覆盖全部 36 个组件；加载状态只在手动预览时出现，并可主动结束。
+
+示例源文件为 `scripts/generate-smart-ui-examples.mjs`，运行 `node scripts/generate-smart-ui-examples.mjs` 更新 MDX，再运行 `npm run smart-ui:catalog` 更新导出说明。
 
 保留统一的预览 / JSON 外框、复制和重置功能。状态由官方 `JSONUIProvider` 管理，块之间独立，刷新和重置后复原。弹窗、抽屉、选项菜单沿用官方 Radix 行为及焦点管理。
 
 ## 样式
 
-官方组件保留原始 DOM、默认布局和 variant。`app/global.css` 显式扫描官方包 `dist` 中的 Tailwind 类，沿用站点语义颜色、字体和圆角。`smart-ui.css` 只处理内容区适配和 Alert 的黑白灰主题；不另外实现表单控件。弹窗等 Portal 使用全局共享主题令牌。
+官方组件保留原始 DOM、属性和交互实现。`app/global.css` 扫描官方包的 Tailwind 类；`smart-ui.css` 统一展示层，修正移动端布局：
+
+- 外框只承担预览 / JSON / 重置；示例默认使用 Stack，避免重复标题和多层卡片。已有文档的根 Card 也会自动去掉重复边框，真正的内部内容卡片保留边框。
+- 标签栏高度由内容决定，可换行。移除 overflow-x:auto 隐式产生的 overflow-y:auto，避免 1px 溢出出现手机竖向滚动条。
+- 表格保留真实 table 语义，单元格和说明允许换行；检查内部容器宽度，不以“页面不溢出”代替可读性检查。
+- 控件保留站点黑白灰语义令牌；主要触控区域至少 44px。轮播箭头放在内容下方，避免挤压手机轮播宽度。
+
+## 如何自定义组件
+
+可以分三个层次调整：
+
+1. **选项与样式**：JSON 使用官方已有 props / variant；Card、Stack、Grid 支持 className 布局类。全站颜色、字体、圆角由主题令牌控制，局部适配写在 `smart-ui.css`。
+2. **替换某个实现**：在 `components/smart-ui/registry.tsx` 中展开 `shadcnComponents`，覆盖指定名字的 React 实现。保持原属性约定就能继续读取已有文档。官方包的实现自带 UI 原语，不会因为修改本地 `components/ui/` 就自动变化；不直接编辑 node_modules。
+3. **增加新类型**：在 `lib/smart-ui/catalog.ts` 扩展属性定义，并在 registry 注册对应实现，随后更新验证、测试和 `smart-ui:catalog` 导出文件。函数图、时序图都可以作为这种扩展，但当前分支尚未新增绘图类型。
+
+目前仍是直接注册官方 36 个实现，只调整展示样式与示例；没有用自定义组件替代官方 Table 或 Tabs。JSON 文档不能凭空声明一个 React 组件，也不能执行任意 JavaScript。
 
 ## AI 写作说明与官方提示词
 
@@ -47,6 +63,6 @@ python3 -m http.server 3022 --bind 127.0.0.1 --directory .static-docs-preview
 
 `build:smart-ui-demo` 只导出示例页用于本地检查。远端使用现有 `deploy-cloudflare-worker-assets.yml` workflow，通过分支引用运行全站 8 路构建并发布到独立 Cloudflare Worker。
 
-浏览器脚本：`scripts/verify-smart-ui-browser.js`，通过 Playwright CLI 的 `run-code --filename` 执行。覆盖六个示例、控件状态、JSON 切换、状态隔离、弹窗/抽屉、明暗主题和 375px 布局。
+浏览器脚本：`scripts/verify-smart-ui-browser.js`，通过 Playwright CLI 的 `run-code --filename` 执行。覆盖三个主场景与可选组件区、真实剪贴板复制、状态隔离、弹窗/抽屉、明暗主题，以及 320/360/393/430/768/1440px 布局。另在 320/393px 放大根字号到 20px，检查标签栏的纵向滚动和每个表格单元格是否被裁切。
 
 官方参考：[组件 API](https://json-render.dev/docs/api/shadcn)、[Catalog](https://json-render.dev/docs/catalog)、[状态绑定](https://json-render.dev/docs/data-binding)。

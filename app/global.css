@@ -535,11 +535,11 @@
  * Minimal table style based on the supplied reference: transparent cells,
  * no outer box, no vertical rules, and one restrained horizontal separator.
  */
-#docs-body :where(div):has(> table) {
+#docs-body :where(div):has(> table):not(:where(.smart-ui *)) {
   margin-block: 0.625rem !important;
 }
 
-#docs-body table {
+#docs-body table:not(:where(.smart-ui *)) {
   width: 100%;
   border: 0 !important;
   border-collapse: collapse;
@@ -549,11 +549,11 @@
   line-height: 1.55;
 }
 
-#docs-body :where(thead, tbody, tr, th, td) {
+#docs-body :where(thead, tbody, tr, th, td):not(:where(.smart-ui *)) {
   background: transparent !important;
 }
 
-#docs-body :where(th, td) {
+#docs-body :where(th, td):not(:where(.smart-ui *)) {
   border: 0 !important;
   border-block-end: 1px solid var(--docs-table-rule) !important;
   padding: 0.7rem 0.75rem;
@@ -561,23 +561,23 @@
   vertical-align: top;
 }
 
-#docs-body th {
+#docs-body th:not(:where(.smart-ui *)) {
   color: var(--foreground);
   font-weight: 600;
 }
 
-#docs-body :where(th, td):first-child {
+#docs-body :where(th, td):not(:where(.smart-ui *)):first-child {
   padding-inline-start: 0;
 }
 
-#docs-body :where(th, td):last-child {
+#docs-body :where(th, td):not(:where(.smart-ui *)):last-child {
   padding-inline-end: 0;
 }
 
-#docs-body tbody tr:last-child td {
+#docs-body tbody tr:last-child td:not(:where(.smart-ui *)) {
   border-block-end: 0 !important;
 }
 
-#docs-body tbody tr:hover {
+#docs-body tbody tr:hover:not(:where(.smart-ui *)) {
   background: transparent !important;
 }

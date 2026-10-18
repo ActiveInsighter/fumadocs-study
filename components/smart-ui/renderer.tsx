@@ -19,10 +19,10 @@ export default function SmartUIRenderer({ spec, code }: { spec: Spec; code: stri
     <div
       data-smart-ui="true"
       data-smart-ui-ready={ready}
-      className="smart-ui not-prose my-6 min-w-0 overflow-hidden rounded-xl border bg-background text-foreground"
+      className="smart-ui not-prose my-6 min-w-0 rounded-xl border bg-background text-foreground"
     >
       <Tabs defaultValue="preview" className="gap-0">
-        <div className="flex items-center justify-between gap-3 border-b px-3 py-2.5">
+        <div className="smart-ui-toolbar flex items-center justify-between gap-3 border-b px-3 py-1.5">
           <TabsList aria-label="显示方式">
             <TabsTrigger value="preview" className="px-3">预览</TabsTrigger>
             <TabsTrigger value="json" className="px-3">JSON</TabsTrigger>
@@ -32,14 +32,14 @@ export default function SmartUIRenderer({ spec, code }: { spec: Spec; code: stri
             disabled={!ready}
             aria-label="重置交互"
             onClick={() => setRevision((value) => value + 1)}
-            className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:cursor-wait disabled:opacity-60"
+            className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-sm text-muted-foreground transition-colors hover:bg-foreground/8 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:cursor-wait disabled:opacity-60"
           >
             <RotateCcwIcon aria-hidden className="size-3.5" />
             <span className="max-xs:sr-only">重置</span>
           </button>
         </div>
-        <TabsContent value="preview" keepMounted className="p-5 text-[0.9375rem] leading-relaxed [overflow-wrap:anywhere] sm:p-6">
-          <fieldset disabled={!ready} aria-label="交互内容" className="m-0 min-w-0 border-0 p-0">
+        <TabsContent value="preview" keepMounted className="smart-ui-preview p-4 text-[0.9375rem] leading-relaxed [overflow-wrap:anywhere] sm:p-5">
+          <fieldset disabled={!ready} aria-label="交互内容" className="smart-ui-canvas m-0 min-w-0 border-0 p-0">
             <JSONUIProvider key={`${code}:${revision}`} registry={registry} initialState={spec.state ?? {}}>
               <Renderer spec={spec} registry={registry} />
             </JSONUIProvider>
