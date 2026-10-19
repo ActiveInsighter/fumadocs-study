@@ -33,7 +33,7 @@
 .sectionHeading {
   max-width: 640px;
   margin: 0 auto 28px;
-  color: var(--foreground, #141413);
+  color: var(--foreground, var(--benchmark-ink));
   font-family: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 400;
@@ -44,7 +44,7 @@
 .scienceLead {
   max-width: 640px;
   margin: 0 auto 32px;
-  color: var(--muted-foreground, #5e5d59);
+  color: var(--muted-foreground, var(--benchmark-muted));
   font-family: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
   font-size: 19px;
   line-height: 1.52;

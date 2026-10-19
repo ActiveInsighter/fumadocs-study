@@ -1,25 +1,13 @@
 import './global.css';
 import 'katex/dist/katex.css';
-import './surface-overrides.css';
+import './flat-ui.css';
 import './claude-benchmarks.css';
 import { SearchProvider } from '@/components/search-provider';
-import { getSiteOrigin } from '@/lib/site-url';
+import { getRootMetadata, siteConfig } from '@/lib/site-config';
 import type { Metadata } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getSiteOrigin()),
-  title: {
-    default: '考研学习',
-    template: '%s | 考研学习',
-  },
-  description: '按政治、英语、数学与专业课组织的考研学习知识库。',
-  openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
-    siteName: '考研学习',
-  },
-};
+export const metadata: Metadata = getRootMetadata();
 
 /*
  * This file is copied over app/layout.tsx in the isolated static build stage
@@ -27,7 +15,8 @@ export const metadata: Metadata = {
  * same root layout. next/font is unavailable there, which is why the families
  * are declared by hand instead of via next/font/google.
  *
- * Keep the CSS variable names and `metadata` below in sync with app/layout.tsx:
+ * Keep the CSS variable names below in sync with app/layout.tsx (metadata is
+ * shared through lib/site-config.ts):
  * any drift ships a different look on the static deployment than in dev.
  */
 const fontVariables = {
@@ -37,7 +26,7 @@ const fontVariables = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh-CN" style={fontVariables} suppressHydrationWarning>
+    <html lang={siteConfig.lang} style={fontVariables} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col font-sans" suppressHydrationWarning>
         <SearchProvider>{children}</SearchProvider>
       </body>

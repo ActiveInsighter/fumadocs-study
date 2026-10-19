@@ -1,0 +1,102 @@
+/*
+ * Colour tokens for component stylesheets.
+ *
+ * Each value equals the literal that was previously inlined in the component
+ * file named in its group header. Dark-mode literals keep "dark" in their
+ * names and are only applied under .dark (or :global(.dark)) by the consumers.
+ */
+:root {
+  /* Word cards: sage default palette, then data-tone variants 2-7. */
+  --word-card-sage-surface: #dfe9dc;
+  --word-card-sage-accent: #6d866e;
+  --word-card-sage-ink: #34473a;
+  --word-card-tone-2-surface: #eadfd4;
+  --word-card-tone-2-accent: #8a6f59;
+  --word-card-tone-2-ink: #4a3b31;
+  --word-card-tone-3-surface: #eadbdf;
+  --word-card-tone-3-accent: #8d6875;
+  --word-card-tone-3-ink: #4b373e;
+  --word-card-tone-4-surface: #d7e5eb;
+  --word-card-tone-4-accent: #607f8d;
+  --word-card-tone-4-ink: #304751;
+  --word-card-tone-5-surface: #e1dbe8;
+  --word-card-tone-5-accent: #756686;
+  --word-card-tone-5-ink: #40374c;
+  --word-card-tone-6-surface: #ebe3d2;
+  --word-card-tone-6-accent: #87704d;
+  --word-card-tone-6-ink: #493e30;
+  --word-card-tone-7-surface: #dae3c9;
+  --word-card-tone-7-accent: #71844f;
+  --word-card-tone-7-ink: #3d4b30;
+
+  /* Word cards: shadows, overlays and interactive control accents. */
+  --word-card-shadow: 0 1px 2px rgba(45, 52, 47, 0.04), 0 5px 14px rgba(45, 52, 47, 0.06);
+  --word-card-badge-shadow: inset 0 1px 0 rgb(255 255 255 / 24%);
+  --word-card-sense-dot-shadow: 0 0 0 1px rgb(255 255 255 / 36%);
+  --word-card-detail-shadow: 0 28px 72px rgb(0 0 0 / 22%), 0 10px 28px rgb(0 0 0 / 12%);
+  --word-card-example-tooltip-shadow: 0 5px 12px rgb(0 0 0 / 9%), 0 12px 24px rgb(0 0 0 / 7%);
+  --word-card-backdrop: rgb(15 18 16 / 46%);
+  --word-card-control-accent: #7c8a6a;
+  --word-card-control-accent-ink: #f6f7f1;
+
+  /* Word cards: dark-mode palette (applied only under .dark). */
+  --word-card-dark-surface: #050505;
+  --word-card-dark-chip: #111;
+  --word-card-dark-tag: #0d0d0d;
+  --word-card-dark-light-ink: #eef2ee;
+  --word-card-dark-pos-ink: #e8ece8;
+  --word-card-dark-word-ink: #f2f4f2;
+  --word-card-dark-meaning-ink: #d7ddd8;
+  --word-card-dark-phrase-ink: #d9dfda;
+  --word-card-dark-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%), 0 8px 24px rgb(0 0 0 / 24%);
+  --word-card-dark-sense-dot-shadow: 0 0 0 1px rgb(0 0 0 / 28%);
+  --word-card-dark-bar: rgb(255 255 255 / 13%);
+  --word-card-dark-mode-active-bg: #b9c6a4;
+  --word-card-dark-mode-active-ink: #1d211b;
+  --word-card-dark-control-hover-base: #151515;
+  --word-card-dark-hover-ink: #f3f5f3;
+  --word-card-dark-backdrop: rgb(0 0 0 / 64%);
+  --word-card-dark-tooltip-border: rgb(255 255 255 / 12%);
+  --word-card-dark-tooltip-ink: #eef1ee;
+  --word-card-dark-tooltip-shadow: 0 5px 12px rgb(0 0 0 / 28%), 0 12px 26px rgb(0 0 0 / 28%);
+
+  /* Chart frame: study series colours (light) and their dark-mode counterparts. */
+  --chart-frame-study-1: #657a48;
+  --chart-frame-study-2: #6f76a8;
+  --chart-frame-study-3: #c46f55;
+  --chart-frame-study-4: #5f8c91;
+  --chart-frame-study-5: #9a7558;
+  --chart-frame-dark-study-1: #a7bc80;
+  --chart-frame-dark-study-2: #aab0df;
+  --chart-frame-dark-study-3: #e69a80;
+  --chart-frame-dark-study-4: #8bc0c4;
+  --chart-frame-dark-study-5: #c6a286;
+
+  /* Claude benchmarks: shared ink, paper, muted and matcha palette. */
+  --benchmark-ink: #141413;
+  --benchmark-paper: #faf9f5;
+  --benchmark-muted: #5e5d59;
+  --benchmark-grid: #d1cfc5;
+  --benchmark-slate: #87867f;
+  --benchmark-foreground-secondary: #30302e;
+  --benchmark-matcha: #ced6bf;
+  --benchmark-matcha-deep: #788c5d;
+  --benchmark-cloud: #c5d3e0;
+  --benchmark-gray: #e8e6dc;
+  --benchmark-heather: #cbcadb;
+  --benchmark-coral: #ebcece;
+  --benchmark-tooltip-label: #b0aea5;
+
+  /* Claude benchmarks: view switcher. */
+  --view-switcher-button-bg: #ffffff;
+  --view-switcher-button-hover-bg: #f1f0ea;
+  --view-switcher-menu-shadow: 0 1px 2px rgb(20 20 19 / 6%);
+  --view-switcher-item-hover-bg: rgb(20 20 19 / 4%);
+
+  /* Claude benchmarks: testimonial carousel arrows. */
+  --testimonial-arrow-bg: #fff;
+  --testimonial-arrow-hover-bg: #f1f0eb;
+
+  /* Mind map: floating toolbar shadow. */
+  --mind-map-node-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.08);
+}

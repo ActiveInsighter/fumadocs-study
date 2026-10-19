@@ -1,9 +1,9 @@
 .frame {
-  --study-chart-1: #657a48;
-  --study-chart-2: #6f76a8;
-  --study-chart-3: #c46f55;
-  --study-chart-4: #5f8c91;
-  --study-chart-5: #9a7558;
+  --study-chart-1: var(--chart-frame-study-1);
+  --study-chart-2: var(--chart-frame-study-2);
+  --study-chart-3: var(--chart-frame-study-3);
+  --study-chart-4: var(--chart-frame-study-4);
+  --study-chart-5: var(--chart-frame-study-5);
   width: 100%;
   margin: 1.75rem 0;
   color: var(--foreground);
@@ -52,11 +52,11 @@
 }
 
 :global(.dark) .frame {
-  --study-chart-1: #a7bc80;
-  --study-chart-2: #aab0df;
-  --study-chart-3: #e69a80;
-  --study-chart-4: #8bc0c4;
-  --study-chart-5: #c6a286;
+  --study-chart-1: var(--chart-frame-dark-study-1);
+  --study-chart-2: var(--chart-frame-dark-study-2);
+  --study-chart-3: var(--chart-frame-dark-study-3);
+  --study-chart-4: var(--chart-frame-dark-study-4);
+  --study-chart-5: var(--chart-frame-dark-study-5);
 }
 
 @media (max-width: 567px) {

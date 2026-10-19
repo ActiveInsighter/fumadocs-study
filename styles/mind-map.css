@@ -40,9 +40,7 @@
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   background: var(--background);
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.06),
-    0 4px 12px rgb(0 0 0 / 0.08);
+  box-shadow: var(--mind-map-node-shadow);
 }
 
 .mind-map-button {

@@ -14,12 +14,12 @@
 
 .carousel {
   --card-max: 640px;
-  --card-ground: #ced6bf;
-  --background-primary: #faf9f5;
-  --foreground-primary: #141413;
-  --foreground-secondary: #30302e;
-  --color-slate-500: #87867f;
-  --border-subtle: #d1cfc5;
+  --card-ground: var(--benchmark-matcha);
+  --background-primary: var(--benchmark-paper);
+  --foreground-primary: var(--benchmark-ink);
+  --foreground-secondary: var(--benchmark-foreground-secondary);
+  --color-slate-500: var(--benchmark-slate);
+  --border-subtle: var(--benchmark-grid);
   --testimonial-sans: "Anthropic Sans Local", Arial, Helvetica, sans-serif;
   --testimonial-serif: "Anthropic Serif Local", Georgia, "Times New Roman", serif;
   width: 100%;
@@ -215,14 +215,14 @@
   padding: 8px;
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  background: #fff;
+  background: var(--testimonial-arrow-bg);
   cursor: pointer;
   opacity: 0.6;
   transition: background-color 0.2s ease;
 }
 
 .arrowButton:hover:not(:disabled) {
-  background: #f1f0eb;
+  background: var(--testimonial-arrow-hover-bg);
 }
 
 .arrowButton:disabled {

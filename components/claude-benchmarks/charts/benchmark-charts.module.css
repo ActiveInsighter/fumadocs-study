@@ -7,16 +7,16 @@
 }
 
 .frame {
-  --claude-chart-ink: #141413;
-  --claude-chart-paper: #faf9f5;
-  --claude-chart-muted: #5e5d59;
-  --claude-chart-grid: #d1cfc5;
-  --claude-chart-matcha: #ced6bf;
-  --claude-chart-cloud: #c5d3e0;
-  --claude-chart-gray: #e8e6dc;
-  --claude-chart-heather: #cbcadb;
-  --claude-chart-coral: #ebcece;
-  --claude-chart-tooltip-label: #b0aea5;
+  --claude-chart-ink: var(--benchmark-ink);
+  --claude-chart-paper: var(--benchmark-paper);
+  --claude-chart-muted: var(--benchmark-muted);
+  --claude-chart-grid: var(--benchmark-grid);
+  --claude-chart-matcha: var(--benchmark-matcha);
+  --claude-chart-cloud: var(--benchmark-cloud);
+  --claude-chart-gray: var(--benchmark-gray);
+  --claude-chart-heather: var(--benchmark-heather);
+  --claude-chart-coral: var(--benchmark-coral);
+  --claude-chart-tooltip-label: var(--benchmark-tooltip-label);
   --claude-chart-ease: cubic-bezier(0.165, 0.84, 0.44, 1);
   width: 100%;
   margin: 0;

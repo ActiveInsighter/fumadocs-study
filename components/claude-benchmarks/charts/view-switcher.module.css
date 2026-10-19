@@ -27,7 +27,7 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--muted-foreground, #87867f);
+  color: var(--muted-foreground, var(--benchmark-slate));
   cursor: pointer;
   font-family: "Anthropic Sans Local", Arial, Helvetica, sans-serif;
   font-size: 15px;
@@ -46,13 +46,13 @@
 .tab:focus-visible,
 .tab[data-active],
 .tab[data-selected="true"] {
-  color: var(--foreground, #141413);
+  color: var(--foreground, var(--benchmark-ink));
 }
 
 .tab:focus-visible,
 .moreButton:focus-visible,
 .menuItem:focus-visible {
-  outline: 2px solid var(--ring, #141413);
+  outline: 2px solid var(--ring, var(--benchmark-ink));
   outline-offset: 3px;
 }
 
@@ -66,10 +66,10 @@
   height: 36px;
   justify-content: center;
   margin-left: auto;
-  border: 1px solid var(--border, #d1cfc5);
+  border: 1px solid var(--border, var(--benchmark-grid));
   border-radius: 8px;
-  background: #ffffff;
-  color: #141413;
+  background: var(--view-switcher-button-bg);
+  color: var(--benchmark-ink);
   opacity: 0.6;
   transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
 }
@@ -97,13 +97,13 @@
 
 .moreButton:hover,
 .moreButton[data-popup-open="true"] {
-  background: #f1f0ea;
-  color: #141413;
+  background: var(--view-switcher-button-hover-bg);
+  color: var(--benchmark-ink);
   opacity: 1;
 }
 
 .moreButton[data-active="true"] {
-  border-color: var(--foreground, #141413);
+  border-color: var(--foreground, var(--benchmark-ink));
   opacity: 1;
 }
 
@@ -112,11 +112,11 @@
   min-width: 148px !important;
   max-width: calc(100vw - 32px);
   padding: 6px 0 !important;
-  border: 1px solid #141413 !important;
+  border: 1px solid var(--benchmark-ink) !important;
   border-radius: 0 !important;
-  background: #faf9f5 !important;
-  box-shadow: 0 1px 2px rgb(20 20 19 / 6%) !important;
-  color: #5e5d59 !important;
+  background: var(--benchmark-paper) !important;
+  box-shadow: var(--view-switcher-menu-shadow) !important;
+  color: var(--benchmark-muted) !important;
   font-family: "Anthropic Sans Local", Arial, Helvetica, sans-serif;
   font-feature-settings: "pnum", "lnum", "liga";
   letter-spacing: -0.16px;
@@ -128,7 +128,7 @@
   padding: 4px 12px !important;
   border-radius: 0 !important;
   background: transparent !important;
-  color: #5e5d59 !important;
+  color: var(--benchmark-muted) !important;
   cursor: pointer;
   font: inherit;
   font-size: 15px;
@@ -140,8 +140,8 @@
 .menuItem:hover,
 .menuItem[data-highlighted],
 .menuItem[data-active="true"] {
-  background: rgb(20 20 19 / 4%) !important;
-  color: #141413 !important;
+  background: var(--view-switcher-item-hover-bg) !important;
+  color: var(--benchmark-ink) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

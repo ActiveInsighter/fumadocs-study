@@ -48,9 +48,9 @@
   --wc-phonetic-font:
     "Gentium Plus", "Charis SIL", "Doulos SIL", "Cambria", "Segoe UI", serif;
 
-  --wc-surface: #dfe9dc;
-  --wc-accent: #6d866e;
-  --wc-ink: #34473a;
+  --wc-surface: var(--word-card-sage-surface);
+  --wc-accent: var(--word-card-sage-accent);
+  --wc-ink: var(--word-card-sage-ink);
   --card-bg: var(--wc-surface);
   --freq-bg: color-mix(in srgb, var(--wc-accent) 16%, var(--wc-surface));
   --freq-text: color-mix(in srgb, var(--wc-accent) 74%, var(--wc-ink));
@@ -73,9 +73,7 @@
   border: none;
   border-radius: 16px;
   background: var(--card-bg);
-  box-shadow:
-    0 1px 2px rgba(45, 52, 47, 0.04),
-    0 5px 14px rgba(45, 52, 47, 0.06);
+  box-shadow: var(--word-card-shadow);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
   font-kerning: normal;
@@ -157,7 +155,7 @@
   font-weight: 760;
   letter-spacing: 0.3px;
   white-space: nowrap;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 24%);
+  box-shadow: var(--word-card-badge-shadow);
 }
 
 .wc-meaning {
@@ -269,7 +267,7 @@
   height: 8px;
   margin-top: 0.63em;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 36%);
+  box-shadow: var(--word-card-sense-dot-shadow);
 }
 
 .wc-sense:nth-of-type(3n + 1) .wc-sense-dot {
@@ -364,51 +362,51 @@
 
 .word-list > .word-card:nth-of-type(7n + 1),
 .word-card[data-tone='1'] {
-  --wc-surface: #dfe9dc;
-  --wc-accent: #6d866e;
-  --wc-ink: #34473a;
+  --wc-surface: var(--word-card-sage-surface);
+  --wc-accent: var(--word-card-sage-accent);
+  --wc-ink: var(--word-card-sage-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 2),
 .word-card[data-tone='2'] {
-  --wc-surface: #eadfd4;
-  --wc-accent: #8a6f59;
-  --wc-ink: #4a3b31;
+  --wc-surface: var(--word-card-tone-2-surface);
+  --wc-accent: var(--word-card-tone-2-accent);
+  --wc-ink: var(--word-card-tone-2-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 3),
 .word-card[data-tone='3'] {
-  --wc-surface: #eadbdf;
-  --wc-accent: #8d6875;
-  --wc-ink: #4b373e;
+  --wc-surface: var(--word-card-tone-3-surface);
+  --wc-accent: var(--word-card-tone-3-accent);
+  --wc-ink: var(--word-card-tone-3-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 4),
 .word-card[data-tone='4'] {
-  --wc-surface: #d7e5eb;
-  --wc-accent: #607f8d;
-  --wc-ink: #304751;
+  --wc-surface: var(--word-card-tone-4-surface);
+  --wc-accent: var(--word-card-tone-4-accent);
+  --wc-ink: var(--word-card-tone-4-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 5),
 .word-card[data-tone='5'] {
-  --wc-surface: #e1dbe8;
-  --wc-accent: #756686;
-  --wc-ink: #40374c;
+  --wc-surface: var(--word-card-tone-5-surface);
+  --wc-accent: var(--word-card-tone-5-accent);
+  --wc-ink: var(--word-card-tone-5-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 6),
 .word-card[data-tone='6'] {
-  --wc-surface: #ebe3d2;
-  --wc-accent: #87704d;
-  --wc-ink: #493e30;
+  --wc-surface: var(--word-card-tone-6-surface);
+  --wc-accent: var(--word-card-tone-6-accent);
+  --wc-ink: var(--word-card-tone-6-ink);
 }
 
 .word-list > .word-card:nth-of-type(7n + 7),
 .word-card[data-tone='7'] {
-  --wc-surface: #dae3c9;
-  --wc-accent: #71844f;
-  --wc-ink: #3d4b30;
+  --wc-surface: var(--word-card-tone-7-surface);
+  --wc-accent: var(--word-card-tone-7-accent);
+  --wc-ink: var(--word-card-tone-7-ink);
 }
 
 @media screen and (max-width: 760px) {
@@ -495,28 +493,26 @@
 }
 
 .dark .word-card {
-  background: color-mix(in srgb, var(--wc-surface) 17%, #050505);
-  --freq-bg: color-mix(in srgb, var(--wc-accent) 20%, #111);
-  --freq-text: color-mix(in srgb, var(--wc-accent) 42%, #eef2ee);
-  --pos-bg: color-mix(in srgb, var(--wc-accent) 15%, #0d0d0d);
-  --pos-text: color-mix(in srgb, var(--wc-accent) 34%, #e8ece8);
-  --word-text: #f2f4f2;
-  --meaning-text: #d7ddd8;
-  --key-bg: color-mix(in srgb, var(--wc-accent) 18%, #0d0d0d);
-  --key-text: color-mix(in srgb, var(--wc-accent) 34%, #eef2ee);
-  --phrase-text: color-mix(in srgb, var(--wc-accent) 28%, #d9dfda);
+  background: color-mix(in srgb, var(--wc-surface) 17%, var(--word-card-dark-surface));
+  --freq-bg: color-mix(in srgb, var(--wc-accent) 20%, var(--word-card-dark-chip));
+  --freq-text: color-mix(in srgb, var(--wc-accent) 42%, var(--word-card-dark-light-ink));
+  --pos-bg: color-mix(in srgb, var(--wc-accent) 15%, var(--word-card-dark-tag));
+  --pos-text: color-mix(in srgb, var(--wc-accent) 34%, var(--word-card-dark-pos-ink));
+  --word-text: var(--word-card-dark-word-ink);
+  --meaning-text: var(--word-card-dark-meaning-ink);
+  --key-bg: color-mix(in srgb, var(--wc-accent) 18%, var(--word-card-dark-tag));
+  --key-text: color-mix(in srgb, var(--wc-accent) 34%, var(--word-card-dark-light-ink));
+  --phrase-text: color-mix(in srgb, var(--wc-accent) 28%, var(--word-card-dark-phrase-ink));
   --phrase-mark: color-mix(in srgb, var(--wc-accent) 20%, transparent);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 7%),
-    0 8px 24px rgb(0 0 0 / 24%);
+  box-shadow: var(--word-card-dark-shadow);
 }
 
 .dark .wc-sense-dot {
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 28%);
+  box-shadow: var(--word-card-dark-sense-dot-shadow);
 }
 
 .dark .wc-bar {
-  background: rgb(255 255 255 / 13%);
+  background: var(--word-card-dark-bar);
 }
 
 .dark .wc-bar-fill {

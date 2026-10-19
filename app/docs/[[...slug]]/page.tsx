@@ -1,6 +1,7 @@
 import { getMDXComponents } from '@/components/mdx';
 import { getPageMDXComponents } from '@/components/mdx/page-components';
 import { WordCardsProvider } from '@/components/vocabulary/word-cards';
+import { getContentSourceUrl } from '@/lib/site-config';
 import { toCanonicalPagePath, toMarkdownPath } from '@/lib/site-url';
 import { source } from '@/lib/source';
 import { shardStaticDocParams } from '@/lib/static-doc-shards';
@@ -74,14 +75,14 @@ export default async function Page({ params }: PageParameters) {
       {data.lastModified && (
         <PageLastUpdate date={data.lastModified} className="mb-3 mt-1" />
       )}
-      <div id="docs-page-actions" className="flex items-center gap-2 border-b pb-6 pt-2">
+      <div id="docs-page-actions" className="flex items-center gap-2 pb-4 pt-2">
         <MarkdownCopyButton
           markdownUrl={markdownUrl}
           className="docs-page-action"
         />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/ActiveInsighter/fumadocs-study/blob/main/content/docs/${page.path}`}
+          githubUrl={getContentSourceUrl(page.path)}
           className="docs-page-action"
         />
       </div>

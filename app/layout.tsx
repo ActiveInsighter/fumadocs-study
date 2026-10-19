@@ -1,9 +1,9 @@
 import './global.css';
 import 'katex/dist/katex.css';
-import './surface-overrides.css';
+import './flat-ui.css';
 import './claude-benchmarks.css';
 import { SearchProvider } from '@/components/search-provider';
-import { getSiteOrigin } from '@/lib/site-url';
+import { getRootMetadata, siteConfig } from '@/lib/site-config';
 import type { Metadata } from 'next';
 import { Inter, Source_Serif_4 } from 'next/font/google';
 import type { ReactNode } from 'react';
@@ -11,9 +11,9 @@ import type { ReactNode } from 'react';
 /*
  * NOTE: scripts/static-root-layout.tsx is copied over this file in the static
  * build stage, so it is a second implementation of this root layout. Keep the
- * `--font-inter` / `--font-source-serif` variable names and the `metadata`
- * below in sync with it, and make sure both expose the same CSS variables that
- * app/global.css depends on.
+ * `--font-inter` / `--font-source-serif` variable names and the stylesheet
+ * imports in sync with it, and make sure both expose the same CSS variables
+ * that app/global.css depends on. Metadata is shared via lib/site-config.ts.
  */
 const inter = Inter({
   subsets: ['latin'],
@@ -27,24 +27,12 @@ const sourceSerif4 = Source_Serif_4({
   variable: '--font-source-serif',
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getSiteOrigin()),
-  title: {
-    default: '考研学习',
-    template: '%s | 考研学习',
-  },
-  description: '按政治、英语、数学与专业课组织的考研学习知识库。',
-  openGraph: {
-    type: 'website',
-    locale: 'zh_CN',
-    siteName: '考研学习',
-  },
-};
+export const metadata: Metadata = getRootMetadata();
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      lang="zh-CN"
+      lang={siteConfig.lang}
       className={`${inter.variable} ${sourceSerif4.variable}`}
       suppressHydrationWarning
     >
