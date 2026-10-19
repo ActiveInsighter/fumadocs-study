@@ -1,0 +1,118 @@
+---
+title: "交互式函数与方程画板"
+description: "使用 JSXGraph 绘制平面函数、隐式方程、参数曲线与二元函数等高线，拖动滑块和点观察变化。"
+---
+
+这页的图像可以直接操作：拖动参数滑块、拖动曲线上的点查看坐标与切线，使用按钮缩放或重置视图。按住 Shift 拖动画板可平移，按住 Shift 滚动鼠标可缩放；触屏支持双指操作。
+
+## 函数与切线：改变二次函数的形状
+
+改变 $a$、$h$、$k$，观察 $y=a(x-h)^2+k$ 的开口、对称轴与顶点。拖动蓝色点，虚线是该点处的切线；红线用于比较一次函数。
+
+<FunctionPlot
+  title="二次函数与一次函数"
+  description="滑块实时改变曲线；拖动蓝色点观察切线斜率。"
+  boundingBox={[-5, 8, 5, -4]}
+  parameters={[
+    { name: 'a', label: '开口系数 a', min: -2, max: 2, value: 1, step: 0.1 },
+    { name: 'h', label: '水平平移 h', min: -3, max: 3, value: 0, step: 0.1 },
+    { name: 'k', label: '竖直平移 k', min: -3, max: 3, value: 0, step: 0.1 },
+  ]}
+  plots={[
+    { type: 'function', expression: 'a*(x-h)^2+k', label: 'y = a(x-h)²+k', probe: true },
+    { type: 'function', expression: 'x+1', label: 'y = x+1' },
+  ]}
+/>
+
+## 三角函数：振幅与频率
+
+增大 $A$ 会增大振幅；增大 $w$ 会缩短周期。移动 $p$ 观察相位变化。这里的角度使用弧度。
+
+<FunctionPlot
+  title="正弦波与余弦波"
+  boundingBox={[-7, 3, 7, -3]}
+  parameters={[
+    { name: 'A', min: 0.2, max: 2.5, value: 1, step: 0.1 },
+    { name: 'w', min: 0.2, max: 3, value: 1, step: 0.1 },
+    { name: 'p', min: -3.14, max: 3.14, value: 0, step: 0.01 },
+  ]}
+  plots={[
+    { type: 'function', expression: 'A*sin(w*x+p)', label: 'y = A sin(wx+p)' },
+    { type: 'function', expression: 'cos(x)', label: 'y = cos(x)', dashed: true },
+  ]}
+/>
+
+## 隐式方程：圆与双曲线
+
+并非每条平面曲线都能写成单个 $y=f(x)$。使用隐式方程可以画出完整的圆、椭圆、双曲线等。改变半径 $r$，观察圆与双曲线的位置关系。
+
+<FunctionPlot
+  title="圆与双曲线"
+  boundingBox={[-5, 5, 5, -5]}
+  parameters={[{ name: 'r', label: '半径 r', min: 0.5, max: 4, value: 2, step: 0.1 }]}
+  plots={[
+    { type: 'implicit', expression: 'x^2+y^2=r^2', label: 'x²+y² = r²' },
+    { type: 'implicit', expression: 'x^2-y^2=1', label: 'x²−y² = 1' },
+  ]}
+  points={[{ x: 0, y: 0, name: 'O', fixed: true }]}
+/>
+
+## 参数曲线：李萨如图形
+
+把横坐标和纵坐标分别写成参数 $t$ 的函数。改变频率 $b$，观察图形的闭合方式。
+
+<FunctionPlot
+  title="参数方程 x = 3 sin(bt)，y = 3 sin(2t)"
+  boundingBox={[-4, 4, 4, -4]}
+  parameters={[{ name: 'b', label: '横向频率 b', min: 1, max: 5, value: 3, step: 1 }]}
+  plots={[{ type: 'parametric', x: '3*sin(b*t)', y: '3*sin(2*t)', range: [0, 6.283185307179586], label: '李萨如曲线' }]}
+/>
+
+## 二元函数：用等高线研究 f(x,y)
+
+对于 $f(x,y)=x^2+2y^2$，平面中的等高线满足 $f(x,y)=c$。拖动 $c$ 可以查看不同高度的截面；蓝色椭圆上的点具有相同函数值。这里展示的是二维等高线，$z=f(x,y)$ 的立体曲面需要另用三维画板。
+
+<FunctionPlot
+  title="二元函数的等高线 x²+2y² = c"
+  boundingBox={[-5, 5, 5, -5]}
+  parameters={[{ name: 'c', label: '等高值 c', min: 0.2, max: 16, value: 4, step: 0.1 }]}
+  plots={[
+    { type: 'implicit', expression: 'x^2+2*y^2=c', label: '当前等高线' },
+    { type: 'implicit', expression: 'x^2+2*y^2=1', label: 'c = 1', dashed: true },
+    { type: 'implicit', expression: 'x^2+2*y^2=9', label: 'c = 9', dashed: true },
+  ]}
+/>
+
+## 在自己的文档中使用
+
+`FunctionPlot` 已全局注册，MDX 文档不需要写 import。复制以下内容即可开始：
+
+```mdx
+<FunctionPlot
+  title="我的函数图像"
+  boundingBox={[-5, 5, 5, -5]}
+  parameters={[{ name: 'a', min: -3, max: 3, value: 1, step: 0.1 }]}
+  plots={[
+    { type: 'function', expression: 'a*x^2', probe: true },
+    { type: 'implicit', expression: 'x^2+y^2=4' },
+  ]}
+/>
+```
+
+表达式使用 JSXGraph 的 JessieCode 数学语法：乘法写 `*`，乘方写 `^`，函数写 `sin(x)`、`cos(x)`、`sqrt(x)`、`exp(x)`、`log(x)`、`abs(x)`，圆周率写 `PI`。不要写 LaTeX、`Math.sin` 或 JavaScript 箭头函数。显函数只填右侧表达式；隐式方程可填 `左式=右式`，或填等于零的表达式。仅在受信任的项目文档中编写表达式。
+
+| 属性 | 用法 |
+| --- | --- |
+| `plots` | 曲线数组，支持 `function`、`implicit`、`parametric` |
+| `parameters` | 参数滑块，包含 `name`、`min`、`max`、`value`，可选 `label`、`step` |
+| `boundingBox` | 可视范围 `[左, 上, 右, 下]`，默认 `[-5, 5, 5, -5]`；为保持坐标等比例，实际视野会随容器比例扩展 |
+| `height` | 画板高度，默认 `420` 像素，可设置 `200` 至 `1200` |
+| `axis` / `grid` | 是否显示坐标轴、网格，默认均为 `true` |
+| `points` | 点数组：`x`、`y`、可选 `name`、`fixed`、`color`；默认可拖动 |
+| `title` / `description` | 标题与操作说明 |
+
+所有曲线都可设置 `label`、`color` 和 `dashed`。显函数可用 `domain: [-3, 3]` 限定定义域，用 `probe: true` 开启可拖动的取点与切线。参数曲线用 `x`、`y` 表达式与有限的 `range: [起点, 终点]` 定义；参数变量名是 `t`。一页可以放多个画板，它们的参数和视图互相独立。
+
+隐式曲线使用数值追踪：奇点、孤立点、过小的分支以及高频曲线可能无法完整显示。可缩小坐标范围、拆分图像，或在已知解析形式时改用显函数、参数曲线；不要仅凭图像断定方程没有解。
+
+更复杂的几何构造、联动点、积分与微分方程，可在客户端组件中使用 `JSXGraphBoard` 的 `onInit(board)` 调用完整的 JSXGraph API。详见仓库中的 `docs/jsxgraph.md` 和 [JSXGraph 官方文档](https://jsxgraph.org/docs/)。

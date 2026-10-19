@@ -11,6 +11,13 @@ npm run dev
 
 Open `http://localhost:3000/docs`.
 
+## Interactive mathematics
+
+JSXGraph powers the globally registered `FunctionPlot` and `JSXGraphBoard` MDX
+components. Visit `/docs/math/function-plot/` for interactive functions, implicit
+equations, parametric curves, level sets, sliders, and tangents. See
+[the authoring guide](docs/jsxgraph.md) for configuration and custom constructions.
+
 ## ZBSearch
 
 Documentation search uses Fumadocs' built-in ZBSearch engine and remains fully

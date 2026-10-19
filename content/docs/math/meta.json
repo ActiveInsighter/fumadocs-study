@@ -4,6 +4,7 @@
   "root": true,
   "pages": [
     "index",
+    "function-plot",
     "knowledge",
     "formulas",
     "supplements",
