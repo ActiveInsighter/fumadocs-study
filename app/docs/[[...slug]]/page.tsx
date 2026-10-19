@@ -17,7 +17,7 @@ import {
   MarkdownCopyButton,
   PageLastUpdate,
   ViewOptionsPopover,
-} from 'fumadocs-ui/layouts/notebook/page';
+} from 'fumadocs-ui/layouts/flux/page';
 
 type PageParameters = {
   params: Promise<{
@@ -66,8 +66,6 @@ export default async function Page({ params }: PageParameters) {
     <DocsPage
       toc={data.toc}
       full={useFullPage}
-      tableOfContent={{ style: 'block' }}
-      tableOfContentPopover={{ style: 'block' }}
     >
       <DocsTitle className="docs-page-title font-medium">{page.data.title}</DocsTitle>
       <DocsDescription className="mb-1 font-normal">
