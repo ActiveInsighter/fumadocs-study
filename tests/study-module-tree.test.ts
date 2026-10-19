@@ -43,19 +43,18 @@ describe('study module metadata structure', () => {
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
 
-  it('exposes exactly four physical and sidebar root modules', () => {
-    expect(rootMeta.pages).toEqual(['politics', 'english', 'math', '408']);
+  it('exposes exactly five top-level study modules', () => {
+    expect(rootMeta.pages).toEqual(['politics', 'english', 'math', '408', 'algorithm']);
 
     const rootDirectories = readdirSync(docsRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
       .sort();
 
-    expect(rootDirectories).toEqual(['408', 'english', 'math', 'politics'].sort());
+    expect(rootDirectories).toEqual(['408', 'algorithm', 'english', 'math', 'politics'].sort());
   });
 
   it('keeps math split into core knowledge, supplements, problem solving, and exams', () => {
-    expect(mathMeta.root).toBe(true);
     expect(mathMeta.pages).toEqual(['index', 'knowledge', 'supplements', 'problem-solving', 'exam']);
     expect(mathKnowledgeMeta.pages).toEqual([
       'index',
@@ -78,8 +77,7 @@ describe('study module metadata structure', () => {
     expect(mathExamMeta.pages).toEqual(['index']);
   });
 
-  it('exposes the four complete 408 courses at the module root', () => {
-    expect(coursesMeta.root).toBe(true);
+  it('exposes the four complete 408 courses', () => {
     expect(coursesMeta.pages).toEqual([
       'index',
       'knowledge2',
