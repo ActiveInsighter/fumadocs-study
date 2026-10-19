@@ -13,10 +13,13 @@ Open `http://localhost:3000/docs`.
 
 ## Interactive mathematics
 
-JSXGraph powers the globally registered `FunctionPlot` and `JSXGraphBoard` MDX
-components. Visit `/docs/math/function-plot/` for interactive functions, implicit
-equations, parametric curves, level sets, sliders, and tangents. See
-[the authoring guide](docs/jsxgraph.md) for configuration and custom constructions.
+JSXGraph powers the globally registered `FunctionPlot`, `SurfacePlot`, and
+`JSXGraphBoard` MDX components. Visit `/docs/math/function-plot/` for editable 2D
+functions and equations, real 3D surfaces, and space curves. Readers can edit
+formulas and draw, enter parameter values, play parameter animations, toggle
+plots, inspect coordinates, and rotate 3D views. Board tools include full screen,
+SVG export, and view reset. See [the authoring guide](docs/jsxgraph.md) for
+configuration and custom constructions.
 
 ## ZBSearch
 
@@ -75,6 +78,12 @@ file at 25,000,000 bytes to stay below EdgeOne's single-file limit.
 ## Deployment
 
 The production site and canonical URL origin are `https://fumadocscf.any1.tech`.
+
+Build and deploy through GitHub Actions. Dispatch
+`deploy-cloudflare-worker-assets.yml` on a feature branch with `deploy=true` to
+publish its branch preview; only a `main` ref deploys to the production Worker.
+Set `deploy=false` to validate the static package without publishing. Use the
+development server for local previews; production builds run remotely.
 
 Production documentation deployments run in GitHub Actions and are uploaded to
 Cloudflare Workers Static Assets. The documentation package is a pure static

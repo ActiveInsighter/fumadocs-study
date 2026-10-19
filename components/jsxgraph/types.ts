@@ -1,4 +1,5 @@
 import type { Board, BoardAttributes } from 'jsxgraph';
+import type { ReactNode } from 'react';
 
 export type BoundingBox = [left: number, top: number, right: number, bottom: number];
 
@@ -41,6 +42,7 @@ export interface FunctionPlotProps {
   height?: number;
   axis?: boolean;
   grid?: boolean;
+  editable?: boolean;
 }
 
 export interface JSXGraphBoardProps {
@@ -51,6 +53,11 @@ export interface JSXGraphBoardProps {
   axis?: boolean;
   grid?: boolean;
   options?: Partial<BoardAttributes>;
+  mode?: '2d' | '3d' | 'custom';
+  toolbar?: ReactNode;
+  children?: ReactNode;
+  hint?: string;
+  onReset?: () => void;
   /** Supply callbacks from a client component, never across the RSC boundary. */
   onInit?: (board: Board) => void | (() => void);
 }

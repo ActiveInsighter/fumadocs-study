@@ -9,7 +9,7 @@ import {
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
 import { InlineSvg } from '@/components/mdx/inline-svg';
-import { FunctionPlot, JSXGraphBoard } from '@/components/jsxgraph';
+import { FunctionPlot, SurfacePlot, JSXGraphBoard } from '@/components/jsxgraph';
 import { WordCardModeToggle, WordCards } from '@/components/vocabulary/word-cards';
 import * as AccordionComponents from 'fumadocs-ui/components/accordion';
 import * as FilesComponents from 'fumadocs-ui/components/files';
@@ -43,6 +43,7 @@ export function getMDXComponents(components?: MDXComponents) {
     MindMap,
     InlineSvg,
     FunctionPlot,
+    SurfacePlot,
     JSXGraphBoard,
     StudyAreaChart,
     StudyBarChart,
