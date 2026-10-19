@@ -45,10 +45,8 @@ function collectFolderPageUrls(folder: PageTree.Folder, output: Set<string>) {
 
 function assertStudyModuleTree() {
   const tree = source.getPageTree();
-  // Top-level folders are the study modules. They are plain folders (no
-  // `root: true`), so the sidebar renders them all in one tree.
   const roots = tree.children.filter(
-    (node): node is PageTree.Folder => node.type === 'folder',
+    (node): node is PageTree.Folder => node.type === 'folder' && node.root === true,
   );
 
   const rootByPath = new Map(
