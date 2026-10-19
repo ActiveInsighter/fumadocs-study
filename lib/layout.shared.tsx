@@ -8,7 +8,7 @@ export function baseOptions(): BaseLayoutProps {
     nav: {
       title: '考研学习',
     },
-    githubUrl: 'https://github.com/ActiveInsighter/fumadocs-tecent',
+    githubUrl: 'https://github.com/ActiveInsighter/fumadocs-study',
   };
 }
 

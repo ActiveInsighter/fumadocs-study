@@ -17,7 +17,7 @@ import {
   MarkdownCopyButton,
   PageLastUpdate,
   ViewOptionsPopover,
-} from 'fumadocs-ui/layouts/docs/page';
+} from 'fumadocs-ui/layouts/notebook/page';
 
 type PageParameters = {
   params: Promise<{
@@ -63,7 +63,12 @@ export default async function Page({ params }: PageParameters) {
   const pageComponents = getPageMDXComponents(page.path);
 
   return (
-    <DocsPage toc={data.toc} full={useFullPage}>
+    <DocsPage
+      toc={data.toc}
+      full={useFullPage}
+      tableOfContent={{ style: 'block' }}
+      tableOfContentPopover={{ style: 'block' }}
+    >
       <DocsTitle className="docs-page-title font-medium">{page.data.title}</DocsTitle>
       <DocsDescription className="mb-1 font-normal">
         {page.data.description}
@@ -78,7 +83,7 @@ export default async function Page({ params }: PageParameters) {
         />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/ActiveInsighter/fumadocs-tecent/blob/main/content/docs/${page.path}`}
+          githubUrl={`https://github.com/ActiveInsighter/fumadocs-study/blob/main/content/docs/${page.path}`}
           className="docs-page-action"
         />
       </div>
