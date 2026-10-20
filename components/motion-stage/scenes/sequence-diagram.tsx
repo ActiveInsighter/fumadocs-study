@@ -71,20 +71,42 @@ export function SequenceDiagram({
   const { width } = useElementSize(body);
   const travel = TRAVEL_SECONDS / speed;
 
+  // State marks sit outside the first and last lifelines, so the gutter must
+  // fit the widest one (mono text: ~0.62em per Latin char, ~1em per CJK char).
+  const stateGutter = useMemo(() => {
+    const em = width >= 512 ? 10.9 : 9.9;
+    const widest = Math.max(
+      0,
+      ...states.map((state) =>
+        Array.from(state.label).reduce((sum, char) => sum + (char.charCodeAt(0) > 0x2e7f ? em : em * 0.62), 0),
+      ),
+    );
+    return widest + 24;
+  }, [states, width]);
+
   const lanes = useMemo(() => {
     const count = actors.length;
-    const gutter = states.length ? Math.min(Math.max(width * 0.2, 70), 128) : Math.max(width * 0.12, 44);
+    const gutter = states.length
+      ? Math.min(Math.max(width * 0.2, stateGutter, 70), Math.max(width * 0.3, 70), 140)
+      : Math.max(width * 0.12, 44);
     const span = Math.max(width - gutter * 2, 0);
     return new Map(
       actors.map((actor, index) => [actor.id, count === 1 ? width / 2 : gutter + (span * index) / (count - 1)]),
     );
-  }, [actors, states.length, width]);
+  }, [actors, stateGutter, states.length, width]);
 
-  // Narrow lanes wrap long labels onto two lines; give those rows more air.
-  const narrowest = Math.min(
-    ...messages.map((message) => Math.abs((lanes.get(message.to) ?? 0) - (lanes.get(message.from) ?? 0))),
+  // Narrow lanes wrap long labels; give every row room for the tallest label
+  // (mono ~0.6em per char, plus slack because balanced wrapping breaks early).
+  const labelLines = Math.max(
+    1,
+    ...messages.map((message) => {
+      const span = Math.abs((lanes.get(message.to) ?? 0) - (lanes.get(message.from) ?? 0));
+      const room = Math.max(span - 16, 80) - 12;
+      const text = message.label.length * (width >= 512 ? 12 : 10.9) * 0.6 * 1.12;
+      return Math.ceil(text / room);
+    }),
   );
-  const rowHeight = width > 0 && narrowest < 280 ? baseRowHeight + 16 : baseRowHeight;
+  const rowHeight = width > 0 ? baseRowHeight + (labelLines - 1) * 16 : baseRowHeight;
 
   const rows = messages.map((message, index) => {
     const top = BODY_PADDING + index * rowHeight;
