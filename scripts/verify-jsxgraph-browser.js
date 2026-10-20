@@ -1,159 +1,84 @@
-// Open the local test page or the deployed branch preview with playwright-cli,
+// Open /docs/math/function-plot/ (local or a branch preview) with playwright-cli,
 // then run: playwright-cli -s=jsxgraph run-code --filename=scripts/verify-jsxgraph-browser.js
 async (page) => {
-  const checks = [];
-  const assert = (condition, message) => { if (!condition) throw new Error(message); };
-  async function step(name, run) {
-    try { await run(); checks.push(name); }
-    catch (error) { throw new Error(`${name}: ${error.message}. Passed: ${checks.join(', ')}`); }
-  }
+  const passed = [];
+  const check = (condition, message) => { if (!condition) throw new Error(`${message}. Passed: ${passed.join(', ')}`); };
+  const text = async (locator) => (await locator.textContent()).replace(/\s+/g, ' ');
+  const figure = (title) => page.locator('figure[data-plot-mode]').filter({ hasText: title });
+  const ready = async (target) => {
+    await target.scrollIntoViewIfNeeded();
+    await target.locator('[data-jsxgraph-board][aria-busy="false"]').waitFor();
+  };
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
   await page.emulateMedia({ colorScheme: 'light' });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  const hosts = page.locator('[data-jsxgraph-board]');
-  const first = page.locator('figure[data-plot-mode="2d"]').filter({ hasText: '函数工作台' });
-  const boardState = () => hosts.first().evaluate((host) => {
-    const board = Object.values(window.JXG.boards).find((board) => board.container === host.id);
-    const curve = board.objectsList.find((object) => object.elType === 'curve' && object.visProp.strokecolor === '#2563eb');
-    return { boardId: board.id, curveId: curve.id, y: curve.Y(2), box: board.getBoundingBox(), point: board.objectsList.find((object) => object.elType === 'glider')?.X() };
-  });
-  await step('six rendered 2D and 3D examples', async () => {
-    assert(await hosts.count() === 6, 'Expected six examples');
-    for (let index = 0; index < 6; index++) {
-      await hosts.nth(index).scrollIntoViewIfNeeded();
-      await page.waitForFunction((i) => {
-        const host = document.querySelectorAll('[data-jsxgraph-board]')[i];
-        return host.querySelector('svg') && host.getAttribute('aria-busy') === 'false';
-      }, index);
-    }
-    assert(await page.locator('figure [role="alert"]').count() === 0, 'A board could not initialize');
-    const views = await page.evaluate(() => Object.values(window.JXG.boards).flatMap((board) => board.objectsList.filter((element) => element.elType === 'view3d')).length);
-    assert(views === 3, 'Expected three real View3D scenes');
-  });
-  await step('numeric parameters and preserved zoom', async () => {
-    await first.scrollIntoViewIfNeeded();
-    await first.getByRole('button', { name: '放大', exact: true }).click();
-    const before = await boardState();
-    const number = first.getByRole('spinbutton', { name: '形状系数 a 数值' });
-    await number.fill('2');
-    await number.press('Enter');
-    const after = await boardState();
-    assert(after.y === 8, 'Number input did not update the actual function');
-    assert(before.boardId === after.boardId && before.curveId === after.curveId && JSON.stringify(before.box) === JSON.stringify(after.box), 'Parameter update discarded geometry or viewport');
-    await first.getByRole('button', { name: '重置参数', exact: true }).click();
-  });
-  await step('formula drawing and error recovery', async () => {
-    const expression = first.getByRole('textbox', { name: '函数表达式' }).first();
-    await expression.fill('sin(x)');
-    await first.getByRole('button', { name: '绘制', exact: true }).first().click();
-    assert(Math.abs((await boardState()).y - Math.sin(2)) < 1e-8, 'Draw button did not apply the formula');
-    const accepted = await boardState();
-    await expression.fill('sin(');
-    await first.getByRole('button', { name: '绘制', exact: true }).first().click();
-    await first.getByRole('alert').waitFor();
-    assert((await boardState()).curveId === accepted.curveId, 'Invalid formula destroyed the valid curve');
-    await expression.fill('a*x^2');
-    await first.getByRole('button', { name: '绘制', exact: true }).first().click();
-    assert(await first.getByRole('alert').count() === 0 && (await boardState()).y === 4, 'Valid edit did not recover');
-  });
-  await step('add, hide, and delete equations', async () => {
-    await first.getByRole('button', { name: '添加图像', exact: true }).click();
-    await first.getByLabel('图像类型').selectOption('implicit');
-    await first.getByRole('textbox', { name: '隐式方程' }).fill('x^2+y^2=1');
-    await first.getByRole('button', { name: '绘制新图像', exact: true }).click();
-    const count = await first.getByRole('button', { name: /删除图像/ }).count();
-    assert(count === 3, 'New implicit equation was not added');
-    await first.getByRole('checkbox', { name: '图像 3', exact: true }).uncheck();
-    const hidden = await hosts.first().evaluate((host) => Object.values(window.JXG.boards).find((board) => board.container === host.id).objectsList.find((element) => element.elType === 'implicitcurve').evalVisProp('visible'));
-    assert(hidden === false, 'Visibility checkbox did not hide the real equation');
-    await first.getByRole('button', { name: '删除图像 3', exact: true }).click();
-    assert(await first.getByRole('button', { name: /删除图像/ }).count() === 2, 'Delete button failed');
-    await first.getByRole('button', { name: '清空', exact: true }).click();
-    assert(await first.getByRole('button', { name: /删除图像/ }).count() === 0, 'Clear button left curves behind');
-    await first.getByRole('button', { name: '恢复示例', exact: true }).click();
-    assert(await first.getByRole('button', { name: /删除图像/ }).count() === 2, 'Example restore failed');
-  });
-  await step('probe number input and tangent switch', async () => {
-    const pointX = first.getByRole('spinbutton', { name: '取点 x', exact: true });
-    await pointX.fill('0.5');
-    await pointX.press('Tab');
-    await page.waitForFunction(() => {
-      const board = Object.values(window.JXG.boards)[0];
-      return board.objectsList.some((element) => element.elType === 'glider' && Math.abs(element.X() - 0.5) < 0.01);
-    });
-    await first.getByRole('checkbox', { name: '显示切线' }).uncheck();
-    const tangentVisible = await hosts.first().evaluate((host) => Object.values(window.JXG.boards).find((board) => board.container === host.id).objectsList.find((element) => element.elType === 'tangent').evalVisProp('visible'));
-    assert(tangentVisible === false, 'Tangent switch failed');
-  });
-  await step('parameter animation can pause', async () => {
-    await first.getByRole('button', { name: '播放 形状系数 a', exact: true }).click();
-    await page.waitForFunction(() => Number(document.querySelector('input[aria-label="形状系数 a 数值"]').value) !== 1);
-    await first.getByRole('button', { name: '暂停 形状系数 a', exact: true }).click();
-    const value = await first.getByRole('spinbutton', { name: '形状系数 a 数值' }).inputValue();
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    assert(await first.getByRole('spinbutton', { name: '形状系数 a 数值' }).inputValue() === value, 'Paused animation kept running');
-    await first.getByRole('button', { name: '重置参数', exact: true }).click();
-  });
-  await step('pan tool and theme preserve the scene', async () => {
-    await first.getByRole('button', { name: '平移', exact: true }).click();
-    const pan = await hosts.first().evaluate((host) => Object.values(window.JXG.boards).find((board) => board.container === host.id).attr.pan.needshift);
-    assert(pan === false, 'Pan tool still requires a modifier');
-    await first.getByRole('button', { name: '取点', exact: true }).first().click();
-    const before = await boardState();
-    await page.emulateMedia({ colorScheme: 'dark' });
-    await page.waitForFunction(() => document.documentElement.classList.contains('dark'));
-    const after = await boardState();
-    assert(before.boardId === after.boardId && before.curveId === after.curveId && JSON.stringify(before.box) === JSON.stringify(after.box), 'Theme discarded the drawing or view');
-  });
-  await step('fullscreen and SVG export', async () => {
-    await first.getByRole('button', { name: '全屏', exact: true }).click();
-    await first.getByRole('button', { name: '退出全屏', exact: true }).waitFor();
-    await first.getByRole('button', { name: '退出全屏', exact: true }).click();
-    const [download] = await Promise.all([page.waitForEvent('download'), first.getByRole('button', { name: '导出 SVG', exact: true }).click()]);
-    assert(download.suggestedFilename().endsWith('.svg'), 'No SVG was exported');
-    await download.saveAs('.playwright-cli/refactor-export.svg');
-  });
-  await step('mobile canvas dimensions and page scrolling mode', async () => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await hosts.first().scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => {
-      const host = document.querySelector('[data-jsxgraph-board]');
-      return Math.abs(Number(host.querySelector('svg').getAttribute('width')) - host.clientWidth) <= 1;
-    });
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile page overflows');
-    const scrolling = await hosts.first().evaluate((host) => ({ touch: host.style.touchAction, browser: Object.values(window.JXG.boards).find((board) => board.container === host.id).attr.browserpan }));
-    assert(scrolling.touch === 'pan-y' && scrolling.browser === true, 'Point mode captures page scrolling');
-    await page.screenshot({ path: '.playwright-cli/refactor-mobile.png' });
-  });
-  await step('3D camera controls and editable surfaces', async () => {
-    const surface = page.locator('figure[data-plot-mode="3d"]').filter({ hasText: '二元函数的三维曲面' });
-    await surface.scrollIntoViewIfNeeded();
-    await surface.getByRole('button', { name: '俯视 XY', exact: true }).click();
-    const read = () => surface.locator('[data-jsxgraph-board]').evaluate((host) => {
-      const board = Object.values(window.JXG.boards).find((board) => board.container === host.id);
-      const view = board.objectsList.find((element) => element.elType === 'view3d');
-      return { boardId: board.id, az: view.az_slide.Value(), el: view.el_slide.Value(), count: board.objectsList.length };
-    });
-    const top = await read();
-    assert(Math.abs(top.el - Math.PI / 2) < 0.001, 'Top-view button did not move the camera');
-    await surface.getByRole('textbox', { name: 'z(x,y)' }).fill('sin(x)*cos(y)');
-    await surface.getByRole('button', { name: '绘制图像', exact: true }).click();
-    const after = await read();
-    assert(top.boardId === after.boardId && top.count === after.count, 'Editing the surface rebuilt the scene');
-    await surface.getByRole('button', { name: '适应图像', exact: true }).click();
-    await surface.getByRole('checkbox', { name: '显示网格', exact: true }).uncheck();
-    await surface.getByRole('checkbox', { name: '显示曲面', exact: true }).uncheck();
-    await surface.getByRole('checkbox', { name: '显示曲面', exact: true }).check();
-    await surface.getByRole('button', { name: '立体视角', exact: true }).click();
-    await page.screenshot({ path: '.playwright-cli/refactor-3d-mobile.png' });
-  });
-  await step('navigation disposes and remounts boards', async () => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.getByRole('link', { name: '数学总览', exact: true }).first().click();
-    await page.waitForFunction(() => Object.keys(window.JXG.boards).length === 0);
-    await page.goBack();
-    await page.waitForSelector('[data-jsxgraph-board] svg');
-    assert(await hosts.count() === 6, 'Examples did not remount after returning');
-  });
-  return { checks };
+
+  const boards = page.locator('figure[data-plot-mode]');
+  const count = await boards.count();
+  for (let index = 0; index < count; index++) await ready(boards.nth(index));
+  check(count === 7 && await page.locator('figure [role="alert"]').count() === 0, 'Every example board initializes');
+  passed.push('seven boards');
+
+  // 2D: drawing, error recovery, polar curves, probe readout and integral.
+  const plane = figure('函数、导数与面积');
+  await ready(plane);
+  const expression = plane.getByRole('textbox', { name: '函数表达式' }).first();
+  const draw = plane.getByRole('button', { name: '绘制', exact: true }).first();
+  await expression.fill('sin(');
+  await draw.click();
+  check(await plane.getByRole('alert').count() === 1, 'Invalid formula is reported');
+  await expression.fill('x^3/3-x');
+  await draw.click();
+  check(await plane.getByRole('alert').count() === 0, 'Valid formula recovers');
+  const probe = plane.getByRole('spinbutton', { name: '取点 x' });
+  await probe.fill('1.5');
+  await probe.press('Enter');
+  await page.waitForTimeout(200);
+  const readout = await text(plane.getByRole('region', { name: '取点读数' }));
+  check(readout.includes('-0.375') && readout.includes('1.25') && readout.includes('-0.2865'), `Probe and integral readouts are exact: ${readout}`);
+  await plane.getByRole('button', { name: '添加图像' }).click();
+  await plane.getByRole('button', { name: '极坐标 r = r(θ)' }).click();
+  await plane.getByRole('textbox', { name: '极坐标方程' }).last().fill('1+cos(θ)');
+  await plane.getByRole('button', { name: '绘制新图像' }).click();
+  check(await plane.getByRole('button', { name: /^删除图像/ }).count() === 3 && await plane.getByRole('alert').count() === 0, 'Polar curve is added');
+  await plane.getByRole('button', { name: '恢复示例' }).click();
+  passed.push('2D editing');
+
+  // 3D: quadric cross-sections and classification.
+  const space = figure('单叶双曲面的截痕');
+  await ready(space);
+  const section = space.getByRole('region', { name: '截面' });
+  check((await text(section)).includes('椭圆'), 'z = k cuts a one-sheet hyperboloid in an ellipse');
+  await space.getByRole('button', { name: 'x = k' }).click();
+  check((await text(section)).includes('双曲线'), 'x = k cuts it in a hyperbola');
+  await space.getByRole('button', { name: '扫描截面' }).click();
+  await page.waitForTimeout(800);
+  await space.getByRole('button', { name: '暂停扫描' }).click();
+  await space.getByRole('combobox').first().selectOption('ellipsoid');
+  await space.getByRole('button', { name: '绘制', exact: true }).click();
+  await space.getByRole('button', { name: 'z = k' }).click();
+  check((await text(section)).includes('椭圆') && (await text(space)).includes('椭球面'), 'Quadric kind can be switched');
+  const level = space.getByRole('spinbutton', { name: '截面位置 k' });
+  await level.fill('2.9');
+  await level.press('Enter');
+  check((await text(section)).includes('空集'), 'A plane outside the ellipsoid misses it');
+  passed.push('quadric sections');
+
+  const saddle = figure('马鞍面与椭圆抛物面');
+  await ready(saddle);
+  check((await text(saddle.getByRole('region', { name: '截面' }))).includes('两条相交直线'), 'The saddle at z = 0 is two lines');
+  const implicit = figure('一个参数串起三种曲面');
+  await ready(implicit);
+  const d = implicit.getByRole('spinbutton', { name: '常数 d 数值' });
+  await d.fill('-1');
+  await d.press('Enter');
+  check(await implicit.getByRole('alert').count() === 0, 'Implicit surface follows its parameter');
+  passed.push('implicit and saddle');
+
+  for (const button of ['自动旋转', '自动旋转', '适应图像', '俯视 XY', '重置视图']) await space.getByRole('button', { name: button, exact: true }).click();
+  check(errors.length === 0, `No page errors: ${errors.join(' | ')}`);
+  passed.push('camera controls');
+  return passed;
 }

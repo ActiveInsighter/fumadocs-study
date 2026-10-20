@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { bindPlotExpression, commitParameterValue, implicitExpression, initialParameterValues, parameterValue, startParameterAnimation, validatePlotConfig, validatePlotParameters } from '@/components/jsxgraph/model';
-import type { FunctionPlotProps, PlotParameter } from '@/components/jsxgraph/types';
+import { bindPlotExpression, implicitExpression, type Evaluator, type ExpressionCompiler } from '@/components/jsxgraph/core/expression';
+import { commitParameterValue, initialParameterValues, parameterValue, startParameterAnimation, validatePlotParameters, type PlotParameter } from '@/components/jsxgraph/core/parameters';
+import { contourSegments } from '@/components/jsxgraph/core/contours';
+import { validatePlotConfig } from '@/components/jsxgraph/plane/model';
+import { integrate } from '@/components/jsxgraph/plane/plots';
+import type { FunctionPlotProps } from '@/components/jsxgraph/plane/types';
 
 const basic: FunctionPlotProps = { plots: [{ type: 'function', expression: 'a*x^2' }], parameters: [{ name: 'a', min: -2, max: 2, value: 1 }] };
 
@@ -28,7 +32,7 @@ describe('JSXGraph document configuration', () => {
     for (const update of [{ min: 3 }, { value: 9 }, { step: 0 }, { max: Infinity }]) {
       expect(() => validatePlotConfig({ ...basic, parameters: [{ ...basic.parameters![0], ...update }] })).toThrow();
     }
-    expect(() => validatePlotConfig({ ...basic, points: [{ x: NaN, y: 0 }] })).toThrow();
+    expect(() => validatePlotConfig({ ...basic, points: [{ x: NaN, y: 0 }] })).toThrow('点的 x 坐标必须是有限数值或参数表达式。');
     expect(() => validatePlotConfig({ ...basic, boundingBox: [5, -5, -5, 5] })).toThrow();
     expect(() => validatePlotConfig({ ...basic, height: 0 })).toThrow();
   });
@@ -72,7 +76,38 @@ describe('JSXGraph document configuration', () => {
   it('normalizes both equation sides without treating inequalities as curves', () => {
     expect(implicitExpression('x^2+y^2=r^2')).toBe('(x^2+y^2)-(r^2)');
     expect(implicitExpression('x*y-1')).toBe('x*y-1');
-    for (const expression of ['x=y=0', 'x>=1', 'x<y', 'x=', '=y', 'x!=y']) expect(() => implicitExpression(expression)).toThrow();
+    for (const expression of ['x=y=0', 'x>=1', 'x<y', 'x=', '=y', 'x!=y']) expect(() => implicitExpression(expression)).toThrow('隐式方程请使用 F 或 左式=右式，不支持不等式。');
+  });
+
+  it('caps a board at twelve parameters', () => {
+    const twelve: PlotParameter[] = Array.from({ length: 12 }, (_, index) => ({ name: `p${index}`, min: 0, max: 1, value: 0 }));
+    expect(() => validatePlotParameters(twelve)).not.toThrow();
+    expect(() => validatePlotParameters([...twelve, { name: 'extra', min: 0, max: 1, value: 0 }])).toThrow('每个画板最多支持 12 个参数。');
+  });
+
+  it('accepts polar curves and shaded area bounds, and rejects reversed area bounds', () => {
+    expect(() => validatePlotConfig({ plots: [{ type: 'polar', expression: '2*cos(3*t)' }] })).not.toThrow();
+    expect(() => validatePlotConfig({ parameters: [{ name: 'p', min: 0, max: 2, value: 1 }], plots: [{ type: 'function', expression: 'x^2', area: [-1, 'p'] }] })).not.toThrow();
+    expect(() => validatePlotConfig({ plots: [{ type: 'function', expression: 'x^2', area: [2, 1] }] })).toThrow('积分区间必须递增。');
+  });
+});
+
+/** Fake compiler: JavaScript over the given variables with Math in scope; ^ reads as **. */
+const fakeCompiler: ExpressionCompiler = (expression, variables) => new Function(...variables, `with (Math) { return (${expression.replace(/\^/g, '**')}); }`) as Evaluator;
+
+describe('Plane contours and integrals', () => {
+  it('traces the unit circle of x^2+y^2-1 as segments with radius close to 1', () => {
+    const segments = contourSegments(fakeCompiler('x^2+y^2-1', ['x', 'y']), [-1.5, 1.5], [-1.5, 1.5], 80);
+    expect(segments.length).toBeGreaterThan(40);
+    for (const [u1, v1, u2, v2] of segments) {
+      expect(Math.hypot(u1, v1)).toBeCloseTo(1, 2);
+      expect(Math.hypot(u2, v2)).toBeCloseTo(1, 2);
+    }
+  });
+
+  it('integrates with Simpson rule and reports a non-finite integrand as undefined', () => {
+    expect(integrate((x) => x * x, 0, 1)).toBeCloseTo(1 / 3, 12);
+    expect(integrate((x) => 1 / x, 0, 1)).toBeNaN();
   });
 });
 

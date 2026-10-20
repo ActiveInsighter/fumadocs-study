@@ -1,5 +1,7 @@
-export { JSXGraphBoard } from './board';
-export { FunctionPlot } from './function-plot';
-export { SurfacePlot } from './surface-plot';
-export type { SurfacePlotProps, SurfaceDefinition, SpaceBox } from './surface-types';
-export type { BoundingBox, FunctionPlotProps, JSXGraphBoardProps, PlotDefinition, PlotParameter, PlotPoint } from './types';
+export { JSXGraphBoard } from './ui/board';
+export type { BoardContext, JSXGraphBoardProps } from './ui/board';
+export { FunctionPlot } from './plane/function-plot';
+export type { BoundingBox, FunctionPlotProps, PlotDefinition, PlotPoint } from './plane/types';
+export { SurfacePlot } from './space/surface-plot';
+export type { QuadricDefinition, QuadricKind, SpaceBox, SpacePoint, SurfaceDefinition, SurfacePlotProps } from './space/types';
+export type { PlotParameter } from './core/parameters';

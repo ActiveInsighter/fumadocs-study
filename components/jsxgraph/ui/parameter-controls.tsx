@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { commitParameterValue, parameterValue, startParameterAnimation } from './model';
-import type { PlotParameter } from './types';
+import { Pause, Play, RotateCcw } from 'lucide-react';
+import { commitParameterValue, parameterValue, startParameterAnimation, type PlotParameter } from '../core/parameters';
+import { IconButton, Section } from './primitives';
 import styles from './jsxgraph.module.css';
 
 interface ParameterControlsProps {
@@ -64,10 +65,11 @@ export function ParameterControls({ parameters, values, onChange, onReset }: Par
   }
 
   if (!parameters.length) return null;
-  return <section className={styles.parameters} aria-label="参数控制">
-    <div className={styles.sectionTitle}><strong>参数</strong><button type="button" onClick={() => { pause(); onReset(); }}>重置参数</button></div>
-    {parameters.map((parameter) => <ParameterField key={parameter.name} parameter={parameter} value={values[parameter.name]} playing={playing === parameter.name} onPause={pause} onPlay={() => toggle(parameter.name)} onChange={(value) => change(parameter.name, value)} />)}
-  </section>;
+  return <Section title="参数" label="参数控制" meta={`${parameters.length} 个`} actions={<IconButton label="重置参数" icon={<RotateCcw aria-hidden />} onClick={() => { pause(); onReset(); }} />}>
+    <div className={styles.parameterList}>
+      {parameters.map((parameter) => <ParameterField key={parameter.name} parameter={parameter} value={values[parameter.name]} playing={playing === parameter.name} onPause={pause} onPlay={() => toggle(parameter.name)} onChange={(value) => change(parameter.name, value)} />)}
+    </div>
+  </Section>;
 }
 
 function ParameterField({ parameter, value, onChange, playing, onPlay, onPause }: { parameter: PlotParameter; value: number; onChange: (value: number) => void; playing: boolean; onPlay: () => void; onPause: () => void }) {
@@ -87,17 +89,17 @@ function ParameterField({ parameter, value, onChange, playing, onPlay, onPause }
     if (!Object.is(next, value)) onChange(next);
   }
   return <div className={styles.parameter}>
-    <label htmlFor={`${id}-range`}>{label}</label>
+    <div className={styles.parameterHead}><label htmlFor={`${id}-range`}>{label}</label>{parameter.label ? <code>{parameter.name}</code> : null}</div>
     <div className={styles.parameterInputs}>
       <input id={`${id}-range`} type="range" min={parameter.min} max={parameter.max} step={parameter.step ?? 0.1} value={value} onChange={(event) => onChange(parameterValue(Number(event.currentTarget.value), parameter))} />
-      <input aria-label={`${label} 数值`} type="number" min={parameter.min} max={parameter.max} step={parameter.step ?? 0.1} value={draft} onFocus={() => { onPause(); focused.current = true; dirty.current = false; setDraft(String(value)); }} onChange={(event) => { dirty.current = true; setDraft(event.currentTarget.value); }} onBlur={commit} onKeyDown={(event) => {
+      <input aria-label={`${label} 数值`} className={styles.input} type="number" inputMode="decimal" min={parameter.min} max={parameter.max} step={parameter.step ?? 0.1} value={draft} onFocus={() => { onPause(); focused.current = true; dirty.current = false; setDraft(String(value)); }} onChange={(event) => { dirty.current = true; setDraft(event.currentTarget.value); }} onBlur={commit} onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === 'Escape') {
           event.preventDefault();
           cancelled.current = event.key === 'Escape';
           event.currentTarget.blur();
         }
       }} />
-      <button type="button" aria-label={`${playing ? '暂停' : '播放'} ${label}`} aria-pressed={playing} onClick={onPlay}>{playing ? '暂停' : '播放'}</button>
+      <IconButton label={`${playing ? '暂停' : '播放'} ${label}`} icon={playing ? <Pause aria-hidden /> : <Play aria-hidden />} pressed={playing} onClick={onPlay} />
     </div>
     <span className={styles.rangeHint}>{parameter.min} 至 {parameter.max}</span>
   </div>;

@@ -1,16 +1,45 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTheme } from 'next-themes';
+import { Download, Grid3x3, Hand, ImageDown, Maximize2, Minimize2, MousePointer2, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
 import type { Board, BoardAttributes, GeometryElement, Line, Ticks } from 'jsxgraph';
-import { DEFAULT_BOUNDING_BOX } from './model';
-import type { JSXGraphBoardProps } from './types';
+import { formatNumber } from '../core/format';
+import { readBoardTheme, type BoardTheme } from '../core/theme';
+import type { BoundingBox } from '../plane/types';
+import { cx, IconButton } from './primitives';
 import styles from './jsxgraph.module.css';
 
-/** Shared browser-only lifecycle and controls for both planar and spatial plots. */
+export const DEFAULT_BOARD_BOX: BoundingBox = [-5, 5, 5, -5];
+
+export interface BoardContext {
+  /** Current board colours; read inside JSXGraph attribute functions. */
+  theme: () => BoardTheme;
+}
+
+export interface JSXGraphBoardProps {
+  title?: string;
+  description?: string;
+  height?: number;
+  boundingBox?: BoundingBox;
+  axis?: boolean;
+  grid?: boolean;
+  options?: Partial<BoardAttributes>;
+  mode?: '2d' | '3d' | 'custom';
+  /** Extra toolbar groups placed after the view controls. */
+  toolbar?: ReactNode;
+  /** Panels below the board, or beside it in full screen and wide layouts. */
+  children?: ReactNode;
+  hint?: string;
+  onReset?: () => void;
+  /** Supply callbacks from a client component, never across the RSC boundary. */
+  onInit?: (board: Board, context: BoardContext) => void | (() => void);
+}
+
+/** Shared browser-only lifecycle, toolbar and layout for planar and spatial plots. */
 export function JSXGraphBoard({
   title = '交互式坐标画板', description, height = 440,
-  boundingBox = DEFAULT_BOUNDING_BOX, axis = true, grid = true,
+  boundingBox = DEFAULT_BOARD_BOX, axis = true, grid = true,
   options, onInit, mode = '2d', toolbar, children, hint, onReset,
 }: JSXGraphBoardProps) {
   const id = `jsxgraph-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
@@ -24,10 +53,11 @@ export function JSXGraphBoard({
   const [pan, setPan] = useState(false);
   const [showGrid, setShowGrid] = useState(grid);
   const [expanded, setExpanded] = useState(false);
+  const [pointer, setPointer] = useState<[number, number] | null>(null);
   const { resolvedTheme } = useTheme();
   const dark = resolvedTheme === 'dark';
-  const darkRef = useRef(dark);
-  darkRef.current = dark;
+  const themeRef = useRef<BoardTheme>(readBoardTheme(null, dark));
+  const planar = mode !== '3d';
 
   useEffect(() => {
     const element = host.current;
@@ -52,20 +82,21 @@ export function JSXGraphBoard({
       try {
         const { default: JXG } = await import('jsxgraph');
         if (cancelled || !host.current) return;
-        const foreground = darkRef.current ? '#cbd5e1' : '#64748b';
+        const theme = themeRef.current = readBoardTheme(figure.current, document.documentElement.classList.contains('dark'));
+        const axisStyle = {
+          strokeColor: theme.axis, strokeWidth: 1.1, highlight: false,
+          ticks: { strokeColor: theme.axis, strokeOpacity: 0.6, minorTicks: 0, label: { strokeColor: theme.muted, fontSize: 11, display: 'internal', highlight: false } },
+        };
         const boardOptions = {
-          boundingbox: [...boundingBox], axis: mode === '3d' ? false : axis,
+          boundingbox: [...boundingBox], axis: planar ? axis : false,
           grid: false, keepaspectratio: true,
-          renderer: 'svg', showCopyright: false, showNavigation: false,
-          pan: { enabled: mode !== '3d', needShift: true, needTwoFingers: true },
+          renderer: 'svg', showCopyright: false, showNavigation: false, showInfobox: false,
+          pan: { enabled: planar, needShift: true, needTwoFingers: true },
           zoom: { wheel: true, needShift: true },
-          browserPan: mode !== '3d',
+          browserPan: planar,
           resize: { enabled: false, throttle: 100 },
           title, description: description ?? title,
-          defaultAxes: {
-            x: { strokeColor: foreground, ticks: { strokeColor: foreground, label: { strokeColor: foreground, display: 'internal' } } },
-            y: { strokeColor: foreground, ticks: { strokeColor: foreground, label: { strokeColor: foreground, display: 'internal' } } },
-          },
+          defaultAxes: { x: axisStyle, y: axisStyle },
           ...options,
         };
         // browserPan and runtime axis types are missing from 1.14's .d.ts,
@@ -73,8 +104,8 @@ export function JSXGraphBoard({
         const board = JXG.JSXGraph.initBoard(id, boardOptions as unknown as Partial<BoardAttributes>);
         boardRef.current = board;
         release = () => { boardRef.current = null; JXG.JSXGraph.freeBoard(board); };
-        if (mode !== '3d') board.create('grid', [], { strokeColor: darkRef.current ? '#334155' : '#e2e8f0', strokeOpacity: 0.75, visible: grid });
-        dispose = onInit?.(board);
+        if (planar) board.create('grid', [], { strokeColor: theme.grid, strokeOpacity: 1, strokeWidth: 1, highlight: false, visible: grid });
+        dispose = onInit?.(board, { theme: () => themeRef.current });
         // JSXGraph's built-in dimensions can be measured midway through layout
         // transitions. Observe the actual host and resize at the next frame.
         const resize = () => {
@@ -92,7 +123,7 @@ export function JSXGraphBoard({
           observer.observe(host.current);
         }
         resize();
-        host.current.style.touchAction = mode === '3d' ? 'none' : 'pan-y';
+        host.current.style.touchAction = planar ? 'pan-y' : 'none';
         setStatus('ready');
       } catch (reason) {
         release?.();
@@ -109,32 +140,52 @@ export function JSXGraphBoard({
       cancelAnimationFrame(frame);
       try { dispose?.(); } finally { release?.(); }
     };
-  }, [visible, id, boundingBox, axis, grid, options, onInit, attempt, mode, title, description]);
+  }, [visible, id, boundingBox, axis, grid, options, onInit, attempt, planar, title, description]);
 
   // A theme switch recolors existing elements without discarding geometry,
   // edited expressions, view position, or a 3D camera angle.
   useEffect(() => {
     const board = boardRef.current;
     if (!board || status !== 'ready') return;
-    const foreground = dark ? '#cbd5e1' : '#64748b';
+    const theme = themeRef.current = readBoardTheme(figure.current, dark);
     for (const element of Object.values(board.defaultAxes ?? {}) as unknown as (Line & { defaultTicks?: Ticks })[]) {
-      element.setAttribute({ strokeColor: foreground });
-      element.defaultTicks?.setAttribute({ strokeColor: foreground, label: { strokeColor: foreground } });
+      element.setAttribute({ strokeColor: theme.axis });
+      element.defaultTicks?.setAttribute({ strokeColor: theme.axis, label: { strokeColor: theme.muted } });
     }
     for (const element of board.objectsList as GeometryElement[]) {
-      if (element.elType === 'grid') element.setAttribute({ strokeColor: dark ? '#334155' : '#cbd5e1', visible: showGrid });
+      if (element.elType === 'grid') element.setAttribute({ strokeColor: theme.grid, visible: showGrid });
     }
-    board.update();
+    board.fullUpdate();
   }, [dark, status, showGrid]);
 
   useEffect(() => {
     const board = boardRef.current;
-    if (!board || status !== 'ready' || mode === '3d') return;
+    if (!board || status !== 'ready' || !planar) return;
     const attr = board.attr as unknown as { pan: { enabled: boolean; needshift: boolean; needtwofingers: boolean }; browserpan: boolean };
     attr.pan = { ...attr.pan, enabled: true, needshift: !pan, needtwofingers: !pan };
     attr.browserpan = !pan;
     if (host.current) host.current.style.touchAction = pan ? 'none' : 'pan-y';
-  }, [pan, status, mode]);
+  }, [pan, status, planar]);
+
+  // Pointer coordinates for reading the plane directly.
+  useEffect(() => {
+    const element = host.current;
+    const board = boardRef.current;
+    if (!element || !board || status !== 'ready' || !planar) return;
+    let frame = 0;
+    const move = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const [x, y] = board.getUsrCoordsOfMouse(event);
+        setPointer(Number.isFinite(x) && Number.isFinite(y) ? [x, y] : null);
+      });
+    };
+    const leave = () => { cancelAnimationFrame(frame); setPointer(null); };
+    element.addEventListener('pointermove', move, { passive: true });
+    element.addEventListener('pointerleave', leave);
+    return () => { cancelAnimationFrame(frame); element.removeEventListener('pointermove', move); element.removeEventListener('pointerleave', leave); };
+  }, [status, planar]);
 
   useEffect(() => {
     const fullscreen = () => setExpanded(document.fullscreenElement === figure.current);
@@ -153,42 +204,88 @@ export function JSXGraphBoard({
     }
   }
 
-  function exportImage() {
+  function serializeBoard(): { text: string; width: number; height: number } | null {
     const source = host.current?.querySelector('svg');
-    if (!source) return;
+    if (!source) return null;
     const svg = source.cloneNode(true) as SVGSVGElement;
+    const { width, height } = source.getBoundingClientRect();
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    svg.style.background = dark ? '#0f172a' : '#ffffff';
-    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml;charset=utf-8' }));
+    svg.setAttribute('width', String(width));
+    svg.setAttribute('height', String(height));
+    svg.style.background = themeRef.current.paper;
+    svg.style.fontFamily = getComputedStyle(source).fontFamily;
+    return { text: new XMLSerializer().serializeToString(svg), width, height };
+  }
+
+  function download(blob: Blob, extension: string) {
+    const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${title.replace(/[^\p{L}\p{N}_-]/gu, '-').slice(0, 60)}.svg`;
+    anchor.download = `${title.replace(/[^\p{L}\p{N}_-]/gu, '-').slice(0, 60)}.${extension}`;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  return <figure ref={figure} data-plot-mode={mode} className={`not-prose ${styles.figure} ${expanded ? styles.expanded : ''}`}>
-    <figcaption className={styles.caption}>
-      <div><span className={styles.dimension}>{mode === '3d' ? '3D' : '2D'}</span><strong>{title}</strong></div>
-      {description ? <p>{description}</p> : null}
+  function exportSvg() {
+    const result = serializeBoard();
+    if (result) download(new Blob([result.text], { type: 'image/svg+xml;charset=utf-8' }), 'svg');
+  }
+
+  async function exportPng() {
+    const result = serializeBoard();
+    if (!result) return;
+    const image = new Image();
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(result.text)}`;
+    await image.decode();
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(result.width * scale);
+    canvas.height = Math.round(result.height * scale);
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    context.fillStyle = themeRef.current.paper;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => { if (blob) download(blob, 'png'); }, 'image/png');
+  }
+
+  const ready = status === 'ready';
+  return <figure ref={figure} data-plot-mode={mode} className={cx('not-prose', styles.figure, expanded && styles.expanded)}>
+    <figcaption className={styles.header}>
+      <div className={styles.titleRow}><span className={styles.badge}>{mode === '3d' ? '3D' : '2D'}</span><strong className={styles.title}>{title}</strong></div>
+      {description ? <p className={styles.description}>{description}</p> : null}
     </figcaption>
-    <div className={styles.toolbar} aria-label={`${title} 工具栏`}>
-      {mode === '2d' ? <><button type="button" disabled={status !== 'ready'} aria-pressed={!pan} onClick={() => setPan(false)}>取点</button><button type="button" disabled={status !== 'ready'} aria-pressed={pan} onClick={() => setPan(true)}>平移</button></> : null}
-      <button type="button" aria-label="放大" disabled={status !== 'ready'} onClick={() => boardRef.current?.zoomIn()}>＋</button>
-      <button type="button" aria-label="缩小" disabled={status !== 'ready'} onClick={() => boardRef.current?.zoomOut()}>−</button>
-      <button type="button" disabled={status !== 'ready'} onClick={() => { boardRef.current?.setBoundingBox([...boundingBox], true); onReset?.(); }}>重置视图</button>
-      {mode === '2d' ? <button type="button" disabled={status !== 'ready'} aria-pressed={showGrid} onClick={() => setShowGrid((value) => !value)}>网格</button> : null}
-      {toolbar}
-      <span className={styles.toolbarSpacer} />
-      <button type="button" disabled={status !== 'ready'} aria-pressed={expanded} onClick={() => void toggleFullscreen()}>{expanded ? '退出全屏' : '全屏'}</button>
-      <button type="button" disabled={status !== 'ready'} onClick={exportImage}>导出 SVG</button>
+    <div className={styles.toolbar} role="toolbar" aria-label={`${title} 工具栏`}>
+      {mode === '2d' ? <div className={styles.group}>
+        <IconButton label="取点" text="取点" icon={<MousePointer2 aria-hidden />} pressed={!pan} disabled={!ready} onClick={() => setPan(false)} />
+        <IconButton label="平移" text="平移" icon={<Hand aria-hidden />} pressed={pan} disabled={!ready} onClick={() => setPan(true)} />
+      </div> : null}
+      <div className={styles.group}>
+        <IconButton label="放大" icon={<ZoomIn aria-hidden />} disabled={!ready} onClick={() => boardRef.current?.zoomIn()} />
+        <IconButton label="缩小" icon={<ZoomOut aria-hidden />} disabled={!ready} onClick={() => boardRef.current?.zoomOut()} />
+        <IconButton label="重置视图" icon={<RotateCcw aria-hidden />} disabled={!ready} onClick={() => { boardRef.current?.setBoundingBox([...boundingBox], true); onReset?.(); }} />
+        {mode === '2d' ? <IconButton label="网格" icon={<Grid3x3 aria-hidden />} pressed={showGrid} disabled={!ready} onClick={() => setShowGrid((value) => !value)} /> : null}
+      </div>
+      {toolbar ? <div className={styles.group}>{toolbar}</div> : null}
+      <span className={styles.spacer} />
+      <div className={styles.group}>
+        <IconButton label="导出 SVG" icon={<Download aria-hidden />} disabled={!ready} onClick={exportSvg} />
+        <IconButton label="导出 PNG" icon={<ImageDown aria-hidden />} disabled={!ready} onClick={() => void exportPng()} />
+        <IconButton label={expanded ? '退出全屏' : '全屏'} icon={expanded ? <Minimize2 aria-hidden /> : <Maximize2 aria-hidden />} pressed={expanded} disabled={!ready} onClick={() => void toggleFullscreen()} />
+      </div>
     </div>
-    <div className={styles.viewport} style={{ '--plot-height': `${height}px` } as React.CSSProperties}>
-      <div ref={host} id={id} data-jsxgraph-board className={styles.board} aria-label={title} aria-busy={status === 'loading'} />
-      {status === 'loading' ? <p className={styles.overlay} role="status">{visible ? '正在准备画板…' : '滚动到此处加载画板'}</p> : null}
-      {status === 'error' ? <div className={styles.overlay} role="alert"><p>无法绘制：{error}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>重新加载</button></div> : null}
+    <div className={styles.stage}>
+      <div className={styles.viewport} style={{ '--plot-height': `${height}px` } as CSSProperties}>
+        <div ref={host} id={id} data-jsxgraph-board className={styles.board} aria-label={title} aria-busy={status === 'loading'} />
+        {planar && pointer ? <output className={styles.hud} aria-hidden>x {formatNumber(pointer[0], 2)} · y {formatNumber(pointer[1], 2)}</output> : null}
+        {mode === '3d' && ready ? <div className={styles.axisKey} aria-hidden>
+          <span style={{ color: 'var(--plot-axis-x)' }}><i />x</span><span style={{ color: 'var(--plot-axis-y)' }}><i />y</span><span style={{ color: 'var(--plot-axis-z)' }}><i />z</span>
+        </div> : null}
+        {status === 'loading' ? <p className={styles.overlay} role="status">{visible ? '正在准备画板…' : '滚动到此处加载画板'}</p> : null}
+        {status === 'error' ? <div className={styles.overlay} role="alert"><p>无法绘制：{error}</p><button type="button" className={styles.button} onClick={() => setAttempt((value) => value + 1)}>重新加载</button></div> : null}
+      </div>
+      <p className={styles.hint}>{hint ?? (mode === '3d' ? '拖动画面旋转，使用视角按钮快速切换方向。' : pan ? '拖动空白处平移；滚轮缩放请按住 Shift。手机可单指平移、双指缩放。' : '拖动彩色点读取坐标；切到“平移”可直接拖动画面。按住 Shift 滚轮缩放。')}</p>
+      {children ? <div className={styles.panels}>{children}</div> : null}
     </div>
-    <p className={styles.hint}>{hint ?? (mode === '3d' ? '拖动画面旋转，使用视角按钮快速切换方向。' : pan ? '拖动空白处平移；滚轮缩放请按住 Shift。手机可单指平移、双指缩放。' : '拖动彩色点取坐标；切到“平移”可直接拖动画面。手机在取点模式下可上下滚动页面。')}</p>
-    {children}
   </figure>;
 }

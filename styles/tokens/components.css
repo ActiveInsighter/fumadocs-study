@@ -99,4 +99,24 @@
 
   /* Mind map: floating toolbar shadow. */
   --mind-map-node-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px rgb(0 0 0 / 0.08);
+
+  /* JSXGraph plots: colours handed to JSXGraph as SVG attributes (hex only). */
+  --plot-board-paper: #ffffff;
+  --plot-board-ink: #171717;
+  --plot-board-muted: #737373;
+  --plot-board-axis: #525252;
+  --plot-board-grid: #ebebeb;
+  --plot-board-accent: #2563eb;
+  --plot-board-axis-x: #dc2626;
+  --plot-board-axis-y: #16a34a;
+  --plot-board-axis-z: #2563eb;
+  --plot-board-dark-paper: #000000;
+  --plot-board-dark-ink: #f5f5f5;
+  --plot-board-dark-muted: #a3a3a3;
+  --plot-board-dark-axis: #a3a3a3;
+  --plot-board-dark-grid: #1c1c1c;
+  --plot-board-dark-accent: #60a5fa;
+  --plot-board-dark-axis-x: #f87171;
+  --plot-board-dark-axis-y: #4ade80;
+  --plot-board-dark-axis-z: #60a5fa;
 }

@@ -1,19 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { bindPlotExpression } from '@/components/jsxgraph/model';
-import { SurfacePlot } from '@/components/jsxgraph/surface-plot';
-import { createSurfaceEvaluator, DEFAULT_SPACE_BOX, fitSurfaceBox, formatSpaceCoordinate, replaceSurfaceExpressions, surfaceRanges, validateSurfaceConfig, type ExpressionCompiler } from '@/components/jsxgraph/surface-model';
-import type { SurfacePlotProps } from '@/components/jsxgraph/surface-types';
+import { bindPlotExpression, type Evaluator, type ExpressionCompiler } from '@/components/jsxgraph/core/expression';
+import { formatSpaceCoordinate } from '@/components/jsxgraph/core/format';
+import { SurfacePlot } from '@/components/jsxgraph/space/surface-plot';
+import { createRuntime, DEFAULT_SPACE_BOX, fitSurfaceBox, replaceSurfaceExpressions, surfaceRanges, validateSurfaceConfig, type PlotRuntime } from '@/components/jsxgraph/space/model';
+import { quadricImplicit, quadricSection, type Placement } from '@/components/jsxgraph/space/quadrics';
+import type { SurfacePlotProps } from '@/components/jsxgraph/space/types';
 
 const basic: SurfacePlotProps = { plots: [{ type: 'surface', expression: 'a*(x^2+y^2)' }], parameters: [{ name: 'a', min: -2, max: 2, value: 1 }] };
+
+/** Fake compiler: JavaScript over the given variables with Math in scope; ^ reads as **. */
+const fakeCompiler: ExpressionCompiler = (expression, variables) => new Function(...variables, `with (Math) { return (${expression.replace(/\^/g, '**')}); }`) as Evaluator;
 
 describe('3D graph configurations and coordinates', () => {
   it('server renders MDX controls without importing browser-only JSXGraph', () => {
     expect(typeof window).toBe('undefined');
     const html = renderToString(createElement(SurfacePlot, { ...basic, title: '可服务端渲染的三维图像' }));
     expect(html).toContain('可服务端渲染的三维图像');
-    expect(html).toContain('绘制图像');
+    expect(html).toContain('绘制');
     expect(html).toContain('坐标探针');
     expect(html).not.toContain('NaN');
   });
@@ -29,14 +34,18 @@ describe('3D graph configurations and coordinates', () => {
 
   it('updates graph heights from live parameter values while preserving x and y coordinates', () => {
     const values = { a: 2 };
-    const evaluate = createSurfaceEvaluator(basic.plots[0], (expression, variables) => {
+    let revision = 0;
+    const plot: SurfacePlotProps['plots'][number] = { type: 'surface', expression: 'a*(x^2+y^2)', domain: [[0, 2], [0, 4]] };
+    const runtime = createRuntime(plot, (expression, variables) => {
       expect(expression).toBe('a*(x^2+y^2)');
       expect(variables).toEqual(['x', 'y']);
       return bindPlotExpression((x, y, a) => a * (x * x + y * y), 2, ['a'], () => values);
-    });
-    expect(evaluate(1, 2, false as unknown as number)).toEqual([1, 2, 10]);
+    }, DEFAULT_SPACE_BOX, () => revision);
+    // Unit-square fractions map onto x in [0, 2] and y in [0, 4].
+    expect(runtime.patches[0](0.5, 0.5)).toEqual([1, 2, 10]);
     values.a = -0.5;
-    expect(evaluate(1, 2)).toEqual([1, 2, -2.5]);
+    revision++;
+    expect(runtime.patches[0](0.5, 0.5)).toEqual([1, 2, -2.5]);
   });
 
   it('evaluates a helix and a torus using their own parameter variables', () => {
@@ -53,12 +62,12 @@ describe('3D graph configurations and coordinates', () => {
       };
       return f[expression as keyof typeof f];
     };
-    const helix = createSurfaceEvaluator({ type: 'parametric-curve', x: 'cos(t)', y: 'sin(t)', z: 't', range: [0, 10] }, compile);
-    expect(helix(0)).toEqual([1, 0, 0]);
-    expect(helix(Math.PI)[2]).toBe(Math.PI);
-    const torus = createSurfaceEvaluator({ type: 'parametric-surface', x: '(2+cos(v))*cos(u)', y: '(2+cos(v))*sin(u)', z: 'sin(v)', ranges: [[0, 6.28], [0, 6.28]] }, compile);
-    expect(torus(0, 0)).toEqual([3, 0, 0]);
-    expect(torus(0, Math.PI)[0]).toBe(1);
+    const helix = createRuntime({ type: 'parametric-curve', x: 'cos(t)', y: 'sin(t)', z: 't', range: [0, 10] }, compile, DEFAULT_SPACE_BOX);
+    expect(helix.curve!(0)).toEqual([1, 0, 0]);
+    expect(helix.curve!(Math.PI / 10)[2]).toBeCloseTo(Math.PI, 12);
+    const torus = createRuntime({ type: 'parametric-surface', x: '(2+cos(v))*cos(u)', y: '(2+cos(v))*sin(u)', z: 'sin(v)', ranges: [[0, 6.28], [0, 6.28]] }, compile, DEFAULT_SPACE_BOX);
+    expect(torus.patches[0](0, 0)).toEqual([3, 0, 0]);
+    expect(torus.patches[0](0, Math.PI / 6.28)[0]).toBeCloseTo(1, 12);
   });
 
   it('keeps declarative domains and style when applying edited expressions', () => {
@@ -69,14 +78,17 @@ describe('3D graph configurations and coordinates', () => {
 
   it('fits current finite samples with margins while ignoring hidden plots', () => {
     const plots: SurfacePlotProps['plots'] = [{ type: 'surface', expression: 'x+y', domain: [[-2, 2], [-2, 2]] }, { type: 'surface', expression: '1000' }];
-    const result = fitSurfaceBox(plots, [(x, y) => [x, y, x + y], (x, y) => [x, y, 1000]], [true, false], DEFAULT_SPACE_BOX);
+    const runtimes = plots.map((plot) => createRuntime(plot, fakeCompiler, DEFAULT_SPACE_BOX));
+    const result = fitSurfaceBox(plots, runtimes, [true, false], DEFAULT_SPACE_BOX);
     expect(result).toEqual([[-2.4, 2.4], [-2.4, 2.4], [-4.8, 4.8]]);
-    expect(() => fitSurfaceBox(plots, [(x, y) => [x, y, NaN]], [true, false], DEFAULT_SPACE_BOX)).toThrow('有限坐标');
-    expect(() => fitSurfaceBox(plots, [(x, y) => [x, y, 1]], [false, false], DEFAULT_SPACE_BOX)).toThrow('有限坐标');
+    const singular: PlotRuntime = { patches: [() => [NaN, NaN, NaN]], sheets: () => 1 };
+    expect(() => fitSurfaceBox(plots, [singular, singular], [true, false], DEFAULT_SPACE_BOX)).toThrow('有限坐标');
+    expect(() => fitSurfaceBox(plots, runtimes, [false, false], DEFAULT_SPACE_BOX)).toThrow('有限坐标');
   });
 
   it('gives constant-height surfaces a nonzero viewing depth', () => {
-    const result = fitSurfaceBox([{ type: 'surface', expression: '3' }], [(x, y) => [x, y, 3]], [true], DEFAULT_SPACE_BOX);
+    const plot: SurfacePlotProps['plots'][number] = { type: 'surface', expression: '3' };
+    const result = fitSurfaceBox([plot], [createRuntime(plot, fakeCompiler, DEFAULT_SPACE_BOX)], [true], DEFAULT_SPACE_BOX);
     expect(result[2][0]).toBeLessThan(3);
     expect(result[2][1]).toBeGreaterThan(3);
     expect(() => validateSurfaceConfig({ ...basic, box: result })).not.toThrow();
@@ -87,7 +99,8 @@ describe('3D graph configurations and coordinates', () => {
   });
 
   it('rejects invalid boxes, domains, expression lengths and excessive mesh sizes before initialization', () => {
-    for (const mesh of [0, 7, 33, 18.5, Infinity]) expect(() => validateSurfaceConfig({ ...basic, mesh })).toThrow();
+    for (const mesh of [0, 7, 41, 18.5, Infinity]) expect(() => validateSurfaceConfig({ ...basic, mesh })).toThrow();
+    expect(() => validateSurfaceConfig({ ...basic, mesh: 40 })).not.toThrow();
     expect(() => validateSurfaceConfig({ ...basic, box: [[0, 0], [-1, 1], [-1, 1]] })).toThrow();
     expect(() => validateSurfaceConfig({ plots: [{ type: 'surface', expression: ' ', domain: [[-1, 1], [0, Infinity]] }] })).toThrow();
     expect(() => validateSurfaceConfig({ plots: [{ type: 'surface', expression: 'x'.repeat(2001) }] })).toThrow();
@@ -100,5 +113,24 @@ describe('3D graph configurations and coordinates', () => {
     expect(formatSpaceCoordinate(Infinity)).toBe('未定义');
     expect(formatSpaceCoordinate(1.234567)).toBe('1.2346');
     expect(formatSpaceCoordinate(-0.000001)).toBe('0');
+  });
+});
+
+describe('Quadric surfaces', () => {
+  const placement: Placement = { axis: 'z', center: [0, 0, 0] };
+
+  it('classifies ellipsoid traces by height: an ellipse at z=0 and no points above the top at z=2', () => {
+    const q = { a: 2, b: 1, c: 1 };
+    expect(quadricSection('ellipsoid', q, placement, 'z', 0).curve).toBe('椭圆');
+    expect(quadricSection('ellipsoid', q, placement, 'z', 2).curve).toBe('空集（不相交）');
+  });
+
+  it('classifies hyperbolic traces and saddle traces', () => {
+    expect(quadricSection('hyperboloid-one-sheet', { a: 2, b: 1, c: 1 }, placement, 'x', 0).curve).toBe('双曲线');
+    expect(quadricSection('hyperbolic-paraboloid', { a: 2, b: 1, c: 1 }, placement, 'z', 0).curve).toBe('两条相交直线');
+  });
+
+  it('evaluates the implicit form of a sphere to zero on its surface', () => {
+    expect(quadricImplicit('sphere', { a: 2, b: 2, c: 2 }, placement)(2, 0, 0)).toBe(0);
   });
 });

@@ -1,16 +1,7 @@
-import type { Board, BoardAttributes } from 'jsxgraph';
-import type { ReactNode } from 'react';
+import type { Numeric } from '../core/expression';
+import type { PlotParameter } from '../core/parameters';
 
 export type BoundingBox = [left: number, top: number, right: number, bottom: number];
-
-export interface PlotParameter {
-  name: string;
-  label?: string;
-  min: number;
-  max: number;
-  value: number;
-  step?: number;
-}
 
 interface PlotStyle {
   label?: string;
@@ -18,20 +9,38 @@ interface PlotStyle {
   dashed?: boolean;
 }
 
+export interface FunctionDefinition {
+  type: 'function';
+  /** Right-hand side of y = f(x); a leading `y=` is accepted. */
+  expression: string;
+  domain?: [Numeric, Numeric];
+  /** Draggable point with coordinate, slope and tangent readouts. */
+  probe?: boolean;
+  /** Show the derivative curve y = f'(x), computed numerically. */
+  derivative?: boolean;
+  /** Shade the signed area between the curve and the x-axis on [a, b]. */
+  area?: [Numeric, Numeric];
+}
+
 export type PlotDefinition = PlotStyle & (
-  | { type: 'function'; expression: string; domain?: [number, number]; probe?: boolean }
+  | FunctionDefinition
   | { type: 'implicit'; expression: string }
-  | { type: 'parametric'; x: string; y: string; range: [number, number] }
+  | { type: 'parametric'; x: string; y: string; range: [Numeric, Numeric] }
+  | { type: 'polar'; expression: string; range?: [Numeric, Numeric] }
 );
 
+export type PlotType = PlotDefinition['type'];
+
 export interface PlotPoint {
-  x: number;
-  y: number;
+  /** Two numbers make a draggable point; expressions follow the parameters. */
+  x: Numeric;
+  y: Numeric;
   name?: string;
   fixed?: boolean;
   color?: string;
 }
 
+/** Every prop is serializable and can be written directly in MDX. */
 export interface FunctionPlotProps {
   title?: string;
   description?: string;
@@ -43,21 +52,4 @@ export interface FunctionPlotProps {
   axis?: boolean;
   grid?: boolean;
   editable?: boolean;
-}
-
-export interface JSXGraphBoardProps {
-  title?: string;
-  description?: string;
-  height?: number;
-  boundingBox?: BoundingBox;
-  axis?: boolean;
-  grid?: boolean;
-  options?: Partial<BoardAttributes>;
-  mode?: '2d' | '3d' | 'custom';
-  toolbar?: ReactNode;
-  children?: ReactNode;
-  hint?: string;
-  onReset?: () => void;
-  /** Supply callbacks from a client component, never across the RSC boundary. */
-  onInit?: (board: Board) => void | (() => void);
 }

@@ -1,164 +1,172 @@
 ---
 title: "交互数学实验室：二维与三维"
-description: "编辑公式、绘制方程、播放参数动画，在二维曲线、三维曲面与空间参数曲线中探索数学。"
+description: "编辑公式、拖动参数、用截面切开二次曲面：在平面函数、曲线、曲面与空间曲线中探索数学。"
 ---
 
-这里的画板可以直接改公式、点击按钮绘制、输入参数数值，也可以播放参数动画。二维曲线用 `FunctionPlot`，三维曲面和空间曲线用 `SurfacePlot`；它们都已全局注册，复制到 MDX 文档即可使用。
+这里的画板都可以直接改公式、拖动或输入参数、播放参数动画。二维图像用 `FunctionPlot`，三维图像用 `SurfacePlot`；两者已全局注册，复制到任意 MDX 文档即可使用。工具栏提供缩放、复位、全屏和 SVG/PNG 导出，宽屏或全屏时控制面板会移到画板右侧。
 
-先在第一个画板中把公式改成 `sin(x)` 并点击“绘制”，再点击“添加图像”，输入 `x^2/4` 并绘制新图像，比较两条曲线。曲线旁的开关控制显隐，参数既能拖动滑块，也能直接输入数值或播放变化。每个画板还提供视图复位、全屏和 SVG 导出。
+## 平面函数：导数与定积分
 
-## 二维函数：改公式、读坐标、看切线
-
-改变 $a$、$h$、$k$，观察 $y=a(x-h)^2+k$ 的开口与顶点。拖动曲线上的探针可读出坐标，切线开关用于观察局部变化。试着隐藏红色直线，再把二次函数改成 `a*sin(x-h)+k`，点击绘制。
+改变 $a$、$h$、$k$，观察 $y=a(x-h)^2+k$ 的开口与顶点。曲线上的探针给出坐标和斜率，打开“导数”会画出 $f'(x)$ 的图像；阴影是 $[-1, p]$ 上的定积分，拖动 $p$ 看面积如何变化。
 
 <FunctionPlot
-  title="函数工作台"
-  description="编辑公式后点击绘制；用探针与切线研究曲线。"
-  boundingBox={[-5, 8, 5, -4]}
+  title="函数、导数与面积"
+  description="拖动探针读斜率；打开“导数”比较 f 与 f′；拖动 p 改变积分上限。"
+  boundingBox={[-5, 7, 5, -4]}
   parameters={[
     { name: 'a', label: '形状系数 a', min: -2, max: 2, value: 1, step: 0.1 },
     { name: 'h', label: '水平平移 h', min: -3, max: 3, value: 0, step: 0.1 },
-    { name: 'k', label: '竖直平移 k', min: -3, max: 3, value: 0, step: 0.1 },
+    { name: 'k', label: '竖直平移 k', min: -3, max: 3, value: -1, step: 0.1 },
+    { name: 'p', label: '积分上限 p', min: -1, max: 3, value: 1.5, step: 0.1 },
   ]}
   plots={[
-    { type: 'function', expression: 'a*(x-h)^2+k', label: '可编辑函数', probe: true },
+    { type: 'function', expression: 'a*(x-h)^2+k', label: '二次函数', probe: true, derivative: true, area: [-1, 'p'] },
     { type: 'function', expression: 'x+1', label: '比较直线', dashed: true },
   ]}
 />
 
-二维画板点击“平移”即可直接拖动画面；切回“取点”可拖动探针，也可输入取点的 x 坐标。按住 Shift 滚轮可缩放，上方按钮可放大、缩小和复位。手机在取点模式下可上下滚动页面。
+## 平面曲线：隐式方程、参数方程与极坐标
 
-## 隐式方程：圆、双曲线与等高线
-
-圆和双曲线不必拆成多条显函数，直接写成 $F(x,y)=0$ 或左式等于右式即可。改变 $c$，观察 $x^2+2y^2=c$ 的椭圆如何扩大；这里也可以把公式改成 `x^2+y^2=4` 绘制圆。
+圆锥曲线直接写成 $F(x,y)=0$ 或“左式=右式”。改变 $e$ 观察离心率如何把椭圆变成双曲线；焦点 $F$ 的坐标也写成参数表达式，会跟着移动。
 
 <FunctionPlot
-  title="方程与等高线"
-  description="输入平面方程并绘制；开关可分别隐藏椭圆与双曲线。"
-  boundingBox={[-5, 5, 5, -5]}
-  parameters={[{ name: 'c', label: '等高值 c', min: 0.2, max: 16, value: 4, step: 0.1 }]}
+  title="圆锥曲线族"
+  description="e < 1 是椭圆，e > 1 是双曲线；两焦点随 e 移动。"
+  boundingBox={[-6, 5, 6, -5]}
+  parameters={[{ name: 'e', label: '离心率 e', min: 0, max: 2, value: 0.6, step: 0.05 }]}
   plots={[
-    { type: 'implicit', expression: 'x^2+2*y^2=c', label: '二元函数的等高线' },
-    { type: 'implicit', expression: 'x^2-y^2=1', label: '双曲线', dashed: true },
+    { type: 'implicit', expression: 'x^2/4 + y^2/(4*(1-e^2)) = 1', label: '二次曲线' },
+    { type: 'implicit', expression: 'x^2+y^2=4', label: '辅助圆', dashed: true },
   ]}
-  points={[{ x: 0, y: 0, name: 'O', fixed: true }]}
+  points={[
+    { x: '2*e', y: 0, name: 'F₁' },
+    { x: '-2*e', y: 0, name: 'F₂' },
+  ]}
 />
 
-等高线是平面曲线：它把二元函数 $f(x,y)$ 中函数值相同的点连起来。真正的三维图像 $z=f(x,y)$ 包含高度坐标，需要使用下方的 `SurfacePlot`。
-
-## 二维参数曲线：让两个坐标分别变化
-
-李萨如曲线用 $x(t)$ 和 $y(t)$ 描述。把 $b$ 设为不同整数，观察闭合图案；点击参数的播放按钮可以连续观察变化。编辑两个坐标表达式，就能探索其他平面轨迹。
+极坐标方程 $r=r(\theta)$ 中用 `t`（或 `θ`）表示角度。改变 $n$ 观察玫瑰线花瓣数，再试试心形线 `1+cos(t)` 或阿基米德螺线 `0.3*t`（把 θ 终点改成 `6*PI`）。
 
 <FunctionPlot
-  title="李萨如曲线"
-  description="调整频率，也可编辑 x(t)、y(t) 后重新绘制。"
-  boundingBox={[-4, 4, 4, -4]}
-  parameters={[{ name: 'b', label: '横向频率 b', min: 1, max: 5, value: 3, step: 1 }]}
-  plots={[{ type: 'parametric', x: '3*sin(b*t)', y: '3*sin(2*t)', range: [0, 6.283185307179586], label: '平面轨迹' }]}
-/>
-
-## 三维曲面：从抛物面变成马鞍面
-
-这里绘制的是空间中的曲面 $z=ax^2+y^2$。输入 $a=1$ 得到开口向上的抛物面，输入 $a=-1$ 得到马鞍面。拖动空白区域可以旋转观察，俯视、正视、侧视按钮用于比较不同方向的投影；探针可输入坐标并读取对应的 $z$ 值。
-
-<SurfacePlot
-  title="二元函数的三维曲面"
-  description="旋转曲面；输入参数、切换视角，或编辑 z 的表达式。"
-  height={480}
-  box={[[-2.5, 2.5], [-2.5, 2.5], [-4.5, 8.5]]}
-  parameters={[{ name: 'a', label: '曲面系数 a', min: -1, max: 1, value: 1, step: 0.1 }]}
-  plots={[{ type: 'surface', expression: 'a*x^2+y^2', domain: [[-2, 2], [-2, 2]], label: '二元函数曲面' }]}
-/>
-
-试着将表达式改为 `sin(x)*cos(y)` 并点击“绘制图像”，再点击“适应图像”，让新曲面填入视野。用俯视按钮比较它与二维等高线的区别。取消“显示曲面”可单独查看网格，辅助网格密度也可以在面板中调整。`mesh` 配置控制初始曲面采样密度。
-
-## 三维参数曲线：螺旋线
-
-空间曲线需要同时给出 $x(t)$、$y(t)$、$z(t)$。下面的 $r$ 控制半径，$p$ 控制上升速度。先输入更小的 $p$，再切换俯视：从上方看是圆，从侧面看能看到螺旋线沿 $z$ 轴上升。移动探针的参数可以读取空间坐标。
-
-<SurfacePlot
-  title="空间螺旋线"
-  description="改变半径和螺距，用视角按钮观察同一条空间曲线。"
-  height={480}
-  box={[[-3, 3], [-3, 3], [0, 6.5]]}
-  parameters={[
-    { name: 'r', label: '半径 r', min: 0.5, max: 2.5, value: 1.5, step: 0.1 },
-    { name: 'p', label: '上升系数 p', min: 0.1, max: 0.5, value: 0.4, step: 0.02 },
+  title="极坐标与参数曲线"
+  description="玫瑰线与李萨如曲线；可编辑公式、添加新曲线。"
+  boundingBox={[-3.5, 3.5, 3.5, -3.5]}
+  parameters={[{ name: 'n', label: '花瓣参数 n', min: 1, max: 7, value: 3, step: 1 }]}
+  plots={[
+    { type: 'polar', expression: '2.5*cos(n*t)', label: '玫瑰线' },
+    { type: 'parametric', x: '3*sin(2*t)', y: '3*sin(3*t)', range: [0, 6.283185307179586], label: '李萨如曲线', dashed: true },
   ]}
-  plots={[{ type: 'parametric-curve', x: 'r*cos(t)', y: 'r*sin(t)', z: 'p*t', range: [0, 12.566370614359172], label: '空间螺旋线' }]}
 />
 
-## 三维参数曲面：环面
+## 二次曲面：用截面认识形状
 
-球面、环面等曲面通常无法用单个 $z=f(x,y)$ 完整表达，可以用两个参数 $u$、$v$ 定义三个坐标。这个环面的 $R$ 是大半径，$r$ 是管道半径；调整它们，旋转查看内侧与外侧，也可以用探针选择 $u$、$v$ 对应的空间位置。
+二次曲面最有效的观察方法是**截痕法**：用平行于坐标面的平面 $z=k$（或 $x=k$、$y=k$）去切曲面，看交线是什么曲线。打开“截面”面板，拖动 $k$ 或点击扫描，小图显示截面上的真实形状，并给出截痕方程与类型。
 
 <SurfacePlot
-  title="双参数曲面：环面"
-  description="输入两种半径，旋转观察环面；u、v 决定曲面上的探针位置。"
+  title="单叶双曲面的截痕"
+  description="z = k 截得椭圆；切到 x = k 或 y = k 截得双曲线。改变 c 观察腰部。"
+  height={500}
+  box={[[-4, 4], [-4, 4], [-3, 3]]}
+  section={{ axis: 'z', value: 1 }}
+  parameters={[
+    { name: 'a', label: '半轴 a', min: 0.5, max: 2.5, value: 1.5, step: 0.1 },
+    { name: 'b', label: '半轴 b', min: 0.5, max: 2.5, value: 1, step: 0.1 },
+    { name: 'c', label: '半轴 c', min: 0.5, max: 2.5, value: 1.2, step: 0.1 },
+  ]}
+  plots={[{ type: 'quadric', kind: 'hyperboloid-one-sheet', a: 'a', b: 'b', c: 'c', extent: 1.6 }]}
+/>
+
+在曲面卡片中可以直接切换曲面类型、对称轴和半轴，比较椭球面、双叶双曲面、锥面、抛物面和柱面。马鞍面在 $z=k$ 上截得双曲线，$k=0$ 时退化为两条相交直线：
+
+<SurfacePlot
+  title="马鞍面与椭圆抛物面"
+  description="两种抛物面放在一起：一个向上开口，一个呈马鞍形。"
+  height={500}
+  box={[[-3, 3], [-3, 3], [-3, 3]]}
+  section={{ axis: 'z', value: 0 }}
+  opacity={0.82}
+  plots={[
+    { type: 'quadric', kind: 'hyperbolic-paraboloid', a: 1.2, b: 1.2, c: 1, label: '马鞍面' },
+    { type: 'quadric', kind: 'elliptic-paraboloid', a: 1, b: 1, c: 1, center: [0, 0, -2.5], extent: 1.6, label: '椭圆抛物面' },
+  ]}
+/>
+
+## 隐式曲面与函数曲面
+
+任意 $F(x,y,z)=0$ 都可以用 `implicit-surface` 绘制，图像由三组截面曲线构成。改变 $d$：$d>0$ 是单叶双曲面，$d=0$ 是锥面，$d<0$ 变成双叶双曲面。
+
+<SurfacePlot
+  title="一个参数串起三种曲面"
+  description="x² + y² − z² = d：观察 d 穿过 0 时的拓扑变化。"
   height={480}
-  mesh={14}
-  box={[[-4, 4], [-4, 4], [-1.5, 1.5]]}
+  box={[[-3, 3], [-3, 3], [-3, 3]]}
+  section={{ axis: 'x', value: 0 }}
+  parameters={[{ name: 'd', label: '常数 d', min: -2, max: 2, value: 1, step: 0.1 }]}
+  plots={[{ type: 'implicit-surface', expression: 'x^2 + y^2 - z^2 = d', label: 'x²+y²−z²=d' }]}
+/>
+
+二元函数 $z=f(x,y)$ 是曲面；它在 $z=k$ 上的截痕就是二维中的等高线。
+
+<SurfacePlot
+  title="二元函数曲面与等高线"
+  description="旋转观察，打开截面对照等高线。"
+  height={480}
+  box={[[-3, 3], [-3, 3], [-2, 2]]}
+  parameters={[{ name: 'w', label: '频率 w', min: 0.5, max: 2, value: 1, step: 0.1 }]}
+  plots={[{ type: 'surface', expression: 'sin(w*x)*cos(w*y)', label: 'z = sin(wx)cos(wy)' }]}
+/>
+
+## 空间曲线与参数曲面
+
+<SurfacePlot
+  title="螺旋线与环面"
+  description="参数曲线用 t，参数曲面用 u、v；探针读取对应的空间坐标。"
+  height={480}
+  box={[[-3.5, 3.5], [-3.5, 3.5], [-1.5, 4]]}
   parameters={[
     { name: 'R', label: '大半径 R', min: 1.5, max: 2.5, value: 2, step: 0.1 },
-    { name: 'r', label: '管道半径 r', min: 0.3, max: 1.2, value: 0.7, step: 0.1 },
+    { name: 'r', label: '管道半径 r', min: 0.3, max: 1.2, value: 0.6, step: 0.1 },
   ]}
-  plots={[{
-    type: 'parametric-surface',
-    x: '(R+r*cos(v))*cos(u)',
-    y: '(R+r*cos(v))*sin(u)',
-    z: 'r*sin(v)',
-    ranges: [[0, 6.283185307179586], [0, 6.283185307179586]],
-    label: '环面',
-  }]}
+  plots={[
+    { type: 'parametric-surface', x: '(R+r*cos(v))*cos(u)', y: '(R+r*cos(v))*sin(u)', z: 'r*sin(v)', ranges: [[0, 6.283185307179586], [0, 6.283185307179586]], label: '环面' },
+    { type: 'parametric-curve', x: '1.2*cos(t)', y: '1.2*sin(t)', z: '0.25*t', range: [0, 15], label: '螺旋线' },
+  ]}
 />
 
-## 复制到自己的文档
-
-全局注册的组件可以直接用于任意 MDX 文档。下面是一个带参数、公式输入和取点功能的二维画板：
+## 写进自己的文档
 
 ```mdx
 <FunctionPlot
   title="我的二维画板"
   parameters={[{ name: 'a', min: -3, max: 3, value: 1, step: 0.1 }]}
   plots={[
-    { type: 'function', expression: 'a*x^2', probe: true },
+    { type: 'function', expression: 'a*x^2', probe: true, derivative: true, area: [0, 1] },
     { type: 'implicit', expression: 'x^2+y^2=4' },
+    { type: 'polar', expression: '1+cos(t)' },
   ]}
 />
-```
 
-下面是真正的三维曲面，`domain` 控制求值区域，`box` 控制三个坐标轴的显示范围：
-
-```mdx
 <SurfacePlot
-  title="我的三维曲面"
-  box={[[-3, 3], [-3, 3], [-2, 2]]}
-  plots={[{
-    type: 'surface',
-    expression: 'sin(x)*cos(y)',
-    domain: [[-3, 3], [-3, 3]],
-  }]}
+  title="椭球面"
+  box={[[-3, 3], [-3, 3], [-3, 3]]}
+  section
+  plots={[{ type: 'quadric', kind: 'ellipsoid', a: 2, b: 1.5, c: 1 }]}
 />
 ```
 
-表达式使用数学语法：乘法写 `*`，乘方写 `^`，函数写 `sin(x)`、`sqrt(x)`、`exp(x)`、`log(x)`，圆周率写 `PI`。不要写 LaTeX、`Math.sin` 或 JavaScript 箭头函数。显函数和曲面只填右侧表达式；二维隐式方程可填 `左式=右式`，或填等于零的表达式。角度使用弧度。
+表达式使用普通数学语法：乘法写 `*`，乘方写 `^`，函数写 `sin(x)`、`sqrt(x)`、`exp(x)`、`log(x)`，圆周率写 `PI`；也可以直接粘贴 `π`、`θ`、`²`、`×` 等符号。角度一律用弧度。
 
-| 配置 | 用法 |
-| --- | --- |
-| `parameters` | 两种画板共用：每个参数包含 `name`、`min`、`max`、`value`，可选 `label`、`step`；自动生成滑块、数值输入与播放控制 |
-| `editable` | 默认 `true`，显示公式编辑与绘制按钮；设为 `false` 可用于固定公式的讲解 |
-| `title` / `description` / `height` | 标题、操作说明与画板高度 |
-| 二维 `plots` | `function`：`expression`，可选 `domain`、`probe`；`implicit`：`expression`；`parametric`：`x`、`y`、`range` |
-| 二维 `boundingBox` | `[左, 上, 右, 下]`，默认 `[-5, 5, 5, -5]`；坐标等比例时视野会随容器比例扩展 |
-| 二维 `points` | 点数组：`x`、`y`、可选 `name`、`fixed`、`color`；默认可拖动 |
-| 二维 `axis` / `grid` | 显示坐标轴、网格，默认均为 `true` |
-| 三维 `plots` | `surface`：`expression`、可选 `domain`；`parametric-curve`：`x`、`y`、`z`、`range`；`parametric-surface`：`x`、`y`、`z`、`ranges` |
-| 三维 `box` | `[[xmin,xmax],[ymin,ymax],[zmin,zmax]]`，设置空间坐标范围 |
-| 三维 `mesh` / `probe` | `mesh` 是曲面采样密度，范围 `8` 至 `32`，默认 `14`；`probe` 默认 `true`，显示取点控制与空间坐标 |
+| 组件 | 图像类型 | 主要字段 |
+| --- | --- | --- |
+| `FunctionPlot` | `function` | `expression`，可选 `domain`、`probe`、`derivative`、`area: [a, b]` |
+| | `implicit` | `expression`：`F(x,y)` 或 `左式=右式` |
+| | `parametric` | `x`、`y`（变量 `t`）、`range` |
+| | `polar` | `expression`（变量 `t` 即 θ），可选 `range`，默认 `[0, 2π]` |
+| `SurfacePlot` | `quadric` | `kind`、`a`、`b`、`c`，可选 `axis`、`center`、`extent` |
+| | `implicit-surface` | `expression`：`F(x,y,z)` 或 `左式=右式` |
+| | `surface` | `expression`（z 关于 x、y），可选 `domain` |
+| | `parametric-surface` | `x`、`y`、`z`（变量 `u`、`v`）、`ranges` |
+| | `parametric-curve` | `x`、`y`、`z`（变量 `t`）、`range` |
 
-二维曲线可设置 `label`、`color`、`dashed`；三维图像可设置 `label`、`color`。平面和空间参数曲线都使用变量 `t`，参数曲面使用 `u`、`v`。自定义参数应避开坐标变量、参数变量和常用数学函数名。一页的多个画板分别维护参数与视图。
+`quadric` 的 `kind` 可选 `sphere`（球面）、`ellipsoid`（椭球面）、`hyperboloid-one-sheet`（单叶双曲面）、`hyperboloid-two-sheets`（双叶双曲面）、`cone`（椭圆锥面）、`elliptic-paraboloid`（椭圆抛物面）、`hyperbolic-paraboloid`（马鞍面），以及 `elliptic-cylinder`、`hyperbolic-cylinder`、`parabolic-cylinder` 三种柱面。数值字段（区间端点、点坐标、二次曲面的 `a`、`b`、`c`、`center`）都可以写成参数表达式，例如 `'2*a'`。
 
-隐式曲线、曲面和空间曲线都使用数值计算。奇点、不连续处、孤立点或过小分支可能无法完整显示；可缩小求值范围、提高采样密度，或换用已知的解析表达式。三维 SVG 导出保存当前视角的投影。
-
-需要更多几何构造时，可以在客户端组件中使用 `JSXGraphBoard` 的 `onInit(board)`。完整接口、生命周期与远端部署说明见仓库中的 `docs/jsxgraph.md`，底层构造参考 [JSXGraph 官方文档](https://jsxgraph.org/docs/)。
+两种画板共用 `parameters`、`editable`、`title`、`description`、`height`。二维另有 `boundingBox`、`points`、`axis`、`grid`；三维另有 `box`、`points`、`section`（`true` 或 `{ axis, value }`）、`opacity`、`mesh`、`probe`、`projection`。完整说明见仓库中的 `docs/jsxgraph.md`。

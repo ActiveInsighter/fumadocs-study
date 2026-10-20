@@ -15,11 +15,13 @@ Open `http://localhost:3000/docs`.
 
 JSXGraph powers the globally registered `FunctionPlot`, `SurfacePlot`, and
 `JSXGraphBoard` MDX components. Visit `/docs/math/function-plot/` for editable 2D
-functions and equations, real 3D surfaces, and space curves. Readers can edit
-formulas and draw, enter parameter values, play parameter animations, toggle
-plots, inspect coordinates, and rotate 3D views. Board tools include full screen,
-SVG export, and view reset. See [the authoring guide](docs/jsxgraph.md) for
-configuration and custom constructions.
+functions (probe, tangent, derivative curve, shaded integral), implicit, parametric
+and polar curves, the ten standard quadric surfaces with live cross-sections and
+trace classification, implicit surfaces `F(x,y,z)=0`, function surfaces, parametric
+surfaces and space curves. Readers can edit formulas, enter or animate parameters,
+sweep a section plane, inspect coordinates and rotate 3D views. Board tools include
+zoom, view reset, full screen (controls move beside the board) and SVG/PNG export.
+See [the authoring guide](docs/jsxgraph.md) for configuration and custom constructions.
 
 ## ZBSearch
 
