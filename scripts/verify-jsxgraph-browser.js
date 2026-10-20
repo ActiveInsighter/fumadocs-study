@@ -18,8 +18,8 @@ async (page) => {
   const boards = page.locator('figure[data-plot-mode]');
   const count = await boards.count();
   for (let index = 0; index < count; index++) await ready(boards.nth(index));
-  check(count === 7 && await page.locator('figure [role="alert"]').count() === 0, 'Every example board initializes');
-  passed.push('seven boards');
+  check(count === 8 && await page.locator('[role="alert"]').count() === 0, 'Every example board initializes');
+  passed.push('eight boards');
 
   // 2D: drawing, error recovery, polar curves, probe readout and integral.
   const plane = figure('函数、导数与面积');

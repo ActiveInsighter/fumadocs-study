@@ -6,7 +6,7 @@
 - `SurfacePlot` renders real 3D scenes through JSXGraph View3D: standard quadric surfaces, implicit surfaces, function surfaces, parametric surfaces and space curves, with a cross-section tool.
 - `JSXGraphBoard` is the shared board shell. Use it directly with `onInit(board, { theme })` in a dedicated `'use client'` component for custom constructions; server MDX cannot pass callbacks across the server/client boundary.
 
-Visit `/docs/math/function-plot/` for seven interactive examples. JSXGraph 1.14.0 and KaTeX are imported in the browser only when a board approaches the viewport; no CDN script or runtime service is needed.
+Visit `/docs/math/function-plot/` for eight interactive examples. JSXGraph 1.14.0 and KaTeX are imported in the browser only when a board approaches the viewport; no CDN script or runtime service is needed.
 
 ## Architecture
 

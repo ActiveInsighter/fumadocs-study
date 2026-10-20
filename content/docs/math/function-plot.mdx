@@ -33,14 +33,14 @@ description: "编辑公式、拖动参数、用截面切开二次曲面：在平
   title="圆锥曲线族"
   description="e < 1 是椭圆，e > 1 是双曲线；两焦点随 e 移动。"
   boundingBox={[-6, 5, 6, -5]}
-  parameters={[{ name: 'e', label: '离心率 e', min: 0, max: 2, value: 0.6, step: 0.05 }]}
+  parameters={[{ name: 'ecc', label: '离心率 e', min: 0, max: 2, value: 0.6, step: 0.05 }]}
   plots={[
-    { type: 'implicit', expression: 'x^2/4 + y^2/(4*(1-e^2)) = 1', label: '二次曲线' },
+    { type: 'implicit', expression: 'x^2/4 + y^2/(4*(1-ecc^2)) = 1', label: '二次曲线' },
     { type: 'implicit', expression: 'x^2+y^2=4', label: '辅助圆', dashed: true },
   ]}
   points={[
-    { x: '2*e', y: 0, name: 'F₁' },
-    { x: '-2*e', y: 0, name: 'F₂' },
+    { x: '2*ecc', y: 0, name: 'F₁' },
+    { x: '-2*ecc', y: 0, name: 'F₂' },
   ]}
 />
 
