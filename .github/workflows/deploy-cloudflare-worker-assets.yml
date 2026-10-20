@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'codex/optimize-build-deploy-20261020'
       - codex/algorithm-notes-0926
   workflow_dispatch:
     inputs:
@@ -549,12 +550,12 @@ jobs:
           } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Validate Wrangler configuration with a dry run
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy != true }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.deploy != true) || github.ref == 'refs/heads/codex/optimize-build-deploy-20261020' }}
         shell: bash
         run: npx --yes wrangler@4.136.3 deploy --dry-run --config wrangler.jsonc --outdir .wrangler-dry-run
 
       - name: Check Cloudflare deployment credentials
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -572,7 +573,7 @@ jobs:
 
       - name: Select Cloudflare Worker target
         id: worker
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -592,7 +593,7 @@ jobs:
 
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -601,7 +602,7 @@ jobs:
           command: deploy --config wrangler.jsonc --name ${{ steps.worker.outputs.name }}
 
       - name: Verify Cloudflare deployment
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         shell: bash
         env:
           DEPLOYMENT_URL: ${{ steps.cloudflare-deploy.outputs.deployment-url }}
@@ -676,11 +677,11 @@ jobs:
           echo "- Cloudflare deployment: ${DEPLOYMENT_URL}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Ensure Git history for update-date verification
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         run: node scripts/ensure-git-history.mjs
 
       - name: Verify client navigation in Headless Chrome
-        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.deploy == true) }}
+        if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
         shell: bash
         env:
           DEPLOYMENT_URL: ${{ steps.cloudflare-deploy.outputs.deployment-url }}
