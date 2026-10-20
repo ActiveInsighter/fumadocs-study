@@ -11,6 +11,15 @@ npm run dev
 
 Open `http://localhost:3000/docs`.
 
+## Animated knowledge demos
+
+`<MotionStage>` (components/motion-stage, built on `motion` and shadcn/ui) turns a
+list of steps into an interactive animation with playback controls, narration,
+code highlighting and a variable watch panel. Scene components such as
+`SequenceDiagram`, `ArrayTrack`, `BlockGrid`, `AddressBits` and `FlowGraph` are
+registered globally for MDX. See `/docs/408/knowledge/motion-stage-demo` and the
+[authoring guide](docs/motion-stage.md).
+
 ## ZBSearch
 
 Documentation search uses Fumadocs' built-in ZBSearch engine and remains fully

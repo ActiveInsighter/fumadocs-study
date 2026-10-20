@@ -1,0 +1,170 @@
+/*
+ * Motion stage (components/motion-stage).
+ *
+ * Layout and spacing live in Tailwind utilities on the components. This file
+ * owns what utilities cannot express cleanly: the tone variables every stage
+ * element reads, the dotted canvas and a few SVG stroke defaults. Colours come
+ * from styles/tokens (palette + surfaces); no raw colour values here.
+ *
+ * Tone contract — any element with data-tone="<family>" exposes:
+ *   --tone-surface  quiet fill behind a node or chip
+ *   --tone-border   outline / ring of the node
+ *   --tone-solid    strokes, dots, packets and markers
+ *   --tone-ink      text drawn on --tone-surface
+ */
+.motion-stage {
+  --stage-line: color-mix(in oklch, var(--foreground) 16%, transparent);
+  --stage-line-strong: color-mix(in oklch, var(--foreground) 34%, transparent);
+  --stage-dot: color-mix(in oklch, var(--foreground) 9%, transparent);
+  --stage-canvas: var(--ui-fill);
+  --stage-track: var(--ui-fill-strong);
+  --stage-progress: color-mix(in oklch, var(--foreground) 72%, transparent);
+  --stage-code-highlight: color-mix(in oklch, var(--amber-light) 55%, transparent);
+  --stage-code-marker: var(--amber-deep);
+  --stage-changed: color-mix(in oklch, var(--amber-light) 60%, transparent);
+}
+
+.dark .motion-stage {
+  --stage-dot: color-mix(in oklch, var(--foreground) 11%, transparent);
+  --stage-code-highlight: color-mix(in oklch, var(--amber-deep) 38%, transparent);
+  --stage-code-marker: var(--amber-mid);
+  --stage-changed: color-mix(in oklch, var(--amber-deep) 45%, transparent);
+}
+
+.motion-stage,
+.motion-stage [data-tone='neutral'] {
+  --tone-surface: var(--ui-panel);
+  --tone-border: var(--stage-line);
+  --tone-solid: var(--neutral-deep);
+  --tone-ink: var(--foreground);
+}
+
+.dark .motion-stage,
+.dark .motion-stage [data-tone='neutral'] {
+  /* A raised grey: the black panel colour would read as a hole on the canvas. */
+  --tone-surface: color-mix(in oklch, var(--foreground) 9%, var(--ui-panel));
+  --tone-border: color-mix(in oklch, var(--foreground) 16%, transparent);
+  --tone-solid: var(--neutral-mid);
+}
+
+.motion-stage [data-tone='blue'] {
+  --tone-surface: var(--blue-soft);
+  --tone-border: var(--blue-light);
+  --tone-solid: var(--blue-deep);
+  --tone-ink: var(--blue-ink);
+}
+
+.motion-stage [data-tone='green'] {
+  --tone-surface: var(--green-soft);
+  --tone-border: var(--green-light);
+  --tone-solid: var(--green-deep);
+  --tone-ink: var(--green-ink);
+}
+
+.motion-stage [data-tone='amber'] {
+  --tone-surface: var(--amber-soft);
+  --tone-border: var(--amber-light);
+  --tone-solid: var(--amber-deep);
+  --tone-ink: var(--amber-ink);
+}
+
+.motion-stage [data-tone='rose'] {
+  --tone-surface: var(--rose-soft);
+  --tone-border: var(--rose-light);
+  --tone-solid: var(--rose-deep);
+  --tone-ink: var(--rose-ink);
+}
+
+.motion-stage [data-tone='violet'] {
+  --tone-surface: var(--violet-soft);
+  --tone-border: var(--violet-light);
+  --tone-solid: var(--violet-deep);
+  --tone-ink: var(--violet-ink);
+}
+
+.motion-stage [data-tone='teal'] {
+  --tone-surface: var(--teal-soft);
+  --tone-border: var(--teal-light);
+  --tone-solid: var(--teal-deep);
+  --tone-ink: var(--teal-ink);
+}
+
+.motion-stage [data-tone='orange'] {
+  --tone-surface: var(--orange-soft);
+  --tone-border: var(--orange-light);
+  --tone-solid: var(--orange-deep);
+  --tone-ink: var(--orange-ink);
+}
+
+.dark .motion-stage [data-tone='blue'] {
+  --tone-surface: color-mix(in oklch, var(--blue-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--blue-mid) 42%, transparent);
+  --tone-solid: var(--blue-mid);
+  --tone-ink: var(--blue-light);
+}
+
+.dark .motion-stage [data-tone='green'] {
+  --tone-surface: color-mix(in oklch, var(--green-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--green-mid) 42%, transparent);
+  --tone-solid: var(--green-mid);
+  --tone-ink: var(--green-light);
+}
+
+.dark .motion-stage [data-tone='amber'] {
+  --tone-surface: color-mix(in oklch, var(--amber-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--amber-mid) 42%, transparent);
+  --tone-solid: var(--amber-mid);
+  --tone-ink: var(--amber-light);
+}
+
+.dark .motion-stage [data-tone='rose'] {
+  --tone-surface: color-mix(in oklch, var(--rose-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--rose-mid) 42%, transparent);
+  --tone-solid: var(--rose-mid);
+  --tone-ink: var(--rose-light);
+}
+
+.dark .motion-stage [data-tone='violet'] {
+  --tone-surface: color-mix(in oklch, var(--violet-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--violet-mid) 42%, transparent);
+  --tone-solid: var(--violet-mid);
+  --tone-ink: var(--violet-light);
+}
+
+.dark .motion-stage [data-tone='teal'] {
+  --tone-surface: color-mix(in oklch, var(--teal-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--teal-mid) 42%, transparent);
+  --tone-solid: var(--teal-mid);
+  --tone-ink: var(--teal-light);
+}
+
+.dark .motion-stage [data-tone='orange'] {
+  --tone-surface: color-mix(in oklch, var(--orange-deep) 34%, transparent);
+  --tone-border: color-mix(in oklch, var(--orange-mid) 42%, transparent);
+  --tone-solid: var(--orange-mid);
+  --tone-ink: var(--orange-light);
+}
+
+.motion-stage-canvas {
+  background-color: var(--stage-canvas);
+  background-image: radial-gradient(circle at 1px 1px, var(--stage-dot) 1px, transparent 0);
+  background-size: 18px 18px;
+  background-position: -1px -1px;
+}
+
+.motion-stage svg {
+  overflow: visible;
+}
+
+.motion-stage :where(svg text) {
+  font-family: var(--svg-font-family);
+}
+
+/* Keep the stage readable inside the docs prose column. */
+#docs-body .motion-stage :where(p, li) {
+  line-height: 1.55;
+}
+
+#docs-body .motion-stage :where(code) {
+  font-size: inherit;
+}
