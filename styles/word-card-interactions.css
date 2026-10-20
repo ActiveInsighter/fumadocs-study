@@ -102,7 +102,8 @@
 }
 
 .wc-expand-button,
-.wc-detail-close {
+.wc-detail-close,
+.wc-detail-step {
   appearance: none;
   display: inline-flex;
   align-items: center;
@@ -124,7 +125,8 @@
 }
 
 .wc-expand-button svg,
-.wc-detail-close svg {
+.wc-detail-close svg,
+.wc-detail-step svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -136,7 +138,8 @@
 }
 
 .wc-expand-button:hover,
-.wc-detail-close:hover {
+.wc-detail-close:hover,
+.wc-detail-step:not(:disabled):hover {
   background: color-mix(in srgb, var(--wc-accent) 22%, transparent);
   color: var(--wc-ink);
 }
@@ -150,12 +153,14 @@
 }
 
 .wc-expand-button:active,
-.wc-detail-close:active {
+.wc-detail-close:active,
+.wc-detail-step:not(:disabled):active {
   transform: scale(0.92);
 }
 
 .wc-expand-button:focus-visible,
-.wc-detail-close:focus-visible {
+.wc-detail-close:focus-visible,
+.wc-detail-step:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--wc-accent) 56%, transparent);
   outline-offset: 2px;
 }
@@ -176,6 +181,13 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   box-shadow: inset 0 0 0 1px var(--card-edge), var(--word-card-detail-shadow);
+  transition: background-color 220ms ease;
+}
+
+/* Lock page scrolling while a detail card is open; the gutter avoids a layout shift. */
+html:has(.wc-detail-dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 .wc-detail-dialog::-webkit-scrollbar {
@@ -245,6 +257,28 @@
 .wc-detail-close {
   margin-inline-start: 2px;
   background: color-mix(in srgb, var(--wc-accent) 14%, var(--wc-surface));
+}
+
+/* Prev/next share one pill so they read as a pair, distinct from close. */
+.wc-detail-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--wc-accent) 10%, transparent);
+}
+
+.wc-detail-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.wc-detail-step:disabled {
+  cursor: default;
+  opacity: 0.32;
 }
 
 @keyframes wc-detail-enter {
@@ -362,7 +396,7 @@ html[data-wc-mode-transition]::view-transition-new(root) {
   --tooltip-border: color-mix(in srgb, var(--meaning-text) 16%, transparent);
   position: absolute;
   z-index: 30;
-  inset-inline-start: 0;
+  inset-inline-start: var(--wc-tooltip-shift, 0px);
   top: auto;
   bottom: calc(100% + 6px);
   width: max-content;
@@ -396,7 +430,7 @@ html[data-wc-mode-transition]::view-transition-new(root) {
 .wc-example-tooltip::after {
   content: '';
   position: absolute;
-  inset-inline-start: 14px;
+  inset-inline-start: calc(14px - var(--wc-tooltip-shift, 0px));
   top: auto;
   bottom: -5px;
   width: 8px;
@@ -408,8 +442,19 @@ html[data-wc-mode-transition]::view-transition-new(root) {
   transform: rotate(45deg);
 }
 
-.wc-example:hover .wc-example-tooltip,
-.wc-example:focus-within .wc-example-tooltip,
+.wc-example[data-placement='bottom'] .wc-example-tooltip {
+  top: calc(100% + 6px);
+  bottom: auto;
+  transform: translateY(-4px) scale(0.97);
+  transform-origin: top left;
+}
+
+.wc-example[data-placement='bottom'] .wc-example-tooltip::after {
+  top: -5px;
+  bottom: auto;
+  transform: rotate(225deg);
+}
+
 .wc-example[data-open='true'] .wc-example-tooltip {
   opacity: 1;
   visibility: visible;
@@ -436,15 +481,22 @@ html[data-wc-mode-transition]::view-transition-new(root) {
 }
 
 .dark .wc-expand-button,
-.dark .wc-detail-close {
+.dark .wc-detail-close,
+.dark .wc-detail-nav {
   background: color-mix(in srgb, var(--wc-accent) 20%, var(--word-card-dark-chip));
   color: color-mix(in oklab, var(--wc-accent) 38%, var(--word-card-dark-light-ink));
 }
 
 .dark .wc-expand-button:hover,
-.dark .wc-detail-close:hover {
+.dark .wc-detail-close:hover,
+.dark .wc-detail-step:not(:disabled):hover {
   background: color-mix(in srgb, var(--wc-accent) 30%, var(--word-card-dark-control-hover-base));
   color: var(--word-card-dark-hover-ink);
+}
+
+.dark .wc-detail-step {
+  background: transparent;
+  color: color-mix(in oklab, var(--wc-accent) 38%, var(--word-card-dark-light-ink));
 }
 
 .dark .wc-detail-dialog::backdrop {
@@ -491,6 +543,15 @@ html[data-wc-mode-transition]::view-transition-new(root) {
     gap: 10px;
   }
 
+  /* The actions wrap under the headword: label on the left, controls on the right. */
+  .wc-detail-dialog .wc-card-actions {
+    flex: 1 1 100%;
+  }
+
+  .wc-detail-dialog .wc-detail-nav {
+    margin-inline-start: auto;
+  }
+
   .wc-example-tooltip {
     max-width: min(320px, calc(100vw - 32px));
   }
@@ -509,6 +570,8 @@ html[data-wc-mode-transition]::view-transition-new(root) {
   .wc-expand-button svg,
   .wc-detail-close,
   .wc-detail-close svg,
+  .wc-detail-step,
+  .wc-detail-dialog,
   .wc-example-trigger,
   .wc-example-tooltip {
     transition: none;

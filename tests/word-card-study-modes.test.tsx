@@ -8,6 +8,11 @@ import {
   type WordCardData,
 } from '../components/vocabulary/word-cards';
 
+const componentSource = () =>
+  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail-dialog.tsx', 'use-compact-masonry.ts']
+    .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
+    .join('\n');
+
 const word: WordCardData = {
   word: 'constitute',
   phonetic: '/ˈkɒnstɪtjuːt/',
@@ -86,7 +91,7 @@ describe('vocabulary study modes', () => {
   });
 
   it('uses semantic conditional rendering instead of visually transparent answers', () => {
-    const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
+    const component = componentSource();
 
     expect(component).toContain("const hideHeadword = mode === 'dictation'");
     expect(component).toContain("const hideMeanings = mode === 'translation'");
