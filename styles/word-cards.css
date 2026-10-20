@@ -3,7 +3,7 @@
   container: word-cards / inline-size;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 28px clamp(20px, 4vw, 48px) 100px;
+  padding: 20px 0 88px;
 }
 
 .word-list {
@@ -12,24 +12,29 @@
   margin: 0;
 }
 
+/* Full mode reads like a single column of prose, aligned with the page text. */
 .word-list:not([data-word-card-mode='compact']) {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0 auto;
 }
 
+/*
+ * Compact masonry: cards first render as a plain grid, then the component packs
+ * them onto 1px rows (span = height + gap) so every vertical gap is exact.
+ */
 .word-list[data-word-card-mode='compact'] {
-  --wc-masonry-row: 2px;
-  --wc-masonry-gap: 10px;
+  --wc-masonry-row: 1px;
+  --wc-masonry-gap: 14px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: var(--wc-masonry-gap);
   align-items: start;
 }
 
 .word-list[data-word-card-mode='compact'][data-masonry-ready='true'] {
   grid-auto-rows: var(--wc-masonry-row);
-  column-gap: 14px;
-  row-gap: var(--wc-masonry-gap);
+  column-gap: var(--wc-masonry-gap);
+  row-gap: 0;
 }
 
 .word-list[data-word-card-mode='compact'] .word-card {
@@ -47,21 +52,28 @@
     "HarmonyOS Sans SC", "Microsoft YaHei UI", sans-serif;
   --wc-phonetic-font:
     "Gentium Plus", "Charis SIL", "Doulos SIL", "Cambria", "Segoe UI", serif;
+  --wc-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   --wc-surface: var(--word-card-sage-surface);
   --wc-accent: var(--word-card-sage-accent);
   --wc-ink: var(--word-card-sage-ink);
   --card-bg: var(--wc-surface);
+  --card-edge: color-mix(in srgb, var(--wc-ink) 8%, transparent);
   --freq-bg: color-mix(in srgb, var(--wc-accent) 16%, var(--wc-surface));
   --freq-text: color-mix(in srgb, var(--wc-accent) 74%, var(--wc-ink));
-  --pos-bg: color-mix(in srgb, var(--wc-accent) 11%, var(--wc-surface));
+  --pos-bg: color-mix(in srgb, var(--wc-accent) 12%, var(--wc-surface));
   --pos-text: color-mix(in srgb, var(--wc-accent) 62%, var(--wc-ink));
   --word-text: var(--wc-ink);
+  --phonetic-text: color-mix(in srgb, var(--wc-ink) 64%, var(--wc-surface));
   --meaning-text: color-mix(in srgb, var(--wc-ink) 90%, var(--wc-surface));
-  --key-bg: color-mix(in srgb, var(--wc-accent) 18%, var(--wc-surface));
-  --key-text: color-mix(in srgb, var(--wc-accent) 58%, var(--wc-ink));
+  --muted-text: color-mix(in srgb, var(--wc-ink) 58%, var(--wc-surface));
+  --key-bg: color-mix(in srgb, var(--wc-accent) 19%, var(--wc-surface));
+  --key-text: color-mix(in srgb, var(--wc-accent) 56%, var(--wc-ink));
   --phrase-text: color-mix(in srgb, var(--wc-accent) 54%, var(--wc-ink));
-  --phrase-mark: color-mix(in srgb, var(--wc-accent) 18%, transparent);
+  --phrase-mark: color-mix(in srgb, var(--wc-accent) 20%, transparent);
+  --rule: color-mix(in srgb, var(--wc-ink) 10%, transparent);
+  --bar-track: color-mix(in srgb, var(--wc-ink) 11%, transparent);
+  --bar-fill: color-mix(in srgb, var(--wc-accent) 82%, var(--wc-ink));
 
   position: relative;
   display: flex;
@@ -69,15 +81,17 @@
   width: 100%;
   box-sizing: border-box;
   margin: 0 0 14px;
-  padding: 14px 18px 16px;
+  padding: 16px 18px 17px;
   border: none;
   border-radius: 16px;
   background: var(--card-bg);
-  box-shadow: var(--word-card-shadow);
+  box-shadow: inset 0 0 0 1px var(--card-edge), var(--word-card-shadow);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
+  line-height: 1.5;
   font-kerning: normal;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
   page-break-inside: avoid;
   -webkit-column-break-inside: avoid;
   break-inside: avoid;
@@ -89,7 +103,7 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px 10px;
   margin-bottom: 0;
 }
 
@@ -98,36 +112,39 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 2px 9px;
   min-width: 0;
 }
 
+/* Matches the headword line box so labels and buttons centre on its first line. */
 .wc-card-actions {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  min-height: 1.64em;
 }
 
 .wc-word {
   min-width: 0;
-  font-size: 1.4em;
+  font-size: 1.42em;
   line-height: 1.15;
   font-family: var(--wc-display-font);
-  font-weight: 800;
+  font-weight: 760;
   color: var(--word-text);
   letter-spacing: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .wc-phonetic {
-  color: var(--word-text);
+  color: var(--phonetic-text);
   font-family: var(--wc-phonetic-font);
   font-size: 0.9em;
   font-weight: 500;
   line-height: 1.3;
   letter-spacing: 0.01em;
-  opacity: 0.62;
+  white-space: nowrap;
 }
 
 .wc-label,
@@ -145,15 +162,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  min-height: 1.75em;
-  padding: 0.3em 0.7em 0.34em;
+  min-width: 3.6em;
+  height: 1.9em;
+  padding: 0 0.75em;
   border-radius: 999px;
   background: var(--freq-bg);
   color: var(--freq-text);
-  font-size: 0.76em;
-  font-weight: 760;
-  letter-spacing: 0.3px;
+  font-size: 0.74em;
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   box-shadow: var(--word-card-badge-shadow);
 }
@@ -161,8 +179,8 @@
 .wc-meaning {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 5px;
+  margin-top: 10px;
   color: var(--meaning-text);
   font-size: 0.95em;
   line-height: 1.55;
@@ -175,15 +193,18 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 7px;
+  gap: 4px 8px;
   min-width: 0;
 }
 
+/* A shared minimum width keeps every meaning starting on the same column. */
 .wc-pos {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 8px;
+  min-width: 3.3em;
+  padding: 3px 7px;
   border-radius: 999px;
   background: var(--pos-bg);
   color: var(--pos-text);
@@ -191,16 +212,17 @@
   font-size: 0.74em;
   font-style: italic;
   font-weight: 600;
+  transform: translateY(-1px);
 }
 
 .wc-key {
   display: inline;
   margin: 0;
-  padding: 1px 7px;
+  padding: 1px 7px 2px;
   border-radius: 6px;
   background: var(--key-bg);
   color: var(--key-text);
-  font-weight: 650;
+  font-weight: 680;
   line-height: inherit;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -219,52 +241,55 @@
 .wc-phrase {
   padding: 0 2px;
   border-radius: 4px;
-  background: linear-gradient(180deg, transparent 58%, var(--phrase-mark) 0);
+  background: linear-gradient(180deg, transparent 60%, var(--phrase-mark) 0);
   color: var(--phrase-text);
-  font-weight: 650;
+  font-weight: 680;
+}
+
+.wc-key.wc-phrase {
+  background: var(--key-bg);
 }
 
 .wc-senses {
-  margin-top: 12px;
-}
-
-.wc-senses::before {
-  display: none;
+  margin-top: 14px;
+  border-top: 1px solid var(--rule);
 }
 
 .wc-sense {
   display: block;
   min-width: 0;
-  padding: 9px 0;
-  border-top: 1px solid color-mix(in srgb, var(--meaning-text) 10%, transparent);
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
 }
 
 .wc-sense:first-child {
-  padding-top: 6px;
+  padding-top: 10px;
   border-top: none;
 }
 
+.wc-sense:last-child {
+  padding-bottom: 0;
+}
+
 .wc-sense-main {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   column-gap: 12px;
-  row-gap: 5px;
   min-width: 0;
 }
 
 .wc-sense-row {
-  flex: 1 1 180px;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 7px;
   min-width: 0;
 }
 
 .wc-sense-dot {
   flex: 0 0 auto;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   margin-top: 0.63em;
   border-radius: 50%;
   box-shadow: var(--word-card-sense-dot-shadow);
@@ -287,66 +312,70 @@
   min-width: 0;
   color: var(--meaning-text);
   font-size: 0.92em;
-  font-weight: 640;
+  font-weight: 650;
+  line-height: 1.55;
   overflow-wrap: anywhere;
 }
 
-.wc-sense-count {
-  color: var(--meaning-text);
-  font-family: var(--wc-phonetic-font);
-  font-size: 0.76em;
-  font-weight: 500;
-  opacity: 0.65;
-  white-space: nowrap;
-}
-
 .wc-stats {
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
-  margin-inline-start: auto;
-  color: var(--meaning-text);
+  height: calc(0.92em * 1.55);
+  color: var(--muted-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-sense-count {
+  color: var(--muted-text);
+  font-size: 0.74em;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .wc-bar {
   display: inline-block;
-  width: 60px;
-  height: 4px;
+  width: 56px;
+  height: 5px;
   overflow: hidden;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--meaning-text) 13%, transparent);
+  background: var(--bar-track);
 }
 
 .wc-bar-fill {
   display: block;
   height: 100%;
-  background: var(--meaning-text);
-  opacity: 0.4;
+  border-radius: inherit;
+  background: var(--bar-fill);
+  transform-origin: left center;
+  animation: wc-bar-grow 640ms var(--wc-ease-out) both;
 }
 
 .wc-sense-pct {
   flex: 0 0 auto;
+  min-width: 2.6em;
   color: var(--freq-text);
-  font-family: var(--wc-phonetic-font);
   font-size: 0.76em;
-  font-weight: 780;
+  font-weight: 760;
+  text-align: right;
   white-space: nowrap;
 }
 
+/* Examples hang under the gloss text rather than under the bullet. */
 .wc-sense-examples {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
   width: 100%;
-  margin: 7px 0 0;
-  padding-left: 0;
+  box-sizing: border-box;
+  margin: 6px 0 0;
+  padding-left: 14px;
   border-left: 0;
   color: var(--phrase-text);
   font-family: var(--wc-phonetic-font);
-  font-size: 0.88em;
+  font-size: 0.9em;
   font-style: normal;
   font-weight: 500;
   line-height: inherit;
@@ -354,10 +383,20 @@
 }
 
 .wc-no-example {
-  color: var(--phrase-text);
+  color: var(--muted-text);
   font-family: var(--wc-body-font);
-  font-size: 0.82em;
-  opacity: 0.7;
+  font-size: 0.8em;
+  letter-spacing: 0.02em;
+}
+
+@keyframes wc-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .word-list > .word-card:nth-of-type(7n + 1),
@@ -411,36 +450,43 @@
 
 @media screen and (max-width: 760px) {
   .word-list-shell {
-    padding: 20px 16px 64px;
+    padding: 16px 0 64px;
   }
 
   .word-list[data-word-card-mode='compact'] {
+    --wc-masonry-gap: 10px;
     grid-template-columns: 1fr;
     gap: 10px;
   }
 
   .word-list > .word-card {
     margin-bottom: 10px;
-    padding: 13px 15px 15px;
+    padding: 14px 15px 15px;
+    border-radius: 14px;
   }
 
   .wc-sense-main {
-    column-gap: 10px;
-    row-gap: 4px;
+    column-gap: 8px;
   }
 
-  .wc-sense-row {
-    flex-basis: 160px;
+  .wc-stats {
+    gap: 6px;
   }
 
   .wc-bar {
-    width: 48px;
+    width: 36px;
   }
 }
 
 @container word-cards (min-width: 1440px) {
   .word-list[data-word-card-mode='compact'] {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-bar-fill {
+    animation: none;
   }
 }
 
@@ -470,6 +516,10 @@
     print-color-adjust: exact;
   }
 
+  .wc-bar-fill {
+    animation: none;
+  }
+
   .wc-senses {
     display: grid;
   }
@@ -478,7 +528,6 @@
     display: block;
   }
 
-  .wc-sense-main,
   .wc-sense-row {
     display: flex;
   }
@@ -492,29 +541,32 @@
   }
 }
 
+/* Dark cards keep a hint of their tone hue instead of collapsing to one grey. */
 .dark .word-card {
-  background: color-mix(in srgb, var(--wc-surface) 17%, var(--word-card-dark-surface));
-  --freq-bg: color-mix(in srgb, var(--wc-accent) 20%, var(--word-card-dark-chip));
-  --freq-text: color-mix(in srgb, var(--wc-accent) 42%, var(--word-card-dark-light-ink));
-  --pos-bg: color-mix(in srgb, var(--wc-accent) 15%, var(--word-card-dark-tag));
-  --pos-text: color-mix(in srgb, var(--wc-accent) 34%, var(--word-card-dark-pos-ink));
+  --card-bg: color-mix(in oklab, var(--wc-accent) 15%, var(--word-card-dark-surface));
+  --card-edge: color-mix(in srgb, var(--wc-accent) 16%, rgb(255 255 255 / 4%));
+  --freq-bg: color-mix(in srgb, var(--wc-accent) 26%, var(--word-card-dark-chip));
+  --freq-text: color-mix(in oklab, var(--wc-accent) 38%, var(--word-card-dark-light-ink));
+  --pos-bg: color-mix(in srgb, var(--wc-accent) 20%, var(--word-card-dark-tag));
+  --pos-text: color-mix(in oklab, var(--wc-accent) 34%, var(--word-card-dark-pos-ink));
   --word-text: var(--word-card-dark-word-ink);
+  --phonetic-text: color-mix(in srgb, var(--word-card-dark-meaning-ink) 62%, transparent);
   --meaning-text: var(--word-card-dark-meaning-ink);
-  --key-bg: color-mix(in srgb, var(--wc-accent) 18%, var(--word-card-dark-tag));
-  --key-text: color-mix(in srgb, var(--wc-accent) 34%, var(--word-card-dark-light-ink));
-  --phrase-text: color-mix(in srgb, var(--wc-accent) 28%, var(--word-card-dark-phrase-ink));
-  --phrase-mark: color-mix(in srgb, var(--wc-accent) 20%, transparent);
-  box-shadow: var(--word-card-dark-shadow);
+  --muted-text: color-mix(in srgb, var(--word-card-dark-meaning-ink) 58%, transparent);
+  --key-bg: color-mix(in srgb, var(--wc-accent) 26%, var(--word-card-dark-tag));
+  --key-text: color-mix(in oklab, var(--wc-accent) 30%, var(--word-card-dark-light-ink));
+  --phrase-text: color-mix(in oklab, var(--wc-accent) 30%, var(--word-card-dark-phrase-ink));
+  --phrase-mark: color-mix(in srgb, var(--wc-accent) 30%, transparent);
+  --rule: rgb(255 255 255 / 8%);
+  --bar-track: var(--word-card-dark-bar);
+  --bar-fill: color-mix(in oklab, var(--wc-accent) 55%, var(--word-card-dark-light-ink));
+  box-shadow: inset 0 0 0 1px var(--card-edge), var(--word-card-dark-shadow);
+}
+
+.dark .wc-label {
+  box-shadow: none;
 }
 
 .dark .wc-sense-dot {
   box-shadow: var(--word-card-dark-sense-dot-shadow);
-}
-
-.dark .wc-bar {
-  background: var(--word-card-dark-bar);
-}
-
-.dark .wc-bar-fill {
-  background: var(--meaning-text);
 }

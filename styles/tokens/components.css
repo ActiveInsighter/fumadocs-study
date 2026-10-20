@@ -30,35 +30,38 @@
   --word-card-tone-7-ink: #3d4b30;
 
   /* Word cards: shadows, overlays and interactive control accents. */
-  --word-card-shadow: 0 1px 2px rgba(45, 52, 47, 0.04), 0 5px 14px rgba(45, 52, 47, 0.06);
-  --word-card-badge-shadow: inset 0 1px 0 rgb(255 255 255 / 24%);
-  --word-card-sense-dot-shadow: 0 0 0 1px rgb(255 255 255 / 36%);
-  --word-card-detail-shadow: 0 28px 72px rgb(0 0 0 / 22%), 0 10px 28px rgb(0 0 0 / 12%);
-  --word-card-example-tooltip-shadow: 0 5px 12px rgb(0 0 0 / 9%), 0 12px 24px rgb(0 0 0 / 7%);
-  --word-card-backdrop: rgb(15 18 16 / 46%);
-  --word-card-control-accent: #7c8a6a;
-  --word-card-control-accent-ink: #f6f7f1;
+  --word-card-shadow: 0 1px 2px rgb(45 52 47 / 5%), 0 6px 18px -6px rgb(45 52 47 / 12%);
+  --word-card-badge-shadow: inset 0 1px 0 rgb(255 255 255 / 28%);
+  --word-card-sense-dot-shadow: 0 0 0 2px rgb(255 255 255 / 42%);
+  --word-card-detail-shadow: 0 32px 80px -12px rgb(0 0 0 / 28%), 0 12px 32px -8px rgb(0 0 0 / 14%);
+  --word-card-example-tooltip-shadow: 0 6px 14px -4px rgb(0 0 0 / 12%), 0 16px 32px -8px rgb(0 0 0 / 12%);
+  --word-card-backdrop: rgb(20 24 21 / 38%);
+  --word-card-control-accent: #6f7f5d;
+  --word-card-control-accent-ink: #f7f8f2;
+  --word-card-control-track: rgb(30 36 31 / 6%);
+  --word-card-control-shadow: 0 1px 2px rgb(30 36 31 / 14%), 0 2px 6px -1px rgb(30 36 31 / 16%);
 
   /* Word cards: dark-mode palette (applied only under .dark). */
-  --word-card-dark-surface: #050505;
-  --word-card-dark-chip: #111;
-  --word-card-dark-tag: #0d0d0d;
+  --word-card-dark-surface: #141614;
+  --word-card-dark-chip: #1b1d1b;
+  --word-card-dark-tag: #222522;
   --word-card-dark-light-ink: #eef2ee;
-  --word-card-dark-pos-ink: #e8ece8;
-  --word-card-dark-word-ink: #f2f4f2;
-  --word-card-dark-meaning-ink: #d7ddd8;
-  --word-card-dark-phrase-ink: #d9dfda;
-  --word-card-dark-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%), 0 8px 24px rgb(0 0 0 / 24%);
-  --word-card-dark-sense-dot-shadow: 0 0 0 1px rgb(0 0 0 / 28%);
-  --word-card-dark-bar: rgb(255 255 255 / 13%);
+  --word-card-dark-pos-ink: #e3e8e3;
+  --word-card-dark-word-ink: #f4f6f4;
+  --word-card-dark-meaning-ink: #d3d9d4;
+  --word-card-dark-phrase-ink: #dbe1dc;
+  --word-card-dark-shadow: inset 0 1px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 6%), 0 10px 28px -10px rgb(0 0 0 / 60%);
+  --word-card-dark-sense-dot-shadow: 0 0 0 2px rgb(0 0 0 / 24%);
+  --word-card-dark-bar: rgb(255 255 255 / 10%);
   --word-card-dark-mode-active-bg: #b9c6a4;
   --word-card-dark-mode-active-ink: #1d211b;
-  --word-card-dark-control-hover-base: #151515;
+  --word-card-dark-control-track: rgb(255 255 255 / 7%);
+  --word-card-dark-control-hover-base: #262926;
   --word-card-dark-hover-ink: #f3f5f3;
-  --word-card-dark-backdrop: rgb(0 0 0 / 64%);
+  --word-card-dark-backdrop: rgb(0 0 0 / 62%);
   --word-card-dark-tooltip-border: rgb(255 255 255 / 12%);
   --word-card-dark-tooltip-ink: #eef1ee;
-  --word-card-dark-tooltip-shadow: 0 5px 12px rgb(0 0 0 / 28%), 0 12px 26px rgb(0 0 0 / 28%);
+  --word-card-dark-tooltip-shadow: 0 6px 14px -4px rgb(0 0 0 / 40%), 0 18px 36px -8px rgb(0 0 0 / 45%);
 
   /* Chart frame: study series colours (light) and their dark-mode counterparts. */
   --chart-frame-study-1: #657a48;

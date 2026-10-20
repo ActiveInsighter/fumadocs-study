@@ -2,14 +2,20 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type MouseEvent,
   type ReactNode,
+  type SyntheticEvent,
 } from 'react';
+import { flushSync } from 'react-dom';
 
 export type WordMeaning = {
   pos?: string;
@@ -63,6 +69,30 @@ type SelectedWord = {
 
 const WordCardsContext = createContext<WordCardsContextValue | null>(null);
 
+const MODE_OPTIONS = [
+  ['compact', '精简'],
+  ['dictation', '默写'],
+  ['translation', '翻译'],
+  ['full', '完整'],
+] as const satisfies readonly (readonly [WordCardMode, string])[];
+
+const TONE_COUNT = 7;
+
+/** Slightly longer than the 160ms `wc-detail-exit` animation. */
+const DIALOG_EXIT_FALLBACK_MS = 220;
+
+function getTone(index: number) {
+  return (index % TONE_COUNT) + 1;
+}
+
+function hasPhraseMeaning(word: WordCardData) {
+  return word.meanings.some((meaning) => meaning.phrase);
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function clampPercentage(value: number) {
   if (!Number.isFinite(value)) return 0;
   return Math.min(100, Math.max(0, Math.round(value)));
@@ -82,7 +112,11 @@ function getWordLabel(word: WordCardData) {
 function MeaningText({ meaning }: { meaning: WordMeaning }) {
   return (
     <>
-      {meaning.grammar ? <span className="wc-gram">{meaning.grammar}</span> : null}
+      {meaning.grammar ? (
+        <span className="wc-gram" lang="en">
+          {meaning.grammar}
+        </span>
+      ) : null}
       {meaning.grammar ? ' ' : null}
       <span className={`wc-text${meaning.key ? ' wc-key' : ''}${meaning.phrase ? ' wc-phrase' : ''}`}>
         {meaning.text}
@@ -99,6 +133,7 @@ function SenseExample({ example }: { example: WordExample }) {
       <button
         type="button"
         className="wc-example-trigger"
+        lang="en"
         aria-describedby={tooltipId}
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
@@ -136,7 +171,9 @@ function WordCardContent({
             <span className="wc-recall-blank" role="img" aria-label="单词和音标已隐藏" />
           ) : (
             <>
-              <span className="wc-word">{word.word}</span>
+              <span className="wc-word" lang="en">
+                {word.word}
+              </span>
               {word.phonetic ? <span className="wc-phonetic">{word.phonetic}</span> : null}
             </>
           )}
@@ -220,15 +257,20 @@ function getGridColumnCount(element: HTMLElement) {
   return columns.split(/\s+/u).filter(Boolean).length;
 }
 
+/**
+ * Packs compact cards into a masonry layout on a 1px row grid. Each card spans
+ * `height + gap` rows, so the visual gap stays exact instead of drifting by a
+ * whole row track. The first pass runs in a layout effect so mode switches
+ * (including view-transition snapshots) never paint an unpacked grid.
+ */
 function useCompactMasonry(compactLayout: boolean, wordCount: number) {
   const listRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const list = listRef.current;
     if (!list) return;
     const cards = Array.from(list.querySelectorAll<HTMLElement>(':scope > .word-card'));
     let frame = 0;
-    let rowSize = 2;
-    let rowGap = 10;
+    let rowGap = 14;
 
     const reset = () => {
       list.removeAttribute('data-masonry-ready');
@@ -239,15 +281,8 @@ function useCompactMasonry(compactLayout: boolean, wordCount: number) {
       return;
     }
 
-    const refreshMetrics = () => {
-      const style = getComputedStyle(list);
-      rowSize = Number.parseFloat(style.getPropertyValue('--wc-masonry-row')) || 2;
-      rowGap = Number.parseFloat(style.getPropertyValue('--wc-masonry-gap')) || 10;
-    };
-    const measureCard = (card: HTMLElement) => {
-      const height = card.getBoundingClientRect().height;
-      const span = Math.max(1, Math.ceil((height + rowGap) / (rowSize + rowGap)));
-      const nextValue = `span ${span}`;
+    const applySpan = (card: HTMLElement, height: number) => {
+      const nextValue = `span ${Math.max(1, Math.ceil(height + rowGap))}`;
       if (card.style.gridRowEnd !== nextValue) card.style.gridRowEnd = nextValue;
     };
     const measureAll = () => {
@@ -255,8 +290,10 @@ function useCompactMasonry(compactLayout: boolean, wordCount: number) {
         reset();
         return;
       }
-      refreshMetrics();
-      for (const card of cards) measureCard(card);
+      rowGap = Number.parseFloat(getComputedStyle(list).getPropertyValue('--wc-masonry-gap')) || 14;
+      // Read every height before writing any span to avoid layout thrashing.
+      const heights = cards.map((card) => card.getBoundingClientRect().height);
+      cards.forEach((card, index) => applySpan(card, heights[index]));
       list.setAttribute('data-masonry-ready', 'true');
     };
     const scheduleMeasureAll = () => {
@@ -264,7 +301,7 @@ function useCompactMasonry(compactLayout: boolean, wordCount: number) {
       frame = window.requestAnimationFrame(measureAll);
     };
 
-    scheduleMeasureAll();
+    measureAll();
     const observer = new ResizeObserver((entries) => {
       if (entries.some((entry) => entry.target === list)) {
         scheduleMeasureAll();
@@ -272,7 +309,9 @@ function useCompactMasonry(compactLayout: boolean, wordCount: number) {
       }
       if (!list.hasAttribute('data-masonry-ready')) return;
       for (const entry of entries) {
-        if (entry.target instanceof HTMLElement) measureCard(entry.target);
+        if (!(entry.target instanceof HTMLElement)) continue;
+        const height = entry.borderBoxSize?.[0]?.blockSize ?? entry.target.getBoundingClientRect().height;
+        applySpan(entry.target, height);
       }
     });
     observer.observe(list);
@@ -288,25 +327,45 @@ function useCompactMasonry(compactLayout: boolean, wordCount: number) {
 }
 
 export function WordCardsProvider({ children, defaultMode = 'full' }: WordCardsProviderProps) {
-  const [mode, setMode] = useState<WordCardMode>(defaultMode);
-  return <WordCardsContext.Provider value={{ mode, setMode }}>{children}</WordCardsContext.Provider>;
+  const [mode, setModeState] = useState<WordCardMode>(defaultMode);
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+
+  const setMode = useCallback((nextMode: WordCardMode) => {
+    if (nextMode === modeRef.current) return;
+    if (typeof document.startViewTransition !== 'function' || prefersReducedMotion()) {
+      setModeState(nextMode);
+      return;
+    }
+    // Cross-fade the layout change; the transition attribute scopes the custom
+    // view-transition timing to word-card mode switches only.
+    const root = document.documentElement;
+    root.setAttribute('data-wc-mode-transition', '');
+    const transition = document.startViewTransition(() => {
+      flushSync(() => setModeState(nextMode));
+    });
+    transition.finished.finally(() => root.removeAttribute('data-wc-mode-transition'));
+  }, []);
+
+  const value = useMemo(() => ({ mode, setMode }), [mode, setMode]);
+  return <WordCardsContext.Provider value={value}>{children}</WordCardsContext.Provider>;
 }
 
 export function WordCardModeToggle() {
   const context = useContext(WordCardsContext);
   if (!context) return null;
+  const activeIndex = MODE_OPTIONS.findIndex(([mode]) => mode === context.mode);
   return (
     <div className="wc-mode-toggle" aria-label="词汇卡片显示模式">
       <span className="wc-mode-label">显示模式</span>
-      <div className="wc-mode-segments" role="group" aria-label="切换词汇卡片显示模式">
-        {(
-          [
-            ['compact', '精简'],
-            ['dictation', '默写'],
-            ['translation', '翻译'],
-            ['full', '完整'],
-          ] as const
-        ).map(([mode, label]) => {
+      <div
+        className="wc-mode-segments"
+        role="group"
+        aria-label="切换词汇卡片显示模式"
+        style={{ '--wc-active-index': activeIndex } as CSSProperties}
+      >
+        <span className="wc-mode-indicator" aria-hidden="true" />
+        {MODE_OPTIONS.map(([mode, label]) => {
           const active = context.mode === mode;
           return (
             <button
@@ -361,6 +420,22 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
     if (!compactLayout && selectedWord) setSelectedWord(null);
   }, [compactLayout, selectedWord]);
 
+  const closeDialog = useCallback(() => {
+    const dialog = dialogRef.current;
+    if (!dialog?.open || dialog.hasAttribute('data-closing')) return;
+    if (prefersReducedMotion()) {
+      dialog.close();
+      return;
+    }
+    // Play the exit animation first; getAnimations() only covers the dialog
+    // itself, so nested bar animations cannot end the wait early. The timeout
+    // guarantees the close even when the browser skips frames (hidden tab).
+    dialog.setAttribute('data-closing', 'true');
+    const finish = () => dialog.close();
+    window.setTimeout(finish, DIALOG_EXIT_FALLBACK_MS);
+    Promise.allSettled(dialog.getAnimations().map((animation) => animation.finished)).then(finish);
+  }, []);
+
   if (words.length === 0) return empty;
 
   const handleDialogClose = () => {
@@ -376,7 +451,12 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
       event.clientX > rect.right ||
       event.clientY < rect.top ||
       event.clientY > rect.bottom;
-    if (clickedBackdrop) event.currentTarget.close();
+    if (clickedBackdrop) closeDialog();
+  };
+
+  const handleDialogCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    event.preventDefault();
+    closeDialog();
   };
 
   const hideHeadword = mode === 'dictation';
@@ -390,49 +470,46 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
         data-word-card-mode={compactLayout ? 'compact' : 'full'}
         data-word-study-mode={mode}
       >
-        {words.map((word, wordIndex) => {
-          const hasPhrase = word.meanings.some((meaning) => meaning.phrase);
-          const tone = (wordIndex % 7) + 1;
-          return (
-            <article
-              className={`word-card${hasPhrase ? ' has-phrase' : ''}`}
-              key={`${word.word}-${wordIndex}`}
-              data-word={hideHeadword ? undefined : word.word}
-              data-tone={tone}
-            >
-              <WordCardContent
-                word={word}
-                showSenses={!compactLayout}
-                hideHeadword={hideHeadword}
-                hideMeanings={hideMeanings}
-                headerAction={
-                  compactLayout ? (
-                    <button
-                      type="button"
-                      className="wc-expand-button"
-                      aria-label={hideHeadword ? '查看完整卡片' : `查看 ${word.word} 完整卡片`}
-                      title="查看完整卡片"
-                      onClick={(event) => {
-                        triggerRef.current = event.currentTarget;
-                        setSelectedWord({ word, index: wordIndex });
-                      }}
-                    >
-                      <ExpandIcon />
-                    </button>
-                  ) : null
-                }
-              />
-            </article>
-          );
-        })}
+        {words.map((word, wordIndex) => (
+          <article
+            className={`word-card${hasPhraseMeaning(word) ? ' has-phrase' : ''}`}
+            key={`${word.word}-${wordIndex}`}
+            data-word={hideHeadword ? undefined : word.word}
+            data-tone={getTone(wordIndex)}
+          >
+            <WordCardContent
+              word={word}
+              showSenses={!compactLayout}
+              hideHeadword={hideHeadword}
+              hideMeanings={hideMeanings}
+              headerAction={
+                compactLayout ? (
+                  <button
+                    type="button"
+                    className="wc-expand-button"
+                    aria-label={hideHeadword ? '查看完整卡片' : `查看 ${word.word} 完整卡片`}
+                    title="查看完整卡片"
+                    onClick={(event) => {
+                      triggerRef.current = event.currentTarget;
+                      setSelectedWord({ word, index: wordIndex });
+                    }}
+                  >
+                    <ExpandIcon />
+                  </button>
+                ) : null
+              }
+            />
+          </article>
+        ))}
       </div>
       {compactLayout && selectedWord ? (
         <dialog
           ref={dialogRef}
-          className={`word-card wc-detail-dialog${selectedWord.word.meanings.some((meaning) => meaning.phrase) ? ' has-phrase' : ''}`}
+          className={`word-card wc-detail-dialog${hasPhraseMeaning(selectedWord.word) ? ' has-phrase' : ''}`}
           data-word={selectedWord.word.word}
-          data-tone={(selectedWord.index % 7) + 1}
+          data-tone={getTone(selectedWord.index)}
           aria-label={`${selectedWord.word.word} 完整词汇卡片`}
+          onCancel={handleDialogCancel}
           onClose={handleDialogClose}
           onClick={handleDialogBackdropClick}
         >
@@ -445,7 +522,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                 className="wc-detail-close"
                 aria-label="关闭完整词汇卡片"
                 title="关闭"
-                onClick={() => dialogRef.current?.close()}
+                onClick={closeDialog}
               >
                 <CloseIcon />
               </button>

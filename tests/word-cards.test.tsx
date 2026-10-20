@@ -141,6 +141,19 @@ describe('WordCards', () => {
     expect(component).toContain('showSenses');
   });
 
+  it('animates mode switches and dialog exits while respecting reduced motion', () => {
+    const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
+    expect(component).toContain('document.startViewTransition(');
+    expect(component).toContain('flushSync(() => setModeState(nextMode))');
+    expect(component).toContain("prefers-reduced-motion: reduce");
+    expect(component).toContain("dialog.setAttribute('data-closing', 'true')");
+    expect(component).toContain('onCancel={handleDialogCancel}');
+    expect(css).toMatch(/\.wc-detail-dialog\[data-closing='true'\]\s*\{[^}]*animation:\s*wc-detail-exit/u);
+    expect(css).toMatch(/html\[data-wc-mode-transition\]::view-transition-new\(root\)/u);
+    expect(css).toMatch(/\.wc-mode-indicator\s*\{[^}]*transform:\s*translateX\(calc\(var\(--wc-active-index/u);
+  });
+
   it('renders a shared compact/full segmented control from the provider state', () => {
     const html = renderToStaticMarkup(
       <WordCardsProvider>
@@ -152,6 +165,8 @@ describe('WordCards', () => {
     expect(html).toContain('完整');
     expect(html).toContain('aria-pressed="true"');
     expect(html).toContain('data-active="true"');
+    expect(html).toContain('--wc-active-index:3');
+    expect(html).toContain('class="wc-mode-indicator"');
   });
 
   it('keeps sense examples on the same line-height as their metadata row', () => {
@@ -206,15 +221,18 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-example-tooltip::after\s*\{/u);
   });
 
-  it('turns compact cards into an adaptive two-or-three-column masonry grid', () => {
+  it('turns compact cards into an adaptive two-or-three-column masonry grid with exact gaps', () => {
     const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
     const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
     expect(css).toMatch(/\.word-list-shell\s*\{[^}]*container:\s*word-cards\s*\/\s*inline-size/u);
     expect(css).toMatch(/\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*display:\s*grid/u);
     expect(css).toMatch(/\.word-list\[data-word-card-mode='compact'\]\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*1fr\)/u);
-    expect(css).toMatch(/--wc-masonry-row:\s*2px/u);
-    expect(css).toMatch(/--wc-masonry-gap:\s*10px/u);
+    expect(css).toMatch(/--wc-masonry-row:\s*1px/u);
+    expect(css).toMatch(/--wc-masonry-gap:\s*14px/u);
     expect(css).toMatch(/\.word-list\[data-word-card-mode='compact'\]\[data-masonry-ready='true'\]\s*\{[^}]*grid-auto-rows:\s*var\(--wc-masonry-row\)/u);
+    expect(css).toMatch(/\.word-list\[data-word-card-mode='compact'\]\[data-masonry-ready='true'\]\s*\{[^}]*row-gap:\s*0/u);
+    expect(component).toContain('Math.ceil(height + rowGap)');
+    expect(component).toContain('useLayoutEffect(() => {');
     expect(css).not.toMatch(/grid-auto-flow:\s*dense/u);
     expect(component).toContain('new ResizeObserver');
     expect(component).toContain('card.style.gridRowEnd = nextValue');
@@ -227,9 +245,12 @@ describe('WordCards', () => {
 
   it('wraps compact card headers before a long word can cover its card label', () => {
     const css = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+    const component = readFileSync(new URL('../components/vocabulary/word-cards.tsx', import.meta.url), 'utf8');
     expect(css).toMatch(/\.wc-header\s*\{[^}]*flex-wrap:\s*wrap/u);
     expect(css).toMatch(/\.wc-title\s*\{[^}]*flex:\s*1\s+1\s+0/u);
     expect(css).toMatch(/\.wc-word\s*\{[^}]*min-width:\s*0/u);
-    expect(css).toMatch(/\.wc-word\s*\{[^}]*overflow-wrap:\s*anywhere/u);
+    expect(css).toMatch(/\.wc-word\s*\{[^}]*overflow-wrap:\s*break-word/u);
+    expect(css).toMatch(/\.wc-word\s*\{[^}]*hyphens:\s*auto/u);
+    expect(component).toMatch(/className="wc-word" lang="en"/u);
   });
 });
