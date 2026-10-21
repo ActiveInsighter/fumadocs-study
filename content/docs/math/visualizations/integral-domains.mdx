@@ -1,0 +1,255 @@
+---
+title: "积分区域"
+description: "二重积分区域的 X 型、Y 型与极坐标切片，分块与换序；曲顶柱体；三重积分立体的投影、截面与体积。"
+---
+
+确定积分限的关键是“看清区域”。二维图中选择切片方式后拖动滑块，图上会画出当前切线，下方给出这一条切片的上下限；点击扫描按钮可以显示全部切片。鼠标悬停时右下角提示该点是否属于 $D$。
+
+## 二重积分：X 型与 Y 型
+
+<MathPlot2D
+  title="y = x² 与 y = √x 围成的区域"
+  description="两条曲线交于 (0, 0) 与 (1, 1)。X 型：竖线从下边界 y = x² 穿入、从上边界 y = √x 穿出；Y 型同理。"
+  x={[-0.4, 1.6]}
+  y={[-0.3, 1.4]}
+  area
+  items={[
+    { type: 'region', where: 'x^2 <= y && y <= sqrt(x)', label: 'D' },
+    { type: 'function', fn: 'x^2', label: 'y=x^2', boundary: true, labelAt: 0.85 },
+    { type: 'function', fn: 'sqrt(x)', label: 'y=\\sqrt{x}', color: 'coral', boundary: true, labelAt: 0.9 },
+    { type: 'point', at: [1, 1], label: '(1,1)', dir: 0 },
+  ]}
+  slices={[
+    { mode: 'x', range: [0, 1], label: 'X 型（先 y 后 x）', pieces: [{ from: 0, to: 1, lo: 'x^2', hi: '\\sqrt{x}' }] },
+    { mode: 'y', range: [0, 1], label: 'Y 型（先 x 后 y）', pieces: [{ from: 0, to: 1, lo: 'y^2', hi: '\\sqrt{y}' }] },
+  ]}
+  footnote="面积 = ∫₀¹ (√x − x²) dx = 1/3。"
+/>
+
+<MathPlot2D
+  title="换序需要分块：|x| ≤ y ≤ 2 − x²"
+  description="按 X 型只需一个累次积分；按 Y 型时右边界在 y = 1 处由 x = y 换成 x = √(2 − y)，必须分成两块。"
+  x={[-1.8, 1.8]}
+  y={[-0.4, 2.3]}
+  area
+  items={[
+    { type: 'region', where: 'abs(x) <= y && y <= 2 - x^2', label: 'D' },
+    { type: 'function', fn: 'abs(x)', label: 'y=|x|', boundary: true, labelAt: 0.9 },
+    { type: 'function', fn: '2 - x^2', label: 'y=2-x^2', color: 'coral', boundary: true, labelAt: 0.82 },
+    { type: 'line', y: 1, label: 'y=1', color: 'gray' },
+  ]}
+  slices={[
+    { mode: 'x', range: [-1, 1], label: 'X 型', pieces: [{ from: -1, to: 1, lo: '|x|', hi: '2-x^2' }] },
+    {
+      mode: 'y',
+      range: [0, 2],
+      label: 'Y 型（分块）',
+      pieces: [
+        { from: 0, to: 1, lo: '-y', hi: 'y' },
+        { from: 1, to: 2, lo: '-\\sqrt{2-y}', hi: '\\sqrt{2-y}' },
+      ],
+    },
+  ]}
+/>
+
+<MathPlot2D
+  title="抛物线与圆：y ≥ x²，x² + y² ≤ 2"
+  description="X 型不分块；Y 型在 y = 1 处分块。拖动 y 切片经过交点时，右边界从抛物线切换到圆。"
+  x={[-2, 2]}
+  y={[-0.5, 1.8]}
+  area
+  items={[
+    { type: 'region', where: 'y >= x^2 && x^2 + y^2 <= 2', label: 'D' },
+    { type: 'region', where: 'x^2 + y^2 <= 2', faint: true, legend: false },
+    { type: 'function', fn: 'x^2', label: 'y=x^2', boundary: true, labelAt: 0.92 },
+    { type: 'implicit', eq: 'x^2 + y^2 = 2', label: 'x^2+y^2=2', color: 'coral', boundary: true, labelAt: 0.12 },
+    { type: 'point', at: [1, 1], label: '(1,1)', dir: 0 },
+    { type: 'point', at: [-1, 1], label: '(-1,1)', dir: 180 },
+  ]}
+  slices={[
+    { mode: 'x', range: [-1, 1], label: 'X 型', pieces: [{ from: -1, to: 1, lo: 'x^2', hi: '\\sqrt{2-x^2}' }] },
+    {
+      mode: 'y',
+      range: [0, 'sqrt(2)'],
+      label: 'Y 型（y=1 分块）',
+      pieces: [
+        { from: 0, to: 1, lo: '-\\sqrt{y}', hi: '\\sqrt{y}' },
+        { from: 1, to: 'sqrt(2)', lo: '-\\sqrt{2-y^2}', hi: '\\sqrt{2-y^2}' },
+      ],
+    },
+  ]}
+/>
+
+## 二重积分：极坐标
+
+<MathPlot2D
+  title="圆 x² + y² ≤ 2x"
+  description="化为极坐标 r ≤ 2cos θ，θ ∈ [−π/2, π/2]：从原点出发的射线由 r = 0 进入、由 r = 2cos θ 穿出。"
+  x={[-0.8, 2.6]}
+  y={[-1.4, 1.4]}
+  area
+  items={[
+    { type: 'region', where: 'x^2 + y^2 <= 2x', label: 'D' },
+    { type: 'polar', r: '2cos theta', theta: ['-pi/2', 'pi/2'], label: 'r=2\\cos\\theta', boundary: true, labelAt: 0.2 },
+  ]}
+  slices={[
+    { mode: 'polar', range: ['-pi/2', 'pi/2'], label: '极坐标', pieces: [{ from: '-pi/2', to: 'pi/2', lo: '0', hi: '2\\cos\\theta' }] },
+    { mode: 'x', range: [0, 2], label: 'X 型', pieces: [{ from: 0, to: 2, lo: '-\\sqrt{2x-x^2}', hi: '\\sqrt{2x-x^2}' }] },
+  ]}
+  footnote="面积 = ∫ dθ ∫₀^{2cosθ} r dr = π。"
+/>
+
+<MathPlot2D
+  title="两圆公共部分：x² + y² ≤ 2x 且 x² + y² ≤ 2y"
+  description="在 θ = π/4 处分块：θ ≤ π/4 时射线先碰到 r = 2sin θ，θ ≥ π/4 时先碰到 r = 2cos θ。"
+  x={[-0.6, 2.4]}
+  y={[-0.6, 2.4]}
+  area
+  items={[
+    { type: 'region', where: 'x^2 + y^2 <= 2x && x^2 + y^2 <= 2y', label: 'D' },
+    { type: 'region', where: 'x^2 + y^2 <= 2x || x^2 + y^2 <= 2y', faint: true, legend: false },
+    { type: 'implicit', eq: 'x^2 + y^2 = 2x', label: 'r=2\\cos\\theta', boundary: true, labelAt: 0.9 },
+    { type: 'implicit', eq: 'x^2 + y^2 = 2y', label: 'r=2\\sin\\theta', color: 'coral', boundary: true, labelAt: 0.4 },
+    { type: 'segment', from: [0, 0], to: [1.6, 1.6], label: '\\theta=\\frac{\\pi}{4}', color: 'gray', dashed: true, width: 1.2 },
+  ]}
+  slices={[
+    {
+      mode: 'polar',
+      range: [0, 'pi/2'],
+      label: '极坐标（π/4 分块）',
+      pieces: [
+        { from: 0, to: 'pi/4', lo: '0', hi: '2\\sin\\theta' },
+        { from: 'pi/4', to: 'pi/2', lo: '0', hi: '2\\cos\\theta' },
+      ],
+    },
+  ]}
+/>
+
+<MathPlot2D
+  title="圆环扇形：1 ≤ r ≤ 2，0 ≤ θ ≤ α"
+  description="极坐标下的“矩形”。拖动 α 改变张角，面积为 3α/2。"
+  x={[-2.4, 2.4]}
+  y={[-2.4, 2.4]}
+  area
+  params={[{ name: 'a', label: '\\alpha', min: 0.3, max: 6.28, value: 1.57, animate: true }]}
+  items={[
+    { type: 'region', where: '1 <= r <= 2 && mod(theta, 2pi) <= a', label: 'D' },
+    { type: 'polar', r: '1', label: 'r=1', color: 'gray', width: 1.2 },
+    { type: 'polar', r: '2', label: 'r=2', color: 'coral', width: 1.2 },
+  ]}
+  slices={[{ mode: 'polar', range: [0, 'a'], label: '极坐标', pieces: [{ from: 0, to: 'a', lo: '1', hi: '2' }] }]}
+/>
+
+<MathPlot2D
+  title="心形线 r ≤ a(1 + cos θ)"
+  description="极坐标下 θ ∈ [0, 2π]，0 ≤ r ≤ a(1 + cos θ)；面积为 3πa²/2。"
+  x={[-1.2, 2.6]}
+  y={[-1.6, 1.6]}
+  area
+  params={[{ name: 'a', label: 'a', min: 0.4, max: 1.2, value: 1 }]}
+  items={[
+    { type: 'region', where: 'r <= a(1 + cos theta)', label: 'D' },
+    { type: 'polar', r: 'a(1 + cos theta)', label: 'r=a(1+\\cos\\theta)', boundary: true, labelAt: 0.15 },
+  ]}
+  slices={[{ mode: 'polar', range: ['-pi', 'pi'], label: '极坐标', pieces: [{ from: '-pi', to: 'pi', lo: '0', hi: 'a(1+\\cos\\theta)' }] }]}
+/>
+
+## 曲顶柱体
+
+二重积分 $\iint_D f(x,y)\,\mathrm d\sigma$（$f\ge 0$）是以 $D$ 为底、以曲面 $z=f(x,y)$ 为顶的曲顶柱体体积。
+
+<MathPlot3D
+  title="以单位圆盘为底、z = x² + y² 为顶"
+  description="体积 = ∫₀^{2π} dθ ∫₀¹ r² · r dr = π/2。"
+  x={[-1.3, 1.3]}
+  y={[-1.3, 1.3]}
+  z={[0, 1.3]}
+  volume
+  items={[
+    { type: 'cylinder', z: 'x^2 + y^2', where: 'x^2 + y^2 <= 1', label: 'z=x^2+y^2' },
+  ]}
+/>
+
+<MathPlot3D
+  title="三角形底上的平面顶 z = 2 − x − y"
+  description="底 D：x ≥ 0，y ≥ 0，x + y ≤ 1。体积 = ∫₀¹ dx ∫₀^{1−x} (2 − x − y) dy = 2/3。"
+  x={[-0.3, 1.3]}
+  y={[-0.3, 1.3]}
+  z={[0, 2.2]}
+  volume
+  camera={[1.2, 0.9, 0.8]}
+  items={[
+    { type: 'cylinder', z: '2 - x - y', where: 'x >= 0 && y >= 0 && x + y <= 1', label: 'z=2-x-y' },
+  ]}
+/>
+
+## 三重积分立体
+
+`section` 打开后可拖动水平截面（“先二后一”时的截面 $D_z$）；`projection` 在底面显示投影区域 $D_{xy}$（“先一后二”）。
+
+<MathPlot3D
+  title="旋转抛物面与平面 z = 1 围成的立体"
+  description="Ω：x² + y² ≤ z ≤ 1。截面 D_z 是半径 √z 的圆，面积 πz，所以体积 = ∫₀¹ πz dz = π/2。"
+  x={[-1.3, 1.3]}
+  y={[-1.3, 1.3]}
+  z={[0, 1.2]}
+  section
+  volume
+  items={[{ type: 'solid', where: 'x^2 + y^2 <= z && z <= 1', projection: true, label: '\\Omega' }]}
+/>
+
+<MathPlot3D
+  title="四面体 x + y + z ≤ 1（第一卦限）"
+  description="先一后二：z 从 0 到 1 − x − y，投影 D_xy 是三角形；体积 1/6。"
+  x={[-0.2, 1.2]}
+  y={[-0.2, 1.2]}
+  z={[0, 1.1]}
+  section
+  volume
+  camera={[1.1, 0.9, 0.7]}
+  items={[{ type: 'solid', where: 'x >= 0 && y >= 0 && z >= 0 && x + y + z <= 1', projection: true, label: '\\Omega' }]}
+/>
+
+<MathPlot3D
+  title="冰淇淋锥：√(x² + y²) ≤ z，x² + y² + z² ≤ 4"
+  description="适合球坐标：0 ≤ φ ≤ π/4，0 ≤ ρ ≤ 2；体积 = (16π/3)(1 − √2/2) ≈ 4.91。"
+  x={[-1.8, 1.8]}
+  y={[-1.8, 1.8]}
+  z={[0, 2.1]}
+  section
+  volume
+  items={[{ type: 'solid', where: 'sqrt(x^2 + y^2) <= z && x^2 + y^2 + z^2 <= 4', resolution: 64, label: '\\Omega' }]}
+/>
+
+<MathPlot3D
+  title="圆柱被斜平面所截：x² + y² ≤ 1，0 ≤ z ≤ 1 − x"
+  description="柱坐标下 0 ≤ z ≤ 1 − r cos θ，体积 = π。"
+  x={[-1.3, 1.3]}
+  y={[-1.3, 1.3]}
+  z={[0, 2.1]}
+  section
+  volume
+  items={[{ type: 'solid', where: 'x^2 + y^2 <= 1 && z >= 0 && z <= 1 - x', projection: true, label: '\\Omega' }]}
+/>
+
+<MathPlot3D
+  title="两个抛物面之间：x² + y² ≤ z ≤ 2 − x² − y²"
+  description="两曲面交线在 z = 1 上，投影 D_xy 为单位圆盘；体积 = ∬(2 − 2r²) dσ = π。"
+  x={[-1.3, 1.3]}
+  y={[-1.3, 1.3]}
+  z={[0, 2.1]}
+  section
+  volume
+  items={[{ type: 'solid', where: 'x^2 + y^2 <= z && z <= 2 - x^2 - y^2', projection: true, label: '\\Omega' }]}
+/>
+
+<MathPlot3D
+  title="牟合方盖：x² + y² ≤ 1，x² + z² ≤ 1"
+  description="两个圆柱正交的公共部分。用 x = c 截得边长 2√(1 − c²) 的正方形，体积 = ∫ 4(1 − c²) dc = 16/3。"
+  x={[-1.3, 1.3]}
+  y={[-1.3, 1.3]}
+  z={[-1.3, 1.3]}
+  section
+  volume
+  items={[{ type: 'solid', where: 'x^2 + y^2 <= 1 && x^2 + z^2 <= 1', resolution: 64, label: '\\Omega' }]}
+/>

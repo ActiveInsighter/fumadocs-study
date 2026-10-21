@@ -1,0 +1,510 @@
+/*
+ * Math plot figure. Colours come from styles/tokens/components.css; the --mp-*
+ * aliases switch with the theme and are read by the canvas / WebGL renderers.
+ */
+.figure {
+  --mp-blue: var(--math-plot-blue);
+  --mp-green: var(--math-plot-green);
+  --mp-coral: var(--math-plot-coral);
+  --mp-teal: var(--math-plot-teal);
+  --mp-amber: var(--math-plot-amber);
+  --mp-plum: var(--math-plot-plum);
+  --mp-gray: var(--math-plot-gray);
+  --mp-ink: var(--math-plot-ink);
+  --mp-muted: var(--math-plot-muted);
+  --mp-grid: var(--math-plot-grid);
+  --mp-grid-minor: var(--math-plot-grid-minor);
+  --mp-canvas: var(--math-plot-canvas);
+  --mp-ramp-1: var(--math-plot-ramp-1);
+  --mp-ramp-2: var(--math-plot-ramp-2);
+  --mp-ramp-3: var(--math-plot-ramp-3);
+  --mp-ramp-4: var(--math-plot-ramp-4);
+  --mp-ramp-5: var(--math-plot-ramp-5);
+
+  width: 100%;
+  margin: 1.75rem 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+:global(.dark) .figure {
+  --mp-blue: var(--math-plot-dark-blue);
+  --mp-green: var(--math-plot-dark-green);
+  --mp-coral: var(--math-plot-dark-coral);
+  --mp-teal: var(--math-plot-dark-teal);
+  --mp-amber: var(--math-plot-dark-amber);
+  --mp-plum: var(--math-plot-dark-plum);
+  --mp-gray: var(--math-plot-dark-gray);
+  --mp-ink: var(--math-plot-dark-ink);
+  --mp-muted: var(--math-plot-dark-muted);
+  --mp-grid: var(--math-plot-dark-grid);
+  --mp-grid-minor: var(--math-plot-dark-grid-minor);
+  --mp-canvas: var(--math-plot-dark-canvas);
+  --mp-ramp-1: var(--math-plot-dark-ramp-1);
+  --mp-ramp-2: var(--math-plot-dark-ramp-2);
+  --mp-ramp-3: var(--math-plot-dark-ramp-3);
+  --mp-ramp-4: var(--math-plot-dark-ramp-4);
+  --mp-ramp-5: var(--math-plot-dark-ramp-5);
+}
+
+/* ------------------------------------------------------------ caption */
+
+.caption {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.95rem 1rem 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.badge {
+  flex: none;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+:global(.dark) .badge {
+  background: rgb(255 255 255 / 7%);
+}
+
+.description {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+/* ------------------------------------------------------------- legend */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0.7rem 1rem 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.legendItem[data-color='blue'] { --swatch: var(--mp-blue); }
+.legendItem[data-color='green'] { --swatch: var(--mp-green); }
+.legendItem[data-color='coral'] { --swatch: var(--mp-coral); }
+.legendItem[data-color='teal'] { --swatch: var(--mp-teal); }
+.legendItem[data-color='amber'] { --swatch: var(--mp-amber); }
+.legendItem[data-color='plum'] { --swatch: var(--mp-plum); }
+.legendItem[data-color='gray'] { --swatch: var(--mp-gray); }
+.legendItem[data-color='ink'] { --swatch: var(--mp-ink); }
+
+.swatch {
+  flex: none;
+  width: 18px;
+  height: 0;
+  border-top: 2.5px solid var(--swatch);
+  border-radius: 2px;
+}
+
+.swatch[data-kind='dashed'] {
+  border-top-style: dashed;
+}
+
+.swatch[data-kind='area'] {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--swatch);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--swatch) 30%, transparent);
+}
+
+.swatch[data-kind='point'] {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+.legendLabel :global(.katex) {
+  font-size: 1.02em;
+}
+
+/* -------------------------------------------------------------- stage */
+
+.body {
+  padding: 0.75rem 0.75rem 0.85rem;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 260px;
+  max-height: 460px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--mp-canvas);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mp-grid) 70%, transparent);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stage3d {
+  aspect-ratio: 4 / 3;
+  max-height: 520px;
+}
+
+.stage :global(.mp-canvas) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  cursor: grab;
+  /* Vertical swipes keep scrolling the page; horizontal drags and pinches go to the plot. */
+  touch-action: pan-y;
+}
+
+.stage :global(.mp-canvas:active) {
+  cursor: grabbing;
+}
+
+.stage :global(.mp-label-layer) {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stage :global(.mp-label) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.05rem 0.3rem;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--mp-canvas) 82%, transparent);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.stage :global(.mp-label-point) {
+  color: var(--mp-ink);
+  font-size: 0.8125rem;
+}
+
+.toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--mp-canvas) 88%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mp-grid) 90%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.toolButton,
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.toolButton:hover,
+.iconButton:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.toolButton:focus-visible,
+.iconButton:focus-visible,
+.segmented button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.toolButton[aria-pressed='true'],
+.iconButton[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--mp-blue) 16%, transparent);
+  color: var(--mp-blue);
+}
+
+.attention {
+  color: var(--mp-blue);
+}
+
+.chip {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  max-width: calc(100% - 1rem);
+  overflow: hidden;
+  padding: 0.2rem 0.5rem;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--mp-canvas) 88%, transparent);
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.71875rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.in {
+  color: var(--mp-green);
+}
+
+.out {
+  color: var(--mp-coral);
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+/* ----------------------------------------------------------- controls */
+
+.slicePanel,
+.params {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.params {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.4rem 1.25rem;
+}
+
+.sliceHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--muted);
+}
+
+:global(.dark) .segmented {
+  background: rgb(255 255 255 / 6%);
+}
+
+.segmented button {
+  padding: 0.25rem 0.7rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.segmented button[aria-selected='true'] {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
+}
+
+.sliceTools {
+  display: flex;
+  gap: 2px;
+}
+
+.sliceRow,
+.param {
+  display: grid;
+  grid-template-columns: auto minmax(6rem, 1fr) auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.sliceRow {
+  grid-template-columns: auto minmax(6rem, 1fr);
+}
+
+.sliceVar,
+.paramName {
+  min-width: 1.25rem;
+  color: var(--foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.sliceReadout {
+  grid-column: 1 / -1;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78125rem;
+  line-height: 1.5;
+}
+
+.paramValue {
+  min-width: 3.2rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78125rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.figure input[type='range'] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--mp-blue);
+}
+
+.piece {
+  justify-self: start;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mp-coral) 10%, transparent);
+  color: var(--foreground);
+  font-size: 0.9375rem;
+}
+
+.metric {
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78125rem;
+}
+
+.errors {
+  margin: 0.75rem 0.25rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mp-coral) 12%, transparent);
+  color: var(--mp-coral);
+  font-size: 0.8125rem;
+  list-style: none;
+}
+
+.footnote {
+  margin: 0;
+  padding: 0 1rem 0.9rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+/* 3D labels (CSS2DRenderer) */
+.stage :global(.mp3-labels) {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stage :global(.mp3-axis) {
+  color: var(--mp-ink);
+  font-family: 'KaTeX_Math', 'Times New Roman', serif;
+  font-size: 15px;
+  font-style: italic;
+}
+
+.stage :global(.mp3-tick) {
+  color: var(--mp-muted);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 10.5px;
+}
+
+.stage :global(.mp3-label) {
+  padding: 0.05rem 0.3rem;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--mp-canvas) 80%, transparent);
+  color: var(--mp-ink);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 567px) {
+  .figure {
+    margin: 1.4rem 0;
+    border-radius: 10px;
+  }
+
+  .caption {
+    padding: 0.85rem 0.85rem 0;
+  }
+
+  .legend {
+    padding: 0.6rem 0.85rem 0;
+  }
+
+  .body {
+    padding: 0.6rem 0.45rem 0.75rem;
+  }
+
+  .stage {
+    aspect-ratio: 4 / 3;
+    min-height: 240px;
+  }
+
+  .stage3d {
+    aspect-ratio: 1 / 1;
+  }
+
+  .chip {
+    font-size: 0.6875rem;
+  }
+
+  .footnote {
+    padding: 0 0.85rem 0.8rem;
+  }
+}

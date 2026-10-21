@@ -83,6 +83,26 @@ function isJsxComponentLine(trimmedLine) {
   return /^<\/?[A-Z][\w.-]*(\s|>|\/>)/.test(trimmedLine);
 }
 
+/**
+ * Scan JSX tag text for the `>` that closes the opening tag, skipping quoted
+ * strings and `{...}` attribute expressions. Returns the scanner state so a
+ * tag whose attributes span several lines can be followed line by line.
+ */
+function scanJsxTag(text, state = { depth: 0, quote: null }) {
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (state.quote) {
+      if (character === state.quote) state.quote = null;
+      continue;
+    }
+    if (character === '"' || character === "'" || character === '`') state.quote = character;
+    else if (character === '{') state.depth += 1;
+    else if (character === '}') state.depth -= 1;
+    else if (character === '>' && state.depth === 0) return { ...state, closed: true };
+  }
+  return { ...state, closed: false };
+}
+
 function getJsxAttribute(attributes, name) {
   const match = new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)')`).exec(attributes);
   return match ? (match[1] ?? match[2]) : undefined;
@@ -136,9 +156,17 @@ export function stripMdxRuntimeSyntax(body) {
   const kept = [];
   let insideCodeFence = false;
   let statementDepth = 0;
+  // Scanner state while inside an opening tag whose attributes span lines.
+  let openTag = null;
 
   for (const line of lines) {
     const trimmed = line.trim();
+
+    if (openTag) {
+      const state = scanJsxTag(line, openTag);
+      openTag = state.closed ? null : state;
+      continue;
+    }
 
     if (isCodeFenceLine(trimmed)) {
       insideCodeFence = !insideCodeFence;
@@ -163,6 +191,15 @@ export function stripMdxRuntimeSyntax(body) {
     }
 
     if (JSX_COMMENT_LINE.test(trimmed)) continue;
+
+    // `<MathPlot2D` followed by attributes on later lines: drop the whole tag.
+    if (/^<[A-Z][\w.-]*(\s|$)/.test(trimmed)) {
+      const state = scanJsxTag(trimmed.slice(1));
+      if (!state.closed) {
+        openTag = state;
+        continue;
+      }
+    }
 
     if (isJsxComponentLine(trimmed)) {
       kept.push(...unwrapJsxComponentLine(trimmed));

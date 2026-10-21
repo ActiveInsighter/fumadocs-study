@@ -1,0 +1,284 @@
+---
+title: "常见平面函数图像"
+description: "基本初等函数、含参函数、分段函数、参数方程、极坐标曲线与圆锥曲线的可交互图像。"
+---
+
+图像可以拖动平移、按住 Ctrl（⌘）滚动缩放、双击复位；鼠标悬停时左下角显示坐标。带滑块的图可以直接改参数，带播放按钮的参数会自动往返变化。
+
+## 幂函数
+
+<MathPlot2D
+  title="正整数次幂"
+  description="奇次幂关于原点对称，偶次幂关于 y 轴对称；所有曲线都经过 (1, 1)。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  items={[
+    { type: 'function', fn: 'x', label: 'y=x' },
+    { type: 'function', fn: 'x^2', label: 'y=x^2' },
+    { type: 'function', fn: 'x^3', label: 'y=x^3' },
+    { type: 'point', at: [1, 1], label: '(1,1)', dir: -30 },
+    { type: 'point', at: [-1, 1], label: '(-1,1)', dir: 150 },
+  ]}
+/>
+
+<MathPlot2D
+  title="分数次幂与负次幂"
+  description="x^(1/3) 在负半轴也有定义；y = 1/x 以两条坐标轴为渐近线。"
+  x={[-3, 3]}
+  y={[-2.2, 2.2]}
+  items={[
+    { type: 'function', fn: 'sqrt(x)', label: 'y=\\sqrt{x}' },
+    { type: 'function', fn: 'x^(1/3)', label: 'y=\\sqrt[3]{x}' },
+    { type: 'function', fn: '1/x', label: 'y=\\dfrac{1}{x}' },
+    { type: 'function', fn: '1/x^2', label: 'y=\\dfrac{1}{x^2}', dashed: true },
+  ]}
+/>
+
+## 指数函数与对数函数
+
+<MathPlot2D
+  title="指数与对数互为反函数"
+  description="y = aˣ 与 y = logₐx 的图像关于直线 y = x 对称。拖动底数 a，注意 0 < a < 1 时两条曲线的单调性一起翻转。"
+  x={[-4, 5]}
+  y={[-3, 5]}
+  params={[{ name: 'a', label: 'a', min: 0.2, max: 4, step: 0.01, value: 2.718 }]}
+  items={[
+    { type: 'function', fn: 'a^x', label: 'y=a^x' },
+    { type: 'function', fn: 'ln(x)/ln(a)', label: 'y=\\log_a x' },
+    { type: 'function', fn: 'x', label: 'y=x', color: 'gray', dashed: true, width: 1.4 },
+    { type: 'point', at: [0, 1], label: '(0,1)', dir: 150 },
+    { type: 'point', at: [1, 0], label: '(1,0)', dir: -45 },
+  ]}
+/>
+
+<Callout title="记忆要点">
+$y=e^x$ 在 $x=0$ 处切线为 $y=x+1$，$y=\ln x$ 在 $x=1$ 处切线为 $y=x-1$，由此得到常用不等式 $e^x\ge x+1$ 与 $\ln x\le x-1$。
+</Callout>
+
+## 三角函数
+
+<MathPlot2D
+  title="正弦与余弦"
+  description="cos x 是 sin x 向左平移 π/2。"
+  x={['-2pi', '2pi']}
+  y={[-1.8, 1.8]}
+  piTicks
+  items={[
+    { type: 'function', fn: 'sin x', label: 'y=\\sin x' },
+    { type: 'function', fn: 'cos x', label: 'y=\\cos x' },
+  ]}
+/>
+
+<MathPlot2D
+  title="正切与余切"
+  description="tan x 在 x = π/2 + kπ 处有竖直渐近线，曲线在渐近线处自动断开。"
+  x={['-3pi/2', '3pi/2']}
+  y={[-4, 4]}
+  piTicks
+  items={[
+    { type: 'function', fn: 'tan x', label: 'y=\\tan x' },
+    { type: 'function', fn: 'cot x', label: 'y=\\cot x', dashed: true },
+    { type: 'line', x: '-pi/2', legend: false },
+    { type: 'line', x: 'pi/2', legend: false },
+  ]}
+/>
+
+<MathPlot2D
+  title="y = A sin(ωx + φ)"
+  description="振幅 A、角频率 ω、初相 φ 分别控制纵向伸缩、横向伸缩和平移。点 φ 的播放按钮看相位移动。"
+  x={['-2pi', '2pi']}
+  y={[-3, 3]}
+  piTicks
+  params={[
+    { name: 'A', label: 'A', min: 0.2, max: 2.5, value: 2 },
+    { name: 'w', label: '\\omega', min: 0.25, max: 3, value: 1.5 },
+    { name: 'p', label: '\\varphi', min: 0, max: 6.283, value: 0.8, animate: true },
+  ]}
+  items={[
+    { type: 'function', fn: 'A sin(w x + p)', label: 'y=A\\sin(\\omega x+\\varphi)' },
+    { type: 'function', fn: 'sin x', label: 'y=\\sin x', color: 'gray', dashed: true, width: 1.4 },
+  ]}
+/>
+
+## 反三角函数
+
+<MathPlot2D
+  title="反正弦、反余弦与反正切"
+  description="arcsin x 与 arccos x 定义在 [−1, 1]；arctan x 以 y = ±π/2 为水平渐近线。"
+  x={[-4, 4]}
+  y={[-2, 3.5]}
+  items={[
+    { type: 'function', fn: 'arcsin x', label: 'y=\\arcsin x' },
+    { type: 'function', fn: 'arccos x', label: 'y=\\arccos x' },
+    { type: 'function', fn: 'arctan x', label: 'y=\\arctan x' },
+    { type: 'line', y: 'pi/2', label: 'y=\\frac{\\pi}{2}', legend: false },
+    { type: 'line', y: '-pi/2', legend: false },
+  ]}
+/>
+
+## 双曲函数
+
+<MathPlot2D
+  title="双曲正弦、双曲余弦与双曲正切"
+  description="ch x 是偶函数且 ch x ≥ 1，sh x 与 th x 是奇函数，th x 以 y = ±1 为渐近线。"
+  x={[-3, 3]}
+  y={[-2.5, 3.5]}
+  items={[
+    { type: 'function', fn: 'sinh x', label: 'y=\\operatorname{sh}x' },
+    { type: 'function', fn: 'cosh x', label: 'y=\\operatorname{ch}x' },
+    { type: 'function', fn: 'tanh x', label: 'y=\\operatorname{th}x' },
+    { type: 'line', y: 1, legend: false },
+    { type: 'line', y: -1, legend: false },
+  ]}
+/>
+
+## 分段函数与特殊函数
+
+<MathPlot2D
+  title="取整函数 y = [x]"
+  description="每一段左闭右开：实心点属于图像，空心点不属于。"
+  x={[-3.2, 3.2]}
+  y={[-3.2, 3.2]}
+  items={[
+    { type: 'function', fn: 'floor(x)', label: 'y=[x]' },
+    { type: 'point', at: [-3, -3], color: 'blue' },
+    { type: 'point', at: [-2, -2], color: 'blue' },
+    { type: 'point', at: [-1, -1], color: 'blue' },
+    { type: 'point', at: [0, 0], color: 'blue' },
+    { type: 'point', at: [1, 1], color: 'blue' },
+    { type: 'point', at: [2, 2], color: 'blue' },
+    { type: 'point', at: [-2, -3], color: 'blue', open: true },
+    { type: 'point', at: [-1, -2], color: 'blue', open: true },
+    { type: 'point', at: [0, -1], color: 'blue', open: true },
+    { type: 'point', at: [1, 0], color: 'blue', open: true },
+    { type: 'point', at: [2, 1], color: 'blue', open: true },
+    { type: 'point', at: [3, 2], color: 'blue', open: true },
+  ]}
+/>
+
+<MathPlot2D
+  title="振荡间断与连续性"
+  description="sin(1/x) 在 0 附近无限振荡，极限不存在；x·sin(1/x) 被 y = ±|x| 夹住，极限为 0。按住 Ctrl 滚动放大原点附近看细节。"
+  x={[-0.6, 0.6]}
+  y={[-1.2, 1.2]}
+  equal={false}
+  items={[
+    { type: 'function', fn: 'sin(1/x)', label: 'y=\\sin\\frac1x', width: 1.4 },
+    { type: 'function', fn: 'x sin(1/x)', label: 'y=x\\sin\\frac1x' },
+    { type: 'function', fn: '|x|', color: 'gray', dashed: true, width: 1.2, legend: false },
+    { type: 'function', fn: '-|x|', color: 'gray', dashed: true, width: 1.2, legend: false },
+  ]}
+/>
+
+## 参数方程
+
+<MathPlot2D
+  title="摆线"
+  description="半径为 a 的圆沿 x 轴滚动时，圆周上一点的轨迹：x = a(t − sin t)，y = a(1 − cos t)。"
+  x={[-0.5, 13]}
+  y={[-0.5, 3.5]}
+  params={[{ name: 'a', label: 'a', min: 0.5, max: 1.5, value: 1 }]}
+  items={[
+    { type: 'parametric', x: 'a(t - sin t)', y: 'a(1 - cos t)', t: [0, '4pi'], label: 'x=a(t-\\sin t),\\ y=a(1-\\cos t)', labelAt: 0.25, arrows: 2 },
+  ]}
+/>
+
+<MathPlot2D
+  title="星形线与圆"
+  description="星形线 x = a cos³t，y = a sin³t，即 x^(2/3) + y^(2/3) = a^(2/3)。"
+  x={[-1.6, 1.6]}
+  y={[-1.3, 1.3]}
+  params={[{ name: 'a', label: 'a', min: 0.4, max: 1.2, value: 1 }]}
+  items={[
+    { type: 'parametric', x: 'a cos(t)^3', y: 'a sin(t)^3', t: [0, '2pi'], label: 'x=a\\cos^3t,\\ y=a\\sin^3t' },
+    { type: 'parametric', x: 'a cos t', y: 'a sin t', t: [0, '2pi'], color: 'gray', dashed: true, width: 1.2, legend: false },
+  ]}
+/>
+
+## 极坐标曲线
+
+<MathPlot2D
+  title="心形线 r = a(1 + cos θ)"
+  description="箭头表示 θ 增大的方向；所围面积为 3πa²/2。"
+  x={[-1.5, 3.2]}
+  y={[-2, 2]}
+  params={[{ name: 'a', label: 'a', min: 0.4, max: 1.4, value: 1 }]}
+  area
+  items={[
+    { type: 'region', where: 'r <= a(1 + cos theta)', label: 'D' },
+    { type: 'polar', r: 'a(1 + cos t)', label: 'r=a(1+\\cos\\theta)', arrows: 3 },
+  ]}
+/>
+
+<MathPlot2D
+  title="双纽线与玫瑰线"
+  description="双纽线 r² = a² cos 2θ 写成隐函数 (x² + y²)² = a²(x² − y²)；拖动 n 观察 r = sin nθ 的花瓣数。"
+  x={[-1.6, 1.6]}
+  y={[-1.15, 1.15]}
+  params={[
+    { name: 'a', label: 'a', min: 0.5, max: 1.4, value: 1.2 },
+    { name: 'n', label: 'n', min: 1, max: 6, step: 1, value: 3 },
+  ]}
+  items={[
+    { type: 'implicit', eq: '(x^2 + y^2)^2 = a^2 (x^2 - y^2)', label: 'r^2=a^2\\cos2\\theta' },
+    { type: 'polar', r: 'sin(n t)', label: 'r=\\sin n\\theta', samples: 1400 },
+  ]}
+/>
+
+<MathPlot2D
+  title="阿基米德螺线与对数螺线"
+  x={[-9, 9]}
+  y={[-6.5, 6.5]}
+  items={[
+    { type: 'polar', r: 't/2', theta: [0, '6pi'], label: 'r=\\frac{\\theta}{2}', samples: 1600 },
+    { type: 'polar', r: 'e^(0.15 t)', theta: [0, '4.4pi'], label: 'r=e^{0.15\\theta}', samples: 1600 },
+  ]}
+/>
+
+## 圆锥曲线
+
+<MathPlot2D
+  title="椭圆与焦点"
+  description="x²/a² + y²/b² = 1（a > b），焦点 (±c, 0)，c² = a² − b²。"
+  x={[-4, 4]}
+  y={[-2.6, 2.6]}
+  params={[
+    { name: 'a', label: 'a', min: 1.5, max: 3.5, value: 3 },
+    { name: 'b', label: 'b', min: 0.5, max: 1.5, value: 1.6 },
+  ]}
+  items={[
+    { type: 'region', where: 'x^2/a^2 + y^2/b^2 <= 1', opacity: 0.6, legend: false },
+    { type: 'implicit', eq: 'x^2/a^2 + y^2/b^2 = 1', label: '\\frac{x^2}{a^2}+\\frac{y^2}{b^2}=1' },
+    { type: 'point', at: ['sqrt(a^2 - b^2)', 0], label: 'F_2', dir: -60 },
+    { type: 'point', at: ['-sqrt(a^2 - b^2)', 0], label: 'F_1', dir: -120 },
+  ]}
+/>
+
+<MathPlot2D
+  title="双曲线与渐近线"
+  description="x²/a² − y²/b² = 1 的渐近线为 y = ±(b/a)x。"
+  x={[-5, 5]}
+  y={[-3.5, 3.5]}
+  params={[
+    { name: 'a', label: 'a', min: 0.5, max: 2.5, value: 1.5 },
+    { name: 'b', label: 'b', min: 0.5, max: 2.5, value: 1 },
+  ]}
+  items={[
+    { type: 'implicit', eq: 'x^2/a^2 - y^2/b^2 = 1', label: '\\frac{x^2}{a^2}-\\frac{y^2}{b^2}=1' },
+    { type: 'function', fn: 'b x / a', label: 'y=\\pm\\frac{b}{a}x', color: 'gray', dashed: true, width: 1.3 },
+    { type: 'function', fn: '-b x / a', color: 'gray', dashed: true, width: 1.3, legend: false },
+  ]}
+/>
+
+<MathPlot2D
+  title="抛物线 y² = 2px"
+  description="焦点 (p/2, 0)，准线 x = −p/2；抛物线上任一点到焦点与到准线的距离相等。"
+  x={[-2, 5]}
+  y={[-3.2, 3.2]}
+  params={[{ name: 'p', label: 'p', min: 0.3, max: 3, value: 1.5 }]}
+  items={[
+    { type: 'implicit', eq: 'y^2 = 2 p x', label: 'y^2=2px' },
+    { type: 'line', x: '-p/2', label: 'x=-\\frac{p}{2}', color: 'coral' },
+    { type: 'point', at: ['p/2', 0], label: 'F', dir: -60 },
+  ]}
+/>

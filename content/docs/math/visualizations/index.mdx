@@ -1,0 +1,128 @@
+---
+title: "数学图像"
+description: "可交互的数学图像组件：二维函数图像、二元函数曲面、二次曲面与积分区域，任意文档都能直接引用。"
+---
+
+本栏目演示通用的数学绘图组件。二维图用 Canvas 绘制，可平移、缩放，并显示坐标；三维图用 WebGL（Three.js）渲染，可旋转、缩放、显示截面。两种图都可以加参数滑块。
+
+- [常见平面函数图像](./plane-curves)：幂、指数、对数、三角、反三角、双曲函数，参数方程、极坐标曲线与圆锥曲线。
+- [二元函数图像](./multivariable-functions)：旋转抛物面、马鞍面、圆锥面、球面、等高线与二重极限反例。
+- [二次曲面](./quadric-surfaces)：椭球面、单叶 / 双叶双曲面、椭圆 / 双曲抛物面、锥面、柱面与截痕法。
+- [积分区域](./integral-domains)：二重积分区域的 X 型 / Y 型 / 极坐标切片、曲顶柱体、三重积分立体与截面。
+
+## 快速上手
+
+组件已在全站注册，在任何 `.mdx` 文档中直接写标签即可，无需 `import`。函数、区域、曲面都用**字符串表达式**书写。
+
+<MathPlot2D
+  title="正弦曲线与参数"
+  description="拖动 a、b 滑块，或点击播放按钮观察振幅与角频率的变化。"
+  x={[-7, 7]}
+  y={[-3, 3]}
+  piTicks
+  params={[
+    { name: 'a', label: 'a', min: 0.2, max: 2.5, value: 1.5, animate: true },
+    { name: 'b', label: 'b', min: 0.5, max: 3, value: 1 },
+  ]}
+  items={[
+    { type: 'function', fn: 'a sin(b x)', label: 'y=a\\sin bx' },
+    { type: 'function', fn: 'sin x', label: 'y=\\sin x', color: 'gray', dashed: true },
+  ]}
+/>
+
+```mdx
+<MathPlot2D
+  title="正弦曲线与参数"
+  x={[-7, 7]}
+  y={[-3, 3]}
+  piTicks
+  params={[{ name: 'a', min: 0.2, max: 2.5, value: 1.5, animate: true }]}
+  items={[
+    { type: 'function', fn: 'a sin(x)', label: 'y=a\\sin x' },
+    { type: 'function', fn: 'sin x', label: 'y=\\sin x', color: 'gray', dashed: true },
+  ]}
+/>
+```
+
+<MathPlot3D
+  title="马鞍面 z = x² − y²"
+  description="颜色表示高度，底面是等高线。拖动旋转，右键或双指平移。"
+  x={[-1.5, 1.5]}
+  y={[-1.5, 1.5]}
+  items={[{ type: 'surface', z: 'x^2 - y^2', contours: 10, label: 'z=x^2-y^2' }]}
+/>
+
+```mdx
+<MathPlot3D
+  title="马鞍面 z = x² − y²"
+  x={[-1.5, 1.5]}
+  y={[-1.5, 1.5]}
+  items={[{ type: 'surface', z: 'x^2 - y^2', contours: 10 }]}
+/>
+```
+
+## 表达式语法
+
+- 变量：二维图用 `x`、`y`，并可用 `r`、`theta`（极角，取值 $(-\pi,\pi]$）；参数曲线用 `t`；参数曲面用 `u`、`v`；三维图另有 `z`、`rho`。
+- 运算：`+ - * / ^`，可省略乘号（`2x`、`xy`、`2pi`），`|x|` 表示绝对值，`x^(1/3)` 对负数也取实数立方根。
+- 函数：`sin cos tan cot sec csc arcsin arccos arctan sinh cosh tanh exp ln log lg sqrt cbrt abs sign floor ceil min max mod`。`sin 2x` 按 $\sin(2x)$ 理解，`sin^2(x)` 按 $(\sin x)^2$ 理解。
+- 常数：`pi`（或 `π`）、`e`。
+- 关系与逻辑：`< <= > >=`（可连写为 `0 <= x <= 1`）、`&&` / `and`、`||` / `or`、`!` / `not`；逗号表示“且”。方程用 `=` 写在 `eq` 中。
+- 范围既可写数字，也可写表达式字符串，例如 `t: [0, '2pi']`、`x: [0, 'sqrt(2)']`。
+- 滑块参数名只用字母，例如 `a`、`k`，不要与内置变量重名。
+
+表达式由内置解析器编译，不执行任意代码。写错时图下方会显示红色错误提示，页面其他部分不受影响。
+
+## MathPlot2D
+
+| 属性 | 说明 |
+| --- | --- |
+| `title`、`description`、`footnote` | 标题、说明和脚注 |
+| `x`、`y` | 初始视窗，默认 `[-5, 5]` 与 `[-3.5, 3.5]` |
+| `items` | 图元列表，见下表 |
+| `params` | 滑块：`{ name, label?, min, max, step?, value, animate? }` |
+| `domain` | 积分区域谓词；省略时取全部非 `faint` 区域的并 |
+| `slices` | 切片：`{ mode: 'x' \| 'y' \| 'polar', range, label?, pieces? }` |
+| `area` | 显示区域面积的数值估计 |
+| `piTicks` | x 轴按 $\pi$ 的倍数标注 |
+| `equal` | 默认 `true`，保持 1:1 比例；设为 `false` 时铺满画布 |
+| `height`、`minimal` | 固定高度（像素）；`minimal` 隐藏网格，只保留坐标轴 |
+
+| 图元 `type` | 主要字段 |
+| --- | --- |
+| `function` | `fn`；`of: 'y'` 表示 $x=f(y)$；`domain` 限定自变量范围 |
+| `parametric` | `x`、`y`、`t` |
+| `polar` | `r`、`theta`（默认 $[0,2\pi]$） |
+| `implicit` | `eq`，如 `'x^2/4 + y^2 = 1'` |
+| `region` | `where`，如 `'x^2 <= y && y <= x'`；`faint` 表示背景层 |
+| `point` | `at`，`dir` 为标签方向（角度），`open` 为空心点 |
+| `segment` / `line` | 线段 `from`、`to`；参考线 `x` 或 `y` |
+
+曲线类图元都支持 `label`（TeX）、`color`（`blue`、`coral`、`green`、`teal`、`amber`、`plum`、`gray`、`ink`）、`dashed`、`width`、`labelAt`、`arrows`。`boundary: true` 时，曲线细线贯穿全图，只在与区域相接的部分加粗。
+
+## MathPlot3D
+
+| 属性 | 说明 |
+| --- | --- |
+| `x`、`y`、`z` | 场景范围，超出部分被裁剪；省略 `z` 时按曲面高度自动选取 |
+| `items` | 图元列表，见下表 |
+| `params` | 同二维图，修改参数时重新生成几何 |
+| `camera` | 相机方向，例如 `[1, 0.6, 0.5]` |
+| `section` | 为立体显示水平截面滑块（先二后一） |
+| `volume` | 显示立体体积的数值估计 |
+| `aspect` | `'cube'` 把 z 方向缩放为与 x、y 等长 |
+| `autoRotate`、`height` | 初始自动旋转；固定高度 |
+
+| 图元 `type` | 主要字段 |
+| --- | --- |
+| `surface` | `z = f(x, y)`；可用 `where` 裁剪区域，或用 `r`、`theta` 在极坐标网格上绘制；`contours` 画底面等高线 |
+| `parametric` | `x`、`y`、`z` 关于 `u`、`v` 的表达式，`u`、`v` 范围 |
+| `implicit` | `eq`，如 `'x^2 + y^2 - z^2 = 1'`，按场景范围网格化 |
+| `solid` | `where`，如 `'x^2 + y^2 <= z && z <= 1'`；`projection` 在底面显示投影区域 |
+| `cylinder` | 曲顶柱体：顶面 `z`，底面区域 `where` |
+| `curve` | 空间曲线 `x`、`y`、`z`、`t`；`tube`、`arrows` |
+| `point` | `at: [x, y, z]`、`label` |
+
+<Callout title="性能说明">
+Three.js 只在页面含有三维图、且图形滚动到视口附近时才加载；图形长时间离开视口后会释放 WebGL 上下文，回到视口时自动重建。普通滚轮用于滚动页面，按住 Ctrl（macOS 为 ⌘）滚动或在触控板上双指捏合才缩放图形。
+</Callout>

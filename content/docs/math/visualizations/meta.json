@@ -1,0 +1,12 @@
+{
+  "title": "数学图像",
+  "description": "可交互的二维函数图像、二元函数曲面、二次曲面与积分区域。",
+  "pages": [
+    "index",
+    "plane-curves",
+    "multivariable-functions",
+    "quadric-surfaces",
+    "integral-domains"
+  ],
+  "defaultOpen": false
+}

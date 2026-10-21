@@ -75,6 +75,46 @@
   --chart-frame-dark-study-4: #8bc0c4;
   --chart-frame-dark-study-5: #c6a286;
 
+  /*
+   * Math plots (components/math-plot): series colours, surface ramp and plot
+   * chrome. Canvas and WebGL read these through the --mp-* aliases set on the
+   * figure, so every value must stay a 6-digit hex colour.
+   */
+  --math-plot-blue: #5b67b3;
+  --math-plot-green: #5f7d3f;
+  --math-plot-coral: #c8613f;
+  --math-plot-teal: #3f8a8f;
+  --math-plot-amber: #c08a2c;
+  --math-plot-plum: #9a5a86;
+  --math-plot-gray: #8a867c;
+  --math-plot-ink: #24231f;
+  --math-plot-muted: #77736a;
+  --math-plot-grid: #e7e3da;
+  --math-plot-grid-minor: #f2efe9;
+  --math-plot-canvas: #fffefb;
+  --math-plot-ramp-1: #3f4e9a;
+  --math-plot-ramp-2: #4b8a96;
+  --math-plot-ramp-3: #8fb26d;
+  --math-plot-ramp-4: #e3b55a;
+  --math-plot-ramp-5: #d4704d;
+  --math-plot-dark-blue: #9aa5ec;
+  --math-plot-dark-green: #a9c98a;
+  --math-plot-dark-coral: #f0956f;
+  --math-plot-dark-teal: #7cc6c9;
+  --math-plot-dark-amber: #e9bf6a;
+  --math-plot-dark-plum: #d397c2;
+  --math-plot-dark-gray: #a4a098;
+  --math-plot-dark-ink: #ecebe6;
+  --math-plot-dark-muted: #a19d94;
+  --math-plot-dark-grid: #2a2a27;
+  --math-plot-dark-grid-minor: #1b1b19;
+  --math-plot-dark-canvas: #0d0d0c;
+  --math-plot-dark-ramp-1: #5664c4;
+  --math-plot-dark-ramp-2: #4aa3ad;
+  --math-plot-dark-ramp-3: #9cc879;
+  --math-plot-dark-ramp-4: #f0c46a;
+  --math-plot-dark-ramp-5: #f08a63;
+
   /* Claude benchmarks: shared ink, paper, muted and matcha palette. */
   --benchmark-ink: #141413;
   --benchmark-paper: #faf9f5;

@@ -1,0 +1,143 @@
+---
+title: "二元函数图像"
+description: "z = f(x, y) 的曲面与等高线：旋转抛物面、马鞍面、圆锥面、球面、极值与鞍点，以及二重极限不存在的典型反例。"
+---
+
+二元函数 $z=f(x,y)$ 的图像是空间曲面。三维图中颜色表示高度，底面画出等高线 $f(x,y)=c$；拖动旋转，按住 Ctrl（⌘）滚动缩放，工具栏可开启自动旋转。
+
+## 旋转抛物面与圆锥面
+
+<MathPlot3D
+  title="旋转抛物面 z = x² + y²"
+  description="等高线是一族同心圆，越往外越密，说明曲面越来越陡。"
+  x={[-1.5, 1.5]}
+  y={[-1.5, 1.5]}
+  z={[0, 2.5]}
+  items={[{ type: 'surface', z: 'x^2 + y^2', r: [0, 1.5], contours: 8, label: 'z=x^2+y^2' }]}
+/>
+
+<MathPlot3D
+  title="圆锥面 z = √(x² + y²)"
+  description="等高线是等距的同心圆，坡度处处相同；在原点处两个偏导数都不存在。"
+  x={[-1.5, 1.5]}
+  y={[-1.5, 1.5]}
+  z={[0, 1.6]}
+  items={[{ type: 'surface', z: 'sqrt(x^2 + y^2)', r: [0, 1.5], contours: 8, label: 'z=\\sqrt{x^2+y^2}' }]}
+/>
+
+<MathPlot3D
+  title="上半球面 z = √(R² − x² − y²)"
+  description="在极坐标网格上绘制，边界圆是 x² + y² = R²。"
+  x={[-1.6, 1.6]}
+  y={[-1.6, 1.6]}
+  z={[0, 1.6]}
+  params={[{ name: 'R', label: 'R', min: 0.6, max: 1.5, value: 1.2 }]}
+  items={[{ type: 'surface', z: 'sqrt(R^2 - x^2 - y^2)', r: [0, 'R'], label: 'z=\\sqrt{R^2-x^2-y^2}', contours: 6 }]}
+/>
+
+## 极值与鞍点
+
+<MathPlot3D
+  title="马鞍面 z = x² − y²"
+  description="原点处两个偏导数都为 0，但沿 x 方向是极小、沿 y 方向是极大，所以原点是鞍点而不是极值点。"
+  x={[-1.5, 1.5]}
+  y={[-1.5, 1.5]}
+  items={[
+    { type: 'surface', z: 'x^2 - y^2', contours: 10, label: 'z=x^2-y^2' },
+    { type: 'curve', x: 't', y: '0', z: 't^2', t: [-1.5, 1.5], color: 'coral', label: 'y=0' },
+    { type: 'curve', x: '0', y: 't', z: '-t^2', t: [-1.5, 1.5], color: 'teal', label: 'x=0' },
+    { type: 'point', at: [0, 0, 0], label: 'O' },
+  ]}
+/>
+
+<MathPlot3D
+  title="一个极大值与一个极小值"
+  description="f(x, y) = x·e^(−x²−y²) 在 (1/√2, 0) 取极大值，在 (−1/√2, 0) 取极小值。"
+  x={[-2, 2]}
+  y={[-2, 2]}
+  z={[-0.5, 0.5]}
+  aspect="cube"
+  items={[
+    { type: 'surface', z: 'x exp(-x^2 - y^2)', contours: 12, label: 'z=xe^{-x^2-y^2}' },
+    { type: 'point', at: ['1/sqrt(2)', 0, '1/sqrt(2) exp(-1/2)'], label: '\\max' },
+    { type: 'point', at: ['-1/sqrt(2)', 0, '-1/sqrt(2) exp(-1/2)'], label: '\\min' },
+  ]}
+/>
+
+<MathPlot2D
+  title="同一函数的等高线图"
+  description="俯视上图：等高线 x·e^(−x²−y²) = c。拖动 c，极值点附近的等高线收缩为一点。"
+  x={[-2, 2]}
+  y={[-1.6, 1.6]}
+  params={[{ name: 'c', label: 'c', min: -0.42, max: 0.42, step: 0.005, value: 0.2, animate: true }]}
+  items={[
+    { type: 'region', where: 'x exp(-x^2 - y^2) >= c', color: 'amber', opacity: 0.8, label: 'f(x,y)\\ge c' },
+    { type: 'implicit', eq: 'x exp(-x^2 - y^2) = c', color: 'coral', label: 'f(x,y)=c' },
+    { type: 'implicit', eq: 'x exp(-x^2 - y^2) = 0.1', color: 'gray', width: 1, legend: false },
+    { type: 'implicit', eq: 'x exp(-x^2 - y^2) = -0.1', color: 'gray', width: 1, legend: false },
+    { type: 'implicit', eq: 'x exp(-x^2 - y^2) = 0.3', color: 'gray', width: 1, legend: false },
+    { type: 'implicit', eq: 'x exp(-x^2 - y^2) = -0.3', color: 'gray', width: 1, legend: false },
+    { type: 'point', at: ['1/sqrt(2)', 0], label: '\\max', dir: 90 },
+    { type: 'point', at: ['-1/sqrt(2)', 0], label: '\\min', dir: 90 },
+  ]}
+/>
+
+## 波形曲面
+
+<MathPlot3D
+  title="z = sin x · cos y"
+  description="峰与谷交替排列，相邻峰谷之间是鞍点。"
+  x={['-pi', 'pi']}
+  y={['-pi', 'pi']}
+  z={[-1.5, 1.5]}
+  items={[{ type: 'surface', z: 'sin x cos y', contours: 10, label: 'z=\\sin x\\cos y' }]}
+/>
+
+<MathPlot3D
+  title="墨西哥帽 z = sin r / r"
+  description="r = √(x² + y²)，在原点补充定义为 1 后连续。"
+  x={[-10, 10]}
+  y={[-10, 10]}
+  z={[-0.3, 1.05]}
+  aspect="cube"
+  items={[{ type: 'surface', z: 'sin(r) / r', r: [0.001, 10], resolution: 110, label: 'z=\\frac{\\sin r}{r}' }]}
+/>
+
+<MathPlot3D
+  title="高斯曲面 z = e^(−(x² + y²))"
+  description="由它可得 ∬ e^(−x²−y²) dσ = π，进而 ∫ e^(−x²) dx = √π。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  z={[0, 1.1]}
+  aspect="cube"
+  items={[{ type: 'surface', z: 'exp(-(x^2 + y^2))', r: [0, 2.2], contours: 8, label: 'z=e^{-(x^2+y^2)}' }]}
+/>
+
+## 二重极限不存在的反例
+
+<MathPlot3D
+  title="f(x, y) = 2xy / (x² + y²)"
+  description="沿直线 y = kx 趋于原点，函数值恒为 2k/(1 + k²)，与 k 有关，所以二重极限不存在。曲面在原点附近像一把被拧过的扇子。"
+  x={[-1.2, 1.2]}
+  y={[-1.2, 1.2]}
+  z={[-1.1, 1.1]}
+  aspect="cube"
+  params={[{ name: 'k', label: 'k', min: -3, max: 3, value: 1 }]}
+  items={[
+    { type: 'surface', z: '2 x y / (x^2 + y^2)', r: [0.001, 1.2], resolution: 96, label: 'z=\\frac{2xy}{x^2+y^2}' },
+    { type: 'curve', x: 't / sqrt(1 + k^2)', y: 'k t / sqrt(1 + k^2)', z: '2k / (1 + k^2)', t: [-1.2, 1.2], color: 'coral', tube: true, label: 'y=kx' },
+  ]}
+/>
+
+<MathPlot3D
+  title="f(x, y) = x²y / (x⁴ + y²)"
+  description="沿任何直线趋于原点极限都是 0，但沿抛物线 y = x² 函数值恒为 1/2：沿直线逐一检验不能证明二重极限存在。"
+  x={[-1, 1]}
+  y={[-1, 1]}
+  z={[-0.6, 0.6]}
+  aspect="cube"
+  items={[
+    { type: 'surface', z: 'x^2 y / (x^4 + y^2)', resolution: 120, label: 'z=\\frac{x^2y}{x^4+y^2}' },
+    { type: 'curve', x: 't', y: 't^2', z: '1/2', t: [-1, 1], color: 'coral', tube: true, label: 'y=x^2' },
+  ]}
+/>

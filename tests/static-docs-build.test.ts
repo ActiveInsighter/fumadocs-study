@@ -145,6 +145,32 @@ describe('static docs build', () => {
     expect(markdown).toContain('{/* 保留 */}');
   });
 
+  it('drops interactive components whose attributes span several lines', async () => {
+    const markdown = await renderStaticMarkdown(
+      [
+        '前文',
+        '',
+        '<MathPlot2D',
+        '  title="单位圆"',
+        "  items={[{ type: 'region', where: 'x^2 + y^2 <= 1' }]}",
+        '  x={[-2, 2]}',
+        '/>',
+        '',
+        '<Callout title="说明">',
+        '后文',
+        '</Callout>',
+      ].join('\n'),
+      { title: '示例', url: '/docs/example' },
+    );
+
+    expect(markdown).toContain('前文');
+    expect(markdown).toContain('后文');
+    expect(markdown).toContain('**说明**');
+    expect(markdown).not.toContain('MathPlot2D');
+    expect(markdown).not.toContain('items=');
+    expect(markdown).not.toContain('/>');
+  });
+
   it('builds section-aware ZBSearch source records without enabling remarkStructure globally', () => {
     const index = buildZBSearchSourceIndex(
       'math/example.mdx',

@@ -1,0 +1,200 @@
+---
+title: "二次曲面"
+description: "椭球面、单叶与双叶双曲面、椭圆抛物面与双曲抛物面、二次锥面、各类柱面与旋转曲面，配合截痕法观察。"
+---
+
+二次曲面是三元二次方程 $F(x,y,z)=0$ 的图像。识别曲面最常用**截痕法**：用平行于坐标面的平面去截，看截线是椭圆、双曲线还是抛物线。下面的图都可以拖动旋转；带滑块的图可以调整半轴或截面高度。
+
+## 椭球面
+
+<MathPlot3D
+  title="椭球面 x²/a² + y²/b² + z²/c² = 1"
+  description="三个半轴分别为 a、b、c；a = b = c 时退化为球面。用平面 z = h（|h| < c）去截，截线都是椭圆。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  z={[-2.2, 2.2]}
+  params={[
+    { name: 'a', label: 'a', min: 0.5, max: 2, value: 1.8 },
+    { name: 'b', label: 'b', min: 0.5, max: 2, value: 1.2 },
+    { name: 'c', label: 'c', min: 0.5, max: 2, value: 0.9 },
+  ]}
+  items={[
+    {
+      type: 'parametric',
+      x: 'a sin u cos v',
+      y: 'b sin u sin v',
+      z: 'c cos u',
+      u: [0, 'pi'],
+      v: [0, '2pi'],
+      label: '\\frac{x^2}{a^2}+\\frac{y^2}{b^2}+\\frac{z^2}{c^2}=1',
+    },
+    { type: 'curve', x: 'a cos t', y: 'b sin t', z: '0', t: [0, '2pi'], color: 'coral', label: 'z=0' },
+  ]}
+/>
+
+## 双曲面
+
+<MathPlot3D
+  title="单叶双曲面 x²/a² + y²/b² − z²/c² = 1"
+  description="拖动 h：平面 z = h 截得的椭圆随 |h| 增大而变大，在 z = 0 处最小（腰椭圆）；用 x = 0 去截得到双曲线。"
+  x={[-3, 3]}
+  y={[-3, 3]}
+  z={[-2, 2]}
+  params={[
+    { name: 'h', label: 'h', min: -1.8, max: 1.8, value: 1, animate: true },
+    { name: 'a', label: 'a', min: 0.6, max: 1.6, value: 1 },
+  ]}
+  items={[
+    {
+      type: 'parametric',
+      x: 'a cosh(v) cos(u)',
+      y: 'cosh(v) sin(u)',
+      z: 'sinh(v)',
+      u: [0, '2pi'],
+      v: [-1.45, 1.45],
+      opacity: 0.85,
+      label: '\\frac{x^2}{a^2}+y^2-z^2=1',
+    },
+    { type: 'curve', x: 'a sqrt(1 + h^2) cos t', y: 'sqrt(1 + h^2) sin t', z: 'h', t: [0, '2pi'], color: 'coral', tube: true, label: 'z=h' },
+  ]}
+/>
+
+<MathPlot3D
+  title="单叶双曲面是直纹面"
+  description="红、青两族直线 (cos s ∓ t sin s, sin s ± t cos s, t) 都完全落在 x² + y² − z² = 1 上；冷却塔就是用直钢梁搭出来的。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  z={[-1.6, 1.6]}
+  items={[
+    { type: 'implicit', eq: 'x^2 + y^2 - z^2 = 1', opacity: 0.55, label: 'x^2+y^2-z^2=1' },
+    { type: 'curve', x: 'cos(0) - t sin(0)', y: 'sin(0) + t cos(0)', z: 't', t: [-1.5, 1.5], color: 'coral', tube: true, legend: false },
+    { type: 'curve', x: 'cos(pi/2) - t sin(pi/2)', y: 'sin(pi/2) + t cos(pi/2)', z: 't', t: [-1.5, 1.5], color: 'coral', tube: true, legend: false },
+    { type: 'curve', x: 'cos(pi) - t sin(pi)', y: 'sin(pi) + t cos(pi)', z: 't', t: [-1.5, 1.5], color: 'coral', tube: true, legend: false },
+    { type: 'curve', x: 'cos(3pi/2) - t sin(3pi/2)', y: 'sin(3pi/2) + t cos(3pi/2)', z: 't', t: [-1.5, 1.5], color: 'coral', tube: true, legend: false },
+    { type: 'curve', x: 'cos(pi/4) + t sin(pi/4)', y: 'sin(pi/4) - t cos(pi/4)', z: 't', t: [-1.5, 1.5], color: 'teal', tube: true, legend: false },
+    { type: 'curve', x: 'cos(5pi/4) + t sin(5pi/4)', y: 'sin(5pi/4) - t cos(5pi/4)', z: 't', t: [-1.5, 1.5], color: 'teal', tube: true, legend: false },
+  ]}
+/>
+
+<MathPlot3D
+  title="双叶双曲面 x² + y² − z² = −1"
+  description="|z| < 1 时平面 z = h 与曲面不相交，所以曲面分成上下两叶；|h| > 1 时截线是圆。"
+  x={[-2.5, 2.5]}
+  y={[-2.5, 2.5]}
+  z={[-2.6, 2.6]}
+  items={[
+    { type: 'implicit', eq: 'x^2 + y^2 - z^2 = -1', resolution: 72, label: 'x^2+y^2-z^2=-1' },
+    { type: 'point', at: [0, 0, 1], label: '(0,0,1)' },
+    { type: 'point', at: [0, 0, -1], label: '(0,0,-1)' },
+  ]}
+/>
+
+## 抛物面
+
+<MathPlot3D
+  title="椭圆抛物面 z = x²/a² + y²/b²"
+  description="水平截线是椭圆，竖直截线是开口向上的抛物线。a = b 时为旋转抛物面。"
+  x={[-2, 2]}
+  y={[-2, 2]}
+  z={[0, 3]}
+  params={[
+    { name: 'a', label: 'a', min: 0.6, max: 2, value: 1.4 },
+    { name: 'b', label: 'b', min: 0.6, max: 2, value: 1 },
+  ]}
+  items={[
+    { type: 'surface', z: 'x^2/a^2 + y^2/b^2', where: 'x^2/a^2 + y^2/b^2 <= 3', contours: 6, label: 'z=\\frac{x^2}{a^2}+\\frac{y^2}{b^2}' },
+  ]}
+/>
+
+<MathPlot3D
+  title="双曲抛物面（马鞍面）z = x²/a² − y²/b²"
+  description="用 x = 0 截得开口向下的抛物线，用 y = 0 截得开口向上的抛物线，水平截线是双曲线（z = 0 时退化为两条直线）。"
+  x={[-2, 2]}
+  y={[-2, 2]}
+  z={[-2.5, 2.5]}
+  items={[
+    { type: 'surface', z: 'x^2/1.5 - y^2/1.5', contours: 12, label: 'z=\\frac{x^2-y^2}{1.5}' },
+    { type: 'curve', x: 't', y: '0', z: 't^2/1.5', t: [-1.9, 1.9], color: 'coral', tube: true, label: 'y=0' },
+    { type: 'curve', x: '0', y: 't', z: '-t^2/1.5', t: [-1.9, 1.9], color: 'teal', tube: true, label: 'x=0' },
+  ]}
+/>
+
+## 锥面
+
+<MathPlot3D
+  title="二次锥面 x²/a² + y²/b² = z²"
+  description="由过原点的直线（母线）组成，截线 z = h 是椭圆，原点是锥顶。"
+  x={[-2, 2]}
+  y={[-2, 2]}
+  z={[-1.6, 1.6]}
+  params={[{ name: 'a', label: 'a', min: 0.5, max: 1.6, value: 1.2 }]}
+  items={[
+    { type: 'parametric', x: 'a v cos u', y: 'v sin u', z: 'v', u: [0, '2pi'], v: [-1.5, 1.5], label: '\\frac{x^2}{a^2}+y^2=z^2' },
+    { type: 'point', at: [0, 0, 0], label: 'O' },
+  ]}
+/>
+
+## 柱面
+
+柱面方程中缺一个变量，母线就平行于那个坐标轴。
+
+<MathPlot3D
+  title="圆柱面 x² + y² = R²"
+  description="缺 z，母线平行于 z 轴；准线是 xy 平面上的圆。"
+  x={[-1.8, 1.8]}
+  y={[-1.8, 1.8]}
+  z={[-1.5, 1.5]}
+  params={[{ name: 'R', label: 'R', min: 0.4, max: 1.6, value: 1 }]}
+  items={[
+    { type: 'parametric', x: 'R cos u', y: 'R sin u', z: 'v', u: [0, '2pi'], v: [-1.4, 1.4], color: 'teal', opacity: 0.8, label: 'x^2+y^2=R^2' },
+    { type: 'curve', x: 'R cos t', y: 'R sin t', z: '-1.4', t: [0, '2pi'], color: 'coral', tube: true, label: '准线' },
+  ]}
+/>
+
+<MathPlot3D
+  title="抛物柱面 z = y² 与双曲柱面 x² − y² = 1"
+  description="两者都只含两个变量：抛物柱面的母线平行于 x 轴，双曲柱面的母线平行于 z 轴。"
+  x={[-2.5, 2.5]}
+  y={[-2, 2]}
+  z={[-1.5, 2.5]}
+  items={[
+    { type: 'parametric', x: 'u', y: 'v', z: 'v^2', u: [-2.5, 2.5], v: [-1.55, 1.55], color: 'blue', opacity: 0.75, label: 'z=y^2' },
+    { type: 'parametric', x: 'cosh v', y: 'sinh v', z: 'u', u: [-1.4, 2.4], v: [-1.4, 1.4], color: 'coral', opacity: 0.75, label: 'x^2-y^2=1' },
+    { type: 'parametric', x: '-cosh v', y: 'sinh v', z: 'u', u: [-1.4, 2.4], v: [-1.4, 1.4], color: 'coral', opacity: 0.75, legend: false },
+  ]}
+/>
+
+## 旋转曲面
+
+把 yz 平面上的曲线 $f(y,z)=0$ 绕 z 轴旋转，方程变为 $f(\pm\sqrt{x^2+y^2},z)=0$。
+
+<MathPlot3D
+  title="母线 y = 1 + z²/2 绕 z 轴旋转"
+  description="得到 √(x² + y²) = 1 + z²/2，红线是旋转前 yz 平面上的母线。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  z={[-1.6, 1.6]}
+  items={[
+    { type: 'parametric', x: '(1 + v^2/2) cos u', y: '(1 + v^2/2) sin u', z: 'v', u: [0, '2pi'], v: [-1.5, 1.5], opacity: 0.8, label: '\\sqrt{x^2+y^2}=1+\\frac{z^2}{2}' },
+    { type: 'curve', x: '0', y: '1 + t^2/2', z: 't', t: [-1.5, 1.5], color: 'coral', tube: true, label: '母线' },
+  ]}
+/>
+
+<MathPlot3D
+  title="圆环面（非二次曲面，作对比）"
+  description="圆 (y − R)² + z² = r² 绕 z 轴旋转得到圆环面，方程是四次的。"
+  x={[-2.2, 2.2]}
+  y={[-2.2, 2.2]}
+  z={[-1, 1]}
+  params={[
+    { name: 'R', label: 'R', min: 1, max: 1.6, value: 1.4 },
+    { name: 'a', label: 'r', min: 0.2, max: 0.6, value: 0.45 },
+  ]}
+  items={[
+    { type: 'parametric', x: '(R + a cos v) cos u', y: '(R + a cos v) sin u', z: 'a sin v', u: [0, '2pi'], v: [0, '2pi'], resolution: [96, 40], label: '(\\sqrt{x^2+y^2}-R)^2+z^2=r^2' },
+  ]}
+/>
+
+<Callout title="分类速查">
+二次项系数符号决定类型：三个同号是**椭球面**；两正一负、常数项为正是**单叶双曲面**，常数项为负是**双叶双曲面**，常数项为零是**锥面**；只含两个平方项和一个一次项是**抛物面**（同号为椭圆抛物面，异号为双曲抛物面）；缺一个变量就是**柱面**。
+</Callout>
