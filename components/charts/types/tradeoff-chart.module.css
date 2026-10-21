@@ -1,0 +1,140 @@
+/*
+ * Performance-vs-cost marks. Motion follows the reference pattern: lines draw
+ * via stroke-dashoffset on a normalised pathLength, then marks and labels
+ * fade in once the line has mostly drawn. data-armed holds the pre-state.
+ */
+.box :global(.recharts-cartesian-axis-tick-value) {
+  font-size: calc(var(--chart-font-tick) + 0.5px);
+}
+
+.layer {
+  --mark-ring: var(--chart-mark-ring);
+}
+
+.line {
+  fill: none;
+  stroke-width: var(--chart-line-width-strong);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition:
+    stroke-dashoffset var(--chart-draw) var(--chart-ease) var(--delay, 0ms),
+    opacity var(--chart-fade) var(--chart-ease);
+}
+
+.lineDashed {
+  transition: opacity var(--chart-fade) var(--chart-ease) var(--delay, 0ms);
+}
+
+[data-armed] .line {
+  stroke-dashoffset: 1;
+}
+
+[data-armed] .lineDashed {
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+
+.marks {
+  transition: opacity var(--chart-fade) var(--chart-ease) calc(var(--delay, 0ms) + var(--chart-draw) * 0.7);
+}
+
+[data-armed] .marks {
+  opacity: 0;
+}
+
+.series {
+  transition: opacity 180ms var(--chart-ease);
+}
+
+.dimmed {
+  opacity: 0.38;
+  transition-delay: 0ms;
+}
+
+.point {
+  cursor: pointer;
+  outline: none;
+}
+
+.hit {
+  fill: transparent;
+}
+
+.mark {
+  stroke: var(--chart-mark-stroke);
+  stroke-width: var(--mark-ring);
+  transition: r 160ms var(--chart-ease);
+}
+
+.point[data-active] .mark {
+  r: calc(1px * var(--chart-mark-radius) + 2.5px);
+}
+
+[data-theme='editorial'] .point[data-active] .mark {
+  r: 9px;
+}
+
+.focusRing {
+  fill: none;
+  stroke: var(--chart-focus);
+  stroke-width: 1.5;
+  opacity: 0;
+}
+
+.point:focus-visible .focusRing {
+  opacity: 1;
+}
+
+.label {
+  fill: var(--chart-ink);
+  font-family: var(--chart-font-family);
+  font-feature-settings: 'lnum', 'pnum';
+  paint-order: stroke;
+  stroke: var(--chart-panel);
+  stroke-width: var(--chart-label-halo);
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.tooltip {
+  font-family: var(--chart-font-family);
+  font-feature-settings: 'lnum', 'tnum';
+}
+
+.tooltipBox {
+  fill: var(--chart-tooltip-bg);
+}
+
+.tooltipLabel {
+  fill: var(--chart-tooltip-label);
+  font-size: 12.5px;
+}
+
+.tooltipValue {
+  fill: var(--chart-tooltip-fg);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.axisBreak line {
+  stroke: var(--chart-panel);
+  stroke-width: 4;
+}
+
+.axisBreak polyline {
+  fill: none;
+  stroke: var(--chart-axis);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .marks,
+  .mark,
+  .series {
+    transition: none;
+  }
+}

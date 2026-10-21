@@ -1,5 +1,7 @@
 import { remarkMdxMermaid, remarkStructure } from 'fumadocs-core/mdx-plugins';
 import { remarkMdxMindmap } from './lib/mdx/remark-mindmap';
+import { remarkMdxPreview } from './lib/mdx/remark-mdx-preview';
+import { heroSchema } from './components/blog-hero/schema';
 import { remarkStrongBoundaryRepair } from './lib/mdx/remark-strong-boundary';
 import { pageSchema } from 'fumadocs-core/source/schema';
 import { defineCollections, defineConfig, defineDocs } from 'fumadocs-mdx/config';
@@ -38,6 +40,8 @@ export const blog = defineCollections({
   schema: pageSchema.extend({
     date: z.coerce.date(),
     author: z.string().optional(),
+    // Optional configurable hero (components/blog-hero). Posts without it keep the plain header.
+    hero: heroSchema.optional(),
   }),
 });
 
@@ -57,6 +61,7 @@ export default defineConfig({
       remarkMath,
       remarkMdxMermaid,
       remarkMdxMindmap,
+      remarkMdxPreview,
     ],
     // Do not make production builds depend on third-party image hosts.
     remarkImageOptions: { external: false },

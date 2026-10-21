@@ -9,7 +9,8 @@
     "phrases",
     "word-cards-demo",
     "claude-benchmarks",
-    "chart-components"
+    "chart-components",
+    "chart-gallery"
   ],
   "defaultOpen": false
 }

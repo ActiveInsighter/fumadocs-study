@@ -1,0 +1,175 @@
+/*
+ * Data-chart design system.
+ *
+ * Every chart under components/charts reads only these variables, so the
+ * whole family changes theme, density and motion from one place.
+ *
+ *   --chart-1 … --chart-8   categorical series, fixed order (never cycled)
+ *   --chart-seq-*           one-hue sequential ramp (magnitude, treemap)
+ *   --chart-surface / ink   chrome: plot surface, text, grid, axis
+ *   --chart-font-*          type scale used inside SVG
+ *   --chart-line-* / mark   mark specs shared by all chart types
+ *   --chart-draw / fade     entrance motion (disabled for reduced motion)
+ *
+ * The categorical order was validated with the dataviz palette checker
+ * (lightness band, chroma floor, adjacent CVD ΔE ≥ 8, normal-vision ΔE ≥ 15,
+ * ≥ 3:1 contrast) against #fff (light) and #000 (dark). The first three slots
+ * also pass the all-pairs check, so scatter and bubble charts stay readable
+ * up to three series. Slot names match the shadcn convention
+ * (`color: "var(--chart-1)"`) so stock shadcn chart examples keep working.
+ *
+ * The "editorial" theme swaps the series for soft paper-like fills with an ink
+ * outline. Those fills sit below 3:1 on the surface on purpose: the ink ring,
+ * the direct labels and the data-table view carry identity instead.
+ */
+:root {
+  --chart-1: #4f63c4; /* indigo */
+  --chart-2: #d0613a; /* clay */
+  --chart-3: #0f9384; /* teal */
+  --chart-4: #bf8a0c; /* ochre */
+  --chart-5: #a8528f; /* plum */
+  --chart-6: #4e8a2e; /* moss */
+  --chart-7: #7b5cd6; /* violet */
+  --chart-8: #c9454f; /* brick */
+  --chart-other: #9a978e;
+
+  --chart-seq-1: #e3e7f8;
+  --chart-seq-2: #c3cbef;
+  --chart-seq-3: #9eaae3;
+  --chart-seq-4: #7586d4;
+  --chart-seq-5: #4f63c4;
+  --chart-seq-6: #3a4b9c;
+
+  --chart-editorial-1: #ced6bf; /* matcha */
+  --chart-editorial-2: #c5d3e0; /* cloud */
+  --chart-editorial-3: #cbcadb; /* heather */
+  --chart-editorial-4: #ebcece; /* coral */
+  --chart-editorial-5: #bcd1ca; /* cactus */
+  --chart-editorial-6: #ebc9b7; /* peach */
+
+  --chart-surface: var(--background);
+  --chart-panel: var(--background);
+  --chart-ink: oklch(0.2 0.006 85);
+  --chart-text: var(--foreground);
+  --chart-text-secondary: oklch(0.42 0.008 85);
+  --chart-muted: oklch(0.56 0.008 85);
+  --chart-grid: oklch(0.92 0.006 85);
+  --chart-axis: oklch(0.8 0.008 85);
+  --chart-border: var(--border);
+  --chart-cursor: color-mix(in oklch, var(--foreground) 5%, transparent);
+  --chart-tooltip-bg: oklch(0.2 0.006 85);
+  --chart-tooltip-fg: oklch(0.98 0.004 85);
+  --chart-tooltip-label: oklch(0.76 0.008 85);
+  --chart-focus: var(--foreground);
+
+  --chart-font-family: var(--font-inter), 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
+  --chart-font-title: 1rem;
+  --chart-font-subtitle: 0.875rem;
+  --chart-font-legend: 0.8125rem;
+  --chart-font-tick: 12px;
+  --chart-font-axis: 12.5px;
+  --chart-font-point: 11.5px;
+  --chart-font-footnote: 0.8125rem;
+
+  --chart-line-width: 2px;
+  --chart-line-width-strong: 3px;
+  --chart-mark-radius: 5;
+  --chart-mark-ring: 2px;
+  --chart-mark-stroke: var(--chart-surface);
+  --chart-bar-radius: 4px;
+  --chart-area-opacity: 0.14;
+  --chart-label-halo: 4px;
+
+  --chart-radius: var(--ui-radius-surface);
+  --chart-pad: 1.25rem;
+  --chart-gap: 1rem;
+
+  --chart-draw: 900ms;
+  --chart-fade: 320ms;
+  --chart-ease: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.dark {
+  --chart-1: #6f80e0;
+  --chart-2: #d8673a;
+  --chart-3: #169e8c;
+  --chart-4: #b98816;
+  --chart-5: #c06aa6;
+  --chart-6: #64a043;
+  --chart-7: #9278e6;
+  --chart-8: #dd5f66;
+  --chart-other: #7c7a73;
+
+  --chart-seq-1: #1b2142;
+  --chart-seq-2: #27326a;
+  --chart-seq-3: #36478f;
+  --chart-seq-4: #4a5fb6;
+  --chart-seq-5: #6f80e0;
+  --chart-seq-6: #9aa6ee;
+
+  --chart-editorial-1: #4a5640;
+  --chart-editorial-2: #3f4f60;
+  --chart-editorial-3: #4a4962;
+  --chart-editorial-4: #664646;
+  --chart-editorial-5: #3c5751;
+  --chart-editorial-6: #66493b;
+
+  --chart-ink: oklch(0.94 0.006 85);
+  --chart-text-secondary: oklch(0.8 0.008 85);
+  --chart-muted: oklch(0.66 0.008 85);
+  --chart-grid: oklch(0.26 0.004 85);
+  --chart-axis: oklch(0.4 0.006 85);
+  --chart-cursor: color-mix(in oklch, var(--foreground) 8%, transparent);
+  --chart-tooltip-bg: oklch(0.94 0.006 85);
+  --chart-tooltip-fg: oklch(0.18 0.006 85);
+  --chart-tooltip-label: oklch(0.45 0.008 85);
+}
+
+/*
+ * Editorial theme: warm paper surface, ink chrome, soft fills with ink rings.
+ * Opted into per figure with data-chart-theme="editorial".
+ */
+[data-chart-theme='editorial'] {
+  --chart-1: var(--chart-editorial-1);
+  --chart-2: var(--chart-editorial-2);
+  --chart-3: var(--chart-editorial-3);
+  --chart-4: var(--chart-editorial-4);
+  --chart-5: var(--chart-editorial-5);
+  --chart-6: var(--chart-editorial-6);
+  --chart-panel: #faf9f5;
+  --chart-surface: #faf9f5;
+  --chart-ink: #141413;
+  --chart-text-secondary: #30302e;
+  --chart-muted: #5e5d59;
+  --chart-grid: #dcdad1;
+  --chart-axis: #141413;
+  --chart-border: #141413;
+  --chart-mark-stroke: var(--chart-ink);
+  --chart-mark-ring: 1px;
+  --chart-tooltip-bg: #141413;
+  --chart-tooltip-fg: #faf9f5;
+  --chart-tooltip-label: #b0aea5;
+  --chart-radius: 0;
+  --chart-area-opacity: 0.55;
+}
+
+.dark [data-chart-theme='editorial'] {
+  --chart-panel: #0f0f0e;
+  --chart-surface: #0f0f0e;
+  --chart-ink: #ecebe6;
+  --chart-text-secondary: #d3d1c8;
+  --chart-muted: #a19f97;
+  --chart-grid: #2a2a27;
+  --chart-axis: #8c8a83;
+  --chart-border: #3a3936;
+  --chart-tooltip-bg: #ecebe6;
+  --chart-tooltip-fg: #141413;
+  --chart-tooltip-label: #5e5d59;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --chart-draw: 0ms;
+    --chart-fade: 0ms;
+  }
+}

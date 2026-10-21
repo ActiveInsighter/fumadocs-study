@@ -1,4 +1,6 @@
+import { BlogHero } from '@/components/blog-hero';
 import { getMDXComponents } from '@/components/mdx';
+import { siteConfig } from '@/lib/site-config';
 import { toCanonicalPagePath } from '@/lib/site-url';
 import { blogSource } from '@/lib/source';
 import type { Metadata } from 'next';
@@ -59,23 +61,44 @@ async function BlogPost({ slug }: { slug: string[] }) {
   if (!page) notFound();
 
   const MDX = page.data.body;
+  const hero = page.data.hero;
 
   return (
-    <main className="container mx-auto max-w-3xl px-6 py-16 font-serif">
+    <>
+      {hero ? (
+        <BlogHero
+          author={page.data.author}
+          config={hero}
+          date={page.data.date}
+          description={page.data.description}
+          title={page.data.title}
+          toc={page.data.toc}
+        />
+      ) : null}
+    <main className={`container mx-auto max-w-3xl px-6 font-serif ${hero ? 'pb-16 pt-12' : 'py-16'}`}>
       <article>
-        <h1 className="text-4xl font-semibold tracking-tight">
-          {page.data.title}
-        </h1>
-        <p className="mt-3 text-sm text-fd-muted-foreground">
-          <time>{formatDate(page.data.date)}</time>
-          {page.data.author ? ` · ${page.data.author}` : null}
-        </p>
-        {page.data.description ? (
-          <p className="mt-4 text-lg text-fd-muted-foreground">
-            {page.data.description}
+        {hero ? (
+          <p className="text-sm text-fd-muted-foreground">
+            <time dateTime={page.data.date.toISOString()}>{formatDate(page.data.date)}</time>
+            {page.data.author ? ` · ${page.data.author}` : null}
           </p>
-        ) : null}
-        <DocsBody id="blog-body" className="mt-8">
+        ) : (
+          <>
+            <h1 className="text-4xl font-semibold tracking-tight">
+              {page.data.title}
+            </h1>
+            <p className="mt-3 text-sm text-fd-muted-foreground">
+              <time>{formatDate(page.data.date)}</time>
+              {page.data.author ? ` · ${page.data.author}` : null}
+            </p>
+            {page.data.description ? (
+              <p className="mt-4 text-lg text-fd-muted-foreground">
+                {page.data.description}
+              </p>
+            ) : null}
+          </>
+        )}
+        <DocsBody id="blog-body" className={hero ? 'mt-6' : 'mt-8'}>
           <MDX
             components={getMDXComponents({
               a: createRelativeLink(blogSource, page),
@@ -89,6 +112,7 @@ async function BlogPost({ slug }: { slug: string[] }) {
         </Link>
       </div>
     </main>
+    </>
   );
 }
 
@@ -116,5 +140,15 @@ export async function generateMetadata({
     title: page.data.title,
     description: page.data.description,
     alternates: { canonical: toCanonicalPagePath(page.url) },
+    openGraph: {
+      // Child openGraph replaces the root object, so restate the site fields.
+      type: 'article',
+      locale: siteConfig.locale,
+      siteName: siteConfig.name,
+      title: page.data.title,
+      description: page.data.description,
+      publishedTime: page.data.date.toISOString(),
+      authors: page.data.author ? [page.data.author] : undefined,
+    },
   };
 }

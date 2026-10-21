@@ -3,7 +3,7 @@
  *
  * Shared by inline SVG diagrams, MDX charts and the study home page. Soft,
  * low-chroma families with five steps each: soft → light → mid → deep → ink.
- * Charts pick their series colours from --chart-*.
+ * Data charts take their series colours from styles/tokens/charts.css.
  */
 :root {
   --svg-font-family: var(--font-sans);
@@ -145,14 +145,5 @@
   --neutral-deep: #656159;
   --neutral-ink: #3f3c36;
 
-  --chart-1: var(--indigo-light);
-  --chart-2: var(--green-light);
-  --chart-3: var(--blue-light);
-  --chart-4: var(--amber-light);
-  --chart-5: var(--rose-light);
-  --chart-6: var(--teal-light);
-  --chart-7: var(--orange-light);
-  --chart-8: var(--violet-light);
-  --chart-9: var(--lime-light);
-  --chart-10: var(--cyan-light);
+  /* Chart series colours live in charts.css (validated categorical order). */
 }

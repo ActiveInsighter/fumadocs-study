@@ -1,0 +1,129 @@
+---
+title: 让数据自己说话：Study 图表与博客首屏的设计笔记
+description: 从一张“性能 vs 成本”曲线出发，重新整理 Study 站点的图表设计系统，并为博客做了一套可配置、会降级的首屏动效。
+date: 2026-10-21
+author: Study 编辑部
+hero:
+  preset: dataflow
+  accent: indigo
+  tone: dark
+  height: tall
+  headline: "让数据\n自己说话"
+  index: true
+  intensity: lively
+  series: [18, 27, 33, 41, 46, 51, 54]
+  facts:
+    - label: 阅读时间
+      value: 8 分钟
+    - label: 组件
+      value: 13 种图表 · 4 套首屏
+---
+
+一张好的技术图表，读者应该在三秒内看出结论，十秒内看懂它是怎么画的。这篇笔记记录了我们给 Study 站点重做图表系统和博客首屏时做出的取舍。
+
+## 从一张曲线开始
+
+模型发布页里最常见、也最难画好的一张图，是“性能 vs 成本”曲线：横轴是对数刻度的成本，纵轴是得分，每个点代表一个努力档位。它难画，是因为几件事必须同时成立：
+
+- 横轴必须是**对数**的，刻度却要落在 10、15、20、30 这样的整数上；
+- 每个点都要标出档位，标签之间不能相互遮挡，也不能压在线上；
+- 两条曲线的配色要有区分，但都要比墨色文字更安静。
+
+<StudyTradeoffChart
+  theme="editorial"
+  title="代码修复基准"
+  subtitle="得分 vs 成本"
+  summary="新模型在每个档位上都更高，并且它的 low 档以约一半成本超过了旧模型的 max 档。"
+  xLabel="平均每题成本（USD，对数刻度）"
+  yLabel="得分 (%)"
+  series={[
+    { key: "new", label: "新模型", points: [
+      { x: 11.1, y: 26.3, label: "low" }, { x: 14.9, y: 35.7, label: "med" },
+      { x: 20.3, y: 40.1, label: "high" }, { x: 31.8, y: 49.6, label: "xhigh" },
+      { x: 38.2, y: 52.6, label: "max" } ] },
+    { key: "old", label: "旧模型", points: [
+      { x: 17.2, y: 12.4, label: "low" }, { x: 25.1, y: 21.4, label: "med" },
+      { x: 34.3, y: 25.0, label: "high" }, { x: 36.4, y: 23.4, label: "xhigh" },
+      { x: 44.6, y: 24.7, label: "max" } ] }
+  ]}
+  footnote="示例数据。悬停或用 Tab 聚焦任意点可查看数值；← → 在同一曲线内移动，↑ ↓ 切换曲线。"
+/>
+
+参考页面的实现是一套手写 SVG：线条借助 `pathLength` 与 `stroke-dashoffset` 完成“绘制”动画，绘制到七成时圆点和标签再淡入；提示框本身也画在 SVG 里。我们沿用了这套**交互与动效语言**，但没有手写坐标轴。Recharts 负责比例尺、刻度、网格和响应式尺寸，我们只在它之上叠加一层自绘标记：读取 `useXAxisScale()` 给出的像素坐标，在像素空间里为每个标签计算朝上还是朝下的碰撞代价，取代价更小的一侧。
+
+## 颜色是可以计算的
+
+旧色板“看起来”很舒服，校验脚本却给出了两项不通过：色度过低，在小面积标记上读起来接近灰色；相邻两个颜色在正常视觉下的差异只有 ΔE 10.9，低于 15 的下限。新的八色分类色板保留了原来偏暖、偏低饱和的气质，并且在浅色和深色表面上都通过了全部检查。
+
+<StudyBarChart
+  title="色板校验结果"
+  subtitle="越高越好，虚线为通过阈值"
+  data={[
+    { check: "相邻色觉 ΔE", before: 8.2, after: 10.8 },
+    { check: "正常视觉 ΔE", before: 10.9, after: 20.0 },
+    { check: "最低对比度", before: 3.4, after: 3.6 }
+  ]}
+  xKey="check"
+  format={{ digits: 1 }}
+  showValues
+  series={[
+    { key: "before", label: "旧色板" },
+    { key: "after", label: "新色板" }
+  ]}
+  footnote="ΔE 按 OKLab ×100 计；对比度相对 #fff 计算。"
+/>
+
+颜色只是规则的一半，另一半是**不依赖颜色**：两个及以上系列一定有图例；点阵与斜线纹理可以作为第二识别通道；每张图都附带一份完整的数据表，点工具栏上的表格按钮就会显示出来。
+
+## 首屏：先有文字，再有动效
+
+我们逐一看了六个模型发布页的首屏。它们的视觉手法差别很大：
+
+- 有一页是全屏 three.js 天空场景，标题直接压在画面上；
+- 有一页是深色 canvas 舞台，两侧是拼贴纹理；
+- 有一页把标题文字沿一条弧线绘制；
+- 还有一页是纯黑底加居中的无衬线大标题。
+
+它们也有一个共同点：**标题始终是真实的文本节点**。即使视觉上的标题由 SVG 或 canvas 绘制，页面里仍保留了一个视觉隐藏的 `<h1>`。
+
+Study 的 `BlogHero` 把这一点当作底线：
+
+1. 标题、导语、目录和要点都由服务端渲染，第一帧即可见，首屏 LCP 元素始终是文字；
+2. 场景层只做装饰，标为 `aria-hidden`，尺寸完全由 CSS 决定，因此不会造成 CLS；
+3. 每种预设的场景代码按需懒加载，加载前先显示纯 CSS 的海报背景；
+4. `prefers-reduced-motion`、省流模式、低核数或低内存设备会依次降级为“简化动效”或“静态一帧”；canvas 场景还带有帧时监控，持续掉帧时自动停下。
+
+四种预设可以在文章中直接作为插图使用：
+
+<MotionScene preset="dataflow" accent="teal" tone="dark" height={240} caption="dataflow · SVG 数据流" />
+
+<MotionScene preset="aurora" accent="plum" tone="dark" height={240} intensity="lively" caption="aurora · 渐变 + 粒子（2D canvas）" />
+
+<MotionScene preset="paper" accent="ochre" tone="light" height={240} caption="paper · 纸艺层叠 + 视差" />
+
+`minimal` 预设没有场景层，只有排版和一层极淡的渐变，适合纯文字的随笔。
+
+## 给新文章加一个首屏
+
+新文章只需要在 frontmatter 里加一段 `hero`，其余字段都有默认值：
+
+```yaml
+hero:
+  preset: aurora        # minimal | aurora | dataflow | paper
+  accent: plum          # indigo | clay | teal | ochre | plum | moss
+  tone: dark            # auto 跟随站点主题；dark 在两种主题下都保持深色
+  height: tall          # compact | tall | screen
+  headline: "第一行\n第二行"
+  index: true           # 用文章的二级标题生成编号目录
+  facts:
+    - label: 阅读时间
+      value: 6 分钟
+```
+
+没有 `hero` 字段的旧文章保持原来的标题样式，不受影响。
+
+## 还没有做的事
+
+- **桑基图、热力图和箱线图**：Recharts 3 只原生提供桑基图，后两者目前用表格、`InlineSvg` 或直方图代替，没有为它们引入重型依赖；
+- **WebGL 场景**：参考页面里的三维天空确实很美，但对一个学习站点来说，首屏的 JS 成本和低端设备体验更重要。如果将来需要，可以作为第五种预设单独懒加载；
+- **导出时嵌入字体**：导出的 SVG 和 PNG 目前会回退到系统字体。
