@@ -63,18 +63,6 @@
   --word-card-dark-tooltip-ink: #eef1ee;
   --word-card-dark-tooltip-shadow: 0 6px 14px -4px rgb(0 0 0 / 40%), 0 18px 36px -8px rgb(0 0 0 / 45%);
 
-  /* Chart frame: study series colours (light) and their dark-mode counterparts. */
-  --chart-frame-study-1: #657a48;
-  --chart-frame-study-2: #6f76a8;
-  --chart-frame-study-3: #c46f55;
-  --chart-frame-study-4: #5f8c91;
-  --chart-frame-study-5: #9a7558;
-  --chart-frame-dark-study-1: #a7bc80;
-  --chart-frame-dark-study-2: #aab0df;
-  --chart-frame-dark-study-3: #e69a80;
-  --chart-frame-dark-study-4: #8bc0c4;
-  --chart-frame-dark-study-5: #c6a286;
-
   /*
    * Math plots (components/math-plot): series colours, surface ramp and plot
    * chrome. Canvas and WebGL read these through the --mp-* aliases set on the

@@ -20,6 +20,17 @@ code highlighting and a variable watch panel. Scene components such as
 registered globally for MDX. See `/docs/408/knowledge/motion-stage-demo` and the
 [authoring guide](docs/motion-stage.md).
 
+## Charts and blog heroes
+
+The Study chart family (`components/charts`, shadcn/ui + Recharts 3) covers line,
+area, bar, composed, pie, scatter/bubble, performance-vs-cost (log axis), radar,
+radial, histogram, treemap and funnel charts with a shared token set, legend
+toggles, table view and SVG/PNG/CSV export. Live examples:
+`/docs/english/chart-gallery`; design notes: [docs/charts.md](docs/charts.md).
+
+Blog posts can opt into a configurable hero with `hero:` frontmatter
+(`minimal`, `aurora`, `dataflow`, `paper`); see [docs/blog-hero.md](docs/blog-hero.md).
+
 ## ZBSearch
 
 Documentation search uses Fumadocs' built-in ZBSearch engine and remains fully

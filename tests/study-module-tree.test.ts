@@ -164,6 +164,7 @@ describe('study module metadata structure', () => {
       'word-cards-demo',
       'claude-benchmarks',
       'chart-components',
+      'chart-gallery',
     ]);
     expect(englishVocabularyMeta.pages).toEqual([
       'index',

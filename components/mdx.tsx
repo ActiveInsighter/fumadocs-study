@@ -1,15 +1,24 @@
 import {
   StudyAreaChart,
   StudyBarChart,
+  StudyChartSwitcher,
+  StudyComposedChart,
+  StudyFunnelChart,
   StudyHistogram,
   StudyLineChart,
   StudyPieChart,
+  StudyRadarChart,
+  StudyRadialChart,
   StudyScatterChart,
+  StudyTradeoffChart,
+  StudyTreemap,
 } from '@/components/charts';
+import { MotionScene } from '@/components/blog-hero/motion-scene';
 import { MathPlot2D, MathPlot3D } from '@/components/math-plot';
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
 import { InlineSvg } from '@/components/mdx/inline-svg';
+import { MdxPreview, MdxPreviewCanvas } from '@/components/mdx/mdx-preview';
 import {
   AddressBits,
   ArrayTrack,
@@ -59,7 +68,10 @@ export function getMDXComponents(components?: MDXComponents) {
     Mermaid,
     MindMap,
     InlineSvg,
+    MdxPreview,
+    MdxPreviewCanvas,
     MotionStage,
+    MotionScene,
     StageReveal,
     StageSwitch,
     StageCase,
@@ -73,10 +85,17 @@ export function getMDXComponents(components?: MDXComponents) {
     FlowGraph,
     StudyAreaChart,
     StudyBarChart,
+    StudyChartSwitcher,
+    StudyComposedChart,
+    StudyFunnelChart,
     StudyHistogram,
     StudyLineChart,
     StudyPieChart,
+    StudyRadarChart,
+    StudyRadialChart,
     StudyScatterChart,
+    StudyTradeoffChart,
+    StudyTreemap,
     TypeTable,
     WordCardModeToggle,
     WordCards,

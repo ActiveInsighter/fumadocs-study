@@ -1,0 +1,528 @@
+---
+title: 图表组件画廊
+description: Study 图表设计系统：每种图表的实时预览、可复制的 MDX 用法、设计 token、交互与无障碍约定，以及支持矩阵和回退方案。
+full: true
+---
+
+所有图表都基于 shadcn/ui 的 `ChartContainer` 与 Recharts 3 构建，并共享同一套设计 token（`styles/tokens/charts.css`）。作者只写**数据**和少量语义参数，颜色、标记规格、动效、图例开关、提示框、导出和数据表都由组件统一提供。
+
+每个示例右上角都可以切换 **预览 / 代码**；图表右上角的工具按钮可以切换为数据表，或下载 SVG、PNG、CSV。
+
+## 性能 vs 成本
+
+这是最核心的场景：横轴是**对数刻度**的成本，纵轴是得分，每条曲线是同一模型在不同努力档位（low → max）下的运行点。档位标签会按像素空间自动避让，避免与点、线以及其他标签重叠。当数据离零较远时，Y 轴会自动加上断轴标记，并保留零基线。
+
+<StudyChartSwitcher labels={["代码修复", "终端任务", "多学科推理", "长程规划"]}>
+  <StudyTradeoffChart
+    theme="editorial"
+    title="代码修复基准"
+    subtitle="得分 vs 成本"
+    summary="在每个成本档位上，模型 α 2.0 的得分都高于 α 1.5；α 2.0 的 low 档以约一半成本超过了 α 1.5 的 max 档。"
+    xLabel="平均每题成本（USD，对数刻度）"
+    yLabel="得分 (%)"
+    height={420}
+    series={[
+      { key: "a2", label: "模型 α 2.0", points: [
+        { x: 11.1, y: 26.3, label: "low" }, { x: 14.9, y: 35.7, label: "med" },
+        { x: 20.3, y: 40.1, label: "high" }, { x: 31.8, y: 49.6, label: "xhigh" },
+        { x: 38.2, y: 52.6, label: "max" } ] },
+      { key: "a15", label: "模型 α 1.5", points: [
+        { x: 17.2, y: 12.4, label: "low" }, { x: 25.1, y: 21.4, label: "med" },
+        { x: 34.3, y: 25.0, label: "high" }, { x: 36.4, y: 23.4, label: "xhigh" },
+        { x: 44.6, y: 24.7, label: "max" } ] }
+    ]}
+    footnote="示例数据，仅用于演示图表设计；标准误约 ±3.5–4.5 分。"
+  />
+  <StudyTradeoffChart
+    theme="editorial"
+    title="终端任务基准"
+    subtitle="得分 vs 成本"
+    xLabel="平均每题成本（USD，对数刻度）"
+    yLabel="得分 (%)"
+    height={420}
+    series={[
+      { key: "b-tools", label: "模型 β", qualifier: "（安全模式关闭）", pattern: "dots", points: [
+        { x: 5.6, y: 41.6, label: "low" }, { x: 7.6, y: 46.7, label: "med" },
+        { x: 10.2, y: 57.2, label: "high" }, { x: 15.1, y: 59.9, label: "xhigh" },
+        { x: 17.8, y: 60.9, label: "max" } ] },
+      { key: "a2", label: "模型 α 2.0", color: "1", points: [
+        { x: 6.1, y: 40.1, label: "low" }, { x: 8.0, y: 43.4, label: "med" },
+        { x: 10.6, y: 49.4, label: "high" }, { x: 15.7, y: 51.4, label: "xhigh" },
+        { x: 19.3, y: 55.9, label: "max" } ] },
+      { key: "b15", label: "模型 β 1.5", pattern: "dots", color: "2", points: [
+        { x: 12.6, y: 21.5, label: "low" }, { x: 15.4, y: 32.6, label: "med" },
+        { x: 18.0, y: 39.0, label: "high" }, { x: 22.6, y: 43.6, label: "xhigh" },
+        { x: 26.9, y: 45.9, label: "max" } ] }
+    ]}
+    footnote="示例数据。点阵纹理是第二识别通道，在灰度打印和色觉差异下仍可区分。"
+  />
+  <StudyTradeoffChart
+    theme="editorial"
+    title="多学科推理"
+    subtitle="通过率 vs 成本"
+    xLabel="平均每题成本（USD，对数刻度）"
+    yLabel="通过率 (%)"
+    yBreak
+    height={440}
+    pointLabels="ends"
+    series={[
+      { key: "a2-tools", label: "模型 α 2.0", qualifier: "（含工具）", pattern: "hatch", points: [
+        { x: 0.53, y: 60.0, label: "low" }, { x: 0.68, y: 63.0 }, { x: 1.04, y: 64.8 },
+        { x: 2.3, y: 65.1 }, { x: 3.3, y: 65.0, label: "max" } ] },
+      { key: "a15-tools", label: "模型 α 1.5", qualifier: "（含工具）", pattern: "hatch", color: "2", points: [
+        { x: 0.6, y: 59.7, label: "low" }, { x: 0.97, y: 61.5 }, { x: 1.45, y: 63.2 },
+        { x: 1.95, y: 63.6 }, { x: 3.6, y: 63.8, label: "max" } ] },
+      { key: "a2", label: "模型 α 2.0", qualifier: "（无工具）", color: "1", points: [
+        { x: 0.29, y: 53.2, label: "low" }, { x: 0.46, y: 55.9 }, { x: 0.74, y: 58.0 },
+        { x: 1.45, y: 60.4 }, { x: 2.2, y: 61.0, label: "max" } ] },
+      { key: "a15", label: "模型 α 1.5", qualifier: "（无工具）", color: "2", points: [
+        { x: 0.17, y: 50.6, label: "low" }, { x: 0.41, y: 55.9 }, { x: 0.61, y: 56.9 },
+        { x: 0.92, y: 57.5 }, { x: 1.7, y: 57.8, label: "max" } ] }
+    ]}
+    footnote="示例数据。四条曲线时只标注两端档位（pointLabels=&quot;ends&quot;），其余档位见提示框和数据表。"
+  />
+  <StudyTradeoffChart
+    theme="editorial"
+    title="长程规划基准"
+    subtitle="得分 vs 成本"
+    xLabel="每题成本（USD，对数刻度）"
+    yLabel="得分 (%)"
+    height={420}
+    series={[
+      { key: "a2", label: "模型 α 2.0", points: [
+        { x: 2.9, y: 66.2, label: "low" }, { x: 3.4, y: 68.0, label: "med" },
+        { x: 4.8, y: 69.4, label: "high" }, { x: 7.2, y: 72.8, label: "xhigh" },
+        { x: 9.6, y: 73.4, label: "max" } ] },
+      { key: "a15", label: "模型 α 1.5", points: [
+        { x: 4.4, y: 62.1, label: "low" }, { x: 6.9, y: 65.2, label: "med" },
+        { x: 8.6, y: 66.5, label: "high" }, { x: 11.6, y: 68.4, label: "xhigh" },
+        { x: 17.6, y: 70.5, label: "max" } ] }
+    ]}
+    footnote="示例数据。"
+  />
+</StudyChartSwitcher>
+
+```mdx preview title="最小用法：行式数据，自动对数刻度与断轴"
+<StudyTradeoffChart
+  title="不同努力档位的得分与成本"
+  xLabel="每题成本（USD，对数刻度）"
+  yLabel="得分 (%)"
+  data={[
+    { series: "新模型", label: "low", x: 1.2, y: 61 },
+    { series: "新模型", label: "med", x: 2.1, y: 66 },
+    { series: "新模型", label: "high", x: 3.8, y: 70 },
+    { series: "新模型", label: "max", x: 7.5, y: 72 },
+    { series: "旧模型", label: "low", x: 2.4, y: 55 },
+    { series: "旧模型", label: "med", x: 4.6, y: 60 },
+    { series: "旧模型", label: "high", x: 8.9, y: 63 },
+    { series: "旧模型", label: "max", x: 16, y: 64 }
+  ]}
+/>
+```
+
+## 折线图
+
+适合有序类别或时间上的趋势。系列多于一条时会显示可点击的图例，用来隐藏或显示系列（至少保留一条）。
+
+```mdx preview title="多线 + 参考线 + 末端标签"
+<StudyLineChart
+  title="阶段正确率"
+  subtitle="5 周模考，按科目"
+  data={[
+    { week: "第 1 周", math: 62, english: 70, cs: 58 },
+    { week: "第 2 周", math: 68, english: 72, cs: 63 },
+    { week: "第 3 周", math: 74, english: 76, cs: 66 },
+    { week: "第 4 周", math: 81, english: 79, cs: 72 },
+    { week: "第 5 周", math: 86, english: 83, cs: 77 }
+  ]}
+  xKey="week"
+  format="percent"
+  endLabels
+  referenceLines={[{ value: 75, label: "目标线 75%" }]}
+  series={[
+    { key: "math", label: "数学" },
+    { key: "english", label: "英语" },
+    { key: "cs", label: "408", dashed: true }
+  ]}
+/>
+```
+
+```mdx preview title="阶梯线：离散状态变化"
+<StudyLineChart
+  title="复习计划阶段"
+  curve="step"
+  dots="end"
+  data={[
+    { day: "D1", level: 1 }, { day: "D3", level: 1 }, { day: "D5", level: 2 },
+    { day: "D8", level: 3 }, { day: "D12", level: 3 }, { day: "D15", level: 4 }
+  ]}
+  xKey="day"
+  format="integer"
+  series={[{ key: "level", label: "掌握等级" }]}
+/>
+```
+
+## 面积图
+
+堆叠面积用于观察“总量 + 构成”；`percent` 改为 100% 堆叠，只比较构成。
+
+```mdx preview title="堆叠面积（提示框含合计）"
+<StudyAreaChart
+  title="每日学习时间构成"
+  stacked
+  format="minutes"
+  data={[
+    { day: "周一", math: 120, cs: 90, english: 45 },
+    { day: "周二", math: 100, cs: 120, english: 40 },
+    { day: "周三", math: 140, cs: 110, english: 50 },
+    { day: "周四", math: 115, cs: 135, english: 35 },
+    { day: "周五", math: 150, cs: 125, english: 55 }
+  ]}
+  xKey="day"
+  series={[
+    { key: "math", label: "数学" },
+    { key: "cs", label: "408" },
+    { key: "english", label: "英语" }
+  ]}
+/>
+```
+
+```mdx preview title="单系列渐变面积"
+<StudyAreaChart
+  title="累计刷题数"
+  data={[
+    { month: "3 月", total: 120 }, { month: "4 月", total: 310 }, { month: "5 月", total: 540 },
+    { month: "6 月", total: 800 }, { month: "7 月", total: 1180 }, { month: "8 月", total: 1520 }
+  ]}
+  xKey="month"
+  format="compact"
+  series={[{ key: "total", label: "累计题数" }]}
+/>
+```
+
+## 柱状图
+
+柱宽上限为 24px，多出的空间留给留白；圆角只出现在数据端，基线端保持直角；堆叠段之间用 2px 的面板色间隙分隔，不额外描边。
+
+```mdx preview title="分组柱状图 + 数值标签"
+<StudyBarChart
+  title="各章节练习量"
+  showValues
+  data={[
+    { chapter: "极限", done: 18, wrong: 6 },
+    { chapter: "导数", done: 14, wrong: 3 },
+    { chapter: "积分", done: 27, wrong: 9 },
+    { chapter: "级数", done: 13, wrong: 5 },
+    { chapter: "微分方程", done: 11, wrong: 2 }
+  ]}
+  xKey="chapter"
+  format="integer"
+  series={[
+    { key: "done", label: "已完成" },
+    { key: "wrong", label: "错题" }
+  ]}
+/>
+```
+
+```mdx preview title="堆叠柱状图"
+<StudyBarChart
+  title="每周题目来源"
+  stacked
+  data={[
+    { week: "W1", real: 20, mock: 12, book: 8 },
+    { week: "W2", real: 24, mock: 10, book: 12 },
+    { week: "W3", real: 18, mock: 16, book: 9 },
+    { week: "W4", real: 30, mock: 14, book: 6 }
+  ]}
+  xKey="week"
+  format="integer"
+  series={[
+    { key: "real", label: "真题" },
+    { key: "mock", label: "模拟题" },
+    { key: "book", label: "教辅" }
+  ]}
+/>
+```
+
+```mdx preview title="横向柱状图（长类别名）"
+<StudyBarChart
+  title="知识点平均得分率"
+  horizontal
+  showValues
+  height={300}
+  categoryWidth={120}
+  data={[
+    { topic: "进程同步与互斥", rate: 0.58 },
+    { topic: "虚拟内存管理", rate: 0.66 },
+    { topic: "TCP 拥塞控制", rate: 0.71 },
+    { topic: "Cache 映射方式", rate: 0.79 },
+    { topic: "二叉树遍历", rate: 0.88 }
+  ]}
+  xKey="topic"
+  format="ratio"
+  series={[{ key: "rate", label: "得分率" }]}
+/>
+```
+
+## 混合图
+
+柱、线、面积共用同一根数值轴。系统**故意不提供双 Y 轴**：量纲不同的两个指标应拆成两张图，或先换算成指数再比较。
+
+```mdx preview title="柱 + 线"
+<StudyComposedChart
+  title="练习量与目标"
+  data={[
+    { week: "W1", actual: 42, target: 40 },
+    { week: "W2", actual: 38, target: 45 },
+    { week: "W3", actual: 51, target: 50 },
+    { week: "W4", actual: 57, target: 55 },
+    { week: "W5", actual: 49, target: 60 }
+  ]}
+  xKey="week"
+  format="integer"
+  series={[
+    { key: "actual", label: "实际完成", type: "bar" },
+    { key: "target", label: "计划目标", type: "line", dashed: true }
+  ]}
+/>
+```
+
+## 饼图与环形图
+
+只用于少量类别的“整体构成”。超过 `maxSlices`（默认 6）的小类会自动合并为“其他”，颜色顺序固定，不循环取色。
+
+```mdx preview title="环形图，中心显示合计"
+<StudyPieChart
+  title="复习时间分配"
+  donut
+  format="minutes"
+  centerCaption="每日合计"
+  data={[
+    { subject: "数学", minutes: 210 },
+    { subject: "408", minutes: 180 },
+    { subject: "英语", minutes: 90 },
+    { subject: "政治", minutes: 60 }
+  ]}
+  nameKey="subject"
+  valueKey="minutes"
+/>
+```
+
+## 散点图与气泡图
+
+`groupKey` 会按字段把点分组着色；`sizeKey` 把散点图变成气泡图；`xScale="log"` 启用对数横轴。分组建议不超过 3 个：这是当前色板在“所有点对之间都可区分”这一检查下的上限。
+
+```mdx preview title="分组散点"
+<StudyScatterChart
+  title="练习量与正确率"
+  data={[
+    { n: 20, acc: 61, who: "A 组" }, { n: 35, acc: 68, who: "A 组" }, { n: 42, acc: 70, who: "A 组" },
+    { n: 58, acc: 79, who: "A 组" }, { n: 80, acc: 88, who: "A 组" },
+    { n: 25, acc: 55, who: "B 组" }, { n: 40, acc: 60, who: "B 组" }, { n: 55, acc: 66, who: "B 组" },
+    { n: 70, acc: 71, who: "B 组" }, { n: 95, acc: 77, who: "B 组" }
+  ]}
+  xKey="n"
+  yKey="acc"
+  groupKey="who"
+  xLabel="练习题数"
+  yLabel="正确率"
+  yFormat="percent"
+/>
+```
+
+```mdx preview title="气泡图 + 对数横轴"
+<StudyScatterChart
+  title="资料体量、使用时长与收益"
+  xScale="log"
+  data={[
+    { name: "真题汇编", pages: 320, hours: 60, gain: 18 },
+    { name: "强化讲义", pages: 860, hours: 85, gain: 22 },
+    { name: "错题本", pages: 90, hours: 30, gain: 14 },
+    { name: "公式手册", pages: 40, hours: 8, gain: 6 },
+    { name: "题库 App", pages: 2400, hours: 120, gain: 20 }
+  ]}
+  xKey="pages"
+  yKey="hours"
+  sizeKey="gain"
+  nameKey="name"
+  xLabel="页数（对数刻度）"
+  yLabel="投入小时"
+  sizeLabel="提分"
+  xFormat="integer"
+  yFormat="integer"
+  sizeFormat={{ suffix: " 分", digits: 0 }}
+/>
+```
+
+## 雷达图
+
+适合 3–8 个维度、不超过 3 个对象的整体画像。维度再多时，分组柱状图更容易读。
+
+```mdx preview title="能力画像"
+<StudyRadarChart
+  title="科目能力画像"
+  max={100}
+  angleKey="skill"
+  data={[
+    { skill: "计算", me: 82, avg: 70 },
+    { skill: "概念", me: 74, avg: 72 },
+    { skill: "证明", me: 58, avg: 61 },
+    { skill: "建模", me: 69, avg: 64 },
+    { skill: "速度", me: 77, avg: 68 },
+    { skill: "稳定性", me: 64, avg: 66 }
+  ]}
+  series={[
+    { key: "me", label: "我的" },
+    { key: "avg", label: "平均" }
+  ]}
+/>
+```
+
+## 径向进度
+
+单环时中心显示一个关键数字；多环时用于对比几项进度。`semicircle` 切换为半圆仪表样式。
+
+```mdx preview title="多环进度"
+<StudyRadialChart
+  title="本月计划完成度"
+  format="integer"
+  items={[
+    { label: "数学", value: 46, max: 60 },
+    { label: "408", value: 30, max: 50 },
+    { label: "英语", value: 28, max: 30 }
+  ]}
+/>
+```
+
+```mdx preview title="半圆仪表"
+<StudyRadialChart
+  title="总复习进度"
+  semicircle
+  height={220}
+  items={[{ label: "已完成", value: 68 }]}
+  centerCaption="已完成章节占比"
+/>
+```
+
+## 直方图
+
+直方图由原始样本自动等宽分箱，相邻柱之间只留 2px 间隙；`showMean` 会标出均值所在的箱。
+
+```mdx preview title="得分分布"
+<StudyHistogram
+  title="模拟题得分分布"
+  bins={7}
+  showMean
+  xLabel="分数区间"
+  values={[58, 61, 62, 64, 65, 66, 68, 69, 70, 70, 71, 72, 73, 74, 75, 76, 76, 77, 78, 80, 81, 82, 83, 84, 86, 88, 90, 92]}
+/>
+```
+
+## 树图
+
+类别很多时的整体构成，可按一层分组着色；`colorBy="value"` 改为按数值使用单色相渐变。
+
+```mdx preview title="按模块分组"
+<StudyTreemap
+  title="408 各知识点题量"
+  groupKey="module"
+  format="integer"
+  data={[
+    { module: "数据结构", name: "树", value: 42 }, { module: "数据结构", name: "图", value: 35 },
+    { module: "数据结构", name: "排序", value: 28 }, { module: "数据结构", name: "查找", value: 20 },
+    { module: "操作系统", name: "进程", value: 38 }, { module: "操作系统", name: "内存", value: 33 },
+    { module: "操作系统", name: "文件", value: 15 },
+    { module: "计算机网络", name: "传输层", value: 30 }, { module: "计算机网络", name: "网络层", value: 26 },
+    { module: "计算机网络", name: "应用层", value: 12 }
+  ]}
+/>
+```
+
+## 漏斗图
+
+有序阶段之间的转化。颜色使用单色相的有序渐变，每一级右侧标注它相对第一级的整体转化率；逐级转化率在数据表里。
+
+```mdx preview title="刷题转化"
+<StudyFunnelChart
+  title="错题闭环"
+  data={[
+    { name: "做题", value: 1200 },
+    { name: "出错", value: 340 },
+    { name: "订正", value: 290 },
+    { name: "二刷", value: 180 },
+    { name: "掌握", value: 150 }
+  ]}
+/>
+```
+
+## 状态与降级
+
+```mdx preview title="空数据：保留高度，不跳动"
+<StudyBarChart
+  title="本周暂无记录"
+  data={[]}
+  xKey="day"
+  series={[{ key: "count", label: "题数" }]}
+  emptyMessage="本周还没有打卡记录"
+  height={200}
+/>
+```
+
+- **加载 / 水合**：服务端会输出标题、说明和一份屏幕阅读器可读的数据表；图形区域预留固定高度，在第一次进入视口时才挂载，所以入场动效能被看到，也不会造成布局偏移。
+- **渲染出错**：错误边界只替换当前图表，并提供“改为查看数据表”，不会影响整页。
+- **减少动态效果**：`prefers-reduced-motion` 或省流模式下关闭所有补间，直接显示最终状态。
+- **打印 / 强制配色**：`pattern: "dots" | "hatch"` 提供纹理通道；强制配色模式下图例描边改用系统色。
+
+## 设计 token
+
+| Token | 作用 |
+| --- | --- |
+| `--chart-1` … `--chart-8` | 分类色，固定顺序；第 9 个系列使用 `--chart-other`，不会生成新颜色 |
+| `--chart-seq-1` … `--chart-seq-6` | 单色相顺序色阶（树图按数值着色、漏斗图） |
+| `--chart-editorial-*` | editorial 主题的纸感柔色填充，配合墨色描边 |
+| `--chart-ink` / `--chart-muted` / `--chart-grid` / `--chart-axis` | 图表内的文字、网格和轴线层级 |
+| `--chart-tooltip-*` | 墨色提示框 |
+| `--chart-font-*` | 标题 16px、刻度 12px、点标签 11.5px 等字号层级 |
+| `--chart-line-width` / `--chart-mark-radius` / `--chart-bar-radius` | 线宽 2px（tradeoff 图为 3px）、点半径、柱的数据端圆角 |
+| `--chart-draw` / `--chart-fade` / `--chart-ease` | 线条绘制时长、淡入时长、ease-out-quart 缓动 |
+
+分类色板已用 dataviz 校验脚本在浅色（#fff）和深色（#000）两个表面上分别检查：亮度区间、色度下限、相邻色对的色觉差异 ΔE ≥ 8、正常视觉 ΔE ≥ 15，以及 ≥ 3:1 的对比度。前 3 个颜色还通过了“所有色对”检查。深色模式是单独选定的一组色阶，不是简单反色。
+
+## 交互与无障碍约定
+
+- **图例**：多于一个系列时显示，点击可隐藏 / 显示系列，按钮带 `aria-pressed`，最后一个可见系列无法隐藏。
+- **提示框**：折线和面积图为十字准线加全系列数值，柱、点、扇区按单个标记显示；堆叠图额外给出合计。提示框跟随指针，不做位移补间。
+- **键盘**：Recharts 的 `accessibilityLayer` 支持方向键遍历类别；tradeoff 图的每个点都可以用 Tab 聚焦，← → 在同一系列内移动，↑ ↓ 切换系列，Esc 关闭提示框。
+- **触摸**：点击标记即显示提示框；tradeoff 图的命中区域半径至少 14px。
+- **语义**：`figure` 加 `figcaption`；`summary` 属性会作为一句结论朗读给屏幕阅读器；每张图都附带一份 `sr-only` 数据表，切换后即为可见的表格。
+- **导出**：SVG 会把计算后的颜色（包括 `var()`、`oklch()`、`color-mix()`）内联为 rgb，并重绘标题、图例和脚注；PNG 为 2× 位图；CSV 带 BOM，方便表格软件识别中文。导出文件不嵌入网页字体，会回退到系统无衬线字体。
+
+## 支持矩阵
+
+| 场景 | 组件 | Recharts 基元 | 状态 |
+| --- | --- | --- | --- |
+| 折线 / 多线 / 曲线 / 阶梯 | `StudyLineChart` | `LineChart` | 原生封装 |
+| 面积 / 堆叠 / 100% 堆叠 | `StudyAreaChart` | `AreaChart` | 原生封装 |
+| 柱状 分组 / 堆叠 / 横向 / 100% | `StudyBarChart` | `BarChart` | 原生封装 |
+| 混合（柱 + 线 + 面积，单轴） | `StudyComposedChart` | `ComposedChart` | 原生封装 |
+| 饼 / 环 | `StudyPieChart` | `PieChart` | 原生封装（“其他”自动合并） |
+| 散点 / 气泡 / 对数轴 | `StudyScatterChart` | `ScatterChart` + `ZAxis` | 原生封装 |
+| 性能-成本曲线（对数轴 + 档位） | `StudyTradeoffChart` | `ScatterChart` 轴 + 自绘标记层 | 增强封装（标签避让、断轴、键盘导航） |
+| 雷达 | `StudyRadarChart` | `RadarChart` | 原生封装 |
+| 径向进度 / 仪表 | `StudyRadialChart` | `RadialBarChart` | 原生封装 |
+| 直方图 | `StudyHistogram` | `BarChart` | 原生封装（客户端分箱） |
+| 树图 | `StudyTreemap` | `Treemap` | 原生封装（一层分组） |
+| 漏斗 | `StudyFunnelChart` | `FunnelChart` | 原生封装 |
+| 指标切换 | `StudyChartSwitcher` | — | 组合组件 |
+| 桑基图 | — | `Sankey` 可用 | 暂未封装：流程图可回退到 `<FlowGraph>` 或 Mermaid `sankey-beta` |
+| 热力图 / 日历热力 | — | 无原生 | 回退：`<InlineSvg>` 静态图、`<MathPlot2D>`，或直接用表格 |
+| 箱线图 | — | 无原生 | 回退：直方图 + 数据表；如确有需要，再基于 `ComposedChart` 自定义形状实现 |
+| K 线 / 地图 / 甘特 / 网络图 | — | 无原生 | 回退：Mermaid `gantt` / `graph`、`<FlowGraph>`；不为此引入新的重型依赖 |
+
+## 写给 AI 的用法约定
+
+1. 只传数据和语义参数：`data`、`xKey`、`series`、`format`。不要手写颜色，除非某个系列需要和别处保持同色（可写 `color: "2"`）。
+2. `format` 可用的预设有 `number`、`integer`、`compact`、`percent`（数值已是百分数）、`ratio`（0–1 小数）、`usd`、`cny`、`multiplier`、`minutes`，也可以写成 `{ suffix: " 分", digits: 0 }`。
+3. 比较不同成本档位时用 `StudyTradeoffChart`，横轴默认就是对数刻度；同一主题有多组基准时，用 `StudyChartSwitcher` 包起来。
+4. 写一句 `summary`，概括这张图的结论；脚注写数据来源和误差说明。
+5. 分类超过 8 个时先合并为“其他”，或者拆成多张小图，不要追加颜色。

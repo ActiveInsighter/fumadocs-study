@@ -1,0 +1,366 @@
+/*
+ * Blog hero. Layout and colour come from these variables; presets and tones
+ * only override variables, never structure.
+ *
+ *   --hero-bg / --hero-fg / --hero-muted   band colours (per tone)
+ *   --hero-accent, -2, -3                  set inline from `accent`
+ *   --hero-p                               scroll progress 0→1 (hero-scroll.tsx)
+ */
+.hero,
+.inlineFrame {
+  --hero-p: 0;
+  --hero-bg: oklch(0.975 0.004 85);
+  --hero-fg: oklch(0.2 0.006 85);
+  --hero-muted: oklch(0.45 0.008 85);
+  --hero-rule: color-mix(in oklch, var(--hero-fg) 18%, transparent);
+  --hero-particle-1: color-mix(in oklch, var(--hero-accent) 70%, white);
+  --hero-particle-2: var(--hero-accent-2);
+  --hero-inset: 0.75rem;
+  --hero-radius: 1.5rem;
+  --hero-min-height: clamp(26rem, 68vh, 46rem);
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: var(--hero-min-height);
+  margin: var(--hero-inset) var(--hero-inset) 0;
+  overflow: hidden;
+  border-radius: var(--hero-radius);
+  background: var(--hero-bg);
+  color: var(--hero-fg);
+}
+
+.hero[data-height='compact'] {
+  --hero-min-height: clamp(20rem, 46vh, 30rem);
+}
+
+.hero[data-height='screen'] {
+  --hero-min-height: calc(100svh - 5rem);
+}
+
+:global(.dark) [data-tone='auto']:is(.hero, .inlineFrame),
+[data-tone='dark']:is(.hero, .inlineFrame) {
+  --hero-bg: oklch(0.16 0.006 270);
+  --hero-fg: oklch(0.97 0.004 85);
+  --hero-muted: oklch(0.76 0.008 85);
+  --hero-particle-1: oklch(0.97 0.004 85);
+  color-scheme: dark;
+}
+
+[data-tone='light']:is(.hero, .inlineFrame) {
+  color-scheme: light;
+}
+
+/* Layers ------------------------------------------------------------------ */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: scale(calc(1 + var(--hero-p) * 0.06));
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+/* Painted by CSS before any script: the LCP-safe still frame for every preset. */
+.poster {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 70% at 78% 18%, color-mix(in oklch, var(--hero-accent) 22%, transparent), transparent 70%),
+    radial-gradient(55% 60% at 12% 88%, color-mix(in oklch, var(--hero-accent-2) 16%, transparent), transparent 70%),
+    var(--hero-bg);
+}
+
+[data-hero-preset='minimal'] > .backdrop .poster, [data-hero-preset='minimal'] > .poster {
+  background:
+    linear-gradient(to bottom, transparent 0%, color-mix(in oklch, var(--hero-accent) 6%, transparent) 100%),
+    var(--hero-bg);
+}
+
+[data-hero-preset='aurora'] > .backdrop .poster, [data-hero-preset='aurora'] > .poster {
+  background:
+    radial-gradient(50% 60% at 25% 30%, color-mix(in oklch, var(--hero-accent) 42%, transparent), transparent 72%),
+    radial-gradient(45% 55% at 78% 40%, color-mix(in oklch, var(--hero-accent-2) 34%, transparent), transparent 72%),
+    radial-gradient(60% 50% at 50% 100%, color-mix(in oklch, var(--hero-accent-3) 30%, transparent), transparent 70%),
+    var(--hero-bg);
+}
+
+[data-hero-preset='paper'] > .backdrop .poster, [data-hero-preset='paper'] > .poster {
+  background:
+    linear-gradient(to bottom, color-mix(in oklch, var(--hero-accent) 10%, var(--hero-bg)) 0%, var(--hero-bg) 70%);
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(40% 62% at 50% 54%, color-mix(in oklch, var(--hero-bg) 86%, transparent) 30%, transparent 100%);
+}
+
+.hero[data-align='start'] .scrim {
+  background: linear-gradient(90deg, color-mix(in oklch, var(--hero-bg) 88%, transparent) 0%, transparent 70%);
+}
+
+.hero[data-hero-preset='minimal'] .scrim {
+  display: none;
+}
+
+/* Content ----------------------------------------------------------------- */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: min(100%, 56rem);
+  margin: 0 auto;
+  padding: clamp(4.5rem, 10vh, 7rem) 1.5rem clamp(3rem, 8vh, 5rem);
+  text-align: center;
+  transform: translate3d(0, calc(var(--hero-p) * 72px), 0);
+  opacity: calc(1 - var(--hero-p) * 1.15);
+}
+
+.hero[data-align='start'] .content {
+  align-items: flex-start;
+  width: min(100%, 72rem);
+  text-align: left;
+}
+
+.eyebrow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  color: var(--hero-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.byline::before {
+  content: '·';
+  margin-right: 0.75rem;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: var(--hero-fg);
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 1.4rem + 4.6vw, 5.25rem);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.titleLine {
+  display: block;
+}
+
+/* Staggered second line, the way the reference heroes offset a two-line title. */
+.hero[data-align='center'] .titleLine:nth-child(2) {
+  padding-left: clamp(0rem, 6vw, 5rem);
+}
+
+.deck {
+  max-width: 38rem;
+  margin: 0;
+  color: var(--hero-muted);
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 0.95rem + 0.45vw, 1.3rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.index {
+  width: min(100%, 26rem);
+  margin-top: 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.9375rem;
+}
+
+.index ol {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--hero-fg);
+  text-decoration: none;
+}
+
+.index a:hover .indexTitle,
+.index a:focus-visible .indexTitle {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.index a:focus-visible {
+  outline: 2px solid var(--hero-fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.indexNumber {
+  color: var(--hero-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.indexLeader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted color-mix(in oklch, var(--hero-fg) 45%, transparent);
+  transform: translateY(-0.25em);
+}
+
+.indexTitle {
+  text-align: right;
+}
+
+.facts {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 2rem;
+  margin: 0.75rem 0 0;
+  border-top: 1px solid var(--hero-rule);
+  padding-top: 0.75rem;
+}
+
+.fact {
+  display: grid;
+  gap: 0.15rem;
+  text-align: left;
+}
+
+.fact dt {
+  color: var(--hero-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+}
+
+/* Entrance: supporting text rises in; the headline only moves (it is visible
+   from the first frame, so it stays a valid LCP candidate). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: translateY(14px);
+  }
+}
+
+.eyebrow {
+  animation: rise 700ms var(--ui-ease) 80ms both;
+}
+
+.title {
+  animation: settle 900ms var(--ui-ease) both;
+}
+
+.deck {
+  animation: rise 800ms var(--ui-ease) 220ms both;
+}
+
+.index,
+.facts {
+  animation: rise 800ms var(--ui-ease) 360ms both;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --hero-inset: 0;
+    --hero-radius: 0;
+  }
+
+  .content {
+    padding-inline: 1.25rem;
+  }
+
+  .facts {
+    grid-auto-flow: row;
+    gap: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow,
+  .title,
+  .deck,
+  .index,
+  .facts {
+    animation: none;
+  }
+
+  .content,
+  .backdrop {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Inline scene (MotionScene in MDX) ---------------------------------------- */
+.inlineFrame {
+  position: relative;
+  isolation: isolate;
+  margin: 2rem 0;
+  overflow: hidden;
+  border-radius: var(--ui-radius-surface);
+  background: var(--hero-bg);
+  color: var(--hero-fg);
+}
+
+.inlineFrame .poster {
+  position: absolute;
+  inset: 0;
+}
+
+.inlineCaption {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.85rem;
+  left: 1rem;
+  margin: 0;
+  color: var(--hero-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+@media print {
+  .hero {
+    min-height: auto;
+    margin: 0;
+    background: none;
+  }
+
+  .backdrop {
+    display: none;
+  }
+}

@@ -5,7 +5,8 @@
  *   theme.css       semantic theme colours + the Fumadocs --color-fd-* bridge
  *   surfaces.css    flat UI surfaces, fills, shadows, radii, motion, layout
  *   content.css     documentation content: code, tables, page actions
- *   palette.css     diagram / chart palette and SVG typography
+ *   palette.css     diagram palette and SVG typography
+ *   charts.css      data-chart design system: series, chrome, marks, motion
  *   components.css  palettes owned by individual custom components
  *
  * Stylesheets elsewhere read these variables and should not introduce raw
@@ -16,4 +17,5 @@
 @import './surfaces.css';
 @import './content.css';
 @import './palette.css';
+@import './charts.css';
 @import './components.css';

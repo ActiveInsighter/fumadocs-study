@@ -1,0 +1,241 @@
+/* Scene layers. Everything here is decorative and pointer-transparent. */
+.layer {
+  position: absolute;
+  inset: 0;
+  animation: scene-in 900ms var(--ui-ease) both;
+}
+
+@keyframes scene-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Aurora ------------------------------------------------------------------- */
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.55;
+  animation: drift 22s ease-in-out infinite alternate;
+  animation-play-state: paused;
+  will-change: transform;
+}
+
+.blob[data-blob='1'] {
+  top: -18%;
+  left: -6%;
+  background: var(--hero-accent);
+}
+
+.blob[data-blob='2'] {
+  top: 6%;
+  right: -14%;
+  background: var(--hero-accent-2);
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+
+.blob[data-blob='3'] {
+  bottom: -38%;
+  left: 24%;
+  background: var(--hero-accent-3);
+  animation-duration: 34s;
+  opacity: 0.4;
+}
+
+.aurora[data-active='true'] .blob {
+  animation-play-state: running;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, 4%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-4%, 8%, 0) scale(0.96);
+  }
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+}
+
+:global(html:not(.dark)) [data-tone='auto'] .canvas,
+[data-tone='light'] .canvas {
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+}
+
+/* Dataflow ----------------------------------------------------------------- */
+.dataflow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--hero-accent);
+}
+
+.gridDot {
+  fill: color-mix(in oklch, var(--hero-fg) 18%, transparent);
+}
+
+.stream {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 12;
+  opacity: 0.75;
+  animation: flow 3.2s linear infinite;
+  animation-play-state: paused;
+}
+
+.dataflow[data-active='true'] .stream {
+  animation-play-state: running;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+.packet {
+  fill: var(--hero-accent);
+  filter: drop-shadow(0 0 6px color-mix(in oklch, var(--hero-accent) 70%, transparent));
+}
+
+.curve {
+  fill: none;
+  stroke: var(--hero-accent);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.curveSecondary {
+  fill: none;
+  stroke: color-mix(in oklch, var(--hero-fg) 32%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: 6 8;
+  stroke-linecap: round;
+}
+
+.node {
+  fill: var(--hero-bg);
+  stroke: var(--hero-accent);
+  stroke-width: 2.5;
+}
+
+@media (max-width: 767px) {
+  /* Narrow frames crop the scene to its centre, behind the text: quieten it. */
+  .dataflow {
+    opacity: 0.55;
+  }
+}
+
+/* Paper -------------------------------------------------------------------- */
+.paper {
+  position: absolute;
+  inset: 0;
+}
+
+.paperSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.paperDisc {
+  fill: color-mix(in oklch, var(--hero-accent-3) 38%, var(--hero-bg));
+}
+
+.horizon {
+  fill: none;
+  stroke: color-mix(in oklch, var(--hero-fg) 55%, transparent);
+  stroke-width: 1.25;
+}
+
+.paperFar {
+  fill: color-mix(in oklch, var(--hero-accent) 22%, var(--hero-bg));
+}
+
+.paperMid {
+  fill: color-mix(in oklch, var(--hero-accent-2) 30%, var(--hero-bg));
+}
+
+.paperNear {
+  fill: color-mix(in oklch, var(--hero-accent) 42%, var(--hero-bg));
+}
+
+.sway,
+.swaySlow {
+  animation: sway 16s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.swaySlow {
+  animation-duration: 22s;
+  animation-direction: alternate-reverse;
+}
+
+.paper[data-active='true'] .sway,
+.paper[data-active='true'] .swaySlow {
+  animation-play-state: running;
+}
+
+@keyframes sway {
+  to {
+    translate: 18px 0;
+  }
+}
+
+/* Static paper grain: one tiny turbulence tile, rasterised once and cached. */
+.grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  opacity: 0.22;
+}
+
+:global(.dark) [data-tone='auto'] .grain,
+[data-tone='dark'] .grain {
+  mix-blend-mode: screen;
+  opacity: 0.1;
+}
+
+/* Inline MotionScene frame ------------------------------------------------- */
+.inline {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ui-radius-surface);
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    animation: none;
+  }
+
+  .blob,
+  .stream,
+  .sway,
+  .swaySlow {
+    animation: none;
+  }
+}
