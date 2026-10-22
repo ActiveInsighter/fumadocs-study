@@ -859,7 +859,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - $\displaystyle \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!},\quad -\infty<x<+\infty$
     - $\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!},\quad -\infty<x<+\infty$
     - $\displaystyle \ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}x^n}{n},\quad -1<x\le 1$
-    - $\displaystyle (1+x)^a=1+ax+\sum_{n=2}^{\infty}\frac{a(a-1)\cdots(a-n+1)}{n!}x^n,\quad R=1$
+    - $\displaystyle (1+x)^a=1+ax+\sum_{n=2}^{\infty}\frac{a(a-1)\cdots(a-n+1)}{n!}x^n$；$a$ 为非负整数时是多项式，$R=\infty$，否则一般 $R=1$
       - $\displaystyle \frac{1}{1+x}=\sum_{n=0}^{\infty}(-1)^n x^n,\quad x\in(-1,1)$
       - $\displaystyle \frac{1}{(1+x)^2}=\sum_{n=0}^{\infty}(-1)^n(n+1)x^n,\quad x\in(-1,1)$
       - $\displaystyle \sqrt{1+x}=1+\frac{x}{2}+\sum_{n=2}^{\infty}(-1)^{n-1}\frac{(2n-3)!!}{(2n)!!}x^n,\quad x\in[-1,1]$
@@ -868,7 +868,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 定理内容
       - 若 $\displaystyle f(x)=\sum_{n=0}^{\infty}a_nx^n$，则
         - $\displaystyle f'(x)=\sum_{n=1}^{\infty}na_nx^{n-1}$
-        - $\displaystyle \int_a^x f(t)\,dt=\sum_{n=0}^{\infty}\frac{a_n}{n+1}x^{n+1}$
+        - $\displaystyle \int_a^x f(t)\,dt=\sum_{n=0}^{\infty}\frac{a_n}{n+1}(x^{n+1}-a^{n+1})$（在收敛区间内；下限为 $0$ 才可省略后一项）
     - 易错点
       - 收敛半径与收敛域
         - 收敛半径不变
@@ -954,7 +954,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 ## 概念与性质
 
 - 定义
-  - 物理意义：三维物体质量的代数和
+  - 物理意义：当 $f(x,y,z)\ge0$ 为体密度时，三重积分表示物体质量；$f=1$ 时表示体积
   - 思想：微元法
 - 性质
   - 线性性质
@@ -1020,7 +1020,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 
 ## 概念和性质
 
-- 物理意义：曲线型物体质量的代数和
+- 物理意义：当 $f\ge0$ 为线密度时，$\int_L f\,ds$ 表示细线质量；$f=1$ 时表示弧长（与方向无关）
 - 性质
   - 线性性质
     - $$
@@ -1090,7 +1090,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 
 ## 概念和性质
 
-- 物理意义：曲面型物体质量的代数和
+- 物理意义：当 $f\ge0$ 为面密度时，$\iint_\Sigma f\,dS$ 表示薄曲面质量；$f=1$ 时表示面积
 - 性质
   - 线性性质
     - $$
@@ -1192,9 +1192,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 - 基本性质
   - 线性性质
     - $$
-      \int_L(k_1F_1+k_2F_2)\,ds
+      \int_L(k_1\mathbf F_1+k_2\mathbf F_2)\cdot d\mathbf s
       =
-      k_1\int_LF_1\,ds+k_2\int_LF_2\,ds
+      k_1\int_L\mathbf F_1\cdot d\mathbf s+k_2\int_L\mathbf F_2\cdot d\mathbf s
       $$
     - $$
       \int_L(k_1P_1+k_2P_2)\,dx
@@ -1203,9 +1203,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       $$
   - 可加性
     - $$
-      \int_{L_1\cup L_2}F\,ds
+      \int_{L_1\cup L_2}\mathbf F\cdot d\mathbf s
       =
-      \int_{L_1}F\,ds+\int_{L_2}F\,ds,
+      \int_{L_1}\mathbf F\cdot d\mathbf s+\int_{L_2}\mathbf F\cdot d\mathbf s,
       \quad L_1\cap L_2=\varnothing
       $$
   - 有向性
@@ -1377,8 +1377,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     $$
 - 意义：将第二类曲线积分化为第二类曲面积分
 - 使用要点
-  - 适用范围：积分曲线为两曲面交线，不便于化为参数方程
-  - 使用方法：直接使用
+  - 常见场景：闭曲线是两曲面交线，直接参数化困难，但易选取跨接曲面
+  - 使用方法：选跨接曲面，按右手定则确定法向，再计算旋度通量
 ```
 
 ## 第十五章 第二类曲面积分
@@ -1395,14 +1395,14 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       =
       \iint_{\Sigma}P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy
       $$
-  - $\Sigma$：有向曲面
+  - $\Sigma$：有向曲面；正反侧决定通量正负
   - $\mathbf v=\{P,Q,R\}$：速度
   - $$
     d\mathbf S=dS\cdot\mathbf n
     =
     \{dy\,dz,\ dz\,dx,\ dx\,dy\}
     $$
-    - $\mathbf n$：积分曲线的单位切向量
+    - $\mathbf n$：有向曲面的单位法向量（不是曲线切向量）
 - 基本性质
   - 线性性质
     - $$
@@ -1482,7 +1482,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     =
     \begin{cases}
     0,&P\text{ 关于 }z\text{ 为奇}\\
-    2\displaystyle\iint_{\Sigma_1}P\,dx\,dy,&P\text{ 关于 }z\text{ 为偶}
+    2\displaystyle\iint_{\Sigma_1}P\,dy\,dz,&P\text{ 关于 }z\text{ 为偶}
     \end{cases}
     $$
 
