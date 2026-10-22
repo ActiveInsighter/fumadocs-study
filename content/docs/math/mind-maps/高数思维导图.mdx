@@ -21,8 +21,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 局部有界性
     - 整体有界性
   - 保号性
-    - 去极限号
-    - 加极限号
+    - 去极限号：若 $f(x)\to A>0$，则在充分靠近极限点处 $f(x)>0$
+    - 加极限号：若极限存在且充分靠近处 $f(x)\ge0$，则极限 $A\ge0$；由严格 $f(x)>0$ 也只能推出 $A\ge0$
 
 ## 函数极限的计算
 
@@ -204,7 +204,12 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本经济学量：成本、需求、价格、收益、利润
   - 边际与弹性
     - 计算公式
+      - 边际成本 $MC(q)=C'(q)$，边际收益 $MR(q)=R'(q)$，边际利润 $\Pi'(q)=MR(q)-MC(q)$
+      - 需求价格弹性（通常以绝对值衡量）：$\varepsilon(p)=-\dfrac{p}{q(p)}q'(p)$（$q(p)>0$）
     - 经济学意义
+      - $MC$ 表示产量增加一个微小单位引起的成本变化率
+      - 若内部点利润最大，必要条件为 $MR=MC$，还需二阶条件或全局比较
+      - $|\varepsilon|>1$ 为富有弹性，$|\varepsilon|<1$ 为缺乏弹性；注意经济学教材的符号约定
 ```
 
 ## 第三章 多元函数微分学
@@ -226,7 +231,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 隐函数求偏导数
   - 方向导数与梯度（*数学一）
     - 计算公式
+      - 若 $f$ 在该点可微，单位方向 $\mathbf u=(\cos\theta,\sin\theta)$，则 $D_{\mathbf u}f=f_x\cos\theta+f_y\sin\theta=\nabla f\cdot\mathbf u$
+      - 梯度：$\nabla f=(f_x,f_y)$；方向向量必须单位化后代入标准方向导数公式
     - 几何意义
+      - 梯度指向函数局部增长最快方向，最大方向导数为 $|\nabla f|$
+      - 若 $\nabla f\ne0$，梯度与等值曲线在该点的切线垂直
 
 ## 应用
 
@@ -249,7 +258,13 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 有界闭区域上函数的最值
 - 多元函数微分学的几何意义（*数学一）
   - 空间曲线的切线与法平面
+    - 参数式 $\mathbf r(t)=(x(t),y(t),z(t))$，正则点 $\mathbf r'(t_0)\ne0$ 的切向量是 $\mathbf r'(t_0)$
+    - 法平面：$\mathbf r'(t_0)\cdot[(X,Y,Z)-\mathbf r(t_0)]=0$
   - 空间曲面的切平面与法线
+    - 隐式曲面 $F(x,y,z)=0$，若 $\nabla F(P)\ne0$，法向量为 $\nabla F(P)$
+    - 切平面：$F_x(P)(x-x_0)+F_y(P)(y-y_0)+F_z(P)(z-z_0)=0$
+    - 法线：$(x,y,z)=(x_0,y_0,z_0)+t\nabla F(P)$
+    - 显式 $z=f(x,y)$：法向量可取 $(-f_x,-f_y,1)$
 ```
 
 ## 第四章 不定积分
@@ -417,8 +432,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iint_{D_1\cup D_2} f(x,y)\,dxdy=\iint_{D_1} f(x,y)\,dxdy+\iint_{D_2} f(x,y)\,dxdy,\quad D_1\cap D_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 二重积分中值定理
+    - 估值定理：若 $m\le f(x,y)\le M$，则 $mS(D)\le\iint_D f\,dA\le MS(D)$
+    - 二重积分中值定理：若 $f$ 在有界闭连通区域 $D$ 连续且 $S(D)>0$，则存在 $\xi\in D$ 使 $\iint_D f\,dA=f(\xi)S(D)$
 
 ## 计算方法
 
@@ -443,10 +458,10 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 求二重积分
     - 坐标系的转换
 - 对称性
-  - 奇偶性（偶倍奇零）
+  - 奇偶性（偶倍奇零）：$D$ 关于 $y$ 轴对称、$f$ 关于 $x$ 为奇函数时，$\iint_D f=0$；偶函数则为半区积分的 $2$ 倍
   - 轮换对称性
-    - 对区域
-    - 对函数
+    - 对区域：交换 $x,y$ 后 $D$ 不变，才有 $\iint_D f(x,y)\,dA=\iint_D f(y,x)\,dA$
+    - 对函数：可先用 $\iint_D f(x,y)=\dfrac12\iint_D[f(x,y)+f(y,x)]$ 化简，前提是 $D$ 轮换对称
 ```
 
 ## 第七章 微分方程与差分方程
@@ -863,6 +878,10 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处条件收敛 $\Rightarrow |x_1-x_0|=R$
     - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处发散 $\Rightarrow |x_1-x_0|\ge R$
   - 幂级数的常见变换
+    - 有限增删项：不改变收敛半径，但可能改变边界点函数值
+    - 逐项求导或积分：收敛半径不变，收敛端点需重新判断
+    - $x$ 改为 $ax+b$：先转为关于中心 $(x-x_0)$ 的形式再比较距离；不能机械沿用原收敛区间
+    - 仅修改系数序列下标或幂次数时，须同步追踪首项和 $x=0$ 等端点
 
 ### 求和与展开
 
@@ -975,8 +994,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iiint_{\Omega_1\cup\Omega_2}f(x,y,z)\,dv=\iiint_{\Omega_1}f(x,y,z)\,dv+\iiint_{\Omega_2}f(x,y,z)\,dv\quad(\Omega_1\cap\Omega_2=\varnothing)$
   - 比较定理
-    - 估值定理
-    - 三重积分中值定理
+    - 估值定理：$m\le f\le M\Rightarrow mV(\Omega)\le\iiint_\Omega f\,dV\le MV(\Omega)$
+    - 三重积分中值定理：$f$ 在有界闭连通体 $\Omega$ 连续且体积非零时，存在 $\xi\in\Omega$ 使 $\iiint_\Omega f\,dV=f(\xi)V(\Omega)$
 
 ## 计算方法
 
@@ -1040,8 +1059,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\int_{L_1\cup L_2}f(x,y,z)\,ds = \int_{L_1}f(x,y,z)\,ds + \int_{L_2}f(x,y,z)\,ds, \quad L_1\cap L_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 第一类曲线积分中值定理
+    - 估值：$m\le f\le M$ 时，$m\ell(L)\le\int_L f\,ds\le M\ell(L)$
+    - 第一类曲线积分中值定理：$f$ 在连续连通曲线 $L$ 上连续，则存在 $\xi\in L$ 使 $\int_L f\,ds=f(\xi)\ell(L)$
 
 ## 计算方法
 
@@ -1081,8 +1100,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iint_{\Sigma_1\cup\Sigma_2}f(x,y,z)\,dS = \iint_{\Sigma_1}f(x,y,z)\,dS + \iint_{\Sigma_2}f(x,y,z)\,dS, \quad \Sigma_1\cap\Sigma_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 第一类曲面积分中值定理
+    - 估值：$m\le f\le M\Rightarrow mS(\Sigma)\le\iint_\Sigma f\,dS\le MS(\Sigma)$
+    - 第一类曲面积分中值定理：$f$ 在有界连通曲面 $\Sigma$ 上连续且面积非零时，存在 $\xi\in\Sigma$ 使 $\iint_\Sigma f\,dS=f(\xi)S(\Sigma)$
 
 ## 计算方法
 
