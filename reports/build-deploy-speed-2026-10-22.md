@@ -34,3 +34,11 @@
 
 - [39701087235](https://github.com/ActiveInsighter/fumadocs-study/actions/runs/39701087235) 的 Headless Chrome 检查在知识点导航处超时 30 秒。部署本身成功。在本地用同一脚本对同一部署复测通过；之后两次 CI 运行也均通过。原因未查明，作为一次偶发失败记录在此，未视为通过。
 - 首次 KaTeX 实现只遍历 hast 元素，漏掉了位于 MDX 组件内部的公式。现已修复，并补充了针对嵌套组件的测试。
+
+## 第二轮：浏览器验证
+
+- 内联在 workflow 中的 Headless Chrome 检查移到 `scripts/verify-deployment-browser.cjs`，断言不变，拆成 15 个独立场景并发执行（4 路）。某个场景失败时其余场景照常运行，并打印该场景的失败请求。
+- 每个场景使用独立的浏览器上下文。同一窗口里的后台标签页不执行 `requestAnimationFrame`，会让 Puppeteer 的 locator 点击卡住约 35 秒。导航后固定等待 1.2 秒，改为等待网络空闲。
+- 搜索场景原先从知识点总览页出发，只等待弹窗关闭，可能在未发生跳转时就通过。现改为从必然不是结果的页面出发，等待 URL 变化后再检查结果页。
+- 实测：本机对预览部署由 53 秒降到约 20 秒，连续 3 次通过；CI 中 18.5 秒（[39707366229](https://github.com/ActiveInsighter/fumadocs-study/actions/runs/39707366229)）。搜索场景修正后再次部署为 19.9 秒，部署 job 84 秒，总耗时 177 秒（[39707801293](https://github.com/ActiveInsighter/fumadocs-study/actions/runs/39707801293)）。原先该检查约 68 秒，部署 job 319 秒，总耗时 409 秒。
+- 测试：CI 子集 70 个测试约 12 秒。全量 `npm test` 中有 13 个旧失败，都是已退役的 EdgeOne Blob 功能和随内容增长而过时的目录快照，与提速无关，未改动。
