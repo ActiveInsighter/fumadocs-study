@@ -18,28 +18,19 @@ describe('docs deployment footprint', () => {
       const routeSource = readFileSync(resolve(process.cwd(), route), 'utf8');
 
       expect(routeSource, route).toMatch(/export function generateStaticParams\s*\(/u);
-      expect(routeSource, route).toMatch(/generateParams\(\);/u);
+      expect(routeSource, route).toMatch(/\.generateParams\(\)/u);
       expect(routeSource, route).toMatch(/export const dynamicParams = false;/u);
     }
   });
 
-  it('prunes prerendered files duplicated inside the EdgeOne SSR bundle', () => {
-    const workflowSource = readFileSync(
-      resolve(process.cwd(), '.github/workflows/deploy-edgeone-docs.yml'),
-      'utf8',
-    );
-
-    expect(workflowSource).toMatch(/node scripts\/prune-edgeone-prerendered\.mjs/u);
-  });
-
-  it('loads formula-heavy document bodies lazily for the server bundle', () => {
+  it('compiles formula-heavy document bodies on demand with Fumadocs Dynamic Mode', () => {
     const sourceConfig = readFileSync(resolve(process.cwd(), 'source.config.ts'), 'utf8');
     const pageSource = readFileSync(
       resolve(process.cwd(), 'app/docs/[[...slug]]/page.tsx'),
       'utf8',
     );
 
-    expect(sourceConfig).toMatch(/docs:\s*\{[\s\S]*?async:\s*true/u);
+    expect(sourceConfig).toMatch(/docs:\s*\{[\s\S]*?dynamic:\s*true/u);
     expect(pageSource).toMatch(/const data = await page\.data\.load\(\);/u);
     expect(pageSource).toMatch(/const MDX = data\.body;/u);
   });
@@ -113,17 +104,5 @@ describe('docs deployment footprint', () => {
     } finally {
       await rm(serverRoot, { recursive: true, force: true });
     }
-  });
-
-  it('checks static HTML compression and EdgeOne cache status after deployment', () => {
-    const workflowSource = readFileSync(
-      resolve(process.cwd(), '.github/workflows/deploy-edgeone-docs.yml'),
-      'utf8',
-    );
-
-    expect(workflowSource).toContain('Accept-Encoding: br, gzip');
-    expect(workflowSource).toContain('Content-Encoding');
-    expect(workflowSource).toContain('EO-Cache-Status');
-    expect(workflowSource).toContain('static_docs_warmup_status');
   });
 });

@@ -41,4 +41,7 @@
 - 每个场景使用独立的浏览器上下文。同一窗口里的后台标签页不执行 `requestAnimationFrame`，会让 Puppeteer 的 locator 点击卡住约 35 秒。导航后固定等待 1.2 秒，改为等待网络空闲。
 - 搜索场景原先从知识点总览页出发，只等待弹窗关闭，可能在未发生跳转时就通过。现改为从必然不是结果的页面出发，等待 URL 变化后再检查结果页。
 - 实测：本机对预览部署由 53 秒降到约 20 秒，连续 3 次通过；CI 中 18.5 秒（[39707366229](https://github.com/ActiveInsighter/fumadocs-study/actions/runs/39707366229)）。搜索场景修正后再次部署为 19.9 秒，部署 job 84 秒，总耗时 177 秒（[39707801293](https://github.com/ActiveInsighter/fumadocs-study/actions/runs/39707801293)）。原先该检查约 68 秒，部署 job 319 秒，总耗时 409 秒。
-- 测试：CI 子集 70 个测试约 12 秒。全量 `npm test` 中有 13 个旧失败，都是已退役的 EdgeOne Blob 功能和随内容增长而过时的目录快照，与提速无关，未改动。
+- 测试：清理了全量 `npm test` 中的 13 个旧失败。
+  - 删除 7 个只针对已退役功能的测试：EdgeOne SSR 产物裁剪、EdgeOne 压缩与缓存检查，以及 5 个 EdgeOne Blob 下载网关测试（对应的 `app/download`、`edgeone/` 与 `deploy-edgeone-functions.yml` 均已不存在）。
+  - 更新 6 个仍在守护现有行为的测试：静态路由参数、Dynamic Mode 按需编译正文、根目录与数学/政治模块结构（已加入算法模块和新增章节）、词汇页 full 模式（仅 JSX 换行不同）。
+  - 现在全量 35 个文件、221 个测试全部通过，耗时约 9 秒。CI 改为直接运行 `npm test`，不再维护手写的测试文件清单。

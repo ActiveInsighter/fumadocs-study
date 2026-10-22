@@ -6,7 +6,7 @@ describe('vocabulary responsive layout', () => {
     const page = readFileSync(new URL('../app/docs/[[...slug]]/page.tsx', import.meta.url), 'utf8');
     expect(page).toContain("page.path.startsWith('english/vocabulary/')");
     expect(page).toContain('Boolean(page.data.full) || isVocabularyPage');
-    expect(page).toContain('<DocsPage toc={data.toc} full={useFullPage}>');
+    expect(page).toMatch(/<DocsPage\s+toc=\{data\.toc\}\s+full=\{useFullPage\}\s*>/u);
     expect(page).toContain("' vocabulary-docs-body'");
   });
 

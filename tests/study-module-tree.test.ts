@@ -43,20 +43,29 @@ describe('study module metadata structure', () => {
   const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
 
-  it('exposes exactly four physical and sidebar root modules', () => {
-    expect(rootMeta.pages).toEqual(['politics', 'english', 'math', '408']);
+  it('exposes exactly five physical and sidebar root modules', () => {
+    expect(rootMeta.pages).toEqual(['politics', 'english', 'math', '408', 'algorithm']);
 
     const rootDirectories = readdirSync(docsRoot, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name)
       .sort();
 
-    expect(rootDirectories).toEqual(['408', 'english', 'math', 'politics'].sort());
+    expect(rootDirectories).toEqual(['408', 'algorithm', 'english', 'math', 'politics'].sort());
   });
 
-  it('keeps math split into core knowledge, supplements, problem solving, and exams', () => {
+  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving and exams', () => {
     expect(mathMeta.root).toBe(true);
-    expect(mathMeta.pages).toEqual(['index', 'knowledge', 'supplements', 'problem-solving', 'exam']);
+    expect(mathMeta.pages).toEqual([
+      'index',
+      'knowledge',
+      'formulas',
+      'supplements',
+      'mind-maps',
+      'visualizations',
+      'problem-solving',
+      'exam',
+    ]);
     expect(mathKnowledgeMeta.pages).toEqual([
       'index',
       'advanced-mathematics',
@@ -150,8 +159,8 @@ describe('study module metadata structure', () => {
     expect(coursesExamMeta.pages).toEqual(['index']);
   });
 
-  it('keeps the politics module unchanged', () => {
-    expect(politicsMeta.pages).toEqual(['index', 'exam-politics']);
+  it('keeps the politics lectures followed by topic summaries and the Xiao 1000 set', () => {
+    expect(politicsMeta.pages).toEqual(['index', 'exam-politics', 'topic-summary', 'xiao-1000']);
     expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
   });
 
