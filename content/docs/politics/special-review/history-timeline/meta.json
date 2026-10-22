@@ -1,0 +1,19 @@
+{
+  "title": "史纲时间线与真题辨析",
+  "description": "六个历史锚点、八阶段时间线、重大会议、37 组易混点、93 道真题索引和材料题框架。",
+  "pages": [
+    "index",
+    "timeline",
+    "meetings",
+    "treaties-and-texts",
+    "chapter-framework",
+    "confusing-points",
+    "question-index",
+    "cross-chapter-topics",
+    "answer-templates",
+    "self-test",
+    "anniversary-review"
+  ],
+  "collapsible": true,
+  "defaultOpen": false
+}

@@ -1,0 +1,22 @@
+{
+  "title": "马原概念与选项翻译",
+  "description": "按导论及七章查词，结合真题表述、30 类陷阱、44 组原创训练和 16 题自测。",
+  "pages": [
+    "index",
+    "glossary",
+    "00-introduction",
+    "01-materiality-and-dialectics",
+    "02-practice-and-cognition",
+    "03-society-and-history",
+    "04-capitalism-and-surplus-value",
+    "05-monopoly-and-globalization",
+    "06-scientific-socialism",
+    "07-communism",
+    "question-expressions",
+    "wording-traps",
+    "original-practice",
+    "self-test"
+  ],
+  "collapsible": true,
+  "defaultOpen": false
+}

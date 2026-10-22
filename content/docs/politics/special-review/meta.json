@@ -1,0 +1,11 @@
+{
+  "title": "专题复习",
+  "description": "马原概念与选项翻译、史纲时间线与真题辨析，配套自测和原资料入口。",
+  "pages": [
+    "index",
+    "marxism-language",
+    "history-timeline"
+  ],
+  "collapsible": true,
+  "defaultOpen": false
+}
