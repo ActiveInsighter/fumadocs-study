@@ -93,3 +93,30 @@ describe('complete explanations across all three subject mind maps', () => {
     expect(statistics).toContain('P(A)>0');
   });
 });
+
+
+describe('mind-map markup and TeX structural lint', () => {
+  for (const file of files) {
+    it(file + ' contains no orphan prose lines or unbalanced math braces', () => {
+      const sections = [...readMap(file).matchAll(mindmapPattern)].map((m) => m[1]);
+      for (const section of sections) {
+        for (const line of section.split('\n')) {
+          if (!line.trim()) continue;
+          expect(line).toMatch(/^\s*(?:#{1,6}\s|[-*]\s|\d+[.)]\s)/);
+          for (const match of line.matchAll(/(?<!\\)\$([^$]+)(?<!\\)\$/g)) {
+            let braces = 0;
+            for (const character of match[1]) {
+              if (character === '{') braces++;
+              else if (character === '}') braces--;
+              expect(braces).toBeGreaterThanOrEqual(0);
+            }
+            expect(braces).toBe(0);
+            const begins = (match[1].match(/\\begin\{/g) ?? []).length;
+            const ends = (match[1].match(/\\end\{/g) ?? []).length;
+            expect(begins).toBe(ends);
+          }
+        }
+      }
+    });
+  }
+});
