@@ -300,7 +300,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 三角代换
     - $\displaystyle \sqrt{a^2-\varphi^2(x)}:\quad \varphi(x)=a\sin t$
     - $\displaystyle \sqrt{\varphi^2(x)-a^2}:\quad \varphi(x)=a\sec t$
-    - $\displaystyle \sqrt{\varphi^2(x)-a^2}:\quad \varphi(x)=a\sec t$
+    - $\displaystyle \sqrt{\varphi^2(x)+a^2}:\quad \varphi(x)=a\tan t$
 - 分部积分的使用
   - 易积分的标准：一次凑微可得出结果
   - 与变量代换的结合
@@ -319,9 +319,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本思想：微元法
 - 定积分的性质
   - 线性性质
-    - $\displaystyle \int_a^b [k_1f(x)+k_2g(x)]\,dx=k_1\int f(x)\,dx+k_2\int g(x)\,dx$
+    - $\displaystyle \int_a^b [k_1f(x)+k_2g(x)]\,dx=k_1\int_a^b f(x)\,dx+k_2\int_a^b g(x)\,dx$
   - 区间可加性
-    - $\displaystyle \int_a^b f(x)\,dx=\int_a^c f(x)\,dx+\int_c^d f(x)\,dx$
+    - $\displaystyle \int_a^b f(x)\,dx=\int_a^c f(x)\,dx+\int_c^b f(x)\,dx$（分点为 $c$，积分终点仍为 $b$）
   - 比较定理
     - 估值定理
     - 定积分中值定理
@@ -331,9 +331,17 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 无界函数广义积分
   - 考试要求
     - 计算
+      - 无穷区间：$\displaystyle\int_a^{+\infty}f(x)\,dx=\lim_{b\to+\infty}\int_a^bf(x)\,dx$（极限存在且有限才收敛）
+      - 无界函数：在奇点 $c$ 的两侧分别取极限；两侧都收敛才称整个反常积分收敛
+      - 对于对称奇点或无穷区间，柯西主值存在不等于反常积分收敛
     - 判断敛散性
       - 用定义
+        - 对无穷限或无界端点写成定积分极限，再判断该极限是否存在且有限
+        - 有多个瑕点、两个无穷端点时分别判断，不能依赖相互抵消
       - 比较判别法
+        - 非负函数 $0\le f\le g$ 时，$\int g$ 收敛可推出 $\int f$ 收敛；$\int f$ 发散可推出 $\int g$ 发散
+        - 常用模型：$\displaystyle\int_1^{+\infty}x^{-p}\,dx$ 在 $p>1$ 时收敛；$\displaystyle\int_0^1x^{-p}\,dx$ 在 $p<1$ 时收敛
+        - 极限比较：若 $f,g\ge0$ 且 $f/g\to c\in(0,\infty)$，则在相同瑕点附近两者同敛散
 
 ## 定积分的计算
 
