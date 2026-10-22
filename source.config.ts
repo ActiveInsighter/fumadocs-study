@@ -1,6 +1,7 @@
 import { remarkMdxMermaid, remarkStructure } from 'fumadocs-core/mdx-plugins';
 import { remarkMdxMindmap } from './lib/mdx/remark-mindmap';
 import { remarkMdxPreview } from './lib/mdx/remark-mdx-preview';
+import { rehypeKatexHtml } from './lib/mdx/rehype-katex-html';
 import { heroSchema } from './components/blog-hero/schema';
 import { remarkStrongBoundaryRepair } from './lib/mdx/remark-strong-boundary';
 import { pageSchema } from 'fumadocs-core/source/schema';
@@ -71,6 +72,7 @@ export default defineConfig({
     // deploy-size impact; it is not a production accessibility decision.
     rehypePlugins: (plugins) => [
       [rehypeKatex, { strict: 'ignore', output: 'html' }],
+      rehypeKatexHtml,
       ...plugins,
     ],
   },
