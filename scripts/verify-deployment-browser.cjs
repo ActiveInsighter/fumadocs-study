@@ -162,7 +162,9 @@ async function formatting(page, base) {
 
 /** Verify the content-addressed ZBSearch files through the actual UI. */
 async function search(page, base) {
-  await page.goto(base + '/docs/408/knowledge2/', { waitUntil: 'networkidle2', timeout: 120000 });
+  // Start on a page that cannot be the result, so the URL change proves navigation.
+  const startPath = '/docs/408/knowledge2/operating_system/';
+  await page.goto(base + startPath, { waitUntil: 'networkidle2', timeout: 120000 });
   await page.keyboard.down('Control');
   await page.keyboard.press('k');
   await page.keyboard.up('Control');
@@ -174,9 +176,12 @@ async function search(page, base) {
   );
   await page.keyboard.press('Enter');
   await page.waitForFunction(
-    () => location.pathname.startsWith('/docs/') && !document.querySelector('[role="dialog"] input'),
+    (start) => location.pathname !== start && location.pathname.startsWith('/docs/') && !document.querySelector('[role="dialog"] input'),
     { timeout: 60000 },
+    startPath,
   );
+  await settle(page);
+  await assertNoNotFound(page, 'Search result navigation');
   return 'selected result -> ' + (await page.evaluate(() => location.pathname));
 }
 
