@@ -201,7 +201,7 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
 
 - 分布律
   - 适用范围：离散型随机变量
-  - 定义：取值+概率（$P\{X\le x_i\}=p_i$）
+  - 定义：取值及对应点概率 $P\{X=x_i\}=p_i$（不能误写成 $P\{X\le x_i\}$；后者属于分布函数）
   - 性质（充要条件）
     - 非负性：$p_i\ge 0$
     - 归一性：$\displaystyle\sum_i p_i=1$
@@ -304,7 +304,7 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
     - 求联合分布律：抓住两要素
 
 - 联合概率密度
-  - 适用范围：二维连续型随机变量（$X,Y$ 都是连续型随机变量）
+  - 适用范围：$(X,Y)$ 存在联合概率密度的情形；仅有 $X,Y$ 各自连续并不能保证存在联合密度，例如 $Y=X$
   - 定义
     - 数学表达：$F(x,y)=\displaystyle\int_{-\infty}^{x}du\int_{-\infty}^{y}f(u,v)\,dv$
     - 实际意义：随机变量在该点附近单位面积区域内取值的概率
@@ -326,14 +326,14 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
 
 - 二维正态分布
   - 符号：$(X,Y)\sim N(\mu_1,\mu_2;\sigma_1^2,\sigma_2^2;\rho)$
-  - 概率密度：略
+  - 概率密度（$\sigma_1,\sigma_2>0,\ |\rho|<1$）：$f(x,y)=\dfrac{\exp\!\left[-\dfrac{1}{2(1-\rho^2)}\left(\dfrac{(x-\mu_1)^2}{\sigma_1^2}-\dfrac{2\rho(x-\mu_1)(y-\mu_2)}{\sigma_1\sigma_2}+\dfrac{(y-\mu_2)^2}{\sigma_2^2}\right)\right]}{2\pi\sigma_1\sigma_2\sqrt{1-\rho^2}}$
   - 性质
     - 与一维正态分布的关系
       - $(X,Y)$ 服从二维正态分布 $\Rightarrow X,Y$ 均服从一维正态分布
       - $X,Y$ 均服从一维正态分布 $\nRightarrow (X,Y)$ 服从二维正态分布
       - $X,Y$ 均服从一维正态分布，且 $X,Y$ 独立 $\Rightarrow (X,Y)$ 服从二维正态分布
     - 线性性质
-      - $(X,Y)$ 服从二维正态分布 $\Rightarrow aX+bY$ 服从一维正态分布
+      - $(X,Y)$ 服从二维正态分布 $\Rightarrow aX+bY$ 服从正态分布（$a,b$ 不同时为零且方差非零时为非退化正态）
       - $X_1,\ldots,X_n$ 相互独立且均服从正态分布，则 $\displaystyle\sum_{i=1}^{n}a_iX_i$ 服从一维正态分布
       - $(X,Y)$ 服从二维正态分布，且 $ad-bc\ne0$，则 $(aX+bY,cX+dY)$ 也服从二维正态分布
     - 独立性与不相关性：若 $(X,Y)$ 服从二维正态分布，则 $X,Y$ 独立 $\Leftrightarrow \rho_{XY}=0$
@@ -499,6 +499,8 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
       - $\displaystyle\int_{-\infty}^{+\infty}x^2\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx=\mu^2+\sigma^2$
       - $\displaystyle\int_0^{+\infty}x^n e^{-x^2}\,dx=\begin{cases}\dfrac12\displaystyle\int_0^{+\infty}u^k e^{-u}\,du,&n=2k+1\\[4pt]\dfrac{2k-1}{2}\displaystyle\int_0^{+\infty}x^{2k-2}e^{-x^2}\,dx,&n=2k\end{cases}$
   - 应用
+    - 切比雪夫不等式：$P\{|X-EX|\ge\varepsilon\}\le DX/\varepsilon^2$（$DX<\infty,\ \varepsilon>0$）
+    - 方差越大说明围绕均值的平均平方偏离越大；方差为零时 $X$ 几乎处处等于常数
 
 - 二维
   - 期望
@@ -510,7 +512,14 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
 ## 常用公式
 
 - 常见分布的数字特征
-  - 公式
+  - 公式（参数含义按上文）
+    - 0-1 分布：$EX=p,\ DX=p(1-p)$
+    - 二项 $B(n,p)$：$EX=np,\ DX=np(1-p)$
+    - 几何 $G(p)$（首次成功的试验次数）：$EX=1/p,\ DX=(1-p)/p^2$
+    - 泊松 $P(\lambda)$：$EX=DX=\lambda$
+    - 均匀 $U(a,b)$：$EX=(a+b)/2,\ DX=(b-a)^2/12$
+    - 指数 $E(\lambda)$（率参数）：$EX=1/\lambda,\ DX=1/\lambda^2$
+    - 正态 $N(\mu,\sigma^2)$：$EX=\mu,\ DX=\sigma^2$
   - 使用要点
     - 常见分布的识别
     - 数字特征之间的关系
@@ -609,12 +618,12 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
 ## 中心极限定理
 
 - 定理内容
-  - 实际意义：无穷多个独立同分布的随机变量之和服从正态分布
+  - 实际意义：独立同分布且具有有限非零方差的变量之和，中心化、标准化后依分布趋近标准正态；有限项和不一定精确服从正态
   - 数学表达
     - 条件
       - 1. $X_1,\ldots,X_n$ 独立同分布
       - 2. $EX_i=\mu,\ DX_i=\sigma^2$
-    - $\displaystyle\lim_{n\to\infty}P\left\{\frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt{n}\sigma}\le x\right\}=\Phi(x)$
+    - $\displaystyle\lim_{n\to\infty}P\left\{\frac{\sum_{i=1}^{n}X_i-n\mu}{\sqrt{n}\sigma}\le x\right\}=\Phi(x)$（条件含 $\sigma>0$）
     - 结论
       - $\displaystyle\lim_{n\to\infty}P\left\{\frac{\sqrt{n}(\overline{X}-\mu)}{\sigma}\le x\right\}=\Phi(x)$
   - 推论：当 $n$ 足够大时，$n$ 个独立同分布的随机变量之和近似服从正态分布
@@ -670,7 +679,7 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
       - $T\sim t(n)\Rightarrow T^2\sim F(1,n)$
 
 - 常考题型
-  - 统计量分布的判断：连猜带凑
+  - 统计量分布的判断：识别结构，化为标准分布并核对独立性和自由度
     - 1. 先通过统计量的形式大致判断分布的类型
     - 2. 将统计量凑成分布定义的标准形式
   - 利用分布求概率
@@ -739,9 +748,9 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
             - （1）取对数 $\ln L$
             - （2）求导 $\dfrac{d(\ln L)}{d\theta}$
             - （3）令 $\dfrac{d(\ln L)}{d\theta}=0$，解出最大似然估计量
-          - 定义域内含 $\theta$：分析单调性
-            - $L$ 关于 $\theta$ 单调：$\hat{\theta}=\min\{x_1,\ldots,x_n\}$
-            - $L$ 关于 $\theta$ 单调：$\hat{\theta}=\max\{x_1,\ldots,x_n\}$
+          - 样本支持集依赖 $\theta$：先根据指示函数确定可行区间，再比较似然在内部和边界的大小
+            - 例 $U(0,\theta)$：$\theta\ge\max_i x_i$ 且似然递减，故 $\hat{\theta}=\max_i x_i$
+            - 一般情形不能只凭“单调”便固定写样本最小值或最大值
         - 3. 将 $x_i$ 换成 $X_i$，得到最大似然估计量
       - 方法推广：两个参数 $\theta_1,\theta_2$
         - 1. 写似然函数
@@ -755,30 +764,35 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
 
 - 区间估计（*数学一）
   - 基本概念
-    - $P\{\theta\in[\underline{\theta},\overline{\theta}]\}=1-\alpha$
+    - $P_\theta\{\theta\in[\underline{\theta}(X),\overline{\theta}(X)]\}=1-\alpha$（参数 $\theta$ 固定，端点随样本随机变化）
     - $1-\alpha$：置信水平
     - $[\underline{\theta},\overline{\theta}]$：置信区间
     - $\underline{\theta}\,(\overline{\theta})$：置信下（上）限
   - 估计方法
     - 基本思路
       - 1. 结合已知信息，构造含未知参数且服从统计分布的统计量 $T$
-      - 2. 找出满足 $P\{T\in I\}=1-\alpha$ 的最小区间 $I$
+      - 2. 选取满足 $P\{T\in I\}=1-\alpha$ 的合适区间 $I$（如双侧等尾区间；不必是最短区间）
       - 3. 从 $T\in I$ 中解出参数的置信区间
-    - 具体公式
+    - 具体公式：正态总体参数的双侧 $1-\alpha$ 置信区间
+      - $\sigma$ 已知，估计 $\mu$：$\overline X\pm z_{\alpha/2}\dfrac{\sigma}{\sqrt n}$
+      - $\sigma$ 未知，估计 $\mu$：$\overline X\pm t_{\alpha/2}(n-1)\dfrac{S}{\sqrt n}$
+      - $\mu$ 已知，估计 $\sigma^2$：$\left[\dfrac{\sum_i(X_i-\mu)^2}{\chi^2_{\alpha/2}(n)},\dfrac{\sum_i(X_i-\mu)^2}{\chi^2_{1-\alpha/2}(n)}\right]$
+      - $\mu$ 未知，估计 $\sigma^2$：$\left[\dfrac{(n-1)S^2}{\chi^2_{\alpha/2}(n-1)},\dfrac{(n-1)S^2}{\chi^2_{1-\alpha/2}(n-1)}\right]$
+      - 记号约定：$z_\gamma,t_\gamma,\chi^2_\gamma$ 表示各分布的上侧 $\gamma$ 分位点；按教材记号调整
 
 ## 假设检验（*数学一）
 
 - 基本概念
   - 原假设与备择假设
-    - 原假设 $H_0$：较明显能成立的假设
-    - 备择假设 $H_1$：$H_0$ 的补集
+    - 原假设 $H_0$：检验所针对的基准陈述（通常含参数等号），并不表示它“明显成立”
+    - 备择假设 $H_1$：与 $H_0$ 对立的陈述，需明确双侧或单侧
   - 接受域与拒绝域
-    - 接受域：接受原假设 $H_0$ 的统计量取值范围
+    - 非拒绝域：检验统计量未落入拒绝域的范围；“未拒绝”不等于“已证明 $H_0$ 成立”
     - 拒绝域：拒绝原假设 $H_0$ 的统计量取值范围
   - 两类错误
     - 第一类错误（弃真）：原假设为真的条件下拒绝了原假设
-    - 第二类错误（纳伪）：原假设为假的条件下接受了原假设
-  - 显著水平：犯第一类错误的概率
+    - 第二类错误（纳伪）：原假设为假时却未能拒绝它
+  - 显著性水平 $\alpha$：$H_0$ 为真时误拒绝的概率上界（常取恰好 $\alpha$）
 
 - 检验方法
   - 基本思路
@@ -788,10 +802,10 @@ description: "考研数学概率论与数理统计思维导图，汇总全部模
   - 具体公式
     - $H_0:\mu=\mu_0\quad[H_1:\mu\ne\mu_0]$
       - $\sigma$ 已知
-        - 统计量及分布：$U=\dfrac{\sqrt{n}\,|\overline{X}-\mu_0|}{\sigma}\sim N(0,1)$
+        - 统计量及分布：$U=\dfrac{\sqrt{n}(\overline{X}-\mu_0)}{\sigma}\sim N(0,1)$（先保留符号，构造拒绝域时再取绝对值）
         - 拒绝域：$|U|>z_{\alpha/2}$
       - $\sigma$ 未知
-        - 统计量及分布：$T=\dfrac{\sqrt{n}\,|\overline{X}-\mu_0|}{S}\sim t(n-1)$
+        - 统计量及分布：$T=\dfrac{\sqrt{n}(\overline{X}-\mu_0)}{S}\sim t(n-1)$（$|T|$ 本身不服从 $t$ 分布）
         - 拒绝域：$|T|>t_{\alpha/2}(n-1)$
     - $H_0:\sigma^2=\sigma_0^2\quad[H_1:\sigma^2\ne\sigma_0^2]$
       - $\mu$ 已知
