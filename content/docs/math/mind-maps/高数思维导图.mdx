@@ -21,8 +21,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 局部有界性
     - 整体有界性
   - 保号性
-    - 去极限号
-    - 加极限号
+    - 去极限号：若 $f(x)\to A>0$，则在充分靠近极限点处 $f(x)>0$
+    - 加极限号：若极限存在且充分靠近处 $f(x)\ge0$，则极限 $A\ge0$；由严格 $f(x)>0$ 也只能推出 $A\ge0$
 
 ## 函数极限的计算
 
@@ -103,7 +103,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 导数定义与极限的计算
 - 渐近线
   - 定义
-    - 与曲线无限接近且不相交
+    - 当 $x$ 或 $y$ 趋于无穷、或趋向某个有限边界点时，曲线到直线的距离趋零；渐近线可以与曲线相交
   - 分类及计算方法
     - 垂直渐近线
       - 找无穷间断点
@@ -124,6 +124,10 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 可微
       - $\displaystyle \Delta z=A\Delta x+B\Delta y+o(\rho)$
   - 相互关系
+    - 可微 $\Rightarrow$ 连续且两个偏导数存在，并满足 $dz=f_x\,dx+f_y\,dy$
+    - 仅连续不保证偏导数存在；仅有两个偏导数也不保证连续或可微
+    - 若两个偏导数在点的邻域存在并在该点连续，则函数在该点可微
+    - 二重极限必须沿任意路径趋于同一值；只检查直线方向不足以证明极限存在
 ```
 
 ## 第二章 一元函数微分学
@@ -167,9 +171,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 求切线与法线
     - 相切的充要条件
   - 曲率（*数学一、二）
-    - 计算公式
-    - 几何意义：弯曲程度
-    - 曲率半径与曲率圆
+    - 计算公式：平面曲线 $y=f(x)$ 在 $y''$ 存在时，$\kappa=\dfrac{|y''|}{(1+(y')^2)^{3/2}}$
+    - 几何意义：单位弧长上的切线方向变化率绝对值，曲率越大越弯曲
+    - 曲率半径：$\rho=1/\kappa$（$\kappa>0$），对应密切圆半径
   - 变化率（*数学一、数学二）
 - 单调性与凹凸性
   - 基本知识
@@ -189,9 +193,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - 极值：局部的最值
       - 拐点：凹凸区间的分界点
     - 判定定理
-      - 必要条件
-      - 充分条件：第一、第二
-    - 相互关系：函数可导时，拐点为导数的极值点
+      - 必要条件：若 $f$ 在内点 $x_0$ 可导并取极值，则 $f'(x_0)=0$；拐点须有凹凸性变化
+      - 充分条件：$f'$ 左右异号，$+\to-$ 为极大，$-\to+$ 为极小；若 $f'(x_0)=0$ 且 $f''(x_0)>0$ 为极小，$f''(x_0)<0$ 为极大
+    - 相互关系：若 $f'$ 在拐点附近连续且单调性从增变减或从减变增，则拐点处 $f'$ 取局部极值；仅“函数可导”不足以直接套用
   - 题型
     - 具体函数的极值和拐点：初等函数、分段函数、隐函数、参数方程
     - 抽象函数的极值和拐点：图像、方程、极限式
@@ -200,7 +204,12 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本经济学量：成本、需求、价格、收益、利润
   - 边际与弹性
     - 计算公式
+      - 边际成本 $MC(q)=C'(q)$，边际收益 $MR(q)=R'(q)$，边际利润 $\Pi'(q)=MR(q)-MC(q)$
+      - 需求价格弹性（通常以绝对值衡量）：$\varepsilon(p)=-\dfrac{p}{q(p)}q'(p)$（$q(p)>0$）
     - 经济学意义
+      - $MC$ 表示产量增加一个微小单位引起的成本变化率
+      - 若内部点利润最大，必要条件为 $MR=MC$，还需二阶条件或全局比较
+      - $|\varepsilon|>1$ 为富有弹性，$|\varepsilon|<1$ 为缺乏弹性；注意经济学教材的符号约定
 ```
 
 ## 第三章 多元函数微分学
@@ -212,7 +221,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 
 - 方法
   - 基本方法：固定一个变量
-  - 高阶导数：混合偏导数与求导次序无关
+  - 高阶导数：若二阶混合偏导在该点邻域连续，则 $f_{xy}=f_{yx}$；缺少连续性等充分条件时不能随意交换求导次序
   - 求导法则：复合函数求导法则
 - 题型
   - 具体函数求偏导数
@@ -222,7 +231,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 隐函数求偏导数
   - 方向导数与梯度（*数学一）
     - 计算公式
+      - 若 $f$ 在该点可微，单位方向 $\mathbf u=(\cos\theta,\sin\theta)$，则 $D_{\mathbf u}f=f_x\cos\theta+f_y\sin\theta=\nabla f\cdot\mathbf u$
+      - 梯度：$\nabla f=(f_x,f_y)$；方向向量必须单位化后代入标准方向导数公式
     - 几何意义
+      - 梯度指向函数局部增长最快方向，最大方向导数为 $|\nabla f|$
+      - 若 $\nabla f\ne0$，梯度与等值曲线在该点的切线垂直
 
 ## 应用
 
@@ -231,8 +244,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 知识
       - 定义：局部的最值
       - 判定定理
-        - 必要条件
-        - 充分条件
+        - 必要条件：可微函数在内部极值点满足 $\nabla f=0$，驻点不一定是极值点
+        - 充分条件：二维驻点处 $D=f_{xx}f_{yy}-f_{xy}^2>0$ 且 $f_{xx}>0$ 为极小，$D>0$ 且 $f_{xx}<0$ 为极大；$D<0$ 为鞍点
+        - $D=0$ 时二阶判别法失效，须考察高阶项或沿路径比较
     - 题型
       - 极值的判断
       - 极值的计算
@@ -245,7 +259,13 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 有界闭区域上函数的最值
 - 多元函数微分学的几何意义（*数学一）
   - 空间曲线的切线与法平面
+    - 参数式 $\mathbf r(t)=(x(t),y(t),z(t))$，正则点 $\mathbf r'(t_0)\ne0$ 的切向量是 $\mathbf r'(t_0)$
+    - 法平面：$\mathbf r'(t_0)\cdot[(X,Y,Z)-\mathbf r(t_0)]=0$
   - 空间曲面的切平面与法线
+    - 隐式曲面 $F(x,y,z)=0$，若 $\nabla F(P)\ne0$，法向量为 $\nabla F(P)$
+    - 切平面：$F_x(P)(x-x_0)+F_y(P)(y-y_0)+F_z(P)(z-z_0)=0$
+    - 法线：$(x,y,z)=(x_0,y_0,z_0)+t\nabla F(P)$
+    - 显式 $z=f(x,y)$：法向量可取 $(-f_x,-f_y,1)$
 ```
 
 ## 第四章 不定积分
@@ -256,8 +276,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 ## 基本知识
 
 - 定义
-  - 原函数
-  - 不定积分：所有原函数组成的集合
+  - 原函数：若 $F'(x)=f(x)$，则 $F$ 是 $f$ 的原函数
+  - 不定积分：$\int f(x)\,dx=F(x)+C$，是全部原函数构成的函数族
 - 性质
   - 加法
     - $\displaystyle \int [f(x)+g(x)]\,dx=\int f(x)\,dx+\int g(x)\,dx$
@@ -268,6 +288,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - $\displaystyle \int df(x)=f(x)+C$
 - 基本公式与方法
   - 基本积分公式
+    - $\int x^a\,dx=\dfrac{x^{a+1}}{a+1}+C$（$a\ne-1$），$\int\dfrac{dx}{x}=\ln|x|+C$
+    - $\int e^x\,dx=e^x+C$；$\int\sin x\,dx=-\cos x+C$；$\int\cos x\,dx=\sin x+C$
+    - $\int\dfrac{dx}{1+x^2}=\arctan x+C$；$\int\dfrac{dx}{\sqrt{1-x^2}}=\arcsin x+C$（相应定义域内）
   - 换元积分法
     - 凑微分法
       - $\displaystyle \int f(\varphi(x))\varphi'(x)\,dx=\int f(\varphi(x))\,d\varphi(x)$
@@ -290,9 +313,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 凑微分
       - $\displaystyle \sin^{2n+1}x\,dx=-(1-\cos^2x)^n\,d\cos x$
       - $\displaystyle \frac{1}{\sin x}\,dx=\frac{-d\cos x}{1-\cos^2x}$
-      - $\displaystyle \sec^{2n}x\tan^m x\,dx=(1+\tan^2x)^{n+1}\tan^m x\,d\tan x$
-      - $\displaystyle \sec^m x\tan^{2n+1}x\,dx=\sec^{m-1}x(\sec^2x-1)^m\,d\tan x$
+      - $\displaystyle \sec^{2n}x\tan^m x\,dx=(1+\tan^2x)^{n-1}\tan^m x\,d(\tan x)$（$n\ge1$）
+      - $\displaystyle \sec^m x\tan^{2n+1}x\,dx=\sec^{m-1}x(\sec^2x-1)^n\,d(\sec x)$（因 $d(\sec x)=\sec x\tan x\,dx$）
     - 万能代换
+      - 令 $t=\tan(x/2)$，则 $\sin x=\dfrac{2t}{1+t^2},\ \cos x=\dfrac{1-t^2}{1+t^2},\ dx=\dfrac{2\,dt}{1+t^2}$
+      - 注意 $x=(2k+1)\pi$ 处分段，并优先尝试更简单的三角换元
 - 根式的积分
   - 整体代换
     - $\displaystyle \sqrt{ax+b}:\quad t=\sqrt{ax+b}$
@@ -300,11 +325,12 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 三角代换
     - $\displaystyle \sqrt{a^2-\varphi^2(x)}:\quad \varphi(x)=a\sin t$
     - $\displaystyle \sqrt{\varphi^2(x)-a^2}:\quad \varphi(x)=a\sec t$
-    - $\displaystyle \sqrt{\varphi^2(x)-a^2}:\quad \varphi(x)=a\sec t$
+    - $\displaystyle \sqrt{\varphi^2(x)+a^2}:\quad \varphi(x)=a\tan t$
 - 分部积分的使用
   - 易积分的标准：一次凑微可得出结果
   - 与变量代换的结合
-    - $\displaystyle \left.\int f(x)\,dx\right|_{x=\varphi(t)}=\int f(\varphi(t))\,d\varphi(t)=\varphi(t)f(\varphi(t))-\int \varphi(t)\,df(\varphi(t))$
+    - 先令 $u=\varphi(t)$，再对 $\int f(u)\,du$ 分部积分：$\int f(u)\,du=uf(u)-\int u f'(u)\,du$（需 $f$ 可导）
+    - 不可把 $\int f(\varphi(t))\,dt$ 与 $\int f(\varphi(t))\,d\varphi(t)$ 混同
 ```
 
 ## 第五章 定积分
@@ -319,21 +345,29 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本思想：微元法
 - 定积分的性质
   - 线性性质
-    - $\displaystyle \int_a^b [k_1f(x)+k_2g(x)]\,dx=k_1\int f(x)\,dx+k_2\int g(x)\,dx$
+    - $\displaystyle \int_a^b [k_1f(x)+k_2g(x)]\,dx=k_1\int_a^b f(x)\,dx+k_2\int_a^b g(x)\,dx$
   - 区间可加性
-    - $\displaystyle \int_a^b f(x)\,dx=\int_a^c f(x)\,dx+\int_c^d f(x)\,dx$
+    - $\displaystyle \int_a^b f(x)\,dx=\int_a^c f(x)\,dx+\int_c^b f(x)\,dx$（分点为 $c$，积分终点仍为 $b$）
   - 比较定理
-    - 估值定理
-    - 定积分中值定理
+    - 估值定理：$m\le f(x)\le M$ 时，$m(b-a)\le\int_a^b f(x)\,dx\le M(b-a)$（$a<b$）
+    - 定积分中值定理：$f$ 在 $[a,b]$ 连续，则存在 $\xi\in[a,b]$ 使 $\int_a^b f(x)\,dx=f(\xi)(b-a)$
 - 广义积分
   - 定义
     - 无穷限广义积分
     - 无界函数广义积分
   - 考试要求
     - 计算
+      - 无穷区间：$\displaystyle\int_a^{+\infty}f(x)\,dx=\lim_{b\to+\infty}\int_a^bf(x)\,dx$（极限存在且有限才收敛）
+      - 无界函数：在奇点 $c$ 的两侧分别取极限；两侧都收敛才称整个反常积分收敛
+      - 对于对称奇点或无穷区间，柯西主值存在不等于反常积分收敛
     - 判断敛散性
       - 用定义
+        - 对无穷限或无界端点写成定积分极限，再判断该极限是否存在且有限
+        - 有多个瑕点、两个无穷端点时分别判断，不能依赖相互抵消
       - 比较判别法
+        - 非负函数 $0\le f\le g$ 时，$\int g$ 收敛可推出 $\int f$ 收敛；$\int f$ 发散可推出 $\int g$ 发散
+        - 常用模型：$\displaystyle\int_1^{+\infty}x^{-p}\,dx$ 在 $p>1$ 时收敛；$\displaystyle\int_0^1x^{-p}\,dx$ 在 $p<1$ 时收敛
+        - 极限比较：若 $f,g\ge0$ 且 $f/g\to c\in(0,\infty)$，则在相同瑕点附近两者同敛散
 
 ## 定积分的计算
 
@@ -344,7 +378,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 奇偶性
       - 基本形式（偶倍奇零）
       - 推广形式（关于 $x=a$ 对称或 $(a,0)$ 点对称）
-    - $\displaystyle \int_{-a}^{a}f(x)\,dx=\int_{-a}^{a}[f(x)+f(-x)]\,dx$
+    - $\displaystyle \int_{-a}^{a}f(x)\,dx=\dfrac12\int_{-a}^{a}[f(x)+f(-x)]\,dx$（不能漏掉 $\dfrac12$）
   - 抽象函数的积分
     - 含 $f'(x)$：$\displaystyle f'(x)\,dx=df(x)$
     - 含变限积分：求导
@@ -404,14 +438,14 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iint_{D_1\cup D_2} f(x,y)\,dxdy=\iint_{D_1} f(x,y)\,dxdy+\iint_{D_2} f(x,y)\,dxdy,\quad D_1\cap D_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 二重积分中值定理
+    - 估值定理：若 $m\le f(x,y)\le M$，则 $mS(D)\le\iint_D f\,dA\le MS(D)$
+    - 二重积分中值定理：若 $f$ 在有界闭连通区域 $D$ 连续且 $S(D)>0$，则存在 $\xi\in D$ 使 $\iint_D f\,dA=f(\xi)S(D)$
 
 ## 计算方法
 
 - 直角坐标
   - 核心考点
-    - 定限方法
+    - 定限方法：先画 $D$，优先选 $x$ 型区域 $a\le x\le b,\ \varphi_1(x)\le y\le\varphi_2(x)$；若上下界交叉需分区
     - 积分次序的选择
       - 看区域：便于定限
       - 看函数：让第一步简单
@@ -425,15 +459,16 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 适用范围
       - 区域：含圆或其它极坐标曲线
       - 函数：含 $x^2+y^2$
-    - 定限方法
+    - 定限方法：从极点发射射线，先找 $\theta$ 的范围，再找 $r_1(\theta)\le r\le r_2(\theta)$
+      - 雅可比：面积微元必须乘 $r$，即 $dx\,dy=r\,dr\,d\theta$
   - 考查方式
     - 求二重积分
     - 坐标系的转换
 - 对称性
-  - 奇偶性（偶倍奇零）
+  - 奇偶性（偶倍奇零）：$D$ 关于 $y$ 轴对称、$f$ 关于 $x$ 为奇函数时，$\iint_D f=0$；偶函数则为半区积分的 $2$ 倍
   - 轮换对称性
-    - 对区域
-    - 对函数
+    - 对区域：交换 $x,y$ 后 $D$ 不变，才有 $\iint_D f(x,y)\,dA=\iint_D f(y,x)\,dA$
+    - 对函数：可先用 $\iint_D f(x,y)=\dfrac12\iint_D[f(x,y)+f(y,x)]$ 化简，前提是 $D$ 轮换对称
 ```
 
 ## 第七章 微分方程与差分方程
@@ -465,15 +500,15 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
         - 公式法
           - $y=e^{-\int P(x)\,dx}\left(\int Q(x)e^{\int P(x)\,dx}\,dx+C\right)$
     - 伯努利方程（*数学一）
-      - 标准形式
-        - $y'+P(x)y=Q(x)y^n$
-        - 或 $y^{n-1}y'+P(x)y^n=Q(x)$
+      - 标准形式：$y'+P(x)y=Q(x)y^n$（$n\ne0,1$）
       - 求解步骤
-        - 化为 $y^{n-1}y'+P(x)y^n=Q(x)$，再令 $u=y^n$
+        - 在 $y\ne0$ 的区间乘以 $y^{-n}$：$y^{-n}y'+P(x)y^{1-n}=Q(x)$
+        - 令 $u=y^{1-n}$，则 $u'+(1-n)P(x)u=(1-n)Q(x)$，化为一阶线性方程
+        - 检查代换中可能丢失的零解及初始条件
     - 全微分方程（*数学一）
-      - 标准形式
-        - $P(x,y)\,dx+Q(x,y)\,dy=0$
-        - $\frac{\partial P}{\partial y}=\frac{\partial Q}{\partial x}$
+      - 标准形式：$P(x,y)\,dx+Q(x,y)\,dy=0$
+      - 判定：在单连通区域内 $P,Q$ 有连续的一阶偏导且 $P_y=Q_x$ 时，存在势函数 $u$ 满足 $du=P\,dx+Q\,dy$
+      - 易错：在非单连通区域仅有 $P_y=Q_x$ 未必能推出全微分
       - 求解步骤
         - 1、求出二元函数 $u(x,y)$，使得 $du=P(x,y)\,dx+Q(x,y)\,dy$
         - 2、写出通解 $u(x,y)=C$
@@ -508,12 +543,14 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - 标准形式
         - $x^ny^{(n)}+p_1x^{n-1}y^{(n-1)}+\cdots+p_{n-1}xy'+p_ny=f(x)$
       - 求解方法
-        - 令 $x=e^t$，化为常系数线性微分方程
+        - 在 $x>0$ 上令 $t=\ln x$，在 $x<0$ 上可用 $t=\ln|x|$，化为常系数线性微分方程
+        - 代回时分别考虑不同符号区间及初始条件；$x=0$ 是奇点
 - 积分方程
   - 基本思路：求导消去积分号，化为微分方程
   - 需关注的细节
-    - 可导性的说明
-    - 初始条件
+    - 可导性的说明：连续被积函数的变限积分可用微积分基本定理求导
+    - 初始条件：解出微分方程后，代回原积分方程（尤其积分上下限相同处）确定积分常数
+    - 还原检验：求导可能丢失常数约束，必须代回原式
 - 差分方程
   - 基本概念
     - $\Delta y_t=y_{t+1}-y_t=f(t+1)-f(t)$
@@ -557,8 +594,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 - 相关考点
   - 闭区间上连续函数的性质
     - 介值定理
-      - 基本内容
-      - 推论：平均值定理
+      - 基本内容：$f$ 在 $[a,b]$ 连续，则 $f(a),f(b)$ 之间的每个值必在区间某点取到
+      - 推论：若 $m=\min f,\ M=\max f$，则 $f$ 取遍 $[m,M]$ 内所有值
     - 零点存在定理
   - 微分中值定理
     - 费马引理
@@ -567,8 +604,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 柯西中值定理
     - 泰勒中值定理
   - 积分中值定理
-    - 基本形式
-    - 加强形式
+    - 基本形式：$f$ 在 $[a,b]$ 连续，$\int_a^bf(x)\,dx=f(\xi)(b-a)$
+    - 加权形式：$f,g$ 连续、$g\ge0$，则 $\int_a^bf(x)g(x)\,dx=f(\xi)\int_a^b g(x)\,dx$
 - 题型
   - 连续函数的中值问题
     - 开区间：运用零点定理
@@ -624,7 +661,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 均值不等式
       - $\frac{a+b}{2}\ge\sqrt{ab},\quad a,b>0$
     - 绝对值不等式
-      - $\bigl||a|-|b|\bigr|\le a\pm b\le |a|+|b|$
+      - 反三角与三角不等式：$\bigl||a|-|b|\bigr|\le |a\pm b|\le |a|+|b|$
       - $\left|\int_a^b f(x)\,dx\right|\le\int_a^b|f(x)|\,dx$
   - 单调性与凹凸性
   - 拉格朗日中值定理
@@ -673,7 +710,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本内容
     - 收敛 + 收敛 = 收敛
     - 收敛 + 发散 = 发散
-    - 发散 + 发散 = ？
+    - 发散 + 发散：结果不确定，可能收敛也可能发散（须分析两个级数的部分和）
   - 常用结论
     - $\sum_{n=1}^{\infty}a_n$ 绝对收敛
       - $\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)$ 收敛
@@ -745,18 +782,17 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 使用关键：确保收敛的级数绝对收敛
   - 比阶数：低收 $\Longrightarrow$ 高收
     - 常用结论
-      - $\sum_{n=1}^{\infty}a_n^k$ 收敛
-        - $\Longrightarrow \sum_{n=1}^{\infty}a_n^{k+p}$ 收敛
-      - $\sum_{n=1}^{\infty}a_n$ 绝对收敛，$\sum_{n=1}^{\infty}b_n$
-        - $\Longrightarrow \sum_{n=1}^{\infty}a_nb_n$ 收敛
+      - 对 $a_n\ge0,\ k>0,\ p>0$，若 $\sum_{n=1}^{\infty}a_n^k$ 收敛
+        - 则 $a_n\to0$，充分大时 $0\le a_n\le1$，因而 $\sum a_n^{k+p}$ 收敛
+      - 若 $\sum_{n=1}^{\infty}|a_n|$ 收敛，且数列 $\{b_n\}$ 有界
+        - 则 $\sum_{n=1}^{\infty}a_nb_n$ 绝对收敛；仅知道 $\sum b_n$“发散”或“未说明敛散”不够
     - 使用关键
       - 识别乘法
       - 确保低阶绝对收敛
 - 比值与根值
   - 比值判别法
     - 基本内容
-      - 设 $\sum_{n=1}^{\infty}a_n$ 为正项级数，
-        $\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l$
+      - 设 $a_n>0$ 且 $\displaystyle\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l$
       - $l<1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 收敛
       - $l>1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 发散
     - 常用结论
@@ -769,8 +805,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - 确保正项
   - 根值判别法
     - 基本内容
-      - 正项级数 $\sum_{n=1}^{\infty}u_n$ 满足
-        $\lim_{n\to\infty}\sqrt[n]{u_n}=\rho$
+      - 设 $u_n\ge0$ 且 $\displaystyle\lim_{n\to\infty}\sqrt[n]{u_n}=\rho$
       - $\rho<1$ 时，$\sum_{n=1}^{\infty}u_n$ 收敛
       - 当 $\rho>1$ 或 $\infty$ 时，$\sum_{n=1}^{\infty}u_n$ 发散
     - 使用关键
@@ -780,7 +815,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 ### 一般项级数判别法
 
 - 基本概念
-  - 一般项级数：正项和负项都有无穷多项的级数
+  - 一般项级数：项可正、可负或为零，不要求正负项都无限多个；可用绝对收敛、条件收敛区分
   - 绝对收敛与条件收敛
     - 绝对收敛
       - $\sum_{n=1}^{\infty}|u_n|$ 收敛
@@ -850,6 +885,10 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处条件收敛 $\Rightarrow |x_1-x_0|=R$
     - $\displaystyle \sum_{n=0}^{\infty}a_n(x-x_0)^n$ 在 $x=x_1$ 处发散 $\Rightarrow |x_1-x_0|\ge R$
   - 幂级数的常见变换
+    - 有限增删项：不改变收敛半径，但可能改变边界点函数值
+    - 逐项求导或积分：收敛半径不变，收敛端点需重新判断
+    - $x$ 改为 $ax+b$：先转为关于中心 $(x-x_0)$ 的形式再比较距离；不能机械沿用原收敛区间
+    - 仅修改系数序列下标或幂次数时，须同步追踪首项和 $x=0$ 等端点
 
 ### 求和与展开
 
@@ -962,8 +1001,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iiint_{\Omega_1\cup\Omega_2}f(x,y,z)\,dv=\iiint_{\Omega_1}f(x,y,z)\,dv+\iiint_{\Omega_2}f(x,y,z)\,dv\quad(\Omega_1\cap\Omega_2=\varnothing)$
   - 比较定理
-    - 估值定理
-    - 三重积分中值定理
+    - 估值定理：$m\le f\le M\Rightarrow mV(\Omega)\le\iiint_\Omega f\,dV\le MV(\Omega)$
+    - 三重积分中值定理：$f$ 在有界闭连通体 $\Omega$ 连续且体积非零时，存在 $\xi\in\Omega$ 使 $\iiint_\Omega f\,dV=f(\xi)V(\Omega)$
 
 ## 计算方法
 
@@ -1027,8 +1066,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\int_{L_1\cup L_2}f(x,y,z)\,ds = \int_{L_1}f(x,y,z)\,ds + \int_{L_2}f(x,y,z)\,ds, \quad L_1\cap L_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 第一类曲线积分中值定理
+    - 估值：$m\le f\le M$ 时，$m\ell(L)\le\int_L f\,ds\le M\ell(L)$
+    - 第一类曲线积分中值定理：$f$ 在连续连通曲线 $L$ 上连续，则存在 $\xi\in L$ 使 $\int_L f\,ds=f(\xi)\ell(L)$
 
 ## 计算方法
 
@@ -1068,8 +1107,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 可加性
     - $\iint_{\Sigma_1\cup\Sigma_2}f(x,y,z)\,dS = \iint_{\Sigma_1}f(x,y,z)\,dS + \iint_{\Sigma_2}f(x,y,z)\,dS, \quad \Sigma_1\cap\Sigma_2=\varnothing$
   - 比较定理
-    - 估值定理
-    - 第一类曲面积分中值定理
+    - 估值：$m\le f\le M\Rightarrow mS(\Sigma)\le\iint_\Sigma f\,dS\le MS(\Sigma)$
+    - 第一类曲面积分中值定理：$f$ 在有界连通曲面 $\Sigma$ 上连续且面积非零时，存在 $\xi\in\Sigma$ 使 $\iint_\Sigma f\,dS=f(\xi)S(\Sigma)$
 
 ## 计算方法
 
