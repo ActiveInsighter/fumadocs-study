@@ -195,7 +195,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 判定定理
       - 必要条件
       - 充分条件：第一、第二
-    - 相互关系：函数可导时，拐点为导数的极值点
+    - 相互关系：若 $f'$ 在拐点附近连续且单调性从增变减或从减变增，则拐点处 $f'$ 取局部极值；仅“函数可导”不足以直接套用
   - 题型
     - 具体函数的极值和拐点：初等函数、分段函数、隐函数、参数方程
     - 抽象函数的极值和拐点：图像、方程、极限式
@@ -294,8 +294,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 凑微分
       - $\displaystyle \sin^{2n+1}x\,dx=-(1-\cos^2x)^n\,d\cos x$
       - $\displaystyle \frac{1}{\sin x}\,dx=\frac{-d\cos x}{1-\cos^2x}$
-      - $\displaystyle \sec^{2n}x\tan^m x\,dx=(1+\tan^2x)^{n+1}\tan^m x\,d\tan x$
-      - $\displaystyle \sec^m x\tan^{2n+1}x\,dx=\sec^{m-1}x(\sec^2x-1)^m\,d\tan x$
+      - $\displaystyle \sec^{2n}x\tan^m x\,dx=(1+\tan^2x)^{n-1}\tan^m x\,d(\tan x)$（$n\ge1$）
+      - $\displaystyle \sec^m x\tan^{2n+1}x\,dx=\sec^{m-1}x(\sec^2x-1)^n\,d(\sec x)$（因 $d(\sec x)=\sec x\tan x\,dx$）
     - 万能代换
 - 根式的积分
   - 整体代换
@@ -308,7 +308,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 - 分部积分的使用
   - 易积分的标准：一次凑微可得出结果
   - 与变量代换的结合
-    - $\displaystyle \left.\int f(x)\,dx\right|_{x=\varphi(t)}=\int f(\varphi(t))\,d\varphi(t)=\varphi(t)f(\varphi(t))-\int \varphi(t)\,df(\varphi(t))$
+    - 先令 $u=\varphi(t)$，再对 $\int f(u)\,du$ 分部积分：$\int f(u)\,du=uf(u)-\int u f'(u)\,du$（需 $f$ 可导）
+    - 不可把 $\int f(\varphi(t))\,dt$ 与 $\int f(\varphi(t))\,d\varphi(t)$ 混同
 ```
 
 ## 第五章 定积分
@@ -356,7 +357,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - 奇偶性
       - 基本形式（偶倍奇零）
       - 推广形式（关于 $x=a$ 对称或 $(a,0)$ 点对称）
-    - $\displaystyle \int_{-a}^{a}f(x)\,dx=\dfrac12\int_{-a}^{a}[f(x)+f(-x)]\,dx$（不能漏掉 $\dfrac12$）$
+    - $\displaystyle \int_{-a}^{a}f(x)\,dx=\dfrac12\int_{-a}^{a}[f(x)+f(-x)]\,dx$（不能漏掉 $\dfrac12$）
   - 抽象函数的积分
     - 含 $f'(x)$：$\displaystyle f'(x)\,dx=df(x)$
     - 含变限积分：求导
@@ -477,11 +478,11 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
         - 公式法
           - $y=e^{-\int P(x)\,dx}\left(\int Q(x)e^{\int P(x)\,dx}\,dx+C\right)$
     - 伯努利方程（*数学一）
-      - 标准形式
-        - $y'+P(x)y=Q(x)y^n$
-        - 或 $y^{n-1}y'+P(x)y^n=Q(x)$
+      - 标准形式：$y'+P(x)y=Q(x)y^n$（$n\ne0,1$）
       - 求解步骤
-        - 化为 $y^{n-1}y'+P(x)y^n=Q(x)$，再令 $u=y^n$
+        - 在 $y\ne0$ 的区间乘以 $y^{-n}$：$y^{-n}y'+P(x)y^{1-n}=Q(x)$
+        - 令 $u=y^{1-n}$，则 $u'+(1-n)P(x)u=(1-n)Q(x)$，化为一阶线性方程
+        - 检查代换中可能丢失的零解及初始条件
     - 全微分方程（*数学一）
       - 标准形式
         - $P(x,y)\,dx+Q(x,y)\,dy=0$
