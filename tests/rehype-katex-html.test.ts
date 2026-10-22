@@ -55,6 +55,18 @@ describe('rehypeKatexHtml', () => {
     expect(countElements(tree({}))).toBeGreaterThan(countElements(prerendered({})) * 10);
   });
 
+  it('pre-renders formulas nested inside MDX components', async () => {
+    const Content = await compile('<Callout>\n\n设 $x^2$\n\n$$\n\\frac{1}{2}\n$$\n\n</Callout>\n', true);
+    const html = renderToStaticMarkup(
+      createElement(Content, {
+        components: { Callout: ({ children }: { children?: unknown }) => createElement('aside', null, children as never) },
+      }),
+    );
+    expect(html).toContain('<aside><p>设 <span class="katex"><span class="katex-html"');
+    expect(html).toContain('<span class="katex-display"><span class="katex">');
+    expect(countElements(Content({ components: { Callout: () => null } }))).toBe(4);
+  });
+
   it('keeps formulas in headings as pre-rendered spans', async () => {
     const Content = await compile('## 求 $x^2$ 的极值\n', true);
     expect(renderToStaticMarkup(createElement(Content))).toMatch(
