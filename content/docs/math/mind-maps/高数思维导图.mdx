@@ -276,8 +276,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 ## 基本知识
 
 - 定义
-  - 原函数
-  - 不定积分：所有原函数组成的集合
+  - 原函数：若 $F'(x)=f(x)$，则 $F$ 是 $f$ 的原函数
+  - 不定积分：$\int f(x)\,dx=F(x)+C$，是全部原函数构成的函数族
 - 性质
   - 加法
     - $\displaystyle \int [f(x)+g(x)]\,dx=\int f(x)\,dx+\int g(x)\,dx$
@@ -288,6 +288,9 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
     - $\displaystyle \int df(x)=f(x)+C$
 - 基本公式与方法
   - 基本积分公式
+    - $\int x^a\,dx=\dfrac{x^{a+1}}{a+1}+C$（$a\ne-1$），$\int\dfrac{dx}{x}=\ln|x|+C$
+    - $\int e^x\,dx=e^x+C$；$\int\sin x\,dx=-\cos x+C$；$\int\cos x\,dx=\sin x+C$
+    - $\int\dfrac{dx}{1+x^2}=\arctan x+C$；$\int\dfrac{dx}{\sqrt{1-x^2}}=\arcsin x+C$（相应定义域内）
   - 换元积分法
     - 凑微分法
       - $\displaystyle \int f(\varphi(x))\varphi'(x)\,dx=\int f(\varphi(x))\,d\varphi(x)$
@@ -313,6 +316,8 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - $\displaystyle \sec^{2n}x\tan^m x\,dx=(1+\tan^2x)^{n-1}\tan^m x\,d(\tan x)$（$n\ge1$）
       - $\displaystyle \sec^m x\tan^{2n+1}x\,dx=\sec^{m-1}x(\sec^2x-1)^n\,d(\sec x)$（因 $d(\sec x)=\sec x\tan x\,dx$）
     - 万能代换
+      - 令 $t=\tan(x/2)$，则 $\sin x=\dfrac{2t}{1+t^2},\ \cos x=\dfrac{1-t^2}{1+t^2},\ dx=\dfrac{2\,dt}{1+t^2}$
+      - 注意 $x=(2k+1)\pi$ 处分段，并优先尝试更简单的三角换元
 - 根式的积分
   - 整体代换
     - $\displaystyle \sqrt{ax+b}:\quad t=\sqrt{ax+b}$
@@ -705,7 +710,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
   - 基本内容
     - 收敛 + 收敛 = 收敛
     - 收敛 + 发散 = 发散
-    - 发散 + 发散 = ？
+    - 发散 + 发散：结果不确定，可能收敛也可能发散（须分析两个级数的部分和）
   - 常用结论
     - $\sum_{n=1}^{\infty}a_n$ 绝对收敛
       - $\Longrightarrow \sum_{n=1}^{\infty}(a_n+|a_n|)$ 收敛
@@ -787,8 +792,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
 - 比值与根值
   - 比值判别法
     - 基本内容
-      - 设 $\sum_{n=1}^{\infty}a_n$ 为正项级数，
-        $\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l$
+      - 设 $a_n>0$ 且 $\displaystyle\lim_{n\to\infty}\frac{a_{n+1}}{a_n}=l$
       - $l<1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 收敛
       - $l>1\Longrightarrow \sum_{n=1}^{\infty}a_n$ 发散
     - 常用结论
@@ -801,8 +805,7 @@ description: "考研数学高等数学思维导图，汇总全部章节核心概
       - 确保正项
   - 根值判别法
     - 基本内容
-      - 正项级数 $\sum_{n=1}^{\infty}u_n$ 满足
-        $\lim_{n\to\infty}\sqrt[n]{u_n}=\rho$
+      - 设 $u_n\ge0$ 且 $\displaystyle\lim_{n\to\infty}\sqrt[n]{u_n}=\rho$
       - $\rho<1$ 时，$\sum_{n=1}^{\infty}u_n$ 收敛
       - 当 $\rho>1$ 或 $\infty$ 时，$\sum_{n=1}^{\infty}u_n$ 发散
     - 使用关键
