@@ -619,6 +619,14 @@ jobs:
           echo "name=${worker_name}" >> "${GITHUB_OUTPUT}"
           echo "- Cloudflare Worker target: \`${worker_name}\`" >> "${GITHUB_STEP_SUMMARY}"
 
+      - name: Install Wrangler CLI
+        if: ${{ env.CLOUDFLARE_PREUPLOAD == 'true' }}
+        # wrangler-action otherwise runs `npm i wrangler` inside the project, which
+        # installs the whole dependency tree (~500 packages, ~25 s). A matching
+        # global install passes its version check and skips that. Keep the version
+        # in sync with wranglerVersion below.
+        run: npm install --global --no-audit --no-fund wrangler@4.136.3
+
       - name: Deploy to Cloudflare Workers Static Assets
         id: cloudflare-deploy
         if: ${{ (github.event_name == 'push' && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') || (github.event_name == 'workflow_dispatch' && inputs.deploy == true && github.ref != 'refs/heads/codex/optimize-build-deploy-20261020') }}
