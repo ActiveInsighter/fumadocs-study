@@ -13,7 +13,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 ### 概念、性质与定理
 
 - 定义
-  - 几何意义：以 $n$ 个向量为邻边的平行多面体体积
+  - 几何意义：行列式的绝对值表示以列向量为邻边的 $n$ 维平行多面体体积；行列式自身带有定向符号
   - 数学表达：不同行不同列的 $n$ 项乘积的代数和
 - 性质
   - 转置：行列互换，行列式不变
@@ -62,7 +62,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
   - 展开
     - 直接展开
     - 递推公式
-      - 1、先定位：$D_{n-1}$ 和 $D_n$ 阶数相同，但阶数低一阶
+      - 1、先定位：$D_n$ 为 $n$ 阶行列式，$D_{n-1}$ 为相同结构的 $(n-1)$ 阶行列式
       - 2、展开行列式，得到 $D_n$ 和 $D_{n-1}$、$D_{n-2}$ 的关系
       - 3、运用递推公式求出 $D_n$
 
@@ -111,7 +111,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 - 正交矩阵
   - 定义：$A^TA=AA^T=E$
   - 充要条件：矩阵 $A$ 的行（列）向量组为正交单位向量组
-  - 性质：$|A|=1$
+  - 性质：$A^{-1}=A^T$；行、列向量均构成标准正交组；$|A|=\pm1$（不一定等于 $1$）
 
 ### 运算规律
 
@@ -259,7 +259,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
   - $r(A)\le k\Leftrightarrow A$ 不存在 $k+1$ 阶非零子式
   - 给矩阵增加行或列，矩阵的秩不会减小
   - $r(A)\ge1\Leftrightarrow A\ne O$
-  - $r(A)=1\Leftrightarrow A\ne O$，且 $A$ 的任意两行（列）成比例
+  - $r(A)=1\Leftrightarrow A\ne O$，且所有行（或列）向量都属于同一个一维子空间（允许零向量）
   - $A$ 为 $n$ 阶矩阵，$|A|\ne0\Leftrightarrow r(A)=n$
 
 ### 向量组的秩
@@ -268,16 +268,16 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 - 定义（两个条件）
   - ① 线性无关
-  - ② 最多
+  - ② 原向量组中每个向量都能由它线性表出，无法再添入原组其他向量而保持线性无关
 - 性质
   - 和原向量组的关系
-    - 向量组的任意一个极大线性无关组与自身等价
+    - 向量组的任意一个极大线性无关组与原向量组等价
     - 两个向量组等价的充要条件是它们的极大线性无关组等价
   - 极大线性无关组之间的关系
     - 同一个向量组的不同极大线性无关组等价
     - 同一个向量组的不同极大线性无关组所含向量个数相同
 - 求法
-  - 1、以向量组（或其转置）作为列向量组成矩阵
+  - 1、把待研究的向量按列排列成 $A=(\alpha_1,\ldots,\alpha_m)$
   - 2、将该矩阵通过初等行变换化为阶梯型矩阵，找主元（每行第一个非零元）
   - 3、主元所在列即对应原向量组的一个极大线性无关组
 
@@ -305,17 +305,17 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 ### 转置与数乘
 
 - $r(A)=r(A^T)=r(kA^T),\quad k\ne0$
-- $r(A)=r(A^T)=r(AA^T)=r(A^TA)$
+- 对实矩阵：$r(A)=r(A^T)=r(AA^T)=r(A^TA)$（复矩阵需改用共轭转置）
 
 ### 秩的范围
 
 - $A$ 是 $m\times n$ 阶矩阵：$0\le r(A_{m\times n})\le\min\{m,n\}$
-- $\alpha_1,\alpha_2,\ldots,\alpha_n$ 是 $m$ 维向量组 $\Leftrightarrow r(\alpha_1,\alpha_2,\ldots,\alpha_n)\le\min\{m,n\}$
+- 若 $\alpha_1,\ldots,\alpha_n$ 都是 $m$ 维向量，则 $r(\alpha_1,\ldots,\alpha_n)\le\min\{m,n\}$；不能由秩的范围反推向量维数
 
 ### 矩阵乘法
 
 - 矩阵形式：$r(AB)\le\min\{r(A),r(B)\}$
-- 向量形式：$\alpha_1,\alpha_2,\ldots,\alpha_n$ 能由 $\beta_1,\beta_2,\ldots,\beta_m$ 线性表示 $\Leftrightarrow r(\alpha_1,\alpha_2,\ldots,\alpha_n)\le r(\beta_1,\beta_2,\ldots,\beta_m)$
+- 向量形式：$\alpha$ 组能由 $\beta$ 组线性表出 $\Leftrightarrow r(\beta_1,\ldots,\beta_m,\alpha_1,\ldots,\alpha_n)=r(\beta_1,\ldots,\beta_m)$；仅有 $r(\alpha)\le r(\beta)$ 不充分
 - 推论
   - 乘以可逆矩阵不改变秩
   - 等价的向量组秩相同
@@ -325,7 +325,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 - 若 $A_{m\times n}B_{n\times s}=O$，则 $r(A)+r(B)\le n$
 - 推论
-  - $r(A^*)=\begin{cases}n,&r(A)=n\\1,&r(A)=n-1\\0,&r(A)<n-1\end{cases}$
+  - 对 $n\ge2$ 的 $n$ 阶矩阵：$r(A^*)=\begin{cases}n,&r(A)=n\\1,&r(A)=n-1\\0,&r(A)\le n-2\end{cases}$；一阶矩阵的伴随矩阵是 $(1)$
 ```
 
 ## 第四章 向量
@@ -340,7 +340,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 #### 定义
 
 - 数学表达：存在一组数 $k_1,k_2,\ldots,k_m$，使得 $\beta=k_1\alpha_1+k_2\alpha_2+\cdots+k_m\alpha_m$
-- 向量组的线性表出与等价
+- 向量组等价：两组向量可互相线性表出；等价必同秩，但同秩不一定等价
 
 #### 常用结论
 
@@ -350,8 +350,8 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 #### 充要条件
 
-- 方程角度：
-- 秩的角度：$(\alpha_1,\alpha_2,\ldots,\alpha_n)x=\beta$ 有解
+- 方程角度：令 $A=(\alpha_1,\ldots,\alpha_n)$，$\beta$ 能被该组表出 $\Leftrightarrow Ax=\beta$ 有解
+- 秩的角度：$r(\alpha_1,\ldots,\alpha_n)=r(\alpha_1,\ldots,\alpha_n,\beta)$，即添上 $\beta$ 不增秩
 - 空间角度（*数学一）：$\beta$ 属于由 $\alpha_1,\alpha_2,\ldots,\alpha_n$ 生成的向量空间
 
 ### 性质
@@ -370,9 +370,9 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 - 用定义
   - 证明表出
-    - 1、建立含有所给向量的方程
-    - 2、证明被表出的向量系数不为零
-  - 证明不能表出：反证
+    - 1、直接求出 $\beta=k_1\alpha_1+\cdots+k_m\alpha_m$ 的一组系数
+    - 2、若从线性相关关系证明，原 $\alpha$ 组线性无关时，应证明 $\beta$ 前系数非零，才能移项解出 $\beta$
+  - 证明不能表出：判断 $r(A,\beta)>r(A)$，或反设 $\beta=Ax$ 并推出矛盾
 - 用秩：讨论 $r(\alpha_1,\alpha_2,\ldots,\alpha_n)$ 与 $r(\alpha_1,\alpha_2,\ldots,\alpha_n,\beta)$
 - 用性质
 
@@ -418,7 +418,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 #### 性质
 
 - 整体无关 $\Rightarrow$ 局部无关
-- 低维无关 $\Rightarrow$ 高维无关
+- 保持原坐标、只在末尾补零嵌入高维时，原组无关则新组仍无关；随意改坐标不能直接套用
 - 阶梯型向量组一定线性无关
 - $\alpha_1,\alpha_2,\ldots,\alpha_m$ 无关，$(\beta_1,\beta_2,\ldots,\beta_m)=(\alpha_1,\alpha_2,\ldots,\alpha_m)C$，$\beta_1,\beta_2,\ldots,\beta_m$ 无关 $\Leftrightarrow |C|\ne0$
 
@@ -451,7 +451,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 ### 正交
 
-- 正交的定义：$(\alpha,\beta)=0$
+- 正交的定义：$\alpha^T\beta=0$；零向量与任意向量正交，但含零向量的向量组不可能线性无关$
 
 #### 正交向量组
 
@@ -504,11 +504,11 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 ### 过渡矩阵
 
-- 从基 $\alpha_1,\alpha_2,\ldots,\alpha_m$ 到 $\beta_1,\beta_2,\ldots,\beta_m$ 的过渡矩阵 $C$：$(\beta_1,\beta_2,\ldots,\beta_m)=(\alpha_1,\alpha_2,\ldots,\alpha_m)C$
+- 设旧基矩阵 $A=(\alpha_1,\ldots,\alpha_m)$、新基矩阵 $B=(\beta_1,\ldots,\beta_m)$；若 $B=AC$，则 $C$ 必可逆
 
 ### 坐标变换公式
 
-- 从基 $\alpha_1,\alpha_2,\ldots,\alpha_m$ 到 $\beta_1,\beta_2,\ldots,\beta_m$ 的过渡矩阵 $C$：$(\beta_1,\beta_2,\ldots,\beta_m)=(\alpha_1,\alpha_2,\ldots,\alpha_m)C$
+- 同一向量 $\gamma=Ax=By=ACy$，故旧基坐标 $x=Cy$，新基坐标 $y=C^{-1}x$（注意方向）$
 ```
 
 ## 第五章 线性方程组
@@ -591,6 +591,10 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 - 运用定义或公式讨论系数矩阵和增广矩阵的秩
 
 #### 结合空间解析几何（*数学一）
+
+- 三元方程组有解时，自由变量数 $=3-r(A)$：秩为 $3$ 是一点，秩为 $2$ 是一条直线
+- $r(A)<r(A,b)$ 时对应的平面没有公共交点
+- 秩为 $1$ 且有解时公共解集是一个平面
 
 ### 通解的计算
 
@@ -684,11 +688,11 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 - 特征值变，特征向量不变
   - $f(A)\rightarrow f(\lambda)$
   - $A^{-1}\rightarrow \lambda^{-1}$
-  - $A^*\rightarrow |A|\lambda^{-1}$
+  - $A^*\rightarrow |A|\lambda^{-1}$（只在 $A$ 可逆时使用；奇异矩阵不能除以 $\lambda$）$
   - $A+kE\rightarrow \lambda+k$
 - 特征向量变，特征值不变
   - $P^{-1}AP\rightarrow P^{-1}\alpha$
-  - $A^T\rightarrow ?$
+  - $A^T$ 与 $A$ 特征值相同，但一般不能直接沿用 $A$ 的特征向量，须解 $(A^T-\lambda E)x=0$
 
 #### 特征值的常用性质
 
@@ -794,7 +798,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 - 运用必要条件排除
   - 任何一个必要条件不满足，则不相似
 - 借助相似对角化（特征值相同时）
-  - 如果两个矩阵都可以相似对角化：相似
+  - 如果两个矩阵都能对角化，且全部特征值（含代数重数）相同，则两矩阵相似
   - 如果一个可以相似对角化，另一个不可以：不相似
 - 借助相似的性质
   - 如果 $r(\lambda E-A)\ne r(\lambda E-B)$，则 $A$ 与 $B$ 不相似
@@ -818,7 +822,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 - 矩阵有 $n$ 个线性无关的特征向量
 - 矩阵的每一个特征值的重数均等于其线性无关的特征向量个数
-- $A$ 的 $k$ 重特征值 $\lambda$ 的重数 $n-r(\lambda E-A)$
+- 对每个 $k$ 重特征值 $\lambda$，必须有 $n-r(\lambda E-A)=k$（几何重数等于代数重数）$
 
 #### 相似标准型及相似变换矩阵的计算
 
@@ -948,7 +952,7 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 
 ##### 合同标准型
 
-- 存在非退化线性变换 $x=Cy$，使 $f=d_1x_1^2+d_2x_2^2+\cdots+d_nx_n^2$
+- 存在可逆变换 $x=Cy$，使 $f(x)=d_1y_1^2+d_2y_2^2+\cdots+d_ny_n^2$（变换后用新变量）
 - 存在可逆矩阵 C，使得 $C^TAC=\Lambda$
 
 #### 计算方法
@@ -1024,6 +1028,10 @@ description: "考研数学线性代数思维导图，汇总全部章节核心概
 - 特殊形式：先运用非退化的线性变换化简二次型，再进行计算
 
 ##### 合同关系的判断和讨论
+
+- 同阶实对称矩阵合同 $\Leftrightarrow$ 正、负惯性指数分别相等
+- 合同保持惯性指数，相似保持全部特征值；合同不要求特征值逐个相同
+- 同阶正定矩阵都合同于 $E$，但未必相似
 
 ### 正定二次型
 
