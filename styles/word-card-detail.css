@@ -1,0 +1,309 @@
+/*
+ * Word detail modal (components/vocabulary/word-card-detail.tsx), laid out
+ * inside the general Modal (styles/modal.css). The popup carries .wc-detail
+ * and the card's data-tone, so it reads the same palette as the card that
+ * opened it (styles/word-cards.css): the hero sits on the card's own tone,
+ * the senses below on faint tints of it.
+ */
+
+.wc-detail {
+  --wc-sense-indent: calc(1.5rem + 10px);
+  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 6%, transparent);
+  --wc-sense-edge: color-mix(in srgb, var(--wc-ink) 6%, transparent);
+  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 42%, transparent);
+  color: var(--meaning-text);
+  font-family: var(--wc-body-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Header ------------------------------------------------------------- */
+
+/* The headword joins the header once the hero has scrolled under it. */
+.wc-detail .wc-detail-title {
+  color: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-weight: 720;
+  opacity: 0;
+  translate: 0 4px;
+  transition:
+    opacity 180ms ease,
+    translate 260ms var(--wc-ease-out);
+}
+
+.wc-detail[data-scrolled] .wc-detail-title {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.wc-pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--ui-fill);
+}
+
+.wc-pager .wc-pager-step {
+  border-radius: 999px;
+}
+
+.wc-pager-count {
+  min-width: 4.25em;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wc-pager-total {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+/* ---- Body --------------------------------------------------------------- */
+
+.wc-detail-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Stepping to another word slides it in from the side it came from. */
+.wc-detail-stage[data-direction] {
+  animation: wc-detail-stage-in 340ms var(--wc-ease-out) both;
+}
+
+.wc-detail-stage[data-direction='next'] {
+  --wc-stage-from: 20px;
+}
+
+.wc-detail-stage[data-direction='prev'] {
+  --wc-stage-from: -20px;
+}
+
+/* Hero: the card itself, enlarged. */
+.wc-detail-hero {
+  padding: 22px 24px 20px;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: inset 0 0 0 1px var(--card-edge);
+}
+
+.wc-detail-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.wc-detail-word {
+  min-width: 0;
+  color: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-size: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem);
+  font-weight: 780;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-phonetic {
+  margin-top: 6px;
+  color: var(--phonetic-text);
+  font-family: var(--wc-phonetic-font);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* POS chips in one column, so every meaning starts on the same line. */
+.wc-detail-meanings {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-meanings:not(:has(.wc-pos)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wc-detail-meanings:not(:has(.wc-pos)) .wc-detail-pos {
+  display: none;
+}
+
+.wc-detail-meaning {
+  display: contents;
+}
+
+.wc-detail-pos {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---- Senses ------------------------------------------------------------- */
+
+.wc-detail-section-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 4px 10px;
+  color: var(--muted-text);
+  font-size: 0.78rem;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+}
+
+.wc-detail-section-meta {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.wc-detail-sense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wc-detail-sense {
+  padding: 14px 16px 16px;
+  border-radius: 16px;
+  background: var(--wc-sense-bg);
+  box-shadow: inset 0 0 0 1px var(--wc-sense-edge);
+}
+
+.wc-detail-sense-head {
+  display: grid;
+  grid-template-columns: calc(var(--wc-sense-indent) - 10px) minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 10px;
+}
+
+.wc-detail-sense-index {
+  color: var(--freq-text);
+  font-family: var(--wc-display-font);
+  font-size: 0.8rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-detail-sense-gloss {
+  color: var(--word-text);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-sense-stats {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-detail-sense-stats .wc-sense-pct {
+  min-width: 0;
+}
+
+.wc-detail-sense-bar {
+  display: block;
+  height: 4px;
+  margin: 10px 0 0 var(--wc-sense-indent);
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bar-track);
+}
+
+.wc-detail-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 14px 0 0 var(--wc-sense-indent);
+  padding: 0;
+  list-style: none;
+}
+
+.wc-detail-example {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 12px;
+  border-left: 2px solid var(--wc-example-rule);
+}
+
+.wc-detail-example-text {
+  color: var(--meaning-text);
+  font-family: var(--wc-phonetic-font);
+  font-size: 1rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-example-translation {
+  color: var(--muted-text);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.wc-detail .wc-no-example {
+  display: block;
+  margin: 10px 0 0 var(--wc-sense-indent);
+}
+
+.dark .wc-detail {
+  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 9%, transparent);
+  --wc-sense-edge: rgb(255 255 255 / 5%);
+  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 55%, transparent);
+}
+
+@media (width < 48rem) {
+  .wc-detail {
+    --wc-sense-indent: calc(1.25rem + 8px);
+  }
+
+  .wc-detail-hero {
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+  }
+
+  .wc-detail-sense {
+    padding: 12px 14px 14px;
+    border-radius: 14px;
+  }
+
+  .wc-detail-sense-head {
+    column-gap: 8px;
+  }
+}
+
+@keyframes wc-detail-stage-in {
+  from {
+    opacity: 0;
+    translate: var(--wc-stage-from, 0) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-detail .wc-detail-title,
+  .wc-detail-stage[data-direction] {
+    transition: none;
+    animation: none;
+  }
+}

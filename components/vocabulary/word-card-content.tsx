@@ -51,13 +51,13 @@ function clampPercentage(value: number) {
   return Math.min(100, Math.max(0, Math.round(value)));
 }
 
-function getSensePercentage(sense: WordSense, total: number) {
+export function getSensePercentage(sense: WordSense, total: number) {
   if (sense.percentage !== undefined) return clampPercentage(sense.percentage);
   if (total <= 0) return 0;
   return clampPercentage((sense.count / total) * 100);
 }
 
-function MeaningText({ meaning }: { meaning: WordMeaning }) {
+export function MeaningText({ meaning }: { meaning: WordMeaning }) {
   return (
     <>
       {meaning.grammar ? (
@@ -75,10 +75,10 @@ function MeaningText({ meaning }: { meaning: WordMeaning }) {
 
 /**
  * Flips the tooltip below its sentence when there is no room above, and shifts
- * it sideways so it stays inside the dialog (or the viewport on the page).
+ * it sideways so it stays inside an enclosing modal (or the viewport on the page).
  */
 function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
-  const clip = root.closest('dialog')?.getBoundingClientRect() ?? {
+  const clip = root.closest('[data-slot="modal-content"]')?.getBoundingClientRect() ?? {
     top: 0,
     left: 0,
     right: document.documentElement.clientWidth,
@@ -111,7 +111,7 @@ function SenseExample({ example }: { example: WordExample }) {
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== 'Escape' || !open) return;
-    // Close only the tooltip; keep an enclosing detail dialog open.
+    // Close only the tooltip; keep an enclosing modal open.
     event.preventDefault();
     event.stopPropagation();
     setOpen(false);
@@ -251,6 +251,3 @@ function Icon({ path }: { path: string }) {
 }
 
 export const ExpandIcon = () => <Icon path="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />;
-export const CloseIcon = () => <Icon path="M6 6l12 12M18 6 6 18" />;
-export const PrevIcon = () => <Icon path="m15 6-6 6 6 6" />;
-export const NextIcon = () => <Icon path="m9 6 6 6-6 6" />;

@@ -27,12 +27,10 @@ describe('vocabulary responsive layout', () => {
     expect(css).toMatch(/\.wc-word\s*\{[^}]*white-space:\s*nowrap/u);
   });
 
-  it('allows detail dialogs to grow naturally before viewport scrolling is needed', () => {
-    const css = readFileSync(new URL('../styles/vocabulary-responsive-layout.css', import.meta.url), 'utf8');
-    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*width:\s*fit-content/u);
-    expect(css).toMatch(/min-width:\s*min\(620px,\s*calc\(100vw\s*-\s*32px\)\)/u);
-    expect(css).toMatch(/max-width:\s*min\(980px,\s*calc\(100vw\s*-\s*32px\)\)/u);
-    expect(css).toMatch(/max-height:\s*calc\(100dvh\s*-\s*20px\)/u);
-    expect(css).not.toMatch(/82dvh/u);
+  it('loads the detail modal layout with the card styles and the general modal globally', () => {
+    const layout = readFileSync(new URL('../app/docs/layout.tsx', import.meta.url), 'utf8');
+    const global = readFileSync(new URL('../app/global.css', import.meta.url), 'utf8');
+    expect(layout.indexOf('@/styles/word-card-detail.css')).toBeGreaterThan(layout.indexOf('@/styles/word-cards.css'));
+    expect(global).toMatch(/@import '\.\.\/styles\/tokens\/index\.css';[\s\S]*@import '\.\.\/styles\/modal\.css';/u);
   });
 });

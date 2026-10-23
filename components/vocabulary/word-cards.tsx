@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import { useCompactMasonry } from './use-compact-masonry';
 import { ExpandIcon, WordCardContent, getTone, hasPhraseMeaning, type WordCardData } from './word-card-content';
-import { WordCardDetailDialog } from './word-card-detail-dialog';
+import { WordCardDetail } from './word-card-detail';
 import { useWordCardMode } from './word-card-mode';
 
 export type { WordCardData, WordExample, WordMeaning, WordSense } from './word-card-content';
@@ -18,25 +18,25 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
   const mode = useWordCardMode();
   const compactLayout = mode !== 'full';
   const listRef = useCompactMasonry(compactLayout, words.length);
-  const [detailIndex, setDetailIndex] = useState<number | null>(null);
+  const [detailIndex, setDetailIndex] = useState(0);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   if (words.length === 0) return empty;
 
   const hideHeadword = mode === 'dictation';
   const hideMeanings = mode === 'translation';
-  // Full mode already shows every detail, so the dialog only exists in compact layouts.
-  const openIndex = compactLayout && detailIndex !== null && detailIndex < words.length ? detailIndex : null;
+  // Full mode already shows every detail, so the modal only exists in compact layouts.
+  const showDetail = compactLayout && detailIndex < words.length;
 
-  const handleDetailClosed = () => {
-    const index = detailIndex;
-    setDetailIndex(null);
-    if (index === null) return;
-    // Return focus to the card that was last shown, which may differ from the
-    // one that opened the dialog after prev/next navigation.
-    window.requestAnimationFrame(() => {
-      listRef.current?.querySelectorAll<HTMLButtonElement>(':scope > .word-card .wc-expand-button')[index]?.focus();
-    });
+  const openDetail = (index: number) => {
+    setDetailIndex(index);
+    setDetailOpen(true);
   };
+
+  // Return focus to the card that was last shown, which may differ from the
+  // one that opened the modal after prev/next navigation.
+  const detailFinalFocus = () =>
+    listRef.current?.querySelectorAll<HTMLButtonElement>(':scope > .word-card .wc-expand-button')[detailIndex] ?? true;
 
   return (
     <div className="word-list-shell">
@@ -65,7 +65,7 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
                     className="wc-expand-button"
                     aria-label={hideHeadword ? '查看完整卡片' : `查看 ${word.word} 完整卡片`}
                     title="查看完整卡片"
-                    onClick={() => setDetailIndex(wordIndex)}
+                    onClick={() => openDetail(wordIndex)}
                   >
                     <ExpandIcon />
                   </button>
@@ -75,12 +75,14 @@ export function WordCards({ words, empty = null }: WordCardsProps) {
           </article>
         ))}
       </div>
-      {openIndex !== null ? (
-        <WordCardDetailDialog
+      {showDetail ? (
+        <WordCardDetail
           words={words}
-          index={openIndex}
+          index={detailIndex}
+          open={detailOpen}
           onNavigate={setDetailIndex}
-          onClosed={handleDetailClosed}
+          onOpenChange={setDetailOpen}
+          finalFocus={detailFinalFocus}
         />
       ) : null}
     </div>
