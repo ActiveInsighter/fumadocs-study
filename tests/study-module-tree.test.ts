@@ -54,7 +54,7 @@ describe('study module metadata structure', () => {
     expect(rootDirectories).toEqual(['408', 'algorithm', 'english', 'math', 'politics'].sort());
   });
 
-  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving and exams', () => {
+  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving, question analysis and exams', () => {
     expect(mathMeta.root).toBe(true);
     expect(mathMeta.pages).toEqual([
       'index',
@@ -64,6 +64,7 @@ describe('study module metadata structure', () => {
       'mind-maps',
       'visualizations',
       'problem-solving',
+      '题目分析',
       'exam',
     ]);
     expect(mathKnowledgeMeta.pages).toEqual([
