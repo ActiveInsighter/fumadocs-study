@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "22.x"
+    "node": ">=22.12.0 <23"
   },
   "scripts": {
-    "postinstall": "node scripts/ensure-git-history.mjs && fumadocs-mdx",
+    "postinstall": "node scripts/ensure-git-history.mjs && node scripts/patch-mermaid-block-layout.mjs && fumadocs-mdx",
     "search:build": "node scripts/build-search-index.mjs public/search-index.json",
     "dev": "npm run search:build && next dev",
     "build": "npm run search:build && next build",
@@ -32,7 +32,7 @@
     "markmap-view": "^0.18.12",
     "mdast-util-from-markdown": "^2.1.0",
     "mdast-util-mdx": "^3.0.0",
-    "mermaid": "11.17.2",
+    "mermaid": "12.2.0",
     "micromark-extension-mdxjs": "^3.0.0",
     "motion": "14.3.1",
     "next": "16.3.3",
