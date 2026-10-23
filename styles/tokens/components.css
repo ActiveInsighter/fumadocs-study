@@ -33,9 +33,7 @@
   --word-card-shadow: 0 1px 2px rgb(45 52 47 / 5%), 0 6px 18px -6px rgb(45 52 47 / 12%);
   --word-card-badge-shadow: inset 0 1px 0 rgb(255 255 255 / 28%);
   --word-card-sense-dot-shadow: 0 0 0 2px rgb(255 255 255 / 42%);
-  --word-card-detail-shadow: 0 32px 80px -12px rgb(0 0 0 / 28%), 0 12px 32px -8px rgb(0 0 0 / 14%);
   --word-card-example-tooltip-shadow: 0 6px 14px -4px rgb(0 0 0 / 12%), 0 16px 32px -8px rgb(0 0 0 / 12%);
-  --word-card-backdrop: rgb(20 24 21 / 38%);
   --word-card-control-accent: #6f7f5d;
   --word-card-control-accent-ink: #f7f8f2;
   --word-card-control-track: rgb(30 36 31 / 6%);
@@ -58,10 +56,36 @@
   --word-card-dark-control-track: rgb(255 255 255 / 7%);
   --word-card-dark-control-hover-base: #262926;
   --word-card-dark-hover-ink: #f3f5f3;
-  --word-card-dark-backdrop: rgb(0 0 0 / 62%);
   --word-card-dark-tooltip-border: rgb(255 255 255 / 12%);
   --word-card-dark-tooltip-ink: #eef1ee;
   --word-card-dark-tooltip-shadow: 0 6px 14px -4px rgb(0 0 0 / 40%), 0 18px 36px -8px rgb(0 0 0 / 45%);
+
+  /*
+   * Modal (components/ui/modal.tsx, styles/modal.css). A muted pane sits on
+   * the canvas tone beside the surface, so split panes need no divider.
+   */
+  --modal-surface: var(--ui-panel);
+  --modal-pane-muted: var(--ui-canvas);
+  /* Header glass: the surface (or muted pane) beneath, see-through and blurred. */
+  --modal-veil: color-mix(in oklch, var(--modal-surface) 62%, transparent);
+  --modal-veil-muted: color-mix(in oklch, var(--modal-pane-muted) 62%, transparent);
+  --modal-header-blur: blur(20px) saturate(1.7);
+  --modal-backdrop: rgb(0 0 0 / 38%);
+  /* Levels behind the front one: one back, two back. */
+  --modal-stack-dim: rgb(0 0 0 / 10%);
+  --modal-stack-dim-deep: rgb(0 0 0 / 20%);
+  --modal-radius: 1.5rem;
+  --modal-shadow: 0 -16px 48px -16px rgb(0 0 0 / 22%), 0 -2px 12px -4px rgb(0 0 0 / 6%);
+  /* One curve for opening, closing, springing back and stacking. */
+  --modal-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Modal: dark-mode values, lifted off the black page (applied in styles/modal.css). */
+  --modal-dark-surface: oklch(0.16 0 0);
+  --modal-dark-pane-muted: oklch(0.19 0 0);
+  --modal-dark-backdrop: rgb(0 0 0 / 62%);
+  --modal-dark-stack-dim: rgb(0 0 0 / 40%);
+  --modal-dark-stack-dim-deep: rgb(0 0 0 / 58%);
+  --modal-dark-shadow: 0 -16px 48px -12px rgb(0 0 0 / 80%), 0 0 0 1px rgb(255 255 255 / 8%);
 
   /*
    * Math plots (components/math-plot): series colours, surface ramp and plot

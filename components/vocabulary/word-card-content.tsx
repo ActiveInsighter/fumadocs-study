@@ -51,13 +51,13 @@ function clampPercentage(value: number) {
   return Math.min(100, Math.max(0, Math.round(value)));
 }
 
-function getSensePercentage(sense: WordSense, total: number) {
+export function getSensePercentage(sense: WordSense, total: number) {
   if (sense.percentage !== undefined) return clampPercentage(sense.percentage);
   if (total <= 0) return 0;
   return clampPercentage((sense.count / total) * 100);
 }
 
-function MeaningText({ meaning }: { meaning: WordMeaning }) {
+export function MeaningText({ meaning }: { meaning: WordMeaning }) {
   return (
     <>
       {meaning.grammar ? (
@@ -73,19 +73,25 @@ function MeaningText({ meaning }: { meaning: WordMeaning }) {
   );
 }
 
+/** The visible box of an enclosing modal: below its floating header. */
+function modalClip(modal: HTMLElement) {
+  const rect = modal.getBoundingClientRect();
+  const header = modal.querySelector<HTMLElement>('[data-slot="modal-header"]');
+  return { top: rect.top + (header?.offsetHeight ?? 0), left: rect.left, right: rect.right, bottom: rect.bottom };
+}
+
 /**
  * Flips the tooltip below its sentence when there is no room above, and shifts
- * it sideways so it stays inside the dialog (or the viewport on the page).
+ * it sideways so it stays inside an enclosing modal (or the viewport on the page).
  */
 function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
-  const clip = root.closest('dialog')?.getBoundingClientRect() ?? {
-    top: 0,
-    left: 0,
-    right: document.documentElement.clientWidth,
-    bottom: window.innerHeight,
-  };
+  const modal = root.closest<HTMLElement>('[data-slot="modal-content"]');
+  const clip = modal
+    ? modalClip(modal)
+    : { top: 0, left: 0, right: document.documentElement.clientWidth, bottom: window.innerHeight };
   const anchor = root.getBoundingClientRect();
-  const { width, height } = tooltip.getBoundingClientRect();
+  // Layout size: the tooltip is still scaled down by its entry transform here.
+  const { offsetWidth: width, offsetHeight: height } = tooltip;
   const spaceAbove = anchor.top - clip.top;
   const spaceBelow = clip.bottom - anchor.bottom;
   const placement = spaceAbove < height + TOOLTIP_EDGE_GAP && spaceBelow > spaceAbove ? 'bottom' : 'top';
@@ -95,7 +101,7 @@ function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
   root.style.setProperty('--wc-tooltip-shift', `${Math.round(left - anchor.left)}px`);
 }
 
-function SenseExample({ example }: { example: WordExample }) {
+export function SenseExample({ example }: { example: WordExample }) {
   const tooltipId = useId();
   const rootRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
@@ -111,7 +117,7 @@ function SenseExample({ example }: { example: WordExample }) {
   };
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== 'Escape' || !open) return;
-    // Close only the tooltip; keep an enclosing detail dialog open.
+    // Close only the tooltip; keep an enclosing modal open.
     event.preventDefault();
     event.stopPropagation();
     setOpen(false);
@@ -251,6 +257,3 @@ function Icon({ path }: { path: string }) {
 }
 
 export const ExpandIcon = () => <Icon path="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" />;
-export const CloseIcon = () => <Icon path="M6 6l12 12M18 6 6 18" />;
-export const PrevIcon = () => <Icon path="m15 6-6 6 6 6" />;
-export const NextIcon = () => <Icon path="m9 6 6 6-6 6" />;

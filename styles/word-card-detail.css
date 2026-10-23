@@ -1,0 +1,382 @@
+/*
+ * Word detail modal (components/vocabulary/word-card-detail.tsx), laid out
+ * inside the general Modal (styles/modal.css). The popup carries .wc-detail
+ * and the card's data-tone, so it reads the same palette as the card that
+ * opened it (styles/word-cards.css): the hero sits on the card's own tone,
+ * the senses below on a faint tint of it.
+ */
+
+.wc-detail {
+  --wc-sense-indent: calc(1.75rem + 12px);
+  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 6%, transparent);
+  --wc-sense-edge: color-mix(in srgb, var(--wc-ink) 6%, transparent);
+  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 42%, transparent);
+  color: var(--meaning-text);
+  font-family: var(--wc-body-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Header ------------------------------------------------------------- */
+
+/* The headword joins the header once the hero has scrolled under it. */
+.wc-detail .wc-detail-title {
+  color: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-weight: 720;
+  opacity: 0;
+  translate: 0 4px;
+  transition:
+    opacity 180ms ease,
+    translate 260ms var(--wc-ease-out);
+}
+
+.wc-detail[data-scrolled] .wc-detail-title {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.wc-pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--ui-fill);
+}
+
+.wc-pager .wc-pager-step {
+  border-radius: 999px;
+}
+
+.wc-pager-count {
+  min-width: 4.25em;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wc-pager-total {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+/* ---- Body --------------------------------------------------------------- */
+
+.wc-detail-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Stepping to another word slides it in from the side it came from. */
+.wc-detail-stage[data-direction] {
+  animation: wc-detail-stage-in 340ms var(--wc-ease-out) both;
+}
+
+.wc-detail-stage[data-direction='next'] {
+  --wc-stage-from: 20px;
+}
+
+.wc-detail-stage[data-direction='prev'] {
+  --wc-stage-from: -20px;
+}
+
+/* Hero: the card itself, enlarged. */
+.wc-detail-hero {
+  padding: 22px 24px 20px;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: inset 0 0 0 1px var(--card-edge);
+}
+
+.wc-detail-headline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 14px;
+}
+
+.wc-detail-wordline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  min-width: 0;
+}
+
+.wc-detail-word {
+  min-width: 0;
+  color: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-size: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem);
+  font-weight: 780;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-phonetic {
+  color: var(--phonetic-text);
+  font-family: var(--wc-phonetic-font);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* The label sits on the headword's cap height. */
+.wc-detail-headline .wc-label {
+  margin-top: 0.45rem;
+}
+
+/* POS chips in one column, so every meaning starts on the same line. */
+.wc-detail-meanings {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-meanings:not(:has(.wc-pos)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.wc-detail-meanings:not(:has(.wc-pos)) .wc-detail-pos {
+  display: none;
+}
+
+.wc-detail-meaning {
+  display: contents;
+}
+
+.wc-detail-pos {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ---- Senses ------------------------------------------------------------- */
+
+.wc-detail-senses {
+  display: flex;
+  flex-direction: column;
+}
+
+.wc-detail-section-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 4px 10px;
+  color: var(--muted-text);
+  font-size: 0.78rem;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+}
+
+.wc-detail-section-meta {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/*
+ * Each sense takes its own tone (--wc-seg-mix, set per sense): the bar
+ * colour mixed towards the card. The bar and the index badges share it.
+ */
+.wc-detail-segment,
+.wc-detail-sense-index {
+  background: color-mix(in srgb, var(--bar-fill) var(--wc-seg-mix, 100%), var(--card-bg));
+}
+
+.wc-detail-distribution {
+  display: flex;
+  gap: 3px;
+  height: 8px;
+  margin: 0 4px 14px;
+}
+
+.wc-detail-segment {
+  flex: 1 1 0;
+  min-width: 6px;
+  border-radius: 2px;
+  transform-origin: left center;
+  animation: wc-bar-grow 640ms var(--wc-ease-out) both;
+}
+
+.wc-detail-segment:first-child {
+  border-radius: 999px 2px 2px 999px;
+}
+
+.wc-detail-segment:last-child {
+  border-radius: 2px 999px 999px 2px;
+}
+
+.wc-detail-segment:only-child {
+  border-radius: 999px;
+}
+
+/* One panel, senses divided by hairlines. */
+.wc-detail-sense-list {
+  margin: 0;
+  padding: 4px 18px;
+  border-radius: 18px;
+  background: var(--wc-sense-bg);
+  box-shadow: inset 0 0 0 1px var(--wc-sense-edge);
+  list-style: none;
+}
+
+.wc-detail-sense {
+  padding: 14px 0 15px;
+}
+
+.wc-detail-sense + .wc-detail-sense {
+  border-top: 1px solid var(--rule);
+}
+
+.wc-detail-sense-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.wc-detail-sense-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.375rem;
+  border-radius: 7px;
+  color: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-size: 0.75rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On a strong tone the card colour reads best, in both themes. */
+.wc-detail-sense-index[data-strong='true'] {
+  color: var(--card-bg);
+}
+
+.wc-detail-sense-gloss {
+  color: var(--word-text);
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.wc-detail-sense-stats {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-detail-sense-stats .wc-sense-pct {
+  min-width: 2.6em;
+}
+
+/* Examples hang under the gloss, past the index badge. */
+.wc-detail-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 0 var(--wc-sense-indent);
+  padding: 0;
+  color: var(--phrase-text);
+  font-family: var(--wc-phonetic-font);
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.55;
+  list-style: none;
+}
+
+.wc-detail-example {
+  position: relative;
+  padding-left: 14px;
+}
+
+.wc-detail-example::before {
+  content: '';
+  position: absolute;
+  top: 0.68em;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--wc-example-rule);
+}
+
+.wc-detail .wc-no-example {
+  display: block;
+  margin: 8px 0 0 var(--wc-sense-indent);
+}
+
+.wc-detail-hint {
+  margin: 10px 4px 0;
+  color: var(--muted-text);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.dark .wc-detail {
+  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 9%, transparent);
+  --wc-sense-edge: rgb(255 255 255 / 5%);
+  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 55%, transparent);
+}
+
+@media (width < 48rem) {
+  .wc-detail {
+    --wc-sense-indent: calc(1.75rem + 10px);
+  }
+
+  .wc-detail-hero {
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+  }
+
+  .wc-detail-sense-list {
+    padding: 2px 14px;
+    border-radius: 16px;
+  }
+
+  /* The stats move under the gloss rather than squeezing it. */
+  .wc-detail-sense-head {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .wc-detail-sense-stats {
+    grid-column: 2;
+    margin-top: 2px;
+  }
+}
+
+@keyframes wc-detail-stage-in {
+  from {
+    opacity: 0;
+    translate: var(--wc-stage-from, 0) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-detail .wc-detail-title,
+  .wc-detail-stage[data-direction],
+  .wc-detail-segment {
+    transition: none;
+    animation: none;
+  }
+}

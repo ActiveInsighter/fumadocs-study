@@ -9,7 +9,7 @@ import {
 } from '../components/vocabulary/word-cards';
 
 const componentSource = () =>
-  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail-dialog.tsx', 'use-compact-masonry.ts']
+  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail.tsx', 'use-compact-masonry.ts']
     .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
     .join('\n');
 

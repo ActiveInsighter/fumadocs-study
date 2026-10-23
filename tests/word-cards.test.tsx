@@ -10,7 +10,7 @@ import {
 import { WORD_CARD_MODE_STORAGE_KEY, readStoredMode, storeMode } from '../components/vocabulary/word-card-mode';
 
 const componentSource = () =>
-  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail-dialog.tsx', 'use-compact-masonry.ts']
+  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail.tsx', 'use-compact-masonry.ts']
     .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
     .join('\n');
 
@@ -134,19 +134,19 @@ describe('WordCards', () => {
     expect(fullHtml).not.toContain('class="wc-expand-button"');
   });
 
-  it('implements the compact detail view as a native modal dialog with focus return and scroll locking', () => {
+  it('opens the compact detail view in the general Modal with focus return to the last shown card', () => {
     const component = componentSource();
-    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
-    expect(component).toContain('<dialog');
-    expect(component).toContain('dialog.showModal()');
-    expect(component).toContain('getBoundingClientRect()');
-    expect(component).toContain('className="wc-detail-close"');
-    expect(component).toContain('showSenses');
-    expect(component).toContain(":scope > .word-card .wc-expand-button')[index]?.focus()");
-    expect(css).toMatch(/html:has\(\.wc-detail-dialog\[open\]\)\s*\{[^}]*overflow:\s*hidden[^}]*scrollbar-gutter:\s*stable/u);
+    expect(component).toContain("from '@/components/ui/modal'");
+    expect(component).toContain('<Modal open={open} onOpenChange={onOpenChange}>');
+    expect(component).toContain('<ModalTitle className="wc-detail-title"');
+    expect(component).toContain('data-tone={getTone(index)}');
+    expect(component).toContain('onClick={() => openDetail(wordIndex)}');
+    expect(component).toContain(":scope > .word-card .wc-expand-button')[detailIndex] ?? true");
+    expect(component).toContain('finalFocus={detailFinalFocus}');
+    expect(component).not.toContain('<dialog');
   });
 
-  it('lets the detail dialog step through cards with buttons and arrow keys', () => {
+  it('lets the detail modal step through cards with buttons and arrow keys', () => {
     const component = componentSource();
     expect(component).toContain('aria-label="上一个单词"');
     expect(component).toContain('aria-label="下一个单词"');
@@ -196,15 +196,16 @@ describe('WordCards', () => {
     expect(html).toContain('data-word-card-mode="full"');
   });
 
-  it('animates mode switches and dialog exits while respecting reduced motion', () => {
+  it('animates mode switches and detail navigation while respecting reduced motion', () => {
     const component = componentSource();
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
+    const detailCss = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
     expect(component).toContain('document.startViewTransition(');
     expect(component).toContain('flushSync(() => setModeState(nextMode))');
     expect(component).toContain("prefers-reduced-motion: reduce");
-    expect(component).toContain("dialog.setAttribute('data-closing', 'true')");
-    expect(component).toContain('onCancel={handleCancel}');
-    expect(css).toMatch(/\.wc-detail-dialog\[data-closing='true'\]\s*\{[^}]*animation:\s*wc-detail-exit/u);
+    expect(component).toContain("setDirection(next > index ? 'next' : 'prev')");
+    expect(detailCss).toMatch(/\.wc-detail-stage\[data-direction\]\s*\{[^}]*animation:\s*wc-detail-stage-in/u);
+    expect(detailCss).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.wc-detail-stage\[data-direction\]/u);
     expect(css).toMatch(/html\[data-wc-mode-transition\]::view-transition-new\(root\)/u);
     expect(css).toMatch(/\.wc-mode-indicator\s*\{[^}]*transform:\s*translateX\(calc\(var\(--wc-active-index/u);
   });
@@ -250,29 +251,30 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-mode-button\[data-active='true'\]/u);
   });
 
-  it('styles the detail overlay, backdrop and keyboard focus states', () => {
+  it('lays out the detail modal on the opening card tone with a sense distribution and hover/tap translations', () => {
+    const component = componentSource();
+    const cardCss = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
+    const detailCss = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
-    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*position:\s*fixed/u);
-    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*width:\s*min\(820px/u);
-    expect(css).toMatch(/\.wc-detail-dialog::backdrop\s*\{/u);
-    expect(css).toMatch(/\.wc-detail-dialog:not\(\[open\]\)\s*\{[^}]*display:\s*none/u);
+    expect(cardCss).toMatch(/\.word-card\[data-tone='3'\],\s*\.wc-detail\[data-tone='3'\]\s*\{/u);
+    expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
+    expect(detailCss).toMatch(/\.wc-detail-hero\s*\{[^}]*background:\s*var\(--card-bg\)/u);
+    expect(detailCss).toMatch(/\.wc-detail\[data-scrolled\] \.wc-detail-title\s*\{[^}]*opacity:\s*1/u);
+    expect(component).toContain('<SenseDistribution senses={senses} total={total} />');
+    expect(component).toContain('<SenseExample example={example} />');
+    expect(component).not.toContain('wc-detail-example-translation');
+    expect(detailCss).toMatch(/\.wc-detail-segment,\s*\.wc-detail-sense-index\s*\{[^}]*var\(--wc-seg-mix/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
-    expect(css).toMatch(/\.wc-detail-close:focus-visible/u);
+    expect(css).not.toMatch(/wc-detail-dialog/u);
   });
 
-  it('keeps long detail cards scrollable without exposing a scrollbar gutter', () => {
-    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
-    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*overflow-y:\s*auto/u);
-    expect(css).toMatch(/\.wc-detail-dialog\s*\{[^}]*scrollbar-width:\s*none/u);
-    expect(css).toMatch(/\.wc-detail-dialog::-webkit-scrollbar\s*\{[^}]*width:\s*0/u);
-    expect(css).not.toMatch(/\.wc-detail-dialog\s*\{[^}]*scrollbar-gutter/u);
-    expect(css).toMatch(/@keyframes\s+wc-detail-enter/u);
-  });
 
-  it('flips and shifts example tooltips so they stay inside the dialog or viewport', () => {
+  it('flips and shifts example tooltips so they stay inside an enclosing modal or the viewport', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     const component = componentSource();
-    expect(component).toContain("root.closest('dialog')?.getBoundingClientRect()");
+    expect(component).toContain(`root.closest<HTMLElement>('[data-slot="modal-content"]')`);
+    expect(component).toContain("modal.querySelector<HTMLElement>('[data-slot=\"modal-header\"]')");
+    expect(component).toContain('const { offsetWidth: width, offsetHeight: height } = tooltip;');
     expect(component).toContain("root.dataset.placement = placement");
     expect(css).toMatch(/\.wc-example\[data-placement='bottom'\]\s+\.wc-example-tooltip\s*\{[^}]*top:\s*calc\(100%\s*\+\s*6px\)/u);
     expect(css).toMatch(/\.wc-example-tooltip\s*\{[^}]*inset-inline-start:\s*var\(--wc-tooltip-shift/u);

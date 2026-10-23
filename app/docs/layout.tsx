@@ -1,6 +1,7 @@
 import './docs-typography.css';
 import '@/styles/word-cards.css';
 import '@/styles/word-card-interactions.css';
+import '@/styles/word-card-detail.css';
 import '@/styles/vocabulary-responsive-layout.css';
 import '@/styles/mind-map.css';
 import '@/styles/motion-stage.css';

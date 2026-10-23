@@ -14,6 +14,9 @@
 /* All colours, surfaces, radii and layout measurements live in styles/tokens. */
 @import '../styles/tokens/index.css';
 
+/* General modal (components/ui/modal.tsx): placement, motion and stacking. */
+@import '../styles/modal.css';
+
 /* Expose the semantic variables as Tailwind CSS 4 utilities. */
 @theme inline {
   --breakpoint-xs: 30rem;
