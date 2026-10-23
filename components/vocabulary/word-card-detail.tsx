@@ -1,16 +1,16 @@
 'use client';
 
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Modal, ModalBody, ModalContent, ModalHeader, ModalTitle, ModalToolbar } from '@/components/ui/modal';
 import {
   MeaningText,
+  SenseExample,
   getSensePercentage,
   getTone,
   hasPhraseMeaning,
   type WordCardData,
-  type WordExample,
   type WordSense,
 } from './word-card-content';
 
@@ -29,8 +29,9 @@ type WordCardDetailProps = {
  *
  *   header  word (fades in once the hero scrolls under it) · pager · close
  *   hero    headword, phonetic and label on the card's tone, then the meanings
- *   senses  one block per sense: gloss, count and share, examples with their
- *           translation written out (no tooltips in the modal)
+ *   senses  a bar split by each sense's share, then one row per sense: gloss,
+ *           count and share, examples whose translation shows on hover or tap
+ *           (the same tooltip as on the page)
  *
  * ←/→ and the pager step through the list; the body slides in from the side
  * it came from and starts at the top again.
@@ -117,12 +118,14 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
           <div key={index} className="wc-detail-stage" data-direction={direction ?? undefined}>
             <section className="wc-detail-hero" aria-label="单词与释义">
               <div className="wc-detail-headline">
-                <span className="wc-detail-word" lang="en">
-                  {word.word}
-                </span>
+                <div className="wc-detail-wordline">
+                  <span className="wc-detail-word" lang="en">
+                    {word.word}
+                  </span>
+                  {word.phonetic ? <span className="wc-detail-phonetic">{word.phonetic}</span> : null}
+                </div>
                 {label ? <span className="wc-label">{label}</span> : null}
               </div>
-              {word.phonetic ? <div className="wc-detail-phonetic">{word.phonetic}</div> : null}
               <div className="wc-detail-meanings">
                 {word.meanings.map((meaning, meaningIndex) => (
                   <div
@@ -145,11 +148,13 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
                     {senses.length} 个义项 · 共 {total} 次
                   </span>
                 </div>
+                <SenseDistribution senses={senses} total={total} />
                 <ol className="wc-detail-sense-list">
                   {senses.map((sense, senseIndex) => (
-                    <SenseBlock key={`${sense.gloss}-${senseIndex}`} sense={sense} order={senseIndex + 1} total={total} />
+                    <SenseBlock key={`${sense.gloss}-${senseIndex}`} sense={sense} order={senseIndex} total={total} />
                   ))}
                 </ol>
+                <p className="wc-detail-hint">悬停或点按例句查看译文</p>
               </section>
             ) : null}
           </div>
@@ -159,13 +164,36 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
   );
 }
 
+/** Each sense's tone: the first in the full bar colour, later ones fading towards the card. */
+function senseTone(order: number) {
+  const mix = Math.max(26, 100 - order * 26);
+  return { style: { '--wc-seg-mix': `${mix}%` } as CSSProperties, strong: mix >= 60 };
+}
+
+/** One bar split by share, so the senses' weights read at a glance. */
+function SenseDistribution({ senses, total }: { senses: readonly WordSense[]; total: number }) {
+  return (
+    <div className="wc-detail-distribution" aria-hidden="true">
+      {senses.map((sense, order) => (
+        <span
+          key={`${sense.gloss}-${order}`}
+          className="wc-detail-segment"
+          title={`${String(order + 1).padStart(2, '0')} ${sense.gloss}`}
+          style={{ ...senseTone(order).style, flexGrow: Math.max(1, getSensePercentage(sense, total)) }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function SenseBlock({ sense, order, total }: { sense: WordSense; order: number; total: number }) {
   const percentage = getSensePercentage(sense, total);
+  const tone = senseTone(order);
   return (
     <li className="wc-detail-sense">
       <div className="wc-detail-sense-head">
-        <span className="wc-detail-sense-index" aria-hidden="true">
-          {String(order).padStart(2, '0')}
+        <span className="wc-detail-sense-index" data-strong={tone.strong} style={tone.style} aria-hidden="true">
+          {String(order + 1).padStart(2, '0')}
         </span>
         <span className="wc-detail-sense-gloss">{sense.gloss}</span>
         <span className="wc-detail-sense-stats">
@@ -173,29 +201,17 @@ function SenseBlock({ sense, order, total }: { sense: WordSense; order: number; 
           <span className="wc-sense-pct">{percentage}%</span>
         </span>
       </div>
-      <span className="wc-detail-sense-bar" aria-hidden="true">
-        <span className="wc-bar-fill" style={{ width: `${percentage}%` }} />
-      </span>
       {sense.examples?.length ? (
         <ul className="wc-detail-examples">
           {sense.examples.map((example, exampleIndex) => (
-            <DetailExample key={`${example.text}-${exampleIndex}`} example={example} />
+            <li className="wc-detail-example" key={`${example.text}-${exampleIndex}`}>
+              <SenseExample example={example} />
+            </li>
           ))}
         </ul>
       ) : (
         <p className="wc-no-example">暂无例句</p>
       )}
-    </li>
-  );
-}
-
-function DetailExample({ example }: { example: WordExample }) {
-  return (
-    <li className="wc-detail-example">
-      <span className="wc-detail-example-text" lang="en">
-        {example.text}
-      </span>
-      <span className="wc-detail-example-translation">{example.translation}</span>
     </li>
   );
 }

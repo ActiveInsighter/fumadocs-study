@@ -251,7 +251,7 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-mode-button\[data-active='true'\]/u);
   });
 
-  it('lays out the detail modal on the opening card tone with written-out example translations', () => {
+  it('lays out the detail modal on the opening card tone with a sense distribution and hover/tap translations', () => {
     const component = componentSource();
     const cardCss = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
     const detailCss = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
@@ -260,7 +260,10 @@ describe('WordCards', () => {
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
     expect(detailCss).toMatch(/\.wc-detail-hero\s*\{[^}]*background:\s*var\(--card-bg\)/u);
     expect(detailCss).toMatch(/\.wc-detail\[data-scrolled\] \.wc-detail-title\s*\{[^}]*opacity:\s*1/u);
-    expect(component).toContain('className="wc-detail-example-translation"');
+    expect(component).toContain('<SenseDistribution senses={senses} total={total} />');
+    expect(component).toContain('<SenseExample example={example} />');
+    expect(component).not.toContain('wc-detail-example-translation');
+    expect(detailCss).toMatch(/\.wc-detail-segment,\s*\.wc-detail-sense-index\s*\{[^}]*var\(--wc-seg-mix/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
     expect(css).not.toMatch(/wc-detail-dialog/u);
   });
@@ -269,7 +272,9 @@ describe('WordCards', () => {
   it('flips and shifts example tooltips so they stay inside an enclosing modal or the viewport', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     const component = componentSource();
-    expect(component).toContain(`root.closest('[data-slot="modal-content"]')?.getBoundingClientRect()`);
+    expect(component).toContain(`root.closest<HTMLElement>('[data-slot="modal-content"]')`);
+    expect(component).toContain("modal.querySelector<HTMLElement>('[data-slot=\"modal-header\"]')");
+    expect(component).toContain('const { offsetWidth: width, offsetHeight: height } = tooltip;');
     expect(component).toContain("root.dataset.placement = placement");
     expect(css).toMatch(/\.wc-example\[data-placement='bottom'\]\s+\.wc-example-tooltip\s*\{[^}]*top:\s*calc\(100%\s*\+\s*6px\)/u);
     expect(css).toMatch(/\.wc-example-tooltip\s*\{[^}]*inset-inline-start:\s*var\(--wc-tooltip-shift/u);

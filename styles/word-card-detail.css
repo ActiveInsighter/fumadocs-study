@@ -3,11 +3,11 @@
  * inside the general Modal (styles/modal.css). The popup carries .wc-detail
  * and the card's data-tone, so it reads the same palette as the card that
  * opened it (styles/word-cards.css): the hero sits on the card's own tone,
- * the senses below on faint tints of it.
+ * the senses below on a faint tint of it.
  */
 
 .wc-detail {
-  --wc-sense-indent: calc(1.5rem + 10px);
+  --wc-sense-indent: calc(1.75rem + 12px);
   --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 6%, transparent);
   --wc-sense-edge: color-mix(in srgb, var(--wc-ink) 6%, transparent);
   --wc-example-rule: color-mix(in srgb, var(--wc-accent) 42%, transparent);
@@ -94,10 +94,17 @@
 
 .wc-detail-headline {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 8px 14px;
+}
+
+.wc-detail-wordline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  min-width: 0;
 }
 
 .wc-detail-word {
@@ -112,12 +119,17 @@
 }
 
 .wc-detail-phonetic {
-  margin-top: 6px;
   color: var(--phonetic-text);
   font-family: var(--wc-phonetic-font);
   font-size: 1.0625rem;
   font-weight: 500;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* The label sits on the headword's cap height. */
+.wc-detail-headline .wc-label {
+  margin-top: 0.45rem;
 }
 
 /* POS chips in one column, so every meaning starts on the same line. */
@@ -154,6 +166,11 @@
 
 /* ---- Senses ------------------------------------------------------------- */
 
+.wc-detail-senses {
+  display: flex;
+  flex-direction: column;
+}
+
 .wc-detail-section-label {
   display: flex;
   align-items: baseline;
@@ -172,35 +189,84 @@
   letter-spacing: 0.02em;
 }
 
-.wc-detail-sense-list {
+/*
+ * Each sense takes its own tone (--wc-seg-mix, set per sense): the bar
+ * colour mixed towards the card. The bar and the index badges share it.
+ */
+.wc-detail-segment,
+.wc-detail-sense-index {
+  background: color-mix(in srgb, var(--bar-fill) var(--wc-seg-mix, 100%), var(--card-bg));
+}
+
+.wc-detail-distribution {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 3px;
+  height: 8px;
+  margin: 0 4px 14px;
+}
+
+.wc-detail-segment {
+  flex: 1 1 0;
+  min-width: 6px;
+  border-radius: 2px;
+  transform-origin: left center;
+  animation: wc-bar-grow 640ms var(--wc-ease-out) both;
+}
+
+.wc-detail-segment:first-child {
+  border-radius: 999px 2px 2px 999px;
+}
+
+.wc-detail-segment:last-child {
+  border-radius: 2px 999px 999px 2px;
+}
+
+.wc-detail-segment:only-child {
+  border-radius: 999px;
+}
+
+/* One panel, senses divided by hairlines. */
+.wc-detail-sense-list {
   margin: 0;
-  padding: 0;
+  padding: 4px 18px;
+  border-radius: 18px;
+  background: var(--wc-sense-bg);
+  box-shadow: inset 0 0 0 1px var(--wc-sense-edge);
   list-style: none;
 }
 
 .wc-detail-sense {
-  padding: 14px 16px 16px;
-  border-radius: 16px;
-  background: var(--wc-sense-bg);
-  box-shadow: inset 0 0 0 1px var(--wc-sense-edge);
+  padding: 14px 0 15px;
+}
+
+.wc-detail-sense + .wc-detail-sense {
+  border-top: 1px solid var(--rule);
 }
 
 .wc-detail-sense-head {
   display: grid;
-  grid-template-columns: calc(var(--wc-sense-indent) - 10px) minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
 }
 
 .wc-detail-sense-index {
-  color: var(--freq-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.375rem;
+  border-radius: 7px;
+  color: var(--word-text);
   font-family: var(--wc-display-font);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 760;
   font-variant-numeric: tabular-nums;
+}
+
+/* On a strong tone the card colour reads best, in both themes. */
+.wc-detail-sense-index[data-strong='true'] {
+  color: var(--card-bg);
 }
 
 .wc-detail-sense-gloss {
@@ -219,52 +285,51 @@
 }
 
 .wc-detail-sense-stats .wc-sense-pct {
-  min-width: 0;
+  min-width: 2.6em;
 }
 
-.wc-detail-sense-bar {
-  display: block;
-  height: 4px;
-  margin: 10px 0 0 var(--wc-sense-indent);
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--bar-track);
-}
-
+/* Examples hang under the gloss, past the index badge. */
 .wc-detail-examples {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 14px 0 0 var(--wc-sense-indent);
+  gap: 8px;
+  margin: 10px 0 0 var(--wc-sense-indent);
   padding: 0;
+  color: var(--phrase-text);
+  font-family: var(--wc-phonetic-font);
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.55;
   list-style: none;
 }
 
 .wc-detail-example {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding-left: 12px;
-  border-left: 2px solid var(--wc-example-rule);
+  position: relative;
+  padding-left: 14px;
 }
 
-.wc-detail-example-text {
-  color: var(--meaning-text);
-  font-family: var(--wc-phonetic-font);
-  font-size: 1rem;
-  line-height: 1.55;
-  overflow-wrap: anywhere;
-}
-
-.wc-detail-example-translation {
-  color: var(--muted-text);
-  font-size: 0.875rem;
-  line-height: 1.6;
+.wc-detail-example::before {
+  content: '';
+  position: absolute;
+  top: 0.68em;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--wc-example-rule);
 }
 
 .wc-detail .wc-no-example {
   display: block;
-  margin: 10px 0 0 var(--wc-sense-indent);
+  margin: 8px 0 0 var(--wc-sense-indent);
+}
+
+.wc-detail-hint {
+  margin: 10px 4px 0;
+  color: var(--muted-text);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-align: center;
 }
 
 .dark .wc-detail {
@@ -275,7 +340,7 @@
 
 @media (width < 48rem) {
   .wc-detail {
-    --wc-sense-indent: calc(1.25rem + 8px);
+    --wc-sense-indent: calc(1.75rem + 10px);
   }
 
   .wc-detail-hero {
@@ -283,13 +348,20 @@
     border-radius: 18px;
   }
 
-  .wc-detail-sense {
-    padding: 12px 14px 14px;
-    border-radius: 14px;
+  .wc-detail-sense-list {
+    padding: 2px 14px;
+    border-radius: 16px;
   }
 
+  /* The stats move under the gloss rather than squeezing it. */
   .wc-detail-sense-head {
-    column-gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 10px;
+  }
+
+  .wc-detail-sense-stats {
+    grid-column: 2;
+    margin-top: 2px;
   }
 }
 
@@ -302,7 +374,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .wc-detail .wc-detail-title,
-  .wc-detail-stage[data-direction] {
+  .wc-detail-stage[data-direction],
+  .wc-detail-segment {
     transition: none;
     animation: none;
   }

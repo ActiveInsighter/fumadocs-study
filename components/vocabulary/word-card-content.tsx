@@ -73,19 +73,25 @@ export function MeaningText({ meaning }: { meaning: WordMeaning }) {
   );
 }
 
+/** The visible box of an enclosing modal: below its floating header. */
+function modalClip(modal: HTMLElement) {
+  const rect = modal.getBoundingClientRect();
+  const header = modal.querySelector<HTMLElement>('[data-slot="modal-header"]');
+  return { top: rect.top + (header?.offsetHeight ?? 0), left: rect.left, right: rect.right, bottom: rect.bottom };
+}
+
 /**
  * Flips the tooltip below its sentence when there is no room above, and shifts
  * it sideways so it stays inside an enclosing modal (or the viewport on the page).
  */
 function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
-  const clip = root.closest('[data-slot="modal-content"]')?.getBoundingClientRect() ?? {
-    top: 0,
-    left: 0,
-    right: document.documentElement.clientWidth,
-    bottom: window.innerHeight,
-  };
+  const modal = root.closest<HTMLElement>('[data-slot="modal-content"]');
+  const clip = modal
+    ? modalClip(modal)
+    : { top: 0, left: 0, right: document.documentElement.clientWidth, bottom: window.innerHeight };
   const anchor = root.getBoundingClientRect();
-  const { width, height } = tooltip.getBoundingClientRect();
+  // Layout size: the tooltip is still scaled down by its entry transform here.
+  const { offsetWidth: width, offsetHeight: height } = tooltip;
   const spaceAbove = anchor.top - clip.top;
   const spaceBelow = clip.bottom - anchor.bottom;
   const placement = spaceAbove < height + TOOLTIP_EDGE_GAP && spaceBelow > spaceAbove ? 'bottom' : 'top';
@@ -95,7 +101,7 @@ function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
   root.style.setProperty('--wc-tooltip-shift', `${Math.round(left - anchor.left)}px`);
 }
 
-function SenseExample({ example }: { example: WordExample }) {
+export function SenseExample({ example }: { example: WordExample }) {
   const tooltipId = useId();
   const rootRef = useRef<HTMLSpanElement>(null);
   const tooltipRef = useRef<HTMLSpanElement>(null);
