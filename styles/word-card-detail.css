@@ -1,16 +1,36 @@
 /*
  * Word detail modal (components/vocabulary/word-card-detail.tsx), laid out
- * inside the general Modal (styles/modal.css). The popup carries .wc-detail
- * and the card's data-tone, so it reads the same palette as the card that
- * opened it (styles/word-cards.css): the hero sits on the card's own tone,
- * the senses below on a faint tint of it.
+ * inside the general Modal (styles/modal.css) at a fixed height. The popup
+ * carries .wc-detail and the card's data-tone, so it reads the palette of the
+ * card that opened it (styles/word-cards.css), but only for surfaces and
+ * marks: the left pane sits on the card's tone, chips and bars are tinted
+ * with it, and every piece of text stays neutral for legibility.
  */
 
-.wc-detail {
+.wc-detail,
+.dark .wc-detail {
+  /* Neutral text on tinted surfaces, in both themes. */
+  --word-text: var(--foreground);
+  --meaning-text: color-mix(in oklab, var(--foreground) 88%, transparent);
+  --phonetic-text: var(--muted-foreground);
+  --muted-text: var(--muted-foreground);
+  --key-text: var(--foreground);
+  --phrase-text: var(--foreground);
+  --freq-text: var(--foreground);
+  --pos-text: color-mix(in oklab, var(--foreground) 76%, transparent);
+
+  /* The left pane (ModalPane tone="muted") and its header veil take the card's tone. */
+  --modal-pane-muted: var(--card-bg);
+  /*
+   * Mixed in sRGB: in oklch, mixing with transparent drops the hue, which then
+   * renders as 0deg and tints every tone pink under the header.
+   */
+  --modal-veil-muted: color-mix(in srgb, var(--modal-pane-muted) 62%, transparent);
+  /* Blur only: the default saturate() would also shift the tinted pane's hue. */
+  --modal-header-blur: blur(20px);
+
   --wc-sense-indent: calc(1.75rem + 12px);
-  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 6%, transparent);
-  --wc-sense-edge: color-mix(in srgb, var(--wc-ink) 6%, transparent);
-  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 42%, transparent);
+  --wc-example-mark: color-mix(in srgb, var(--wc-accent) 55%, transparent);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
   -webkit-font-smoothing: antialiased;
@@ -18,7 +38,7 @@
 
 /* ---- Header ------------------------------------------------------------- */
 
-/* The headword joins the header once the hero has scrolled under it. */
+/* Phones: the headword joins the header once the hero has scrolled under it. */
 .wc-detail .wc-detail-title {
   color: var(--word-text);
   font-family: var(--wc-display-font);
@@ -33,6 +53,13 @@
 .wc-detail[data-scrolled] .wc-detail-title {
   opacity: 1;
   translate: 0 0;
+}
+
+/* Side by side, the headword is always in view in the left pane. */
+@media (width >= 48rem) {
+  .wc-detail[data-scrolled] .wc-detail-title {
+    opacity: 0;
+  }
 }
 
 .wc-pager {
@@ -63,34 +90,31 @@
   font-weight: 500;
 }
 
-/* ---- Body --------------------------------------------------------------- */
+/* ---- Panes -------------------------------------------------------------- */
+
+/* Stepping between words of different tones blends the pane colour. */
+.wc-detail-side {
+  transition: background-color 420ms var(--wc-ease-out);
+}
 
 .wc-detail-stage {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 26px;
 }
 
-/* Stepping to another word slides it in from the side it came from. */
-.wc-detail-stage[data-direction] {
-  animation: wc-detail-stage-in 340ms var(--wc-ease-out) both;
+/*
+ * Each sense has its own tone (--wc-seg-mix, set per sense): the bar colour
+ * mixed towards the card, the first sense strongest. Bar, legend swatches and
+ * index badges share it.
+ */
+.wc-detail-segment,
+.wc-detail-swatch,
+.wc-detail-sense-index {
+  --wc-seg-color: color-mix(in srgb, var(--bar-fill) var(--wc-seg-mix, 100%), var(--card-bg));
 }
 
-.wc-detail-stage[data-direction='next'] {
-  --wc-stage-from: 20px;
-}
-
-.wc-detail-stage[data-direction='prev'] {
-  --wc-stage-from: -20px;
-}
-
-/* Hero: the card itself, enlarged. */
-.wc-detail-hero {
-  padding: 22px 24px 20px;
-  border-radius: 20px;
-  background: var(--card-bg);
-  box-shadow: inset 0 0 0 1px var(--card-edge);
-}
+/* ---- Left pane: the card ------------------------------------------------ */
 
 .wc-detail-headline {
   display: flex;
@@ -99,37 +123,29 @@
   gap: 8px 14px;
 }
 
-.wc-detail-wordline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 14px;
-  min-width: 0;
-}
-
 .wc-detail-word {
   min-width: 0;
   color: var(--word-text);
   font-family: var(--wc-display-font);
-  font-size: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem);
+  font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
   font-weight: 780;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
   overflow-wrap: anywhere;
 }
 
+/* The label sits on the headword's cap height. */
+.wc-detail-headline .wc-label {
+  margin-top: 0.55rem;
+}
+
 .wc-detail-phonetic {
+  margin-top: 8px;
   color: var(--phonetic-text);
   font-family: var(--wc-phonetic-font);
   font-size: 1.0625rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-
-/* The label sits on the headword's cap height. */
-.wc-detail-headline .wc-label {
-  margin-top: 0.45rem;
 }
 
 /* POS chips in one column, so every meaning starts on the same line. */
@@ -137,9 +153,9 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: 8px 10px;
-  margin-top: 16px;
-  padding-top: 16px;
+  gap: 9px 10px;
+  margin-top: 18px;
+  padding-top: 18px;
   border-top: 1px solid var(--rule);
   font-size: 1rem;
   font-weight: 500;
@@ -164,51 +180,38 @@
   justify-content: flex-end;
 }
 
-/* ---- Senses ------------------------------------------------------------- */
-
-.wc-detail-senses {
-  display: flex;
-  flex-direction: column;
-}
-
+.wc-detail-summary-head,
 .wc-detail-section-label {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  margin: 0 4px 10px;
+  gap: 4px 12px;
+  flex-wrap: wrap;
   color: var(--muted-text);
   font-size: 0.78rem;
   font-weight: 680;
   letter-spacing: 0.08em;
 }
 
-.wc-detail-section-meta {
+.wc-detail-summary-meta,
+.wc-detail-hint {
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
-}
-
-/*
- * Each sense takes its own tone (--wc-seg-mix, set per sense): the bar
- * colour mixed towards the card. The bar and the index badges share it.
- */
-.wc-detail-segment,
-.wc-detail-sense-index {
-  background: color-mix(in srgb, var(--bar-fill) var(--wc-seg-mix, 100%), var(--card-bg));
 }
 
 .wc-detail-distribution {
   display: flex;
   gap: 3px;
   height: 8px;
-  margin: 0 4px 14px;
+  margin: 10px 0 8px;
 }
 
 .wc-detail-segment {
   flex: 1 1 0;
   min-width: 6px;
   border-radius: 2px;
+  background: var(--wc-seg-color);
   transform-origin: left center;
   animation: wc-bar-grow 640ms var(--wc-ease-out) both;
 }
@@ -225,22 +228,92 @@
   border-radius: 999px;
 }
 
-/* One panel, senses divided by hairlines. */
+.wc-detail-legend {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -8px;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each entry scrolls its sense into view. */
+.wc-detail-legend-item {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--meaning-text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.wc-detail-legend-item:hover {
+  background: color-mix(in srgb, var(--wc-ink) 6%, transparent);
+}
+
+.wc-detail-legend-item:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--foreground) 32%, transparent);
+  outline-offset: -2px;
+}
+
+.wc-detail-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--wc-seg-color);
+}
+
+.wc-detail-legend-order,
+.wc-detail-legend-pct {
+  color: var(--muted-text);
+  font-size: 0.75rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.wc-detail-legend-gloss {
+  overflow: hidden;
+  font-weight: 560;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wc-detail-legend-pct {
+  color: var(--foreground);
+}
+
+/* ---- Right pane: senses ------------------------------------------------- */
+
+.wc-detail-section-label {
+  margin-bottom: -10px;
+}
+
 .wc-detail-sense-list {
   margin: 0;
-  padding: 4px 18px;
-  border-radius: 18px;
-  background: var(--wc-sense-bg);
-  box-shadow: inset 0 0 0 1px var(--wc-sense-edge);
+  padding: 0;
   list-style: none;
 }
 
 .wc-detail-sense {
-  padding: 14px 0 15px;
+  padding: 16px 0 18px;
+  scroll-margin-top: 8px;
 }
 
 .wc-detail-sense + .wc-detail-sense {
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--ui-fill-strong);
+}
+
+.wc-detail-sense:last-child {
+  padding-bottom: 4px;
 }
 
 .wc-detail-sense-head {
@@ -257,21 +330,18 @@
   width: 1.75rem;
   height: 1.375rem;
   border-radius: 7px;
-  color: var(--word-text);
+  background: color-mix(in srgb, var(--wc-seg-color) 30%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wc-seg-color) 40%, transparent);
+  color: var(--foreground);
   font-family: var(--wc-display-font);
   font-size: 0.75rem;
   font-weight: 760;
   font-variant-numeric: tabular-nums;
 }
 
-/* On a strong tone the card colour reads best, in both themes. */
-.wc-detail-sense-index[data-strong='true'] {
-  color: var(--card-bg);
-}
-
 .wc-detail-sense-gloss {
   color: var(--word-text);
-  font-size: 1rem;
+  font-size: 1.03rem;
   font-weight: 650;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -292,14 +362,14 @@
 .wc-detail-examples {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 10px 0 0 var(--wc-sense-indent);
+  gap: 9px;
+  margin: 12px 0 0 var(--wc-sense-indent);
   padding: 0;
-  color: var(--phrase-text);
+  color: var(--meaning-text);
   font-family: var(--wc-phonetic-font);
-  font-size: 0.98rem;
+  font-size: 1rem;
   font-weight: 500;
-  line-height: 1.55;
+  line-height: 1.6;
   list-style: none;
 }
 
@@ -311,12 +381,27 @@
 .wc-detail-example::before {
   content: '';
   position: absolute;
-  top: 0.68em;
+  top: 0.72em;
   left: 0;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--wc-example-rule);
+  background: var(--wc-example-mark);
+}
+
+/* Underline in the card's tone; the sentence itself stays neutral. */
+.wc-detail .wc-example-trigger {
+  text-decoration-color: color-mix(in srgb, var(--wc-accent) 45%, transparent);
+}
+
+.wc-detail .wc-example-trigger:hover,
+.wc-detail .wc-example[data-open='true'] .wc-example-trigger {
+  color: var(--foreground);
+  text-decoration-color: color-mix(in srgb, var(--wc-accent) 85%, transparent);
+}
+
+.wc-detail .wc-example-tooltip {
+  border-inline-start-color: color-mix(in srgb, var(--wc-accent) 70%, transparent);
 }
 
 .wc-detail .wc-no-example {
@@ -324,33 +409,21 @@
   margin: 8px 0 0 var(--wc-sense-indent);
 }
 
-.wc-detail-hint {
-  margin: 10px 4px 0;
+.wc-detail-empty {
+  margin: 0;
   color: var(--muted-text);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-align: center;
+  font-size: 0.9rem;
 }
 
-.dark .wc-detail {
-  --wc-sense-bg: color-mix(in srgb, var(--wc-accent) 9%, transparent);
-  --wc-sense-edge: rgb(255 255 255 / 5%);
-  --wc-example-rule: color-mix(in srgb, var(--wc-accent) 55%, transparent);
-}
+/* ---- Phones ------------------------------------------------------------- */
 
 @media (width < 48rem) {
   .wc-detail {
     --wc-sense-indent: calc(1.75rem + 10px);
   }
 
-  .wc-detail-hero {
-    padding: 18px 18px 16px;
-    border-radius: 18px;
-  }
-
-  .wc-detail-sense-list {
-    padding: 2px 14px;
-    border-radius: 16px;
+  .wc-detail-stage {
+    gap: 22px;
   }
 
   /* The stats move under the gloss rather than squeezing it. */
@@ -365,16 +438,10 @@
   }
 }
 
-@keyframes wc-detail-stage-in {
-  from {
-    opacity: 0;
-    translate: var(--wc-stage-from, 0) 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .wc-detail .wc-detail-title,
-  .wc-detail-stage[data-direction],
+  .wc-detail-side,
+  .wc-detail-legend-item,
   .wc-detail-segment {
     transition: none;
     animation: none;

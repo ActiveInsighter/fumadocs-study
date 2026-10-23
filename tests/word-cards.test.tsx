@@ -204,8 +204,10 @@ describe('WordCards', () => {
     expect(component).toContain('flushSync(() => setModeState(nextMode))');
     expect(component).toContain("prefers-reduced-motion: reduce");
     expect(component).toContain("setDirection(next > index ? 'next' : 'prev')");
-    expect(detailCss).toMatch(/\.wc-detail-stage\[data-direction\]\s*\{[^}]*animation:\s*wc-detail-stage-in/u);
-    expect(detailCss).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.wc-detail-stage\[data-direction\]/u);
+    expect(component).toContain('<AnimatePresence mode="wait" initial={false} custom={direction}');
+    expect(component).toContain('const reducedMotion = useReducedMotion();');
+    expect(component).toContain('reducedMotion ? reducedStageVariants : stageVariants');
+    expect(detailCss).toMatch(/\.wc-detail-side\s*\{[^}]*transition:\s*background-color/u);
     expect(css).toMatch(/html\[data-wc-mode-transition\]::view-transition-new\(root\)/u);
     expect(css).toMatch(/\.wc-mode-indicator\s*\{[^}]*transform:\s*translateX\(calc\(var\(--wc-active-index/u);
   });
@@ -251,19 +253,22 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-mode-button\[data-active='true'\]/u);
   });
 
-  it('lays out the detail modal on the opening card tone with a sense distribution and hover/tap translations', () => {
+  it('lays out the fixed-height detail modal with a toned card pane, neutral text and hover/tap translations', () => {
     const component = componentSource();
     const cardCss = readFileSync(new URL('../styles/word-cards.css', import.meta.url), 'utf8');
     const detailCss = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     expect(cardCss).toMatch(/\.word-card\[data-tone='3'\],\s*\.wc-detail\[data-tone='3'\]\s*\{/u);
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
-    expect(detailCss).toMatch(/\.wc-detail-hero\s*\{[^}]*background:\s*var\(--card-bg\)/u);
+    expect(component).toContain('height="44rem"');
+    expect(component).toContain('<ModalPane ref={leftRef} tone="muted" className="wc-detail-side">');
+    expect(detailCss).toMatch(/--modal-pane-muted:\s*var\(--card-bg\)/u);
+    expect(detailCss).toMatch(/\.wc-detail,\s*\.dark \.wc-detail\s*\{[^}]*--word-text:\s*var\(--foreground\)[^}]*--phrase-text:\s*var\(--foreground\)/u);
     expect(detailCss).toMatch(/\.wc-detail\[data-scrolled\] \.wc-detail-title\s*\{[^}]*opacity:\s*1/u);
-    expect(component).toContain('<SenseDistribution senses={senses} total={total} />');
+    expect(component).toContain('<SenseSummary senses={senses} total={total} onSelect={showSense} />');
     expect(component).toContain('<SenseExample example={example} />');
     expect(component).not.toContain('wc-detail-example-translation');
-    expect(detailCss).toMatch(/\.wc-detail-segment,\s*\.wc-detail-sense-index\s*\{[^}]*var\(--wc-seg-mix/u);
+    expect(detailCss).toMatch(/\.wc-detail-segment,\s*\.wc-detail-swatch,\s*\.wc-detail-sense-index\s*\{[^}]*var\(--wc-seg-mix/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
     expect(css).not.toMatch(/wc-detail-dialog/u);
   });
