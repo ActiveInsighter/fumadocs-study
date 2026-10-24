@@ -142,7 +142,7 @@ function PiePlot({
   const total = visible.reduce((sum, slice) => sum + slice.value, 0)
   const percent = createFormatter({ preset: "ratio", digits: 0 }, locale)
   const config = useMemo<ChartConfig>(() => Object.fromEntries(slices.map((slice) => [slice.key, { label: slice.name, color: slice.color }])), [slices])
-  // Inline donuts leave room for the highlighted slice to grow outwards.
+  // Keep padding at the edges; inline slices never change size on hover.
   const margin = inline ? 7 : 8
   const nameAt = (index: number) => visible[index]?.name ?? null
   const renderSlice = (props: PieSectorShapeProps, index?: string | number) => {
