@@ -1,0 +1,9 @@
+{
+  "title": "第四章 大数定律和中心极限定理",
+  "pages": [
+    "01-chebyshev-inequality",
+    "02-laws-of-large-numbers",
+    "03-central-limit-theorem"
+  ],
+  "defaultOpen": true
+}

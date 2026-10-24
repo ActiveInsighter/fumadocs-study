@@ -1,0 +1,13 @@
+{
+  "title": "高等数学第9模块 · 多元函数积分学",
+  "pages": [
+    "01-double-integrals",
+    "02-triple-integrals",
+    "03-scalar-line-integrals",
+    "04-vector-line-integrals",
+    "05-scalar-surface-integrals",
+    "06-vector-surface-integrals",
+    "07-vector-calculus-fields"
+  ],
+  "defaultOpen": true
+}

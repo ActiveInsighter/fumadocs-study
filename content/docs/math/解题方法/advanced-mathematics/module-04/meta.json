@@ -1,0 +1,11 @@
+{
+  "title": "高等数学第4模块 · 一元函数积分学",
+  "pages": [
+    "01-indefinite-integrals",
+    "02-definite-integrals",
+    "03-improper-integrals",
+    "04-applications-of-definite-integrals",
+    "05-integral-identities-inequalities"
+  ],
+  "defaultOpen": true
+}

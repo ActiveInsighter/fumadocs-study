@@ -1,0 +1,10 @@
+{
+  "title": "第二章 随机变量及其分布",
+  "pages": [
+    "01-distribution-functions",
+    "02-discrete-random-variables",
+    "03-continuous-random-variables",
+    "04-functions-of-random-variables"
+  ],
+  "defaultOpen": true
+}

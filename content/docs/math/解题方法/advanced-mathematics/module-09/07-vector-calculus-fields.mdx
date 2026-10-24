@@ -1,0 +1,1469 @@
+---
+title: "第七节 场论（数一）"
+description: "数量场与向量场、梯度、散度、旋度、拉普拉斯算子、径向场、保守场与奇点。"
+---
+
+## 本节思维导图
+
+```mindmap
+# 第七节 场论
+## 场的定义
+### 标量场与向量场
+### Nabla算子
+## 四种微分运算
+### 梯度与方向导数
+### 散度与源汇
+### 旋度与局部旋转
+### 拉普拉斯算子
+## 向量恒等式
+### 梯度场旋度为零
+### 旋度场散度为零
+### 逆命题的定义域条件
+## 径向场模型
+### 径向数量场
+### 点源场及奇点
+## 与积分公式的联系
+### 高斯公式
+### 斯托克斯公式
+### 路径无关
+## 真题及自测
+```
+
+## 一、本节核心框架
+
+数量场 $u(x,y,z)$
+
+梯度 $\nabla u$
+
+数量场 → 向量场：最大增长方向、等值面法向
+
+散度 $\nabla\cdot\boldsymbol F$
+
+向量场 → 数量场
+
+联系高斯公式
+
+旋度 $\nabla\times\boldsymbol F$
+
+向量场 → 向量场
+
+联系斯托克斯公式
+
+拉普拉斯 $\Delta u=\nabla\cdot\nabla u$
+
+梯度之后再求散度
+
+这节的学习目标可以归纳为三项：算得准、理解几何意义、知道何时能推出整体积分结论。
+
+独立场论题主要训练偏导计算和公式识别；综合题更重视保守场、奇点、积分区域与高斯、斯托克斯公式的适用条件。
+
+## 二、基础概念：数量场与向量场是什么？
+
+### 1. 数量场
+
+空间中每个点 $(x,y,z)$ 对应一个实数：
+
+$$
+u=u(x,y,z).
+$$
+
+这称为数量场，也叫标量场。
+
+例如温度场
+
+$$
+u(x,y,z)=x^2+y^2+z^2
+$$
+
+表示不同位置具有不同温度值。
+
+一个数量场可以具有很多等值面：
+
+$$
+u(x,y,z)=c.
+$$
+
+以上述例子为例，等值面是
+
+$$
+x^2+y^2+z^2=c,
+$$
+
+即一族同心球面（$c>0$）。
+
+### 2. 向量场
+
+空间中每一点对应一个向量：
+
+$$
+\boldsymbol F(x,y,z) =P(x,y,z)\boldsymbol i +Q(x,y,z)\boldsymbol j +R(x,y,z)\boldsymbol k.
+$$
+
+简记为
+
+$$
+\boldsymbol F=(P,Q,R).
+$$
+
+例如
+
+$$
+\boldsymbol F=(x,y,z)
+$$
+
+在不同位置指向不同方向，远离原点的点对应较长的径向向量。
+
+向量场可以描述力、速度或流量密度。
+
+### 3. Nabla 算子
+
+记号
+
+$$
+\boxed{ \nabla= \left( \frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z} \right) }
+$$
+
+称为 Nabla 算子。
+
+它不是普通的数值向量，而是一组微分算子的形式表示。
+
+它和数量场、向量场结合，就得到本节最重要的四种运算。
+
+| 运算                              | 输入  | 输出  |
+| ------------------------------- | --- | --- |
+| $\nabla u$                  | 数量场 | 向量场 |
+| $\nabla\cdot\boldsymbol F$  | 向量场 | 数量场 |
+| $\nabla\times\boldsymbol F$ | 向量场 | 向量场 |
+| $\Delta u$                  | 数量场 | 数量场 |
+
+## 三、四个必须彻底掌握的公式
+
+### 1. 梯度：$\operatorname{grad}u$
+
+设
+
+$$
+u=u(x,y,z).
+$$
+
+梯度定义为
+
+$$
+\boxed{ \nabla u=(u_x,u_y,u_z) }.
+$$
+
+例如
+
+$$
+u=x^2y+yz^2
+$$
+
+对应
+
+$$
+\boxed{ \nabla u=(2xy,\ x^2+z^2,\ 2yz) }.
+$$
+
+几何意义一： 若 $u$ 在某点可微且梯度非零，则梯度指向函数在该点增长最快的方向。
+
+几何意义二： 在光滑等值面
+
+$$
+u(x,y,z)=c
+$$
+
+上，若 $\nabla u\ne0$，梯度与该等值面的切平面垂直。
+
+### 2. 散度：$\operatorname{div}\boldsymbol F$
+
+设
+
+$$
+\boldsymbol F=(P,Q,R).
+$$
+
+定义
+
+$$
+\boxed{ \operatorname{div}\boldsymbol F =P_x+Q_y+R_z }.
+$$
+
+注意是每个向量分量对它对应的坐标变量求偏导。
+
+例如
+
+$$
+\boldsymbol F=(x^2,xy,z^3),
+$$
+
+则
+
+$$
+\operatorname{div}\boldsymbol F =2x+x+3z^2 =\boxed{3x+3z^2}.
+$$
+
+散度是一个标量。
+
+在流体运动的局部模型中，散度描述一点附近单位体积的净流出强度。正散度对应局部净流出，负散度对应局部净流入，零散度对应局部净流出的一阶主项为零。
+
+### 3. 旋度：$\operatorname{rot}\boldsymbol F$
+
+定义
+
+$$
+\boxed{ \nabla\times\boldsymbol F = (R_y-Q_z,\ P_z-R_x,\ Q_x-P_y) }.
+$$
+
+也可以通过形式行列式记忆：
+
+$$
+\nabla\times\boldsymbol F= \begin{vmatrix} \boldsymbol i&\boldsymbol j&\boldsymbol k\\ \partial_x&\partial_y&\partial_z\\ P&Q&R \end{vmatrix}.
+$$
+
+最容易错的是第二个分量：
+
+$$
+\boxed{P_z-R_x}.
+$$
+
+旋度是向量，描述向量场的局部环流密度与旋转方向。
+
+例如
+
+$$
+\boldsymbol F=(-y,x,0)
+$$
+
+表示围绕 $z$ 轴旋转的平面向量场。
+
+计算可得
+
+$$
+\nabla\times\boldsymbol F=(0,0,2).
+$$
+
+旋度指向 $z$ 轴正方向，体现右手法则。
+
+### 4. 拉普拉斯算子：$\Delta u$
+
+对二阶偏导存在的数量场 $u$，定义
+
+$$
+\boxed{ \Delta u=u_{xx}+u_{yy}+u_{zz} }.
+$$
+
+因为
+
+$$
+\nabla u=(u_x,u_y,u_z),
+$$
+
+所以
+
+$$
+\boxed{ \Delta u=\operatorname{div}(\operatorname{grad}u) }.
+$$
+
+即
+
+$$
+\boxed{\Delta=\nabla\cdot\nabla}
+$$
+
+在作用于数量场的意义下成立。
+
+如果
+
+$$
+\Delta u=0,
+$$
+
+就称 $u$ 为调和函数。
+
+比如
+
+$$
+u=x^2+y^2-2z^2
+$$
+
+满足
+
+$$
+\Delta u=2+2-4=0,
+$$
+
+因此是三维空间中的调和函数。
+
+## 四、最值得记住的三个向量恒等式
+
+只要相应的二阶混合偏导连续，就有：
+
+$$
+\boxed{\nabla\times(\nabla u)=\boldsymbol0}
+$$
+
+$$
+\boxed{\nabla\cdot(\nabla\times\boldsymbol F)=0}
+$$
+
+$$
+\boxed{\nabla\cdot(\nabla u)=\Delta u}.
+$$
+
+它们分别说明：梯度场无旋；旋度场无散；梯度的散度就是拉普拉斯算子。
+
+### 1. 为什么梯度场的旋度为零？
+
+设
+
+$$
+\boldsymbol F=\nabla u=(u_x,u_y,u_z).
+$$
+
+则
+
+$$
+\begin{aligned} \nabla\times(\nabla u) =&(u_{zy}-u_{yz},\\ &u_{xz}-u_{zx},\\ &u_{yx}-u_{xy}). \end{aligned}
+$$
+
+由于二阶混合偏导可以交换顺序，三个分量全为零。
+
+所以
+
+$$
+\boxed{\operatorname{rot}(\operatorname{grad}u)=\boldsymbol0}.
+$$
+
+这实际上是第二类曲线积分中“全微分的闭路积分为零”的微分形式。
+
+### 2. 为什么旋度场的散度为零？
+
+设
+
+$$
+\boldsymbol F=(P,Q,R).
+$$
+
+那么
+
+$$
+\nabla\times\boldsymbol F =(R_y-Q_z,\ P_z-R_x,\ Q_x-P_y).
+$$
+
+再求散度：
+
+$$
+\begin{aligned} \nabla\cdot(\nabla\times\boldsymbol F) ={}&R_{yx}-Q_{zx}\\ &+P_{zy}-R_{xy}\\ &+Q_{xz}-P_{yz}\\ ={}&0. \end{aligned}
+$$
+
+这里同样利用了二阶偏导的连续性。
+
+### 3. 必须注意：恒等式不能随意反过来使用
+
+有
+
+$$
+\boldsymbol F=\nabla u \Longrightarrow \nabla\times\boldsymbol F=0,
+$$
+
+但仅凭
+
+$$
+\nabla\times\boldsymbol F=0
+$$
+
+并不能在任意定义域推出 $\boldsymbol F$ 有全局单值势函数。
+
+还需检查区域条件，尤其是单连通性。
+
+同样，$\nabla\cdot\boldsymbol F=0$ 只说明无源，并不意味着 $\boldsymbol F$ 一定是梯度场，也不意味着所有经过奇点内部的闭曲面通量都为零。
+
+## 五、径向场：场论里最有代表性的统一模型
+
+这一部分把1993、2001年的拉普拉斯真题和后面高斯公式的奇点题联系起来。
+
+### 1. 径向数量场 $u=f(r)$
+
+令
+
+$$
+r=\sqrt{x^2+y^2+z^2}.
+$$
+
+若
+
+$$
+u(x,y,z)=f(r),
+$$
+
+由于
+
+$$
+r_x=\frac xr,\qquad r_y=\frac yr,\qquad r_z=\frac zr,
+$$
+
+所以
+
+$$
+\boxed{ \nabla u =f'(r)\frac{(x,y,z)}r } \qquad(r>0).
+$$
+
+对它再次求散度，可以得到三维径向拉普拉斯公式：
+
+$$
+\boxed{ \Delta f(r)=f''(r)+\frac2r f'(r) } \qquad(r>0).
+$$
+
+### 公式推导
+
+由
+
+$$
+u_x=f'(r)\frac xr
+$$
+
+求二阶偏导：
+
+$$
+u_{xx} =f''(r)\frac{x^2}{r^2} +f'(r)\left(\frac1r-\frac{x^2}{r^3}\right).
+$$
+
+对 $y,z$ 也做相同计算，三式相加：
+
+$$
+\begin{aligned} \Delta u &=f''(r)\frac{x^2+y^2+z^2}{r^2}\\ &\quad+f'(r) \left[ \frac3r-\frac{x^2+y^2+z^2}{r^3} \right]\\ &=f''(r)+\frac2r f'(r). \end{aligned}
+$$
+
+这条推导只需理解一次，之后遇到径向函数就可以直接使用。
+
+### 重要结论
+
+| 径向函数             | 在 $r>0$ 处的拉普拉斯                 |
+| ---------------- | ---------------------------------- |
+| $u=r$        | $\dfrac2r$                     |
+| $u=\ln r$    | $\dfrac1{r^2}$                 |
+| $u=\dfrac1r$ | $0$                            |
+| $u=r^\alpha$ | $\alpha(\alpha+1)r^{\alpha-2}$ |
+
+注意这是一张三维空间公式表。
+
+尤其重要的是：
+
+$$
+\boxed{\Delta\ln r=\frac1{r^2}}
+$$
+
+它与二维情况下 $\Delta\ln r=0$（在原点以外）不同，不能混淆。
+
+### 2. 径向向量场 $\boldsymbol F=\phi(r)\boldsymbol r$
+
+令
+
+$$
+\boldsymbol r=(x,y,z),
+$$
+
+并设
+
+$$
+\boldsymbol F=\phi(r)(x,y,z).
+$$
+
+逐个分量求偏导：
+
+$$
+\frac{\partial}{\partial x}[x\phi(r)] =\phi(r)+x\phi'(r)\frac xr.
+$$
+
+三个分量相加：
+
+$$
+\begin{aligned} \nabla\cdot\boldsymbol F &=3\phi(r)+\frac{x^2+y^2+z^2}{r}\phi'(r)\\ &=3\phi(r)+r\phi'(r). \end{aligned}
+$$
+
+所以
+
+$$
+\boxed{ \operatorname{div}[\phi(r)\boldsymbol r] =3\phi(r)+r\phi'(r) } \qquad(r>0).
+$$
+
+例如取
+
+$$
+\phi(r)=r^{-3},
+$$
+
+得到
+
+$$
+\operatorname{div}\left(\frac{\boldsymbol r}{r^3}\right) =3r^{-3}-3r^{-3}=0.
+$$
+
+这正是上一节2009年数学一奇点通量题的核心场。
+
+但必须强调：该式仅在 $r>0$ 成立，原点处向量场根本没有定义。
+
+## 六、考研数学一核心真题逐题精讲
+
+以下按 Fumadocs 核心题库与分类真题的题面展开。先练基础运算，再练组合算子，最后练整体性质。
+
+### 例1：1989年数学一——最基本的散度计算
+
+已知向量场
+
+$$
+\boldsymbol u(x,y,z) =xy^2\boldsymbol i +ye^z\boldsymbol j +x\ln(1+z^2)\boldsymbol k.
+$$
+
+求在点
+
+$$
+P(1,1,0)
+$$
+
+处的散度。
+
+#### 第一步：找出三个分量
+
+$$
+P_1=xy^2,\qquad P_2=ye^z,\qquad P_3=x\ln(1+z^2).
+$$
+
+#### 第二步：分别对对应坐标求导
+
+$$
+\begin{aligned} \operatorname{div}\boldsymbol u &=\frac{\partial P_1}{\partial x} +\frac{\partial P_2}{\partial y} +\frac{\partial P_3}{\partial z}\\ &=y^2+e^z+\frac{2xz}{1+z^2}. \end{aligned}
+$$
+
+#### 第三步：最后代入指定点
+
+在 $(1,1,0)$ 处：
+
+$$
+\operatorname{div}\boldsymbol u =1+1+0.
+$$
+
+因此
+
+$$
+\boxed{\operatorname{div}\boldsymbol u(1,1,0)=2}.
+$$
+
+考点：不要先代入点再求偏导。 若先把整个向量场在一点的值算出来，就会丢失函数随空间坐标变化的信息。
+
+### 例2：2016年数学一——旋度的三个分量
+
+设向量场
+
+$$
+\boldsymbol A =(x+y+z)\boldsymbol i +xy\boldsymbol j +z\boldsymbol k.
+$$
+
+求
+
+$$
+\operatorname{rot}\boldsymbol A.
+$$
+
+#### 第一步：确定分量
+
+$$
+P=x+y+z,\qquad Q=xy,\qquad R=z.
+$$
+
+#### 第二步：套旋度定义
+
+$$
+\nabla\times\boldsymbol A =(R_y-Q_z,\ P_z-R_x,\ Q_x-P_y).
+$$
+
+第一个分量：
+
+$$
+R_y-Q_z=0-0=0.
+$$
+
+第二个分量：
+
+$$
+P_z-R_x=1-0=1.
+$$
+
+第三个分量：
+
+$$
+Q_x-P_y=y-1.
+$$
+
+所以
+
+$$
+\boxed{ \operatorname{rot}\boldsymbol A =(0,1,y-1) }.
+$$
+
+### 与李林880同类题比较
+
+李林880进一步要求在点
+
+$$
+P_0=(1,1,1)
+$$
+
+处求旋度和散度。
+
+旋度已经求出：
+
+$$
+\operatorname{rot}\boldsymbol A(P_0) =(0,1,0)=\boxed{\boldsymbol j}.
+$$
+
+散度为
+
+$$
+\begin{aligned} \operatorname{div}\boldsymbol A &=\frac{\partial(x+y+z)}{\partial x} +\frac{\partial(xy)}{\partial y} +\frac{\partial z}{\partial z}\\ &=1+x+1\\ &=x+2. \end{aligned}
+$$
+
+所以
+
+$$
+\boxed{\operatorname{div}\boldsymbol A(P_0)=3}.
+$$
+
+同一个向量场的散度是标量，旋度是向量。这是最基础的概念辨析。
+
+### 例3：2018年数学一——先求旋度，再代点
+
+设
+
+$$
+\boldsymbol F(x,y,z) =xy\boldsymbol i-yz\boldsymbol j+xz\boldsymbol k.
+$$
+
+求
+
+$$
+\operatorname{rot}\boldsymbol F(1,1,0).
+$$
+
+#### 第一步：列出分量
+
+$$
+P=xy,\qquad Q=-yz,\qquad R=xz.
+$$
+
+#### 第二步：逐项计算
+
+第一个旋度分量：
+
+$$
+R_y-Q_z =0-(-y) =y.
+$$
+
+第二个分量：
+
+$$
+P_z-R_x =0-z=-z.
+$$
+
+第三个分量：
+
+$$
+Q_x-P_y =0-x=-x.
+$$
+
+因此
+
+$$
+\operatorname{rot}\boldsymbol F=(y,-z,-x).
+$$
+
+#### 第三步：代入点
+
+$$
+\operatorname{rot}\boldsymbol F(1,1,0) =(1,0,-1).
+$$
+
+故
+
+$$
+\boxed{ \operatorname{rot}\boldsymbol F(1,1,0) =\boldsymbol i-\boldsymbol k }.
+$$
+
+#### 为什么这两道旋度真题值得反复练？
+
+2016年和2018年的计算都不难，但它们涉及最容易丢分的三个基本功：分量的位置、偏导对应的变量，以及第二分量的符号。
+
+如果这三点尚不熟练，后面的斯托克斯公式题即使思路正确，也可能因旋度算错而全题失分。
+
+### 例4：2001年数学一——$\operatorname{div}(\operatorname{grad}r)$
+
+设
+
+$$
+r=\sqrt{x^2+y^2+z^2}.
+$$
+
+求
+
+$$
+\left. \operatorname{div}(\operatorname{grad}r) \right|_{(1,-2,2)}.
+$$
+
+#### 解法一：使用径向公式
+
+首先识别：
+
+$$
+\operatorname{div}(\operatorname{grad}r)=\Delta r.
+$$
+
+对 $f(r)=r$，有
+
+$$
+f'(r)=1,\qquad f''(r)=0.
+$$
+
+代入
+
+$$
+\Delta f(r)=f''(r)+\frac2r f'(r),
+$$
+
+得到
+
+$$
+\Delta r=\frac2r.
+$$
+
+在点 $(1,-2,2)$ 处：
+
+$$
+r=\sqrt{1^2+(-2)^2+2^2}=3.
+$$
+
+因此
+
+$$
+\boxed{\Delta r=\frac23}.
+$$
+
+#### 解法二：从定义直接推导
+
+$$
+\nabla r=\left(\frac xr,\frac yr,\frac zr\right).
+$$
+
+所以
+
+$$
+\begin{aligned} \Delta r &=\frac{\partial}{\partial x}\frac xr +\frac{\partial}{\partial y}\frac yr +\frac{\partial}{\partial z}\frac zr\\ &=\frac3r-\frac{x^2+y^2+z^2}{r^3}\\ &=\frac3r-\frac1r\\ &=\frac2r. \end{aligned}
+$$
+
+再代入 $r=3$，同样得到 $2/3$。
+
+两种方法比较： 直接计算适合第一次理解；考试中只要识别出径向函数，用公式最快。
+
+### 例5：1993年数学一——三维对数径向函数
+
+已知数量场
+
+$$
+u=\ln\sqrt{x^2+y^2+z^2}.
+$$
+
+求
+
+$$
+\operatorname{div}(\operatorname{grad}u).
+$$
+
+#### 第一步：化成径向函数
+
+令
+
+$$
+r=\sqrt{x^2+y^2+z^2}.
+$$
+
+则
+
+$$
+u=\ln r.
+$$
+
+#### 第二步：求一阶和二阶导数
+
+将 $u$ 看成 $f(r)=\ln r$：
+
+$$
+f'(r)=\frac1r,
+$$
+
+$$
+f''(r)=-\frac1{r^2}.
+$$
+
+#### 第三步：应用径向拉普拉斯公式
+
+$$
+\begin{aligned} \Delta u &=f''(r)+\frac2r f'(r)\\ &=-\frac1{r^2}+\frac2{r^2}\\ &=\frac1{r^2}. \end{aligned}
+$$
+
+因此
+
+$$
+\boxed{ \operatorname{div}(\operatorname{grad}u) =\frac1{x^2+y^2+z^2} }
+$$
+
+其中定义域要求 $r>0$。
+
+#### 为什么它不是零？
+
+二维径向拉普拉斯公式是
+
+$$
+\Delta_{\mathbb R^2}f(r) =f''(r)+\frac1r f'(r).
+$$
+
+因此二维的 $\ln r$ 满足
+
+$$
+\Delta_{\mathbb R^2}\ln r=0 \qquad(r>0).
+$$
+
+但三维是
+
+$$
+\Delta_{\mathbb R^3}f(r) =f''(r)+\frac2r f'(r).
+$$
+
+多出来的这一项，正是1993年真题容易失分的根源。
+
+### 例6：2026年数学一——先算叉积，再求散度
+
+核心题型：向量代数与微分算子的复合运算
+
+设
+
+$$
+\boldsymbol v_1=(0,x,z), \qquad \boldsymbol v_2=(y,0,1).
+$$
+
+令
+
+$$
+\boldsymbol F=\boldsymbol v_1\times\boldsymbol v_2.
+$$
+
+求
+
+$$
+\operatorname{div}\boldsymbol F.
+$$
+
+#### 解法一：最稳妥的直接展开法
+
+首先计算叉积：
+
+$$
+\begin{aligned} \boldsymbol F &= \begin{vmatrix} \boldsymbol i&\boldsymbol j&\boldsymbol k\\ 0&x&z\\ y&0&1 \end{vmatrix}\\ &=(x,yz,-xy). \end{aligned}
+$$
+
+这里第二分量要注意符号：
+
+$$
+-(0\cdot1-zy)=yz.
+$$
+
+接着求散度：
+
+$$
+\begin{aligned} \operatorname{div}\boldsymbol F &=\frac{\partial x}{\partial x} +\frac{\partial(yz)}{\partial y} +\frac{\partial(-xy)}{\partial z}\\ &=1+z+0. \end{aligned}
+$$
+
+最终
+
+$$
+\boxed{\operatorname{div}\boldsymbol F=1+z}.
+$$
+
+#### 解法二：使用向量恒等式
+
+对于足够光滑的向量场 $\boldsymbol A,\boldsymbol B$，有
+
+$$
+\boxed{ \nabla\cdot(\boldsymbol A\times\boldsymbol B) = \boldsymbol B\cdot(\nabla\times\boldsymbol A) -\boldsymbol A\cdot(\nabla\times\boldsymbol B) }.
+$$
+
+先求两个旋度：
+
+$$
+\nabla\times\boldsymbol v_1=(0,-1,1),
+$$
+
+$$
+\nabla\times\boldsymbol v_2=(0,0,-1).
+$$
+
+所以
+
+$$
+\boldsymbol v_2\cdot (\nabla\times\boldsymbol v_1) =(y,0,1)\cdot(0,-1,1)=1,
+$$
+
+$$
+\boldsymbol v_1\cdot (\nabla\times\boldsymbol v_2) =(0,x,z)\cdot(0,0,-1)=-z.
+$$
+
+于是
+
+$$
+\begin{aligned} \nabla\cdot(\boldsymbol v_1\times\boldsymbol v_2) &=1-(-z)\\ &=\boxed{1+z}. \end{aligned}
+$$
+
+#### 两种方法怎么选？
+
+| 方法      | 优点           | 适合场景      |
+| ------- | ------------ | --------- |
+| 先叉积、再散度 | 直接可靠，步骤少     | 小题、简单三分量场 |
+| 叉积散度恒等式 | 结构性强，可利用已知旋度 | 复杂向量场、证明题 |
+
+对于这道题，第一种方法更适合考场。
+
+但第二种方法值得掌握，因为它说明散度、旋度与向量叉积之间存在系统的代数关系。
+
+## 七、核心综合题：无源场、保守场与奇点
+
+这一部分是本节最重要的概念综合，也是连接前两节曲线、曲面积分的关键。
+
+### 例7：李正元经典题——径向点源场
+
+设
+
+$$
+\boldsymbol E=\frac q{r^3}\boldsymbol r, \qquad \boldsymbol r=(x,y,z), \qquad r=\sqrt{x^2+y^2+z^2},
+$$
+
+其中 $q$ 为常数。
+
+求 $\operatorname{div}\boldsymbol E$ 和 $\operatorname{rot}\boldsymbol E$。
+
+#### 第一步：求散度
+
+根据径向向量场公式：
+
+$$
+\operatorname{div}[\phi(r)\boldsymbol r] =3\phi(r)+r\phi'(r).
+$$
+
+令
+
+$$
+\phi(r)=\frac q{r^3}, \qquad \phi'(r)=-\frac{3q}{r^4}.
+$$
+
+于是
+
+$$
+\begin{aligned} \operatorname{div}\boldsymbol E &=\frac{3q}{r^3} +r\left(-\frac{3q}{r^4}\right)\\ &=0. \end{aligned}
+$$
+
+因此
+
+$$
+\boxed{\operatorname{div}\boldsymbol E=0\quad(r>0)}.
+$$
+
+#### 第二步：求旋度
+
+直接逐项求旋度当然可以，但还有更好的方法。
+
+因为
+
+$$
+\nabla\left(\frac1r\right) =-\frac{\boldsymbol r}{r^3},
+$$
+
+所以
+
+$$
+\boldsymbol E=-q\nabla\left(\frac1r\right).
+$$
+
+它是一个梯度场。
+
+由恒等式
+
+$$
+\nabla\times(\nabla u)=\boldsymbol0,
+$$
+
+立即得到
+
+$$
+\boxed{\operatorname{rot}\boldsymbol E=\boldsymbol0\quad(r>0)}.
+$$
+
+#### 第三步：为什么包围原点的球面通量不为零？
+
+设球面
+
+$$
+S_R:x^2+y^2+z^2=R^2
+$$
+
+取外侧。
+
+在球面上，单位外法向量为
+
+$$
+\boldsymbol n=\frac{\boldsymbol r}{R}.
+$$
+
+而
+
+$$
+\boldsymbol E=\frac{q}{R^3}\boldsymbol r.
+$$
+
+所以
+
+$$
+\boldsymbol E\cdot\boldsymbol n =\frac q{R^2}.
+$$
+
+积分得
+
+$$
+\begin{aligned} \oiint_{S_R}\boldsymbol E\cdot\boldsymbol n\,dS &=\frac q{R^2}\cdot4\pi R^2\\ &=\boxed{4\pi q}. \end{aligned}
+$$
+
+这与散度为零并不矛盾，因为散度为零只在 $r>0$ 处成立，而球内部包含了原点奇点。
+
+还有一个值得深刻理解的区别：这个径向场在 $\mathbb R^3\setminus\{0\}$ 上确实存在全局势函数 $-q/r$，因此是保守场；但它穿过包围原点的闭曲面时仍可能有非零通量。
+
+保守场关心沿闭曲线的环流，无源场关心穿过闭曲面的通量。二者不是同一性质。
+
+### 例8：核心题库原创——旋度为零，但路径仍可能有关
+
+设
+
+$$
+D=\{(x,y,z):x^2+y^2>0\},
+$$
+
+在 $D$ 中定义向量场
+
+$$
+\boldsymbol F= \left( -\frac{y}{x^2+y^2}, \frac{x}{x^2+y^2}, 0 \right).
+$$
+
+证明它在定义域内旋度为零，并判断是否为保守场。
+
+#### 第一步：求旋度
+
+令
+
+$$
+s=x^2+y^2.
+$$
+
+由于第三分量为零，且前两个分量都与 $z$ 无关，旋度的前两个分量为零。
+
+第三分量是
+
+$$
+\begin{aligned} Q_x-P_y &=\frac{s-2x^2}{s^2} +\frac{s-2y^2}{s^2}\\ &=\frac{2s-2x^2-2y^2}{s^2}\\ &=0. \end{aligned}
+$$
+
+因此
+
+$$
+\boxed{\nabla\times\boldsymbol F=\boldsymbol0}
+$$
+
+在整个 $D$ 内成立。
+
+#### 第二步：选择一条绕 $z$ 轴的闭曲线
+
+取
+
+$$
+C:\quad x=\cos t,\quad y=\sin t,\quad z=0, \qquad0\le t\le2\pi.
+$$
+
+则
+
+$$
+\boldsymbol F=(-\sin t,\cos t,0),
+$$
+
+$$
+d\boldsymbol r=(-\sin t,\cos t,0)\,dt.
+$$
+
+所以
+
+$$
+\begin{aligned} \oint_C\boldsymbol F\cdot d\boldsymbol r &=\int_0^{2\pi} (\sin^2t+\cos^2t)\,dt\\ &=\boxed{2\pi}. \end{aligned}
+$$
+
+#### 第三步：判断保守性
+
+如果 $\boldsymbol F$ 在整个 $D$ 上存在单值势函数 $u$，那么任意闭曲线积分都应为零。
+
+但刚才得到 $2\pi\ne0$。
+
+因此
+
+$$
+\boxed{\boldsymbol F\text{ 不是整个 }D\text{ 上的保守场}}.
+$$
+
+#### 为什么这题和径向点源题不一样？
+
+这个区域去掉的是整条 $z$ 轴，存在无法在区域内部连续收缩成一点的绕轴闭曲线。
+
+而前一个径向点源场的定义域仅去掉了空间中的原点。它仍然可以有全局势函数 $-q/r$。
+
+这两个模型必须成对记忆：
+
+| 场                                                         | 局部微分性质         | 整体性质                         |
+| --------------------------------------------------------- | -------------- | ---------------------------- |
+| $\dfrac{\boldsymbol r}{r^3}$                          | 原点外散度、旋度均为零    | 有全局势函数，但包围原点的通量非零            |
+| $\left(-\dfrac y{x^2+y^2},\dfrac x{x^2+y^2},0\right)$ | $z$ 轴外旋度为零 | 绕轴闭路积分可为 $2\pi$，无全局单值势函数 |
+
+这两题共同揭示：局部微分性质与整体积分性质之间，还隔着定义域的几何、拓扑条件。
+
+## 八、原创提高题：径向调和函数的参数判定
+
+设
+
+$$
+u(x,y,z)=r^\alpha, \qquad r=\sqrt{x^2+y^2+z^2}>0.
+$$
+
+求所有使
+
+$$
+\Delta u=0
+$$
+
+成立的实数参数 $\alpha$。
+
+### 第一步：直接使用径向拉普拉斯公式
+
+取
+
+$$
+f(r)=r^\alpha.
+$$
+
+则
+
+$$
+f'(r)=\alpha r^{\alpha-1},
+$$
+
+$$
+f''(r)=\alpha(\alpha-1)r^{\alpha-2}.
+$$
+
+所以
+
+$$
+\begin{aligned} \Delta u &=f''(r)+\frac2r f'(r)\\ &=\alpha(\alpha-1)r^{\alpha-2} +2\alpha r^{\alpha-2}\\ &=\alpha(\alpha+1)r^{\alpha-2}. \end{aligned}
+$$
+
+因此
+
+$$
+\boxed{ \Delta(r^\alpha) =\alpha(\alpha+1)r^{\alpha-2} }.
+$$
+
+### 第二步：令拉普拉斯为零
+
+由于 $r>0$，所以
+
+$$
+\alpha(\alpha+1)=0.
+$$
+
+解得
+
+$$
+\boxed{\alpha=0\quad\text{或}\quad\alpha=-1}.
+$$
+
+也就是说，三维中常数函数与 $1/r$ 在原点以外都是调和函数。
+
+这道题将1993、2001年的径向拉普拉斯计算推广为参数判断题。
+
+## 九、场论与高斯、斯托克斯公式怎样一起考？
+
+### 1. 散度对应闭曲面通量
+
+若 $\Omega$ 是分片光滑边界围成的有界区域，向量场在相应闭区域附近连续可微，则
+
+$$
+\boxed{ \oiint_{\partial\Omega} \boldsymbol F\cdot\boldsymbol n\,dS =\iiint_\Omega\nabla\cdot\boldsymbol F\,dV }
+$$
+
+其中法向量取外侧。
+
+例如
+
+$$
+\boldsymbol F=(x,y,z),
+$$
+
+有
+
+$$
+\nabla\cdot\boldsymbol F=3.
+$$
+
+在半径为 $R$ 的球体上：
+
+$$
+\oiint_{S_R}\boldsymbol F\cdot\boldsymbol n\,dS =3\cdot\frac{4\pi R^3}{3} =\boxed{4\pi R^3}.
+$$
+
+这里无需对球面参数化。
+
+### 2. 旋度对应空间闭曲线环流
+
+斯托克斯公式为
+
+$$
+\boxed{ \oint_{\partial S}\boldsymbol F\cdot d\boldsymbol r =\iint_S(\nabla\times\boldsymbol F) \cdot\boldsymbol n\,dS }
+$$
+
+条件包括向量场足够光滑、曲面可定向、边界方向与法向满足右手法则。
+
+例如
+
+$$
+\boldsymbol F=(-y,x,0),
+$$
+
+其旋度为
+
+$$
+\nabla\times\boldsymbol F=(0,0,2).
+$$
+
+沿 $xOy$ 平面内半径为 $a$ 的逆时针圆周积分：
+
+$$
+\begin{aligned} \oint_C(-y\,dx+x\,dy) &=\iint_{x^2+y^2\le a^2}2\,dxdy\\ &=\boxed{2\pi a^2}. \end{aligned}
+$$
+
+这也是格林公式的典型应用。
+
+### 3. 李林880典型练习：闭曲线上的梯度积分
+
+设 $L$ 为任意分段光滑闭曲线，求
+
+$$
+I=\oint_L\nabla\sin(x+y+z)\cdot d\boldsymbol r.
+$$
+
+令
+
+$$
+u=\sin(x+y+z).
+$$
+
+由于被积向量场正是 $\nabla u$，所以
+
+$$
+\nabla u\cdot d\boldsymbol r=du.
+$$
+
+因此
+
+$$
+\boxed{ I=\oint_Ldu=0 }.
+$$
+
+也可以先求
+
+$$
+\nabla\times(\nabla u)=\boldsymbol0
+$$
+
+再用满足条件的斯托克斯公式计算。
+
+不过直接认出全微分最简便。
+
+这道题和前面的两道计算，说明场论题应该先判断结构，而不是每次都机械代公式。
+
+## 十、考研做题时如何迅速判断方法？
+
+| 题面特征                                             | 第一反应                | 代表题             |
+| ------------------------------------------------ | ------------------- | --------------- |
+| 求 $\operatorname{div}\boldsymbol F$          | 分量对对应变量求导           | 1989数一          |
+| 求 $\operatorname{rot}\boldsymbol F$          | 三分量公式，特别注意第二项符号     | 2016、2018数一     |
+| 求 $\operatorname{div}(\operatorname{grad}u)$ | 立即识别 $\Delta u$ | 1993、2001数一     |
+| 给出两个向量的叉积                                        | 先算叉积，再微分            | 2026数一          |
+| $u=f(r)$                                     | 三维径向拉普拉斯公式          | 原创调和函数题         |
+| $\boldsymbol F=\phi(r)\boldsymbol r$         | 径向散度公式              | 李正元点源场          |
+| $\nabla\times\boldsymbol F=0$                | 检查定义域与势函数           | 绕 $z$ 轴场    |
+| $\nabla\cdot\boldsymbol F=0$                 | 检查奇点与闭曲面位置          | 点源场             |
+| 闭曲面通量                                            | 高斯公式                | 2009、2021数一等综合题 |
+| 空间闭曲线积分                                          | 斯托克斯公式              | 2022、2024数一等综合题 |
+| 任意闭路积分均为零                                        | 势函数、路径无关条件          | 全微分题            |
+| 任意足够小闭曲面通量均为零                                    | 推出散度为零              | 反求函数或参数         |
+
+## 十一、最容易犯的八类错误
+
+| 错误                                                       | 正确理解                      |
+| -------------------------------------------------------- | ------------------------- |
+| 散度三个分量全对 $x$ 求导                                      | 应为 $P_x+Q_y+R_z$      |
+| 旋度第二分量写成 $R_x-P_z$                                   | 应为 $P_z-R_x$          |
+| 先代指定点，再对场求导                                              | 先求偏导或算子结果，最后代点            |
+| 看到 $\operatorname{div}(\operatorname{grad}u)$ 不知如何处理 | 它就是 $\Delta u$        |
+| 把二维的 $\Delta\ln r=0$ 用到三维                            | 三维为 $1/r^2$，$r>0$ |
+| 认为旋度为零必然全局路径无关                                           | 需检查定义域及全局势函数              |
+| 认为散度为零则任何闭曲面通量为零                                         | 高斯公式要求内部无不允许的奇点           |
+| 认为散度、旋度都是数                                               | 散度是标量，旋度是向量               |
+
+还有一个更深的判断技巧：散度为零与旋度为零没有必然的互推关系。
+
+例如
+
+$$
+\boldsymbol F=(-y,x,0)
+$$
+
+满足
+
+$$
+\nabla\cdot\boldsymbol F=0,
+$$
+
+但是
+
+$$
+\nabla\times\boldsymbol F=(0,0,2)\ne\boldsymbol0.
+$$
+
+而
+
+$$
+\boldsymbol G=(x,y,z)
+$$
+
+满足
+
+$$
+\nabla\times\boldsymbol G=\boldsymbol0,
+$$
+
+但是
+
+$$
+\nabla\cdot\boldsymbol G=3\ne0.
+$$
+
+## 十二、分层自测
+
+### 练习 1：直接计算散度
+
+$\boldsymbol F=(x^2y,yz,zx)$，求 $\operatorname{div}\boldsymbol F$。
+
+**答案：** $\boxed{2xy+z+x}$。
+
+**解析：** 散度是各分量分别对对应坐标求偏导之和：$\partial_x(x^2y)+\partial_y(yz)+\partial_z(zx)$。
+
+### 练习 2：计算旋度
+
+$\boldsymbol F=(-y,x,0)$，求 $\nabla\times\boldsymbol F$。
+
+**答案：** $\boxed{(0,0,2)}$。
+
+**解析：** 只有第三分量非零，为 $\partial_xF_y-\partial_yF_x=1-(-1)=2$。
+
+### 练习 3：径向函数的拉普拉斯算子
+
+在三维空间的 $r>0$ 区域，求 $\Delta(r^{-2})$。
+
+**答案：** $\boxed{2r^{-4}}$。
+
+**解析：** 三维径向函数 $f(r)$ 满足 $\Delta f=f''+\dfrac2r f'$（$r>0$）。取 $f(r)=r^{-2}$，得到 $6r^{-4}-4r^{-4}=2r^{-4}$。
+
+### 练习 4：全局势函数与孤立奇点
+
+在 $\mathbb R^3\setminus\{\boldsymbol0\}$ 中，$\boldsymbol F=\boldsymbol r/r^3$ 是否存在全局势函数？
+
+**答案：** **存在**，可取 $\boxed{\varphi(\boldsymbol r)=-1/r+C}$。
+
+**解析：** 直接求导有 $\nabla(-1/r)=\boldsymbol r/r^3$。注意本题定义域是三维空间去掉原点，而不是平面去掉原点；孤立奇点并不妨碍这里存在全局势函数。全局势函数的存在也不代表穿过包围原点的球面的通量为零，因为场在球体内部有奇点。
+
+### 练习 5：梯度场的环流
+
+已知 $\boldsymbol F=\nabla(xyz)$，求任意分段光滑闭曲线 $L$ 上的
+
+$$
+\oint_L\boldsymbol F\cdot d\boldsymbol r.
+$$
+
+**答案：** $\boxed{0}$。
+
+**解析：** 由梯度场的基本定理，沿曲线积分等于势函数 $xyz$ 在终点与起点的差。闭曲线两端点相同，故积分为零。
+
+## 十三、场论与此前各节的知识联系
+
+场论可以理解为此前多元微积分内容的归纳，而不是一个孤立章节。
+
+| 前面学过的内容       | 场论中的统一表达                                                                                                             |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 方向导数、函数最大增长方向 | $D_{\boldsymbol e}u=\nabla u\cdot\boldsymbol e$                                                                 |
+| 等值面的切平面与法线    | $\nabla F$ 是等值面的法向量                                                                                              |
+| 第二类曲线积分与路径无关  | $\boldsymbol F=\nabla u$                                                                                         |
+| 格林公式          | 平面上的旋度分量 $Q_x-P_y$                                                                                               |
+| 第二类曲面积分的通量    | $\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS$                                                              |
+| 高斯公式          | $\oiint_{\partial\Omega}\boldsymbol F\cdot\boldsymbol n\,dS=\iiint_\Omega\nabla\cdot\boldsymbol F\,dV$       |
+| 斯托克斯公式        | $\oint_{\partial S}\boldsymbol F\cdot d\boldsymbol r=\iint_S(\nabla\times\boldsymbol F)\cdot\boldsymbol n\,dS$ |
+| 调和函数          | $\Delta u=0$                                                                                                     |
+
+特别要记住高斯和斯托克斯的区别：
+
+$$
+\boxed{ \text{高斯：闭曲面通量} \longleftrightarrow \text{体内散度} }
+$$
+
+$$
+\boxed{ \text{斯托克斯：闭曲线环流} \longleftrightarrow \text{跨界面旋度} }
+$$
+
+它们都体现从局部微分到整体积分的转换，但对应的几何对象完全不同。
+
+## 十四、本节复习建议与最终总结
+
+本节建议分成三个层次复习。
+
+第一层：必须快速准确。 熟练掌握散度、旋度及 $\operatorname{div}(\operatorname{grad}u)$，重点练习1989、1993、2001、2016、2018年的真题。这一层的目标是不会算错偏导对应关系、旋度符号和代点顺序。
+
+第二层：必须形成结构意识。 对于2026年“叉积后求散度”的题目，要知道先做向量代数，再使用微分算子；对于径向函数，要优先选择径向公式，避免大量重复偏导。
+
+第三层：必须理解公式条件。 对于李正元点源场和核心题库的绕轴场，应能独立解释：为什么旋度为零不总能推出路径无关，为什么散度为零也不总能推出包围奇点的闭曲面通量为零。
+
+最终把第9模块第7节压缩成下面四条公式：
+
+$$
+\boxed{ \begin{aligned} \operatorname{grad}u&=\nabla u,\\ \operatorname{div}\boldsymbol F&=\nabla\cdot\boldsymbol F,\\ \operatorname{rot}\boldsymbol F&=\nabla\times\boldsymbol F,\\ \Delta u&=\nabla\cdot(\nabla u). \end{aligned} }
+$$
+
+再配合三个结构关系：
+
+$$
+\boxed{ \nabla\times\nabla u=\boldsymbol0,\qquad \nabla\cdot(\nabla\times\boldsymbol F)=0,\qquad \Delta f(r)=f''(r)+\frac2r f'(r) }
+$$
+
+最后牢记整个模块九最有价值的判断原则：
+
+先看积分或算子的结构，再检查定义域与正则条件，最后选择最简便的计算方法。
+
+至此，模块九从二重积分、三重积分、两类曲线积分、两类曲面积分到场论，已经形成一套统一的考研数学一知识体系。

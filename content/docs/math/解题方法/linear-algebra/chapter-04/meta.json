@@ -1,0 +1,9 @@
+{
+  "title": "第四章 特征值与特征向量",
+  "pages": [
+    "01-eigenvalues-and-eigenvectors",
+    "02-similarity-and-diagonalization",
+    "03-real-symmetric-matrices"
+  ],
+  "defaultOpen": true
+}

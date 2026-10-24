@@ -1,0 +1,11 @@
+{
+  "title": "高等数学第3模块 · 微分中值定理",
+  "pages": [
+    "01-zero-intermediate-value",
+    "02-taylor-theorem",
+    "03-rolle-theorem",
+    "04-lagrange-theorem",
+    "05-cauchy-theorem"
+  ],
+  "defaultOpen": true
+}

@@ -1,0 +1,12 @@
+{
+  "title": "背诵手册",
+  "description": "肖秀荣背诵手册88个专题，按考点总结的章节结构合并为各章一篇。",
+  "pages": [
+    "marxism-principles",
+    "mao-zedong-thought",
+    "xi-jinping-thought",
+    "modern-chinese-history",
+    "ideology-morality-law"
+  ],
+  "defaultOpen": false
+}

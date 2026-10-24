@@ -1,0 +1,13 @@
+{
+  "title": "第三章 向量与线性方程组",
+  "pages": [
+    "01-linear-representation",
+    "02-linear-dependence",
+    "03-maximal-independent-set-and-rank",
+    "04-homogeneous-linear-systems",
+    "05-nonhomogeneous-linear-systems",
+    "06-common-solutions-and-equivalent-systems",
+    "07-math-i-vector-spaces-bases-coordinates"
+  ],
+  "defaultOpen": true
+}

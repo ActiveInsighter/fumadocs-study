@@ -1,0 +1,9 @@
+{
+  "title": "第五章 数理统计",
+  "pages": [
+    "01-statistics-and-sampling-distributions",
+    "02-point-estimation",
+    "03-confidence-intervals-and-hypothesis-testing"
+  ],
+  "defaultOpen": true
+}

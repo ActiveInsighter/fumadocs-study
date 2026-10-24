@@ -1,0 +1,14 @@
+{
+  "title": "高等数学第1模块 · 函数、极限与连续",
+  "pages": [
+    "01-functions-basics",
+    "02-limit-properties",
+    "03-function-limits",
+    "04-sequence-limits",
+    "05-infinitesimal-order",
+    "06-limit-parameter",
+    "07-continuity-discontinuity",
+    "08-asymptotes"
+  ],
+  "defaultOpen": true
+}

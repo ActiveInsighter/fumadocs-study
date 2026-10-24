@@ -1,0 +1,13 @@
+{
+  "title": "高等数学第2模块 · 导数与微分",
+  "pages": [
+    "01-derivative-definition",
+    "02-derivative-computation",
+    "03-derivative-applications",
+    "04-antiderivative-derivative",
+    "05-curvature",
+    "06-physical-applications",
+    "07-economic-applications"
+  ],
+  "defaultOpen": true
+}

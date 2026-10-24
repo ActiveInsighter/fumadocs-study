@@ -1,0 +1,11 @@
+{
+  "title": "高等数学第6模块 · 多元函数微分学及其应用",
+  "pages": [
+    "01-continuity-partial-derivatives-differentiability",
+    "02-partial-derivative-computations",
+    "03-local-extrema-global-extrema",
+    "04-directional-derivatives-gradient",
+    "05-geometric-applications-multivariable"
+  ],
+  "defaultOpen": true
+}

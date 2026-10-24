@@ -1,0 +1,11 @@
+{
+  "title": "线性代数",
+  "pages": [
+    "chapter-01",
+    "chapter-02",
+    "chapter-03",
+    "chapter-04",
+    "chapter-05"
+  ],
+  "defaultOpen": true
+}

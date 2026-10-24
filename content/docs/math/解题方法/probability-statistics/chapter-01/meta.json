@@ -1,0 +1,10 @@
+{
+  "title": "第一章 随机事件与概率",
+  "pages": [
+    "01-random-events-and-probability-properties",
+    "02-simple-probability-models",
+    "03-conditional-probability-and-independence",
+    "04-law-of-total-probability"
+  ],
+  "defaultOpen": true
+}

@@ -1,0 +1,8 @@
+{
+  "title": "第三章 数字特征",
+  "pages": [
+    "01-expectation-and-variance",
+    "02-covariance-and-correlation"
+  ],
+  "defaultOpen": true
+}

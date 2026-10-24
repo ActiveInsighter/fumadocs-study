@@ -1,0 +1,10 @@
+{
+  "title": "第二章 矩阵",
+  "pages": [
+    "01-matrix-properties-operations",
+    "02-inverse-matrix",
+    "03-elementary-transformations",
+    "04-matrix-rank"
+  ],
+  "defaultOpen": true
+}

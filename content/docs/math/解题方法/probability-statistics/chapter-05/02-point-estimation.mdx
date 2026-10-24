@@ -1,0 +1,1982 @@
+---
+title: "第二节 点估计"
+description: "矩估计、最大似然估计、参数约束、无偏性、有效性、均方误差及相合性。"
+---
+
+## 本节思维导图
+
+```mindmap
+# 点估计
+## 基础
+### 参数、估计量与估计值
+### 总体矩与样本矩
+## 估计方法
+### 矩估计
+### 最大似然估计
+#### 对数似然与导数
+#### 参数约束与样本极值
+### 联合样本和删失样本
+## 估计量评价
+### 无偏性
+### 有效性和方差
+### 均方误差 MSE
+### 相合性
+## 典型题型
+### 密度变换
+### 参数进入支持集
+### 联合估计
+### 最优权重
+### 自测题
+```
+
+## 本节学习目标与知识路线
+
+点估计的主线是根据样本构造未知参数的估计量，再讨论估计结果是否合理。重点掌握矩估计法、最大似然估计法及无偏性、有效性、均方误差与相合性的判断。
+
+$$
+\boxed{\text{总体与样本}\longrightarrow\text{构造矩或似然函数}
+\longrightarrow\hat\theta\longrightarrow\text{评价估计量}}
+$$
+
+解题关键：先辨别**参数化方式和取值范围**，再选择估计方法；若参数影响密度的支持集，还须保留取值区间所带来的约束。对求得的估计量，应根据题目要求分别计算期望、方差、均方误差，或证明其依概率相合。
+
+## 一、先把本节的知识结构看清
+
+未知总体参数
+
+$$
+\theta,\quad \mu,\quad \sigma^2,\quad \lambda
+$$
+
+抽取简单随机样本
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}F(x;\theta)
+$$
+
+矩估计法
+
+$$
+E_\theta X^k=A_k
+$$
+
+用样本矩匹配总体矩
+
+最大似然估计法
+
+$$
+\arg\max_\theta L(\theta)
+$$
+
+选择使观测数据最可能的参数
+
+获得估计量 $\hat\theta$，再评价其质量
+
+无偏性 · 方差与有效性 · MSE · 相合性
+
+对数学一而言，这一节最重要的能力不是背熟某一个分布的估计公式，而是看到一个陌生密度，就知道怎样构造似然函数、识别参数约束、求最大值，并进一步分析所得估计量的期望和方差。
+
+## 二、基础概念：点估计究竟在做什么？
+
+### 1. 参数、估计量、估计值
+
+设总体的概率分布中有未知参数 $\theta$。抽得样本
+
+$$
+X_1,X_2,\ldots,X_n.
+$$
+
+然后构造一个不含未知参数的统计量
+
+$$
+\boxed{\hat\theta=T(X_1,\ldots,X_n)}
+$$
+
+来估计 $\theta$。
+
+例如研究灯泡平均寿命，设总体服从均值为 $\theta$ 的指数分布。取 $n$ 个灯泡，使用
+
+$$
+\hat\theta=\bar X=\frac1n\sum_{i=1}^nX_i
+$$
+
+估计总体平均寿命。
+
+这里：
+
+- $\theta$ 是固定但未知的参数。
+- $\hat\theta$ 是随机的估计量。
+- 抽到具体样本后计算的 $\hat\theta(x_1,\ldots,x_n)$ 是估计值。
+
+点估计就是用一个具体数值估计未知参数，与下一节用随机区间估计参数的区间估计不同。
+
+### 2. 为什么需要不同的估计方法？
+
+假设真实总体均值是 $\mu$，如果样本独立同分布且总体期望存在，用 $\bar X$ 估计 $\mu$ 是很自然的选择。
+
+但是，如果未知参数是总体分布的右端点，如
+
+$$
+X\sim U(0,\theta),
+$$
+
+样本均值只是反映中间位置，而样本最大值 $X_{(n)}$ 直接反映右端点的信息。
+
+因此不同估计方法可能产生不同结果：
+
+$$
+\hat\theta_M=2\bar X, \qquad \hat\theta_{ML}=X_{(n)}.
+$$
+
+它们分别是矩估计量和最大似然估计量。
+
+并且：
+
+矩估计、最大似然估计、无偏估计、最小均方误差估计是不同概念，不能相互等同。
+
+## 三、矩估计法：最直接的参数估计方法
+
+### 1. 核心原理
+
+如果总体分布含参数 $\theta$，其第 $k$ 阶原点矩为
+
+$$
+\mu_k'(\theta)=E_\theta(X^k),
+$$
+
+而样本的第 $k$ 阶原点矩为
+
+$$
+A_k=\frac1n\sum_{i=1}^nX_i^k,
+$$
+
+那么矩估计法就是建立
+
+$$
+\boxed{\mu_k'(\theta)=A_k}
+$$
+
+并求解未知参数。
+
+可以理解成：总体矩不可直接观察，但样本矩可以计算，因此用样本矩作为总体矩的替代。
+
+### 2. 一个未知参数
+
+若
+
+$$
+EX=g(\theta),
+$$
+
+通常令
+
+$$
+g(\theta)=\bar X
+$$
+
+解得
+
+$$
+\hat\theta_M=g^{-1}(\bar X),
+$$
+
+前提是相应逆变换存在，解也符合参数空间的要求。
+
+常见模型如下。
+
+| 总体分布                              | 总体期望            | 一阶矩估计                      |
+| --------------------------------- | --------------- | -------------------------- |
+| $N(\mu,\sigma^2)$，估 $\mu$ | $\mu$       | $\hat\mu=\bar X$       |
+| $U(0,\theta)$                 | $\theta/2$  | $\hat\theta=2\bar X$   |
+| $P(\lambda)$                  | $\lambda$   | $\hat\lambda=\bar X$   |
+| $B(1,p)$                      | $p$         | $\hat p=\bar X$        |
+| 指数分布，率参数 $\lambda$            | $1/\lambda$ | $\hat\lambda=1/\bar X$ |
+
+指数分布的参数化特别容易考错：
+
+$$
+f(x;\lambda)=\lambda e^{-\lambda x},\quad x>0,
+$$
+
+其中 $\lambda$ 是率参数，均值为 $1/\lambda$。
+
+如果改用均值参数 $\theta$，密度则是
+
+$$
+f(x;\theta)=\frac1\theta e^{-x/\theta},\quad x>0,
+$$
+
+此时
+
+$$
+EX=\theta,\qquad \hat\theta_M=\bar X.
+$$
+
+两种写法描述同一分布族，但未知参数的含义不同。
+
+### 3. 两个未知参数
+
+若总体有 $\theta_1,\theta_2$ 两个未知参数，可尝试建立
+
+$$
+\begin{cases} EX=A_1=\bar X,\\ EX^2=A_2=\dfrac1n\sum X_i^2. \end{cases}
+$$
+
+例如
+
+$$
+X\sim N(\mu,\sigma^2),
+$$
+
+有
+
+$$
+EX=\mu,\qquad EX^2=\mu^2+\sigma^2.
+$$
+
+于是
+
+$$
+\boxed{\hat\mu_M=\bar X}
+$$
+
+$$
+\boxed{ \hat\sigma_M^2 =\frac1n\sum_{i=1}^nX_i^2-\bar X^2 =\frac1n\sum_{i=1}^n(X_i-\bar X)^2 }.
+$$
+
+注意：这里得到的是分母为 $n$ 的样本二阶中心矩，不是分母为 $n-1$ 的无偏样本方差 $S^2$。
+
+### 4. 一阶矩不含未知参数怎么办？
+
+例如
+
+$$
+X\sim U(-\theta,\theta),\qquad \theta>0.
+$$
+
+由于分布对称，
+
+$$
+EX=0.
+$$
+
+这个式子无法识别 $\theta$。
+
+于是改用二阶矩：
+
+$$
+EX^2=\frac{\theta^2}{3}.
+$$
+
+令
+
+$$
+\frac{\theta^2}{3}=\frac1n\sum X_i^2,
+$$
+
+得到
+
+$$
+\boxed{ \hat\theta_M=\sqrt{\frac3n\sum_{i=1}^nX_i^2} }.
+$$
+
+这里还必须用到参数条件 $\theta>0$，所以取正平方根。
+
+矩估计的关键判断：优先找能识别未知参数、计算又尽量简单的矩，而不是机械地只会用一阶矩。
+
+## 四、最大似然估计法：本节最重要的解题方法
+
+### 1. 最大似然的直观理解
+
+最大似然估计，英文 Maximum Likelihood Estimation，简称 MLE。
+
+它的核心思想是：
+
+> 已经观察到一组样本数据，那么选择一个参数，使这组数据在该参数所描述的概率模型下具有最大的似然值。
+
+例如抛硬币 10 次，出现 7 次正面。
+
+如果正面概率未知，记为 $p$，那么直观上 $p=0.7$ 比 $p=0.1$ 更符合观测结果。
+
+最大似然估计就是把这种直观判断变成严格的数学优化问题。
+
+需要特别区分：连续随机变量在某一点的概率通常为零，连续总体的似然使用的是概率密度的乘积，而不是各观测值的单点概率。
+
+### 2. 似然函数的定义
+
+设
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}f(x;\theta),
+$$
+
+得到观测值
+
+$$
+x_1,\ldots,x_n.
+$$
+
+则似然函数为
+
+$$
+\boxed{ L(\theta)=\prod_{i=1}^nf(x_i;\theta) }.
+$$
+
+这里最重要的一点是：
+
+- 构造似然之前，$x_i$ 是已经观察到的固定数值。
+- 在似然函数 $L(\theta)$ 中，未知参数 $\theta$ 才是需要优化的变量。
+
+最大似然估计值定义为
+
+$$
+\boxed{ \hat\theta_{ML}\in\underset{\theta\in\Theta}{\arg\max}\,L(\theta) }.
+$$
+
+其中 $\Theta$ 为参数空间。
+
+### 3. 标准四步法
+
+1. 构造似然函数
+
+   
+
+$$
+L(\theta)=\prod_{i=1}^nf(x_i;\theta)
+$$
+
+   检查每个样本值对应的概率或密度，以及参数可行域。
+2. 取对数
+
+   
+
+$$
+\ell(\theta)=\ln L(\theta)
+$$
+
+   乘积化求和，指数变成线性项。只有在 $L(\theta)>0$ 的区域才能这样操作。
+3. 寻找极值候选点
+
+   
+
+$$
+\ell'(\theta)=0
+$$
+
+   必要时对多个未知参数求偏导。
+4. 验证最大值
+
+   检查二阶导数、导数变号、边界、参数限制，确认得到的是全局最大值而非仅仅一个驻点。
+
+尤其注意：$\ell'(\theta)=0$ 只是寻找候选点的一种方法，并不是最大似然估计的定义。
+
+当参数进入样本支持区间时，最大值经常出现在边界，甚至可能不唯一。
+
+### 4. 两个常用似然结构
+
+在计算中，应熟悉下面的形式。
+
+第一种：
+
+$$
+L(\theta)\propto \theta^a e^{-b\theta}, \qquad \theta>0,\ a,b>0.
+$$
+
+则
+
+$$
+\ell(\theta)=a\ln\theta-b\theta+C.
+$$
+
+求导：
+
+$$
+\ell'(\theta)=\frac a\theta-b.
+$$
+
+因此
+
+$$
+\boxed{\hat\theta=\frac ab}.
+$$
+
+第二种：
+
+$$
+L(\theta)\propto \theta^{-a}e^{-b/\theta}, \qquad \theta>0.
+$$
+
+则
+
+$$
+\ell(\theta)=-a\ln\theta-\frac b\theta+C.
+$$
+
+求导：
+
+$$
+\ell'(\theta)=-\frac a\theta+\frac b{\theta^2}.
+$$
+
+所以
+
+$$
+\boxed{\hat\theta=\frac ba}.
+$$
+
+看起来结果一样，但两种模型中参数的含义不同。第一种经常用于指数分布的率参数，第二种经常用于均值或尺度参数。
+
+## 五、代表题精讲：矩估计与最大似然的比较
+
+### 例 1｜1997 年数学一真题：两种估计方法为何不同
+
+设总体密度为
+
+$$
+f(x;\theta)= \begin{cases} (\theta+1)x^\theta,&0<x<1,\\ 0,&\text{其他}, \end{cases}
+$$
+
+其中 $\theta>-1$。
+
+要求分别用矩估计法和最大似然估计法求 $\theta$。
+
+#### 解法一：矩估计
+
+首先计算总体期望：
+
+$$
+\begin{aligned} EX &=\int_0^1x(\theta+1)x^\theta\,dx\\ &=(\theta+1)\int_0^1x^{\theta+1}\,dx\\ &=\frac{\theta+1}{\theta+2}. \end{aligned}
+$$
+
+令
+
+$$
+\bar X=\frac{\theta+1}{\theta+2}.
+$$
+
+整理：
+
+$$
+\bar X(\theta+2)=\theta+1.
+$$
+
+$$
+\theta(\bar X-1)=1-2\bar X.
+$$
+
+所以
+
+$$
+\boxed{ \hat\theta_M=\frac{2\bar X-1}{1-\bar X} }.
+$$
+
+#### 解法二：最大似然估计
+
+似然函数为
+
+$$
+L(\theta) =(\theta+1)^n\prod_{i=1}^nx_i^\theta.
+$$
+
+取对数：
+
+$$
+\ell(\theta)=n\ln(\theta+1)+\theta\sum_{i=1}^n\ln x_i.
+$$
+
+一阶导数：
+
+$$
+\ell'(\theta)=\frac n{\theta+1}+\sum_{i=1}^n\ln x_i.
+$$
+
+令导数等于零：
+
+$$
+\frac n{\theta+1} =-\sum_{i=1}^n\ln x_i.
+$$
+
+得到
+
+$$
+\boxed{ \hat\theta_{ML} =-1-\frac n{\sum_{i=1}^n\ln X_i} }.
+$$
+
+因为每个样本都满足 $0<X_i<1$，所以
+
+$$
+\sum_{i=1}^n\ln X_i<0,
+$$
+
+从而估计结果满足 $\hat\theta_{ML}>-1$。
+
+并且
+
+$$
+\ell''(\theta)=-\frac n{(\theta+1)^2}<0,
+$$
+
+因此它是唯一的极大值点。
+
+#### 两种方法的比较
+
+| 比较项目    | 矩估计                               | 最大似然                           |
+| ------- | --------------------------------- | ------------------------------ |
+| 核心依据    | 总体矩与样本矩匹配                         | 最大化似然函数                        |
+| 使用的样本信息 | $\bar X$                      | $\sum\ln X_i$              |
+| 结果      | $\dfrac{2\bar X-1}{1-\bar X}$ | $-1-\dfrac n{\sum\ln X_i}$ |
+| 主要运算    | 积分、解方程                            | 连乘、对数、求导                       |
+
+本题特别值得掌握，因为它说明：矩估计与最大似然估计一般不相同，不能认为它们只是同一公式的两种推导。
+
+## 六、变量变换型最大似然：2017 年数学一真题
+
+核心考点：随机变量函数的分布 + 矩估计 + MLE
+
+设
+
+$$
+X_i\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2),
+$$
+
+其中 $\mu$ 已知，$\sigma>0$ 未知。
+
+实际记录的是绝对误差
+
+$$
+Z_i=|X_i-\mu|.
+$$
+
+要求求 $Z_i$ 的密度，并分别求 $\sigma$ 的矩估计与最大似然估计。
+
+### 第一步：先求新随机变量的分布
+
+令
+
+$$
+Y=X-\mu\sim N(0,\sigma^2).
+$$
+
+因此
+
+$$
+Z=|Y|.
+$$
+
+对 $z\ge0$，
+
+$$
+\begin{aligned} F_Z(z) &=P(|Y|\le z)\\ &=P(-z\le Y\le z)\\ &=2\Phi\left(\frac z\sigma\right)-1. \end{aligned}
+$$
+
+对 $z>0$ 求导，得到
+
+$$
+\boxed{ f_Z(z;\sigma)= \frac{\sqrt2}{\sqrt\pi\sigma} e^{-z^2/(2\sigma^2)},\qquad z>0 }.
+$$
+
+这称为半正态分布。
+
+### 第二步：求矩估计量
+
+已知
+
+$$
+EZ=\sigma\sqrt{\frac2\pi}.
+$$
+
+也可以直接由积分推导：
+
+$$
+\begin{aligned} EZ &=\int_0^\infty z\frac{\sqrt2}{\sqrt\pi\sigma} e^{-z^2/(2\sigma^2)}\,dz\\ &=\sigma\sqrt{\frac2\pi}. \end{aligned}
+$$
+
+令总体一阶矩等于样本一阶矩：
+
+$$
+\bar Z=\sigma\sqrt{\frac2\pi}.
+$$
+
+得到
+
+$$
+\boxed{ \hat\sigma_M=\sqrt{\frac\pi2}\,\bar Z }.
+$$
+
+### 第三步：求最大似然估计量
+
+由半正态密度，
+
+$$
+L(\sigma) =\left(\frac{\sqrt2}{\sqrt\pi\sigma}\right)^n \exp\left(-\frac1{2\sigma^2}\sum_{i=1}^nz_i^2\right).
+$$
+
+对数似然函数：
+
+$$
+\ell(\sigma) =C-n\ln\sigma-\frac1{2\sigma^2}\sum_{i=1}^nz_i^2.
+$$
+
+求导：
+
+$$
+\ell'(\sigma) =-\frac n\sigma+\frac{\sum z_i^2}{\sigma^3}.
+$$
+
+令其等于零：
+
+$$
+n\sigma^2=\sum z_i^2.
+$$
+
+因为 $\sigma>0$，所以
+
+$$
+\boxed{ \hat\sigma_{ML}=\sqrt{\frac1n\sum_{i=1}^nZ_i^2} }.
+$$
+
+两种估计结果明显不同：
+
+$$
+\boxed{ \hat\sigma_M =\sqrt{\frac\pi2}\frac1n\sum Z_i, \qquad \hat\sigma_{ML} =\sqrt{\frac1n\sum Z_i^2} }.
+$$
+
+本题的判断技巧是：只要题目没有直接给出 $X_i$，而是记录 $g(X_i)$，就应先研究新变量 $g(X)$ 的分布，再构造估计。
+
+## 七、参数进入支持集：2015 年数学一真题
+
+核心考点：参数约束、样本最小值、边界 MLE
+
+设
+
+$$
+X\sim U(\theta,1),\qquad \theta<1.
+$$
+
+求 $\theta$ 的矩估计量与最大似然估计量。
+
+### 1. 矩估计
+
+均匀分布的总体均值：
+
+$$
+EX=\frac{\theta+1}{2}.
+$$
+
+因此
+
+$$
+\bar X=\frac{\theta+1}{2}.
+$$
+
+得到
+
+$$
+\boxed{\hat\theta_M=2\bar X-1}.
+$$
+
+### 2. 最大似然估计
+
+密度为
+
+$$
+f(x;\theta)=\frac1{1-\theta}I_{\{\theta\le x\le1\}}.
+$$
+
+因此
+
+$$
+L(\theta) =(1-\theta)^{-n} I_{\{\theta\le X_{(1)}\}},
+$$
+
+这里
+
+$$
+X_{(1)}=\min(X_1,\ldots,X_n).
+$$
+
+似然非零要求：
+
+$$
+\theta\le X_{(1)}.
+$$
+
+而在可行范围内，
+
+$$
+L(\theta)=(1-\theta)^{-n}
+$$
+
+随 $\theta$ 增大而增大。
+
+所以最大值在允许的最右端取得：
+
+$$
+\boxed{\hat\theta_{ML}=X_{(1)}}.
+$$
+
+此题根本不需要求导等于零。
+
+### 3. 为什么是样本最小值？
+
+因为 $\theta$ 是总体取值区间的左端点。
+
+观测到的所有样本必须满足
+
+$$
+X_i\ge\theta.
+$$
+
+因此样本最小值提供了 $\theta$ 的直接限制：
+
+$$
+\theta\le \min X_i.
+$$
+
+似然函数又偏好尽可能大的 $\theta$，两者结合就得到样本最小值。
+
+对于
+
+$$
+X\sim U(0,\theta)
+$$
+
+则刚好相反：
+
+$$
+\boxed{\hat\theta_{ML}=X_{(n)}=\max X_i}.
+$$
+
+可以记成：
+
+- 估计未知右端点：经常看样本最大值。
+- 估计未知左端点：经常看样本最小值。
+
+但这只是常见模式，最后仍须由似然函数的单调性决定。
+
+### 4. 最大似然估计不一定唯一
+
+李林 880 有一个典型强化模型：
+
+$$
+X\sim U\left(\theta-\frac12,\theta+\frac12\right).
+$$
+
+要求 $\theta$ 的 MLE。
+
+因为该区间长度恒为 $1$，只要所有样本都在区间内，似然函数就是常数 $1$。
+
+支持集约束为
+
+$$
+\theta-\frac12\le X_i\le\theta+\frac12.
+$$
+
+整理得
+
+$$
+X_i-\frac12\le\theta\le X_i+\frac12.
+$$
+
+对所有 $i$ 同时成立，因此
+
+$$
+\boxed{ X_{(n)}-\frac12 \le\hat\theta_{ML} \le X_{(1)}+\frac12 }.
+$$
+
+所以最大似然估计值不是唯一的，而是一个区间内的任意允许值。
+
+这个题型提醒：
+
+$$
+\boxed{\text{MLE 的定义是取最大值，不要求唯一。}}
+$$
+
+## 八、离散分布：先数频数，再写似然
+
+这是核心题库收录的一道 2021 年数学三题，适合作为数学一的迁移训练。
+
+设
+
+$$
+P(X=1)=\frac{1-\theta}{2},
+$$
+
+$$
+P(X=2)=P(X=3)=\frac{1+\theta}{4}.
+$$
+
+样本值为
+
+$$
+1,3,2,2,1,3,1,2.
+$$
+
+求最大似然估计值。
+
+### 第一步：统计频数
+
+| 观测值 | 次数 |
+| --- | -- |
+| 1   | 3  |
+| 2   | 3  |
+| 3   | 2  |
+
+因为 $X=2,3$ 对应的概率相同，所以可合并为 5 次。
+
+似然函数为
+
+$$
+L(\theta) = \left(\frac{1-\theta}{2}\right)^3 \left(\frac{1+\theta}{4}\right)^5.
+$$
+
+忽略与参数无关的正数常量：
+
+$$
+L(\theta)\propto(1-\theta)^3(1+\theta)^5.
+$$
+
+### 第二步：取对数并求导
+
+$$
+\ell(\theta)=3\ln(1-\theta)+5\ln(1+\theta)+C.
+$$
+
+因此
+
+$$
+\ell'(\theta) =-\frac3{1-\theta}+\frac5{1+\theta}.
+$$
+
+令导数为零：
+
+$$
+-3(1+\theta)+5(1-\theta)=0.
+$$
+
+得到
+
+$$
+2-8\theta=0.
+$$
+
+所以
+
+$$
+\boxed{\hat\theta_{ML}=\frac14}.
+$$
+
+### 第三步：检查最大性
+
+$$
+\ell''(\theta) =-\frac3{(1-\theta)^2}-\frac5{(1+\theta)^2}<0.
+$$
+
+在可行参数范围内该驻点确实是最大值。
+
+离散型题目最重要的技巧：
+
+$$
+\boxed{ \text{先统计各取值出现次数} \rightarrow \text{按频数构造似然} }
+$$
+
+而不是把所有概率因子一个一个展开相乘。
+
+## 九、两组样本联合估计：2022 年数学一真题
+
+核心考点：不同尺度的指数分布 + 联合似然 + 方差
+
+设
+
+$$
+X_1,\ldots,X_n
+$$
+
+来自均值为 $\theta$ 的指数总体，
+
+$$
+Y_1,\ldots,Y_m
+$$
+
+来自均值为 $2\theta$ 的指数总体，且全部样本相互独立。
+
+要求求 $\theta$ 的最大似然估计量及其方差。
+
+### 第一步：写两个总体密度
+
+$$
+f_X(x;\theta)=\frac1\theta e^{-x/\theta}, \qquad x>0,
+$$
+
+$$
+f_Y(y;\theta)=\frac1{2\theta}e^{-y/(2\theta)}, \qquad y>0.
+$$
+
+### 第二步：构造联合似然
+
+由于两组样本相互独立，
+
+$$
+L(\theta)=L_X(\theta)L_Y(\theta).
+$$
+
+整理得到
+
+$$
+L(\theta) =2^{-m}\theta^{-(n+m)} \exp\left[ -\frac1\theta\left( \sum_{i=1}^nx_i+\frac12\sum_{j=1}^my_j \right) \right].
+$$
+
+### 第三步：取对数并求导
+
+$$
+\ell(\theta) =C-(n+m)\ln\theta -\frac1\theta\left(\sum x_i+\frac12\sum y_j\right).
+$$
+
+因此
+
+$$
+\ell'(\theta) =-\frac{n+m}{\theta} +\frac{\sum x_i+\frac12\sum y_j}{\theta^2}.
+$$
+
+令导数为零，得到
+
+$$
+\boxed{ \hat\theta_{ML} =\frac{\sum_{i=1}^nX_i+\frac12\sum_{j=1}^mY_j}{n+m} }.
+$$
+
+### 第四步：计算方差
+
+因为指数分布方差等于均值的平方，
+
+$$
+DX_i=\theta^2, \qquad DY_j=4\theta^2.
+$$
+
+于是
+
+$$
+\begin{aligned} D\hat\theta_{ML} &=\frac1{(n+m)^2} \left[n\theta^2+\frac14m(4\theta^2)\right]\\ &=\boxed{\frac{\theta^2}{n+m}}. \end{aligned}
+$$
+
+### 另一种理解：先统一尺度
+
+令
+
+$$
+Z_j=\frac{Y_j}{2}.
+$$
+
+则
+
+$$
+EZ_j=\theta,\qquad DZ_j=\theta^2,
+$$
+
+而且 $Z_j$ 和 $X_i$ 都服从同一个均值为 $\theta$ 的指数分布。
+
+因此原题相当于获得了 $n+m$ 个来自相同指数总体的独立观测。
+
+MLE 就是这 $n+m$ 个变量的平均：
+
+$$
+\hat\theta_{ML} =\frac{\sum X_i+\sum Z_j}{n+m}.
+$$
+
+这种理解更快，也能帮助记忆最终结果。
+
+本题不应该先独立估计 $\theta$ 两次，再主观地把两种估计平均。正确权重由联合似然和实际样本量决定。
+
+## 十、寿命分布综合题：2020 年数学一真题
+
+本题涉及 Weibull 型寿命分布，是“分布函数—密度—概率—最大似然”的综合模型。
+
+设元件寿命 $T$ 的分布函数为
+
+$$
+F(t)= \begin{cases} 1-e^{-(t/\theta)^m},&t\ge0,\\ 0,&t<0, \end{cases}
+$$
+
+其中 $\theta>0,m>0$，在估计问题中 $m$ 已知。
+
+### 1. 求生存概率
+
+$$
+P(T>t)=1-F(t).
+$$
+
+因此
+
+$$
+\boxed{ P(T>t)=e^{-(t/\theta)^m} }.
+$$
+
+### 2. 求条件生存概率
+
+由条件概率，
+
+$$
+P(T>s+t\mid T>s) =\frac{P(T>s+t)}{P(T>s)}.
+$$
+
+代入：
+
+$$
+\boxed{ P(T>s+t\mid T>s) = \exp\left[-\frac{(s+t)^m-s^m}{\theta^m}\right] }.
+$$
+
+这里有一个很重要的前后知识联系：
+
+当 $m=1$ 时，
+
+$$
+P(T>s+t\mid T>s)=e^{-t/\theta}.
+$$
+
+它与已经使用的时间 $s$ 无关，表现出指数分布的无记忆性。
+
+当 $m\ne1$ 时，一般不具有这种性质。
+
+### 3. 求密度
+
+对分布函数求导：
+
+$$
+f(t;\theta) =\frac{m}{\theta^m}t^{m-1}e^{-t^m/\theta^m}, \qquad t>0.
+$$
+
+### 4. 最大似然估计
+
+样本观测为 $t_1,\ldots,t_n$，则
+
+$$
+L(\theta) =\prod_{i=1}^n \frac{m}{\theta^m}t_i^{m-1} e^{-t_i^m/\theta^m}.
+$$
+
+取对数：
+
+$$
+\ell(\theta) =C-mn\ln\theta-\frac1{\theta^m}\sum_{i=1}^nt_i^m.
+$$
+
+求导：
+
+$$
+\ell'(\theta) =-\frac{mn}{\theta} +\frac{m}{\theta^{m+1}}\sum t_i^m.
+$$
+
+令导数为零：
+
+$$
+n\theta^m=\sum t_i^m.
+$$
+
+于是
+
+$$
+\boxed{ \hat\theta_{ML} = \left(\frac1n\sum_{i=1}^nT_i^m\right)^{1/m} }.
+$$
+
+### 5. 一个更快的变量变换方法
+
+令
+
+$$
+Y=T^m.
+$$
+
+则对 $y\ge0$，
+
+$$
+P(Y\le y) =1-e^{-y/\theta^m}.
+$$
+
+因此
+
+$$
+Y\sim \operatorname{Exp}(\text{均值 }\theta^m).
+$$
+
+于是 $\theta^m$ 的 MLE 为
+
+$$
+\widehat{\theta^m}=\frac1n\sum T_i^m.
+$$
+
+再利用最大似然估计的不变性，得到
+
+$$
+\hat\theta =\left(\frac1n\sum T_i^m\right)^{1/m}.
+$$
+
+两种方法都正确。第二种方法的优势是先将复杂寿命分布化成熟悉的指数分布。
+
+## 十一、估计量的四种评价标准
+
+前面解决的是“怎样估计”。现在进入本节另一核心部分：“怎样判断估计量好不好”。
+
+### 1. 无偏性
+
+若估计量 $\hat\theta$ 满足
+
+$$
+\boxed{E_\theta\hat\theta=\theta}
+$$
+
+对所有允许的 $\theta$ 成立，则称它是 $\theta$ 的无偏估计量。
+
+偏差定义为
+
+$$
+\boxed{ \operatorname{Bias}(\hat\theta) =E_\theta\hat\theta-\theta }.
+$$
+
+无偏性只要求平均意义下没有系统误差，并不保证一次估计必然接近真实值。
+
+### 2. 有效性
+
+如果两个估计量都无偏估计同一个参数，
+
+$$
+E\hat\theta_1=E\hat\theta_2=\theta,
+$$
+
+并且
+
+$$
+D\hat\theta_1<D\hat\theta_2,
+$$
+
+那么称 $\hat\theta_1$ 比 $\hat\theta_2$ 更有效。
+
+也就是说，在无偏的条件下，更喜欢波动较小的估计量。
+
+注意，“更有效”是一个相对比较结论。只比较两种估计量的方差，不能直接证明其中一个是所有无偏估计量中方差最小的估计量。
+
+### 3. 均方误差 MSE
+
+定义
+
+$$
+\operatorname{MSE}(\hat\theta) =E_\theta(\hat\theta-\theta)^2.
+$$
+
+展开：
+
+$$
+\begin{aligned} \operatorname{MSE}(\hat\theta) &=E[(\hat\theta-E\hat\theta)+(E\hat\theta-\theta)]^2\\ &=D\hat\theta+(E\hat\theta-\theta)^2. \end{aligned}
+$$
+
+因此
+
+$$
+\boxed{ \operatorname{MSE}(\hat\theta) =D\hat\theta+[\operatorname{Bias}(\hat\theta)]^2 }.
+$$
+
+这是本节非常重要的公式。
+
+它表明总误差有两个来源：
+
+- 随机波动带来的方差。
+- 系统性高估或低估带来的偏差。
+
+无偏估计量的 MSE 等于方差，但允许有偏时，降低方差有可能使总 MSE 更小。
+
+### 4. 相合性
+
+若估计量随样本量增大满足
+
+$$
+\hat\theta_n\xrightarrow{P}\theta,
+$$
+
+即对任意 $\varepsilon>0$，
+
+$$
+P_\theta(|\hat\theta_n-\theta|\ge\varepsilon)\to0,
+$$
+
+则称其为相合估计量。
+
+一个常用的充分条件是
+
+$$
+E\hat\theta_n\to\theta, \qquad D\hat\theta_n\to0.
+$$
+
+因为由切比雪夫不等式，
+
+$$
+P(|\hat\theta_n-E\hat\theta_n|\ge\varepsilon) \le\frac{D\hat\theta_n}{\varepsilon^2}.
+$$
+
+结合偏差趋零即可证明相合性。
+
+特别地，若估计量无偏，且
+
+$$
+D\hat\theta_n\to0,
+$$
+
+便可直接用切比雪夫不等式证明相合。
+
+### 四种标准的对比
+
+| 标准   | 看什么      | 核心判断                                   |
+| ---- | -------- | -------------------------------------- |
+| 无偏性  | 期望       | $E\hat\theta=\theta$               |
+| 有效性  | 无偏估计量的方差 | 方差越小越有效                                |
+| 均方误差 | 方差与偏差    | $\mathrm{MSE}=D+\mathrm{Bias}^2$   |
+| 相合性  | 大样本极限    | $\hat\theta_n\xrightarrow P\theta$ |
+
+## 十二、2024 年数学一真题：无偏与最小 MSE 为何不同
+
+本节最值得反复练习的估计量评选标准综合题
+
+设
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}U(0,\theta), \qquad \theta>0.
+$$
+
+记
+
+$$
+M=X_{(n)}=\max(X_1,\ldots,X_n),
+$$
+
+考虑估计量
+
+$$
+T_c=cM.
+$$
+
+求：
+
+（1）使 $T_c$ 无偏的 $c$。
+
+（2）使 $E(T_c-\theta)^2$ 最小的 $c$。
+
+### 第一步：先求最大次序统计量的分布
+
+当 $0<x<\theta$ 时，
+
+$$
+\begin{aligned} F_M(x) &=P(M\le x)\\ &=P(X_1\le x,\ldots,X_n\le x)\\ &=\left(\frac x\theta\right)^n. \end{aligned}
+$$
+
+所以
+
+$$
+f_M(x)=\frac{nx^{n-1}}{\theta^n}, \qquad 0<x<\theta.
+$$
+
+接下来求两个矩。
+
+一阶矩：
+
+$$
+\begin{aligned} EM &=\int_0^\theta x\frac{nx^{n-1}}{\theta^n}\,dx\\ &=\frac n{\theta^n}\frac{\theta^{n+1}}{n+1}\\ &=\boxed{\frac n{n+1}\theta}. \end{aligned}
+$$
+
+二阶矩：
+
+$$
+\begin{aligned} EM^2 &=\int_0^\theta x^2\frac{nx^{n-1}}{\theta^n}\,dx\\ &=\boxed{\frac n{n+2}\theta^2}. \end{aligned}
+$$
+
+### 第二步：求无偏系数
+
+无偏条件：
+
+$$
+E(cM)=\theta.
+$$
+
+代入：
+
+$$
+c\frac n{n+1}\theta=\theta.
+$$
+
+因此
+
+$$
+\boxed{ c_{\mathrm{unbiased}}=\frac{n+1}{n} }.
+$$
+
+即
+
+$$
+\hat\theta_U=\frac{n+1}{n}M
+$$
+
+是 $\theta$ 的无偏估计量。
+
+### 第三步：求最小 MSE 系数
+
+定义
+
+$$
+h(c)=E(cM-\theta)^2.
+$$
+
+展开：
+
+$$
+h(c)=c^2EM^2-2c\theta EM+\theta^2.
+$$
+
+代入前面的矩：
+
+$$
+h(c) =\theta^2\left[ \frac n{n+2}c^2 -\frac{2n}{n+1}c+1 \right].
+$$
+
+对 $c$ 求导：
+
+$$
+h'(c) =2\theta^2\left[ \frac n{n+2}c-\frac n{n+1} \right].
+$$
+
+令其等于零：
+
+$$
+\frac c{n+2}=\frac1{n+1}.
+$$
+
+得到
+
+$$
+\boxed{ c_{\mathrm{MSE}}=\frac{n+2}{n+1} }.
+$$
+
+由于 $h(c)$ 是开口向上的二次函数，该点确实取得全局最小值。
+
+### 第四步：比较两种结果
+
+无偏系数
+
+$$
+\frac{n+1}{n}
+$$
+
+目标：偏差等于零
+
+最小 MSE 系数
+
+$$
+\frac{n+2}{n+1}
+$$
+
+目标：平方误差期望最小
+
+还可以进一步计算两种 MSE。
+
+无偏估计的 MSE：
+
+$$
+\operatorname{MSE}(\hat\theta_U) =\boxed{\frac{\theta^2}{n(n+2)}}.
+$$
+
+最小 MSE 估计的 MSE：
+
+$$
+\operatorname{MSE}(\hat\theta_{\mathrm{MSE}}) =\boxed{\frac{\theta^2}{(n+1)^2}}.
+$$
+
+因为
+
+$$
+(n+1)^2=n(n+2)+1,
+$$
+
+所以第二种估计的 MSE 更小。
+
+本题结论：
+
+$$
+\boxed{ \text{无偏最优的目标与最小 MSE 的目标不相同。} }
+$$
+
+只要题目要求“使均方误差最小”，就不要先强加无偏条件。
+
+## 十三、无偏估计量的最优加权：典型强化题
+
+设 $\hat\theta_1,\hat\theta_2$ 都是 $\theta$ 的无偏估计量，且相互独立，
+
+$$
+D\hat\theta_1=v_1,\qquad D\hat\theta_2=v_2.
+$$
+
+考虑
+
+$$
+T=a\hat\theta_1+(1-a)\hat\theta_2.
+$$
+
+因为系数和为 $1$，所以
+
+$$
+ET=\theta.
+$$
+
+仍然无偏。
+
+由于两个估计量独立，
+
+$$
+DT=a^2v_1+(1-a)^2v_2.
+$$
+
+求导：
+
+$$
+\frac{d}{da}DT =2av_1-2(1-a)v_2.
+$$
+
+令其为零：
+
+$$
+av_1=(1-a)v_2.
+$$
+
+得到
+
+$$
+\boxed{ a=\frac{v_2}{v_1+v_2}, \qquad 1-a=\frac{v_1}{v_1+v_2} }.
+$$
+
+对应最小方差：
+
+$$
+\boxed{ D(T)_{\min}=\frac{v_1v_2}{v_1+v_2} }.
+$$
+
+这个结论可以理解为“精度越高，权重越大”。
+
+例如
+
+$$
+v_1=v,\qquad v_2=2v,
+$$
+
+则
+
+$$
+a=\frac23,\qquad 1-a=\frac13.
+$$
+
+方差较小的第一个估计量获得更大权重。
+
+如果两个估计量相关，必须改用
+
+$$
+DT=a^2v_1+(1-a)^2v_2 +2a(1-a)\operatorname{Cov}(\hat\theta_1,\hat\theta_2),
+$$
+
+不能直接套独立情况下的公式。
+
+## 十四、2026 年数学一第 22 题：删失样本与最大似然
+
+这道题已在 Fumadocs 分类真题及核心题库中核对到。
+
+它非常适合放在本节最后练习，因为它把样本极值、无偏性、指数分布、最大似然与删失观测结合到一起。
+
+### 题目模型
+
+设 $n$ 个元件寿命相互独立，并且服从均值为 $\theta$ 的指数分布：
+
+$$
+f(x;\theta)=\frac1\theta e^{-x/\theta}, \qquad x>0.
+$$
+
+试验同时开始，在观察到第 $k$ 个元件失效后停止。
+
+### 第一问：仅观察首次失效时刻
+
+设
+
+$$
+T=\min(X_1,\ldots,X_n).
+$$
+
+对 $t\ge0$，
+
+$$
+\begin{aligned} P(T>t) &=P(X_1>t,\ldots,X_n>t)\\ &=\prod_{i=1}^nP(X_i>t)\\ &=\left(e^{-t/\theta}\right)^n\\ &=e^{-nt/\theta}. \end{aligned}
+$$
+
+因此
+
+$$
+F_T(t)=1-e^{-nt/\theta}, \qquad t\ge0.
+$$
+
+求导得到
+
+$$
+\boxed{ f_T(t)=\frac n\theta e^{-nt/\theta}, \qquad t>0 }.
+$$
+
+于是
+
+$$
+ET=\frac{\theta}{n}, \qquad DT=\frac{\theta^2}{n^2}.
+$$
+
+若令
+
+$$
+\hat\theta=aT
+$$
+
+作为 $\theta$ 的无偏估计量，则
+
+$$
+aET=\theta.
+$$
+
+得到
+
+$$
+\boxed{a=n}.
+$$
+
+即
+
+$$
+\boxed{\hat\theta=nT}.
+$$
+
+其方差为
+
+$$
+D\hat\theta=n^2DT =\boxed{\theta^2}.
+$$
+
+这里有一个容易忽略的结论：
+
+虽然试验中有 $n$ 个元件，但如果只记录第一次失效时间，最终修正为无偏估计后，其方差仍为 $\theta^2$，不会仅仅因为 $n$ 增加而减小。
+
+这说明估计质量不只取决于参与试验的元件数量，还取决于实际使用了多少观测信息。
+
+### 第二问：观察到第 $k$ 个失效后停止
+
+设已失效元件寿命为
+
+$$
+t_1\le t_2\le\cdots\le t_k.
+$$
+
+有 $n-k$ 个元件尚未失效。
+
+注意，这些尚未失效的元件也提供信息：它们的寿命都大于 $t_k$。
+
+指数分布的生存函数为
+
+$$
+S(t)=P(X>t)=e^{-t/\theta}.
+$$
+
+因此，忽略不依赖于 $\theta$ 的常数，似然函数应同时包含：
+
+已失效元件的密度乘积：
+
+$$
+\prod_{i=1}^k\frac1\theta e^{-t_i/\theta},
+$$
+
+以及未失效元件的存活概率：
+
+$$
+[S(t_k)]^{n-k} =e^{-(n-k)t_k/\theta}.
+$$
+
+联合得到
+
+$$
+L(\theta)\propto \theta^{-k} \exp\left[ -\frac{\sum_{i=1}^kt_i+(n-k)t_k}{\theta} \right].
+$$
+
+令
+
+$$
+A=\sum_{i=1}^kt_i+(n-k)t_k.
+$$
+
+则
+
+$$
+\ell(\theta)=-k\ln\theta-\frac A\theta+C.
+$$
+
+求导：
+
+$$
+\ell'(\theta)=-\frac k\theta+\frac A{\theta^2}.
+$$
+
+令其为零：
+
+$$
+k\theta=A.
+$$
+
+所以
+
+$$
+\boxed{ \hat\theta_{ML} = \frac{\sum_{i=1}^kt_i+(n-k)t_k}{k} }.
+$$
+
+### 为什么分子多出 $(n-k)t_k$？
+
+因为剩余 $n-k$ 个元件虽然没有发生失效，但它们都至少工作到了时刻 $t_k$。
+
+可以将
+
+$$
+\sum_{i=1}^kt_i+(n-k)t_k
+$$
+
+理解为本次试验中所有元件累计的已观测工作时长。
+
+所以估计式具有非常自然的结构：
+
+$$
+\boxed{ \text{平均寿命估计} = \frac{\text{累计观测工作时长}}{\text{观测到的失效次数}} }.
+$$
+
+若 $k=n$，所有元件都已失效，那么
+
+$$
+\hat\theta_{ML} =\frac1n\sum_{i=1}^nX_i=\bar X.
+$$
+
+恰好回到完整指数样本的最大似然估计。
+
+若 $k=1$，则
+
+$$
+\hat\theta_{ML}=nt_1,
+$$
+
+与第一问的无偏估计结果一致。
+
+这是很好的答案自检方法。
+
+## 十五、典型练习中还需要掌握的两个扩展
+
+### 1. 最大似然估计的不变性
+
+若 $\hat\theta_{ML}$ 是 $\theta$ 的最大似然估计量，则在适当条件下，
+
+$$
+\boxed{\widehat{g(\theta)}_{ML}=g(\hat\theta_{ML})}.
+$$
+
+例如总体
+
+$$
+X\sim P(\lambda),
+$$
+
+则
+
+$$
+\hat\lambda_{ML}=\bar X.
+$$
+
+若要求
+
+$$
+P(X=0)=e^{-\lambda}
+$$
+
+的最大似然估计量，直接得到
+
+$$
+\boxed{\widehat{P(X=0)}_{ML}=e^{-\bar X}}.
+$$
+
+但必须区别：
+
+$$
+\widehat{g(\theta)}_{ML}=g(\hat\theta_{ML})
+$$
+
+不意味着
+
+$$
+E[g(\hat\theta_{ML})]=g(\theta).
+$$
+
+MLE 的不变性不能推出无偏性。
+
+例如即使
+
+$$
+E\bar X=\lambda,
+$$
+
+也一般不能推出
+
+$$
+E(e^{-\bar X})=e^{-\lambda}.
+$$
+
+因为期望不能随意穿过非线性函数。
+
+### 2. 样本极值估计量的修偏
+
+对于
+
+$$
+X\sim U(0,\theta),
+$$
+
+最大似然估计量为
+
+$$
+\hat\theta_{ML}=X_{(n)}.
+$$
+
+但
+
+$$
+EX_{(n)}=\frac n{n+1}\theta.
+$$
+
+所以它是有偏估计量，偏差为
+
+$$
+-\frac{\theta}{n+1}.
+$$
+
+修偏后
+
+$$
+\boxed{ \hat\theta_U=\frac{n+1}{n}X_{(n)} }
+$$
+
+才无偏。
+
+这与前面的 2024 年数学一真题直接相连。
+
+同时，由于
+
+$$
+\frac{X_{(n)}}{\theta}\xrightarrow{P}1,
+$$
+
+所以 $X_{(n)}$ 虽然在有限样本下有偏，却是相合估计量。
+
+由此可以看出三个性质互不等价：
+
+$$
+\boxed{ \text{MLE}\not\Rightarrow\text{无偏}, \qquad \text{有偏}\not\Rightarrow\text{不相合}. }
+$$
+
+## 十六、考场上的题型判断流程
+
+可以直接使用以下判断表。
+
+| 题目特征                                   | 首选方法                 | 关键检查       |
+| -------------------------------------- | -------------------- | ---------- |
+| 求矩估计                                   | 求总体矩并与样本矩相等          | 所用矩能否识别参数  |
+| 给连续密度求 MLE                             | 联合密度、对数求导            | 参数域及边界     |
+| 给离散分布及具体样本                             | 先数频数，再写似然            | 每类频数是否正确   |
+| 参数在分布区间端点                              | 用样本最小值或最大值确定可行域      | 似然的单调性     |
+| 观察的是 $\|X\|$、$X^m$、$\ln X$ | 先作随机变量变换             | 新变量的密度     |
+| 两组样本含相同参数                              | 构造联合似然               | 不能随意平均两组估计 |
+| 参数函数 $g(\theta)$                   | MLE 不变性              | 参数函数的定义域   |
+| 判断无偏                                   | 计算 $E\hat\theta$ | 是否对所有参数值成立 |
+| 判断有效性                                  | 比较无偏估计量的方差           | 是否确实无偏     |
+| 最小化 MSE                                | 计算方差和偏差平方            | 不要强加无偏约束   |
+| 证明相合                                   | 大数定律、切比雪夫不等式         | 样本量趋于无穷    |
+
+## 十七、容易失分的细节
+
+错误一：求导为零就认为是 MLE。
+
+最大似然是约束优化问题。特别是均匀分布的端点参数，最大值通常发生在边界，某些模型甚至只在边界极限处存在上确界而不取得最大值。
+
+错误二：忘记检查参数空间。
+
+例如题目规定 $\theta>0$，求出的负数候选值不可能直接作为合法估计。若参数空间是开区间，还要关注边界是否属于允许集合。
+
+错误三：混淆指数分布的均值参数与率参数。
+
+$$
+\operatorname{Exp}(\text{率 }\lambda) \quad\Longrightarrow\quad EX=\frac1\lambda.
+$$
+
+$$
+\operatorname{Exp}(\text{均值 }\theta) \quad\Longrightarrow\quad EX=\theta.
+$$
+
+错误四：把 $S^2$ 误认为正态总体方差的 MLE。
+
+当正态总体的 $\mu$ 未知时，
+
+$$
+\hat\sigma^2_{ML} =\frac1n\sum(X_i-\bar X)^2,
+$$
+
+而
+
+$$
+S^2=\frac1{n-1}\sum(X_i-\bar X)^2
+$$
+
+是方差的无偏估计量。
+
+两者一般不同。
+
+当正态总体均值 $\mu_0$ 已知时，MLE 又变为
+
+$$
+\hat\sigma^2_{ML} =\frac1n\sum(X_i-\mu_0)^2.
+$$
+
+错误五：以为无偏就一定相合。
+
+若一个估计量始终只有一个观测值的信息，即使它无偏，其方差也不一定随样本量增大而趋零。
+
+错误六：计算非线性估计量时，直接交换函数与期望。
+
+一般来说，
+
+$$
+E[g(T)]\ne g(ET).
+$$
+
+尤其是平方、倒数、指数与平方根函数，需要格外小心。
+
+## 十八、与前后章节的联系
+
+| 关联知识      | 在本节的作用                |
+| --------- | --------------------- |
+| 随机变量函数的分布 | 半正态、对数正态、幂变换的估计       |
+| 期望与方差     | 矩估计、无偏性、有效性、MSE       |
+| 次序统计量     | 支持集参数的 MLE、极值修偏       |
+| 大数定律      | 证明样本矩和估计量相合           |
+| 切比雪夫不等式   | 由方差趋零证明依概率收敛          |
+| 正态抽样分布    | 正态总体均值与方差的估计          |
+| 多元函数极值    | 多参数 MLE、最小 MSE 优化     |
+| 区间估计和假设检验 | 在点估计基础上进一步量化不确定性和检验假设 |
+
+一个非常重要的学习顺序是：
+
+$$
+\boxed{ \text{分布与数字特征} \rightarrow \text{统计量} \rightarrow \text{点估计} \rightarrow \text{估计量评价} \rightarrow \text{区间估计与检验} }
+$$
+
+不能将矩估计和最大似然孤立地当作两种求导公式。它们属于统计推断的起点。
+
+## 十九、巩固训练（附参考答案与解析）
+
+### 练习 1：均匀分布的矩估计
+
+若 $X_1,\ldots,X_n$ 来自 $U(0,\theta)$，则 $\theta$ 的一阶矩估计量是哪一个？
+
+A. $\bar X$　 B. $2\bar X$　 C. $X_{(n)}$　 D. $S^2$
+
+**答案：B。**由于 $E(X)=\theta/2$，一阶矩估计方程为
+
+$$
+\bar X=\frac{\theta}{2}.
+$$
+
+解得
+
+$$
+\boxed{\hat\theta_M=2\bar X}.
+$$
+
+注意 $X_{(n)}$ 是此模型中常用的最大似然估计量，而不是根据一阶原点矩构造的矩估计量。
+
+### 练习 2：指数分布均值参数的最大似然估计
+
+若 $X_i$ 独立且服从**均值为 $\theta$** 的指数分布，则 $\theta$ 的最大似然估计量是哪一个？
+
+A. $1/\bar X$　 B. $X_{(n)}$　 C. $\bar X$　 D. $n\bar X$
+
+**答案：C。**题设把 $\theta$ 定义为均值，因此密度是
+
+$$
+f(x;\theta)=\frac1\theta e^{-x/\theta},\qquad x>0,\;\theta>0.
+$$
+
+样本的对数似然函数为
+
+$$
+\ell(\theta)=-n\ln\theta-\frac{\sum_{i=1}^nX_i}{\theta}.
+$$
+
+求导并令其为零，
+
+$$
+-\frac n\theta+\frac{\sum_{i=1}^n X_i}{\theta^2}=0,
+\qquad \boxed{\hat\theta_{ML}=\bar X}.
+$$
+
+如果参数 $\lambda$ 定义为**率参数**，对应估计才是 $\hat\lambda_{ML}=1/\bar X$。
+
+### 练习 3：估计量的均方误差
+
+估计量 $T$ 满足 $E(T)=\theta+1/n$，$D(T)=2/n$。则其均方误差是多少？
+
+A. $2/n$　 B. $1/n^2$　 C. $2/n+1/n^2$　 D. $2/n-1/n^2$
+
+**答案：C。**估计偏差为
+
+$$
+\operatorname{Bias}(T)=E(T)-\theta=\frac1n.
+$$
+
+利用均方误差分解公式，
+
+$$
+\boxed{\operatorname{MSE}(T)=D(T)+\operatorname{Bias}(T)^2
+=\frac2n+\frac1{n^2}}.
+$$
+
+不能把估计量的方差直接等同于均方误差，除非该估计量无偏。
+
+## 二十、本节考前最重要的总结
+
+这节真正应该记住的是三个不同层次的目标。
+
+第一层：能求出估计量
+
+$$
+\boxed{ \text{矩估计：总体矩}=\text{样本矩} }
+$$
+
+$$
+\boxed{ \hat\theta_{ML}\in\arg\max_{\theta\in\Theta}L(\theta) }
+$$
+
+第二层：能评价估计量
+
+$$
+\boxed{ E\hat\theta=\theta\quad\text{（无偏）} }
+$$
+
+$$
+\boxed{ \mathrm{MSE}(\hat\theta) =D\hat\theta+\operatorname{Bias}^2 }
+$$
+
+$$
+\boxed{ \hat\theta_n\xrightarrow P\theta\quad\text{（相合）} }
+$$
+
+第三层：能处理复杂模型
+
+变量变换、样本极值、联合似然、参数函数、不完整观测、最优系数。
+
+对数学一，建议将下列真题作为本节的重点复习顺序：
+
+1997 年（矩估计与 MLE 比较）→ 2015 年（参数支持集）→ 2017 年（变量变换）→ 2018 年（估计量数字特征）→ 2022 年（联合似然）→ 2024 年（无偏与 MSE）→ 2026 年（删失寿命）。
+
+这条顺序从基础计算逐渐进入综合建模，能覆盖本节最有价值的方法。

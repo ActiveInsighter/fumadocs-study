@@ -1,0 +1,9 @@
+{
+  "title": "高等数学第7模块 · 无穷级数",
+  "pages": [
+    "01-numerical-series",
+    "02-power-series",
+    "03-fourier-series"
+  ],
+  "defaultOpen": true
+}

@@ -1,0 +1,10 @@
+{
+  "title": "解题方法",
+  "description": "按高等数学、线性代数与概率论及数理统计三本书的模块与小节整理的解题方法",
+  "pages": [
+    "advanced-mathematics",
+    "linear-algebra",
+    "probability-statistics"
+  ],
+  "defaultOpen": false
+}

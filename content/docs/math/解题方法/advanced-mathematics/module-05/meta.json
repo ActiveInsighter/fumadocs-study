@@ -1,0 +1,12 @@
+{
+  "title": "高等数学第5模块 · 微分方程",
+  "pages": [
+    "01-first-order-differential-equations",
+    "02-higher-order-linear-differential-equations",
+    "03-applications-of-differential-equations",
+    "04-order-reduction-differential-equations",
+    "05-difference-equations-math-iii",
+    "06-euler-differential-equations"
+  ],
+  "defaultOpen": true
+}

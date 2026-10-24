@@ -1,0 +1,8 @@
+{
+  "title": "第一章 行列式",
+  "pages": [
+    "01-numerical-determinants",
+    "02-abstract-determinants"
+  ],
+  "defaultOpen": true
+}
