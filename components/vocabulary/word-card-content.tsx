@@ -73,10 +73,10 @@ export function MeaningText({ meaning }: { meaning: WordMeaning }) {
   );
 }
 
-/** The visible box of an enclosing modal: below its floating header. */
-function modalClip(modal: HTMLElement) {
-  const rect = modal.getBoundingClientRect();
-  const header = modal.querySelector<HTMLElement>('[data-slot="modal-header"]');
+/** The visible box of an enclosing modal page: below its floating header. */
+function modalClip(page: HTMLElement) {
+  const rect = page.getBoundingClientRect();
+  const header = page.querySelector<HTMLElement>('[data-slot="modal-header"]');
   return { top: rect.top + (header?.offsetHeight ?? 0), left: rect.left, right: rect.right, bottom: rect.bottom };
 }
 
@@ -85,9 +85,9 @@ function modalClip(modal: HTMLElement) {
  * it sideways so it stays inside an enclosing modal (or the viewport on the page).
  */
 function placeTooltip(root: HTMLElement, tooltip: HTMLElement) {
-  const modal = root.closest<HTMLElement>('[data-slot="modal-content"]');
-  const clip = modal
-    ? modalClip(modal)
+  const page = root.closest<HTMLElement>('[data-slot="modal-page"]');
+  const clip = page
+    ? modalClip(page)
     : { top: 0, left: 0, right: document.documentElement.clientWidth, bottom: window.innerHeight };
   const anchor = root.getBoundingClientRect();
   // Layout size: the tooltip is still scaled down by its entry transform here.

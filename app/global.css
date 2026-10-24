@@ -14,10 +14,10 @@
 /* All colours, surfaces, radii and layout measurements live in styles/tokens. */
 @import '../styles/tokens/index.css';
 
-/* General modal (components/ui/modal.tsx): placement, motion and stacking. */
+/* General modal (components/ui/modal.tsx): placement, motion and pages. */
 @import '../styles/modal.css';
-/* Knowledge card deck on the modal (components/ui/knowledge-card.tsx). */
-@import '../styles/knowledge-card.css';
+/* Study card deck on the modal (components/ui/study-card.tsx). */
+@import '../styles/study-card.css';
 /* Mermaid figure and zoom viewer (components/mdx/mermaid.tsx). */
 @import '../styles/mermaid.css';
 

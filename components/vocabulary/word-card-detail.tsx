@@ -3,15 +3,15 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { StudyPieChart } from '@/components/charts';
 import {
-  KnowledgeCard,
-  KnowledgeCardAside,
-  KnowledgeCardHeader,
-  KnowledgeCardHero,
-  KnowledgeCardMain,
-  KnowledgeCardSection,
-  KnowledgeCardStage,
-  knowledgeCardReveal,
-} from '@/components/ui/knowledge-card';
+  StudyCard,
+  StudyCardAside,
+  StudyCardHeader,
+  StudyCardHero,
+  StudyCardMain,
+  StudyCardSection,
+  StudyCardStage,
+  studyCardReveal,
+} from '@/components/ui/study-card';
 import {
   MeaningText,
   SenseExample,
@@ -34,9 +34,9 @@ type WordCardDetailProps = {
 };
 
 /*
- * The full card of a compact word: the vocabulary content for the general
- * knowledge card deck (components/ui/knowledge-card.tsx), which owns the
- * modal, the pager, ←/→ and swipes, and the card-to-card motion.
+ * The full card of a compact word: only the vocabulary content. The study
+ * card deck (components/ui/study-card.tsx) owns everything else: the modal,
+ * the split, the pager, ←/→ and swipes, and the card-to-card motion.
  *
  *   aside   on the card's tone: headword, phonetic, label, meanings, and a
  *           donut of how the senses share the occurrences, with a legend
@@ -80,7 +80,7 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
   const itemKey = `${index}:${word.word}`;
 
   return (
-    <KnowledgeCard
+    <StudyCard
       open={open}
       onOpenChange={onOpenChange}
       count={words.length}
@@ -94,15 +94,15 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
       data-tone={getTone(index)}
       finalFocus={finalFocus}
     >
-      <KnowledgeCardHeader
+      <StudyCardHeader
         title={word.word}
         titleMode="scrolled"
         titleProps={{ lang: 'en', className: 'wc-detail-title' }}
       />
-      <KnowledgeCardStage columns="minmax(0, 0.86fr) minmax(0, 1.14fr)">
+      <StudyCardStage ratio={0.43}>
         <WordCardBody key={itemKey} word={word} label={label} senses={senses} />
-      </KnowledgeCardStage>
-    </KnowledgeCard>
+      </StudyCardStage>
+    </StudyCard>
   );
 }
 
@@ -126,8 +126,8 @@ function WordAside({
   senses: readonly WordSense[];
 }) {
   return (
-    <KnowledgeCardAside className="wc-detail-side">
-      <KnowledgeCardHero
+    <StudyCardAside className="wc-detail-side">
+      <StudyCardHero
         className="wc-detail-hero"
         title={word.word}
         titleProps={{ lang: 'en', className: 'wc-detail-word' }}
@@ -140,7 +140,7 @@ function WordAside({
               role="listitem"
               className={`wc-detail-meaning${meaning.key ? ' is-key' : ''}`}
               key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
-              {...knowledgeCardReveal(meaningIndex)}
+              {...studyCardReveal(meaningIndex)}
             >
               <span className="wc-detail-pos">{meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}</span>
               <span className="wc-detail-meaning-text">
@@ -149,11 +149,11 @@ function WordAside({
             </div>
           ))}
         </div>
-      </KnowledgeCardHero>
+      </StudyCardHero>
       {senses.length ? (
         <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />
       ) : null}
-    </KnowledgeCardAside>
+    </StudyCardAside>
   );
 }
 
@@ -192,11 +192,11 @@ function SenseDistribution({
   };
 
   return (
-    <KnowledgeCardSection
+    <StudyCardSection
       className="wc-detail-summary"
       label="义项分布"
       meta={`${senses.length} 个义项 · 共 ${total} 次`}
-      {...knowledgeCardReveal(offset)}
+      {...studyCardReveal(offset)}
     >
       <div className="wc-detail-distribution">
         <div className="wc-detail-donut">
@@ -245,15 +245,15 @@ function SenseDistribution({
           ))}
         </ol>
       </div>
-    </KnowledgeCardSection>
+    </StudyCardSection>
   );
 }
 
 function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
   const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
   return (
-    <KnowledgeCardMain>
-      <KnowledgeCardSection label="真题语境" meta={senses.length ? '悬停或点按例句查看译文' : null}>
+    <StudyCardMain>
+      <StudyCardSection label="真题语境" meta={senses.length ? '悬停或点按例句查看译文' : null}>
         {senses.length ? (
           <ol className="wc-detail-sense-list">
             {senses.map((sense, order) => (
@@ -269,8 +269,8 @@ function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordS
         ) : (
           <p className="wc-detail-empty">这个词暂时没有收录真题例句。</p>
         )}
-      </KnowledgeCardSection>
-    </KnowledgeCardMain>
+      </StudyCardSection>
+    </StudyCardMain>
   );
 }
 
@@ -292,7 +292,7 @@ function SenseBlock({
     <li
       id={id}
       className="wc-detail-sense"
-      {...knowledgeCardReveal(order + 1, style)}
+      {...studyCardReveal(order + 1, style)}
     >
       {/* A bar list row: the share fills the row behind the gloss. */}
       <div className="wc-detail-sense-row">
