@@ -97,21 +97,14 @@
 
 /* ---- Aside: sense distribution ------------------------------------------- */
 
-/* A frosted panel on the card's tone: the donut beside its legend. */
+/* Blend the distribution directly into the card, without an inset panel. */
 .wc-detail-summary {
   container: wc-summary / inline-size;
-  padding: 16px 16px 14px;
-  border-radius: 20px;
-  background: color-mix(in srgb, #fff 46%, transparent);
-  box-shadow:
-    inset 0 0.5px 0 rgb(255 255 255 / 70%),
-    0 1px 2px color-mix(in srgb, var(--wc-ink) 5%, transparent),
-    0 10px 28px -18px color-mix(in srgb, var(--wc-ink) 30%, transparent);
-}
-
-.dark .wc-detail-summary {
-  background: rgb(255 255 255 / 4.5%);
-  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 8%), inset 0 0 0 1px rgb(255 255 255 / 5%);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 /* Stacked when narrow; the donut beside its legend once there is room. */
@@ -124,6 +117,11 @@
 
 .wc-detail-donut {
   width: 9.75rem;
+}
+
+/* Fade fixed-geometry slices; never morph SVG paths under the pointer. */
+.wc-detail-donut .recharts-sector {
+  transition: fill-opacity 240ms ease;
 }
 
 .wc-detail-legend {
@@ -165,7 +163,7 @@
   list-style: none;
 }
 
-/* Each entry highlights its slice and scrolls its sense into view. */
+/* Each entry highlights its slice and scrolls its sense into view, with no colored tile. */
 .wc-detail-legend-item {
   appearance: none;
   display: grid;
@@ -189,7 +187,7 @@
 
 .wc-detail-legend-item:hover,
 .wc-detail-legend-item[data-active] {
-  background: color-mix(in srgb, var(--wc-sense-color) 16%, transparent);
+  color: var(--word-text);
 }
 
 .wc-detail-legend-item[data-dim] {
@@ -280,7 +278,8 @@
   transition: background-color 220ms ease;
 }
 
-.wc-detail-sense[data-active] .wc-detail-sense-row,
+.wc-detail-sense:hover .wc-detail-sense-row,
+.wc-detail-sense:focus-within .wc-detail-sense-row,
 .wc-detail-sense[data-flash] .wc-detail-sense-row {
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wc-sense-color) 75%, transparent);
 }
@@ -413,10 +412,6 @@
     --wc-sense-indent: calc(1.625rem + 18px);
   }
 
-  .wc-detail-summary {
-    padding: 14px 12px 12px;
-  }
-
   .wc-detail-sense-row {
     gap: 10px;
     padding-inline: 8px 12px;
@@ -427,7 +422,8 @@
 @media (prefers-reduced-motion: reduce) {
   .wc-detail-legend-item,
   .wc-detail-sense-row,
-  .wc-detail-sense-fill {
+  .wc-detail-sense-fill,
+  .wc-detail-donut .recharts-sector {
     transition: none;
     animation: none;
   }

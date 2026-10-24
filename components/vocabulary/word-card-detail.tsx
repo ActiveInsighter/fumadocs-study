@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type CSSProperties } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { StudyPieChart } from '@/components/charts';
 import {
   KnowledgeCard,
@@ -46,8 +46,8 @@ type WordCardDetailProps = {
  *           the right), then examples whose translation shows on hover or
  *           tap (the same tooltip as the page)
  *
- * Pointing at a sense in either pane lights it up in the donut, the legend
- * and the list at once.
+ * The left-hand chart and legend highlight each other; right-hand sense
+ * interactions stay local to the right pane, without rerendering the chart.
  *
  * Text stays neutral; only backgrounds and marks carry the tone.
  */
@@ -106,16 +106,12 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
   );
 }
 
-type Highlight = { active: string | null; setActive: (gloss: string | null) => void };
-
-/** Both panes of one word; the sense under the pointer lights up in the donut, legend and list together. */
+/** Keep chart hover state inside the aside; right-pane interaction must not touch it. */
 function WordCardBody({ word, label, senses }: { word: WordCardData; label: string | null; senses: readonly WordSense[] }) {
-  const [active, setActive] = useState<string | null>(null);
-  const highlight = { active, setActive };
   return (
     <>
-      <WordAside word={word} label={label} senses={senses} highlight={highlight} />
-      <WordMain word={word} senses={senses} highlight={highlight} />
+      <WordAside word={word} label={label} senses={senses} />
+      <WordMain word={word} senses={senses} />
     </>
   );
 }
@@ -124,12 +120,10 @@ function WordAside({
   word,
   label,
   senses,
-  highlight,
 }: {
   word: WordCardData;
   label: string | null;
   senses: readonly WordSense[];
-  highlight: Highlight;
 }) {
   return (
     <KnowledgeCardAside className="wc-detail-side">
@@ -157,7 +151,7 @@ function WordAside({
         </div>
       </KnowledgeCardHero>
       {senses.length ? (
-        <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} highlight={highlight} />
+        <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />
       ) : null}
     </KnowledgeCardAside>
   );
@@ -165,25 +159,27 @@ function WordAside({
 
 /**
  * How the occurrences split across senses: the study donut, total in the
- * hole, beside a legend. Hovering either side highlights the same sense;
- * choosing one scrolls the main column to it.
+ * hole, beside a legend. Hovering the chart or legend highlights only
+ * the aside; choosing a sense scrolls the right pane to it.
  */
 function SenseDistribution({
   word,
   senses,
   offset,
-  highlight: { active, setActive },
 }: {
   word: string;
   senses: readonly WordSense[];
   offset: number;
-  highlight: Highlight;
 }) {
+  const [active, setActive] = useState<string | null>(null);
   const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
-  const data = senses.map((sense) => ({ gloss: sense.gloss, count: Math.max(0, sense.count) }));
-  const colors = Object.fromEntries(senses.map((sense, order) => [sense.gloss, senseColor(order)]));
+  // Preserve Pie.data identity when the active slice changes: Recharts otherwise
+  // treats hover as fresh data and can replay its entry animation.
+  const data = useMemo(() => senses.map((sense) => ({ gloss: sense.gloss, count: Math.max(0, sense.count) })), [senses]);
+  const colors = useMemo(() => Object.fromEntries(senses.map((sense, order) => [sense.gloss, senseColor(order)])), [senses]);
 
   const show = (order: number) => {
+    setActive(senses[order]?.gloss ?? null);
     const target = document.getElementById(senseId(word, order));
     if (!target) return;
     target.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
@@ -253,7 +249,7 @@ function SenseDistribution({
   );
 }
 
-function WordMain({ word, senses, highlight }: { word: WordCardData; senses: readonly WordSense[]; highlight: Highlight }) {
+function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
   const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
   return (
     <KnowledgeCardMain>
@@ -267,7 +263,6 @@ function WordMain({ word, senses, highlight }: { word: WordCardData; senses: rea
                 sense={sense}
                 order={order}
                 total={total}
-                highlight={highlight}
               />
             ))}
           </ol>
@@ -284,13 +279,11 @@ function SenseBlock({
   sense,
   order,
   total,
-  highlight: { active, setActive },
 }: {
   id: string;
   sense: WordSense;
   order: number;
   total: number;
-  highlight: Highlight;
 }) {
   const percentage = getSensePercentage(sense, total);
   const count = Math.max(0, sense.count);
@@ -299,13 +292,6 @@ function SenseBlock({
     <li
       id={id}
       className="wc-detail-sense"
-      data-active={active === sense.gloss ? '' : undefined}
-      onPointerEnter={(event) => {
-        if (event.pointerType === 'mouse') setActive(sense.gloss);
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType === 'mouse') setActive(null);
-      }}
       {...knowledgeCardReveal(order + 1, style)}
     >
       {/* A bar list row: the share fills the row behind the gloss. */}

@@ -37,7 +37,7 @@ export type StudyPieChartProps = BaseChartProps & {
    * panel-coloured stroke. Pair it with a legend of your own.
    */
   variant?: "figure" | "inline"
-  /** Slice to highlight (it grows outwards, the others dim), by category name; controlled. */
+  /** Controlled highlight: figure slices expand; inline slices only fade, without changing geometry. */
   activeName?: string | null
   /** Hovering a slice reports its name, and null on leaving. */
   onActiveNameChange?: (name: string | null) => void
@@ -86,7 +86,7 @@ export function StudyPieChart(props: StudyPieChartProps) {
   const { data, nameKey, valueKey, format, locale, colors, maxSlices = 6, showLegend, variant = "figure" } = props
   const slices = useMemo(() => foldSlices(data, nameKey, valueKey, maxSlices, colors), [data, nameKey, valueKey, maxSlices, colors])
   const [hidden, setHidden] = useState<Set<string>>(new Set())
-  const formatters = valueFormatters(format, locale)
+  const formatters = useMemo(() => valueFormatters(format, locale), [format, locale])
   const keys = slices.map((slice) => slice.key)
 
   return (
@@ -138,11 +138,11 @@ function PiePlot({
 }: StudyPieChartProps & { slices: Slice[]; hidden: Set<string>; formatters: ReturnType<typeof valueFormatters> }) {
   const { shouldAnimate } = useChartMotion()
   const inline = variant === "inline"
-  const visible = slices.filter((slice) => !hidden.has(slice.key))
+  const visible = useMemo(() => slices.filter((slice) => !hidden.has(slice.key)), [slices, hidden])
   const total = visible.reduce((sum, slice) => sum + slice.value, 0)
   const percent = createFormatter({ preset: "ratio", digits: 0 }, locale)
-  const config: ChartConfig = Object.fromEntries(slices.map((slice) => [slice.key, { label: slice.name, color: slice.color }]))
-  // Inline donuts leave room for the highlighted slice to grow outwards.
+  const config = useMemo<ChartConfig>(() => Object.fromEntries(slices.map((slice) => [slice.key, { label: slice.name, color: slice.color }])), [slices])
+  // Keep padding at the edges; inline slices never change size on hover.
   const margin = inline ? 7 : 8
   const nameAt = (index: number) => visible[index]?.name ?? null
   const renderSlice = (props: PieSectorShapeProps, index?: string | number) => {
@@ -154,9 +154,9 @@ function PiePlot({
       <Sector
         key={key}
         {...sector}
-        fillOpacity={activeName != null && !active ? 0.3 : 1}
-        innerRadius={active ? sector.innerRadius - 1 : sector.innerRadius}
-        outerRadius={active ? sector.outerRadius + 6 : sector.outerRadius}
+        fillOpacity={activeName != null && !active ? 0.5 : 1}
+        innerRadius={active && !inline ? sector.innerRadius - 1 : sector.innerRadius}
+        outerRadius={active && !inline ? sector.outerRadius + 6 : sector.outerRadius}
       />
     )
   }
@@ -175,7 +175,7 @@ function PiePlot({
           dataKey="value"
           endAngle={-270}
           innerRadius={donut ? innerRadius ?? (inline ? "74%" : "62%") : 0}
-          isAnimationActive={shouldAnimate}
+          isAnimationActive={inline ? false : shouldAnimate}
           label={
             showPercent
               ? ({ value }: { value?: number }) => (typeof value === "number" && total > 0 ? percent(value / total) : "")

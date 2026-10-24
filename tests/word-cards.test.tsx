@@ -282,7 +282,7 @@ describe('WordCards', () => {
     expect(deckCss()).toMatch(/\[data-knowledge-card\]\[data-scrolled\] \[data-kc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
     expect(component).toContain('<StudyPieChart');
     expect(component).toContain('variant="inline"');
-    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} highlight={highlight} />');
+    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />');
     expect(component).toContain('<WordCardBody key={itemKey}');
     expect(component).toContain('<SenseExample example={example} />');
     expect(component).not.toContain('wc-detail-example-translation');
@@ -292,6 +292,32 @@ describe('WordCards', () => {
     expect(css).not.toMatch(/wc-detail-dialog/u);
   });
 
+
+  it('keeps the sense distribution immersive and isolates right-hand interactions from the donut', () => {
+    const detail = readFileSync(new URL('../components/vocabulary/word-card-detail.tsx', import.meta.url), 'utf8');
+    const styles = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
+    const pie = readFileSync(new URL('../components/charts/types/pie-chart.tsx', import.meta.url), 'utf8');
+    const rightPane = detail.slice(detail.indexOf('function WordMain('));
+
+    expect(detail).toContain('const [active, setActive] = useState<string | null>(null);');
+    expect(detail).toContain('const data = useMemo(');
+    expect(detail).toContain('const colors = useMemo(');
+    expect(rightPane).not.toContain('setActive(');
+    expect(rightPane).not.toContain('highlight={highlight}');
+    expect(rightPane).not.toContain('data-active={active');
+    const summaryStart = styles.indexOf('.wc-detail-summary {');
+    const summaryEnd = styles.indexOf('}', summaryStart);
+    const summaryCss = styles.slice(summaryStart, summaryEnd);
+    expect(summaryCss).toContain('background: transparent;');
+    expect(summaryCss).toContain('box-shadow: none;');
+    expect(styles).not.toContain('.dark .wc-detail-summary');
+    expect(styles).toContain('.wc-detail-sense:hover .wc-detail-sense-row');
+    expect(styles).toContain('.wc-detail-donut .recharts-sector');
+    expect(pie).toContain('const visible = useMemo(');
+    expect(pie).toContain('innerRadius={active && !inline ?');
+    expect(pie).toContain('outerRadius={active && !inline ?');
+    expect(pie).toContain('isAnimationActive={inline ? false : shouldAnimate}');
+  });
 
   it('flips and shifts example tooltips so they stay inside an enclosing modal or the viewport', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
