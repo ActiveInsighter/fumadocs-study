@@ -19,6 +19,18 @@
   padding: var(--chart-pad);
 }
 
+.root.inline {
+  margin: 0;
+}
+
+.root.inline .panel {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -318,6 +330,19 @@
 .centerCaption {
   fill: var(--chart-muted);
   font-size: 0.75rem;
+}
+
+/* Pie and donut slices: dimming follows the highlighted slice. */
+.slice {
+  transition: fill-opacity var(--chart-fade) var(--chart-ease), d var(--chart-fade) var(--chart-ease);
+}
+
+.sliceInteractive {
+  cursor: pointer;
+}
+
+.slice:focus {
+  outline: none;
 }
 
 .treemapGroup {

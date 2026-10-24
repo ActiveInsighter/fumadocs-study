@@ -1,10 +1,14 @@
 /*
- * Word detail modal (components/vocabulary/word-card-detail.tsx), laid out
- * inside the general Modal (styles/modal.css) at a fixed height. The popup
- * carries .wc-detail and the card's data-tone, so it reads the palette of the
- * card that opened it (styles/word-cards.css), but only for surfaces and
- * marks: the left pane sits on the card's tone, chips and bars are tinted
- * with it, and every piece of text stays neutral for legibility.
+ * Word detail card (components/vocabulary/word-card-detail.tsx): the
+ * vocabulary content inside the knowledge card deck (styles/knowledge-card.css,
+ * on styles/modal.css). The popup carries .wc-detail and the card's
+ * data-tone, so it reads the palette of the card that opened it
+ * (styles/word-cards.css), but only for surfaces and marks: the aside sits
+ * on the card's tone, chips, bars and the donut are tinted with it, and every
+ * piece of text stays neutral for legibility.
+ *
+ * Each sense has one colour (--wc-sense-color, set per sense): its donut
+ * slice, legend swatch, index badge and count bar all share it.
  */
 
 .wc-detail,
@@ -19,132 +23,39 @@
   --freq-text: var(--foreground);
   --pos-text: color-mix(in oklab, var(--foreground) 76%, transparent);
 
-  /* The left pane (ModalPane tone="muted") and its header veil take the card's tone. */
+  /* The aside (and, on phones, the popup under its faded top) takes the card's tone. */
   --modal-pane-muted: var(--card-bg);
-  /*
-   * Mixed in sRGB: in oklch, mixing with transparent drops the hue, which then
-   * renders as 0deg and tints every tone pink under the header.
-   */
-  --modal-veil-muted: color-mix(in srgb, var(--modal-pane-muted) 62%, transparent);
-  /* Blur only: the default saturate() would also shift the tinted pane's hue. */
-  --modal-header-blur: blur(20px);
 
-  --wc-sense-indent: calc(1.75rem + 12px);
+  --wc-sense-indent: calc(1.625rem + 22px);
   --wc-example-mark: color-mix(in srgb, var(--wc-accent) 55%, transparent);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---- Header ------------------------------------------------------------- */
+/* Glass on a tinted pane: a touch of the tone keeps it from reading grey. */
+.wc-detail [data-slot='modal-toolbar'],
+.wc-detail [data-slot='modal-close'] {
+  background-color: color-mix(in srgb, var(--modal-glass) 86%, var(--wc-surface) 14%);
+}
 
-/* Phones: the headword joins the header once the hero has scrolled under it. */
 .wc-detail .wc-detail-title {
   color: var(--word-text);
   font-family: var(--wc-display-font);
   font-weight: 720;
-  opacity: 0;
-  translate: 0 4px;
-  transition:
-    opacity 180ms ease,
-    translate 260ms var(--wc-ease-out);
 }
 
-.wc-detail[data-scrolled] .wc-detail-title {
-  opacity: 1;
-  translate: 0 0;
-}
+/* ---- Aside: the card ------------------------------------------------------ */
 
-/* Side by side, the headword is always in view in the left pane. */
-@media (width >= 48rem) {
-  .wc-detail[data-scrolled] .wc-detail-title {
-    opacity: 0;
-  }
-}
-
-.wc-pager {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 999px;
-  background: var(--ui-fill);
-}
-
-.wc-pager .wc-pager-step {
-  border-radius: 999px;
-}
-
-.wc-pager-count {
-  min-width: 4.25em;
-  color: var(--foreground);
-  font-size: 0.8125rem;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.wc-pager-total {
-  color: var(--muted-foreground);
-  font-weight: 500;
-}
-
-/* ---- Panes -------------------------------------------------------------- */
-
-/* Stepping between words of different tones blends the pane colour. */
-.wc-detail-side {
-  transition: background-color 420ms var(--wc-ease-out);
-}
-
-.wc-detail-stage {
-  display: flex;
-  flex-direction: column;
-  gap: 26px;
-}
-
-/*
- * Each sense has its own tone (--wc-seg-mix, set per sense): the bar colour
- * mixed towards the card, the first sense strongest. Bar, legend swatches and
- * index badges share it.
- */
-.wc-detail-segment,
-.wc-detail-swatch,
-.wc-detail-sense-index {
-  --wc-seg-color: color-mix(in srgb, var(--bar-fill) var(--wc-seg-mix, 100%), var(--card-bg));
-}
-
-/* ---- Left pane: the card ------------------------------------------------ */
-
-.wc-detail-headline {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px 14px;
-}
-
-.wc-detail-word {
-  min-width: 0;
+.wc-detail .wc-detail-word {
   color: var(--word-text);
   font-family: var(--wc-display-font);
-  font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
   font-weight: 780;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-  overflow-wrap: anywhere;
-}
-
-/* The label sits on the headword's cap height. */
-.wc-detail-headline .wc-label {
-  margin-top: 0.55rem;
 }
 
 .wc-detail-phonetic {
-  margin-top: 8px;
   color: var(--phonetic-text);
   font-family: var(--wc-phonetic-font);
-  font-size: 1.0625rem;
-  font-weight: 500;
   letter-spacing: 0.01em;
 }
 
@@ -171,8 +82,12 @@
   display: none;
 }
 
+/* Each meaning spans the grid's row; its two cells sit in the two columns. */
 .wc-detail-meaning {
-  display: contents;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
 }
 
 .wc-detail-pos {
@@ -180,84 +95,105 @@
   justify-content: flex-end;
 }
 
-.wc-detail-summary-head,
-.wc-detail-section-label {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 12px;
-  flex-wrap: wrap;
-  color: var(--muted-text);
-  font-size: 0.78rem;
-  font-weight: 680;
-  letter-spacing: 0.08em;
+/* ---- Aside: sense distribution ------------------------------------------- */
+
+/* A frosted panel on the card's tone: the donut beside its legend. */
+.wc-detail-summary {
+  container: wc-summary / inline-size;
+  padding: 16px 16px 14px;
+  border-radius: 20px;
+  background: color-mix(in srgb, #fff 46%, transparent);
+  box-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 70%),
+    0 1px 2px color-mix(in srgb, var(--wc-ink) 5%, transparent),
+    0 10px 28px -18px color-mix(in srgb, var(--wc-ink) 30%, transparent);
 }
 
-.wc-detail-summary-meta,
-.wc-detail-hint {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+.dark .wc-detail-summary {
+  background: rgb(255 255 255 / 4.5%);
+  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 8%), inset 0 0 0 1px rgb(255 255 255 / 5%);
 }
 
+/* Stacked when narrow; the donut beside its legend once there is room. */
 .wc-detail-distribution {
-  display: flex;
-  gap: 3px;
-  height: 8px;
-  margin: 10px 0 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 12px;
 }
 
-.wc-detail-segment {
-  flex: 1 1 0;
-  min-width: 6px;
-  border-radius: 2px;
-  background: var(--wc-seg-color);
-  transform-origin: left center;
-  animation: wc-bar-grow 640ms var(--wc-ease-out) both;
+.wc-detail-donut {
+  width: 9.75rem;
 }
 
-.wc-detail-segment:first-child {
-  border-radius: 999px 2px 2px 999px;
+.wc-detail-legend {
+  justify-self: stretch;
 }
 
-.wc-detail-segment:last-child {
-  border-radius: 2px 999px 999px 2px;
+@container wc-summary (width >= 26rem) {
+  .wc-detail-distribution {
+    grid-template-columns: 9.75rem minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    gap: 6px 16px;
+  }
 }
 
-.wc-detail-segment:only-child {
-  border-radius: 999px;
+/* The donut's hole: the total, set like the headword. */
+.wc-detail-donut text tspan:first-child {
+  fill: var(--word-text);
+  font-family: var(--wc-display-font);
+  font-size: 1.875rem;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+}
+
+.wc-detail-donut text tspan:last-child {
+  fill: var(--muted-text);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 .wc-detail-legend {
   display: flex;
   flex-direction: column;
-  margin: 0 -8px;
+  gap: 2px;
+  min-width: 0;
+  margin: 0 -6px;
   padding: 0;
   list-style: none;
 }
 
-/* Each entry scrolls its sense into view. */
+/* Each entry highlights its slice and scrolls its sense into view. */
 .wc-detail-legend-item {
   appearance: none;
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 9px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 7px 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 11px;
   background: transparent;
   color: var(--meaning-text);
   font: inherit;
   font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
-  transition: background-color 160ms ease;
+  transition:
+    background-color 180ms ease,
+    opacity 220ms ease;
 }
 
-.wc-detail-legend-item:hover {
-  background: color-mix(in srgb, var(--wc-ink) 6%, transparent);
+.wc-detail-legend-item:hover,
+.wc-detail-legend-item[data-active] {
+  background: color-mix(in srgb, var(--wc-sense-color) 16%, transparent);
+}
+
+.wc-detail-legend-item[data-dim] {
+  opacity: 0.5;
 }
 
 .wc-detail-legend-item:focus-visible {
@@ -266,96 +202,151 @@
 }
 
 .wc-detail-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: var(--wc-seg-color);
-}
-
-.wc-detail-legend-order,
-.wc-detail-legend-pct {
-  color: var(--muted-text);
-  font-size: 0.75rem;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
+  align-self: start;
+  width: 9px;
+  height: 9px;
+  margin-top: calc(0.7em - 4.5px);
+  border-radius: 50%;
+  background: var(--wc-sense-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wc-sense-color) 22%, transparent);
 }
 
 .wc-detail-legend-gloss {
+  display: -webkit-box;
   overflow: hidden;
   font-weight: 560;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .wc-detail-legend-pct {
   color: var(--foreground);
+  font-family: var(--wc-display-font);
+  font-size: 0.875rem;
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ---- Right pane: senses ------------------------------------------------- */
-
-.wc-detail-section-label {
-  margin-bottom: -10px;
-}
+/* ---- Main: senses as a bar list ------------------------------------------ */
 
 .wc-detail-sense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .wc-detail-sense {
-  padding: 16px 0 18px;
   scroll-margin-top: 8px;
 }
 
-.wc-detail-sense + .wc-detail-sense {
-  border-top: 1px solid var(--ui-fill-strong);
-}
-
-.wc-detail-sense:last-child {
-  padding-bottom: 4px;
-}
-
-.wc-detail-sense-head {
+/*
+ * The head of a sense is a bar list row: a quiet track, the share filling it
+ * from the left in the sense's colour, the index and gloss on top, and the
+ * count and share at the end.
+ */
+.wc-detail-sense-row {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: 12px;
+  gap: 12px;
+  min-height: 2.75rem;
+  padding: 7px 14px 7px 9px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--foreground) 3.5%, transparent);
+  transition: box-shadow 220ms ease;
+}
+
+.wc-detail-sense-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: max(var(--wc-share, 0%), 2.75rem);
+  border-radius: inherit;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--wc-sense-color) 14%, transparent),
+    color-mix(in srgb, var(--wc-sense-color) 30%, transparent)
+  );
+  animation: wc-share-in 820ms var(--wc-ease-out) both;
+  animation-delay: calc(160ms + var(--kc-i, 0) * 40ms);
+  transition: background-color 220ms ease;
+}
+
+.wc-detail-sense[data-active] .wc-detail-sense-row,
+.wc-detail-sense[data-flash] .wc-detail-sense-row {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wc-sense-color) 75%, transparent);
 }
 
 .wc-detail-sense-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.375rem;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--wc-seg-color) 30%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wc-seg-color) 40%, transparent);
-  color: var(--foreground);
+  display: inline-grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 9px;
+  background: var(--wc-sense-color);
+  color: var(--modal-surface);
   font-family: var(--wc-display-font);
-  font-size: 0.75rem;
-  font-weight: 760;
+  font-size: 0.6875rem;
+  font-weight: 780;
   font-variant-numeric: tabular-nums;
 }
 
 .wc-detail-sense-gloss {
   color: var(--word-text);
-  font-size: 1.03rem;
+  font-size: 1rem;
   font-weight: 650;
-  line-height: 1.5;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
 .wc-detail-sense-stats {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-.wc-detail-sense-stats .wc-sense-pct {
+.wc-detail-count {
+  color: var(--foreground);
+  font-family: var(--wc-display-font);
+  font-size: 1.0625rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+}
+
+.wc-detail-unit {
+  margin-left: 2px;
+  color: var(--muted-text);
+  font-family: var(--wc-body-font);
+  font-size: 0.75rem;
+  font-weight: 560;
+}
+
+.wc-detail-pct {
   min-width: 2.6em;
+  color: var(--muted-text);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  text-align: right;
+}
+
+@keyframes wc-share-in {
+  from {
+    clip-path: inset(0 100% 0 0 round 14px);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0 round 14px);
+  }
 }
 
 /* Examples hang under the gloss, past the index badge. */
@@ -415,34 +406,28 @@
   font-size: 0.9rem;
 }
 
-/* ---- Phones ------------------------------------------------------------- */
+/* ---- Phones --------------------------------------------------------------- */
 
 @media (width < 48rem) {
   .wc-detail {
-    --wc-sense-indent: calc(1.75rem + 10px);
+    --wc-sense-indent: calc(1.625rem + 18px);
   }
 
-  .wc-detail-stage {
-    gap: 22px;
+  .wc-detail-summary {
+    padding: 14px 12px 12px;
   }
 
-  /* The stats move under the gloss rather than squeezing it. */
-  .wc-detail-sense-head {
-    grid-template-columns: auto minmax(0, 1fr);
-    column-gap: 10px;
+  .wc-detail-sense-row {
+    gap: 10px;
+    padding-inline: 8px 12px;
   }
 
-  .wc-detail-sense-stats {
-    grid-column: 2;
-    margin-top: 2px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wc-detail .wc-detail-title,
-  .wc-detail-side,
   .wc-detail-legend-item,
-  .wc-detail-segment {
+  .wc-detail-sense-row,
+  .wc-detail-sense-fill {
     transition: none;
     animation: none;
   }

@@ -296,7 +296,7 @@ body:has(#docs-page-actions .docs-page-action[data-popup-open])
   overflow-x: auto;
   overflow-y: hidden;
   padding-block: 0.25rem;
-  scrollbar-color: var(--ui-scrollbar-thumb) var(--background);
+  scrollbar-color: var(--ui-scrollbar-thumb) transparent;
   scrollbar-width: thin;
 }
 
@@ -306,17 +306,18 @@ body:has(#docs-page-actions .docs-page-action[data-popup-open])
 
 #docs-body .katex-display::-webkit-scrollbar {
   height: 0.5rem;
-  background: var(--background);
+  background: transparent;
 }
 
 #docs-body .katex-display::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
 }
 
 #docs-body .katex-display::-webkit-scrollbar-thumb {
-  border: 2px solid var(--background);
+  border: 2px solid transparent;
   border-radius: 999px;
   background-color: var(--ui-scrollbar-thumb);
+  background-clip: padding-box;
 }
 
 #docs-body .katex-display::-webkit-scrollbar-thumb:hover {
