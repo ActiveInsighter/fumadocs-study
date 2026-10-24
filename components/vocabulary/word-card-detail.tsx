@@ -1,16 +1,24 @@
 'use client';
 
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react';
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
-import { Button } from '@/components/ui/button';
-import { Modal, ModalContent, ModalHeader, ModalPane, ModalSplit, ModalTitle, ModalToolbar } from '@/components/ui/modal';
+import { useState, type CSSProperties } from 'react';
+import { StudyPieChart } from '@/components/charts';
+import {
+  KnowledgeCard,
+  KnowledgeCardAside,
+  KnowledgeCardHeader,
+  KnowledgeCardHero,
+  KnowledgeCardMain,
+  KnowledgeCardSection,
+  KnowledgeCardStage,
+  knowledgeCardReveal,
+} from '@/components/ui/knowledge-card';
 import {
   MeaningText,
   SenseExample,
   getSensePercentage,
   getTone,
   hasPhraseMeaning,
+  prefersReducedMotion,
   type WordCardData,
   type WordSense,
 } from './word-card-content';
@@ -26,284 +34,231 @@ type WordCardDetailProps = {
 };
 
 /*
- * The full card of a compact word, in the general Modal (components/ui/modal.tsx)
- * at a fixed height, so stepping through words never makes it jump.
+ * The full card of a compact word: the vocabulary content for the general
+ * knowledge card deck (components/ui/knowledge-card.tsx), which owns the
+ * modal, the pager, ←/→ and swipes, and the card-to-card motion.
  *
- *   header      word (phones: once the hero scrolls under it) · pager · close
- *   left pane   on the card's tone: headword, phonetic, label, meanings, and
- *               how the senses share the occurrences (each entry jumps to its sense)
- *   right pane  one row per sense: gloss, count and share, examples whose
- *               translation shows on hover or tap (the same tooltip as the page)
+ *   aside   on the card's tone: headword, phonetic, label, meanings, and a
+ *           donut of how the senses share the occurrences, with a legend
+ *           that highlights a slice and jumps to its sense
+ *   main    one row per sense: gloss, a bar of its count and share (in the
+ *           sense's colour from the donut), and examples whose translation
+ *           shows on hover or tap (the same tooltip as the page)
  *
- * Wide screens show the panes side by side, phones as one column. Text stays
- * neutral; only backgrounds and marks carry the tone. ←/→ and the pager step
- * through the list: the old card drifts out, the new one settles in from the
- * side it came from, and both panes start at the top again.
+ * Text stays neutral; only backgrounds and marks carry the tone.
  */
 
-type Direction = 'next' | 'prev' | null;
-
-const EASE_OUT = [0.22, 1, 0.36, 1] as const;
-const EASE_IN = [0.4, 0, 1, 1] as const;
-
-const stageVariants: Variants = {
-  enter: (direction: Direction) => ({
-    opacity: 0,
-    x: direction === 'next' ? 28 : direction === 'prev' ? -28 : 0,
-    filter: 'blur(6px)',
-  }),
-  center: {
-    opacity: 1,
-    x: 0,
-    filter: 'blur(0px)',
-    transition: { duration: 0.42, ease: EASE_OUT, staggerChildren: 0.035 },
-    transitionEnd: { filter: 'none' },
-  },
-  exit: (direction: Direction) => ({
-    opacity: 0,
-    x: direction === 'next' ? -18 : direction === 'prev' ? 18 : 0,
-    filter: 'blur(4px)',
-    transition: { duration: 0.16, ease: EASE_IN },
-  }),
-};
-
-const reducedStageVariants: Variants = {
-  enter: { opacity: 0 },
-  center: { opacity: 1, transition: { duration: 0.18 } },
-  exit: { opacity: 0, transition: { duration: 0.1 } },
-};
-
-/** Rows inside a stage rise in one after another as it settles. */
-const rowVariants: Variants = {
-  enter: { opacity: 0, y: 10 },
-  center: { opacity: 1, y: 0, transition: { duration: 0.38, ease: EASE_OUT } },
-};
-
-export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, finalFocus }: WordCardDetailProps) {
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const [direction, setDirection] = useState<Direction>(null);
-  const reducedMotion = useReducedMotion();
-  const word = words[index];
-  const hasPrev = index > 0;
-  const hasNext = index < words.length - 1;
-
-  if (!word) return null;
-
-  const go = (next: number) => {
-    if (next < 0 || next >= words.length || next === index) return;
-    setDirection(next > index ? 'next' : 'prev');
-    onNavigate(next);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
-    if (event.key === 'ArrowLeft' && hasPrev) go(index - 1);
-    else if (event.key === 'ArrowRight' && hasNext) go(index + 1);
-    else return;
-    event.preventDefault();
-  };
-
-  // The next card starts at the top: reset once the old one has left.
-  const resetScroll = () => {
-    for (const pane of [leftRef.current, rightRef.current]) if (pane) pane.scrollTop = 0;
-    const split = leftRef.current?.parentElement;
-    if (split) split.scrollTop = 0;
-  };
-
-  const showSense = (order: number) => {
-    document.getElementById(senseId(index, order))?.scrollIntoView({
-      block: 'start',
-      behavior: reducedMotion ? 'auto' : 'smooth',
-    });
-  };
-
-  const label = word.label?.trim() || null;
-  const senses = word.senses ?? [];
-  const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
-  const variants = reducedMotion ? reducedStageVariants : stageVariants;
-  const stage = { custom: direction, variants, initial: 'enter', animate: 'center', exit: 'exit' } as const;
-
-  return (
-    <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent
-        size="lg"
-        height="44rem"
-        className={`wc-detail${hasPhraseMeaning(word) ? ' has-phrase' : ''}`}
-        data-tone={getTone(index)}
-        finalFocus={finalFocus}
-        onKeyDown={handleKeyDown}
-      >
-        <ModalHeader>
-          <ModalTitle className="wc-detail-title" lang="en">
-            {word.word}
-          </ModalTitle>
-          {words.length > 1 ? (
-            <ModalToolbar aria-label="切换单词">
-              <span className="wc-pager">
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="wc-pager-step"
-                  aria-label="上一个单词"
-                  title="上一个（←）"
-                  disabled={!hasPrev}
-                  onClick={() => go(index - 1)}
-                >
-                  <ChevronLeftIcon />
-                </Button>
-                <span className="wc-pager-count" aria-live="polite">
-                  <span className="sr-only">第 </span>
-                  {index + 1}
-                  <span className="wc-pager-total"> / {words.length}</span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="wc-pager-step"
-                  aria-label="下一个单词"
-                  title="下一个（→）"
-                  disabled={!hasNext}
-                  onClick={() => go(index + 1)}
-                >
-                  <ChevronRightIcon />
-                </Button>
-              </span>
-            </ModalToolbar>
-          ) : null}
-        </ModalHeader>
-        <ModalSplit className="wc-detail-split" columns="minmax(0, 0.82fr) minmax(0, 1.18fr)">
-          <ModalPane ref={leftRef} tone="muted" className="wc-detail-side">
-            <AnimatePresence mode="wait" initial={false} custom={direction} onExitComplete={resetScroll}>
-              <motion.div key={index} className="wc-detail-stage" {...stage}>
-                <section className="wc-detail-hero" aria-label="单词与释义">
-                  <div className="wc-detail-headline">
-                    <span className="wc-detail-word" lang="en">
-                      {word.word}
-                    </span>
-                    {label ? <span className="wc-label">{label}</span> : null}
-                  </div>
-                  {word.phonetic ? <div className="wc-detail-phonetic">{word.phonetic}</div> : null}
-                  <div className="wc-detail-meanings">
-                    {word.meanings.map((meaning, meaningIndex) => (
-                      <motion.div
-                        variants={rowVariants}
-                        className={`wc-detail-meaning${meaning.key ? ' is-key' : ''}`}
-                        key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
-                      >
-                        <span className="wc-detail-pos">{meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}</span>
-                        <span className="wc-detail-meaning-text">
-                          <MeaningText meaning={meaning} />
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </section>
-                {senses.length ? (
-                  <SenseSummary senses={senses} total={total} onSelect={showSense} />
-                ) : null}
-              </motion.div>
-            </AnimatePresence>
-          </ModalPane>
-          <ModalPane ref={rightRef} className="wc-detail-main">
-            <AnimatePresence mode="wait" initial={false} custom={direction}>
-              <motion.section key={index} className="wc-detail-stage" aria-labelledby={`wc-detail-senses-${index}`} {...stage}>
-                <div className="wc-detail-section-label">
-                  <span id={`wc-detail-senses-${index}`}>真题语境</span>
-                  {senses.length ? <span className="wc-detail-hint">悬停或点按例句查看译文</span> : null}
-                </div>
-                {senses.length ? (
-                  <ol className="wc-detail-sense-list">
-                    {senses.map((sense, order) => (
-                      <SenseBlock
-                        key={`${sense.gloss}-${order}`}
-                        id={senseId(index, order)}
-                        sense={sense}
-                        order={order}
-                        total={total}
-                      />
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="wc-detail-empty">这个词暂时没有收录真题例句。</p>
-                )}
-              </motion.section>
-            </AnimatePresence>
-          </ModalPane>
-        </ModalSplit>
-      </ModalContent>
-    </Modal>
-  );
+/** Sense colours: the card's bar colour, each later sense lighter. */
+function senseColor(order: number) {
+  return `color-mix(in oklab, var(--bar-fill) ${Math.max(30, 100 - order * 22)}%, var(--card-bg))`;
 }
 
-function senseId(wordIndex: number, order: number) {
-  return `wc-detail-sense-${wordIndex}-${order}`;
-}
-
-/** Each sense's tone: the first at the full bar colour, later ones lighter. */
-function senseTone(order: number) {
-  return { '--wc-seg-mix': `${Math.max(28, 100 - order * 24)}%` } as CSSProperties;
+function senseStyle(order: number) {
+  return { '--wc-sense-color': senseColor(order) } as CSSProperties;
 }
 
 function formatOrder(order: number) {
   return String(order + 1).padStart(2, '0');
 }
 
-/** How the occurrences split across senses: one bar, then a legend that jumps to each sense. */
-function SenseSummary({
-  senses,
-  total,
-  onSelect,
-}: {
-  senses: readonly WordSense[];
-  total: number;
-  onSelect: (order: number) => void;
-}) {
+function senseId(word: string, order: number) {
+  return `wc-detail-${encodeURIComponent(word)}-${order}`;
+}
+
+const FLASH_MS = 1100;
+
+export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, finalFocus }: WordCardDetailProps) {
+  const word = words[index];
+  if (!word) return null;
+
+  const label = word.label?.trim() || null;
+  const senses = word.senses ?? [];
+
   return (
-    <motion.section variants={rowVariants} className="wc-detail-summary" aria-label="义项分布">
-      <div className="wc-detail-summary-head">
-        <span>义项分布</span>
-        <span className="wc-detail-summary-meta">
-          {senses.length} 个义项 · 共 {total} 次
-        </span>
-      </div>
-      <div className="wc-detail-distribution" aria-hidden="true">
-        {senses.map((sense, order) => (
-          <span
-            key={`${sense.gloss}-${order}`}
-            className="wc-detail-segment"
-            style={{ ...senseTone(order), flexGrow: Math.max(1, getSensePercentage(sense, total)) }}
+    <KnowledgeCard
+      open={open}
+      onOpenChange={onOpenChange}
+      count={words.length}
+      index={index}
+      onIndexChange={onNavigate}
+      itemKey={`${index}:${word.word}`}
+      labels={{ group: '切换单词', prev: '上一个单词', next: '下一个单词' }}
+      size="lg"
+      height="44rem"
+      className={`wc-detail${hasPhraseMeaning(word) ? ' has-phrase' : ''}`}
+      data-tone={getTone(index)}
+      finalFocus={finalFocus}
+    >
+      <KnowledgeCardHeader
+        title={word.word}
+        titleMode="scrolled"
+        titleProps={{ lang: 'en', className: 'wc-detail-title' }}
+      />
+      <KnowledgeCardStage columns="minmax(0, 0.86fr) minmax(0, 1.14fr)">
+        <WordAside word={word} label={label} senses={senses} />
+        <WordMain word={word} senses={senses} />
+      </KnowledgeCardStage>
+    </KnowledgeCard>
+  );
+}
+
+function WordAside({ word, label, senses }: { word: WordCardData; label: string | null; senses: readonly WordSense[] }) {
+  return (
+    <KnowledgeCardAside className="wc-detail-side">
+      <KnowledgeCardHero
+        className="wc-detail-hero"
+        title={word.word}
+        titleProps={{ lang: 'en', className: 'wc-detail-word' }}
+        subtitle={word.phonetic ? <span className="wc-detail-phonetic">{word.phonetic}</span> : null}
+        badge={label ? <span className="wc-label">{label}</span> : null}
+      >
+        <div className="wc-detail-meanings" aria-label="释义" role="list">
+          {word.meanings.map((meaning, meaningIndex) => (
+            <div
+              role="listitem"
+              className={`wc-detail-meaning${meaning.key ? ' is-key' : ''}`}
+              key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
+              {...knowledgeCardReveal(meaningIndex)}
+            >
+              <span className="wc-detail-pos">{meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}</span>
+              <span className="wc-detail-meaning-text">
+                <MeaningText meaning={meaning} />
+              </span>
+            </div>
+          ))}
+        </div>
+      </KnowledgeCardHero>
+      {senses.length ? <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} /> : null}
+    </KnowledgeCardAside>
+  );
+}
+
+/**
+ * How the occurrences split across senses: the study donut, total in the
+ * hole, beside a legend. Hovering either side highlights the same sense;
+ * choosing one scrolls the main column to it.
+ */
+function SenseDistribution({ word, senses, offset }: { word: string; senses: readonly WordSense[]; offset: number }) {
+  const [active, setActive] = useState<string | null>(null);
+  const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
+  const data = senses.map((sense) => ({ gloss: sense.gloss, count: Math.max(0, sense.count) }));
+  const colors = Object.fromEntries(senses.map((sense, order) => [sense.gloss, senseColor(order)]));
+
+  const show = (order: number) => {
+    const target = document.getElementById(senseId(word, order));
+    if (!target) return;
+    target.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    target.dataset.flash = '';
+    window.setTimeout(() => delete target.dataset.flash, FLASH_MS);
+  };
+  const showByName = (name: string) => {
+    const order = senses.findIndex((sense) => sense.gloss === name);
+    if (order >= 0) show(order);
+  };
+
+  return (
+    <KnowledgeCardSection
+      className="wc-detail-summary"
+      label="义项分布"
+      meta={`${senses.length} 个义项 · 共 ${total} 次`}
+      {...knowledgeCardReveal(offset)}
+    >
+      <div className="wc-detail-distribution">
+        <div className="wc-detail-donut">
+          <StudyPieChart
+            variant="inline"
+            title={`${word} 的义项分布`}
+            summary={senses.map((sense) => `${sense.gloss} ${getSensePercentage(sense, total)}%`).join('，')}
+            data={data}
+            nameKey="gloss"
+            valueKey="count"
+            donut
+            centerLabel={String(total)}
+            centerCaption="次"
+            colors={colors}
+            maxSlices={Math.max(1, senses.length)}
+            height={156}
+            activeName={active}
+            onActiveNameChange={setActive}
+            onSliceClick={showByName}
           />
-        ))}
+        </div>
+        <ol className="wc-detail-legend" onPointerLeave={() => setActive(null)}>
+          {senses.map((sense, order) => (
+            <li key={`${sense.gloss}-${order}`}>
+              <button
+                type="button"
+                className="wc-detail-legend-item"
+                title={sense.gloss}
+                data-active={active === sense.gloss ? '' : undefined}
+                data-dim={active && active !== sense.gloss ? '' : undefined}
+                style={senseStyle(order)}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === 'mouse') setActive(sense.gloss);
+                }}
+                onFocus={(event) => {
+                  if (event.currentTarget.matches(':focus-visible')) setActive(sense.gloss);
+                }}
+                onBlur={() => setActive(null)}
+                onClick={() => show(order)}
+              >
+                <span className="wc-detail-swatch" aria-hidden="true" />
+                <span className="wc-detail-legend-gloss">{sense.gloss}</span>
+                <span className="wc-detail-legend-pct">{getSensePercentage(sense, total)}%</span>
+              </button>
+            </li>
+          ))}
+        </ol>
       </div>
-      <ol className="wc-detail-legend">
-        {senses.map((sense, order) => (
-          <li key={`${sense.gloss}-${order}`}>
-            <button type="button" className="wc-detail-legend-item" onClick={() => onSelect(order)}>
-              <span className="wc-detail-swatch" style={senseTone(order)} aria-hidden="true" />
-              <span className="wc-detail-legend-order">{formatOrder(order)}</span>
-              <span className="wc-detail-legend-gloss">{sense.gloss}</span>
-              <span className="wc-detail-legend-pct">{getSensePercentage(sense, total)}%</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-    </motion.section>
+    </KnowledgeCardSection>
+  );
+}
+
+function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
+  const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
+  return (
+    <KnowledgeCardMain>
+      <KnowledgeCardSection label="真题语境" meta={senses.length ? '悬停或点按例句查看译文' : null}>
+        {senses.length ? (
+          <ol className="wc-detail-sense-list">
+            {senses.map((sense, order) => (
+              <SenseBlock
+                key={`${sense.gloss}-${order}`}
+                id={senseId(word.word, order)}
+                sense={sense}
+                order={order}
+                total={total}
+              />
+            ))}
+          </ol>
+        ) : (
+          <p className="wc-detail-empty">这个词暂时没有收录真题例句。</p>
+        )}
+      </KnowledgeCardSection>
+    </KnowledgeCardMain>
   );
 }
 
 function SenseBlock({ id, sense, order, total }: { id: string; sense: WordSense; order: number; total: number }) {
+  const percentage = getSensePercentage(sense, total);
+  const count = Math.max(0, sense.count);
   return (
-    <motion.li variants={rowVariants} id={id} className="wc-detail-sense">
+    <li id={id} className="wc-detail-sense" {...knowledgeCardReveal(order + 1, senseStyle(order))}>
       <div className="wc-detail-sense-head">
-        <span className="wc-detail-sense-index" style={senseTone(order)} aria-hidden="true">
+        <span className="wc-detail-sense-index" aria-hidden="true">
           {formatOrder(order)}
         </span>
         <span className="wc-detail-sense-gloss">{sense.gloss}</span>
-        <span className="wc-detail-sense-stats">
-          <span className="wc-sense-count">{Math.max(0, sense.count)} 次</span>
-          <span className="wc-sense-pct">{getSensePercentage(sense, total)}%</span>
+      </div>
+      <div className="wc-detail-sense-stats">
+        <span className="wc-detail-bar" aria-hidden="true">
+          <span className="wc-detail-bar-fill" style={{ width: `${percentage}%` }} />
         </span>
+        <span className="wc-detail-count">
+          {count}
+          <span className="wc-detail-unit"> 次</span>
+        </span>
+        <span className="wc-detail-pct">{percentage}%</span>
       </div>
       {sense.examples?.length ? (
         <ul className="wc-detail-examples">
@@ -316,6 +271,6 @@ function SenseBlock({ id, sense, order, total }: { id: string; sense: WordSense;
       ) : (
         <p className="wc-no-example">暂无例句</p>
       )}
-    </motion.li>
+    </li>
   );
 }

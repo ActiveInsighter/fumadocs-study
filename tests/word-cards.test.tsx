@@ -14,6 +14,9 @@ const componentSource = () =>
     .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
     .join('\n');
 
+const deckSource = () => readFileSync(new URL('../components/ui/knowledge-card.tsx', import.meta.url), 'utf8');
+const deckCss = () => readFileSync(new URL('../styles/knowledge-card.css', import.meta.url), 'utf8');
+
 const words: WordCardData[] = [
   {
     word: 'constitute',
@@ -136,9 +139,11 @@ describe('WordCards', () => {
 
   it('opens the compact detail view in the general Modal with focus return to the last shown card', () => {
     const component = componentSource();
-    expect(component).toContain("from '@/components/ui/modal'");
-    expect(component).toContain('<Modal open={open} onOpenChange={onOpenChange}>');
-    expect(component).toContain('<ModalTitle className="wc-detail-title"');
+    const deck = deckSource();
+    expect(component).toContain("from '@/components/ui/knowledge-card'");
+    expect(deck).toContain("from \"@/components/ui/modal\"");
+    expect(deck).toContain('<Modal open={open} onOpenChange={onOpenChange}>');
+    expect(component).toContain("titleProps={{ lang: 'en', className: 'wc-detail-title' }}");
     expect(component).toContain('data-tone={getTone(index)}');
     expect(component).toContain('onClick={() => openDetail(wordIndex)}');
     expect(component).toContain(":scope > .word-card .wc-expand-button')[detailIndex] ?? true");
@@ -148,10 +153,13 @@ describe('WordCards', () => {
 
   it('lets the detail modal step through cards with buttons and arrow keys', () => {
     const component = componentSource();
-    expect(component).toContain('aria-label="上一个单词"');
-    expect(component).toContain('aria-label="下一个单词"');
-    expect(component).toContain("event.key === 'ArrowLeft' && hasPrev");
-    expect(component).toContain("event.key === 'ArrowRight' && hasNext");
+    const deck = deckSource();
+    expect(component).toContain("labels={{ group: '切换单词', prev: '上一个单词', next: '下一个单词' }}");
+    expect(deck).toContain('aria-label={labels.prev}');
+    expect(deck).toContain('aria-label={labels.next}');
+    expect(deck).toContain('event.key === "ArrowLeft" && hasPrev');
+    expect(deck).toContain('event.key === "ArrowRight" && hasNext');
+    expect(component).toContain('onIndexChange={onNavigate}');
     expect(component).toContain('onNavigate={setDetailIndex}');
   });
 
@@ -203,11 +211,16 @@ describe('WordCards', () => {
     expect(component).toContain('document.startViewTransition(');
     expect(component).toContain('flushSync(() => setModeState(nextMode))');
     expect(component).toContain("prefers-reduced-motion: reduce");
-    expect(component).toContain("setDirection(next > index ? 'next' : 'prev')");
-    expect(component).toContain('<AnimatePresence mode="wait" initial={false} custom={direction}');
-    expect(component).toContain('const reducedMotion = useReducedMotion();');
-    expect(component).toContain('reducedMotion ? reducedStageVariants : stageVariants');
-    expect(detailCss).toMatch(/\.wc-detail-side\s*\{[^}]*transition:\s*background-color/u);
+    const deck = deckSource();
+    const deckStyles = deckCss();
+    const modalCss = readFileSync(new URL('../styles/modal.css', import.meta.url), 'utf8');
+    expect(deck).toContain('go: (target) => step(target, target > index ? "next" : "prev")');
+    expect(deck).toContain('data-kc-stage="leaving"');
+    expect(deck).toContain('data-kc-stage="current"');
+    expect(deckStyles).toMatch(/\[data-kc-stage='current'\]\[data-direction='next'\] \[data-slot='kc-content'\]\s*\{[^}]*kc-content-in-next/u);
+    expect(deckStyles).toMatch(/@media \(prefers-reduced-motion: reduce\)/u);
+    expect(modalCss).toMatch(/\[data-slot='modal-pane'\]\s*\{[^}]*transition:\s*background-color/u);
+    expect(detailCss).toMatch(/\.wc-detail-bar-fill\s*\{[^}]*animation:\s*wc-bar-grow/u);
     expect(css).toMatch(/html\[data-wc-mode-transition\]::view-transition-new\(root\)/u);
     expect(css).toMatch(/\.wc-mode-indicator\s*\{[^}]*transform:\s*translateX\(calc\(var\(--wc-active-index/u);
   });
@@ -261,14 +274,19 @@ describe('WordCards', () => {
     expect(cardCss).toMatch(/\.word-card\[data-tone='3'\],\s*\.wc-detail\[data-tone='3'\]\s*\{/u);
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
     expect(component).toContain('height="44rem"');
-    expect(component).toContain('<ModalPane ref={leftRef} tone="muted" className="wc-detail-side">');
+    expect(component).toContain('<KnowledgeCardAside className="wc-detail-side">');
+    expect(component).toContain('<KnowledgeCardStage columns=');
     expect(detailCss).toMatch(/--modal-pane-muted:\s*var\(--card-bg\)/u);
     expect(detailCss).toMatch(/\.wc-detail,\s*\.dark \.wc-detail\s*\{[^}]*--word-text:\s*var\(--foreground\)[^}]*--phrase-text:\s*var\(--foreground\)/u);
-    expect(detailCss).toMatch(/\.wc-detail\[data-scrolled\] \.wc-detail-title\s*\{[^}]*opacity:\s*1/u);
-    expect(component).toContain('<SenseSummary senses={senses} total={total} onSelect={showSense} />');
+    expect(component).toContain('titleMode="scrolled"');
+    expect(deckCss()).toMatch(/\[data-knowledge-card\]\[data-scrolled\] \[data-kc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
+    expect(component).toContain('<StudyPieChart');
+    expect(component).toContain('variant="inline"');
+    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />');
     expect(component).toContain('<SenseExample example={example} />');
     expect(component).not.toContain('wc-detail-example-translation');
-    expect(detailCss).toMatch(/\.wc-detail-segment,\s*\.wc-detail-swatch,\s*\.wc-detail-sense-index\s*\{[^}]*var\(--wc-seg-mix/u);
+    expect(detailCss).toMatch(/\.wc-detail-swatch\s*\{[^}]*var\(--wc-sense-color\)/u);
+    expect(detailCss).toMatch(/\.wc-detail-bar-fill\s*\{[^}]*var\(--wc-sense-color\)/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
     expect(css).not.toMatch(/wc-detail-dialog/u);
   });

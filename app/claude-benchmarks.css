@@ -50,7 +50,7 @@ body:has([data-claude-full-bleed='true']) {
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   background: var(--background) !important;
-  scrollbar-color: var(--ui-scrollbar-thumb) var(--background);
+  scrollbar-color: var(--ui-scrollbar-thumb) transparent;
   scrollbar-width: thin;
 }
 
@@ -76,17 +76,18 @@ body:has([data-claude-full-bleed='true']) {
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar {
   height: 0.5rem;
-  background: var(--background);
+  background: transparent;
 }
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar-track {
-  background: var(--background);
+  background: transparent;
 }
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar-thumb {
-  border: 2px solid var(--background);
+  border: 2px solid transparent;
   border-radius: 999px;
   background-color: var(--ui-scrollbar-thumb);
+  background-clip: padding-box;
 }
 
 #docs-body :where(div):has(> table)::-webkit-scrollbar-thumb:hover {

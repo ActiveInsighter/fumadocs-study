@@ -48,6 +48,12 @@ export type ChartFigureProps = {
   plotHeight?: number
   /** Extra controls in the header row, e.g. metric switch. */
   actions?: ReactNode
+  /**
+   * "figure" (default) is the framed panel with title, toolbar and legend;
+   * "inline" is the bare plot for use inside another surface: no frame, no
+   * toolbar, and the title kept for screen readers only.
+   */
+  variant?: "figure" | "inline"
   id?: string
   className?: string
   children: ReactNode
@@ -77,6 +83,7 @@ export function ChartFigure({
   emptyMessage,
   plotHeight,
   actions,
+  variant = "figure",
   id,
   className,
   children,
@@ -94,8 +101,9 @@ export function ChartFigure({
   const reducedMotion = useReducedChartMotion()
   const [view, setView] = React.useState<"chart" | "table">("chart")
 
+  const inline = variant === "inline"
   const subtitleNode = subtitle ?? description
-  const formats = exportFormats === false ? [] : exportFormats.filter((format) => format !== "csv" || table)
+  const formats = exportFormats === false || inline ? [] : exportFormats.filter((format) => format !== "csv" || table)
   const visibleFormats = empty ? formats.filter((format) => format === "csv") : formats
 
   const handleExport = async (format: ChartExportFormat) => {
@@ -129,12 +137,12 @@ export function ChartFigure({
   }
 
   const tableView =
-    table && !hideTableToggle
+    table && !hideTableToggle && !inline
       ? { active: view === "table", onToggle: () => setView((current) => (current === "table" ? "chart" : "table")), controls: tableId }
       : undefined
 
   return (
-    <div className={cn(styles.root, className)} data-chart-theme={theme}>
+    <div className={cn(styles.root, inline && styles.inline, className)} data-chart-theme={theme}>
       <figure
         aria-describedby={[summary ? summaryId : null, footnote ? footnoteId : null].filter(Boolean).join(" ") || undefined}
         aria-labelledby={titleId}
@@ -142,14 +150,14 @@ export function ChartFigure({
         id={id}
         ref={figureRef}
       >
-        <div className={styles.header}>
+        <div className={inline ? "sr-only" : styles.header}>
           <figcaption className={styles.caption}>
             <span className={styles.title} id={titleId}>
               {title}
             </span>
             {subtitleNode ? <span className={styles.subtitle}>{subtitleNode}</span> : null}
           </figcaption>
-          {actions || visibleFormats.length > 0 || tableView ? (
+          {!inline && (actions || visibleFormats.length > 0 || tableView) ? (
             <div className={styles.headerActions}>
               {actions}
               <ChartToolbar formats={visibleFormats} onExport={handleExport} tableView={tableView} />
