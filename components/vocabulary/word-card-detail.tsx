@@ -41,9 +41,13 @@ type WordCardDetailProps = {
  *   aside   on the card's tone: headword, phonetic, label, meanings, and a
  *           donut of how the senses share the occurrences, with a legend
  *           that highlights a slice and jumps to its sense
- *   main    one row per sense: gloss, a bar of its count and share (in the
- *           sense's colour from the donut), and examples whose translation
- *           shows on hover or tap (the same tooltip as the page)
+ *   main    one bar-list row per sense (its share fills the row behind the
+ *           gloss, in the sense's colour from the donut; count and share on
+ *           the right), then examples whose translation shows on hover or
+ *           tap (the same tooltip as the page)
+ *
+ * Pointing at a sense in either pane lights it up in the donut, the legend
+ * and the list at once.
  *
  * Text stays neutral; only backgrounds and marks carry the tone.
  */
@@ -73,6 +77,7 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
 
   const label = word.label?.trim() || null;
   const senses = word.senses ?? [];
+  const itemKey = `${index}:${word.word}`;
 
   return (
     <KnowledgeCard
@@ -81,7 +86,7 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
       count={words.length}
       index={index}
       onIndexChange={onNavigate}
-      itemKey={`${index}:${word.word}`}
+      itemKey={itemKey}
       labels={{ group: '切换单词', prev: '上一个单词', next: '下一个单词' }}
       size="lg"
       height="44rem"
@@ -95,14 +100,37 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
         titleProps={{ lang: 'en', className: 'wc-detail-title' }}
       />
       <KnowledgeCardStage columns="minmax(0, 0.86fr) minmax(0, 1.14fr)">
-        <WordAside word={word} label={label} senses={senses} />
-        <WordMain word={word} senses={senses} />
+        <WordCardBody key={itemKey} word={word} label={label} senses={senses} />
       </KnowledgeCardStage>
     </KnowledgeCard>
   );
 }
 
-function WordAside({ word, label, senses }: { word: WordCardData; label: string | null; senses: readonly WordSense[] }) {
+type Highlight = { active: string | null; setActive: (gloss: string | null) => void };
+
+/** Both panes of one word; the sense under the pointer lights up in the donut, legend and list together. */
+function WordCardBody({ word, label, senses }: { word: WordCardData; label: string | null; senses: readonly WordSense[] }) {
+  const [active, setActive] = useState<string | null>(null);
+  const highlight = { active, setActive };
+  return (
+    <>
+      <WordAside word={word} label={label} senses={senses} highlight={highlight} />
+      <WordMain word={word} senses={senses} highlight={highlight} />
+    </>
+  );
+}
+
+function WordAside({
+  word,
+  label,
+  senses,
+  highlight,
+}: {
+  word: WordCardData;
+  label: string | null;
+  senses: readonly WordSense[];
+  highlight: Highlight;
+}) {
   return (
     <KnowledgeCardAside className="wc-detail-side">
       <KnowledgeCardHero
@@ -128,7 +156,9 @@ function WordAside({ word, label, senses }: { word: WordCardData; label: string 
           ))}
         </div>
       </KnowledgeCardHero>
-      {senses.length ? <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} /> : null}
+      {senses.length ? (
+        <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} highlight={highlight} />
+      ) : null}
     </KnowledgeCardAside>
   );
 }
@@ -138,8 +168,17 @@ function WordAside({ word, label, senses }: { word: WordCardData; label: string 
  * hole, beside a legend. Hovering either side highlights the same sense;
  * choosing one scrolls the main column to it.
  */
-function SenseDistribution({ word, senses, offset }: { word: string; senses: readonly WordSense[]; offset: number }) {
-  const [active, setActive] = useState<string | null>(null);
+function SenseDistribution({
+  word,
+  senses,
+  offset,
+  highlight: { active, setActive },
+}: {
+  word: string;
+  senses: readonly WordSense[];
+  offset: number;
+  highlight: Highlight;
+}) {
   const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
   const data = senses.map((sense) => ({ gloss: sense.gloss, count: Math.max(0, sense.count) }));
   const colors = Object.fromEntries(senses.map((sense, order) => [sense.gloss, senseColor(order)]));
@@ -174,7 +213,7 @@ function SenseDistribution({ word, senses, offset }: { word: string; senses: rea
             valueKey="count"
             donut
             centerLabel={String(total)}
-            centerCaption="次"
+            centerCaption="次出现"
             colors={colors}
             maxSlices={Math.max(1, senses.length)}
             height={156}
@@ -214,7 +253,7 @@ function SenseDistribution({ word, senses, offset }: { word: string; senses: rea
   );
 }
 
-function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
+function WordMain({ word, senses, highlight }: { word: WordCardData; senses: readonly WordSense[]; highlight: Highlight }) {
   const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
   return (
     <KnowledgeCardMain>
@@ -228,6 +267,7 @@ function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordS
                 sense={sense}
                 order={order}
                 total={total}
+                highlight={highlight}
               />
             ))}
           </ol>
@@ -239,26 +279,49 @@ function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordS
   );
 }
 
-function SenseBlock({ id, sense, order, total }: { id: string; sense: WordSense; order: number; total: number }) {
+function SenseBlock({
+  id,
+  sense,
+  order,
+  total,
+  highlight: { active, setActive },
+}: {
+  id: string;
+  sense: WordSense;
+  order: number;
+  total: number;
+  highlight: Highlight;
+}) {
   const percentage = getSensePercentage(sense, total);
   const count = Math.max(0, sense.count);
+  const style = { ...senseStyle(order), '--wc-share': `${percentage}%` } as CSSProperties;
   return (
-    <li id={id} className="wc-detail-sense" {...knowledgeCardReveal(order + 1, senseStyle(order))}>
-      <div className="wc-detail-sense-head">
+    <li
+      id={id}
+      className="wc-detail-sense"
+      data-active={active === sense.gloss ? '' : undefined}
+      onPointerEnter={(event) => {
+        if (event.pointerType === 'mouse') setActive(sense.gloss);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === 'mouse') setActive(null);
+      }}
+      {...knowledgeCardReveal(order + 1, style)}
+    >
+      {/* A bar list row: the share fills the row behind the gloss. */}
+      <div className="wc-detail-sense-row">
+        <span className="wc-detail-sense-fill" aria-hidden="true" />
         <span className="wc-detail-sense-index" aria-hidden="true">
           {formatOrder(order)}
         </span>
         <span className="wc-detail-sense-gloss">{sense.gloss}</span>
-      </div>
-      <div className="wc-detail-sense-stats">
-        <span className="wc-detail-bar" aria-hidden="true">
-          <span className="wc-detail-bar-fill" style={{ width: `${percentage}%` }} />
+        <span className="wc-detail-sense-stats">
+          <span className="wc-detail-count">
+            {count}
+            <span className="wc-detail-unit">次</span>
+          </span>
+          <span className="wc-detail-pct">{percentage}%</span>
         </span>
-        <span className="wc-detail-count">
-          {count}
-          <span className="wc-detail-unit"> 次</span>
-        </span>
-        <span className="wc-detail-pct">{percentage}%</span>
       </div>
       {sense.examples?.length ? (
         <ul className="wc-detail-examples">

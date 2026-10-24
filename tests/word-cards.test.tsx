@@ -220,7 +220,7 @@ describe('WordCards', () => {
     expect(deckStyles).toMatch(/\[data-kc-stage='current'\]\[data-direction='next'\] \[data-slot='kc-content'\]\s*\{[^}]*kc-content-in-next/u);
     expect(deckStyles).toMatch(/@media \(prefers-reduced-motion: reduce\)/u);
     expect(modalCss).toMatch(/\[data-slot='modal-pane'\]\s*\{[^}]*transition:\s*background-color/u);
-    expect(detailCss).toMatch(/\.wc-detail-bar-fill\s*\{[^}]*animation:\s*wc-bar-grow/u);
+    expect(detailCss).toMatch(/\.wc-detail-sense-fill\s*\{[^}]*animation:\s*wc-share-in/u);
     expect(css).toMatch(/html\[data-wc-mode-transition\]::view-transition-new\(root\)/u);
     expect(css).toMatch(/\.wc-mode-indicator\s*\{[^}]*transform:\s*translateX\(calc\(var\(--wc-active-index/u);
   });
@@ -282,11 +282,12 @@ describe('WordCards', () => {
     expect(deckCss()).toMatch(/\[data-knowledge-card\]\[data-scrolled\] \[data-kc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
     expect(component).toContain('<StudyPieChart');
     expect(component).toContain('variant="inline"');
-    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />');
+    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} highlight={highlight} />');
+    expect(component).toContain('<WordCardBody key={itemKey}');
     expect(component).toContain('<SenseExample example={example} />');
     expect(component).not.toContain('wc-detail-example-translation');
     expect(detailCss).toMatch(/\.wc-detail-swatch\s*\{[^}]*var\(--wc-sense-color\)/u);
-    expect(detailCss).toMatch(/\.wc-detail-bar-fill\s*\{[^}]*var\(--wc-sense-color\)/u);
+    expect(detailCss).toMatch(/\.wc-detail-sense-fill\s*\{[^}]*var\(--wc-sense-color\)/u);
     expect(css).toMatch(/\.wc-expand-button:focus-visible/u);
     expect(css).not.toMatch(/wc-detail-dialog/u);
   });

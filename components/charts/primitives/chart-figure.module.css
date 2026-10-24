@@ -334,7 +334,7 @@
 
 /* Pie and donut slices: dimming follows the highlighted slice. */
 .slice {
-  transition: fill-opacity var(--chart-fade) var(--chart-ease);
+  transition: fill-opacity var(--chart-fade) var(--chart-ease), d var(--chart-fade) var(--chart-ease);
 }
 
 .sliceInteractive {

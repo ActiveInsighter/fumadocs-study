@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type Key } from "react"
 import { cn } from "@/lib/utils"
-import { Cell, Pie, PieChart } from "recharts"
+import { Cell, Pie, PieChart, Sector, type PieSectorShapeProps } from "recharts"
 
 import type { ChartConfig } from "@/components/ui/chart"
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
@@ -37,12 +37,12 @@ export type StudyPieChartProps = BaseChartProps & {
    * panel-coloured stroke. Pair it with a legend of your own.
    */
   variant?: "figure" | "inline"
-  /** Slice to highlight (the others dim), by category name; controlled. */
+  /** Slice to highlight (it grows outwards, the others dim), by category name; controlled. */
   activeName?: string | null
   /** Hovering a slice reports its name, and null on leaving. */
   onActiveNameChange?: (name: string | null) => void
   onSliceClick?: (name: string) => void
-  /** Hole size of a donut, as a share of the outer radius. Default "62%", inline "68%". */
+  /** Hole size of a donut, as a share of the outer radius. Default "62%", inline "74%". */
   innerRadius?: string
 }
 
@@ -142,8 +142,24 @@ function PiePlot({
   const total = visible.reduce((sum, slice) => sum + slice.value, 0)
   const percent = createFormatter({ preset: "ratio", digits: 0 }, locale)
   const config: ChartConfig = Object.fromEntries(slices.map((slice) => [slice.key, { label: slice.name, color: slice.color }]))
-  const margin = inline ? 2 : 8
+  // Inline donuts leave room for the highlighted slice to grow outwards.
+  const margin = inline ? 7 : 8
   const nameAt = (index: number) => visible[index]?.name ?? null
+  const renderSlice = (props: PieSectorShapeProps, index?: string | number) => {
+    const name = nameAt(Number(index))
+    const active = activeName != null && name === activeName
+    // Recharts hands the key inside the props; React wants it passed on its own.
+    const { key, ...sector } = props as PieSectorShapeProps & { key?: Key }
+    return (
+      <Sector
+        key={key}
+        {...sector}
+        fillOpacity={activeName != null && !active ? 0.3 : 1}
+        innerRadius={active ? sector.innerRadius - 1 : sector.innerRadius}
+        outerRadius={active ? sector.outerRadius + 6 : sector.outerRadius}
+      />
+    )
+  }
 
   return (
     <ChartContainer className={chartStyles.chartBox} config={config} style={{ height }}>
@@ -154,11 +170,11 @@ function PiePlot({
         <Pie
           animationDuration={800}
           animationEasing="ease-out"
-          cornerRadius={donut ? (inline ? 6 : 5) : 2}
+          cornerRadius={donut ? (inline ? 8 : 5) : 2}
           data={visible}
           dataKey="value"
           endAngle={-270}
-          innerRadius={donut ? innerRadius ?? (inline ? "68%" : "62%") : 0}
+          innerRadius={donut ? innerRadius ?? (inline ? "74%" : "62%") : 0}
           isAnimationActive={shouldAnimate}
           label={
             showPercent
@@ -171,7 +187,8 @@ function PiePlot({
           onMouseEnter={onActiveNameChange ? (_: unknown, index: number) => onActiveNameChange(nameAt(index)) : undefined}
           onMouseLeave={onActiveNameChange ? () => onActiveNameChange(null) : undefined}
           outerRadius={showPercent ? "72%" : inline ? "100%" : "86%"}
-          paddingAngle={visible.length > 1 ? (inline ? 3 : 2) : 0}
+          paddingAngle={visible.length > 1 ? (inline ? 5 : 2) : 0}
+          shape={renderSlice}
           startAngle={90}
           stroke={inline ? "none" : "var(--chart-panel)"}
           strokeWidth={inline ? 0 : 2}
@@ -180,7 +197,6 @@ function PiePlot({
             <Cell
               className={cn(chartStyles.slice, onSliceClick && chartStyles.sliceInteractive)}
               fill={slice.color}
-              fillOpacity={activeName && slice.name !== activeName ? 0.28 : 1}
               key={slice.key}
             />
           ))}

@@ -26,7 +26,7 @@
   /* The aside (and, on phones, the popup under its faded top) takes the card's tone. */
   --modal-pane-muted: var(--card-bg);
 
-  --wc-sense-indent: calc(1.75rem + 12px);
+  --wc-sense-indent: calc(1.625rem + 22px);
   --wc-example-mark: color-mix(in srgb, var(--wc-accent) 55%, transparent);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
@@ -97,28 +97,29 @@
 
 /* ---- Aside: sense distribution ------------------------------------------- */
 
+/* A frosted panel on the card's tone: the donut beside its legend. */
 .wc-detail-summary {
+  container: wc-summary / inline-size;
   padding: 16px 16px 14px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--wc-ink) 4.5%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wc-ink) 6%, transparent);
+  border-radius: 20px;
+  background: color-mix(in srgb, #fff 46%, transparent);
+  box-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 70%),
+    0 1px 2px color-mix(in srgb, var(--wc-ink) 5%, transparent),
+    0 10px 28px -18px color-mix(in srgb, var(--wc-ink) 30%, transparent);
 }
 
 .dark .wc-detail-summary {
-  background: rgb(255 255 255 / 4%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 6%);
+  background: rgb(255 255 255 / 4.5%);
+  box-shadow: inset 0 0.5px 0 rgb(255 255 255 / 8%), inset 0 0 0 1px rgb(255 255 255 / 5%);
 }
 
-.wc-detail-summary {
-  container: wc-summary / inline-size;
-}
-
-/* The donut above its legend; side by side once there is room for whole glosses. */
+/* Stacked when narrow; the donut beside its legend once there is room. */
 .wc-detail-distribution {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .wc-detail-donut {
@@ -129,16 +130,12 @@
   justify-self: stretch;
 }
 
-@container wc-summary (width >= 30rem) {
+@container wc-summary (width >= 26rem) {
   .wc-detail-distribution {
-    grid-template-columns: 9.25rem minmax(0, 1fr);
+    grid-template-columns: 9.75rem minmax(0, 1fr);
     align-items: center;
     justify-items: start;
-    gap: 4px 18px;
-  }
-
-  .wc-detail-donut {
-    width: 9.25rem;
+    gap: 6px 16px;
   }
 }
 
@@ -146,24 +143,24 @@
 .wc-detail-donut text tspan:first-child {
   fill: var(--word-text);
   font-family: var(--wc-display-font);
-  font-size: 1.75rem;
+  font-size: 1.875rem;
   font-weight: 760;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .wc-detail-donut text tspan:last-child {
   fill: var(--muted-text);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .wc-detail-legend {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
-  margin: 0 -8px;
+  margin: 0 -6px;
   padding: 0;
   list-style: none;
 }
@@ -174,11 +171,11 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: baseline;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
-  padding: 6px 8px;
+  padding: 7px 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 11px;
   background: transparent;
   color: var(--meaning-text);
   font: inherit;
@@ -186,22 +183,17 @@
   text-align: left;
   cursor: pointer;
   transition:
-    background-color 160ms ease,
-    opacity 200ms ease;
+    background-color 180ms ease,
+    opacity 220ms ease;
 }
 
 .wc-detail-legend-item:hover,
 .wc-detail-legend-item[data-active] {
-  background: color-mix(in srgb, var(--wc-ink) 7%, transparent);
-}
-
-.dark .wc-detail-legend-item:hover,
-.dark .wc-detail-legend-item[data-active] {
-  background: rgb(255 255 255 / 7%);
+  background: color-mix(in srgb, var(--wc-sense-color) 16%, transparent);
 }
 
 .wc-detail-legend-item[data-dim] {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .wc-detail-legend-item:focus-visible {
@@ -211,11 +203,12 @@
 
 .wc-detail-swatch {
   align-self: start;
-  margin-top: calc(0.7em - 5px);
-  width: 10px;
-  height: 10px;
-  border-radius: 3.5px;
+  width: 9px;
+  height: 9px;
+  margin-top: calc(0.7em - 4.5px);
+  border-radius: 50%;
   background: var(--wc-sense-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wc-sense-color) 22%, transparent);
 }
 
 .wc-detail-legend-gloss {
@@ -230,137 +223,130 @@
 
 .wc-detail-legend-pct {
   color: var(--foreground);
-  font-size: 0.75rem;
-  font-weight: 680;
+  font-family: var(--wc-display-font);
+  font-size: 0.875rem;
+  font-weight: 720;
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- Main: senses --------------------------------------------------------- */
+/* ---- Main: senses as a bar list ------------------------------------------ */
 
 .wc-detail-sense-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .wc-detail-sense {
-  position: relative;
-  padding: 16px 0 18px;
   scroll-margin-top: 8px;
 }
 
-.wc-detail-sense + .wc-detail-sense {
-  border-top: 1px solid var(--ui-fill-strong);
-}
-
-.wc-detail-sense:first-child {
-  padding-top: 4px;
-}
-
-.wc-detail-sense:last-child {
-  padding-bottom: 4px;
-}
-
-/* A sense chosen from the legend glows briefly in its colour. */
-.wc-detail-sense::before {
-  content: '';
-  position: absolute;
-  inset: 4px -12px;
-  z-index: -1;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--wc-sense-color) 16%, transparent);
-  opacity: 0;
-  transition: opacity 600ms ease;
-}
-
-.wc-detail-sense[data-flash]::before {
-  opacity: 1;
-  transition-duration: 160ms;
-}
-
-.wc-detail-sense-list {
+/*
+ * The head of a sense is a bar list row: a quiet track, the share filling it
+ * from the left in the sense's colour, the index and gloss on top, and the
+ * count and share at the end.
+ */
+.wc-detail-sense-row {
   position: relative;
   isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 2.75rem;
+  padding: 7px 14px 7px 9px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--foreground) 3.5%, transparent);
+  transition: box-shadow 220ms ease;
 }
 
-.wc-detail-sense-head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: 12px;
+.wc-detail-sense-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: max(var(--wc-share, 0%), 2.75rem);
+  border-radius: inherit;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--wc-sense-color) 14%, transparent),
+    color-mix(in srgb, var(--wc-sense-color) 30%, transparent)
+  );
+  animation: wc-share-in 820ms var(--wc-ease-out) both;
+  animation-delay: calc(160ms + var(--kc-i, 0) * 40ms);
+  transition: background-color 220ms ease;
+}
+
+.wc-detail-sense[data-active] .wc-detail-sense-row,
+.wc-detail-sense[data-flash] .wc-detail-sense-row {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--wc-sense-color) 75%, transparent);
 }
 
 .wc-detail-sense-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75rem;
-  height: 1.375rem;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--wc-sense-color) 30%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wc-sense-color) 42%, transparent);
-  color: var(--foreground);
+  display: inline-grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 9px;
+  background: var(--wc-sense-color);
+  color: var(--modal-surface);
   font-family: var(--wc-display-font);
-  font-size: 0.75rem;
-  font-weight: 760;
+  font-size: 0.6875rem;
+  font-weight: 780;
   font-variant-numeric: tabular-nums;
 }
 
 .wc-detail-sense-gloss {
   color: var(--word-text);
-  font-size: 1.03rem;
+  font-size: 1rem;
   font-weight: 650;
-  line-height: 1.5;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
-/* The count bar hangs under the gloss: bar, count, share. */
 .wc-detail-sense-stats {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 12px;
-  margin: 10px 0 0 var(--wc-sense-indent);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
   font-variant-numeric: tabular-nums;
-}
-
-.wc-detail-bar {
-  position: relative;
-  height: 6px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--bar-track);
-}
-
-.wc-detail-bar-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  min-width: 6px;
-  border-radius: inherit;
-  background: var(--wc-sense-color);
-  transform-origin: left center;
-  animation: wc-bar-grow 720ms var(--wc-ease-out) both;
-  animation-delay: calc(140ms + var(--kc-i, 0) * 38ms);
+  white-space: nowrap;
 }
 
 .wc-detail-count {
   color: var(--foreground);
-  font-size: 0.875rem;
-  font-weight: 680;
+  font-family: var(--wc-display-font);
+  font-size: 1.0625rem;
+  font-weight: 760;
+  letter-spacing: -0.01em;
 }
 
 .wc-detail-unit {
+  margin-left: 2px;
   color: var(--muted-text);
+  font-family: var(--wc-body-font);
   font-size: 0.75rem;
   font-weight: 560;
 }
 
 .wc-detail-pct {
-  min-width: 2.75em;
+  min-width: 2.6em;
   color: var(--muted-text);
   font-size: 0.8125rem;
-  font-weight: 640;
+  font-weight: 650;
   text-align: right;
+}
+
+@keyframes wc-share-in {
+  from {
+    clip-path: inset(0 100% 0 0 round 14px);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0 round 14px);
+  }
 }
 
 /* Examples hang under the gloss, past the index badge. */
@@ -424,19 +410,24 @@
 
 @media (width < 48rem) {
   .wc-detail {
-    --wc-sense-indent: calc(1.75rem + 10px);
+    --wc-sense-indent: calc(1.625rem + 18px);
   }
 
   .wc-detail-summary {
     padding: 14px 12px 12px;
   }
 
+  .wc-detail-sense-row {
+    gap: 10px;
+    padding-inline: 8px 12px;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wc-detail-legend-item,
-  .wc-detail-sense::before,
-  .wc-detail-bar-fill {
+  .wc-detail-sense-row,
+  .wc-detail-sense-fill {
     transition: none;
     animation: none;
   }
