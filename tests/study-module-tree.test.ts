@@ -54,7 +54,7 @@ describe('study module metadata structure', () => {
     expect(rootDirectories).toEqual(['408', 'algorithm', 'english', 'math', 'politics'].sort());
   });
 
-  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving, question analysis and exams', () => {
+  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving, question analysis, solving methods and exams', () => {
     expect(mathMeta.root).toBe(true);
     expect(mathMeta.pages).toEqual([
       'index',
@@ -65,6 +65,7 @@ describe('study module metadata structure', () => {
       'visualizations',
       'problem-solving',
       '题目分析',
+      '解题方法',
       'exam',
     ]);
     expect(mathKnowledgeMeta.pages).toEqual([
@@ -160,8 +161,15 @@ describe('study module metadata structure', () => {
     expect(coursesExamMeta.pages).toEqual(['index']);
   });
 
-  it('keeps politics lectures, summaries, special reviews and the Xiao 1000 set in order', () => {
-    expect(politicsMeta.pages).toEqual(['index', 'exam-politics', 'topic-summary', 'special-review', 'xiao-1000']);
+  it('keeps politics lectures, summaries, special reviews, the Xiao 1000 set and the recitation handbook in order', () => {
+    expect(politicsMeta.pages).toEqual([
+      'index',
+      'exam-politics',
+      'topic-summary',
+      'special-review',
+      'xiao-1000',
+      'beisong-shouce',
+    ]);
     expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
   });
 
