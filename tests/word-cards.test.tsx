@@ -305,7 +305,11 @@ describe('WordCards', () => {
     expect(rightPane).not.toContain('setActive(');
     expect(rightPane).not.toContain('highlight={highlight}');
     expect(rightPane).not.toContain('data-active={active');
-    expect(styles).toMatch(/\\.wc-detail-summary\\s*\\{[^}]*background:\\s*transparent;[^}]*box-shadow:\\s*none/u);
+    const summaryStart = styles.indexOf('.wc-detail-summary {');
+    const summaryEnd = styles.indexOf('}', summaryStart);
+    const summaryCss = styles.slice(summaryStart, summaryEnd);
+    expect(summaryCss).toContain('background: transparent;');
+    expect(summaryCss).toContain('box-shadow: none;');
     expect(styles).not.toContain('.dark .wc-detail-summary');
     expect(styles).toContain('.wc-detail-sense:hover .wc-detail-sense-row');
     expect(styles).toContain('.wc-detail-donut .recharts-sector');
