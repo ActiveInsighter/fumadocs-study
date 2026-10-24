@@ -1,6 +1,6 @@
 /*
  * Word detail card (components/vocabulary/word-card-detail.tsx): the
- * vocabulary content inside the knowledge card deck (styles/knowledge-card.css,
+ * vocabulary content inside the study card deck (styles/study-card.css,
  * on styles/modal.css). The popup carries .wc-detail and the card's
  * data-tone, so it reads the palette of the card that opened it
  * (styles/word-cards.css), but only for surfaces and marks: the aside sits
@@ -274,7 +274,7 @@
     color-mix(in srgb, var(--wc-sense-color) 30%, transparent)
   );
   animation: wc-share-in 820ms var(--wc-ease-out) both;
-  animation-delay: calc(160ms + var(--kc-i, 0) * 40ms);
+  animation-delay: calc(160ms + var(--sc-i, 0) * 40ms);
   transition: background-color 220ms ease;
 }
 

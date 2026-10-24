@@ -14,8 +14,8 @@ const componentSource = () =>
     .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
     .join('\n');
 
-const deckSource = () => readFileSync(new URL('../components/ui/knowledge-card.tsx', import.meta.url), 'utf8');
-const deckCss = () => readFileSync(new URL('../styles/knowledge-card.css', import.meta.url), 'utf8');
+const deckSource = () => readFileSync(new URL('../components/ui/study-card.tsx', import.meta.url), 'utf8');
+const deckCss = () => readFileSync(new URL('../styles/study-card.css', import.meta.url), 'utf8');
 
 const words: WordCardData[] = [
   {
@@ -140,7 +140,7 @@ describe('WordCards', () => {
   it('opens the compact detail view in the general Modal with focus return to the last shown card', () => {
     const component = componentSource();
     const deck = deckSource();
-    expect(component).toContain("from '@/components/ui/knowledge-card'");
+    expect(component).toContain("from '@/components/ui/study-card'");
     expect(deck).toContain("from \"@/components/ui/modal\"");
     expect(deck).toContain('<Modal open={open} onOpenChange={onOpenChange}>');
     expect(component).toContain("titleProps={{ lang: 'en', className: 'wc-detail-title' }}");
@@ -215,9 +215,9 @@ describe('WordCards', () => {
     const deckStyles = deckCss();
     const modalCss = readFileSync(new URL('../styles/modal.css', import.meta.url), 'utf8');
     expect(deck).toContain('go: (target) => step(target, target > index ? "next" : "prev")');
-    expect(deck).toContain('data-kc-stage="leaving"');
-    expect(deck).toContain('data-kc-stage="current"');
-    expect(deckStyles).toMatch(/\[data-kc-stage='current'\]\[data-direction='next'\] \[data-slot='kc-content'\]\s*\{[^}]*kc-content-in-next/u);
+    expect(deck).toContain('data-sc-stage="leaving"');
+    expect(deck).toContain('data-sc-stage="current"');
+    expect(deckStyles).toMatch(/\[data-sc-stage='current'\]\[data-direction='next'\] \[data-slot='sc-content'\]\s*\{[^}]*sc-content-in-next/u);
     expect(deckStyles).toMatch(/@media \(prefers-reduced-motion: reduce\)/u);
     expect(modalCss).toMatch(/\[data-slot='modal-pane'\]\s*\{[^}]*transition:\s*background-color/u);
     expect(detailCss).toMatch(/\.wc-detail-sense-fill\s*\{[^}]*animation:\s*wc-share-in/u);
@@ -274,12 +274,12 @@ describe('WordCards', () => {
     expect(cardCss).toMatch(/\.word-card\[data-tone='3'\],\s*\.wc-detail\[data-tone='3'\]\s*\{/u);
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
     expect(component).toContain('height="44rem"');
-    expect(component).toContain('<KnowledgeCardAside className="wc-detail-side">');
-    expect(component).toContain('<KnowledgeCardStage columns=');
+    expect(component).toContain('<StudyCardAside className="wc-detail-side">');
+    expect(component).toContain('<StudyCardStage ratio={0.43}>');
     expect(detailCss).toMatch(/--modal-pane-muted:\s*var\(--card-bg\)/u);
     expect(detailCss).toMatch(/\.wc-detail,\s*\.dark \.wc-detail\s*\{[^}]*--word-text:\s*var\(--foreground\)[^}]*--phrase-text:\s*var\(--foreground\)/u);
     expect(component).toContain('titleMode="scrolled"');
-    expect(deckCss()).toMatch(/\[data-knowledge-card\]\[data-scrolled\] \[data-kc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
+    expect(deckCss()).toMatch(/\[data-study-card\] \[data-slot='modal-page'\]\[data-scrolled\] \[data-sc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
     expect(component).toContain('<StudyPieChart');
     expect(component).toContain('variant="inline"');
     expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />');
@@ -322,8 +322,8 @@ describe('WordCards', () => {
   it('flips and shifts example tooltips so they stay inside an enclosing modal or the viewport', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     const component = componentSource();
-    expect(component).toContain(`root.closest<HTMLElement>('[data-slot="modal-content"]')`);
-    expect(component).toContain("modal.querySelector<HTMLElement>('[data-slot=\"modal-header\"]')");
+    expect(component).toContain(`root.closest<HTMLElement>('[data-slot="modal-page"]')`);
+    expect(component).toContain("page.querySelector<HTMLElement>('[data-slot=\"modal-header\"]')");
     expect(component).toContain('const { offsetWidth: width, offsetHeight: height } = tooltip;');
     expect(component).toContain("root.dataset.placement = placement");
     expect(css).toMatch(/\.wc-example\[data-placement='bottom'\]\s+\.wc-example-tooltip\s*\{[^}]*top:\s*calc\(100%\s*\+\s*6px\)/u);
