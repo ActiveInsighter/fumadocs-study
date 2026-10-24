@@ -1,0 +1,13 @@
+{
+  "title": "肖秀荣背诵手册",
+  "description": "肖秀荣背诵手册按考研政治五个科目合并整理，按章背诵。",
+  "pages": [
+    "index",
+    "marxism-principles",
+    "mao-zedong-thought",
+    "xi-jinping-thought",
+    "modern-chinese-history",
+    "ideology-morality-law"
+  ],
+  "defaultOpen": false
+}
