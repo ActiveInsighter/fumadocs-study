@@ -33,12 +33,6 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Glass on a tinted pane: a touch of the tone keeps it from reading grey. */
-.wc-detail [data-slot='modal-toolbar'],
-.wc-detail [data-slot='modal-close'] {
-  background-color: color-mix(in srgb, var(--modal-glass) 86%, var(--wc-surface) 14%);
-}
-
 .wc-detail .wc-detail-title {
   color: var(--word-text);
   font-family: var(--wc-display-font);
