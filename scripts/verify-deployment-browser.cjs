@@ -130,20 +130,43 @@ async function formatting(page, base) {
     const leakedMarkers = body.innerText.match(/\*\*[^*\n]+\*\*/g) ?? [];
 
     const table = body.querySelector('table');
-    const wrapper = table?.parentElement;
+    const figure = table?.closest('[data-doc-table]');
+    const wrapper = figure?.querySelector('[data-slot="doc-table-scroll"]');
     const head = table?.querySelector('th');
-    if (!(table instanceof HTMLTableElement) || !(wrapper instanceof HTMLElement) || !(head instanceof HTMLTableCellElement)) {
-      return { error: 'Missing Markdown table, wrapper, or table header', missingStrong, leakedMarkers };
+    const cell = table?.querySelector('td');
+    if (
+      !(table instanceof HTMLTableElement) ||
+      !(wrapper instanceof HTMLElement) ||
+      !(head instanceof HTMLTableCellElement) ||
+      !(cell instanceof HTMLTableCellElement)
+    ) {
+      return { error: 'Missing Markdown table, DocTable scroll box, header or cell', missingStrong, leakedMarkers };
     }
 
     const tableFontSize = getComputedStyle(table).fontSize;
-    const originalHead = head.textContent ?? '';
-    head.textContent = '超宽表头内容'.repeat(80);
+    const actions = figure.querySelectorAll('[data-slot="doc-table-action"]').length;
     const headWhiteSpace = getComputedStyle(head).whiteSpace;
-    const headerForcesOverflow = wrapper.scrollWidth > wrapper.clientWidth;
-    head.textContent = originalHead;
 
-    return { missingStrong, leakedMarkers, tableFontSize, headWhiteSpace, headerForcesOverflow };
+    // One very long cell wraps inside the column instead of widening the table.
+    const originalCell = cell.innerHTML;
+    cell.textContent = '超长单元格内容'.repeat(80);
+    const longCellWraps = wrapper.scrollWidth <= wrapper.clientWidth + 1;
+    cell.innerHTML = originalCell;
+
+    // Many columns whose one-line width exceeds the cap keep their floors and
+    // scroll the table sideways rather than squeezing every column.
+    const row = head.parentElement;
+    const extra = Array.from({ length: 12 }, () => {
+      const th = document.createElement('th');
+      th.textContent = '宽列表头';
+      th.style.setProperty('--doc-col-fit', '2000px');
+      row.append(th);
+      return th;
+    });
+    const manyColumnsOverflow = wrapper.scrollWidth > wrapper.clientWidth;
+    extra.forEach((th) => th.remove());
+
+    return { missingStrong, leakedMarkers, tableFontSize, actions, headWhiteSpace, longCellWraps, manyColumnsOverflow };
   });
   if (check.error) throw new Error(check.error + ' ' + JSON.stringify(check));
   if (check.missingStrong.length > 0) {
@@ -153,11 +176,13 @@ async function formatting(page, base) {
     throw new Error('Raw Markdown strong markers leaked into the rendered page: ' + check.leakedMarkers.join(' | '));
   }
   if (check.tableFontSize !== '16px') throw new Error('Expected docs table font-size 16px, got ' + check.tableFontSize);
-  if (check.headWhiteSpace !== 'nowrap') {
-    throw new Error('Expected table header white-space nowrap, got ' + check.headWhiteSpace);
+  if (check.actions !== 2) throw new Error('Expected table copy and expand buttons, got ' + check.actions);
+  if (check.headWhiteSpace !== 'normal') {
+    throw new Error('Expected wrapping table cells (white-space normal), got ' + check.headWhiteSpace);
   }
-  if (!check.headerForcesOverflow) throw new Error('Long table header content did not activate horizontal overflow.');
-  return 'bold boundaries and table overflow typography: ' + JSON.stringify(check);
+  if (!check.longCellWraps) throw new Error('A single long cell widened the table instead of wrapping.');
+  if (!check.manyColumnsOverflow) throw new Error('Many wide columns did not activate horizontal overflow.');
+  return 'bold boundaries and table wrapping / overflow: ' + JSON.stringify(check);
 }
 
 /** Verify the content-addressed ZBSearch files through the actual UI. */
