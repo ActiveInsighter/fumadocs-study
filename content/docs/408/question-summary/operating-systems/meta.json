@@ -1,0 +1,13 @@
+{
+  "title": "操作系统",
+  "description": "408 操作系统高质量复习笔记",
+  "pages": [
+    "index",
+    "01-overview",
+    "02-processes-and-threads",
+    "03-memory-management",
+    "04-file-systems",
+    "05-io-management"
+  ],
+  "defaultOpen": false
+}
