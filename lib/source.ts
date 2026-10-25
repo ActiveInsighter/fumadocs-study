@@ -15,6 +15,10 @@ export const source = loader({
     typedPlugin({
       name: 'concise-math-problem-solving-sidebar',
       transformPageTree: {
+        folder(node) {
+          node.defaultOpen = false;
+          return node;
+        },
         file(node) {
           if (
             node.type === 'page' &&
