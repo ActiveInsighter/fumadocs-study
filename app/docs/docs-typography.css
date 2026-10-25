@@ -12,9 +12,13 @@
   line-height: 1.8;
 }
 
-/* Tables are intentionally one pixel smaller than the 17px docs body. */
+/*
+ * Tables are one step smaller than the text around them: 16px in the 17px
+ * body, and proportionally smaller inside a callout or card, so a nested
+ * table never reads larger than its container.
+ */
 #docs-body table {
-  font-size: 1rem;
+  font-size: calc(16em / 17);
 }
 
 .docs-page-title {

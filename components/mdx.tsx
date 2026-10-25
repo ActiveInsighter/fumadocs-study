@@ -17,6 +17,7 @@ import { MotionScene } from '@/components/blog-hero/motion-scene';
 import { MathPlot2D, MathPlot3D } from '@/components/math-plot';
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
+import { DocTable } from '@/components/mdx/doc-table';
 import { InlineSvg } from '@/components/mdx/inline-svg';
 import { MdxPreview, MdxPreviewCanvas } from '@/components/mdx/mdx-preview';
 import {
@@ -45,7 +46,8 @@ import type { MDXComponents } from 'mdx/types';
 /**
  * Global MDX component registry.
  *
- * Cards and Callout are included by Fumadocs' default mapping. The additional
+ * Cards and Callout are included by Fumadocs' default mapping; Markdown tables
+ * replace its `table` with DocTable (wrapping columns, copy and expand). The additional
  * official component groups below are registered globally so documentation can
  * use Tabs, Accordions, Steps, Files, TypeTable, Mermaid, WordCards, the shared
  * vocabulary display toggle, MindMap, inline SVG diagrams, the reusable Study
@@ -63,6 +65,7 @@ export function getMDXComponents(components?: MDXComponents) {
     ...FilesComponents,
     ...StepsComponents,
     ...TabsComponents,
+    table: DocTable,
     MathPlot2D,
     MathPlot3D,
     Mermaid,
