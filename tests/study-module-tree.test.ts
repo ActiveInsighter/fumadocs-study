@@ -179,6 +179,7 @@ describe('study module metadata structure', () => {
       'vocabulary',
       'supplement-vocabulary',
       'phrases',
+      'kaoyan-methods',
       'word-cards-demo',
       'claude-benchmarks',
       'chart-components',
