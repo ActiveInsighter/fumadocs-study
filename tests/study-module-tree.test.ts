@@ -180,6 +180,7 @@ describe('study module metadata structure', () => {
       'supplement-vocabulary',
       'phrases',
       'kaoyan-methods',
+      'kaoyan-changnanju',
       'word-cards-demo',
       'claude-benchmarks',
       'chart-components',
