@@ -1,0 +1,14 @@
+{
+  "title": "计算机网络",
+  "description": "408 计算机网络高质量复习笔记",
+  "pages": [
+    "index",
+    "01-architecture",
+    "02-physical-layer",
+    "03-data-link-layer",
+    "04-network-layer",
+    "05-transport-layer",
+    "06-application-layer"
+  ],
+  "defaultOpen": false
+}

@@ -1,0 +1,14 @@
+{
+  "title": "计算机组成原理",
+  "description": "408 计算机组成原理高质量复习笔记",
+  "pages": [
+    "index",
+    "01-overview",
+    "02-data-representation",
+    "03-memory-systems",
+    "04-instruction-set",
+    "05-cpu",
+    "06-buses"
+  ],
+  "defaultOpen": false
+}

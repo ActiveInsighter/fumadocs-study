@@ -96,6 +96,7 @@ describe('study module metadata structure', () => {
       'knowledge2',
       'knowledge',
       'problem-solving',
+      'question-summary',
       'exam',
     ]);
     expect(coursesKnowledgeMeta.pages).toEqual([

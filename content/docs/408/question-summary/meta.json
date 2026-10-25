@@ -1,0 +1,12 @@
+{
+  "title": "408题型总结",
+  "description": "408 四门课程的题型总结、公式推导、例题与训练解析，共 24 篇章节笔记。",
+  "pages": [
+    "index",
+    "data-structures",
+    "computer-organization",
+    "operating-systems",
+    "computer-networks"
+  ],
+  "defaultOpen": false
+}

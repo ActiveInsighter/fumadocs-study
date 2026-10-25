@@ -1,0 +1,15 @@
+{
+  "title": "数据结构",
+  "description": "408 数据结构高质量复习笔记",
+  "pages": [
+    "index",
+    "01-introduction-and-complexity",
+    "02-linear-lists",
+    "03-stacks-queues-arrays",
+    "04-string-and-kmp",
+    "05-trees",
+    "06-graphs",
+    "07-search"
+  ],
+  "defaultOpen": false
+}
