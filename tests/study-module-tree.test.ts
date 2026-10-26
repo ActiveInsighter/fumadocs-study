@@ -11,12 +11,7 @@ function readJson(path: string) {
 describe('study module metadata structure', () => {
   const rootMeta = readJson(join(docsRoot, 'meta.json'));
   const mathMeta = readJson(join(docsRoot, 'math', 'meta.json'));
-  const mathKnowledgeMeta = readJson(join(docsRoot, 'math', 'knowledge', 'meta.json'));
-  const mathSupplementsMeta = readJson(join(docsRoot, 'math', 'supplements', 'meta.json'));
-  const mathProblemSolvingMeta = readJson(join(docsRoot, 'math', 'problem-solving', 'meta.json'));
-  const mathExamMeta = readJson(join(docsRoot, 'math', 'exam', 'meta.json'));
   const politicsMeta = readJson(join(docsRoot, 'politics', 'meta.json'));
-  const examPoliticsMeta = readJson(join(docsRoot, 'politics', 'exam-politics', 'meta.json'));
   const englishMeta = readJson(join(docsRoot, 'english', 'meta.json'));
   const englishVocabularyMeta = readJson(
     join(docsRoot, 'english', 'vocabulary', 'meta.json'),
@@ -26,7 +21,6 @@ describe('study module metadata structure', () => {
   );
   const englishPhraseMeta = readJson(join(docsRoot, 'english', 'phrases', 'meta.json'));
   const coursesMeta = readJson(join(docsRoot, '408', 'meta.json'));
-  const coursesKnowledgeMeta = readJson(join(docsRoot, '408', 'knowledge', 'meta.json'));
   const coursesSummaryMeta = readJson(join(docsRoot, '408', 'knowledge2', 'meta.json'));
   const coursesComputerOrganizationMeta = readJson(
     join(docsRoot, '408', 'knowledge2', 'computer-organization', 'meta.json'),
@@ -40,7 +34,6 @@ describe('study module metadata structure', () => {
   const coursesComputerNetworkMeta = readJson(
     join(docsRoot, '408', 'knowledge2', 'computer_network', 'meta.json'),
   );
-  const coursesProblemSolvingMeta = readJson(join(docsRoot, '408', 'problem-solving', 'meta.json'));
   const coursesExamMeta = readJson(join(docsRoot, '408', 'exam', 'meta.json'));
 
   it('exposes exactly five physical and sidebar root modules', () => {
@@ -54,39 +47,16 @@ describe('study module metadata structure', () => {
     expect(rootDirectories).toEqual(['408', 'algorithm', 'english', 'math', 'politics'].sort());
   });
 
-  it('keeps math split into knowledge, formulas, supplements, maps, visualizations, problem solving, question analysis, solving methods and exams', () => {
+  it('keeps the active math study collections in order', () => {
     expect(mathMeta.root).toBe(true);
     expect(mathMeta.pages).toEqual([
       'index',
-      'knowledge',
       'formulas',
-      'supplements',
       'mind-maps',
       'visualizations',
-      'problem-solving',
       '题目分析',
       '解题方法',
-      'exam',
     ]);
-    expect(mathKnowledgeMeta.pages).toEqual([
-      'index',
-      'advanced-mathematics',
-      'linear-algebra',
-      'probability-statistics',
-    ]);
-    expect(mathSupplementsMeta.pages).toEqual([
-      'index',
-      'advanced-mathematics',
-      'linear-algebra',
-      'probability-statistics',
-    ]);
-    expect(mathProblemSolvingMeta.pages).toEqual([
-      'index',
-      'advanced-mathematics',
-      'linear-algebra',
-      'probability-statistics',
-    ]);
-    expect(mathExamMeta.pages).toEqual(['index']);
   });
 
   it('exposes the four complete 408 courses at the module root', () => {
@@ -94,19 +64,8 @@ describe('study module metadata structure', () => {
     expect(coursesMeta.pages).toEqual([
       'index',
       'knowledge2',
-      'knowledge',
-      'problem-solving',
       'question-summary',
       'exam',
-    ]);
-    expect(coursesKnowledgeMeta.pages).toEqual([
-      'index',
-      'mind-map-demo',
-      'motion-stage-demo',
-      'data-structures',
-      'computer-organization',
-      'operating-systems',
-      'computer-networks',
     ]);
     expect(coursesSummaryMeta.pages).toEqual([
       'index',
@@ -152,28 +111,17 @@ describe('study module metadata structure', () => {
       '05-transport-layer',
       '06-application-layer',
     ]);
-    expect(coursesProblemSolvingMeta.pages).toEqual([
-      'index',
-      'data-structures',
-      'computer-organization',
-      'operating-systems',
-      'computer-networks',
-    ]);
     expect(coursesExamMeta.pages).toEqual(['index']);
   });
 
-  it('keeps politics lectures, summaries, special reviews, Xiao 1000 questions and notes, and the recitation handbook in order', () => {
+  it('keeps politics special reviews and recitation collections in order', () => {
     expect(politicsMeta.pages).toEqual([
       'index',
-      'exam-politics',
-      'topic-summary',
       'special-review',
-      'xiao-1000',
       'xiao-1000-notes',
       'beisong-shouce',
       '27肖帽子题背诵版',
     ]);
-    expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
   });
 
   it('organizes English vocabulary as a dedicated eight-part study path', () => {
@@ -184,11 +132,6 @@ describe('study module metadata structure', () => {
       'phrases',
       'kaoyan-methods',
       'kaoyan-changnanju',
-      'kaoyan-zhenxiang-1026',
-      'word-cards-demo',
-      'claude-benchmarks',
-      'chart-components',
-      'chart-gallery',
     ]);
     expect(englishVocabularyMeta.pages).toEqual([
       'index',
@@ -227,32 +170,6 @@ describe('study module metadata structure', () => {
 
     expect(vocabularyIndex).toContain('href={`/docs/english/vocabulary/${module.slug}`}');
     expect(vocabularyIndex).not.toContain('href={`./${module.slug}`}');
-  });
-
-  it('mounts the Claude benchmark figures inside a documentation page', () => {
-    const claudeBenchmarkPage = readFileSync(
-      join(docsRoot, 'english', 'claude-benchmarks.mdx'),
-      'utf8',
-    );
-
-    expect(claudeBenchmarkPage).toContain('<ClaudeBenchmarkCharts />');
-    expect(claudeBenchmarkPage).toContain('<ClaudeTestimonialCarousel />');
-    expect(claudeBenchmarkPage).not.toContain('from ../../../components');
-    expect(claudeBenchmarkPage).not.toContain('StudyShowcase');
-
-    const docsPage = readFileSync(
-      join(process.cwd(), 'app', 'docs', '[[...slug]]', 'page.tsx'),
-      'utf8',
-    );
-    expect(docsPage).toContain('getPageMDXComponents');
-
-    const pageComponentRegistry = readFileSync(
-      join(process.cwd(), 'components', 'mdx', 'page-components.tsx'),
-      'utf8',
-    );
-    expect(pageComponentRegistry).toContain('ClaudeBenchmarkCharts');
-    expect(pageComponentRegistry).toContain('ClaudeTestimonialCarousel');
-    expect(pageComponentRegistry).toContain("english/claude-benchmarks.mdx");
   });
 
   it('keeps additional card overview links inside their own routes', () => {

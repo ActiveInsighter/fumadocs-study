@@ -1,6 +1,6 @@
 # Study 图表设计系统
 
-`components/charts` 是一套基于 shadcn/ui `ChartContainer` 与 Recharts 3 的图表族。作者在 MDX 中只写数据和语义参数，视觉、交互与无障碍行为由组件统一提供。可运行的示例、代码与支持矩阵见站内页面 `/docs/english/chart-gallery`。
+`components/charts` 是一套基于 shadcn/ui `ChartContainer` 与 Recharts 3 的图表族。作者在 MDX 中只写数据和语义参数，视觉、交互与无障碍行为由组件统一提供。可运行的示例、代码与支持矩阵见站内页面 `/blog/chart-gallery`。
 
 ## 版本基线
 
@@ -34,7 +34,7 @@ lib/mdx/remark-mdx-preview.ts   ```mdx preview 代码块 → 实时预览 + 源�
 5. `figcaption` 不是 `figure` 的直接子元素（HTML 结构不合法）。
 6. 600 行的单文件实现，存在两套重复的 frame 与动效上下文（Study 一套、claude-benchmarks 一套）。
 
-`Study*` 系列的原有 props 全部保持兼容（`description` 作为 `subtitle` 的别名保留），`chart-components.mdx` 无需修改。`claude-benchmarks` 是页面级专题组件，保持不动。
+`Study*` 系列的原有 props 全部保持兼容（`description` 作为 `subtitle` 的别名保留）。图表组件画廊在 `/blog/chart-gallery/` 维护。
 
 ## 设计决策
 

@@ -3,8 +3,7 @@
 `components/motion-stage` 是一套由**步骤**驱动的动画演示框架，基于 React、shadcn/ui 和
 `motion`（Framer Motion）构建，用来交互式讲解算法流程、网络协议、存储管理等知识点。
 
-示例页：`content/docs/408/knowledge/motion-stage-demo.mdx`（站点路径
-`/docs/408/knowledge/motion-stage-demo`）。
+组件用法与示例代码见下文。
 
 ## 设计
 

@@ -265,10 +265,10 @@ jobs:
             "${router_url}" \
             "${core_url}" \
             "${body_url}" \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
+            '/docs/math/formulas/advanced-mathematics/' \
+            '/docs/math/formulas/advanced-mathematics.md' \
+            '/docs/math/formulas/advanced-mathematics/index.txt' \
+            '/docs/math/formulas/advanced-mathematics/__next.docs.txt' \
             | xargs -P 8 -I '{}' bash -c '
                 status="$(curl --silent --show-error --max-time 60 -L -o /dev/null -w "%{http_code}" "${base_url}$1?${preview_query}")"
                 echo "route $1 -> ${status}"
@@ -277,14 +277,14 @@ jobs:
 
           verify_tmp="$(mktemp -d)"
           curl --fail --silent --show-error --max-time 60 \
-            "${base_url}/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt?${preview_query}" \
+            "${base_url}/docs/math/formulas/advanced-mathematics/index.txt?${preview_query}" \
             -o "${verify_tmp}/rewritten-full.txt"
           cmp \
             "${verify_tmp}/rewritten-full.txt" \
-            '.static-docs/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next._full.txt'
+            '.static-docs/docs/math/formulas/advanced-mathematics/__next._full.txt'
 
           curl --fail --silent --show-error --max-time 60 \
-            "${base_url}/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt?${preview_query}" \
+            "${base_url}/docs/math/formulas/advanced-mathematics/__next.docs.txt?${preview_query}" \
             -o "${verify_tmp}/rewritten-docs.txt"
           cmp "${verify_tmp}/rewritten-docs.txt" '.static-docs/docs/__next.docs.txt'
           echo 'RSC rewrite payloads match the deduplicated local sources.'

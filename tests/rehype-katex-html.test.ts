@@ -40,7 +40,7 @@ function countElements(node: unknown): number {
 }
 
 const chapter = readFileSync(
-  path.join(process.cwd(), 'content/docs/math/supplements/linear-algebra/07-quadratic-forms.mdx'),
+  path.join(process.cwd(), 'content/docs/math/formulas/linear-algebra/05-第六章 二次型.mdx'),
   'utf8',
 ).replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/u, '');
 

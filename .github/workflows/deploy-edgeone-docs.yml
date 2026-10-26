@@ -302,7 +302,7 @@ jobs:
             [[ "${status}" == '200' ]]
           }
 
-          for path in '/' '/docs/' '/search-index.json' "${router_url}" "${core_url}" "${body_url}" '/docs/408/' '/docs/408/knowledge2/' '/docs/408/knowledge2/computer-organization/05-cpu/05-parallel-multicore/' '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md'; do
+          for path in '/' '/docs/' '/search-index.json' "${router_url}" "${core_url}" "${body_url}" '/docs/408/' '/docs/408/knowledge2/' '/docs/408/knowledge2/computer-organization/05-cpu/05-parallel-multicore/' '/docs/math/formulas/advanced-mathematics/' '/docs/math/formulas/advanced-mathematics.md'; do
             verify_deployment_path "${path}"
           done
 
@@ -349,8 +349,8 @@ jobs:
 
           start_probe home '/' '200'
           start_probe docs '/docs/' '200'
-          start_probe math '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' '200'
-          start_probe markdown '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' '200'
+          start_probe math '/docs/math/formulas/advanced-mathematics/' '200'
+          start_probe markdown '/docs/math/formulas/advanced-mathematics.md' '200'
           start_probe retired_upload '/api/blob/upload-url' '404'
           start_probe retired_ingest '/api/integrations/anyworkflow' '404'
           start_probe retired_download '/download/tasks/probe/1/probe/md' '404'

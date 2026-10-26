@@ -4,8 +4,6 @@ import type * as PageTree from 'fumadocs-core/page-tree';
 import { loader } from 'fumadocs-core/source';
 import { toFumadocsSource } from 'fumadocs-mdx/runtime/server';
 
-const conciseMathModuleTitle = /^(?:高等数学|线性代数|概率论与数理统计)\s*模块\s*(\d+)\s*[：:]\s*(.+)$/u;
-
 const EXPECTED_STUDY_ROOTS = ['politics', 'english', 'math', '408', 'algorithm'] as const;
 
 export const source = loader({
@@ -13,21 +11,10 @@ export const source = loader({
   source: docs.toFumadocsSource(),
   plugins: ({ typedPlugin }) => [
     typedPlugin({
-      name: 'concise-math-problem-solving-sidebar',
+      name: 'collapsed-study-folders',
       transformPageTree: {
         folder(node) {
           node.defaultOpen = false;
-          return node;
-        },
-        file(node) {
-          if (
-            node.type === 'page' &&
-            typeof node.url === 'string' &&
-            node.url.startsWith('/docs/math/problem-solving/') &&
-            typeof node.name === 'string'
-          ) {
-            node.name = node.name.replace(conciseMathModuleTitle, '模块$1：$2');
-          }
           return node;
         },
       },
