@@ -47,7 +47,7 @@ const { buildLLMIndex } = await import('@/lib/llms-index');
 
 describe('LLM documentation index', () => {
   it('lists the documentation tree with absolute browser and static Markdown links', () => {
-    const index = buildLLMIndex('https://fumadocscf.any1.tech');
+    const index = buildLLMIndex('https://study-docs.any1.tech');
 
     expect(index).toContain('# Study 文档目录');
     expect(index).toContain('## 408');
@@ -56,8 +56,8 @@ describe('LLM documentation index', () => {
     expect(index).toContain('不要依赖搜索引擎重新检索站点');
 
     for (const { url } of pages) {
-      expect(index).toContain(`](https://fumadocscf.any1.tech${url}/)`);
-      expect(index).toContain(`[Markdown](https://fumadocscf.any1.tech${url}.md)`);
+      expect(index).toContain(`](https://study-docs.any1.tech${url}/)`);
+      expect(index).toContain(`[Markdown](https://study-docs.any1.tech${url}.md)`);
     }
 
     expect(index).not.toContain('](/docs/');

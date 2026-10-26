@@ -12,7 +12,7 @@ export const siteConfig = {
   lang: 'zh-CN',
   locale: 'zh_CN',
   repository: {
-    url: 'https://github.com/ActiveInsighter/fumadocs-study',
+    url: 'https://github.com/ActiveInsighter/study-docs',
     branch: 'main',
     contentDir: 'content/docs',
   },

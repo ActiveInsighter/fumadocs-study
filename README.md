@@ -1,4 +1,4 @@
-# Fumadocs on Cloudflare
+# Study Docs
 
 A minimal Fumadocs documentation site built with Next.js 16 and Tailwind CSS 4.
 
@@ -111,7 +111,8 @@ Readers can expand and collapse folders normally.
 
 ## Deployment
 
-The production site and canonical URL origin are `https://fumadocscf.any1.tech`.
+The production Worker is `study-docs`, and its custom domain and canonical URL
+origin are `https://study-docs.any1.tech`.
 
 Production documentation deployments run in GitHub Actions and are uploaded to
 Cloudflare Workers Static Assets. The documentation package is a pure static

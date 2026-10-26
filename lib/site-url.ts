@@ -1,4 +1,4 @@
-const DEFAULT_SITE_ORIGIN = 'https://fumadocscf.any1.tech';
+const DEFAULT_SITE_ORIGIN = 'https://study-docs.any1.tech';
 
 export function getSiteOrigin() {
   return (process.env.NEXT_PUBLIC_SITE_URL?.trim() || DEFAULT_SITE_ORIGIN).replace(/\/+$/, '');

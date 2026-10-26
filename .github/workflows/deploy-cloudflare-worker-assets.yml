@@ -1,4 +1,4 @@
-name: Deploy Fumadocs to Cloudflare
+name: Deploy Study Docs to Cloudflare
 
 on:
   push:
@@ -26,7 +26,7 @@ on:
         type: boolean
 
 concurrency:
-  group: fumadocs-cloudflare-production-${{ github.ref }}
+  group: study-docs-cloudflare-production-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:

@@ -13,9 +13,12 @@ describe('Cloudflare Workers Static Assets deployment', () => {
   it('uses an assets-only SSG configuration with canonical trailing-slash handling', () => {
     const config = JSON.parse(readFileSync(resolve('wrangler.jsonc'), 'utf8'));
 
-    expect(config.name).toBe('fumadocs-static-docs');
+    expect(config.name).toBe('study-docs');
     expect(config.main).toBeUndefined();
     expect(config.workers_dev).toBe(true);
+    expect(config.routes).toEqual([
+      { pattern: 'study-docs.any1.tech', custom_domain: true },
+    ]);
     expect(config.assets).toEqual({
       directory: './.static-docs',
       not_found_handling: '404-page',

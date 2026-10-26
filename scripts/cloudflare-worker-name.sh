@@ -4,7 +4,7 @@
 set -euo pipefail
 
 if [[ "${GITHUB_REF}" == 'refs/heads/main' ]]; then
-  echo 'fumadocs-static-docs'
+  echo 'study-docs'
   exit 0
 fi
 
@@ -14,4 +14,4 @@ suffix="$(printf '%s' "${GITHUB_REF_NAME}" \
   | cut -c1-30)"
 suffix="${suffix%-}"
 [[ -n "${suffix}" ]] || suffix='branch'
-echo "fumadocs-preview-${suffix}"
+echo "study-docs-preview-${suffix}"
