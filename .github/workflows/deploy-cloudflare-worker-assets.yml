@@ -107,6 +107,12 @@ jobs:
         shell: bash
         run: npm test
 
+      - name: Check types
+        shell: bash
+        run: |
+          npx next typegen
+          npx tsc --noEmit --incremental false
+
 
   search:
     name: Build static search
