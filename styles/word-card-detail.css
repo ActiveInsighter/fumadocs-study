@@ -46,8 +46,8 @@
   gap: 7px;
   height: 2rem;
   padding-inline: 11px;
-  border: 1px solid color-mix(in oklab, var(--wc-accent) 24%, var(--border));
-  background: color-mix(in oklab, var(--wc-accent) 10%, var(--popover));
+  border: 1px solid color-mix(in oklab, var(--wc-accent) 32%, transparent);
+  background: var(--freq-bg);
   color: var(--foreground);
   font-size: 0.75rem;
   font-weight: 650;
