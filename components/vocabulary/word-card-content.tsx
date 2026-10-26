@@ -151,7 +151,8 @@ export function SenseExample({ example }: { example: WordExample }) {
         {example.text}
       </button>
       <span ref={tooltipRef} className="wc-example-tooltip" id={tooltipId} role="tooltip">
-        {example.translation}
+        <span className="wc-example-tooltip-label">译文</span>
+        <span lang="zh-CN">{example.translation}</span>
       </span>
     </span>
   );

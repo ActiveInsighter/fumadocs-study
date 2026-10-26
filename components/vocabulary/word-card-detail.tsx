@@ -38,7 +38,7 @@ type WordCardDetailProps = {
  * card deck (components/ui/study-card.tsx) owns everything else: the modal,
  * the split, the pager, ←/→ and swipes, and the card-to-card motion.
  *
- *   aside   on the card's tone: headword, phonetic, label, meanings, and a
+ *   aside   on the card's tone: headword, phonetic, meanings, and a
  *           donut of how the senses share the occurrences, with a legend
  *           that highlights a slice and jumps to its sense
  *   main    one bar-list row per sense (its share fills the row behind the
@@ -98,19 +98,21 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
         title={word.word}
         titleMode="scrolled"
         titleProps={{ lang: 'en', className: 'wc-detail-title' }}
-      />
-      <StudyCardStage ratio={0.43}>
-        <WordCardBody key={itemKey} word={word} label={label} senses={senses} />
+      >
+        {label ? <span className="wc-label wc-detail-priority">{label}</span> : null}
+      </StudyCardHeader>
+      <StudyCardStage ratio={0.38}>
+        <WordCardBody key={itemKey} word={word} senses={senses} />
       </StudyCardStage>
     </StudyCard>
   );
 }
 
 /** Keep chart hover state inside the aside; right-pane interaction must not touch it. */
-function WordCardBody({ word, label, senses }: { word: WordCardData; label: string | null; senses: readonly WordSense[] }) {
+function WordCardBody({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
   return (
     <>
-      <WordAside word={word} label={label} senses={senses} />
+      <WordAside word={word} senses={senses} />
       <WordMain word={word} senses={senses} />
     </>
   );
@@ -118,11 +120,9 @@ function WordCardBody({ word, label, senses }: { word: WordCardData; label: stri
 
 function WordAside({
   word,
-  label,
   senses,
 }: {
   word: WordCardData;
-  label: string | null;
   senses: readonly WordSense[];
 }) {
   return (
@@ -132,7 +132,6 @@ function WordAside({
         title={word.word}
         titleProps={{ lang: 'en', className: 'wc-detail-word' }}
         subtitle={word.phonetic ? <span className="wc-detail-phonetic">{word.phonetic}</span> : null}
-        badge={label ? <span className="wc-label">{label}</span> : null}
       >
         <div className="wc-detail-meanings" aria-label="释义" role="list">
           {word.meanings.map((meaning, meaningIndex) => (
