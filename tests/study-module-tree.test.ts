@@ -182,6 +182,7 @@ describe('study module metadata structure', () => {
       'phrases',
       'kaoyan-methods',
       'kaoyan-changnanju',
+      'kaoyan-zhenxiang-1026',
       'word-cards-demo',
       'claude-benchmarks',
       'chart-components',
