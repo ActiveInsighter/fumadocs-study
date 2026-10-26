@@ -215,9 +215,15 @@ async function chartGallery(page, base) {
   await page.click('a[href="/blog/chart-gallery/"]');
   await page.waitForFunction(() => location.pathname === '/blog/chart-gallery/', { timeout: 120000 });
   await assertNoNotFound(page, 'Blog chart gallery');
+  // Plots mount when they first enter the viewport.
+  await page.$eval('#blog-body [data-chart-theme] [data-view="chart"]', (plot) => {
+    plot.scrollIntoView({ block: 'center' });
+  });
   await page.waitForSelector('#blog-body [data-chart-theme] svg.recharts-surface', { timeout: 60000 });
   const toggle = '#blog-body button[aria-label="以表格查看数据"]';
   await page.waitForSelector(toggle);
+  // Keep the toolbar clear of the fixed navigation after revealing the plot.
+  await page.$eval(toggle, (button) => button.scrollIntoView({ block: 'center' }));
   await page.click(toggle);
   await page.waitForSelector('#blog-body button[aria-label="显示图表"][aria-pressed="true"]');
   await page.click('#blog-body button[aria-label="显示图表"][aria-pressed="true"]');
