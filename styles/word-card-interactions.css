@@ -226,30 +226,30 @@ html[data-wc-mode-transition]::view-transition-new(root) {
 }
 
 .wc-example-tooltip {
-  --tooltip-bg: color-mix(in srgb, var(--card-bg) 92%, white);
-  --tooltip-border: color-mix(in srgb, var(--meaning-text) 16%, transparent);
+  --tooltip-bg: color-mix(in oklab, var(--wc-accent) 6%, var(--popover));
+  --tooltip-border: color-mix(in oklab, var(--wc-accent) 22%, var(--border));
   position: absolute;
   z-index: 30;
   inset-inline-start: var(--wc-tooltip-shift, 0px);
   top: auto;
   bottom: calc(100% + 6px);
   width: max-content;
-  max-width: min(360px, calc(100vw - 32px));
+  max-width: min(380px, calc(100vw - 32px));
   box-sizing: border-box;
-  padding: 8px 12px;
+  padding: 10px 14px 12px;
   border: 1px solid var(--tooltip-border);
-  border-inline-start: 3px solid color-mix(in srgb, var(--phrase-text) 62%, transparent);
-  border-radius: 8px;
+  border-radius: 12px;
   background: var(--tooltip-bg);
-  color: var(--meaning-text);
+  color: var(--popover-foreground);
   box-shadow: var(--word-card-example-tooltip-shadow);
   font-family: var(--wc-body-font);
-  font-size: 0.9em;
+  font-size: 0.8125rem;
   font-style: normal;
-  font-weight: 540;
-  line-height: 1.45;
+  font-weight: 500;
+  line-height: 1.7;
   text-align: left;
   white-space: normal;
+  overflow-wrap: anywhere;
   opacity: 0;
   visibility: hidden;
   transform: translateY(4px) scale(0.97);
@@ -259,6 +259,15 @@ html[data-wc-mode-transition]::view-transition-new(root) {
     opacity 140ms ease,
     transform 180ms var(--wc-ease-out),
     visibility 0s linear 180ms;
+}
+
+.wc-example-tooltip-label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .wc-example-tooltip::after {
@@ -325,10 +334,8 @@ html[data-wc-mode-transition]::view-transition-new(root) {
 }
 
 .dark .wc-example-tooltip {
-  --tooltip-bg: color-mix(in oklab, var(--wc-accent) 14%, var(--word-card-dark-chip));
-  --tooltip-border: var(--word-card-dark-tooltip-border);
-  border-color: var(--word-card-dark-tooltip-border);
-  border-inline-start-color: color-mix(in srgb, var(--phrase-text) 72%, transparent);
+  --tooltip-bg: color-mix(in oklab, var(--wc-accent) 9%, var(--popover));
+  --tooltip-border: color-mix(in oklab, var(--wc-accent) 16%, var(--word-card-dark-tooltip-border));
   color: var(--word-card-dark-tooltip-ink);
   box-shadow: var(--word-card-dark-tooltip-shadow);
 }

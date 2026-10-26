@@ -132,6 +132,7 @@ describe('study module metadata structure', () => {
       'phrases',
       'kaoyan-methods',
       'kaoyan-changnanju',
+      'knowledge-points',
     ]);
     expect(englishVocabularyMeta.pages).toEqual([
       'index',

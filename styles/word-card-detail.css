@@ -26,7 +26,7 @@
   /* The aside (and, on phones, the popup under its faded top) takes the card's tone. */
   --modal-pane-muted: var(--card-bg);
 
-  --wc-sense-indent: calc(1.625rem + 22px);
+  --wc-sense-indent: 10px;
   --wc-example-mark: color-mix(in srgb, var(--wc-accent) 55%, transparent);
   color: var(--meaning-text);
   font-family: var(--wc-body-font);
@@ -34,9 +34,38 @@
 }
 
 .wc-detail .wc-detail-title {
+  flex: 1 1 0;
   color: var(--word-text);
   font-family: var(--wc-display-font);
   font-weight: 720;
+}
+
+/* Keep the priority visible in the toolbar, before the scroll-revealed title. */
+.wc-detail .wc-detail-priority {
+  order: -1;
+  gap: 7px;
+  height: 2rem;
+  padding-inline: 11px;
+  border: 1px solid color-mix(in oklab, var(--wc-accent) 32%, transparent);
+  background: var(--freq-bg);
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 650;
+  box-shadow: var(--word-card-badge-shadow);
+}
+
+.wc-detail-priority::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bar-fill);
+}
+
+@media (width >= 48rem) {
+  .wc-detail [data-sc-region='main'] > [data-slot='modal-pane-scroll'] {
+    padding-inline-start: 1.25rem;
+  }
 }
 
 /* ---- Aside: the card ------------------------------------------------------ */
@@ -342,7 +371,7 @@
   }
 }
 
-/* Examples hang under the gloss, past the index badge. */
+/* Examples sit close to the sense's leading edge for a wider reading measure. */
 .wc-detail-examples {
   display: flex;
   flex-direction: column;
@@ -384,10 +413,6 @@
   text-decoration-color: color-mix(in srgb, var(--wc-accent) 85%, transparent);
 }
 
-.wc-detail .wc-example-tooltip {
-  border-inline-start-color: color-mix(in srgb, var(--wc-accent) 70%, transparent);
-}
-
 .wc-detail .wc-no-example {
   display: block;
   margin: 8px 0 0 var(--wc-sense-indent);
@@ -402,10 +427,6 @@
 /* ---- Phones --------------------------------------------------------------- */
 
 @media (width < 48rem) {
-  .wc-detail {
-    --wc-sense-indent: calc(1.625rem + 18px);
-  }
-
   .wc-detail-sense-row {
     gap: 10px;
     padding-inline: 8px 12px;

@@ -275,7 +275,7 @@ describe('WordCards', () => {
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
     expect(component).toContain('height="44rem"');
     expect(component).toContain('<StudyCardAside className="wc-detail-side">');
-    expect(component).toContain('<StudyCardStage ratio={0.43}>');
+    expect(component).toContain('<StudyCardStage ratio={0.38}>');
     expect(detailCss).toMatch(/--modal-pane-muted:\s*var\(--card-bg\)/u);
     expect(detailCss).toMatch(/\.wc-detail,\s*\.dark \.wc-detail\s*\{[^}]*--word-text:\s*var\(--foreground\)[^}]*--phrase-text:\s*var\(--foreground\)/u);
     expect(component).toContain('titleMode="scrolled"');
