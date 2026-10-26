@@ -171,6 +171,7 @@ describe('study module metadata structure', () => {
       'xiao-1000',
       'xiao-1000-notes',
       'beisong-shouce',
+      '27肖帽子题背诵版',
     ]);
     expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
   });
