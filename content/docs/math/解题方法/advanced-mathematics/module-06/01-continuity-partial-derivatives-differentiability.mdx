@@ -3,9 +3,71 @@ title: "第一节 连续、偏导数与可微的定义"
 description: "二元函数极限、连续、偏导数、可微的判定与逻辑关系，路径检验、阶数模型和混合偏导。"
 ---
 
+<Cards>
+
+<Card title="知识主线">
+
+二元极限、路径与极坐标
+
+</Card>
+
+<Card title="核心计算">
+
+偏导数、连续与可微关系
+
+</Card>
+
+<Card title="考场迁移">
+
+分段点判定与阶数估计
+
+</Card>
+
+</Cards>
+
+<Callout type="idea" title="本节方法导航">
+
+连续、偏导数存在与可微不是同一个命题。可微的关键是证明一阶线性主部之外的余项是 $o(\sqrt{(\Delta x)^2+(\Delta y)^2})$。
+
+</Callout>
+
+## 三步解题路线
+
+<Steps>
+
+<Step>
+
+### ① 明确判定对象
+
+判断题目要求证明极限、连续、偏导存在，还是全微分。
+
+</Step>
+
+<Step>
+
+### ② 选择定义或反例
+
+特殊点用偏导和可微定义；否定二元极限要找不同路径；证明极限存在要控制所有路径。
+
+</Step>
+
+<Step>
+
+### ③ 比较余项与距离
+
+判断一阶余项是否为 $o(r)$，其中 $r=\sqrt{(\Delta x)^2+(\Delta y)^2}$。
+
+</Step>
+
+</Steps>
+
+
+
 ## 本节思维导图
 
-```mindmap
+
+
+<MindMap title="第一节 连续、偏导数与可微的定义 · 解题知识树" height={540} initialExpandLevel={2} markdown={String.raw`
 # 第一节 连续、偏导数与可微的定义
 ## 二元极限
 ### 不同路径与极坐标
@@ -26,7 +88,7 @@ description: "二元函数极限、连续、偏导数、可微的判定与逻辑
 ### 路径反例和阶数判别
 ### 偏导不连续但可微
 ## 练习与总结
-```
+`} />
 
 ## 一、本节的知识框架
 
@@ -1016,3 +1078,29 @@ $$
 $$
 
 这一个公式，是本节从概念题到综合题最值得反复训练的核心。
+
+## 配套知识与题目索引
+
+<Cards>
+
+<Card title="系统讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/advanced-mathematics/08-multivariable-differentiation/">
+
+对照章节知识点、概念与公式。
+
+</Card>
+
+<Card title="分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-40a02b4e/01-28b8d27e/">
+
+查找历年题目的条件与考法。
+
+</Card>
+
+<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/06-89c7733e/01-28b8d27e/">
+
+比较典型题型、综合变式与方法迁移。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-06/01-continuity-partial-derivatives-differentiability/)
