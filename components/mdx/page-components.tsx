@@ -3,6 +3,13 @@ import {
   ClaudeTestimonialCarousel,
 } from '@/components/claude-benchmarks';
 import type { MDXComponents } from 'mdx/types';
+import {
+  EnglishReading, Evidence, ExamArticle, Option, Paragraph, Question, Solution, Translation,
+} from '@/components/english-study';
+
+const englishStudyComponents: MDXComponents = {
+  EnglishReading, Evidence, ExamArticle, Option, Paragraph, Question, Solution, Translation,
+};
 
 /**
  * Components that are intentionally available to one documentation page.
@@ -17,7 +24,9 @@ const pageComponentRegistry: Record<string, MDXComponents> = {
 };
 
 export function getPageMDXComponents(path: string): MDXComponents | undefined {
-  return pageComponentRegistry[normalizePagePath(path)];
+  const normalized = normalizePagePath(path);
+  if (normalized.startsWith('english/kaoyan-zhenxiang-1026/')) return englishStudyComponents;
+  return pageComponentRegistry[normalized];
 }
 
 function normalizePagePath(path: string): string {
