@@ -162,13 +162,14 @@ describe('study module metadata structure', () => {
     expect(coursesExamMeta.pages).toEqual(['index']);
   });
 
-  it('keeps politics lectures, summaries, special reviews, the Xiao 1000 set and the recitation handbook in order', () => {
+  it('keeps politics lectures, summaries, special reviews, Xiao 1000 questions and notes, and the recitation handbook in order', () => {
     expect(politicsMeta.pages).toEqual([
       'index',
       'exam-politics',
       'topic-summary',
       'special-review',
       'xiao-1000',
+      'xiao-1000-notes',
       'beisong-shouce',
     ]);
     expect(examPoliticsMeta.title).toBe('考研政治系统讲义');
