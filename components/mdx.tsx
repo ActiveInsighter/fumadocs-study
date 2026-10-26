@@ -58,8 +58,8 @@ import type { MDXComponents } from 'mdx/types';
  * plots (MathPlot2D / MathPlot3D)
  * without repeating imports in every MDX file.
  *
- * Feature-specific compositions (for example the Claude benchmark experience)
- * stay page-scoped in components/mdx/page-components.tsx.
+ * Page-specific compositions can be registered in
+ * components/mdx/page-components.tsx.
  */
 export function getMDXComponents(components?: MDXComponents) {
   return {

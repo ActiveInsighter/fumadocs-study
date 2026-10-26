@@ -688,21 +688,44 @@ jobs:
           for path in \
             '/docs/' \
             '/search-index.json' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/index.txt' \
-            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/__next.docs.txt' \
-            '/docs/math/problem-solving/linear-algebra/' \
-            '/docs/math/problem-solving/linear-algebra/02-matrices/' \
-            '/docs/math/problem-solving/linear-algebra/02-matrices/01-%E7%AC%AC%E4%B8%80%E8%8A%82-%E7%9F%A9%E9%98%B5%E6%80%A7%E8%B4%A8%E4%B8%8E%E8%BF%90%E7%AE%97/' \
-            '/docs/math/problem-solving/probability-statistics/' \
-            '/docs/math/problem-solving/probability-statistics/01-random-events-probability/' \
-            '/docs/math/problem-solving/probability-statistics/01-random-events-probability/01-%E9%9A%8F%E6%9C%BA%E4%BA%8B%E4%BB%B6%E5%92%8C%E6%A6%82%E7%8E%87%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%A7%E8%B4%A8/' \
+            '/docs/math/formulas/advanced-mathematics/' \
+            '/docs/math/formulas/advanced-mathematics.md' \
+            '/docs/math/formulas/advanced-mathematics/index.txt' \
+            '/docs/math/formulas/advanced-mathematics/__next.docs.txt' \
+            '/blog/' \
+            '/blog/chart-gallery/' \
+            '/docs/408/question-summary/' \
             '/docs/algorithm/' \
             '/docs/algorithm/08-binary-tree/28-bst-lca/'; do
             wait_for_route "${path}"
           done
-          markdown_content_type="$(curl --silent --show-error --max-time 60 -I "${base_url}/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md" \
+          # Retired content must disappear from the deployed route set.
+          for path in \
+            '/docs/politics/exam-politics/' \
+            '/docs/politics/marxism-principles/00-introduction/' \
+            '/docs/politics/topic-summary/' \
+            '/docs/politics/xiao-1000/' \
+            '/docs/english/kaoyan-zhenxiang-1026/' \
+            '/docs/english/word-cards-demo/' \
+            '/docs/english/claude-benchmarks/' \
+            '/docs/english/chart-components/' \
+            '/docs/english/chart-gallery/' \
+            '/docs/math/knowledge/' \
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity/' \
+            '/docs/math/knowledge/advanced-mathematics/01-limits-continuity.md' \
+            '/docs/math/supplements/' \
+            '/docs/math/problem-solving/' \
+            '/docs/math/exam/' \
+            '/docs/408/knowledge/' \
+            '/docs/408/problem-solving/'; do
+            status="$(curl --silent --show-error --max-time 60 -L -o /dev/null -w '%{http_code}' "${base_url}${path}")"
+            echo "Retired route ${path} -> ${status}"
+            if [[ "${status}" != '404' ]]; then
+              echo "::error::Retired route ${path} is still available (HTTP ${status})."
+              exit 1
+            fi
+          done
+          markdown_content_type="$(curl --silent --show-error --max-time 60 -I "${base_url}/docs/math/formulas/advanced-mathematics.md" \
             | tr -d '\r' \
             | awk 'BEGIN { IGNORECASE=1 } /^content-type:/ { sub(/^[^:]+:[[:space:]]*/, ""); print; exit }')"
           if [[ "${markdown_content_type,,}" != 'text/markdown; charset=utf-8' ]]; then

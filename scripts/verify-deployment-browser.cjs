@@ -210,6 +210,20 @@ async function search(page, base) {
   return 'selected result -> ' + (await page.evaluate(() => location.pathname));
 }
 
+async function chartGallery(page, base) {
+  await page.goto(base + '/blog/', { waitUntil: 'networkidle2', timeout: 120000 });
+  await page.click('a[href="/blog/chart-gallery/"]');
+  await page.waitForFunction(() => location.pathname === '/blog/chart-gallery/', { timeout: 120000 });
+  await assertNoNotFound(page, 'Blog chart gallery');
+  await page.waitForSelector('#blog-body [data-chart-theme] svg.recharts-surface', { timeout: 60000 });
+  const toggle = '#blog-body button[aria-label="以表格查看数据"]';
+  await page.waitForSelector(toggle);
+  await page.click(toggle);
+  await page.waitForSelector('#blog-body button[aria-label="显示图表"][aria-pressed="true"]');
+  await page.click('#blog-body button[aria-label="显示图表"][aria-pressed="true"]');
+  return 'blog client navigation, rendered charts and interactive table toggle';
+}
+
 const SCENARIOS = [
   // The knowledge2 courses are the longest flows, so they start first.
   ...KNOWLEDGE2_COURSES.map((course) => [
@@ -218,6 +232,7 @@ const SCENARIOS = [
   ]),
   ['knowledge2 overview', (page, base) => verifyKnowledge2Overview(page, base).then(() => 'release and update date')],
   ['homepage', homepage],
+  ['blog chart gallery', chartGallery],
   ...['/docs/politics/', '/docs/english/', '/docs/math/', '/docs/408/', '/blog/'].map((href) => [`home link ${href}`, homeLink(href)]),
   ['deep algorithm link', deepAlgorithmLink],
   ['code tabs', codeTabs],

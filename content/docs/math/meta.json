@@ -1,18 +1,14 @@
 {
   "title": "数学",
-  "description": "高等数学、线性代数与概率论及数理统计的公式速查、核心讲义、补充知识、题型方法与真题",
+  "description": "高等数学、线性代数与概率论及数理统计的公式速查、思维导图、可视化、题目分析与解题方法",
   "root": true,
   "pages": [
     "index",
-    "knowledge",
     "formulas",
-    "supplements",
     "mind-maps",
     "visualizations",
-    "problem-solving",
     "题目分析",
-    "解题方法",
-    "exam"
+    "解题方法"
   ],
   "defaultOpen": false
 }
