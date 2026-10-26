@@ -8,7 +8,7 @@ description: "考研政治学习模块导航。"
 ## 课程目录
 
 - [27肖1000背诵笔记](/docs/politics/xiao-1000-notes/)：1026 版，包含五大科目核心考点、易混辨析与考前总背速查。
-- [背诵手册](/docs/politics/beisong-shouce/)：按五大科目整理专题背诵内容。
+- [背诵手册](/docs/politics/beisong-shouce/marxism-principles/00/)：从马原导论开始，按五大科目复习专题背诵内容。
 - [27肖帽子题背诵版](/docs/politics/27肖帽子题背诵版/)：1026 版，五大科目、52 篇章节，包含背诵要点、易混辨析与折叠自测。
 
 ## 专题复习
