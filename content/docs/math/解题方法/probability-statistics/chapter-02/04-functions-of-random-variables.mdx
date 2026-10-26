@@ -3,9 +3,45 @@ title: "第四节 随机变量函数的分布"
 description: "单调与非单调函数变换、分段混合分布、卷积、和差积商、最大最小值与雅可比变换。"
 ---
 
+<Cards>
+
+<Card title="关键概念">
+
+一维单调与非单调变换、多原像求和。
+
+</Card>
+
+<Card title="方法重点">
+
+卷积、积商分布、极值统计量与雅可比。
+
+</Card>
+
+<Card title="考场易错">
+
+分段截断产生点质量及积分域拆分。
+
+</Card>
+
+</Cards>
+
+<Callout type="idea" title="解题切入点">
+
+求 Y=g(X) 时优先从 F_Y(y)=P(g(X)≤y) 出发；非单调需累加全部原像，卷积与二维变换要核对积分区域和雅可比。
+
+</Callout>
+
+<Callout type="info" title="考场解题路线">
+
+先写新变量值域及原像事件 → 按单调支段或二维支撑域拆分 → 计算分布函数或密度并核对归一化。
+
+</Callout>
+
+
+
 ## 本节思维导图
 
-```mindmap
+<MindMap title="第四节 随机变量函数的分布 · 解题结构" height={520} initialExpandLevel={2} maxWidth={300} markdown={String.raw`
 # 随机变量函数的分布
 ## 基础原则
 ### 新变量取值范围
@@ -25,552 +61,791 @@ description: "单调与非单调函数变换、分段混合分布、卷积、和
 ### 圆对称
 ### 指数绝对差
 ## 静态自测与易错点
-```
+`} />
 
 ## 一、本节知识框架
 
+
 本节包括两类随机变量函数的分布问题：
+
 
 1. **一维函数分布：**&#x2060;单调变换、非单调多分支、绝对值与平方、截断与混合分布，以及概率积分变换。
 2. **二维函数分布：**&#x2060;和、差、积、商、最大值与最小值、卷积、变量变换及雅可比行列式。
 
+
 还需要掌握几何变换、次序统计量、离散—连续混合分布等综合题型。
 
+
 给定新变量 $Z=g(X)$，首先应寻找其取值范围及事件的原像：
+
 
 $$
 \boxed{F_Z(z)=P(Z\le z)=P(g(X)\le z).}
 $$
 
+
 如果 $Z=g(X,Y)$，则同样从
+
 
 $$
 \boxed{F_Z(z)=P(g(X,Y)\le z)}
 $$
 
+
 出发。与其背诵孤立公式，不如先回答“哪些原始随机结果会映射到给定区间”。
+
 
 ## 二、做题前必须建立的判断流程
 
+
 第1步：找出新变量 $Z$ 的取值范围
+
 
 第2步：判断变换的结构
 
+
 严格单调
+
 
 反函数 + 导数绝对值
 
+
 多对一映射
+
 
 所有原像分支相加
 
+
 截断或取整
+
 
 检查点概率和跳跃
 
+
 二维函数
+
 
 画区域、卷积或换元
 
+
 第3步：求分布函数或密度，并检验总概率为1
 
+
 对数学一来说，必须形成以下三个条件反射：
+
 
 - 看到 $Z=X^2$、$|X|$、$X+1/X$：先检查一个 $z$ 有几个原像，不能只取一个反函数。
 - 看到 $Z=\min(X,c)$、$Z=(X-c)^+$：先检查新变量是否产生点概率，不能直接假设它仍为连续型。
 - 看到 $Z=X+Y$、$XY$、$X/Y$、$\max(X,Y)$：先判断独立性和二维支撑区域，再选择相应公式。
 
+
 ## 第一部分：一维随机变量函数的分布
+
 
 ## 三、最基础的三种变换方法
 
+
 ### 1. 严格单调：反函数与导数绝对值
 
+
 设 $X$ 是连续型随机变量，密度为 $f_X(x)$，且
+
 
 $$
 Y=g(X).
 $$
 
+
 如果 $g$ 在 $X$ 的有效取值范围内严格单调，存在反函数
+
 
 $$
 x=h(y)=g^{-1}(y),
 $$
 
+
 并满足通常的可微、换元条件，那么
+
 
 $$
 \boxed{ f_Y(y)=f_X(h(y))|h'(y)|. }
 $$
 
+
 这个公式的直观含义是：原来的一个很小区间映射成新变量的一个很小区间，概率不变，但区间长度发生了改变。因此新密度需要乘上长度伸缩因子。
+
 
 无论 $g$ 递增还是递减，都必须取导数的绝对值。
 
+
 对于线性变换
+
 
 $$
 Y=aX+b,\qquad a\ne0,
 $$
 
+
 可以直接写成
+
 
 $$
 \boxed{ f_Y(y)=\frac1{|a|} f_X\left(\frac{y-b}{a}\right). }
 $$
 
+
 ### 例1：1988年数学一真题——单调递减变换
 
+
 已知
+
 
 $$
 f_X(x)=\frac1{\pi(1+x^2)},\qquad x\in\mathbb R,
 $$
 
+
 令
+
 
 $$
 Y=1-\sqrt[3]{X}.
 $$
 
+
 求 $Y$ 的概率密度。
+
 
 第一步：判断单调性和值域。
 
+
 函数 $1-\sqrt[3]x$ 在整个实数轴上严格递减，值域仍为 $\mathbb R$。
 
+
 第二步：反解原变量。
+
 
 $$
 \sqrt[3]x=1-y \quad\Longrightarrow\quad x=(1-y)^3.
 $$
 
+
 因此
+
 
 $$
 \left|\frac{\mathrm dx}{\mathrm dy}\right| =3(1-y)^2.
 $$
 
+
 第三步：代入变换公式。
+
 
 $$
 \begin{aligned} f_Y(y) &=f_X((1-y)^3)\cdot3(1-y)^2\\ &=\boxed{ \frac{3(1-y)^2} {\pi[1+(1-y)^6]} },\qquad y\in\mathbb R. \end{aligned}
 $$
 
+
 这里 $y=1$ 处导数为零不影响密度公式几乎处处成立。
 
+
 另一种解法是从分布函数出发。由于函数递减，
+
 
 $$
 \begin{aligned} F_Y(y) &=P(1-\sqrt[3]X\le y)\\ &=P(X\ge(1-y)^3)\\ &=1-F_X((1-y)^3). \end{aligned}
 $$
 
+
 再求导也能得到相同答案。
+
 
 比较而言，本题反函数非常简单，密度变换法更快。
 
+
 ### 2. 非单调变换：所有原像都要算
+
 
 若 $g(x)$ 不单调，同一个 $y$ 可能对应多个 $x$。
 
+
 比如
+
 
 $$
 Y=X^2,
 $$
 
+
 对 $y>0$，可能有两个原像：
+
 
 $$
 x=\sqrt y,\qquad x=-\sqrt y.
 $$
 
+
 此时必须把两个分支的密度贡献相加：
+
 
 $$
 \boxed{ f_Y(y)= \frac{f_X(\sqrt y)+f_X(-\sqrt y)} {2\sqrt y},\quad y>0. }
 $$
 
+
 这里约定支撑集外的密度为零。
 
+
 更一般地，如果 $g(x)=y$ 在原支撑集上具有若干个有效的可微反函数分支 $x_i=h_i(y)$，则在满足通常正则条件的地方，
+
 
 $$
 \boxed{ f_Y(y)=\sum_i f_X(h_i(y))|h_i'(y)|. }
 $$
 
+
 这就是多原像求和法。
+
 
 ### 例2：2006年数学一、数学三真题——平方变换
 
+
 设
+
 
 $$
 f_X(x)= \begin{cases} \dfrac12,&-1<x<0,\\[2pt] \dfrac14,&0\le x<2,\\ 0,&\text{其他}. \end{cases}
 $$
 
+
 令
+
 
 $$
 Y=X^2.
 $$
 
+
 求 $Y$ 的密度。
+
 
 第一步：确定新变量值域。
 
+
 由于 $X\in(-1,2)$，所以
+
 
 $$
 0\le Y<4.
 $$
 
+
 第二步：判断分支数何时改变。
+
 
 当 $0<y<1$ 时，$-\sqrt y$ 与 $\sqrt y$ 都落在 $X$ 的支撑区间里。
 
+
 因此
+
 
 $$
 \begin{aligned} f_Y(y) &=\frac{f_X(\sqrt y)+f_X(-\sqrt y)}{2\sqrt y}\\ &=\frac{\frac14+\frac12}{2\sqrt y}\\ &=\frac{3}{8\sqrt y}. \end{aligned}
 $$
 
+
 当 $1<y<4$ 时，
+
 
 $$
 -\sqrt y<-1,
 $$
 
+
 负分支已超出原支撑集，只剩正分支。
 
+
 所以
+
 
 $$
 f_Y(y)=\frac{\frac14}{2\sqrt y} =\frac1{8\sqrt y}.
 $$
 
+
 综合得到
+
 
 $$
 \boxed{ f_Y(y)= \begin{cases} \dfrac3{8\sqrt y},&0<y<1,\\[4pt] \dfrac1{8\sqrt y},&1<y<4,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+
 在 $y=1$ 处密度取什么值不影响分布。
 
+
 检验：
+
 
 $$
 \int_0^1\frac3{8\sqrt y}\,\mathrm dy +\int_1^4\frac1{8\sqrt y}\,\mathrm dy =\frac34+\frac14=1.
 $$
 
+
 这道题最有价值的地方，不是平方公式本身，而是原像数目会随着 $y$ 改变。
 
+
 本题还要求协方差及二维分布函数值，能够连接到后续数字特征：
+
 
 $$
 \operatorname{Cov}(X,Y) =\operatorname{Cov}(X,X^2) =E(X^3)-EX\cdot E(X^2).
 $$
 
+
 由原密度计算可得
+
 
 $$
 EX=\frac14,\quad E(X^2)=\frac56,\quad E(X^3)=\frac78,
 $$
 
+
 因此
+
 
 $$
 \boxed{\operatorname{Cov}(X,Y)=\frac23.}
 $$
 
+
 而
+
 
 $$
 F_{X,Y}\left(-\frac12,4\right) =P\left(X\le-\frac12,X^2\le4\right) =\boxed{\frac14}.
 $$
 
+
 注意 $Y=X^2$ 是确定关系，所以 $X,Y$ 并不独立；也不能因为两者各自有一维密度，就认为它们必有普通二维联合密度。
+
 
 ### 3. 分段函数：连续变量也能产生点概率
 
+
 这是本节非常重要的概念。
+
 
 如果一个函数把原变量的一整个区间压缩到某个固定值，那么新变量就可能在这个值处产生正概率质量。
 
+
 例如
+
 
 $$
 Y=(X-d)^+=\max(X-d,0).
 $$
 
+
 当 $X\le d$ 时，所有这些取值都被映射到 $Y=0$。
 
+
 因此
+
 
 $$
 \boxed{P(Y=0)=P(X\le d)=F_X(d).}
 $$
 
+
 即使 $X$ 连续，$Y$ 也未必连续。
 
+
 对连续型 $X$，若 $y>0$，有
+
 
 $$
 \begin{aligned} F_Y(y) &=P((X-d)^+\le y)\\ &=P(X\le d+y)\\ &=F_X(d+y). \end{aligned}
 $$
 
+
 所以连续部分的密度为
+
 
 $$
 f_Y(y)=f_X(d+y),\qquad y>0.
 $$
 
+
 但它并不能描述 $Y=0$ 处的点概率；完整分布必须同时交代跳跃质量和连续部分。
+
 
 ## 四、核心题型一：保险赔付与泊松分流
 
+
 Fumadocs 本节正文收录：2025年数学一、数学三保险赔付综合题
 
+
 保险公司的赔付额 $Y$ 与损失额 $X$ 满足
+
 
 $$
 Y= \begin{cases} 0,&X\le100,\\ X-100,&X>100. \end{cases}
 $$
 
+
 并且
+
 
 $$
 f_X(x)= \begin{cases} \dfrac{2\cdot100^2}{(100+x)^3},&x>0,\\ 0,&x\le0. \end{cases}
 $$
 
+
 求实际发生赔付的概率和平均赔付额。进一步，若一年内损失事件次数服从参数为 8 的泊松分布，每次独立地以实际赔付概率产生理赔，求理赔次数的分布。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：先求损失额的尾概率
 
+
 对于 $x\ge0$，
+
 
 $$
 \begin{aligned} P(X>x) &=\int_x^\infty \frac{2\cdot100^2}{(100+t)^3}\,\mathrm dt\\ &=\boxed{\left(\frac{100}{100+x}\right)^2}. \end{aligned}
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：判断什么时候有赔付
 
+
 因为
+
 
 $$
 Y>0\iff X>100,
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} P(Y>0) &=P(X>100)\\ &=\left(\frac{100}{200}\right)^2\\ &=\boxed{\frac14}. \end{aligned}
 $$
 
+
 相应地，
+
 
 $$
 \boxed{P(Y=0)=\frac34.}
 $$
 
+
 这个 $3/4$ 就是新分布在零点的离散概率质量。
+
+</Step>
+
+<Step>
 
 ### 第三步：求平均赔付额
 
+
 方法一是直接积分：
+
 
 $$
 EY=\int_{100}^{\infty}(x-100)f_X(x)\,\mathrm dx.
 $$
 
+
 方法二使用非负随机变量的尾积分公式：
+
 
 $$
 \boxed{EY=\int_0^\infty P(Y>y)\,\mathrm dy.}
 $$
 
+
 因为
+
 
 $$
 P(Y>y)=P(X>100+y) =\left(\frac{100}{200+y}\right)^2,
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} EY &=\int_0^\infty\frac{10000}{(200+y)^2}\,\mathrm dy\\ &=10000\left[-\frac1{200+y}\right]_0^\infty\\ &=\boxed{50}. \end{aligned}
 $$
 
+
 这里应选尾积分法，计算更简洁。
+
+</Step>
+
+<Step>
 
 ### 第四步：求一年实际理赔次数
 
+
 设损失事件次数
+
 
 $$
 N\sim P(8).
 $$
 
+
 给定 $N=n$，实际理赔次数
+
 
 $$
 M\mid N=n\sim B\left(n,\frac14\right).
 $$
 
+
 应用泊松分流定理：
+
 
 $$
 \boxed{M\sim P\left(8\times\frac14\right)=P(2).}
 $$
 
+
 因此
+
 
 $$
 \boxed{ P(M=m)=e^{-2}\frac{2^m}{m!}, \quad m=0,1,2,\ldots. }
 $$
 
+
 本题同时考查了分段函数、混合分布、尾积分求期望、条件二项分布和泊松分流。
 
+
 它的完整建模链为：
+
 
 $$
 \boxed{ \text{损失额分布} \to\text{赔付额函数} \to\text{产生理赔的概率} \to\text{理赔次数分布}. }
 $$
 
+
 这类实际应用型综合题值得作为数学一重点训练。
+
+</Step>
+
+</Steps>
 
 ## 五、另一道经典分段题：2013年数学一
 
+
 设
+
 
 $$
 f_X(x)= \begin{cases} \dfrac{x^2}{9},&0<x<3,\\ 0,&\text{其他}. \end{cases}
 $$
 
+
 定义
+
 
 $$
 Y= \begin{cases} 2,&X\le1,\\ X,&1<X<2,\\ 1,&X\ge2. \end{cases}
 $$
 
+
 求 $Y$ 的分布函数，以及 $P(X\le Y)$。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：识别点概率
 
+
 当 $X\ge2$ 时，$Y=1$，所以
+
 
 $$
 P(Y=1)=\int_2^3\frac{x^2}{9}\,\mathrm dx =\frac{19}{27}.
 $$
 
+
 当 $X\le1$ 时，$Y=2$，所以
+
 
 $$
 P(Y=2)=\int_0^1\frac{x^2}{9}\,\mathrm dx =\frac1{27}.
 $$
 
+
 在 $(1,2)$ 内，$Y=X$，其余概率连续分布。
+
+</Step>
+
+<Step>
 
 ### 第二步：求分布函数
 
+
 对于 $1\le y<2$：
+
 
 $$
 \begin{aligned} F_Y(y) &=P(Y\le y)\\ &=P(X\ge2)+P(1<X\le y)\\ &=\frac{19}{27}+\int_1^y\frac{x^2}{9}\,\mathrm dx\\ &=\frac{y^3+18}{27}. \end{aligned}
 $$
 
+
 因此
+
 
 $$
 \boxed{ F_Y(y)= \begin{cases} 0,&y<1,\\[2pt] \dfrac{y^3+18}{27},&1\le y<2,\\[4pt] 1,&y\ge2. \end{cases} }
 $$
 
+
 特别注意：
+
 
 $$
 F_Y(1)=\frac{19}{27},
 $$
 
+
 以及
+
 
 $$
 F_Y(2-)=\frac{26}{27},\qquad F_Y(2)=1.
 $$
 
+
 这两个跳跃分别对应新变量在 $1$ 和 $2$ 处的点概率。
+
+</Step>
+
+<Step>
 
 ### 第三步：求 $P(X\le Y)$
 
+
 直接按原变量 $X$ 的区间判断：
+
 
 当 $X\le1$，有 $Y=2$，成立。
 
+
 当 $1<X<2$，有 $Y=X$，也成立。
+
 
 当 $X\ge2$，有 $Y=1$，不成立。
 
+
 因此事件等价于 $X<2$，所以
+
 
 $$
 \boxed{ P(X\le Y)=P(X<2) =\int_0^2\frac{x^2}{9}\,\mathrm dx =\frac8{27}. }
 $$
 
+
 解法比较： 求 $Y$ 的分布必须按映射后的取值分段；而求 $P(X\le Y)$ 时，直接在原变量上分类反而更简单。
+
+</Step>
+
+</Steps>
 
 ## 六、概率积分变换：必须掌握的特殊结论
 
+
 如果 $X$ 的分布函数 $F_X$ 连续，则
+
 
 $$
 \boxed{U=F_X(X)\sim U(0,1).}
 $$
 
+
 这个结论叫概率积分变换。
 
+
 若 $F_X$ 严格递增，证明很直观：对 $0<u<1$，
+
 
 $$
 \begin{aligned} P(F_X(X)\le u) &=P(X\le F_X^{-1}(u))\\ &=u. \end{aligned}
 $$
 
+
 对于连续但不严格递增的分布函数，可用广义反函数处理，结论仍成立。
+
 
 ### 典型练习
 
+
 若
+
 
 $$
 U=F_X(X),
 $$
 
+
 定义
+
 
 $$
 Y=-\ln(1-U),
 $$
 
+
 则
+
 
 $$
 \begin{aligned} P(Y\le y) &=P(-\ln(1-U)\le y)\\ &=P(U\le1-e^{-y})\\ &=1-e^{-y},\qquad y\ge0. \end{aligned}
 $$
 
+
 因此
+
 
 $$
 \boxed{Y\sim E(1).}
 $$
 
+
 这也是从均匀分布构造指数分布的常见方法。
+
 
 易错边界： 对离散型随机变量，通常不能直接套用 $F_X(X)\sim U(0,1)$。此外，必须使用 $X$ 自己的连续分布函数，而不能随便换成另一个分布函数。
 
+
 ## 第二部分：二维随机变量函数的分布
+
 
 ## 七、核心公式：和、差、积、商、最大与最小
 
+
 下面这张表是本节必须熟悉的核心内容。
+
 
 | 新变量             | 常用方法               | 关键成立条件           |
 | --------------- | ------------------ | ---------------- |
@@ -583,815 +858,1165 @@ $$
 | $\|X-Y\|$   | 带状区域或先求差           | 注意两侧分支           |
 | $X^2+Y^2$   | 极坐标                | 支撑区域与雅可比         |
 
+
 ### 1. 和的密度
 
+
 如果 $(X,Y)$ 有联合密度 $f_{X,Y}(x,y)$，令
+
 
 $$
 Z=X+Y,
 $$
 
+
 则
+
 
 $$
 \boxed{ f_Z(z)=\int_{-\infty}^{+\infty} f_{X,Y}(x,z-x)\,\mathrm dx. }
 $$
 
+
 若 $X,Y$ 独立，则
+
 
 $$
 \boxed{ f_Z(z)=\int_{-\infty}^{+\infty} f_X(x)f_Y(z-x)\,\mathrm dx. }
 $$
 
+
 后一个公式就是卷积公式。
+
 
 注意： 第一种联合密度积分不要求独立；第二种将联合密度写成边缘密度乘积，必须有独立性。
 
+
 ### 2. 差的密度
 
+
 对 $Z=X-Y$：
+
 
 $$
 \boxed{ f_Z(z)=\int_{-\infty}^{+\infty} f_{X,Y}(x,x-z)\,\mathrm dx. }
 $$
 
+
 独立时可写为
+
 
 $$
 f_Z(z)=\int_{-\infty}^{+\infty} f_X(x)f_Y(x-z)\,\mathrm dx.
 $$
 
+
 ### 3. 积与商的密度
 
+
 若具有适当的二维联合密度和换元条件，则
+
 
 $$
 \boxed{ f_{XY}(z)=\int_{-\infty}^{+\infty} f_{X,Y}\left(x,\frac zx\right) \frac1{|x|}\,\mathrm dx. }
 $$
 
+
 其中 $x=0$ 的位置应按换元条件处理，不是直接代入。
 
+
 若
+
 
 $$
 Z=\frac XY,
 $$
 
+
 则
+
 
 $$
 \boxed{ f_Z(z)=\int_{-\infty}^{+\infty} f_{X,Y}(zy,y)|y|\,\mathrm dy. }
 $$
 
+
 积与商的公式不必强行死记。考场上如果支撑区域简单，从
+
 
 $$
 F_Z(z)=P(XY\le z)
 $$
 
+
 或
+
 
 $$
 F_Z(z)=P(X/Y\le z)
 $$
 
+
 出发画区域，经常更稳健。
+
 
 ## 八、核心题型二：卷积最关键的是积分上下限
 
+
 ### 例：两个独立均匀变量之和
 
+
 设
+
 
 $$
 X,Y\overset{\mathrm{iid}}{\sim}U(0,1),
 $$
 
+
 令
+
 
 $$
 Z=X+Y.
 $$
 
+
 因为 $X,Y\in(0,1)$，所以
+
 
 $$
 0<Z<2.
 $$
 
+
 卷积公式：
+
 
 $$
 f_Z(z)=\int f_X(x)f_Y(z-x)\,\mathrm dx.
 $$
 
+
 而两个密度同时非零，需要
+
 
 $$
 0<x<1,\qquad0<z-x<1.
 $$
 
+
 即
+
 
 $$
 \max(0,z-1)<x<\min(1,z).
 $$
 
+
 因此当 $0<z<1$：
+
 
 $$
 f_Z(z)=\int_0^z1\,\mathrm dx=z.
 $$
 
+
 当 $1<z<2$：
+
 
 $$
 f_Z(z)=\int_{z-1}^11\,\mathrm dx=2-z.
 $$
 
+
 最终：
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} z,&0<z<1,\\ 2-z,&1\le z<2,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+
 两个独立 $U(0,1)$ 变量之和的密度
+
 
 00.250.50.75100.250.50.7511.251.51.752
 
+
 密度先增后减，形成三角形。它来自直线 $x+y=z$ 与单位正方形的交段长度。
+
 
 ### 进阶：2007年数学一、数学三真题
 
+
 该题给出的联合密度为
+
 
 $$
 f_{X,Y}(x,y)= \begin{cases} 2-x-y,&0<x<1,\ 0<y<1,\\ 0,&\text{其他}. \end{cases}
 $$
 
+
 求 $Z=X+Y$ 的密度。
+
 
 注意这里没有必要先假设 $X,Y$ 独立。
 
+
 沿直线
+
 
 $$
 y=z-x
 $$
 
+
 代入联合密度：
+
 
 $$
 f_{X,Y}(x,z-x)=2-z.
 $$
 
+
 当 $0<z<1$，有效积分区间是 $0<x<z$。
 
+
 因此
+
 
 $$
 f_Z(z)=\int_0^z(2-z)\,\mathrm dx =2z-z^2.
 $$
 
+
 当 $1<z<2$，有效区间是 $z-1<x<1$。
 
+
 于是
+
 
 $$
 f_Z(z)=\int_{z-1}^1(2-z)\,\mathrm dx =(2-z)^2.
 $$
 
+
 所以
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} 2z-z^2,&0<z<1,\\ (2-z)^2,&1\le z<2,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+
 比较两题： 两个例子都沿 $x+y=z$ 积分，区别仅在于直线上的密度权重不同。真正通用的是“确定交段—积分”这套方法。
+
 
 ## 九、最大值与最小值：最适合分布函数法
 
+
 设
+
 
 $$
 M=\max(X,Y),\qquad m=\min(X,Y).
 $$
 
+
 ### 最大值
+
 
 $$
 \{M\le z\}=\{X\le z,Y\le z\}.
 $$
 
+
 因此，不论是否独立，都有
+
 
 $$
 \boxed{F_M(z)=F_{X,Y}(z,z).}
 $$
 
+
 如果 $X,Y$ 独立，才可以写成
+
 
 $$
 \boxed{F_M(z)=F_X(z)F_Y(z).}
 $$
 
+
 ### 最小值
+
 
 $$
 \{m>z\}=\{X>z,Y>z\}.
 $$
 
+
 如果 $X,Y$ 独立：
+
 
 $$
 \begin{aligned} F_m(z) &=1-P(X>z,Y>z)\\ &=\boxed{1-[1-F_X(z)][1-F_Y(z)]}. \end{aligned}
 $$
 
+
 对于 $n$ 个独立同分布变量，分布函数均为 $F$，则
+
 
 $$
 \boxed{F_{\max(X_1,\ldots,X_n)}(z)=F(z)^n}
 $$
 
+
 和
+
 
 $$
 \boxed{F_{\min(X_1,\ldots,X_n)}(z)=1-[1-F(z)]^n.}
 $$
 
+
 若密度存在且 $F$ 可导，对最大值可进一步求得
+
 
 $$
 f_{\max}(z)=nF(z)^{n-1}f(z).
 $$
 
+
 对最小值则有
+
 
 $$
 f_{\min}(z)=n[1-F(z)]^{n-1}f(z).
 $$
 
+
 这正是数理统计中次序统计量的基础。
+
 
 ### 例：两个独立指数变量的最小值
 
+
 若
+
 
 $$
 X\sim E(\lambda_1),\qquad Y\sim E(\lambda_2)
 $$
 
+
 且独立，则
+
 
 $$
 \begin{aligned} P(\min(X,Y)>t) &=P(X>t)P(Y>t)\\ &=e^{-\lambda_1t}e^{-\lambda_2t}\\ &=e^{-(\lambda_1+\lambda_2)t}. \end{aligned}
 $$
 
+
 故
+
 
 $$
 \boxed{\min(X,Y)\sim E(\lambda_1+\lambda_2).}
 $$
 
+
 这是指数寿命“谁先失效”问题的基础模型。
+
 
 ## 十、核心题型三：随机分割线段，先降维再变换
 
+
 2021年数学一、数学三真题
+
 
 在区间 $(0,2)$ 上均匀随机取一点，把线段分成两段。
 
+
 较短段长度为 $X$，较长段长度为 $Y$，令
+
 
 $$
 Z=\frac YX.
 $$
 
+
 求 $X$、$Z$ 的密度，并求
+
 
 $$
 E\left(\frac XY\right).
 $$
 
+
+
+<Steps>
+
+<Step>
+
 ### 第一步：构造最原始的随机变量
 
+
 令随机切点为 $T$，则
+
 
 $$
 T\sim U(0,2).
 $$
 
+
 两段长度分别为
+
 
 $$
 T,\qquad2-T.
 $$
 
+
 因此
+
 
 $$
 X=\min(T,2-T),
 $$
 
+
 $$
 Y=\max(T,2-T)=2-X.
 $$
 
+
 注意这个等式非常重要：
+
 
 $$
 \boxed{X+Y=2.}
 $$
 
+
 所以根本不需要把 $X,Y$ 当作两个独立随机变量来处理。
+
+</Step>
+
+<Step>
 
 ### 第二步：求较短段的分布
 
+
 显然
+
 
 $$
 0<X<1.
 $$
 
+
 对于 $0<x<1$，
+
 
 $$
 \begin{aligned} F_X(x) &=P(\min(T,2-T)\le x)\\ &=P(T\le x)+P(T\ge2-x)\\ &=\frac x2+\frac x2\\ &=x. \end{aligned}
 $$
 
+
 因此
+
 
 $$
 \boxed{X\sim U(0,1).}
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：求 $Z=Y/X$ 的密度
 
+
 由 $Y=2-X$：
+
 
 $$
 Z=\frac{2-X}{X}=\frac2X-1.
 $$
 
+
 当 $0<X<1$：
+
 
 $$
 Z>1.
 $$
 
+
 反解：
+
 
 $$
 X=\frac2{Z+1}.
 $$
 
+
 导数绝对值：
+
 
 $$
 \left|\frac{\mathrm dX}{\mathrm dZ}\right| =\frac2{(Z+1)^2}.
 $$
 
+
 所以
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} \dfrac2{(z+1)^2},&z>1,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+</Step>
+
+<Step>
+
 ### 第四步：求期望
+
 
 $$
 \frac XY=\frac{X}{2-X}.
 $$
 
+
 由于 $X\sim U(0,1)$：
+
 
 $$
 \begin{aligned} E\left(\frac XY\right) &=\int_0^1\frac{x}{2-x}\,\mathrm dx\\ &=\int_0^1\left(\frac2{2-x}-1\right)\mathrm dx\\ &=\boxed{2\ln2-1}. \end{aligned}
 $$
 
+
 本题最重要的突破口： 不要因为题目出现两个变量 $X,Y$，就马上尝试二维积分。若两变量之间存在确定关系，优先降维。
 
+
 还有一个很有价值的延伸：虽然 $E(X/Y)$ 有限，但根据 $f_Z(z)\sim2/z^2$，可知
+
 
 $$
 E(Z)=E(Y/X)=+\infty.
 $$
 
+
 这说明即使分布密度合法，数学期望也不一定有限。
+
+</Step>
+
+</Steps>
 
 ## 十一、核心题型四：圆对称与极坐标
 
+
 2023年数学一真题
 
+
 设联合密度为
+
 
 $$
 f_{X,Y}(x,y)= \begin{cases} \dfrac2\pi(x^2+y^2),&x^2+y^2<1,\\ 0,&\text{其他}. \end{cases}
 $$
 
+
 题目要求计算协方差、判断独立性，并求
+
 
 $$
 Z=X^2+Y^2
 $$
 
+
 的密度。
+
 
 ### 第一问：协方差
 
+
 由于联合密度和支撑圆盘关于两个坐标轴对称，
+
 
 $$
 EX=EY=0.
 $$
 
+
 同时 $xyf(x,y)$ 对 $x$ 或 $y$ 为奇函数，积分区域对称，因此
+
 
 $$
 E(XY)=0.
 $$
 
+
 于是
+
 
 $$
 \boxed{\operatorname{Cov}(X,Y)=0.}
 $$
 
+
 ### 第二问：判断独立性
+
 
 虽然协方差为零，但 $X,Y$ 不独立。
 
+
 原因是它们的支撑区域为单位圆盘：
+
 
 $$
 x^2+y^2<1,
 $$
 
+
 不是两个边缘支撑区间的直积。
 
+
 例如 $X,Y$ 都可能接近 $0.9$，但它们不能同时接近 $0.9$，因为
+
 
 $$
 0.9^2+0.9^2>1.
 $$
 
+
 因此
+
 
 $$
 \boxed{X,Y\text{ 不独立}.}
 $$
 
+
 这也是“零协方差不代表独立”的典型反例。
+
 
 ### 第三问：求 $Z$ 的密度
 
+
 此题必须想到极坐标：
+
 
 $$
 x=r\cos\theta,\qquad y=r\sin\theta.
 $$
 
+
 其中
+
 
 $$
 Z=r^2.
 $$
 
+
 极坐标面积元为
+
 
 $$
 \mathrm dx\,\mathrm dy=r\,\mathrm dr\,\mathrm d\theta.
 $$
 
+
 对于 $0<z<1$：
+
 
 $$
 \begin{aligned} F_Z(z) &=P(X^2+Y^2\le z)\\ &=\int_0^{2\pi}\int_0^{\sqrt z} \frac2\pi r^2\cdot r\,\mathrm dr\,\mathrm d\theta\\ &=\frac2\pi\cdot2\pi\cdot\frac{(\sqrt z)^4}{4}\\ &=z^2. \end{aligned}
 $$
 
+
 所以
+
 
 $$
 \boxed{ F_Z(z)= \begin{cases} 0,&z<0,\\ z^2,&0\le z<1,\\ 1,&z\ge1. \end{cases} }
 $$
 
+
 求导得
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} 2z,&0<z<1,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+
 易错点： 极坐标一定要乘雅可比因子 $r$。如果忘记这个 $r$，最终密度就会错误。
+
 
 本题也是一个典型的数学一综合结构：先利用对称性计算数字特征，再讨论独立性，最后通过二维变量变换求密度。
 
+
 ## 十二、核心题型五：指数变量绝对差
+
 
 2024年数学一、数学三真题
 
+
 设随机变量 $X,Y$ 相互独立，且都服从参数为 $\lambda>0$ 的指数分布。
 
+
 令
+
 
 $$
 Z=|X-Y|.
 $$
 
+
 判断 $Z$ 与哪个变量同分布。
+
+
+
+<Tabs items={["方法一", "方法二"]} defaultIndex={0}>
+
+<Tab value="方法一">
 
 ### 方法一：直接求尾概率
 
+
 对于 $z\ge0$：
+
 
 $$
 \{|X-Y|>z\} =\{X>Y+z\}\cup\{Y>X+z\}.
 $$
 
+
 两个事件互斥，且因同分布具有对称性，因此
+
 
 $$
 P(Z>z)=2P(X>Y+z).
 $$
 
+
 根据条件积分与独立性：
+
 
 $$
 \begin{aligned} P(X>Y+z) &=\int_0^\infty P(X>y+z)f_Y(y)\,\mathrm dy\\ &=\int_0^\infty e^{-\lambda(y+z)} \lambda e^{-\lambda y}\,\mathrm dy\\ &=\frac12e^{-\lambda z}. \end{aligned}
 $$
 
+
 所以
+
 
 $$
 \boxed{P(Z>z)=e^{-\lambda z}.}
 $$
 
+
 于是
+
 
 $$
 \boxed{Z\sim E(\lambda).}
 $$
 
+
 所以 $Z$ 与 $X$ 同分布，正确选项为 D。
+
+</Tab>
+
+<Tab value="方法二">
 
 ### 方法二：先求差，再取绝对值
 
+
 令
+
 
 $$
 W=X-Y.
 $$
 
+
 由于 $X,Y$ 是独立同参数指数变量，$W$ 服从以零为中心的双侧指数分布，其密度为
+
 
 $$
 f_W(w)=\frac\lambda2e^{-\lambda|w|}.
 $$
 
+
 于是对 $z>0$：
+
 
 $$
 \begin{aligned} f_Z(z) &=f_W(z)+f_W(-z)\\ &=\frac\lambda2e^{-\lambda z} +\frac\lambda2e^{-\lambda z}\\ &=\lambda e^{-\lambda z}. \end{aligned}
 $$
 
+
 再次得到 $Z\sim E(\lambda)$。
+
 
 方法一更适合选择题，且不需要先记住差的分布。方法二适合已经熟练掌握卷积与绝对值变换的考生。
 
+
 注意成立条件： 两个指数变量必须独立且具有相同的率参数。不同率参数时，绝对差一般不再服从单一指数分布。
+
+</Tab>
+
+</Tabs>
 
 ## 十三、离散—连续混合模型与独立性陷阱
 
+
 2019年数学一、数学三真题
 
+
 设
+
 
 $$
 X\sim E(1),
 $$
 
+
 随机变量 $Y$ 与 $X$ 独立，并且
+
 
 $$
 P(Y=-1)=p,\qquad P(Y=1)=1-p.
 $$
 
+
 令
+
 
 $$
 Z=XY.
 $$
 
+
 要求 $Z$ 的密度、使 $X,Z$ 不相关的参数 $p$，并判断 $X,Z$ 是否独立。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：条件分类求密度
 
+
 当 $Y=1$ 时，$Z=X>0$，对应密度为 $e^{-z}$。
+
 
 当 $Y=-1$ 时，$Z=-X<0$，对应密度为 $e^z$。
 
+
 于是
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} pe^z,&z<0,\\ (1-p)e^{-z},&z>0. \end{cases} }
 $$
 
+
 这里不是用连续变量的乘积公式最方便，而是按离散变量的取值直接分类。
+
+</Step>
+
+<Step>
 
 ### 第二步：不相关条件
 
+
 因为 $Z=XY$ 且 $X,Y$ 独立：
+
 
 $$
 \begin{aligned} \operatorname{Cov}(X,Z) &=E(X^2Y)-EX\cdot E(XY)\\ &=[E(X^2)-(EX)^2]EY\\ &=DX\cdot EY. \end{aligned}
 $$
 
+
 由 $X\sim E(1)$，得 $DX=1$。
 
+
 同时
+
 
 $$
 EY=(1-p)-p=1-2p.
 $$
 
+
 所以
+
 
 $$
 \operatorname{Cov}(X,Z)=1-2p.
 $$
 
+
 令协方差为零：
+
 
 $$
 \boxed{p=\frac12.}
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：判断独立性
 
+
 无论 $p$ 如何，只要 $Y\in\{-1,1\}$，就有
+
 
 $$
 \boxed{|Z|=X.}
 $$
 
+
 也就是说，知道 $Z$ 就能完全确定 $X$。
+
 
 因此 $X,Z$ 不能独立。
 
+
 特别地，当 $p=1/2$ 时：
+
 
 $$
 \operatorname{Cov}(X,Z)=0,
 $$
 
+
 但
+
 
 $$
 \boxed{X,Z\text{ 仍不独立}.}
 $$
 
+
 这道题是理解“独立与不相关”区别的高质量母题。
+
+</Step>
+
+</Steps>
 
 ## 十四、二维雅可比变换：什么时候应该使用？
 
+
 如果新变量有两个：
+
 
 $$
 U=u(X,Y),\qquad V=v(X,Y),
 $$
 
+
 并且可以反解为
+
 
 $$
 x=x(u,v),\qquad y=y(u,v),
 $$
 
+
 若变换在相关区域内一一对应、可微且满足换元条件，则
+
 
 $$
 \boxed{ f_{U,V}(u,v) =f_{X,Y}(x(u,v),y(u,v)) \left| \frac{\partial(x,y)}{\partial(u,v)} \right|. }
 $$
 
+
 这里的
+
 
 $$
 \left| \frac{\partial(x,y)}{\partial(u,v)} \right|
 $$
 
+
 是反变换雅可比行列式的绝对值。
 
+
 例如
+
 
 $$
 U=X+Y,\qquad V=X-Y.
 $$
 
+
 反解得
+
 
 $$
 X=\frac{U+V}{2},\qquad Y=\frac{U-V}{2}.
 $$
 
+
 因此
+
 
 $$
 \left| \frac{\partial(x,y)}{\partial(u,v)} \right| =\frac12.
 $$
 
+
 于是
+
 
 $$
 \boxed{ f_{U,V}(u,v) =\frac12 f_{X,Y}\left( \frac{u+v}{2}, \frac{u-v}{2} \right). }
 $$
 
+
 当然，还必须把原支撑区域转换为 $u,v$ 的有效范围。
 
+
 若题目只需要 $U$ 的密度，则进一步对 $v$ 积分：
+
 
 $$
 f_U(u)=\int_{-\infty}^{+\infty}f_{U,V}(u,v)\,\mathrm dv.
 $$
 
+
 考试建议： 求一个随机变量的分布，优先考虑 CDF 法或一维积分；若同时求两个新变量的联合密度，二维雅可比法通常更合适。
+
 
 ## 十五、典型练习：独立均匀变量的乘积
 
+
 李正元典型模型
 
+
 设 $X,Y$ 相互独立，且
+
 
 $$
 X,Y\sim U(0,1).
 $$
 
+
 令
+
 
 $$
 Z=XY.
 $$
 
+
 求 $Z$ 的分布函数和密度。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：判断值域
 
+
 因为
+
 
 $$
 0<X<1,\qquad0<Y<1,
 $$
 
+
 所以
+
 
 $$
 0<Z<1.
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：求 $F_Z(z)$
 
+
 对于 $0<z<1$：
+
 
 $$
 F_Z(z)=P(XY\le z).
 $$
 
+
 固定 $X=x$。
+
 
 当 $0<x\le z$ 时，$xy\le z$ 对所有 $0<y<1$ 成立。
 
+
 当 $z<x<1$ 时，需要
+
 
 $$
 0<y\le\frac zx.
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} F_Z(z) &=\int_0^z1\,\mathrm dx +\int_z^1\frac zx\,\mathrm dx\\ &=z+z(\ln1-\ln z)\\ &=\boxed{z-z\ln z}. \end{aligned}
 $$
 
+
 完整分布函数为
+
 
 $$
 F_Z(z)= \begin{cases} 0,&z\le0,\\ z-z\ln z,&0<z<1,\\ 1,&z\ge1. \end{cases}
 $$
 
+
 求导得
+
 
 $$
 \boxed{ f_Z(z)= \begin{cases} -\ln z,&0<z<1,\\ 0,&\text{其他}. \end{cases} }
 $$
 
+
 这个例子说明，即使 $X,Y$ 都均匀分布，乘积也不一定均匀。
 
+
 它还可以用乘积密度公式验证：
+
 
 $$
 \begin{aligned} f_Z(z) &=\int_z^1\frac1x\,\mathrm dx\\ &=-\ln z. \end{aligned}
 $$
 
+
 这道题适合同时训练“区域法”和“密度换元法”。
 
+</Step>
+
+</Steps>
+
 ## 十六、公式总表与适用条件
+
 
 | 结构              | 必记表达式                                              | 最容易遗漏的条件            |
 | --------------- | -------------------------------------------------- | ------------------- |
@@ -1408,7 +2033,13 @@ $$
 | 独立最小值           | $1-(1-F_X)(1-F_Y)$                             | 独立                  |
 | $X^2+Y^2$   | 极坐标，$z=r^2$                                    | 雅可比因子 $r$       |
 
+
 ## 十七、常见陷阱与纠错
+
+<Accordions>
+
+<Accordion title="展开本节易错点与考场辨析">
+
 
 | 易错做法                   | 正确思路                 |
 | ---------------------- | -------------------- |
@@ -1425,35 +2056,51 @@ $$
 | 数学期望一定有限               | 还需要检查积分收敛            |
 | 协方差为零就判断独立             | 一般不成立                |
 
+
 特别建议： 求完新分布之后，至少做一次校验。
 
+
 对于纯连续型分布：
+
 
 $$
 \int f_Z(z)\,\mathrm dz=1.
 $$
 
+
 对于混合分布：
+
 
 $$
 \boxed{ \sum_{\text{原子 }z_i}P(Z=z_i) +\int f_Z^{(\mathrm{cont})}(z)\,\mathrm dz=1. }
 $$
 
+
 这个检验尤其能发现漏分支、漏点概率和积分区间错误。
+
+</Accordion>
+
+</Accordions>
 
 ## 十八、自测：五道考研典型变式
 
+
 ### 练习 1：绝对值变换
+
 
 若 $X\sim U(-2,2)$，令 $Y=|X|$，求 $Y$ 的概率密度。
 
+
 **答案与解析：**&#x2060;对 $0\le y<2$，
+
 
 $$
 F_Y(y)=P(-y\le X\le y)=\frac{2y}{4}=\frac y2.
 $$
 
+
 因此
+
 
 $$
 f_Y(y)=\begin{cases}
@@ -1462,25 +2109,35 @@ f_Y(y)=\begin{cases}
 \end{cases}
 $$
 
+
 $Y$ 服从 $U(0,2)$；两支原像的贡献不能漏算。
+
 
 ### 练习 2：截断变换产生点质量
 
+
 若 $X\sim E(1)$，令 $Y=\min(X,2)$，求 $P(Y=2)$。
 
+
 **答案与解析：**$Y=2$ 对应事件 $X\ge2$，故
+
 
 $$
 P(Y=2)=P(X\ge2)=\boxed{e^{-2}}.
 $$
 
+
 即使 $X$ 连续，截断后的 $Y$ 也可能具有点质量。
+
 
 ### 练习 3：两个独立变量的最大值
 
+
 若 $X,Y\overset{\mathrm{iid}}\sim U(0,1)$，求 $M=\max(X,Y)$ 的分布函数。
 
+
 **答案与解析：**&#x2060;由 $M\le m\iff X\le m,\,Y\le m$，结合独立性，
+
 
 $$
 F_M(m)=\begin{cases}
@@ -1490,17 +2147,23 @@ m^2,&0\le m<1,\\
 \end{cases}
 $$
 
+
 ### 练习 4：两个独立指数变量的最小值
+
 
 若 $X,Y$ 独立，且均服从速率参数为 $2$ 的指数分布，求 $T=\min(X,Y)$ 的分布。
 
+
 **答案与解析：**&#x2060;由 $T>t\iff X>t,\,Y>t$，对 $t\ge0$ 有
+
 
 $$
 P(T>t)=e^{-2t}e^{-2t}=e^{-4t}.
 $$
 
+
 故 $\boxed{T\sim E(4)}$，其分布函数为
+
 
 $$
 F_T(t)=\begin{cases}
@@ -1509,11 +2172,15 @@ F_T(t)=\begin{cases}
 \end{cases}
 $$
 
+
 ### 练习 5：两个独立均匀变量的乘积
+
 
 若 $X,Y$ 独立且均服从 $U(0,1)$，求 $P(XY\le1/2)$。
 
+
 **答案与解析：**&#x2060;在单位正方形上按 $x=1/2$ 分区：
+
 
 $$
 \begin{aligned}
@@ -1525,66 +2192,118 @@ P(XY\le1/2)
 \end{aligned}
 $$
 
+
 乘积变换题不能简单把两个原变量的密度相乘作为新变量密度。
+
 
 ## 十九、本节与前后知识的联系
 
+
 本节是概率论从“已知分布求概率”转向“由已有随机变量构造新随机变量”的核心过渡。
 
+
 与前面的分布函数联系：
+
 
 $$
 F_Z(z)=P(Z\le z)
 $$
 
+
 永远是最稳健的出发点。
 
+
 与离散型随机变量联系：离散变换要按原像合并概率，例如
+
 
 $$
 \boxed{P(Z=z)=\sum_{x:g(x)=z}P(X=x).}
 $$
 
+
 与连续型随机变量联系：密度变换来自一维积分换元，二维变量变换则与高等数学的二重积分、雅可比行列式、极坐标密切相关。
 
+
 与后续数字特征联系：如果只问期望，很多情况下无需先求新变量分布，而可以直接使用
+
 
 $$
 \boxed{E[g(X)]=\int g(x)f_X(x)\,\mathrm dx,}
 $$
 
+
 或二维形式
+
 
 $$
 \boxed{ E[g(X,Y)]= \iint g(x,y)f_{X,Y}(x,y)\,\mathrm dx\,\mathrm dy, }
 $$
 
+
 前提是相应期望存在。
+
 
 与数理统计联系：独立样本的最大值、最小值分布是次序统计量基础；正态变量平方和可以导向卡方分布；独立正态变量的比值还可导向柯西分布及后续 $t$ 分布相关知识。
 
+
 ## 二十、本节复习建议
+
 
 本节建议分成三个训练层次。
 
+
 基础阶段以单调变换、平方、绝对值、分布函数法为主，目标是看到新变量后能立即找出值域和原像。
+
 
 强化阶段重点练习 2006 年平方分支题、2013 年混合分布题、2021 年线段随机分割题，以及 2025 年保险赔付综合题。
 
+
 冲刺阶段重点掌握 2023 年圆对称平方和、2024 年指数绝对差、独立变量卷积、极值统计量，以及二维雅可比变换。
 
+
 这一节最值得牢记的一句话是：
+
 
 $$
 \boxed{ \text{先找值域，后找原像；能用分布函数法就先从事件出发。} }
 $$
 
+
 如果涉及多个随机变量，再补上一条：
+
 
 $$
 \boxed{ \text{先看独立性与支撑区域，再决定卷积、面积积分还是雅可比。} }
 $$
 
+
 把这两条原则练熟，随机变量函数的分布就不再是一大堆需要分别死记的公式，而是一套可以灵活迁移的统一解题方法。
 
+
 ---
+
+## 配套知识与题目索引
+
+<Cards>
+
+<Card title="系统讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/probability-statistics/03-joint-distributions/">
+
+与本章系统讲义、公式条件及经典例题对照。
+
+</Card>
+
+<Card title="历年分类真题" href="https://exam.any1.tech/docs/math/past-exams/03-611e560f/s-a743e34e/04-92d9c080/">
+
+按年份对照相应考研真题与解析。
+
+</Card>
+
+<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/03-611e560f/s-a743e34e/04-92d9c080/">
+
+复习母题、重要变式与易错辨析。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/probability-statistics/chapter-02/04-functions-of-random-variables/)

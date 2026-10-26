@@ -3,9 +3,37 @@ title: "第二节 线性相关与线性无关"
 description: "线性相关与无关的定义、秩判别、含参向量组、线性变换及 Gram 矩阵。"
 ---
 
+<Cards>
+
+<Card title="基本判断">
+
+定义、秩判别与参数子式
+
+</Card>
+
+<Card title="经典题型">
+
+局部相关、线性映射与矩阵幂
+
+</Card>
+
+<Card title="易混重点">
+
+两两无关不等于整体无关
+
+</Card>
+
+</Cards>
+
+<Callout type="idea" title="本节解题导航">
+
+先把向量组写成矩阵，通过秩或零空间判别整体相关性；含参数题要同时核验各个必要条件。两两线性无关不等于整体无关。
+
+</Callout>
+
 ## 本节思维导图
 
-```mindmap
+<MindMap title="第二节 线性相关与线性无关 · 解题方法知识图谱" height={550} initialExpandLevel={2} maxWidth={300} markdown={String.raw`
 # 第二节 线性相关与线性无关
 ## 基础概念
 ### 零线性组合
@@ -24,7 +52,7 @@ description: "线性相关与无关的定义、秩判别、含参向量组、线
 ### Gram矩阵
 ### 秩与零空间
 ## 自测与易错点
-```
+`} />
 
 ## 一、本节内容与常考题型
 
@@ -472,6 +500,10 @@ $$
 | C  | $\alpha_1+\alpha_2,\ \alpha_2+\alpha_3,\ \alpha_3+\alpha_4,\ \alpha_4-\alpha_1$ |
 | D  | $\alpha_1+\alpha_2,\ \alpha_2+\alpha_3,\ \alpha_3-\alpha_4,\ \alpha_4-\alpha_1$ |
 
+<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
+
+<Tab value="解法一">
+
 ### 解法一：寻找显式零组合
 
 选项 A 记为 $v_1,v_2,v_3,v_4$。
@@ -501,6 +533,10 @@ $$
 所以 D 相关。
 
 只剩 C。
+
+</Tab>
+
+<Tab value="解法二">
 
 ### 解法二：对 C 使用系数矩阵
 
@@ -543,6 +579,10 @@ $$
 $$
 \boxed{\text{选 C}}.
 $$
+
+</Tab>
+
+</Tabs>
 
 ### 哪种解法更好？
 
@@ -850,6 +890,10 @@ $$
 
 线性无关。
 
+<Steps>
+
+<Step>
+
 ### 第一步：设零线性组合
 
 根据定义，设：
@@ -863,6 +907,10 @@ $$
 $$
 c_0=c_1=\cdots=c_{k-1}=0.
 $$
+
+</Step>
+
+<Step>
 
 ### 第二步：两边左乘 $A^{k-1}$
 
@@ -898,6 +946,10 @@ $$
 \boxed{c_0=0}.
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：继续逐个消掉系数
 
 原式变为：
@@ -929,6 +981,10 @@ $$
 $$
 \boxed{ \alpha,A\alpha,\ldots,A^{k-1}\alpha \text{ 线性无关}. }
 $$
+
+</Step>
+
+</Steps>
 
 ### 为什么这种方法非常重要？
 
@@ -968,6 +1024,10 @@ $$
 r(A)<2.
 $$
 
+<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
+
+<Tab value="解法一">
+
 ### 解法一：利用乘积矩阵的秩
 
 令
@@ -1004,6 +1064,10 @@ $$
 
 第二问得证。
 
+</Tab>
+
+<Tab value="解法二">
+
 ### 解法二：从外积直接理解
 
 对于任意三维列向量 $x$：
@@ -1037,6 +1101,10 @@ $$
 $$
 r(A)<2.
 $$
+
+</Tab>
+
+</Tabs>
 
 ### 进一步理解：为什么 Gram 矩阵有用？
 
@@ -1089,6 +1157,10 @@ $$
 这是从原真题结论进一步推广得到的性质。
 
 ## 十、补充：四个极易混淆的考点
+
+<Accordions>
+
+<Accordion title="展开易错点与适用条件">
 
 ### 1. 矩阵等价不等于列向量组等价
 
@@ -1216,6 +1288,10 @@ $$
 
 若 $k_i\ne0$，则可以从 $\beta$ 的表示式反解出 $\alpha_i$，替换不会丢失独立方向。
 
+</Accordion>
+
+</Accordions>
+
 ## 十一、考场判断方法速查
 
 | 题目识别信号                                    | 第一反应        | 推荐方法       |
@@ -1235,29 +1311,45 @@ $$
 
 以下三题为本节知识点巩固练习，保留原选项并提供静态答案。
 
+<Accordions>
+
+<Accordion title="自测 1：秩与线性相关">
+
 ### 自测 1：秩与线性相关
 
 设 $A$ 为 $5\times3$ 矩阵，且 $r(A)=2$。则其三个列向量的关系是？
 
-A. 一定无关　B. 一定相关　C. 任意两个必相关　D. 无法判断整体是否相关
+A. 一定无关 B. 一定相关 C. 任意两个必相关 D. 无法判断整体是否相关
 
 **答案：B。** 三个列向量张成空间的维数为 $2$，小于列向量数 $3$，所以整体线性相关；但不必两两相关。
+
+</Accordion>
+
+<Accordion title="自测 2：替换向量">
 
 ### 自测 2：替换向量
 
 设 $\alpha_1,\alpha_2,\alpha_3$ 线性无关，且 $\beta=2\alpha_1-3\alpha_2$。用 $\beta$ 替换哪个原向量，所得三向量一定相关？
 
-A. 替换 $\alpha_1$　B. 替换 $\alpha_2$　C. 替换 $\alpha_3$　D. 任何替换都无关
+A. 替换 $\alpha_1$ B. 替换 $\alpha_2$ C. 替换 $\alpha_3$ D. 任何替换都无关
 
 **答案：C。** $\beta$ 由 $\alpha_1,\alpha_2$ 线性表出，替换 $\alpha_3$ 后三向量相关。其余两种替换中，系数 $2$ 与 $-3$ 非零，故仍线性无关。
+
+</Accordion>
+
+<Accordion title="自测 3：线性映射与单射">
 
 ### 自测 3：线性映射与单射
 
 若 $\alpha_1,\alpha_2$ 线性无关，且 $A\alpha_1,A\alpha_2$ 线性相关，能必然推出什么？
 
-A. $A$ 必为方阵　B. $A$ 可逆　C. $A$ 在 $\operatorname{span}\{\alpha_1,\alpha_2\}$ 上不是单射　D. 原两个向量相关
+A. $A$ 必为方阵 B. $A$ 可逆 C. $A$ 在 $\operatorname{span}\{\alpha_1,\alpha_2\}$ 上不是单射 D. 原两个向量相关
 
 **答案：C。** 存在不全为零的 $s,t$ 使 $A(s\alpha_1+t\alpha_2)=0$；原向量无关，故 $s\alpha_1+t\alpha_2\ne0$。这说明 $A$ 的核与该二维张成空间有非零交，限制映射不是单射。
+
+</Accordion>
+
+</Accordions>
 
 ## 十三、本节与整个线性代数知识体系的联系
 
@@ -1318,3 +1410,29 @@ $$
 综合层： 理解线性映射的核空间、1998 年的矩阵幂消元证明、2008 年的外积秩问题，并能将这些方法迁移到后面的特征值与线性方程组。
 
 本节最终要建立的思维方式是：线性相关不是简单的“行列式等于零”，而是向量组存在冗余；线性无关也不只是计算结果，而是每个向量都贡献了不可替代的独立方向。 理解这点，下一节的极大线性无关组与向量组的秩就会自然衔接起来。
+
+## 配套知识与题目索引
+
+<Cards>
+
+<Card title="系统讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/linear-algebra/03-vector-spaces-rank/">
+
+按概念、公式与适用条件复核解题方法。
+
+</Card>
+
+<Card title="历年分类真题" href="https://exam.any1.tech/docs/math/past-exams/04-6fd2c05a/s-5a89c4c6/02-ddb6a044/">
+
+按年份与题型复习对应计算与证明。
+
+</Card>
+
+<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/02-1c0ed78f/s-5a89c4c6/02-ddb6a044/">
+
+对照母题、典型变式和解题解析。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/linear-algebra/chapter-03/02-linear-dependence/)

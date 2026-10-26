@@ -3,9 +3,31 @@ title: "第一节 一阶微分方程"
 description: "一阶微分方程的结构识别、可分离变量、线性方程、齐次型、伯努利方程、恰当微分、初值问题与经典考研例题。"
 ---
 
+<Cards>
+
+<Card title="核心基础">
+
+阶数、线性、齐次与初值。
+
+</Card>
+
+<Card title="解题方法">
+
+分离变量、积分因子、齐次化、伯努利与恰当微分。
+
+</Card>
+
+<Card title="考场关注">
+
+优先识别结构，再检查漏解、定义域与初值。
+
+</Card>
+
+</Cards>
+
 ## 本节思维导图
 
-```mindmap
+<MindMap title="第一节 一阶微分方程 · 知识树" height={520} initialExpandLevel={2} maxWidth={300} markdown={String.raw`
 # 第一节 一阶微分方程
 ## 基础概念
 ### 阶数、线性、齐次、通解与特解
@@ -25,7 +47,7 @@ description: "一阶微分方程的结构识别、可分离变量、线性方程
 ### 检查漏解和分支
 ### 初值、奇点与最大存在区间
 ### 自测与方法总结
-```
+`} />
 
 ## 一、本节定位与学习重点
 
@@ -997,6 +1019,10 @@ $$
 
 所以初值 $a$ 被唯一确定。
 
+<Steps>
+
+<Step>
+
 #### 第三步：证明这确实产生周期解
 
 仅有 $y(T)=y(0)$，不能对任意函数直接推出周期性。
@@ -1048,6 +1074,10 @@ $$
 $$
 
 存在性证明完成。
+
+</Step>
+
+<Step>
 
 #### 第四步：证明唯一性
 
@@ -1102,6 +1132,10 @@ $$
 $$
 \boxed{ \begin{gathered} \text{周期边界条件确定初值}\\ \Downarrow\\ \text{平移后的解满足同一初值问题}\\ \Downarrow\\ \text{初值唯一性证明周期性}\\ \Downarrow\\ \text{两周期解相减证明唯一性} \end{gathered} }
 $$
+
+</Step>
+
+</Steps>
 
 #### 进一步推广
 
@@ -1890,3 +1924,29 @@ $$
 本节最应该形成的能力：看到陌生的一阶微分方程，能够主动选择未知量和换元方式，将其化成熟悉的可分离变量方程或线性方程，并在求解之后严谨检查初值、漏解与定义区间。
 
 掌握这些之后，再学习模块五第2节“二阶及高阶线性微分方程”，就能把本节的线性结构、特解与齐次解思想自然推广到高阶情形。
+
+## 本节相关资料
+
+<Cards>
+
+<Card title="系统知识讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/advanced-mathematics/06-ordinary-differential-equations/">
+
+对照本节所涉及的定理、基础方法与适用条件。
+
+</Card>
+
+<Card title="分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-5ca32763/01-3e9fafd6/">
+
+核对历年真题与原题解析。
+
+</Card>
+
+<Card title="精选核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/05-28175cc9/01-3e9fafd6/">
+
+按本节解题模型巩固与迁移。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-05/01-first-order-differential-equations/)

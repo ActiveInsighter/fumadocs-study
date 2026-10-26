@@ -3,9 +3,39 @@ title: "第八节 渐近线"
 description: "系统整理铅直、水平和斜渐近线的严格判据，涵盖左右无穷、根式、幂指、微分方程及参数曲线。"
 ---
 
+<Cards>
+
+<Card title="有限位置">
+
+单侧发散与铅直渐近线。
+
+</Card>
+
+
+<Card title="无穷方向">
+
+分别判断左右的水平、斜渐近线。
+
+</Card>
+
+
+<Card title="精度要求">
+
+线性主项、斜率与截距。
+
+</Card>
+
+</Cards>
+
+<Callout type="idea" title="本节解题主线">
+
+完整扫描有限候选点、正无穷和负无穷；求斜渐近线既要斜率，也必须核对截距极限。
+
+</Callout>
+
 ## 本节思维导图
 
-```mindmap
+<MindMap title="第八节 渐近线 · 知识树" height={500} initialExpandLevel={2} markdown={String.raw`
 # 第八节 渐近线
 ## 基本概念
 ### 铅直渐近线
@@ -25,21 +55,26 @@ description: "系统整理铅直、水平和斜渐近线的严格判据，涵盖
 ## 考场总结
 ### 十个高频陷阱
 ### 三类定义与自测
-```
+`} />
 
 ## 一、本节定位与学习目标
 
 这一节是模块一的收尾内容。前面学习的函数极限、无穷小比较、泰勒展开和间断点分类，将在这里统一应用。
 
+
 本节最核心的思想：
+
 
 $$
 \boxed{f(x)=kx+b+o(1)\qquad(x\to\pm\infty)}
 $$
 
+
 它表示函数图像在无穷远处，与直线 $y=kx+b$ 的竖直方向差值趋于零。
 
+
 但渐近线不只有这一种。必须同时研究：
+
 
 - 有限奇点附近，是否存在铅直渐近线；
 - $x\to+\infty$ 时，是否存在水平或斜渐近线；
@@ -49,49 +84,66 @@ $$
 
 考虑三个简单函数。
 
+
 > **几何直观：** 曲线在有限奇点处可能向无穷远发散；在正、负无穷远处，曲线也可能分别逼近不同的直线。下面用具体函数和极限判据说明。
 
+
 对于函数
+
 
 $$
 f(x)=1+\frac1x,
 $$
 
+
 当 $x\to\pm\infty$ 时，
+
 
 $$
 f(x)\to1.
 $$
 
+
 所以 $y=1$ 是它的水平渐近线。
 
+
 当 $x\to0^\pm$ 时，
+
 
 $$
 f(x)\to\pm\infty.
 $$
 
+
 所以 $x=0$ 是它的铅直渐近线。
 
+
 再看
+
 
 $$
 g(x)=2x+3+\frac1x.
 $$
 
+
 虽然 $g(x)\to\pm\infty$，但
+
 
 $$
 g(x)-(2x+3)=\frac1x\to0.
 $$
 
+
 所以它有斜渐近线
+
 
 $$
 y=2x+3.
 $$
 
+
 这里有一个很重要的认识：
+
 
 渐近线不要求函数本身趋于有限数；斜渐近线要求的是函数与一条直线的差趋于零。
 
@@ -99,149 +151,202 @@ $$
 
 ### 1. 铅直渐近线
 
+
 若存在有限实数 $a$，满足
+
 
 $$
 \lim_{x\to a^-}f(x)=+\infty \quad\text{或}\quad-\infty,
 $$
 
+
 或者
+
 
 $$
 \lim_{x\to a^+}f(x)=+\infty \quad\text{或}\quad-\infty,
 $$
 
+
 则
+
 
 $$
 \boxed{x=a}
 $$
 
+
 是曲线的铅直渐近线。
+
 
 只需要一个单侧极限趋于无穷。
 
+
 例如
+
 
 $$
 f(x)=\ln x,\qquad x>0.
 $$
 
+
 虽然 $x=0$ 不是函数定义域内的点，但
+
 
 $$
 \lim_{x\to0^+}\ln x=-\infty,
 $$
 
+
 所以 $x=0$ 仍是铅直渐近线。
+
 
 ### 2. 水平渐近线
 
+
 若
+
 
 $$
 \lim_{x\to+\infty}f(x)=A,
 $$
 
+
 则 $y=A$ 是右侧水平渐近线。
 
+
 若
+
 
 $$
 \lim_{x\to-\infty}f(x)=B,
 $$
 
+
 则 $y=B$ 是左侧水平渐近线。
+
 
 左右的常数可以不同。
 
+
 例如
+
 
 $$
 f(x)=\arctan x
 $$
 
+
 有
+
 
 $$
 \lim_{x\to+\infty}\arctan x=\frac\pi2,
 $$
 
+
 $$
 \lim_{x\to-\infty}\arctan x=-\frac\pi2.
 $$
 
+
 因此两条水平渐近线为
+
 
 $$
 \boxed{y=\frac\pi2,\qquad y=-\frac\pi2}.
 $$
 
+
 ### 3. 斜渐近线
 
+
 若存在实数 $k\ne0,b$，使得
+
 
 $$
 \lim_{x\to+\infty}[f(x)-(kx+b)]=0
 $$
 
+
 或
+
 
 $$
 \lim_{x\to-\infty}[f(x)-(kx+b)]=0,
 $$
 
+
 则
+
 
 $$
 \boxed{y=kx+b}
 $$
 
+
 是相应方向的斜渐近线。
 
+
 通常依次求
+
 
 $$
 \boxed{k=\lim_{x\to\pm\infty}\frac{f(x)}x}
 $$
 
+
 和
+
 
 $$
 \boxed{b=\lim_{x\to\pm\infty}[f(x)-kx]}.
 $$
 
+
 两个极限都必须存在且有限。
+
 
 其中 $k=0$ 对应水平渐近线，不再另记为斜渐近线。
 
+
 ### 4. 为什么必须求截距 $b$？
 
+
 观察
+
 
 $$
 f(x)=x+\sqrt{x},\qquad x>0.
 $$
 
+
 有
+
 
 $$
 \lim_{x\to+\infty}\frac{f(x)}x=1.
 $$
 
+
 但
+
 
 $$
 f(x)-x=\sqrt{x}\to+\infty.
 $$
 
+
 所以虽然斜率候选值为 $1$，却不存在形如 $y=x+b$ 的斜渐近线。
 
+
 因此：
+
 
 $$
 \boxed{ \lim\frac{f(x)}x=k \quad\text{只得到候选斜率，不足以证明斜渐近线存在。} }
 $$
+
 
 还必须验证截距极限。
 
@@ -254,93 +359,139 @@ $$
 | $x\to+\infty$ | $f(x)/x$、$f(x)-kx$   | 右侧斜渐近线          |
 | $x\to-\infty$ | 独立重复上述分析                     | 左侧水平或斜渐近线       |
 
+
 完整解题时应先在定义域里找有限奇点，再分别扫描正、负无穷方向，最后统计不同的直线条数，而不是把同一条左右共同的渐近线算两遍。
 
 ## 五、核心题型一：铅直渐近线与水平渐近线的完整计数
 
 ### 例题 1：2012 年数学一、二、三真题
 
+
 Fumadocs 核心题库标注：2012-1,2,3-4 分
 
+
 求曲线
+
 
 $$
 y=\frac{x^2+x}{x^2-1}
 $$
 
+
 的渐近线条数。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：寻找有限奇点
 
+
 令分母为零：
+
 
 $$
 x^2-1=(x-1)(x+1)=0.
 $$
 
+
 得到两个候选点：
+
 
 $$
 x=1,\qquad x=-1.
 $$
 
+
 但候选点不一定是铅直渐近线。
+
+</Step>
+
+<Step>
 
 ### 第二步：先约分，再判断
 
+
 当 $x\ne\pm1$ 时，
+
 
 $$
 \begin{aligned} f(x) &=\frac{x(x+1)}{(x-1)(x+1)}\\ &=\frac{x}{x-1}\\ &=1+\frac1{x-1}. \end{aligned}
 $$
 
+
 因此，当 $x\to-1$ 时，
+
 
 $$
 \lim_{x\to-1}f(x)=\frac{-1}{-2}=\frac12.
 $$
 
+
 极限存在且有限，所以 $x=-1$ 只是可去间断点，不是铅直渐近线。
 
+
 当 $x\to1$ 时，
+
 
 $$
 f(x)=1+\frac1{x-1}.
 $$
 
+
 所以
+
 
 $$
 \lim_{x\to1^-}f(x)=-\infty, \qquad \lim_{x\to1^+}f(x)=+\infty.
 $$
 
+
 因此有铅直渐近线：
+
 
 $$
 \boxed{x=1}.
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：检查无穷远
 
+
 由
+
 
 $$
 f(x)=1+\frac1{x-1},
 $$
 
+
 可得
+
 
 $$
 \lim_{x\to\pm\infty}f(x)=1.
 $$
 
+
 所以水平渐近线为
+
 
 $$
 \boxed{y=1}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 最终结果
+
 
 | 类别 | 结果 |
 | --- | --- |
@@ -348,103 +499,155 @@ $$
 | 水平渐近线 | $y=1$ |
 | 不同渐近线总数 | **2 条** |
 
+
 最重要的陷阱：分母为零，不等于必有铅直渐近线。
+
 
 一定要验证函数值是否在某一侧趋于无穷，而不能仅凭分母零点计数。
 
+
 ### 例题 2：2007 年数学一、二、三真题——三类渐近线同时存在
+
 
 Fumadocs 核心题库标注：2007-1,2,3-4 分
 
+
 求曲线
+
 
 $$
 y=\frac1x+\ln(1+e^x)
 $$
 
+
 的渐近线条数。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：铅直渐近线
 
+
 唯一有限候选点为 $x=0$。
 
+
 因为
+
 
 $$
 \frac1x\to\pm\infty,
 $$
 
+
 而
+
 
 $$
 \ln(1+e^x)\to\ln2,
 $$
 
+
 所以
+
 
 $$
 \boxed{x=0}
 $$
 
+
 是铅直渐近线。
+
+</Step>
+
+<Step>
 
 ### 第二步：负无穷方向
 
+
 当 $x\to-\infty$ 时，
+
 
 $$
 \frac1x\to0, \qquad e^x\to0.
 $$
 
+
 因此
+
 
 $$
 \ln(1+e^x)\to0.
 $$
 
+
 故
+
 
 $$
 \boxed{y=0}
 $$
 
+
 是左侧水平渐近线。
+
+</Step>
+
+<Step>
 
 ### 第三步：正无穷方向
 
+
 这时不能直接把 $\ln(1+e^x)$ 当成无穷大量就停止计算。
 
+
 关键变形是：
+
 
 $$
 \begin{aligned} \ln(1+e^x) &=\ln\left[e^x(1+e^{-x})\right]\\ &=x+\ln(1+e^{-x}). \end{aligned}
 $$
 
+
 因此
+
 
 $$
 y-x=\frac1x+\ln(1+e^{-x}).
 $$
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 \frac1x\to0,\qquad \ln(1+e^{-x})\to0.
 $$
 
+
 所以
+
 
 $$
 y-x\to0.
 $$
 
+
 即右侧斜渐近线为
+
 
 $$
 \boxed{y=x}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 最终统计
+
 
 | 方向                | 渐近线       |
 | ----------------- | --------- |
@@ -452,15 +655,20 @@ $$
 | $x\to-\infty$ | $y=0$ |
 | $x\to+\infty$ | $y=x$ |
 
+
 共
+
 
 $$
 \boxed{3\text{ 条}}.
 $$
 
+
 这道题说明：
 
+
 一条曲线完全可以同时具有铅直、水平与斜渐近线。
+
 
 不要认为求到某一类之后就可以结束。
 
@@ -468,173 +676,244 @@ $$
 
 ### 例题 3：2023 年数学一、数学二真题
 
+
 Fumadocs 核心题库标注：2023-1,2-5 分
 
+
 求曲线
+
 
 $$
 y=x\ln\left(e+\frac1{x-1}\right)
 $$
 
+
 的斜渐近线方程。
+
+
+
+<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
+
+<Tab value="解法一">
 
 ### 解法一：严格使用 $k,b$ 公式
 
+
 首先计算斜率：
+
 
 $$
 k=\lim_{x\to+\infty}\frac{y}{x}.
 $$
 
+
 代入：
+
 
 $$
 \begin{aligned} k &=\lim_{x\to+\infty} \ln\left(e+\frac1{x-1}\right)\\ &=\ln e\\ &=1. \end{aligned}
 $$
 
+
 所以渐近线的候选形式为
+
 
 $$
 y=x+b.
 $$
 
+
 接着计算截距：
+
 
 $$
 \begin{aligned} b &=\lim_{x\to+\infty}(y-x)\\ &=\lim_{x\to+\infty} x\left[\ln\left(e+\frac1{x-1}\right)-1\right]. \end{aligned}
 $$
 
+
 这里需要利用
+
 
 $$
 \ln e=1
 $$
 
+
 进行变形：
+
 
 $$
 \begin{aligned} b &=\lim_{x\to+\infty} x\ln\left( \frac{e+\frac1{x-1}}e \right)\\ &=\lim_{x\to+\infty} x\ln\left(1+\frac1{e(x-1)}\right). \end{aligned}
 $$
 
+
 因为
+
 
 $$
 \ln(1+u)\sim u\qquad(u\to0),
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} b &=\lim_{x\to+\infty}\frac{x}{e(x-1)}\\ &=\frac1e. \end{aligned}
 $$
 
+
 因此
+
 
 $$
 \boxed{y=x+\frac1e}.
 $$
 
+</Tab>
+
+<Tab value="解法二">
+
 ### 解法二：直接提取线性主项
 
+
 写成
+
 
 $$
 \begin{aligned} y &=x\ln\left[e\left(1+\frac1{e(x-1)}\right)\right]\\ &=x+x\ln\left(1+\frac1{e(x-1)}\right). \end{aligned}
 $$
 
+
 由于
+
 
 $$
 x\ln\left(1+\frac1{e(x-1)}\right) =\frac1e+o(1),
 $$
 
+
 所以
+
 
 $$
 y=x+\frac1e+o(1).
 $$
 
+
 直接读出：
+
 
 $$
 \boxed{y=x+\frac1e}.
 $$
 
+</Tab>
+
+</Tabs>
+
 ### 两种方法比较
 
+
 第一种方法最规范，适用于任意一般函数：
+
 
 $$
 k=\lim\frac fx,\qquad b=\lim(f-kx).
 $$
 
+
 第二种方法更快，因为直接得到
+
 
 $$
 f(x)=kx+b+o(1).
 $$
 
+
 对含对数、指数、根式的题，熟练以后可以优先考虑第二种。
+
 
 ### 本题的额外提高：若问“全部渐近线”呢？
 
+
 原题只要求斜渐近线。若题目改为求全部渐近线，还必须检查定义域端点。
 
+
 对数要求
+
 
 $$
 e+\frac1{x-1}>0.
 $$
 
+
 解得定义域为
+
 
 $$
 (-\infty,\,1-\tfrac1e)\cup(1,+\infty).
 $$
 
+
 当
+
 
 $$
 x\to\left(1-\frac1e\right)^-
 $$
 
+
 时，对数真数趋于 $0^+$，而前面的 $x$ 趋于正数 $1-1/e$，所以函数趋于 $-\infty$。
 
+
 因此有铅直渐近线
+
 
 $$
 x=1-\frac1e.
 $$
 
+
 当 $x\to1^+$ 时，
+
 
 $$
 \frac1{x-1}\to+\infty,
 $$
 
+
 所以
+
 
 $$
 x\ln\left(e+\frac1{x-1}\right)\to+\infty.
 $$
 
+
 还有铅直渐近线
+
 
 $$
 x=1.
 $$
 
+
 因此若问全部渐近线，除了原题的
+
 
 $$
 y=x+\frac1e,
 $$
 
+
 还要补上
+
 
 $$
 \boxed{x=1-\frac1e,\qquad x=1}.
 $$
+
 
 这正是题目要求某一类渐近线与要求全部渐近线的区别。
 
@@ -642,243 +921,360 @@ $$
 
 ### 例题 4：2020 年数学二真题
 
+
 Fumadocs 核心题库标注：2020-2-10 分
 
+
 求曲线
+
 
 $$
 y=\frac{x^{1+x}}{(1+x)^x}, \qquad x>0
 $$
 
+
 的斜渐近线。
+
 
 这道题比 2023 年数一题更加考查展开精度。
 
+
+
+<Steps>
+
+<Step>
+
 ### 第一步：把幂指结构改写
+
 
 $$
 \begin{aligned} y &=x\frac{x^x}{(1+x)^x}\\ &=x\left(\frac{x}{x+1}\right)^x\\ &=x\left(1+\frac1x\right)^{-x}. \end{aligned}
 $$
 
+
 令
+
 
 $$
 A(x)=\left(1+\frac1x\right)^{-x}.
 $$
 
+
 则
+
 
 $$
 y=xA(x).
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：先求斜率
 
+
 因为
+
 
 $$
 \left(1+\frac1x\right)^x\to e,
 $$
 
+
 所以
+
 
 $$
 A(x)\to e^{-1}.
 $$
 
+
 因此斜率为
+
 
 $$
 \boxed{k=\frac1e}.
 $$
 
+
 但是不能直接写成渐近线 $y=x/e$，因为还没有计算截距。
 
+</Step>
+
+<Step>
+
 ### 第三步：取对数，保留下一阶
+
 
 $$
 \ln A(x) =-x\ln\left(1+\frac1x\right).
 $$
 
+
 由
+
 
 $$
 \ln(1+u)=u-\frac{u^2}{2}+\frac{u^3}{3}+O(u^4),
 $$
 
+
 令 $u=1/x$，有
+
 
 $$
 \ln\left(1+\frac1x\right) =\frac1x-\frac1{2x^2}+\frac1{3x^3}+O(x^{-4}).
 $$
 
+
 于是
+
 
 $$
 \begin{aligned} \ln A(x) &=-x\left( \frac1x-\frac1{2x^2}+\frac1{3x^3}+O(x^{-4}) \right)\\ &=-1+\frac1{2x}+O(x^{-2}). \end{aligned}
 $$
 
+</Step>
+
+<Step>
+
 ### 第四步：重新指数化
+
 
 $$
 \begin{aligned} A(x) &=\exp\left(-1+\frac1{2x}+O(x^{-2})\right)\\ &=\frac1e \exp\left(\frac1{2x}+O(x^{-2})\right)\\ &=\frac1e\left(1+\frac1{2x}+O(x^{-2})\right). \end{aligned}
 $$
 
+
 最后乘上 $x$：
+
 
 $$
 \begin{aligned} y &=xA(x)\\ &=\frac xe+\frac1{2e}+O(x^{-1}). \end{aligned}
 $$
 
+
 因此
+
 
 $$
 \boxed{y=\frac xe+\frac1{2e}}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 为什么这一题必须多展开一阶？
 
+
 只知道
+
 
 $$
 A(x)\to\frac1e
 $$
 
+
 相当于只知道
+
 
 $$
 A(x)=\frac1e+o(1).
 $$
 
+
 乘以 $x$ 后：
+
 
 $$
 y=\frac xe+x\,o(1).
 $$
 
+
 而
+
 
 $$
 x\,o(1)
 $$
 
+
 不一定趋于零，甚至可能发散。
+
 
 为了得到截距，必须把 $A(x)$ 精确到 $1/x$ 项。
 
+
 正确的精度是：
+
 
 $$
 A(x)=\frac1e+\frac1{2ex}+o(x^{-1}).
 $$
 
+
 这才能推出
+
 
 $$
 y=\frac xe+\frac1{2e}+o(1).
 $$
 
+
 本题核心不是会不会算 $1^\infty$ 型极限，而是知道求截距需要比求斜率更高的精度。
+
 
 ### 例题 5：张宇1000题——外面乘 $x^2$，需要展开到几阶？
 
+
 求
+
 
 $$
 y=x^2\left[ \frac{\left(1+\frac1x\right)^x}{e}-1 \right], \qquad x>0
 $$
 
+
 的斜渐近线。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：令 $t=1/x$
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 t\to0^+.
 $$
 
+
 因为
+
 
 $$
 x\ln\left(1+\frac1x\right) =\frac{\ln(1+t)}t,
 $$
 
+
 所以
+
 
 $$
 \frac{\ln(1+t)}t =1-\frac t2+\frac{t^2}{3}+O(t^3).
 $$
 
+
 因此
+
 
 $$
 \frac{(1+t)^{1/t}}e =\exp\left(-\frac t2+\frac{t^2}{3}+O(t^3)\right).
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：指数展开到二阶
 
+
 记
+
 
 $$
 u=-\frac t2+\frac{t^2}{3}+O(t^3).
 $$
 
+
 则
+
 
 $$
 e^u=1+u+\frac{u^2}{2}+O(t^3).
 $$
 
+
 注意
+
 
 $$
 \frac{u^2}{2} =\frac{t^2}{8}+O(t^3).
 $$
 
+
 因此
+
 
 $$
 \begin{aligned} e^u &=1-\frac t2+\frac{t^2}{3}+\frac{t^2}{8}+O(t^3)\\ &=1-\frac t2+\frac{11}{24}t^2+O(t^3). \end{aligned}
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：乘回 $x^2=1/t^2$
+
 
 $$
 \begin{aligned} y &=\frac1{t^2}\left(-\frac t2+\frac{11}{24}t^2+O(t^3)\right)\\ &=-\frac1{2t}+\frac{11}{24}+O(t)\\ &=-\frac x2+\frac{11}{24}+O(x^{-1}). \end{aligned}
 $$
 
+
 所以
+
 
 $$
 \boxed{y=-\frac x2+\frac{11}{24}}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 特别容易漏掉的一项
 
+
 很多同学会把
+
 
 $$
 e^u
 $$
 
+
 直接写成 $1+u$，忘记保留
+
 
 $$
 \frac{u^2}{2}.
 $$
 
+
 这样会得到错误的常数项 $1/3$。
 
+
 实际上
+
 
 $$
 \frac13+\frac18=\frac{11}{24}.
 $$
 
+
 所以这道题真正检验的是二阶指数复合展开。
 
+
 ### 展开精度口诀
+
 
 | 外面乘的因子    | 若需要得到常数截距，内部至少保留 |
 | --------- | ---------------- |
@@ -886,220 +1282,321 @@ $$
 | $x^2$ | $x^{-2}$ 项   |
 | $x^3$ | $x^{-3}$ 项   |
 
+
 当然，如果主项发生额外相消，还要根据实际情况继续展开。
 
 ## 八、核心题型四：根式的左右渐近线可能完全不同
 
 ### 例题 6：2025 年数学二真题——奇次根式
 
+
 Fumadocs 分类真题标注：2025-2-5 分
 
+
 求曲线
+
 
 $$
 y=\sqrt[3]{x^3-3x^2}+1
 $$
 
+
 的渐近线方程。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：从立方根中提出 $x$
 
+
 因为
+
 
 $$
 x^3-3x^2=x^3\left(1-\frac3x\right),
 $$
 
+
 所以
+
 
 $$
 \sqrt[3]{x^3-3x^2} =x\sqrt[3]{1-\frac3x}.
 $$
 
+
 这里能够直接提出 $x$，因为对实数有
+
 
 $$
 \sqrt[3]{x^3}=x.
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：二项式展开
 
+
 当 $|x|\to\infty$ 时，
+
 
 $$
 \left(1-\frac3x\right)^{1/3} =1-\frac1x+O(x^{-2}).
 $$
 
+
 因此
+
 
 $$
 \begin{aligned} y &=x\left(1-\frac1x+O(x^{-2})\right)+1\\ &=x-1+1+O(x^{-1})\\ &=x+O(x^{-1}). \end{aligned}
 $$
 
+
 所以
+
 
 $$
 \boxed{y=x}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 注意奇次根式与平方根的区别
 
+
 对于立方根：
+
 
 $$
 \sqrt[3]{x^3}=x.
 $$
 
+
 但对于平方根：
+
 
 $$
 \sqrt{x^2}=|x|.
 $$
 
+
 这一区别直接决定了负无穷方向的渐近线。
+
 
 ### 例题 7：张宇练习——一条铅直线，两条不同斜线
 
+
 设
+
 
 $$
 y=e^{1/x}\sqrt{x^2-4x+1}.
 $$
 
+
 求全部渐近线。
+
+
+
+<Steps>
+
+<Step>
 
 ### 第一步：先审查有限奇点
 
+
 表达式中存在 $e^{1/x}$，所以 $x=0$ 是候选点。
 
+
 当 $x\to0^+$ 时，
+
 
 $$
 e^{1/x}\to+\infty,
 $$
 
+
 而
+
 
 $$
 \sqrt{x^2-4x+1}\to1.
 $$
 
+
 因此
+
 
 $$
 y\to+\infty.
 $$
 
+
 故存在铅直渐近线：
+
 
 $$
 \boxed{x=0}.
 $$
 
+
 根式的另外两个定义域边界来自
+
 
 $$
 x^2-4x+1=0,
 $$
 
+
 即
+
 
 $$
 x=2\pm\sqrt3.
 $$
 
+
 在这两个点靠近定义域内部时，根式趋于零，而指数因子有有限正极限，因此函数不会趋于无穷，故不产生铅直渐近线。
+
+</Step>
+
+<Step>
 
 ### 第二步：正无穷方向
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 \sqrt{x^2-4x+1} =x\sqrt{1-\frac4x+\frac1{x^2}}.
 $$
 
+
 由平方根展开，
+
 
 $$
 \sqrt{1+u}=1+\frac u2+O(u^2),
 $$
 
+
 得
+
 
 $$
 \sqrt{x^2-4x+1} =x-2+O(x^{-1}).
 $$
 
+
 又因为
+
 
 $$
 e^{1/x}=1+\frac1x+O(x^{-2}),
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} y &=\left(1+\frac1x+O(x^{-2})\right) \left(x-2+O(x^{-1})\right)\\ &=x-1+O(x^{-1}). \end{aligned}
 $$
 
+
 因此右侧斜渐近线为
+
 
 $$
 \boxed{y=x-1}.
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：负无穷方向
 
+
 当 $x\to-\infty$ 时，
+
 
 $$
 \sqrt{x^2-4x+1} =|x|\sqrt{1-\frac4x+\frac1{x^2}}.
 $$
 
+
 由于这时 $x<0$，所以
+
 
 $$
 |x|=-x.
 $$
 
+
 于是
+
 
 $$
 \sqrt{x^2-4x+1} =-x+2+O(x^{-1}).
 $$
 
+
 仍然使用
+
 
 $$
 e^{1/x}=1+\frac1x+O(x^{-2}),
 $$
 
+
 得到
+
 
 $$
 \begin{aligned} y &=\left(1+\frac1x+O(x^{-2})\right) \left(-x+2+O(x^{-1})\right)\\ &=-x+1+O(x^{-1}). \end{aligned}
 $$
 
+
 因此左侧斜渐近线为
+
 
 $$
 \boxed{y=-x+1}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 最终结果
 
+
 该曲线共有 3 条不同渐近线
+
 
 | 有限奇点  | $x=0$    |
 | ----- | ------------ |
 | 正无穷方向 | $y=x-1$  |
 | 负无穷方向 | $y=-x+1$ |
 
+
 本题最重要的考试陷阱： 把
+
 
 $$
 \sqrt{x^2}
 $$
+
 
 错误地写成 $x$，会直接漏掉负无穷方向的另一条斜渐近线。
 
@@ -1107,155 +1604,229 @@ $$
 
 ### 例题 8：2022 年数学一、数学三真题
 
+
 Fumadocs 核心题库标注：2022-1,3-10 分
 
+
 设 $y=y(x)$ 满足
+
 
 $$
 y'+\frac{1}{2\sqrt{x}}y=2+\sqrt{x}, \qquad y(1)=3,\qquad x>0.
 $$
 
+
 求曲线 $y=y(x)$ 的渐近线。
+
 
 这是一道很有代表性的数学一综合题，因为它要求先解微分方程，再研究函数的无穷远行为。
 
+
+
+<Steps>
+
+<Step>
+
 ### 第一步：识别一阶线性微分方程
 
+
 原方程具有标准形式
+
 
 $$
 y'+P(x)y=Q(x).
 $$
 
+
 其中
+
 
 $$
 P(x)=\frac1{2\sqrt{x}}, \qquad Q(x)=2+\sqrt{x}.
 $$
 
+
 一阶线性微分方程的积分因子为
+
 
 $$
 \mu(x)=e^{\int P(x)\,dx}.
 $$
 
+
 所以
+
 
 $$
 \begin{aligned} \mu(x) &=\exp\left(\int\frac1{2\sqrt{x}}\,dx\right)\\ &=e^{\sqrt{x}}. \end{aligned}
 $$
 
+</Step>
+
+<Step>
+
 ### 第二步：两边乘积分因子
 
+
 原方程变成
+
 
 $$
 e^{\sqrt{x}}y' +\frac1{2\sqrt{x}}e^{\sqrt{x}}y =(2+\sqrt{x})e^{\sqrt{x}}.
 $$
 
+
 左边是一个乘积的导数：
+
 
 $$
 \boxed{ (ye^{\sqrt{x}})' =(2+\sqrt{x})e^{\sqrt{x}}. }
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：积分求通解
+
 
 $$
 ye^{\sqrt{x}} =\int(2+\sqrt{x})e^{\sqrt{x}}\,dx+C.
 $$
 
+
 令
+
 
 $$
 t=\sqrt{x}, \qquad x=t^2, \qquad dx=2t\,dt.
 $$
 
+
 则
+
 
 $$
 \begin{aligned} \int(2+\sqrt{x})e^{\sqrt{x}}\,dx &=\int(2+t)e^t\,2t\,dt\\ &=\int(4t+2t^2)e^t\,dt\\ &=2t^2e^t+C\\ &=2xe^{\sqrt{x}}+C. \end{aligned}
 $$
 
+
 因此
+
 
 $$
 ye^{\sqrt{x}} =2xe^{\sqrt{x}}+C,
 $$
 
+
 即
+
 
 $$
 \boxed{y=2x+Ce^{-\sqrt{x}}}.
 $$
 
+</Step>
+
+<Step>
+
 ### 第四步：利用初值确定 $C$
 
+
 由
+
 
 $$
 y(1)=3
 $$
 
+
 可得
+
 
 $$
 3=2+Ce^{-1}.
 $$
 
+
 所以
+
 
 $$
 C=e.
 $$
 
+
 因此
+
 
 $$
 \boxed{y=2x+e^{1-\sqrt{x}}}.
 $$
 
+</Step>
+
+<Step>
+
 ### 第五步：直接识别渐近线
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 e^{1-\sqrt{x}}\to0.
 $$
 
+
 因此
+
 
 $$
 y-2x\to0.
 $$
 
+
 所以曲线的斜渐近线为
+
 
 $$
 \boxed{y=2x}.
 $$
 
+
 这里完全不必重新计算
+
 
 $$
 k=\lim\frac yx,\qquad b=\lim(y-kx),
 $$
 
+
 因为我们已经得到更直接的形式：
+
 
 $$
 y=2x+\underbrace{e^{1-\sqrt{x}}}_{\to0}.
 $$
 
+</Step>
+
+</Steps>
+
 ### 这道题的真正价值
+
 
 很多数学一题目不直接给出 $f(x)$，而是通过微分方程、积分关系或其他条件间接定义函数。
 
+
 处理顺序应当是：
+
 
 $$
 \boxed{ \text{先求出函数或主导表达式} \longrightarrow \text{再分析渐近线} }
 $$
+
 
 这条思想在后面的微分方程、积分方程综合题中会反复用到。
 
@@ -1263,233 +1834,328 @@ $$
 
 ### 例题 9：2025 年数学三真题
 
+
 Fumadocs 核心题库标注：2025-3-5 分
 
+
 已知
+
 
 $$
 f(x)=\frac12\ln\frac{3+x}{3-x}, \qquad -3<x<3,
 $$
 
+
 设 $g(x)$ 是 $f(x)$ 的反函数，求 $y=g(x)$ 的渐近线。
+
+
+
+<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
+
+<Tab value="解法一">
 
 ### 解法一：直接利用反函数图像的对称性
 
+
 当
+
 
 $$
 x\to3^-,
 $$
 
+
 有
+
 
 $$
 \frac{3+x}{3-x}\to+\infty,
 $$
 
+
 所以
+
 
 $$
 f(x)\to+\infty.
 $$
 
+
 因此原函数有铅直渐近线
+
 
 $$
 x=3.
 $$
 
+
 同理，当
+
 
 $$
 x\to-3^+,
 $$
 
+
 有
+
 
 $$
 f(x)\to-\infty,
 $$
 
+
 所以另一条铅直渐近线为
+
 
 $$
 x=-3.
 $$
 
+
 反函数图像与原函数图像关于直线 $y=x$ 对称。
 
+
 因此原函数的铅直线
+
 
 $$
 x=3,\qquad x=-3
 $$
 
+
 对应反函数的两条水平渐近线：
+
 
 $$
 \boxed{y=3,\qquad y=-3}.
 $$
 
+</Tab>
+
+<Tab value="解法二">
+
 ### 解法二：先求反函数
 
+
 设
+
 
 $$
 y=\frac12\ln\frac{3+x}{3-x}.
 $$
 
+
 两边乘二再指数化：
+
 
 $$
 e^{2y}=\frac{3+x}{3-x}.
 $$
 
+
 交叉相乘：
+
 
 $$
 (3-x)e^{2y}=3+x.
 $$
 
+
 整理得到
+
 
 $$
 x(e^{2y}+1)=3(e^{2y}-1).
 $$
 
+
 所以
+
 
 $$
 x=3\frac{e^{2y}-1}{e^{2y}+1}.
 $$
 
+
 交换变量：
+
 
 $$
 \boxed{ g(x)=3\frac{e^{2x}-1}{e^{2x}+1}. }
 $$
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 g(x)\to3.
 $$
 
+
 当 $x\to-\infty$ 时，
+
 
 $$
 g(x)\to-3.
 $$
 
+
 所以依然得到
+
 
 $$
 \boxed{y=\pm3}.
 $$
 
+
 方法比较： 若原函数的单调性、反函数的存在性及端点行为明确，图像对称法通常最快；直接求反函数法更通用，适合需要进一步分析反函数其他性质的综合题。
+
+</Tab>
+
+</Tabs>
 
 ## 十一、容易忽略的题型：振荡函数是否有斜渐近线？
 
 ### 例题 10：2014 年数学一、二、三真题
 
+
 Fumadocs 核心题库标注：2014-1,2,3-4 分
+
 
 判断下列曲线哪些存在渐近线：
 
+
 A. $y=x+\sin x$
+
 
 B. $y=x^2+\sin x$
 
+
 C. $y=x+\sin\frac1x$
+
 
 D. $y=x^2+\sin\frac1x$
 
+
 ### 分析 A
+
 
 $$
 \frac yx =1+\frac{\sin x}{x}\to1.
 $$
 
+
 所以若有斜渐近线，斜率只能为 $1$。
 
+
 但
+
 
 $$
 y-x=\sin x
 $$
 
+
 不趋于任何常数，因此不能找到固定的截距 $b$，使
+
 
 $$
 y-(x+b)\to0.
 $$
 
+
 所以 A 没有直线渐近线。
+
 
 ### 分析 B
 
+
 因为
+
 
 $$
 y=x^2+\sin x,
 $$
 
+
 主导增长阶为 $x^2$，不可能与一次函数 $kx+b$ 的差趋于零。
+
 
 所以 B 没有直线渐近线。
 
+
 ### 分析 C
+
 
 $$
 y-x=\sin\frac1x.
 $$
 
+
 当 $x\to\pm\infty$ 时，
+
 
 $$
 \sin\frac1x\to0.
 $$
 
+
 因此
+
 
 $$
 y-x\to0.
 $$
 
+
 所以 C 有斜渐近线：
+
 
 $$
 \boxed{y=x}.
 $$
 
+
 ### 分析 D
+
 
 $x^2$ 仍是主导增长项，无法与直线相差一个趋零的余项。
 
+
 所以 D 没有直线渐近线。
 
+
 最终：
+
 
 $$
 \boxed{\text{答案 C}}.
 $$
 
+
 ### 一眼看穿这道题的方法
+
 
 $$
 \sin x
 $$
 
+
 当 $x\to\infty$ 时持续振荡，不趋于零。
 
+
 但
+
 
 $$
 \sin\frac1x
 $$
 
+
 当 $x\to\infty$ 时，内部 $1/x\to0$，所以整体趋于零。
+
 
 正是这个差别决定了是否存在斜渐近线。
 
@@ -1497,163 +2163,236 @@ $$
 
 ### 例题 11：求全部渐近线
 
+
 设
+
 
 $$
 y=\sqrt{4x^2+x}\, \ln\left(2+\frac1x\right).
 $$
 
+
+
+<Steps>
+
+<Step>
+
 ### 第一步：严格求定义域
 
+
 根式要求
+
 
 $$
 4x^2+x=x(4x+1)\ge0.
 $$
 
+
 因此
+
 
 $$
 x\le-\frac14 \quad\text{或}\quad x\ge0.
 $$
 
+
 对数要求
+
 
 $$
 2+\frac1x>0, \qquad x\ne0.
 $$
 
+
 综合可得定义域：
+
 
 $$
 \boxed{ (-\infty,-\tfrac12)\cup(0,+\infty). }
 $$
 
+
 这里必须先考虑对数定义域，不能仅由根式的定义域判断候选点。
+
+</Step>
+
+<Step>
 
 ### 第二步：寻找铅直渐近线
 
+
 当
+
 
 $$
 x\to-\frac12^-
 $$
 
+
 时，
+
 
 $$
 2+\frac1x\to0^+,
 $$
 
+
 因此
+
 
 $$
 \ln\left(2+\frac1x\right)\to-\infty.
 $$
 
+
 而根式趋于
+
 
 $$
 \sqrt{4\left(\frac14\right)-\frac12} =\sqrt{\frac12}>0.
 $$
 
+
 所以
+
 
 $$
 y\to-\infty.
 $$
 
+
 得到铅直渐近线：
+
 
 $$
 \boxed{x=-\frac12}.
 $$
 
+
 再看 $x\to0^+$：
+
 
 $$
 \sqrt{4x^2+x} =\sqrt{x}\sqrt{1+4x} \sim\sqrt{x}.
 $$
 
+
 又
+
 
 $$
 \ln\left(2+\frac1x\right) =\ln(1+2x)-\ln x.
 $$
 
+
 因此其主导行为是
+
 
 $$
 \sqrt{x}\ln\frac1x.
 $$
 
+
 因为
+
 
 $$
 \sqrt{x}\ln\frac1x\to0,
 $$
 
+
 所以 $x=0$ 不是铅直渐近线。
+
+</Step>
+
+<Step>
 
 ### 第三步：正无穷方向
 
+
 当 $x\to+\infty$ 时，
+
 
 $$
 \sqrt{4x^2+x} =2x+\frac14+O(x^{-1}),
 $$
 
+
 且
+
 
 $$
 \ln\left(2+\frac1x\right) =\ln2+\frac1{2x}+O(x^{-2}).
 $$
 
+
 相乘：
+
 
 $$
 \begin{aligned} y &=\left(2x+\frac14+O(x^{-1})\right) \left(\ln2+\frac1{2x}+O(x^{-2})\right)\\ &=2x\ln2+\frac14\ln2+1+O(x^{-1}). \end{aligned}
 $$
 
+
 所以右侧斜渐近线为
+
 
 $$
 \boxed{ y=2x\ln2+\frac14\ln2+1. }
 $$
 
+</Step>
+
+<Step>
+
 ### 第四步：负无穷方向
 
+
 当 $x\to-\infty$ 时，
+
 
 $$
 \sqrt{4x^2+x} =-2x-\frac14+O(x^{-1}).
 $$
 
+
 而对数的展开仍是
+
 
 $$
 \ln\left(2+\frac1x\right) =\ln2+\frac1{2x}+O(x^{-2}).
 $$
 
+
 相乘：
+
 
 $$
 y=-2x\ln2-\frac14\ln2-1+O(x^{-1}).
 $$
 
+
 所以左侧斜渐近线为
+
 
 $$
 \boxed{ y=-2x\ln2-\frac14\ln2-1. }
 $$
 
+</Step>
+
+</Steps>
+
 ### 最终结果
 
+
 全部三条渐近线为
+
 
 $$
 \boxed{ \begin{aligned} x&=-\frac12,\\ y&=2x\ln2+\frac14\ln2+1,\\ y&=-2x\ln2-\frac14\ln2-1. \end{aligned} }
 $$
+
 
 本题将定义域、对数奇点、根式左右符号和高阶展开集中在一起，非常适合作为本节综合训练。
 
@@ -1661,95 +2400,142 @@ $$
 
 对于参数曲线
 
+
 $$
 \begin{cases} x=x(t),\\ y=y(t), \end{cases}
 $$
 
+
 不能默认 $t\to+\infty$ 才代表曲线走向无穷远。
 
+
 如果在有限参数 $t=t_0$ 附近，出现
+
 
 $$
 |x(t)|\to\infty,
 $$
 
+
 那么同样可能产生斜渐近线。
+
 
 ### 例题 12：李林 880
 
+
 设
+
 
 $$
 x=\frac{t}{1+t^3}, \qquad y=\frac{t^2}{1+t^3}.
 $$
 
+
 求斜渐近线。
 
+
+
+<Steps>
+
+<Step>
+
 ### 第一步：寻找参数奇点
+
 
 $$
 1+t^3=0
 $$
 
+
 在实数范围内得到
+
 
 $$
 t=-1.
 $$
 
+
 当 $t\to-1$ 时，横坐标绝对值趋于无穷。
+
+</Step>
+
+<Step>
 
 ### 第二步：求斜率
 
+
 因为
+
 
 $$
 \frac yx =\frac{t^2}{t}=t,
 $$
 
+
 所以
+
 
 $$
 k=\lim_{t\to-1}\frac yx=-1.
 $$
 
+</Step>
+
+<Step>
+
 ### 第三步：求截距
+
 
 $$
 \begin{aligned} b &=\lim_{t\to-1}(y-kx)\\ &=\lim_{t\to-1}(y+x)\\ &=\lim_{t\to-1}\frac{t^2+t}{1+t^3}. \end{aligned}
 $$
 
+
 因式分解：
+
 
 $$
 t^2+t=t(t+1),
 $$
 
+
 $$
 1+t^3=(t+1)(t^2-t+1).
 $$
 
+
 因此
+
 
 $$
 \begin{aligned} b &=\lim_{t\to-1}\frac{t}{t^2-t+1}\\ &=-\frac13. \end{aligned}
 $$
 
+
 所以斜渐近线为
+
 
 $$
 \boxed{y=-x-\frac13},
 $$
 
+
 即
+
 
 $$
 \boxed{x+y+\frac13=0}.
 $$
 
+
 该题说明：
 
+
 参数曲线要先寻找使坐标无界的参数过程，再计算相应的斜率和截距。
+
+</Step>
+
+</Steps>
 
 ## 十四、常见题型的最快解法总结
 
@@ -1770,123 +2556,180 @@ $$
 
 ## 十五、十个高频陷阱
 
+<Accordions>
+
+<Accordion title="展开易错点与例题辨析">
+
 1. 分母为零就一定有铅直渐近线。
+
 
 错误。2012 年真题中 $x=-1$ 是可去间断点，不是铅直渐近线。
 
+
 2. 必须左右两侧都趋于无穷才有铅直渐近线。
+
 
 错误。只需一个单侧趋于无穷。
 
+
 例如
+
 
 $$
 f(x)=xe^{1/x}
 $$
 
+
 在 $x\to0^+$ 时趋于 $+\infty$，即使左侧趋于 $0$，仍有铅直渐近线 $x=0$。
+
 
 3. $f(x)\to\infty$ 就没有渐近线。
 
+
 错误。斜渐近线描述的是 $f(x)-(kx+b)\to0$，函数本身可以趋于无穷。
+
 
 4. $f(x)/x\to k$，就一定存在斜渐近线。
 
+
 错误。截距极限也必须存在且有限。
+
 
 5. 只分析正无穷方向。
 
+
 错误。左右可以产生两条不同的渐近线，尤其是根式、绝对值和指数对数复合题。
+
 
 6. 把 $\sqrt{x^2}$ 写成 $x$。
 
+
 错误。严格来说
+
 
 $$
 \sqrt{x^2}=|x|.
 $$
 
+
 7. 截距所需的泰勒精度不够。
+
 
 外面乘 $x$，内部通常需要保留 $1/x$；外面乘 $x^2$，内部通常需要保留 $1/x^2$。
 
+
 8. 函数在有限点无定义，就自动有铅直渐近线。
+
 
 错误。函数可能趋于有限值，也可能只是有一个孔洞。
 
+
 9. 曲线与渐近线相交，就说明它不是渐近线。
+
 
 错误。渐近线只要求在指定方向上函数与直线的差趋于零，并不禁止有限位置上的相交。
 
+
 例如
+
 
 $$
 f(x)=x+\frac{\sin x}{x}
 $$
 
+
 在无穷远处有渐近线 $y=x$，但在 $x=n\pi\ne0$ 时与它相交。
+
 
 10. 左右得到同一条渐近线，就算两条。
 
+
 错误。题目问不同渐近线的条数时，同一直线只计算一次。
+
+</Accordion>
+
+</Accordions>
 
 ## 十六、与本模块前面知识的联系
 
 渐近线这一节实际上是把整章极限知识串起来。
 
+
 第三节：函数极限的计算
+
 
 渐近线的斜率、截距和铅直发散都要计算极限。
 
+
 第五节：无穷小量的比较
+
 
 求截距的关键是把误差精确到 $o(1)$，不能只有一阶等价。
 
+
 第六节：极限中参数的确定
+
 
 反过来可以通过“某直线是渐近线”这一条件求参数。
 
+
 第七节：连续与间断点
+
 
 铅直渐近线通常对应有限奇点处的无穷发散；可去间断和跳跃间断并不自动产生铅直渐近线。
 
+
 后续微分方程与函数图像研究
+
 
 在求得解或研究曲线走势之后，用渐近线刻画其无穷远行为。
 
+
 一个与第六节直接关联的综合变式是：
 
+
 设
+
 
 $$
 f(x)=(ax+b)e^{1/x}.
 $$
 
+
 若当 $x\to+\infty$ 时，直线
+
 
 $$
 y=3x+5
 $$
 
+
 是 $f$ 的斜渐近线，求 $a,b$。
 
+
 展开：
+
 
 $$
 \begin{aligned} f(x) &=(ax+b)\left(1+\frac1x+O(x^{-2})\right)\\ &=ax+(a+b)+O(x^{-1}). \end{aligned}
 $$
 
+
 因此必须满足
+
 
 $$
 a=3, \qquad a+b=5.
 $$
 
+
 从而
+
 
 $$
 \boxed{a=3,\qquad b=2}.
 $$
+
 
 这正是上一节“由极限条件反求参数”的主项匹配思维。
 
@@ -1894,36 +2737,52 @@ $$
 
 1. 曲线 $y=\dfrac{x^2-1}{x-1}$（$x\ne1$）有几条铅直渐近线？
 
+
 A. 0 条
+
 
 B. 1 条
 
+
 C. 2 条
+
 
 D. 无法判断
 
+
 2. 当 $x\to-\infty$ 时，$y=\sqrt{x^2+4x+1}$ 的斜渐近线是什么？
+
 
 A. $y=x+2$
 
+
 B. $y=-x-2$
+
 
 C. $y=-x+2$
 
+
 D. $y=x-2$
+
 
 3. 已知 $\lim_{x\to+\infty} f(x)/x=2$，能够立即断定什么？
 
+
 A. $y=2x$ 一定是渐近线
+
 
 B. 存在某条斜率为 2 的渐近线
 
+
 C. 如果存在斜渐近线，其斜率必为 2
 
+
 D. $f(x)-2x\to0$
+
 ## 十八、本节最终复习抓手
 
 建议以三道真题和两道提高练习为主线：
+
 
 | 训练层次 | 代表题目              | 核心能力          |
 | ---- | ----------------- | ------------- |
@@ -1933,32 +2792,69 @@ D. $f(x)-2x\to0$
 | 提高   | 2020 年数学二幂指型斜渐近线  | 泰勒展开精度        |
 | 提高   | 李林 880 根式对数综合题    | 定义域、左右无穷与全部计数 |
 
+
 最后务必记住三条判定公式。
 
+
 铅直渐近线：
+
 
 $$
 \boxed{ \lim_{x\to a^-}f(x)=\pm\infty \quad\text{或}\quad \lim_{x\to a^+}f(x)=\pm\infty \ \Longrightarrow\ x=a. }
 $$
 
+
 水平渐近线：
+
 
 $$
 \boxed{ \lim_{x\to\pm\infty}f(x)=A \ \Longrightarrow\ y=A. }
 $$
 
+
 斜渐近线：
+
 
 $$
 \boxed{ \begin{aligned} k&=\lim_{x\to\pm\infty}\frac{f(x)}x,\\ b&=\lim_{x\to\pm\infty}[f(x)-kx],\\ &\Longrightarrow y=kx+b\quad(k\ne0), \end{aligned} }
 $$
 
+
 其中斜率与截距极限都必须有限存在。
 
+
 本节最有价值的思维可以归结为：
+
 
 $$
 \boxed{ \text{有限点看是否无穷发散；} \qquad \text{无穷远看是否存在线性主项加趋零余项。} }
 $$
 
+
 只要能够熟练完成“找候选位置、分方向取极限、提取主项、验证余项趋零”这四个动作，考研数学一的常规渐近线题与大多数综合变式，就可以用同一套方法稳定处理。
+
+## 延伸阅读与配套真题
+
+<Cards>
+
+<Card title="配套系统讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/advanced-mathematics/01-limits-continuity/">
+
+复习相应定义、性质与方法的上下文。
+
+</Card>
+
+<Card title="相关分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-60d222c9/08-7d6b2082/">
+
+对照本节原有真题来源与各考点对应的问法。
+
+</Card>
+
+<Card title="相关核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/01-ca2ddca1/08-7d6b2082/">
+
+按典型模型与综合变式巩固本节解题方法。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-01/08-asymptotes/)

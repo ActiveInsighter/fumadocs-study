@@ -3,9 +3,31 @@ title: "第二节 定积分"
 description: "定积分定义、积分性质、对称性和周期性、黎曼和、变上限积分、积分换序与凸性。"
 ---
 
+<Cards>
+
+<Card title="知识结构">
+
+黎曼和、积分性质和牛顿—莱布尼茨
+
+</Card>
+
+<Card title="优先工具">
+
+反射对称、周期、比较和变上限求导
+
+</Card>
+
+<Card title="综合训练">
+
+嵌套积分、积分换序与凸性
+
+</Card>
+
+</Cards>
+
 ## 本节思维导图
 
-```mindmap
+<MindMap title="第二节 定积分 · 知识树" height={520} initialExpandLevel={2} maxWidth={300} markdown={String.raw`
 # 第二节 定积分
 ## 基础与公式
 ### 黎曼和与几何意义
@@ -22,7 +44,9 @@ description: "定积分定义、积分性质、对称性和周期性、黎曼和
 ### 凸性与平均值
 ### 综合计算及最小值
 ## 易错点与自测
-```
+`} />
+
+<Callout type="info" title="本节定位与解题入口">
 
 本节的核心并不只是计算：
 
@@ -49,6 +73,8 @@ $$
 题库中值得重点精读的数学一真题包括：2018 年积分比较与分部积分、2021 年黎曼和定义、2022 年积分大小比较、2023 年函数平移与积分，以及 2025 年有理函数定积分计算。
 
 内容依次覆盖基础概念、公式条件、例题分步解析、方法比较与迁移练习。
+
+</Callout>
 
 ## 一、定积分的基础概念：从“无限求和”理解本质
 
@@ -580,7 +606,11 @@ $$
 
 比较大小。
 
-### 第一步：比较 $I_1$ 与 $I_2$
+<Steps>
+
+<Step>
+
+## 第一步：比较 $I_1$ 与 $I_2$
 
 两者分母相同，只需要比较：
 
@@ -618,7 +648,11 @@ $$
 \boxed{I_1<I_2}
 $$
 
-### 第二步：比较 $I_2$ 与 $I_3$
+</Step>
+
+<Step>
+
+## 第二步：比较 $I_2$ 与 $I_3$
 
 直接比较两个复杂表达式不方便。
 
@@ -673,6 +707,10 @@ $$
 $$
 
 原题选 A。
+
+</Step>
+
+</Steps>
 
 ### 解法比较
 
@@ -1769,6 +1807,10 @@ $$
 
 ## 十四、易错点集中归纳
 
+<Accordions>
+
+<Accordion title="展开本节易错点与辨析">
+
 | 易错点                          | 正确认识          |
 | ---------------------------- | ------------- |
 | 定积分一定等于面积                    | 定积分是有向累积量     |
@@ -1790,11 +1832,16 @@ $$
 
 不是在所有情况下都要求先找到初等原函数。有些函数的原函数无法用初等函数表达，但定积分仍然可以利用对称性、比较、换序等方法求值或估计。
 
+</Accordion>
+
+</Accordions>
+
 ## 十五、配套巩固：由浅入深的五道练习
 
 以下练习用于检查是否真正掌握结构判断。其中部分根据本节母题改编，不标作历年真题。
 
 ### 第 1 题
+
 $\displaystyle I=\int_{-2}^{2}\frac{x^3+2x+4}{1+x^2}\,\mathrm dx$
 
 A. $4\arctan2$
@@ -1806,6 +1853,7 @@ C. $4\pi$
 D. $8$
 
 ### 第 2 题
+
 $\displaystyle I=\int_0^{\pi/2}\frac{\sin x}{\sin x+\cos x}\,\mathrm dx$
 
 A. $\pi/2$
@@ -1817,6 +1865,7 @@ C. $1$
 D. $\ln2$
 
 ### 第 3 题
+
 $\displaystyle\lim_{n\to\infty}\frac1n\sum_{k=1}^{n}\frac{k/n}{1+(k/n)^2}$
 
 A. $\ln2$
@@ -1828,6 +1877,7 @@ C. $\pi/4$
 D. $1/2$
 
 ### 第 4 题
+
 $\displaystyle F(x)=\int_{x}^{x^2}e^{t^2}\,\mathrm dt$，求 $F'(1)$。
 
 A. $0$
@@ -1839,6 +1889,7 @@ C. $2e$
 D. $3e$
 
 ### 第 5 题
+
 $\displaystyle\int_0^1\left(\int_0^x t^2\,\mathrm dt\right)\mathrm dx$
 
 A. $1/3$
@@ -1903,3 +1954,29 @@ D. $1/6$
 $$
 \boxed{ \text{先用结构化简，再用最少的计算求出结果。} }
 $$
+
+## 本节相关资料
+
+<Cards>
+
+<Card title="系统知识讲义" href="https://fumadocscf.any1.tech/docs/math/knowledge/advanced-mathematics/03-single-variable-integration/">
+
+对照本节所涉及的基础定理、方法与适用条件。
+
+</Card>
+
+<Card title="分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-b4b18fcb/02-d1ad5b31/">
+
+核对历年分类题与解析。
+
+</Card>
+
+<Card title="精选核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/04-372983cf/02-d1ad5b31/">
+
+按本节模型进行巩固和方法迁移。
+
+</Card>
+
+</Cards>
+
+**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-04/02-definite-integrals/)
