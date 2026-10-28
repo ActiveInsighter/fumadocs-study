@@ -9,7 +9,8 @@
     "04-string-and-kmp",
     "05-trees",
     "06-graphs",
-    "07-search"
+    "07-search",
+    "08-sort"
   ],
   "defaultOpen": false
 }
