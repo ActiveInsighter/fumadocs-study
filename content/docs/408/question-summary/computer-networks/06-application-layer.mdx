@@ -10,10 +10,10 @@ description: "网络应用模型、DNS、FTP、电子邮件、WWW 与 HTTP、RTT
 </Callout>
 
 <Cards>
-  <Card title="网络应用模型">C/S 与 P2P，角色、扩展性与分发时间。</Card>
-  <Card title="DNS 与 FTP">域名解析、递归／迭代、缓存、FTP 双连接与主被动模式。</Card>
-  <Card title="邮件与 WWW">SMTP、POP3、IMAP、MIME、URL、HTTP 和状态管理。</Card>
-  <Card title="综合时延题">HTTP 四种连接模型、RTT、TCP 慢开始、ARP／NAT／DNS 综合。</Card>
+<Card title="网络应用模型">C/S 与 P2P，角色、扩展性与分发时间。</Card>
+<Card title="DNS 与 FTP">域名解析、递归／迭代、缓存、FTP 双连接与主被动模式。</Card>
+<Card title="邮件与 WWW">SMTP、POP3、IMAP、MIME、URL、HTTP 和状态管理。</Card>
+<Card title="综合时延题">HTTP 四种连接模型、RTT、TCP 慢开始、ARP／NAT／DNS 综合。</Card>
 </Cards>
 
 ## 一、本章整体框架与考情分析
@@ -76,8 +76,7 @@ description: "网络应用模型、DNS、FTP、电子邮件、WWW 与 HTTP、RTT
 第 6 章主要包括以下内容。可在知识导图与详细目录之间切换：
 
 <Tabs items={["知识导图", "详细目录"]} defaultIndex={0}>
-  <Tab value="知识导图">
-
+<Tab value="知识导图">
 <MindMap title="应用层全章知识导图" height={620} initialExpandLevel={2} maxWidth={290} markdown={String.raw`
 # 计算机网络第 6 章：应用层
 ## 6.1 网络应用模型
@@ -113,9 +112,8 @@ description: "网络应用模型、DNS、FTP、电子邮件、WWW 与 HTTP、RTT
 ### 网页访问全链路
 `} />
 
-  </Tab>
-  <Tab value="详细目录">
-
+</Tab>
+<Tab value="详细目录">
 #### 6.1 网络应用模型
 
 - 客户/服务器模型 C/S
@@ -178,7 +176,7 @@ description: "网络应用模型、DNS、FTP、电子邮件、WWW 与 HTTP、RTT
 - HTTP 访问时延
 - DNS、HTTP、TCP 综合计算
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 1.3 历年真题分布
@@ -1727,8 +1725,7 @@ $$
 </Callout>
 
 <Tabs items={["主动模式", "被动模式"]} defaultIndex={0}>
-  <Tab value="主动模式">
-
+<Tab value="主动模式">
 ### 10.1 主动模式
 
 主动模式：
@@ -1774,9 +1771,8 @@ Active Mode。
 
 不是控制连接。
 
-  </Tab>
-  <Tab value="被动模式">
-
+</Tab>
+<Tab value="被动模式">
 ### 10.2 被动模式
 
 被动模式：
@@ -1815,7 +1811,7 @@ Passive Mode。
 
 **服务器被动等待客户端建立数据连接。**
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 10.3 两种模式对比
@@ -3331,8 +3327,7 @@ $$
 ---
 
 <Tabs items={["非持续串行", "持续非流水线", "持续流水线", "非持续并行"]} defaultIndex={0}>
-  <Tab value="非持续串行">
-
+<Tab value="非持续串行">
 ### 29.1 模型一：非持续、完全串行
 
 每个对象：
@@ -3381,9 +3376,8 @@ $$
 \boxed{10RTT}
 $$
 
-  </Tab>
-  <Tab value="持续非流水线">
-
+</Tab>
+<Tab value="持续非流水线">
 ### 29.2 模型二：持续、非流水线
 
 只建立一次 TCP：
@@ -3428,9 +3422,8 @@ $$
 \boxed{6RTT}
 $$
 
-  </Tab>
-  <Tab value="持续流水线">
-
+</Tab>
+<Tab value="持续流水线">
 ### 29.3 模型三：持续、流水线
 
 建立 TCP：
@@ -3477,9 +3470,8 @@ $$
 2RTT
 $$
 
-  </Tab>
-  <Tab value="非持续并行">
-
+</Tab>
+<Tab value="非持续并行">
 ### 29.4 模型四：非持续、并行连接
 
 假设：
@@ -3559,7 +3551,7 @@ $$
 \boxed{T=6RTT}
 $$
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ## 三十、HTTP 四种模型总表
@@ -4899,8 +4891,7 @@ ARP 请求次数不由应用层协议数量决定。
 相关缓存不存在。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 43.1 第一阶段：IP 配置
 
 如果主机尚未获得有效网络配置，可能使用 DHCP。
@@ -4925,9 +4916,8 @@ ARP 请求次数不由应用层协议数量决定。
 
 不是每次浏览网页都需要重新 DHCP。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.2 第二阶段：DNS
 
 解析：
@@ -4942,9 +4932,8 @@ ARP 请求次数不由应用层协议数量决定。
 
 缓存未命中时，解析器再进行必要的后续查询。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.3 第三阶段：确定下一跳
 
 主机查询自己的路由表。
@@ -4957,9 +4946,8 @@ ARP 请求次数不由应用层协议数量决定。
 
 通过相应下一跳路由器。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.4 第四阶段：ARP
 
 如果下一跳是通过 IPv4 以太网通信且 MAC 未知：
@@ -4974,9 +4962,8 @@ ARP 应答：
 
 通常单播。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.5 第五阶段：TCP 建立连接
 
 三次握手：
@@ -4993,9 +4980,8 @@ $$
 1RTT
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.6 第六阶段：TLS
 
 由于是 HTTPS：
@@ -5012,9 +4998,8 @@ TLS 握手耗时取决于具体版本、是否恢复会话等条件。
 
 如果 408 题明确忽略 TLS，则不能自行添加额外 RTT。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.7 第七阶段：HTTP
 
 浏览器发送：
@@ -5027,9 +5012,8 @@ TLS 握手耗时取决于具体版本、是否恢复会话等条件。
 
 之后浏览器解析 HTML。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.8 第八阶段：下载附加资源
 
 例如：
@@ -5050,9 +5034,8 @@ TLS 握手耗时取决于具体版本、是否恢复会话等条件。
 
 具体过程由协议版本和题目条件决定。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 43.9 第九阶段：下层网络转发
 
 交换机：
@@ -5073,7 +5056,7 @@ NAT：
 
 在配置并命中相关规则时，还可能修改 IP 地址和端口。
 
-  </Step>
+</Step>
 </Steps>
 
 ## 四十四、五类综合题的统一解法
@@ -5222,8 +5205,7 @@ TCP 尚未建立。
 求总时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 DNS：
 
 $$
@@ -5290,7 +5272,7 @@ $$
 \boxed{T=75\mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习二：HTTP 并行连接
@@ -5308,8 +5290,7 @@ HTTP 非持续。
 求 RTT。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 先获取 HTML：
 
 $$
@@ -5342,7 +5323,7 @@ $$
 \boxed{8RTT}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习三：FTP 连接数量
@@ -5361,8 +5342,7 @@ $$
 问总共建立多少条 TCP 连接？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 控制连接：
 
 $$
@@ -5391,7 +5371,7 @@ $$
 
 不是同时存在 7 条连接。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习四：ARP + DNS
@@ -5419,8 +5399,7 @@ Web 服务器：
 问访问 Web 前，主机至少需要解析哪些 IPv4 地址对应的 MAC？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 首先：
 
 本地 DNS 与主机同子网。
@@ -5447,7 +5426,7 @@ $$
 
 个不同的下一跳地址需要进行 ARP 解析。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习五：HTTP 计时起点
@@ -5465,8 +5444,7 @@ HTML 引用 5 张图片。
 从 TCP 建连开始。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 1+1+5
 $$
@@ -5475,7 +5453,7 @@ $$
 \boxed{7RTT}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 情况 B
@@ -5485,8 +5463,7 @@ TCP 已建立。
 从发送 HTML GET 开始。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 1+5
 $$
@@ -5495,7 +5472,7 @@ $$
 \boxed{6RTT}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 情况 C
@@ -5505,13 +5482,12 @@ HTML 已经接收完成。
 从发送第一张图片请求开始。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \boxed{5RTT}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 总结
@@ -5619,15 +5595,14 @@ HTTP/1.1 可以同时具有：
 - **5.** 递归查询和迭代查询的区别是查询服务器数量。
 
 <Accordions>
-  <Accordion title="查看本组正确判断与解释">
-
+<Accordion title="查看本组正确判断与解释">
 - **1.** 错误。特定情况下可以使用 TCP。
 - **2.** 错误。
 - **3.** 错误。
 - **4.** 错误。
 - **5.** 错误。区别是由谁继续查询。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 第 6～10 题
@@ -5639,15 +5614,14 @@ HTTP/1.1 可以同时具有：
 - **10.** FTP 所有数据连接都必须使用服务器 TCP 20。
 
 <Accordions>
-  <Accordion title="查看本组正确判断与解释">
-
+<Accordion title="查看本组正确判断与解释">
 - **6.** 正确。
 - **7.** 错误。
 - **8.** 错误。经典 FTP 使用 TCP。
 - **9.** 正确。
 - **10.** 错误。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 第 11～15 题
@@ -5659,15 +5633,14 @@ HTTP/1.1 可以同时具有：
 - **15.** SMTP 负责用户从邮箱下载邮件。
 
 <Accordions>
-  <Accordion title="查看本组正确判断与解释">
-
+<Accordion title="查看本组正确判断与解释">
 - **11.** 正确。
 - **12.** 错误。
 - **13.** 正确。
 - **14.** 正确。
 - **15.** 错误。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 第 16～20 题
@@ -5679,15 +5652,14 @@ HTTP/1.1 可以同时具有：
 - **20.** Cookie 是浏览器保存并在符合规则时携带的数据。
 
 <Accordions>
-  <Accordion title="查看本组正确判断与解释">
-
+<Accordion title="查看本组正确判断与解释">
 - **16.** 错误。
 - **17.** 正确。
 - **18.** 正确。
 - **19.** 错误。
 - **20.** 正确。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 #### 第 21～25 题
@@ -5699,15 +5671,14 @@ HTTP/1.1 可以同时具有：
 - **25.** 交换机根据源 MAC 学习地址表。
 
 <Accordions>
-  <Accordion title="查看本组正确判断与解释">
-
+<Accordion title="查看本组正确判断与解释">
 - **21.** 错误。
 - **22.** 错误。
 - **23.** 错误。
 - **24.** 错误。
 - **25.** 正确。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 四十八、本章所有重要公式

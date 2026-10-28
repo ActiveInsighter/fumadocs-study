@@ -10,10 +10,10 @@ description: "ISA、指令编码、扩展操作码、寻址方式、PC 相对转
 </Callout>
 
 <Cards>
-  <Card title="ISA 与编码">指令格式、扩展操作码和不同地址指令。</Card>
-  <Card title="寻址与跳转">有效地址、PC 相对转移和立即数解释。</Card>
-  <Card title="机器级执行">MIPS、x86、条件码、栈帧与函数调用。</Card>
-  <Card title="跨章节综合">对齐与大小端、数组访问、Cache 和性能。</Card>
+<Card title="ISA 与编码">指令格式、扩展操作码和不同地址指令。</Card>
+<Card title="寻址与跳转">有效地址、PC 相对转移和立即数解释。</Card>
+<Card title="机器级执行">MIPS、x86、条件码、栈帧与函数调用。</Card>
+<Card title="跨章节综合">对齐与大小端、数组访问、Cache 和性能。</Card>
 </Cards>
 
 ## 一、本章整体知识体系与考情分析
@@ -106,8 +106,7 @@ add r1, r2, r3
 `} />
 
 <Accordions>
-  <Accordion title="展开原有考点分布与历年题型">
-
+<Accordion title="展开原有考点分布与历年题型">
 | 知识模块 | 重要程度 | 常见题型 | 必须掌握的能力 |
 |---|---|---|---|
 | ISA与微架构 | ★★★★ | 选择题 | 判断哪些内容属于ISA |
@@ -145,7 +144,7 @@ add r1, r2, r3
 
 ---
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 二、指令集体系结构 ISA
@@ -3053,8 +3052,7 @@ $$
 **真实MIPS格式与题设自定义格式不能混用。**
 
 <Tabs items={["R 型", "I 型", "J 型"]} defaultIndex={0}>
-  <Tab value="R 型">
-
+<Tab value="R 型">
 ### 13.1 经典MIPS R型
 
 典型32位格式：
@@ -3089,9 +3087,8 @@ $$
 - funct：具体功能码。
 
 
-  </Tab>
-  <Tab value="I 型">
-
+</Tab>
+<Tab value="I 型">
 ### 13.2 经典MIPS I型
 
 ```text
@@ -3133,9 +3130,8 @@ R[rt]\leftarrow M[EA]
 $$
 
 
-  </Tab>
-  <Tab value="J 型">
-
+</Tab>
+<Tab value="J 型">
 ### 13.3 经典MIPS J型
 
 ```text
@@ -3169,7 +3165,7 @@ $$
 **必须优先按照题目给出的功能说明计算。**
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 13.4 MIPS分支位移
@@ -6492,8 +6488,7 @@ $$
 以后遇到任何陌生的指令系统综合题，建议使用以下七步法。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：明确机器基本信息
 
 列出：
@@ -6519,9 +6514,8 @@ Capacity=2^{MAR位数}\times编址单位
 $$
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：按位段切分机器码
 
 例如：
@@ -6542,9 +6536,8 @@ $$
 千万不要在没有拆分位段前猜测指令功能。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：确定每个操作数的寻址方式
 
 分别写出：
@@ -6573,9 +6566,8 @@ $$
 而不是直接把R4、R5内容相加。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：确定立即数和位移的解释方式
 
 必须检查：
@@ -6587,9 +6579,8 @@ $$
 - 是否存在地址对齐要求。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：计算指令执行结果
 
 注意：
@@ -6604,9 +6595,8 @@ $$
 这些不是同一个概念。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第六步：跟踪状态变化
 
 建议制作表格：
@@ -6628,9 +6618,8 @@ BP
 ```
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第七步：验证结果
 
 可以检查：
@@ -6646,7 +6635,7 @@ BP
 9. 函数能否正确返回。
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 三十、强化训练：覆盖本章主要题型
@@ -6666,8 +6655,7 @@ BP
 求最多还能定义多少条零地址指令。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 三地址操作码：
@@ -6730,7 +6718,7 @@ $$
 
 必须先检查每一级的容量是否足够。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6757,8 +6745,7 @@ $$
 求EA和操作数。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 $$
@@ -6779,7 +6766,7 @@ $$
 \boxed{Operand=ABCDH}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6796,8 +6783,7 @@ $$
 求跳转目标。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 $$
@@ -6822,7 +6808,7 @@ $$
 \boxed{3FECH}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6839,8 +6825,7 @@ A1B2C3D4H
 求1002H中的内容。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 小端排列：
@@ -6858,7 +6843,7 @@ $$
 \boxed{B2H}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6883,8 +6868,7 @@ struct T {
 求sizeof(T)。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 ```text
@@ -6902,7 +6886,7 @@ $$
 \boxed{sizeof(T)=12B}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6922,8 +6906,7 @@ M[2000H]保存一个32位数据
 问读取地址和R1新值。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 本次读取地址：
@@ -6938,7 +6921,7 @@ $$
 \boxed{R1=2004H}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6953,8 +6936,7 @@ $$
 求CF和OF。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 无符号：
@@ -6981,7 +6963,7 @@ $$
 \boxed{OF=1}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7000,8 +6982,7 @@ $$
 求SP和保存的返回地址。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 返回地址：
@@ -7026,7 +7007,7 @@ $$
 \boxed{ReturnAddress=1005H}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7051,8 +7032,7 @@ a[3][5]
 地址。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 $$
@@ -7083,7 +7063,7 @@ $$
 \boxed{117CH}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7100,8 +7080,7 @@ $$
 求目标地址。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 $$
@@ -7126,7 +7105,7 @@ $$
 \boxed{1FFCH}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7141,8 +7120,7 @@ $$
 求32位符号扩展和零扩展结果。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 符号扩展：
@@ -7163,7 +7141,7 @@ $$
 
 必须看对应指令的语义。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7180,8 +7158,7 @@ $$
 问内存中从低地址到高地址的4个字节。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 ```text
@@ -7194,7 +7171,7 @@ CD AB 34 12
 
 改变的是其在内存中的字节排列。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 

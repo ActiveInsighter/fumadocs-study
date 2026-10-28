@@ -10,10 +10,10 @@ description: "IPv4 与 CIDR、子网划分、分片、ARP、NAT、DHCP、路由�
 </Callout>
 
 <Cards>
-  <Card title="地址与子网">IPv4、CIDR、FLSM／VLSM 与路由聚合</Card>
-  <Card title="转发与分片">最长前缀匹配、TTL、ARP 与 IPv4 分片</Card>
-  <Card title="路由与控制">RIP、OSPF、BGP、NAT、DHCP 和 ICMP</Card>
-  <Card title="扩展与综合">IPv6、跨层拓扑分析与路由计算</Card>
+<Card title="地址与子网">IPv4、CIDR、FLSM／VLSM 与路由聚合</Card>
+<Card title="转发与分片">最长前缀匹配、TTL、ARP 与 IPv4 分片</Card>
+<Card title="路由与控制">RIP、OSPF、BGP、NAT、DHCP 和 ICMP</Card>
+<Card title="扩展与综合">IPv6、跨层拓扑分析与路由计算</Card>
 </Cards>
 
 ## 一、本章整体知识体系
@@ -359,8 +359,7 @@ $$
 这些数字不仅是地址数，也是对应末字节划分时的块大小。
 
 <Tabs items={["按位与计算", "块大小速算"]} defaultIndex={0}>
-  <Tab value="按位与计算">
-
+<Tab value="按位与计算">
 ### 3.3 网络地址的计算
 
 公式：
@@ -384,9 +383,8 @@ IP 地址与子网掩码按位与。
 
 推荐使用“块大小法”。
 
-  </Tab>
-  <Tab value="块大小速算">
-
+</Tab>
+<Tab value="块大小速算">
 ### 3.4 块大小法
 
 公式：
@@ -427,7 +425,7 @@ $$
 
 每个子网覆盖 64 个地址。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 3.5 真题：2012 年广播地址
@@ -5432,8 +5430,7 @@ ARP 不是：
 面对复杂拓扑题，建议按以下流程作答。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：识别所有子网
 
 对每个接口：
@@ -5448,9 +5445,8 @@ ARP 不是：
 
 标明哪些设备处于同一网络。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：判断设备类型
 
 如果只负责局域网内部 MAC 转发：
@@ -5461,9 +5457,8 @@ ARP 不是：
 
 需要路由器或具有三层转发能力的设备。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：判断是否同子网
 
 比较：
@@ -5482,9 +5477,8 @@ $$
 
 若使用复杂路由配置，还需要按实际路由表决定下一跳，而不仅是机械比较一个掩码。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：选择路由
 
 查找目的前缀。
@@ -5498,9 +5492,8 @@ $$
 - 下一跳；
 - 输出接口。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：判断 ARP
 
 如果下一跳链路是以太网：
@@ -5517,9 +5510,8 @@ $$
 
 不是远端服务器 MAC。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第六步：分析 IP 数据报
 
 写出：
@@ -5531,9 +5523,8 @@ $$
 - 总长度；
 - 必要时的端口号。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第七步：判断 NAT
 
 若经过 NAT：
@@ -5545,9 +5536,8 @@ $$
 - 修改发生在哪台设备；
 - 回程如何恢复。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第八步：判断 MTU
 
 如果当前出口 MTU 不够：
@@ -5573,9 +5563,8 @@ $$
 - Offset；
 - MF。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第九步：更新逐跳字段
 
 普通 IPv4 转发：
@@ -5586,9 +5575,8 @@ IPv4 首部检验和更新。
 
 新的链路层帧重新封装。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第十步：必要时重新计算路由
 
 如果题目给出：
@@ -5611,9 +5599,8 @@ BGP：
 
 根据可达性与路径属性选择。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第十一步：检查能否聚合
 
 如果要求路由表项尽可能少：
@@ -5630,7 +5617,7 @@ BGP：
 4. 是否需要更具体例外路由；
 5. 是否保持正确转发结果。
 
-  </Step>
+</Step>
 </Steps>
 
 ## 四十三、全章最容易出错的知识点
@@ -5875,8 +5862,7 @@ $$
 5. 可用主机地址数量。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 `/19` 掩码：
 
 `255.255.224.0`
@@ -5907,7 +5893,7 @@ $$
 2^{32-19}-2=8190
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习 2：VLSM
@@ -5926,8 +5912,7 @@ $$
 要求尽量节省地址。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 | 需求 | 分配网络 |
 |---|---|
 | 220 | 10.10.0.0/24 |
@@ -5939,7 +5924,7 @@ $$
 
 `10.10.1.224/27`
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习 3：最长前缀匹配
@@ -5963,8 +5948,7 @@ $$
 5. `8.8.8.8`
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 | 目标 | 下一跳 |
 |---|---|
 | 192.168.12.50 | B |
@@ -5973,7 +5957,7 @@ $$
 | 192.168.20.1 | A |
 | 8.8.8.8 | E |
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习 4：分片
@@ -5995,8 +5979,7 @@ IPv4 数据报：
 求分片数据长度、总长度、Offset、MF。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 原始数据：
 
 $$
@@ -6023,7 +6006,7 @@ $$
 | 3 | 976 | 996 | 244 | 1 |
 | 4 | 52 | 72 | 366 | 0 |
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习 5：RIP 路由更新
@@ -6047,8 +6030,7 @@ R1 原路由：
 求更新结果。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 先加 1：
 
     N1 → 9
@@ -6085,7 +6067,7 @@ R2 宣告不可达。
 | N2 | 3 | R2 |
 | N3 | 16 | 不可达 |
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 练习 6：ARP 与 NAT
@@ -6126,8 +6108,7 @@ NAT 公网地址：
 4. NAT 后的源 IP 和源端口是什么？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 ARP 查询：
 
 `192.168.1.1`
@@ -6144,7 +6125,7 @@ NAT 后源地址：
 
 `203.0.113.9:40000`
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 四十六、历年真题训练顺序建议

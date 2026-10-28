@@ -10,10 +10,10 @@ description: "CPU 结构、数据通路、微程序控制器、流水线、前�
 </Callout>
 
 <Cards>
-  <Card title="CPU 结构与指令周期">认识寄存器、数据通路、控制器及取指、执行流程。</Card>
-  <Card title="数据通路与微程序">按硬件约束排布微操作，计算控制字段和控制存储器容量。</Card>
-  <Card title="流水线与冒险">掌握前递、Load-Use、停顿、分支和 CPI 的联合分析。</Card>
-  <Card title="中断与多处理器">理解异常中断与处理器并行技术的边界。</Card>
+<Card title="CPU 结构与指令周期">认识寄存器、数据通路、控制器及取指、执行流程。</Card>
+<Card title="数据通路与微程序">按硬件约束排布微操作，计算控制字段和控制存储器容量。</Card>
+<Card title="流水线与冒险">掌握前递、Load-Use、停顿、分支和 CPI 的联合分析。</Card>
+<Card title="中断与多处理器">理解异常中断与处理器并行技术的边界。</Card>
 </Cards>
 
 ## 一、本章知识体系与考查重点
@@ -739,8 +739,7 @@ NOP 不执行显式的数据运算，但仍然需要：
 ## 五、单周期、多周期与流水线处理器
 
 <Tabs items={["单周期", "多周期", "流水线"]} defaultIndex={0}>
-  <Tab value="单周期">
-
+<Tab value="单周期">
 ### 5.1 单周期处理器
 
 每条指令在一个时钟周期完成。
@@ -785,9 +784,8 @@ $$
 - 常常需要多条独立数据路径。
 - 经典模型中的主要控制信号由当前指令决定。
 
-  </Tab>
-  <Tab value="多周期">
-
+</Tab>
+<Tab value="多周期">
 ### 5.2 多周期处理器
 
 一条指令拆成多个周期完成。
@@ -819,9 +817,8 @@ $$
 
 但传统非流水多周期处理器一般不要求不同指令重叠执行。
 
-  </Tab>
-  <Tab value="流水线">
-
+</Tab>
+<Tab value="流水线">
 ### 5.3 流水线处理器
 
 流水线允许：
@@ -873,7 +870,7 @@ $$
 单周期 CPI 虽然是 1，但时钟周期可能远大于流水线。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ## 六、5.3 数据通路——本章第一大难点
@@ -2369,29 +2366,25 @@ $$
 遇到微程序控制器计算题，按以下步骤：
 
 <Steps>
-  <Step>
-
+<Step>
 ### 第一步：识别微命令总数
 
 判断有多少条独立控制信号。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第二步：确定编码方式
 
 直接编码还是字段编码。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第三步：划分互斥组
 
 只把不能同时执行的控制动作放到同一组。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第四步：计算每组位数
 
 若需要无操作状态：
@@ -2400,36 +2393,32 @@ $$
 n_i=\lceil\log_2(m_i+1)\rceil
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第五步：计算操作控制字段
 
 $$
 W_{\text{控制}}=\sum_i n_i
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第六步：计算微地址字段
 
 $$
 W_{\text{地址}}=\lceil\log_2N\rceil
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第七步：加入判别字段
 
 $$
 W=W_{\text{控制}}+W_{\text{判别}}+W_{\text{地址}}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第八步：计算控制存储器容量
 
 $$
@@ -2445,7 +2434,7 @@ $$
 - 题目使用 bit 还是 Byte？
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 十五、5.5 异常和中断机制
@@ -5631,15 +5620,14 @@ PC、IR、MAR、MDR、GPR、PSW。
 哪些通常属于程序员可见的体系结构状态？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 PC、GPR、PSW 中具有架构意义的部分。
 
 IR、MAR、MDR 通常属于内部状态。
 
 判断依据是 ISA 是否暴露这些状态，而不是寄存器是否位于 CPU 内。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5653,8 +5641,7 @@ IR、MAR、MDR 通常属于内部状态。
 顺序执行时 PC 增量是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 一条指令：
 
 $$
@@ -5667,7 +5654,7 @@ $$
 \boxed{PC\leftarrow PC+3}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5686,8 +5673,7 @@ $$
 求控制字段位数。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 n_1=\lceil\log_2 9\rceil=4
 $$
@@ -5706,7 +5692,7 @@ $$
 \boxed{n=9\text{ bit}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5729,8 +5715,7 @@ $$
 求总时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 时钟周期：
 
 $$
@@ -5753,7 +5738,7 @@ $$
 \boxed{T=5400ps=5.4ns}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5768,8 +5753,7 @@ I3: MUL R1,R6,R7
 判断主要相关类型。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 I1 写 R1，I2 读 R1：
 
 $$
@@ -5788,7 +5772,7 @@ $$
 \boxed{I2\rightarrow I3:WAR}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5805,8 +5789,7 @@ I3: SUB R5,R3,R6
 求数据停顿数。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 I1→I2：
 
 Load-Use。
@@ -5827,7 +5810,7 @@ $$
 \boxed{1}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5845,8 +5828,7 @@ I2: SUB R4,R1,R5
 求停顿周期。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 I1：
 
 $$
@@ -5871,7 +5853,7 @@ $$
 \boxed{3\text{ 拍}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5890,15 +5872,14 @@ D. 非法指令。
 问哪项典型属于外部中断？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \boxed{C}
 $$
 
 其余属于同步异常或陷阱。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5916,8 +5897,7 @@ $$
 求 CPI。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \Delta CPI=0.2\times0.15\times4
 $$
@@ -5932,7 +5912,7 @@ $$
 \boxed{CPI=1.12}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5946,8 +5926,7 @@ $$
 操作系统最多可见多少逻辑处理器？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 6\times2=12
 $$
@@ -5958,7 +5937,7 @@ $$
 
 但不能认为它具有 12 个完整物理核心的计算能力。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -5971,8 +5950,7 @@ $$
 求理论加速比。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 S(8)=\frac1{0.2+\frac{0.8}{8}}
 $$
@@ -5985,7 +5963,7 @@ $$
 \boxed{S(8)\approx3.33}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6000,8 +5978,7 @@ $$
 是否必然发生缺页？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不必然。
 
 TLB Miss 只是 TLB 中没有对应转换结果。
@@ -6016,7 +5993,7 @@ $$
 \boxed{\text{TLB Miss + Cache Miss 不必然导致缺页}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 三十七、如何判断自己真正掌握了第 5 章

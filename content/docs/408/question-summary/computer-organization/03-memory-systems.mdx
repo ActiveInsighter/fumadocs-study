@@ -10,10 +10,10 @@ description: "主存组织与芯片扩展、交叉存储、Cache、TLB、页表�
 </Callout>
 
 <Cards>
-  <Card title="主存组织">芯片扩展、编址、DRAM、SRAM 与交叉存储。</Card>
-  <Card title="Cache">映射、地址划分、替换、写策略和命中率。</Card>
-  <Card title="虚拟存储">页表、TLB、地址转换、缺页与联合访存。</Card>
-  <Card title="外存与综合">HDD、SSD、RAID、DMA 和数组访存综合题。</Card>
+<Card title="主存组织">芯片扩展、编址、DRAM、SRAM 与交叉存储。</Card>
+<Card title="Cache">映射、地址划分、替换、写策略和命中率。</Card>
+<Card title="虚拟存储">页表、TLB、地址转换、缺页与联合访存。</Card>
+<Card title="外存与综合">HDD、SSD、RAID、DMA 和数组访存综合题。</Card>
 </Cards>
 
 ## 一、本章知识体系与考查重点
@@ -100,8 +100,7 @@ CPU 的运算速度很快，但大容量存储器通常无法以同样的速度�
 `} />
 
 <Accordions>
-  <Accordion title="展开详细的存储层次与考点">
-
+<Accordion title="展开详细的存储层次与考点">
 | 层次 | 核心作用 | 基本单位 | 管理机制 |
 |---|---|---|---|
 | Cache—主存 | 缩小 CPU 与主存的速度差距 | 主存块 | 主要由硬件管理 |
@@ -118,7 +117,7 @@ CPU 的运算速度很快，但大容量存储器通常无法以同样的速度�
 
 这是本章综合题的第一条原则。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 1.3 本章考点分布
@@ -2526,8 +2525,7 @@ Cache 已满时，需要选择一行。
 ---
 
 <Tabs items={["FIFO", "LRU", "LFU"]} defaultIndex={0}>
-  <Tab value="FIFO">
-
+<Tab value="FIFO">
 ### 9.2 FIFO
 
 First In First Out。
@@ -2569,9 +2567,8 @@ A → B → C
 淘汰 A。
 
 
-  </Tab>
-  <Tab value="LRU">
-
+</Tab>
+<Tab value="LRU">
 ### 9.3 LRU
 
 Least Recently Used。
@@ -2621,9 +2618,8 @@ LRU 看：
 什么时候最后一次访问？
 
 
-  </Tab>
-  <Tab value="LFU">
-
+</Tab>
+<Tab value="LFU">
 ### 9.4 LFU
 
 Least Frequently Used。
@@ -2645,7 +2641,7 @@ C：访问 6 次
 若多个块访问次数相同，必须知道题目规定的并列处理方式。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 9.5 真题：2021 年第44题 TLB 的 LRU
@@ -6680,8 +6676,7 @@ $$
 按下面七个步骤做。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：列出所有已知条件
 
 建议先写一张参数表。
@@ -6705,9 +6700,8 @@ $$
 - 主存块号还是字节地址。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：拆虚拟地址
 
 页面大小：
@@ -6727,9 +6721,8 @@ PFN=M-p
 $$
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：拆 TLB
 
 TLB 组数：
@@ -6755,9 +6748,8 @@ $$
 TLB 组号取自 VPN。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：计算物理地址
 
 $$
@@ -6767,9 +6759,8 @@ $$
 其中页内偏移保持不变。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：拆 Cache
 
 Cache 行数：
@@ -6803,9 +6794,8 @@ t=M-s-b
 $$
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第六步：判断命中与替换
 
 命中要求：
@@ -6825,9 +6815,8 @@ $$
 检查被淘汰行的 Dirty 位。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第七步：计算统计量
 
 分别统计：
@@ -6843,7 +6832,7 @@ $$
 **这些量必须分别建立自己的计数口径。**
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 二十九、本章最容易丢分的 30 个陷阱
@@ -7171,8 +7160,7 @@ $$
 4. 总共需要多少位地址？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 位扩展：
@@ -7205,7 +7193,7 @@ $$
 \boxed{14\text{ 位地址}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7221,8 +7209,7 @@ $$
 求 Tag、Index、Offset。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 行数：
@@ -7257,7 +7244,7 @@ $$
 \boxed{18\mid8\mid6}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7284,8 +7271,7 @@ PFN = 0x2345
 求物理地址。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 页面大小为 4KB。
@@ -7310,7 +7296,7 @@ $$
 \boxed{PA=0x2345ABC}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7326,8 +7312,7 @@ $$
 求涉及多少 Cache 块。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 数组长度：
@@ -7350,7 +7335,7 @@ $$
 \boxed{7\text{ 块}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7373,8 +7358,7 @@ $$
 3. 缺失率。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 总访问：
@@ -7405,7 +7389,7 @@ $$
 \boxed{6.5\%}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7421,8 +7405,7 @@ $$
 求平均访问时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 一圈时间：
@@ -7459,7 +7442,7 @@ $$
 \boxed{10.125\text{ ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 

@@ -286,11 +286,8 @@ $$
 #define MAXSIZE 100
 
 typedef struct {
-```
-        int data[MAXSIZE];
-        int length;
-
-```c
+    int data[MAXSIZE];
+    int length;
 } SeqList;
 ```
 
@@ -318,12 +315,9 @@ $$
 
 ```c
 typedef struct {
-```
-        int *data;
-        int length;
-        int capacity;
-
-```c
+    int *data;
+    int length;
+    int capacity;
 } SeqList;
 ```
 
@@ -372,22 +366,19 @@ $$
 
 ```c
 int Insert(SeqList *L, int i, int x) {
-```
-        if (i < 1 || i > L->length + 1)
-            return 0;
+    if (i < 1 || i > L->length + 1)
+        return 0;
 
-        if (L->length >= MAXSIZE)
-            return 0;
+    if (L->length >= MAXSIZE)
+        return 0;
 
-        for (int j = L->length; j >= i; --j)
-            L->data[j] = L->data[j - 1];
+    for (int j = L->length; j >= i; --j)
+        L->data[j] = L->data[j - 1];
 
-        L->data[i - 1] = x;
-        ++L->length;
+    L->data[i - 1] = x;
+    ++L->length;
 
-        return 1;
-
-```c
+    return 1;
 }
 ```
 
@@ -554,21 +545,18 @@ $$
 
 ```c
 int Delete(SeqList *L, int i, int *x) {
-```
-        if (i < 1 || i > L->length)
-            return 0;
+    if (i < 1 || i > L->length)
+        return 0;
 
-        if (x != NULL)
-            *x = L->data[i - 1];
+    if (x != NULL)
+        *x = L->data[i - 1];
 
-        for (int j = i; j < L->length; ++j)
-            L->data[j - 1] = L->data[j];
+    for (int j = i; j < L->length; ++j)
+        L->data[j - 1] = L->data[j];
 
-        --L->length;
+    --L->length;
 
-        return 1;
-
-```c
+    return 1;
 }
 ```
 
@@ -653,11 +641,8 @@ $$
 
 ```c
 typedef struct LNode {
-```
-        int data;
-        struct LNode *next;
-
-```c
+    int data;
+    struct LNode *next;
 } LNode;
 ```
 
@@ -774,21 +759,18 @@ $$
 
 ```c
 LNode *GetElem(LNode *head, int i) {
-```
-        if (head == NULL || i < 1)
-            return NULL;
+    if (head == NULL || i < 1)
+        return NULL;
 
-        LNode *p = head->next;
-        int j = 1;
+    LNode *p = head->next;
+    int j = 1;
 
-        while (p != NULL && j < i) {
-            p = p->next;
-            ++j;
-        }
+    while (p != NULL && j < i) {
+        p = p->next;
+        ++j;
+    }
 
-        return p;
-
-```c
+    return p;
 }
 ```
 
@@ -858,11 +840,8 @@ s->next = s;
 
 ```c
 void InsertHead(LNode *head, LNode *s) {
-```
-        s->next = head->next;
-        head->next = s;
-
-```c
+    s->next = head->next;
+    head->next = s;
 }
 ```
 
@@ -1064,25 +1043,22 @@ $$
 
 ```c
 void Reverse(LNode *head) {
-```
-        if (head == NULL)
-            return;
+    if (head == NULL)
+        return;
 
-        LNode *prev = NULL;
-        LNode *cur = head->next;
+    LNode *prev = NULL;
+    LNode *cur = head->next;
 
-        while (cur != NULL) {
-            LNode *next = cur->next;
+    while (cur != NULL) {
+        LNode *next = cur->next;
 
-            cur->next = prev;
+        cur->next = prev;
 
-            prev = cur;
-            cur = next;
-        }
+        prev = cur;
+        cur = next;
+    }
 
-        head->next = prev;
-
-```c
+    head->next = prev;
 }
 ```
 
@@ -1162,12 +1138,9 @@ $$
 
 ```c
 typedef struct DNode {
-```
-        int data;
-        struct DNode *prev;
-        struct DNode *next;
-
-```c
+    int data;
+    struct DNode *prev;
+    struct DNode *next;
 } DNode;
 ```
 
@@ -1318,11 +1291,8 @@ $$
 LNode *p = head->next;
 
 while (p != head) {
-```
-        // 处理当前结点
-        p = p->next;
-
-```c
+    // 处理当前结点
+    p = p->next;
 }
 ```
 
@@ -1404,11 +1374,8 @@ $$
 
 ```c
 typedef struct {
-```
-        int data;
-        int next;
-
-```c
+    int data;
+    int next;
 } SNode;
 ```
 
@@ -1848,28 +1815,25 @@ $$
 
 ```c
 LNode *FindKth(LNode *head, int k) {
-```
-        if (head == NULL || k <= 0)
+    if (head == NULL || k <= 0)
+        return NULL;
+
+    LNode *fast = head->next;
+    LNode *slow = head->next;
+
+    for (int i = 0; i < k; ++i) {
+        if (fast == NULL)
             return NULL;
 
-        LNode *fast = head->next;
-        LNode *slow = head->next;
+        fast = fast->next;
+    }
 
-        for (int i = 0; i < k; ++i) {
-            if (fast == NULL)
-                return NULL;
+    while (fast != NULL) {
+        fast = fast->next;
+        slow = slow->next;
+    }
 
-            fast = fast->next;
-        }
-
-        while (fast != NULL) {
-            fast = fast->next;
-            slow = slow->next;
-        }
-
-        return slow;
-
-```c
+    return slow;
 }
 ```
 
@@ -1878,16 +1842,13 @@ LNode *FindKth(LNode *head, int k) {
 
 ```c
 int FindAndPrint(LNode *head, int k) {
-```
-        LNode *p = FindKth(head, k);
+    LNode *p = FindKth(head, k);
 
-        if (p == NULL)
-            return 0;
+    if (p == NULL)
+        return 0;
 
-        printf("%d\n", p->data);
-        return 1;
-
-```c
+    printf("%d\n", p->data);
+    return 1;
 }
 ```
 
@@ -2081,32 +2042,31 @@ $$
 
 ```c
 void Reverse(int A[], int l, int r) {
-```
-        while (l < r) {
-            int t = A[l];
-            A[l] = A[r];
-            A[r] = t;
+    while (l < r) {
+        int t = A[l];
+        A[l] = A[r];
+        A[r] = t;
 
-            ++l;
-            --r;
-        }
-
-```c
+        ++l;
+        --r;
+    }
 }
 
 void LeftRotate(int A[], int n, int p) {
 ```
-        if (A == NULL || n <= 1 || p < 0)
-            return;
+```text
+    if (A == NULL || n <= 1 || p < 0)
+        return;
 
-        p %= n;
+    p %= n;
 
-        if (p == 0)
-            return;
+    if (p == 0)
+        return;
 
-        Reverse(A, 0, p - 1);
-        Reverse(A, p, n - 1);
-        Reverse(A, 0, n - 1);
+    Reverse(A, 0, p - 1);
+    Reverse(A, p, n - 1);
+    Reverse(A, 0, n - 1);
+```
 
 ```c
 }
@@ -2282,35 +2242,32 @@ $$
 
 ```c
 int LowerMedian(const int A[],
-```
-                    const int B[],
-                    int n) {
-        int l1 = 0, r1 = n - 1;
-        int l2 = 0, r2 = n - 1;
+                const int B[],
+                int n) {
+    int l1 = 0, r1 = n - 1;
+    int l2 = 0, r2 = n - 1;
 
-        while (l1 < r1) {
-            int len = r1 - l1 + 1;
+    while (l1 < r1) {
+        int len = r1 - l1 + 1;
 
-            int m1 = l1 + (len - 1) / 2;
-            int m2 = l2 + (len - 1) / 2;
+        int m1 = l1 + (len - 1) / 2;
+        int m2 = l2 + (len - 1) / 2;
 
-            if (A[m1] == B[m2])
-                return A[m1];
+        if (A[m1] == B[m2])
+            return A[m1];
 
-            if (A[m1] < B[m2]) {
-                l1 = (len % 2) ? m1 : m1 + 1;
-                r2 = m2;
-            } else {
-                r1 = m1;
-                l2 = (len % 2) ? m2 : m2 + 1;
-            }
+        if (A[m1] < B[m2]) {
+            l1 = (len % 2) ? m1 : m1 + 1;
+            r2 = m2;
+        } else {
+            r1 = m1;
+            l2 = (len % 2) ? m2 : m2 + 1;
         }
+    }
 
-        return A[l1] < B[l2]
-               ? A[l1]
-               : B[l2];
-
-```c
+    return A[l1] < B[l2]
+           ? A[l1]
+           : B[l2];
 }
 ```
 
@@ -2505,43 +2462,42 @@ $$
 
 ```c
 int Length(LNode *p) {
-```
-        int n = 0;
+    int n = 0;
 
-        while (p != NULL) {
-            ++n;
-            p = p->next;
-        }
+    while (p != NULL) {
+        ++n;
+        p = p->next;
+    }
 
-        return n;
-
-```c
+    return n;
 }
 
 LNode *CommonNode(LNode *A, LNode *B) {
 ```
-        int m = Length(A);
-        int n = Length(B);
+```text
+    int m = Length(A);
+    int n = Length(B);
 
-        LNode *p = A;
-        LNode *q = B;
+    LNode *p = A;
+    LNode *q = B;
 
-        while (m > n) {
-            p = p->next;
-            --m;
-        }
+    while (m > n) {
+        p = p->next;
+        --m;
+    }
 
-        while (n > m) {
-            q = q->next;
-            --n;
-        }
+    while (n > m) {
+        q = q->next;
+        --n;
+    }
 
-        while (p != q) {
-            p = p->next;
-            q = q->next;
-        }
+    while (p != q) {
+        p = p->next;
+        q = q->next;
+    }
 
-        return p;
+    return p;
+```
 
 ```c
 }
@@ -2599,17 +2555,19 @@ $$
 ### 14.9 拓展：换头双指针
 还有一个不需要计算长度的方法。
 
-    LNode *Intersection(LNode *A,
-                        LNode *B) {
-        LNode *p = A;
-        LNode *q = B;
+```text
+LNode *Intersection(LNode *A,
+                    LNode *B) {
+    LNode *p = A;
+    LNode *q = B;
 
-        while (p != q) {
-            p = (p == NULL) ? B : p->next;
-            q = (q == NULL) ? A : q->next;
-        }
+    while (p != q) {
+        p = (p == NULL) ? B : p->next;
+        q = (q == NULL) ? A : q->next;
+    }
 
-        return p;
+    return p;
+```
 
 ```c
 }
@@ -2810,37 +2768,34 @@ $$
 
 ```c
 int Majority(int A[], int n) {
-```
-        if (n <= 0)
-            return -1;
-
-        int candidate = A[0];
-        int count = 1;
-
-        for (int i = 1; i < n; ++i) {
-            if (count == 0) {
-                candidate = A[i];
-                count = 1;
-            } else if (A[i] == candidate) {
-                ++count;
-            } else {
-                --count;
-            }
-        }
-
-        int freq = 0;
-
-        for (int i = 0; i < n; ++i) {
-            if (A[i] == candidate)
-                ++freq;
-        }
-
-        if (freq > n / 2)
-            return candidate;
-
+    if (n <= 0)
         return -1;
 
-```c
+    int candidate = A[0];
+    int count = 1;
+
+    for (int i = 1; i < n; ++i) {
+        if (count == 0) {
+            candidate = A[i];
+            count = 1;
+        } else if (A[i] == candidate) {
+            ++count;
+        } else {
+            --count;
+        }
+    }
+
+    int freq = 0;
+
+    for (int i = 0; i < n; ++i) {
+        if (A[i] == candidate)
+            ++freq;
+    }
+
+    if (freq > n / 2)
+        return candidate;
+
+    return -1;
 }
 ```
 
@@ -3010,42 +2965,39 @@ pre->next = cur->next;
 
 ```c
 void DeleteAbsDuplicate(LNode *head,
-```
-                            int n) {
-        if (head == NULL || n < 0)
-            return;
+                        int n) {
+    if (head == NULL || n < 0)
+        return;
 
-        unsigned char *seen =
-            calloc((size_t)n + 1,
-                   sizeof(unsigned char));
+    unsigned char *seen =
+        calloc((size_t)n + 1,
+               sizeof(unsigned char));
 
-        if (seen == NULL)
-            return;
+    if (seen == NULL)
+        return;
 
-        LNode *pre = head;
-        LNode *cur = head->next;
+    LNode *pre = head;
+    LNode *cur = head->next;
 
-        while (cur != NULL) {
-            int key = abs(cur->data);
+    while (cur != NULL) {
+        int key = abs(cur->data);
 
-            if (seen[key] == 0) {
-                seen[key] = 1;
+        if (seen[key] == 0) {
+            seen[key] = 1;
 
-                pre = cur;
-                cur = cur->next;
-            } else {
-                LNode *q = cur;
+            pre = cur;
+            cur = cur->next;
+        } else {
+            LNode *q = cur;
 
-                pre->next = cur->next;
-                cur = pre->next;
+            pre->next = cur->next;
+            cur = pre->next;
 
-                free(q);
-            }
+            free(q);
         }
+    }
 
-        free(seen);
-
-```c
+    free(seen);
 }
 ```
 
@@ -3250,28 +3202,25 @@ $$
 
 ```c
 int FirstMissingPositive(int A[], int n) {
-```
-        for (int i = 0; i < n; ++i) {
-            while (A[i] >= 1 &&
-                   A[i] <= n &&
-                   A[A[i] - 1] != A[i]) {
+    for (int i = 0; i < n; ++i) {
+        while (A[i] >= 1 &&
+               A[i] <= n &&
+               A[A[i] - 1] != A[i]) {
 
-                int j = A[i] - 1;
+            int j = A[i] - 1;
 
-                int t = A[i];
-                A[i] = A[j];
-                A[j] = t;
-            }
+            int t = A[i];
+            A[i] = A[j];
+            A[j] = t;
         }
+    }
 
-        for (int i = 0; i < n; ++i) {
-            if (A[i] != i + 1)
-                return i + 1;
-        }
+    for (int i = 0; i < n; ++i) {
+        if (A[i] != i + 1)
+            return i + 1;
+    }
 
-        return n + 1;
-
-```c
+    return n + 1;
 }
 ```
 
@@ -3401,55 +3350,52 @@ $$
 
 ```c
 void Rearrange(LNode *head) {
-```
-        if (head == NULL ||
-            head->next == NULL ||
-            head->next->next == NULL)
-            return;
+    if (head == NULL ||
+        head->next == NULL ||
+        head->next->next == NULL)
+        return;
 
-        LNode *slow = head->next;
-        LNode *fast = head->next;
+    LNode *slow = head->next;
+    LNode *fast = head->next;
 
-        // 1. 找到前半段末结点
-        while (fast->next != NULL &&
-               fast->next->next != NULL) {
-            slow = slow->next;
-            fast = fast->next->next;
-        }
+    // 1. 找到前半段末结点
+    while (fast->next != NULL &&
+           fast->next->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
 
-        // 2. 断开两段
-        LNode *second = slow->next;
-        slow->next = NULL;
+    // 2. 断开两段
+    LNode *second = slow->next;
+    slow->next = NULL;
 
-        // 3. 逆置后半段
-        LNode *prev = NULL;
-        LNode *cur = second;
+    // 3. 逆置后半段
+    LNode *prev = NULL;
+    LNode *cur = second;
 
-        while (cur != NULL) {
-            LNode *next = cur->next;
+    while (cur != NULL) {
+        LNode *next = cur->next;
 
-            cur->next = prev;
-            prev = cur;
-            cur = next;
-        }
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+    }
 
-        second = prev;
+    second = prev;
 
-        // 4. 两段交替合并
-        LNode *first = head->next;
+    // 4. 两段交替合并
+    LNode *first = head->next;
 
-        while (second != NULL) {
-            LNode *next1 = first->next;
-            LNode *next2 = second->next;
+    while (second != NULL) {
+        LNode *next1 = first->next;
+        LNode *next2 = second->next;
 
-            first->next = second;
-            second->next = next1;
+        first->next = second;
+        second->next = next1;
 
-            first = next1;
-            second = next2;
-        }
-
-```c
+        first = next1;
+        second = next2;
+    }
 }
 ```
 
@@ -3694,47 +3640,44 @@ $$
 
 ```c
 long long MinDistance3(
-```
-        const int A[], int n1,
-        const int B[], int n2,
-        const int C[], int n3) {
+    const int A[], int n1,
+    const int B[], int n2,
+    const int C[], int n3) {
 
-        int i = 0, j = 0, k = 0;
-        long long best = LLONG_MAX;
+    int i = 0, j = 0, k = 0;
+    long long best = LLONG_MAX;
 
-        while (i < n1 && j < n2 && k < n3) {
-            long long a = A[i];
-            long long b = B[j];
-            long long c = C[k];
+    while (i < n1 && j < n2 && k < n3) {
+        long long a = A[i];
+        long long b = B[j];
+        long long c = C[k];
 
-            long long lo = a;
-            long long hi = a;
+        long long lo = a;
+        long long hi = a;
 
-            if (b < lo) lo = b;
-            if (c < lo) lo = c;
+        if (b < lo) lo = b;
+        if (c < lo) lo = c;
 
-            if (b > hi) hi = b;
-            if (c > hi) hi = c;
+        if (b > hi) hi = b;
+        if (c > hi) hi = c;
 
-            long long d = 2 * (hi - lo);
+        long long d = 2 * (hi - lo);
 
-            if (d < best)
-                best = d;
+        if (d < best)
+            best = d;
 
-            if (best == 0)
-                break;
+        if (best == 0)
+            break;
 
-            if (a <= b && a <= c)
-                ++i;
-            else if (b <= a && b <= c)
-                ++j;
-            else
-                ++k;
-        }
+        if (a <= b && a <= c)
+            ++i;
+        else if (b <= a && b <= c)
+            ++j;
+        else
+            ++k;
+    }
 
-        return best;
-
-```c
+    return best;
 }
 ```
 
@@ -3964,33 +3907,30 @@ $$
 
 ```c
 void CalMulMax(
-```
-        const int A[],
-        long long res[],
-        int n) {
+    const int A[],
+    long long res[],
+    int n) {
 
-        if (A == NULL || res == NULL || n <= 0)
-            return;
+    if (A == NULL || res == NULL || n <= 0)
+        return;
 
-        long long hi = A[n - 1];
-        long long lo = A[n - 1];
+    long long hi = A[n - 1];
+    long long lo = A[n - 1];
 
-        for (int i = n - 1; i >= 0; --i) {
-            long long x = A[i];
+    for (int i = n - 1; i >= 0; --i) {
+        long long x = A[i];
 
-            if (x > hi)
-                hi = x;
+        if (x > hi)
+            hi = x;
 
-            if (x < lo)
-                lo = x;
+        if (x < lo)
+            lo = x;
 
-            long long p1 = x * hi;
-            long long p2 = x * lo;
+        long long p1 = x * hi;
+        long long p2 = x * lo;
 
-            res[i] = p1 > p2 ? p1 : p2;
-        }
-
-```c
+        res[i] = p1 > p2 ? p1 : p2;
+    }
 }
 ```
 
@@ -4296,33 +4236,30 @@ $$
 
 ```c
 long long CountSubarrays(
-```
-        const int nums[],
-        int n,
-        int k) {
+    const int nums[],
+    int n,
+    int k) {
 
-        if (n <= 0 || k <= 1)
-            return 0;
+    if (n <= 0 || k <= 1)
+        return 0;
 
-        int left = 0;
+    int left = 0;
 
-        long long product = 1;
-        long long ans = 0;
+    long long product = 1;
+    long long ans = 0;
 
-        for (int right = 0; right < n; ++right) {
-            product *= nums[right];
+    for (int right = 0; right < n; ++right) {
+        product *= nums[right];
 
-            while (product >= k) {
-                product /= nums[left];
-                ++left;
-            }
-
-            ans += right - left + 1;
+        while (product >= k) {
+            product /= nums[left];
+            ++left;
         }
 
-        return ans;
+        ans += right - left + 1;
+    }
 
-```c
+    return ans;
 }
 ```
 
@@ -4976,12 +4913,9 @@ $$
 
 ```c
 for (...) {
-```
-        while (...) {
-            ...
-        }
-
-```c
+    while (...) {
+        ...
+    }
 }
 ```
 

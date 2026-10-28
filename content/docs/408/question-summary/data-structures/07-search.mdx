@@ -10,10 +10,10 @@ description: "查找表与 ASL、顺序查找、折半查找、BST、AVL、B 树
 </Callout>
 
 <Cards>
-  <Card title="基础查找">顺序查找、折半查找、分块查找与成功 / 失败 ASL。</Card>
-  <Card title="树形查找">BST 搜索路径、AVL 旋转、红黑树性质。</Card>
-  <Card title="外存索引">B 树高度与动态维护、B+ 树范围查询。</Card>
-  <Card title="散列表">探测序列、墓碑、装填因子及 ASL 计算。</Card>
+<Card title="基础查找">顺序查找、折半查找、分块查找与成功 / 失败 ASL。</Card>
+<Card title="树形查找">BST 搜索路径、AVL 旋转、红黑树性质。</Card>
+<Card title="外存索引">B 树高度与动态维护、B+ 树范围查询。</Card>
+<Card title="散列表">探测序列、墓碑、装填因子及 ASL 计算。</Card>
 </Cards>
 
 ## 第一部分：全章知识体系与考查重点
@@ -94,8 +94,7 @@ $$
 `} />
 
 <Accordions>
-  <Accordion title="展开完整考点清单">
-
+<Accordion title="展开完整考点清单">
 第 7 章可以分成五个主要部分。
 
 #### 第一部分：查找基本概念
@@ -169,7 +168,7 @@ $$
 
 ---
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 三、重要程度与备考要求
@@ -2435,8 +2434,7 @@ $$
 | RL | 右孩子的左子树增高 | 先右旋后左旋 |
 
 <Tabs items={["LL（右旋）", "RR（左旋）", "LR（先左后右）", "RL（先右后左）"]} defaultIndex={0}>
-  <Tab value="LL（右旋）">
-
+<Tab value="LL（右旋）">
 #### 1. LL 型
 
 插入：
@@ -2465,9 +2463,8 @@ $$
     10   30
 ```
 
-  </Tab>
-  <Tab value="RR（左旋）">
-
+</Tab>
+<Tab value="RR（左旋）">
 #### 2. RR 型
 
 插入：
@@ -2494,9 +2491,8 @@ $$
     10   30
 ```
 
-  </Tab>
-  <Tab value="LR（先左后右）">
-
+</Tab>
+<Tab value="LR（先左后右）">
 #### 3. LR 型
 
 插入：
@@ -2537,9 +2533,8 @@ $$
     10   30
 ```
 
-  </Tab>
-  <Tab value="RL（先右后左）">
-
+</Tab>
+<Tab value="RL（先右后左）">
 #### 4. RL 型
 
 插入：
@@ -2575,7 +2570,7 @@ $$
 ```
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 四、为什么旋转不会破坏 BST 性质？
@@ -6783,8 +6778,7 @@ $m$ 阶表示最多 $m$ 个孩子，不是最多 $m$ 个关键字。
 建议按照下面的结构答题。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：识别结构性质
 
 例如：
@@ -6810,9 +6804,8 @@ B 树：
 考虑结点容量和层级结构。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：明确不变量
 
 不变量是算法正确性证明的核心。
@@ -6840,9 +6833,8 @@ $$
 如果目标已经插入且未被删除，沿规定的探测序列不能在到达目标前错误地把墓碑当成真正空槽。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：设计循环或递归
 
 例如：
@@ -6870,9 +6862,8 @@ while 当前状态仍然可能包含答案：
 具体是否需要访问左右两边，取决于能否剪枝。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：分析时间与空间复杂度
 
 常用思路：
@@ -6920,7 +6911,7 @@ O(1)
 $$
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 第二十八部分：高价值强化练习
@@ -6942,8 +6933,7 @@ $$
 3. 有多少个失败区间？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 查找 60：
@@ -6966,7 +6956,7 @@ $$
 7+1=8
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6983,8 +6973,7 @@ $$
 求理论最优块长。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 $$
@@ -7009,7 +6998,7 @@ $$
 \boxed{ASL=13}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7028,8 +7017,7 @@ $$
 是否为 BST？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 不是。
@@ -7046,7 +7034,7 @@ $$
 
 违反全局 BST 性质。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7061,8 +7049,7 @@ $$
 属于什么失衡类型？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 ```text
@@ -7087,7 +7074,7 @@ LR。
     20   40
 ```
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7102,8 +7089,7 @@ LR。
 3. 非根结点最少多少个关键字？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 最多孩子：
@@ -7128,7 +7114,7 @@ $$
 \boxed{2}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7139,8 +7125,7 @@ $$
 求最多与最少关键字数。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 $$
@@ -7173,7 +7158,7 @@ $$
 \boxed{7\le n\le63}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7206,8 +7191,7 @@ $$
 3. 从初址 0 查找失败时的探测次数。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 解答
 
 最终地址：
@@ -7236,7 +7220,7 @@ $$
 
 共 4 次探测。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7259,8 +7243,7 @@ $$
 探测序列能否遍历全部槽位？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 不能。
@@ -7281,7 +7264,7 @@ $$
 
 个不同地址。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7292,8 +7275,7 @@ $$
 “如果一个结点是黑色的，那么它的所有非空孩子都必须是红色的。”
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 错误。
@@ -7304,7 +7286,7 @@ $$
 
 不要求黑色结点的孩子必须是红色。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -7321,8 +7303,7 @@ $$
 应该优先考虑什么查找结构？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 #### 答案
 
 B+ 树。
@@ -7334,7 +7315,7 @@ B+ 树。
 3. 叶结点有序连接。
 4. 范围查询不需要逐条重新从根搜索。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ---

@@ -25,17 +25,15 @@ description: "数据结构基本概念、算法特性、时间与空间复杂度
 因此，本章可以划分为：
 
 <Cards>
-  <Card title="数据结构基础">
-
+<Card title="数据结构基础">
 - 数据、数据元素、数据项、数据对象
 - 数据结构的定义
 - 逻辑结构与存储结构
 - 数据运算
 - 数据类型与抽象数据类型
 
-  </Card>
-  <Card title="算法基础">
-
+</Card>
+<Card title="算法基础">
 - 算法的定义
 - 算法的五个基本特性
 - 算法与程序的区别
@@ -43,9 +41,8 @@ description: "数据结构基本概念、算法特性、时间与空间复杂度
 - 时间复杂度的基本概念
 - 空间复杂度的基本概念
 
-  </Card>
-  <Card title="复杂度分析">
-
+</Card>
+<Card title="复杂度分析">
 - 常数级
 - 对数级
 - 平方根级
@@ -58,9 +55,8 @@ description: "数据结构基本概念、算法特性、时间与空间复杂度
 - 摊还复杂度
 - 时间与空间综合判断
 
-  </Card>
-  <Card title="算法设计基础">
-
+</Card>
+<Card title="算法设计基础">
 - 题目约束分析
 - 暴力算法与优化
 - 双指针
@@ -72,7 +68,7 @@ description: "数据结构基本概念、算法特性、时间与空间复杂度
 - 正确性证明
 - 标准代码与复杂度分析
 
-  </Card>
+</Card>
 </Cards>
 
 ### 1.2 第一章考查特点
@@ -741,10 +737,7 @@ $$
 
 ```c
 while (1) {
-```
-        printf("hello");
-
-```c
+    printf("hello");
 }
 ```
 
@@ -1203,10 +1196,7 @@ $$
 
 ```c
 for (int i = 0; i < 100; i++) {
-```
-        count++;
-
-```c
+    count++;
 }
 ```
 
@@ -1237,10 +1227,7 @@ $$
 
 ```c
 for (int i = 0; i < n; i++) {
-```
-        sum += a[i];
-
-```c
+    sum += a[i];
 }
 ```
 
@@ -1262,11 +1249,7 @@ $$
 
 ```c
 for (int i = 0; i < n; i++)
-```
-        x++;
-
-
-```c
+    x++;
 for (int j = 0; j < n; j++)
 ```
         y++;
@@ -1299,12 +1282,9 @@ $$
 
 ```c
 for (int i = 0; i < n; i++) {
-```
-        for (int j = 0; j < n; j++) {
-            count++;
-        }
-
-```c
+    for (int j = 0; j < n; j++) {
+        count++;
+    }
 }
 ```
 
@@ -1341,12 +1321,9 @@ $$
 
 ```c
 for (int i = 1; i <= n; i++) {
-```
-        for (int j = 1; j <= i; j++) {
-            count++;
-        }
-
-```c
+    for (int j = 1; j <= i; j++) {
+        count++;
+    }
 }
 ```
 
@@ -1400,10 +1377,7 @@ $$
 int i = 1;
 
 while (i < n) {
-```
-        i *= 2;
-
-```c
+    i *= 2;
 }
 ```
 
@@ -1449,10 +1423,7 @@ $$
 int i = n;
 
 while (i > 1) {
-```
-        i /= 2;
-
-```c
+    i /= 2;
 }
 ```
 
@@ -1657,8 +1628,10 @@ count = 0;
 
 for (k = 1; k <= n; k *= 2)
 ```
-        for (j = 1; j <= n; j++)
-            count++;
+```text
+    for (j = 1; j <= n; j++)
+        count++;
+```
 
 选项：
 
@@ -1694,9 +1667,11 @@ $$
 ### 18.3 分析内层循环
 注意：
 
-    j = 1
-    j <= n
-    j++
+```text
+j = 1
+j <= n
+j++
+```
 
 内层与外层变量 $k$ 无关。
 
@@ -1920,10 +1895,7 @@ $$
 int i = 0;
 
 while (i * i < n) {
-```
-        i++;
-
-```c
+    i++;
 }
 ```
 
@@ -1951,15 +1923,12 @@ $$
 
 ```c
 int func(int n) {
-```
-        int i = 0, sum = 0;
+    int i = 0, sum = 0;
 
-        while (sum < n)
-            sum += ++i;
+    while (sum < n)
+        sum += ++i;
 
-        return i;
-
-```c
+    return i;
 }
 ```
 
@@ -2301,12 +2270,9 @@ $$
 
 ```c
 for (i = 1; i <= n; i++) {
-```
-        for (j = 2 * i; j <= n; j++) {
-            y += i * j;
-        }
-
-```c
+    for (j = 2 * i; j <= n; j++) {
+        y += i * j;
+    }
 }
 ```
 
@@ -2457,8 +2423,10 @@ int sum = 0;
 
 for (int i = 2; i <= n; i *= i)
 ```
-        for (int j = 1; j <= i; j++)
-            sum++;
+```text
+    for (int j = 1; j <= i; j++)
+        sum++;
+```
 
 模拟题给出的最紧大 O 选项为：
 
@@ -2591,12 +2559,9 @@ $$
 
 ```c
 for (int right = 0; right < n; right++) {
-```
-        while (left <= right && condition) {
-            left++;
-        }
-
-```c
+    while (left <= right && condition) {
+        left++;
+    }
 }
 ```
 
@@ -2708,8 +2673,10 @@ left = 0;
 
 for (right = 0; right < n; right++)
 ```
-        while (left <= right && condition)
-            left++;
+```text
+    while (left <= right && condition)
+        left++;
+```
 
 `left` 不重置。
 
@@ -2735,12 +2702,9 @@ $$
 
 ```c
 for (int i = 1; i * i < n; i++) {
-```
-        for (int j = 0; j < i; j++) {
-            count++;
-        }
-
-```c
+    for (int j = 0; j < i; j++) {
+        count++;
+    }
 }
 ```
 
@@ -2786,12 +2750,9 @@ $$
 
 ```c
 for (int i = 1; i * i < n; i++) {
-```
-        for (int j = 0; j < n; j++) {
-            count++;
-        }
-
-```c
+    for (int j = 0; j < n; j++) {
+        count++;
+    }
 }
 ```
 
@@ -2840,12 +2801,9 @@ $$
 
 ```c
 for (int i = 1; i <= n; i++) {
-```
-        for (int j = 1; j <= n / i; j++) {
-            count++;
-        }
-
-```c
+    for (int j = 1; j <= n / i; j++) {
+        count++;
+    }
 }
 ```
 
@@ -2949,13 +2907,10 @@ $$
 
 ```c
 int fact(int n) {
-```
-        if (n <= 1)
-            return 1;
+    if (n <= 1)
+        return 1;
 
-        return n * fact(n - 1);
-
-```c
+    return n * fact(n - 1);
 }
 ```
 
@@ -3043,15 +2998,12 @@ $$
 
 ```c
 int fact(int n) {
-```
-        int ans = 1;
+    int ans = 1;
 
-        for (int i = 2; i <= n; i++)
-            ans *= i;
+    for (int i = 2; i <= n; i++)
+        ans *= i;
 
-        return ans;
-
-```c
+    return ans;
 }
 ```
 
@@ -3079,21 +3031,18 @@ $$
 
 ```c
 int binarySearch(int a[], int l, int r, int x) {
-```
-        if (l > r)
-            return -1;
+    if (l > r)
+        return -1;
 
-        int mid = l + (r - l) / 2;
+    int mid = l + (r - l) / 2;
 
-        if (a[mid] == x)
-            return mid;
+    if (a[mid] == x)
+        return mid;
 
-        if (a[mid] > x)
-            return binarySearch(a, l, mid - 1, x);
+    if (a[mid] > x)
+        return binarySearch(a, l, mid - 1, x);
 
-        return binarySearch(a, mid + 1, r, x);
-
-```c
+    return binarySearch(a, mid + 1, r, x);
 }
 ```
 
@@ -3276,16 +3225,13 @@ $$
 
 ```c
 int maxFunc(TreeNode* root) {
-```
-        if (root == NULL)
-            return 0;
+    if (root == NULL)
+        return 0;
 
-        return max(
-            maxFunc(root->left),
-            maxFunc(root->right)
-        ) + 1;
-
-```c
+    return max(
+        maxFunc(root->left),
+        maxFunc(root->right)
+    ) + 1;
 }
 ```
 
@@ -3413,13 +3359,10 @@ $$
 
 ```c
 int fib(int n) {
-```
-        if (n <= 1)
-            return n;
+    if (n <= 1)
+        return n;
 
-        return fib(n - 1) + fib(n - 2);
-
-```c
+    return fib(n - 1) + fib(n - 2);
 }
 ```
 
@@ -3539,11 +3482,8 @@ $$
 int max = a[0];
 
 for (int i = 1; i < n; i++) {
-```
-        if (a[i] > max)
-            max = a[i];
-
-```c
+    if (a[i] > max)
+        max = a[i];
 }
 ```
 
@@ -3636,15 +3576,12 @@ $$
 
 ```c
 void f(int n) {
-```
-        if (n <= 1)
-            return;
+    if (n <= 1)
+        return;
 
-        int a[n];
+    int a[n];
 
-        f(n / 2);
-
-```c
+    f(n / 2);
 }
 ```
 
@@ -3695,16 +3632,13 @@ $$
 
 ```c
 int fun(int *arr, int m, int n) {
-```
-        if (m == n)
-            return 1;
+    if (m == n)
+        return 1;
 
-        int mid = (m + n) / 2;
+    int mid = (m + n) / 2;
 
-        return fun(arr, m, mid)
-             + fun(arr, mid + 1, n);
-
-```c
+    return fun(arr, m, mid)
+         + fun(arr, mid + 1, n);
 }
 ```
 
@@ -3781,11 +3715,8 @@ $$
 
 ```c
 for (int i = 0; i < n; i++) {
-```
-        if (a[i] == x)
-            return i;
-
-```c
+    if (a[i] == x)
+        return i;
 }
 ```
 
@@ -4037,36 +3968,33 @@ $$
 
 ```c
 int majority(int a[], int n) {
-```
-        if (n <= 0)
-            return -1;
+    if (n <= 0)
+        return -1;
 
-        int candidate = a[0];
-        int count = 1;
+    int candidate = a[0];
+    int count = 1;
 
-        for (int i = 1; i < n; i++) {
-            if (count == 0) {
-                candidate = a[i];
-                count = 1;
-            }
-            else if (a[i] == candidate) {
-                count++;
-            }
-            else {
-                count--;
-            }
+    for (int i = 1; i < n; i++) {
+        if (count == 0) {
+            candidate = a[i];
+            count = 1;
         }
-
-        int times = 0;
-
-        for (int i = 0; i < n; i++) {
-            if (a[i] == candidate)
-                times++;
+        else if (a[i] == candidate) {
+            count++;
         }
+        else {
+            count--;
+        }
+    }
 
-        return times > n / 2 ? candidate : -1;
+    int times = 0;
 
-```c
+    for (int i = 0; i < n; i++) {
+        if (a[i] == candidate)
+            times++;
+    }
+
+    return times > n / 2 ? candidate : -1;
 }
 ```
 
@@ -4189,7 +4117,9 @@ bool seen[n + 1]
 
 扫描数组：
 
-    若 1 <= a[i] <= n
+```text
+若 1 <= a[i] <= n
+```
 
 则：
 
@@ -4320,24 +4250,21 @@ $$
 
 ```c
 void solve(int A[], int res[], int n) {
-```
-        int maxVal = INT_MIN;
-        int minVal = INT_MAX;
+    int maxVal = INT_MIN;
+    int minVal = INT_MAX;
 
-        for (int i = n - 1; i >= 0; i--) {
-            if (A[i] > maxVal)
-                maxVal = A[i];
+    for (int i = n - 1; i >= 0; i--) {
+        if (A[i] > maxVal)
+            maxVal = A[i];
 
-            if (A[i] < minVal)
-                minVal = A[i];
+        if (A[i] < minVal)
+            minVal = A[i];
 
-            if (A[i] >= 0)
-                res[i] = A[i] * maxVal;
-            else
-                res[i] = A[i] * minVal;
-        }
-
-```c
+        if (A[i] >= 0)
+            res[i] = A[i] * maxVal;
+        else
+            res[i] = A[i] * minVal;
+    }
 }
 ```
 
@@ -4523,11 +4450,8 @@ $$
 int maxVal = a[0];
 
 for (int i = 1; i < n; i++) {
-```
-        if (a[i] > maxVal)
-            maxVal = a[i];
-
-```c
+    if (a[i] > maxVal)
+        maxVal = a[i];
 }
 ```
 
@@ -4705,8 +4629,10 @@ for (int i = 1; i < n; i++) {
 ```c
 for (i=1; i<n; i*=2)
 ```
-        for (j=0; j<i; j++)
-            count++;
+```text
+    for (j=0; j<i; j++)
+        count++;
+```
 
 实际：
 
@@ -4951,8 +4877,10 @@ $$
 ```c
 for (int i = 1; i <= n; i++)
 ```
-        for (int j = 1; j <= i; j++)
-            count++;
+```text
+    for (int j = 1; j <= i; j++)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -4980,8 +4908,10 @@ $$
 ```c
 for (int i = 1; i <= n; i++)
 ```
-        for (int j = 1; j <= n; j *= 2)
-            count++;
+```text
+    for (int j = 1; j <= n; j *= 2)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -5062,8 +4992,10 @@ $$
 ```c
 for (int i = 1; i * i <= n; i++)
 ```
-        for (int j = 1; j <= i; j++)
-            count++;
+```text
+    for (int j = 1; j <= i; j++)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -5091,8 +5023,10 @@ $$
 ```c
 for (int i = 1; i * i <= n; i++)
 ```
-        for (int j = 1; j <= n; j++)
-            count++;
+```text
+    for (int j = 1; j <= n; j++)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -5112,8 +5046,10 @@ $$
 ```c
 for (int i = 1; i <= n; i++)
 ```
-        for (int j = 1; j <= n / i; j++)
-            count++;
+```text
+    for (int j = 1; j <= n / i; j++)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -5136,13 +5072,10 @@ $$
 
 ```c
 void f(int n) {
-```
-        if (n <= 1)
-            return;
+    if (n <= 1)
+        return;
 
-        f(n / 2);
-
-```c
+    f(n / 2);
 }
 ```
 
@@ -5171,14 +5104,11 @@ $$
 
 ```c
 void f(int n) {
-```
-        if (n <= 1)
-            return;
+    if (n <= 1)
+        return;
 
-        f(n / 2);
-        f(n / 2);
-
-```c
+    f(n / 2);
+    f(n / 2);
 }
 ```
 
@@ -5207,17 +5137,14 @@ $$
 
 ```c
 void f(int n) {
-```
-        if (n <= 1)
-            return;
+    if (n <= 1)
+        return;
 
-        for (int i = 0; i < n; i++)
-            count++;
+    for (int i = 0; i < n; i++)
+        count++;
 
-        f(n / 2);
-        f(n / 2);
-
-```c
+    f(n / 2);
+    f(n / 2);
 }
 ```
 
@@ -5350,13 +5277,10 @@ $$
 
 ```c
 for (int i = 1; i <= n; i++) {
-```
-        int j = i;
+    int j = i;
 
-        while (j > 0)
-            j /= 2;
-
-```c
+    while (j > 0)
+        j /= 2;
 }
 ```
 
@@ -5394,8 +5318,10 @@ $$
 ```c
 for (int i = 1; i <= n; i++)
 ```
-        for (int j = 1; j <= i * i; j++)
-            count++;
+```text
+    for (int j = 1; j <= i * i; j++)
+        count++;
+```
 
 <Accordions>
 <Accordion title="查看答案与解析">
@@ -5424,11 +5350,8 @@ $$
 int left = 0;
 
 for (int right = 0; right < n; right++) {
-```
-        while (left < right)
-            left++;
-
-```c
+    while (left < right)
+        left++;
 }
 ```
 
@@ -5453,15 +5376,12 @@ $$
 
 ```c
 void f(int n) {
-```
-        if (n <= 1)
-            return;
+    if (n <= 1)
+        return;
 
-        int a[n];
+    int a[n];
 
-        f(n / 2);
-
-```c
+    f(n / 2);
 }
 ```
 

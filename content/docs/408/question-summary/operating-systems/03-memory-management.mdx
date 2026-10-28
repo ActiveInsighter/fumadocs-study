@@ -10,10 +10,10 @@ description: "连续分配、分页与分段、页表与 TLB、缺页处理、�
 </Callout>
 
 <Cards>
-  <Card title="地址转换">分页、页表、TLB、段页式和物理地址计算</Card>
-  <Card title="分配与置换">连续分配、伙伴算法、页框与页面置换</Card>
-  <Card title="虚拟存储">缺页异常、工作集、抖动、mmap、COW</Card>
-  <Card title="综合性能">有效访存时间、跨页访问和 TLB/Cache 联合分析</Card>
+<Card title="地址转换">分页、页表、TLB、段页式和物理地址计算</Card>
+<Card title="分配与置换">连续分配、伙伴算法、页框与页面置换</Card>
+<Card title="虚拟存储">缺页异常、工作集、抖动、mmap、COW</Card>
+<Card title="综合性能">有效访存时间、跨页访问和 TLB/Cache 联合分析</Card>
 </Cards>
 
 ## 一、本章知识体系与考查重点
@@ -2691,26 +2691,23 @@ for 循环反复访问同一变量。
 必须掌握以下流程。
 
 <Steps>
-  <Step>
-
+<Step>
 ### 第一步：CPU 访问虚拟地址
 
 MMU 查询翻译信息。
 
 发现目标页没有当前有效的驻留映射。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第二步：触发缺页异常
 
 CPU 保存必要执行状态。
 
 控制权进入操作系统内核。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第三步：检查是否合法
 
 检查：
@@ -2723,9 +2720,8 @@ CPU 保存必要执行状态。
 
 不能通过普通调页解决。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第四步：定位页面内容
 
 根据映射信息判断目标页来源。
@@ -2739,9 +2735,8 @@ CPU 保存必要执行状态。
 
 因此不是每个缺页都一定从磁盘读取现成页面。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第五步：寻找空闲页框
 
 如果存在空闲页框：
@@ -2752,16 +2747,14 @@ CPU 保存必要执行状态。
 
 需要页面置换。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第六步：选择牺牲页
 
 通过 FIFO、LRU、CLOCK 等算法选择。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第七步：判断脏页
 
 如果牺牲页内容已修改且需要保留：
@@ -2770,16 +2763,14 @@ CPU 保存必要执行状态。
 
 干净页通常可以直接回收。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第八步：装入目标页
 
 完成必要的外存读取或页面初始化。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第九步：更新页表
 
 更新：
@@ -2789,9 +2780,8 @@ CPU 保存必要执行状态。
 - 权限；
 - 访问位和其他状态。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第十步：维护 TLB 一致性
 
 必要时：
@@ -2800,9 +2790,8 @@ CPU 保存必要执行状态。
 - 更新或填入新映射；
 - 失效相关 TLB 项。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第十一步：重新执行指令
 
 恢复进程执行状态。
@@ -2810,7 +2799,7 @@ CPU 保存必要执行状态。
 重新执行导致缺页的访存指令。
 
 
-  </Step>
+</Step>
 </Steps>
 
 ### 13.3 缺页异常与外部中断的区别
@@ -2954,8 +2943,7 @@ P 可能抢占当前进程。
 ## 十四、页框分配策略
 
 <Tabs items={["固定分配", "可变分配"]} defaultIndex={0}>
-  <Tab value="固定分配">
-
+<Tab value="固定分配">
 ### 14.1 固定分配
 
 进程获得固定数量的页框。
@@ -2969,9 +2957,8 @@ P 可能抢占当前进程。
 需要从允许置换的已有页框中选出牺牲页。
 
 
-  </Tab>
-  <Tab value="可变分配">
-
+</Tab>
+<Tab value="可变分配">
 ### 14.2 可变分配
 
 进程拥有的页框数量可以变化。
@@ -2985,12 +2972,11 @@ P 可能抢占当前进程。
 根据可用物理内存和分配策略增加到 6 个页框。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 <Tabs items={["局部置换", "全局置换"]} defaultIndex={0}>
-  <Tab value="局部置换">
-
+<Tab value="局部置换">
 ### 14.3 局部置换
 
 只能从当前进程自己的页面中选择牺牲页。
@@ -3002,9 +2988,8 @@ P 缺页。
 只能淘汰 P 自己的驻留页面。
 
 
-  </Tab>
-  <Tab value="全局置换">
-
+</Tab>
+<Tab value="全局置换">
 ### 14.4 全局置换
 
 可以在系统允许的全局候选页框范围内选择牺牲页。
@@ -3016,7 +3001,7 @@ P 缺页。
 可能淘汰 Q 的一个物理页面。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 14.5 组合判断
@@ -6393,8 +6378,7 @@ $$
 问页内偏移位数。
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：13 位。**
 
 因为：
@@ -6404,7 +6388,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 2
@@ -6414,8 +6398,7 @@ $$
 完整一级页表大小是多少？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：4MiB。**
 
 $$
@@ -6423,7 +6406,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 3
@@ -6435,8 +6418,7 @@ $$
 每张二级页表覆盖多少虚拟空间？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：4MiB。**
 
 $$
@@ -6444,7 +6426,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 4
@@ -6454,14 +6436,13 @@ TLB 未命中，页表项有效且页面已驻留。
 会不会发生正常的数据页缺页？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：不会。**
 
 只需完成页表查询和翻译。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 5
@@ -6473,8 +6454,7 @@ TLB 未命中，页表项有效且页面已驻留。
 在通常页面置换模型下发生几次置换？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：7 次。**
 
 $$
@@ -6482,7 +6462,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 6
@@ -6490,14 +6470,13 @@ $$
 哪种算法可能发生 Belady 异常？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：FIFO。**
 
 LRU 和 OPT 具有栈性质。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 7
@@ -6509,8 +6488,7 @@ LRU 和 OPT 具有栈性质。
 改进型 CLOCK 通常优先考虑谁？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：未修改的页面。**
 
 即：
@@ -6520,7 +6498,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 8
@@ -6530,14 +6508,13 @@ $$
 能否简单通过缺页调页解决？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：不能。**
 
 必须先检查合法性和访问权限。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 9
@@ -6547,14 +6524,13 @@ $$
 虚页号必须相同吗？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：不必须。**
 
 各进程拥有独立虚拟地址空间。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 10
@@ -6562,14 +6538,13 @@ $$
 基本分页有没有外部碎片？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：通常没有。**
 
 但可能存在内部碎片。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 11
@@ -6577,14 +6552,13 @@ $$
 CLOCK 命中页面时，是否必须移动扫描指针？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：通常不需要。**
 
 一般只更新该页面访问位。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 12
@@ -6594,14 +6568,13 @@ CLOCK 命中页面时，是否必须移动扫描指针？
 是否有机会不读外存直接恢复？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：有。**
 
 取决于页面缓冲与回收策略。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 13
@@ -6609,8 +6582,7 @@ CLOCK 命中页面时，是否必须移动扫描指针？
 一个 4MiB 大页的页内偏移占多少位？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：22 位。**
 
 $$
@@ -6618,7 +6590,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 14
@@ -6626,14 +6598,13 @@ $$
 mmap 建立文件映射时，是否必然把整个文件读入物理内存？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：不必然。**
 
 可以按需调页。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题 15
@@ -6645,15 +6616,14 @@ mmap 建立文件映射时，是否必然把整个文件读入物理内存？
 问指针变量和动态对象分别位于哪里？
 
 <Accordions>
-  <Accordion title="查看答案与说明">
-
+<Accordion title="查看答案与说明">
 **答案：**
 
 - 指针变量本身：通常位于 BSS；
 - 动态分配对象：位于堆。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 四十二、本章最终复习路线

@@ -10,10 +10,10 @@ description: "排序算法性质、稳定性、过程模拟、快速选择、堆
 </Callout>
 
 <Cards>
-  <Card title="内部排序">熟练区分各算法每一趟的不变量、稳定性与复杂度。</Card>
-  <Card title="选择问题">明确完整排序、Quickselect 与在线 TopK 的适用边界。</Card>
-  <Card title="外部排序">置换选择、归并趟数、败者树与磁盘 I/O。</Card>
-  <Card title="综合计算">最佳归并树、虚段、WPL 与手工过程分析。</Card>
+<Card title="内部排序">熟练区分各算法每一趟的不变量、稳定性与复杂度。</Card>
+<Card title="选择问题">明确完整排序、Quickselect 与在线 TopK 的适用边界。</Card>
+<Card title="外部排序">置换选择、归并趟数、败者树与磁盘 I/O。</Card>
+<Card title="综合计算">最佳归并树、虚段、WPL 与手工过程分析。</Card>
 </Cards>
 
 ## 一、本章知识体系与考查重点
@@ -46,8 +46,7 @@ description: "排序算法性质、稳定性、过程模拟、快速选择、堆
 `} />
 
 <Accordions>
-  <Accordion title="展开三条学习主线与详细考点">
-
+<Accordion title="展开三条学习主线与详细考点">
 排序可以划分为三条主线。
 
 **第一条：内部排序**
@@ -94,7 +93,7 @@ description: "排序算法性质、稳定性、过程模拟、快速选择、堆
 7. 链表排序
 8. 排序算法选择与优化
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 1.2 考点重要程度
@@ -4105,7 +4104,9 @@ $$
 
 因此：
 
-    b = {-10,10,11,19,25B,25A}
+```text
+b = {-10,10,11,19,25B,25A}
+```
 
 如果只显示数值：
 
@@ -4159,7 +4160,9 @@ $$
 
 修改为：
 
-    if (a[i] <= a[j])
+```text
+if (a[i] <= a[j])
+```
 
 即可。
 
@@ -4367,22 +4370,19 @@ $$
 遇到中间序列题：
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：检查归位元素
 
 寻找是否存在已经最终归位的最大值或最小值。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：检查有序前缀
 
 检查是否存在前缀内部有序的特征。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：检查归并段
 
 检查是否存在长度为：
@@ -4393,23 +4393,20 @@ $$
 
 的有序归并段。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：检查快速排序枢轴
 
 检查是否存在合法快速排序枢轴。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：检查希尔增量
 
 检查希尔排序可能的增量。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第六步：根据原序列验证
 
 根据初始序列和具体实现进行过程验证。
@@ -4425,7 +4422,7 @@ $$
 只有把其他候选方法排除，或者严格模拟过程，才能得到确定答案。
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 二十七、外部排序基础
@@ -5263,8 +5260,7 @@ $$
 ---
 
 <Tabs items={["胜者树", "败者树"]} defaultIndex={0}>
-  <Tab value="胜者树">
-
+<Tab value="胜者树">
 #### 三十二、胜者树
 
 ### 32.1 为什么需要胜者树
@@ -5338,9 +5334,8 @@ $$
 $$
 
 
-  </Tab>
-  <Tab value="败者树">
-
+</Tab>
+<Tab value="败者树">
 #### 三十三、败者树
 
 败者树是外部排序的重要考点。
@@ -5434,7 +5429,7 @@ $$
 这两条不能混淆。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ## 三十四、最佳归并树
@@ -6261,8 +6256,7 @@ IV. 堆排序
 V. 基数排序
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -6271,7 +6265,7 @@ $$
 
 对应 2023 年真题的重要考法。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6280,8 +6274,7 @@ $$
 一个基本有序的数组，为什么直接插入排序可能比简单选择排序快？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 直接插入排序的比较次数与逆序程度有关。
@@ -6296,7 +6289,7 @@ $$
 
 次关键字比较。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6309,8 +6302,7 @@ $$
 问第二大值可能在哪里。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 只能在根结点的两个孩子中。
@@ -6321,7 +6313,7 @@ $$
 80
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6332,15 +6324,14 @@ $$
 应该维护什么堆？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **容量为 20 的小根堆。**
 
 因为需要快速淘汰当前 20 个候选中最小的元素。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6349,8 +6340,7 @@ $$
 如果每次选择首元素为枢轴，并且数组严格升序，复杂度是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -6361,7 +6351,7 @@ $$
 
 每次划分都极端不平衡。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6370,8 +6360,7 @@ $$
 两个有序序列长度分别为：
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 m=5,\quad n=7
 $$
@@ -6398,7 +6387,7 @@ $$
 \boxed{5}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6417,8 +6406,7 @@ $$
 需要多少趟？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 p=\lceil\log_3 81\rceil
 $$
@@ -6427,7 +6415,7 @@ $$
 \boxed{p=4}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6452,8 +6440,7 @@ $$
 普通分块排序生成多少段？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 r=\left\lceil\frac{1000}{128}\right\rceil
 $$
@@ -6464,7 +6451,7 @@ $$
 \boxed{8}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6483,8 +6470,7 @@ $$
 需要多少虚段？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 因为：
 
 $$
@@ -6503,7 +6489,7 @@ $$
 \boxed{d=2}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -6516,8 +6502,7 @@ $$
 采用二路最佳归并。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 先合并：
 
 $$
@@ -6566,7 +6551,7 @@ $$
 
 次磁盘块 I/O。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ---

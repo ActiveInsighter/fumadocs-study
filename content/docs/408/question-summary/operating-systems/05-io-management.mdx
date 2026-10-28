@@ -10,10 +10,10 @@ description: "I/O控制方式、设备独立性软件、缓冲、SPOOLing、磁�
 </Callout>
 
 <Cards>
-  <Card title="I/O 原理">查询、中断、DMA、通道及软件层次</Card>
-  <Card title="缓冲与设备分配">单/双缓冲、缓冲池、SPOOLing 和 LUT</Card>
-  <Card title="机械磁盘">地址换算、访问时间与六种磁盘调度</Card>
-  <Card title="SSD 与综合题">FTL、垃圾回收、磨损均衡和跨章节计算</Card>
+<Card title="I/O 原理">查询、中断、DMA、通道及软件层次</Card>
+<Card title="缓冲与设备分配">单/双缓冲、缓冲池、SPOOLing 和 LUT</Card>
+<Card title="机械磁盘">地址换算、访问时间与六种磁盘调度</Card>
+<Card title="SSD 与综合题">FTL、垃圾回收、磨损均衡和跨章节计算</Card>
 </Cards>
 
 ## 第一部分：全章知识体系与命题思路
@@ -337,8 +337,7 @@ I/O 端口具有独立的地址空间。
 5. 是否有专门硬件负责传输？
 
 <Tabs items={["程序查询", "中断驱动", "DMA", "通道控制"]} defaultIndex={0}>
-  <Tab value="程序查询">
-
+<Tab value="程序查询">
 #### 6.1 程序直接控制方式
 
 又称程序查询方式、轮询方式。
@@ -396,9 +395,8 @@ DATA = x;
 
 只是它的数据传送由 CPU 直接参与。
 
-  </Tab>
-  <Tab value="中断驱动">
-
+</Tab>
+<Tab value="中断驱动">
 #### 6.2 中断驱动方式
 
 ##### 基本流程
@@ -455,9 +453,8 @@ CPU 主动反复询问设备。
 
 这也是引入 DMA 的重要原因。
 
-  </Tab>
-  <Tab value="DMA">
-
+</Tab>
+<Tab value="DMA">
 #### 6.3 DMA：直接存储器访问
 
 DMA：
@@ -555,9 +552,8 @@ DMA 完成后产生中断。
 
 DMA 的数据传输本身不需要 CPU 逐字搬运，传输完成后通常采用中断通知 CPU。
 
-  </Tab>
-  <Tab value="通道控制">
-
+</Tab>
+<Tab value="通道控制">
 #### 6.4 通道控制方式
 
 ##### 通道是什么？
@@ -594,7 +590,7 @@ DMA 主要解决：
 
 通道不仅能组织数据传送，还可以按照通道程序完成较复杂的 I/O 控制序列。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ##### 四种方式对比
@@ -1647,8 +1643,7 @@ $$
 遇到单/双缓冲题：
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：标记 T、M、C
 
 明确哪个时间对应：
@@ -1657,16 +1652,14 @@ $$
 - 复制
 - CPU处理
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：确认缓冲区和工作区数量
 
 不要因为题目写了“双缓冲”就忽略其他资源限制。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：判断哪些操作能同时进行
 
 一般情况下：
@@ -1683,9 +1676,8 @@ $$
 P_2=\max(T,M+C)
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：判断问总时间还是平均周期
 
 平均稳定周期：
@@ -1696,9 +1688,8 @@ $$
 
 必须计算首块启动和末块收尾。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：用 n=1 验证
 
 对于一块数据：
@@ -1709,7 +1700,7 @@ $$
 
 通常应该能够从公式得到。
 
-  </Step>
+</Step>
 </Steps>
 
 ### 二十、缓冲综合模拟题
@@ -6281,13 +6272,12 @@ C-SCAN 回绕不服务请求。
 DMA传输完成后，发起阻塞式I/O的进程一定立即运行吗？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不一定。
 
 通常先转为就绪态。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测2
@@ -6295,13 +6285,12 @@ DMA传输完成后，发起阻塞式I/O的进程一定立即运行吗？
 设备驱动程序是否属于设备独立性软件？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不属于同一典型功能层。
 
 驱动程序是硬件相关软件。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测3
@@ -6309,13 +6298,12 @@ DMA传输完成后，发起阻塞式I/O的进程一定立即运行吗？
 磁盘缓存命中是否一定需要访问磁盘？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不需要。
 
 命中时可以直接使用主存中的数据。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测4
@@ -6329,8 +6317,7 @@ $$
 稳定周期是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \max(100,80)+20
 $$
@@ -6339,7 +6326,7 @@ $$
 \boxed{120}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测5
@@ -6353,8 +6340,7 @@ $$
 稳定周期是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \max(100,100)
 $$
@@ -6363,7 +6349,7 @@ $$
 \boxed{100}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测6
@@ -6373,8 +6359,7 @@ $$
 平均旋转延迟是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \frac{30000}{7200}
 $$
@@ -6383,7 +6368,7 @@ $$
 \boxed{4.167ms}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测7
@@ -6391,11 +6376,10 @@ $$
 SSTF 是否可能饥饿？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 可能。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测8
@@ -6403,11 +6387,10 @@ SSTF 是否可能饥饿？
 C-SCAN 回绕途中是否服务请求？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不服务。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测9
@@ -6415,11 +6398,10 @@ C-SCAN 回绕途中是否服务请求？
 创建文件系统根目录属于什么操作？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 逻辑格式化。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测10
@@ -6427,11 +6409,10 @@ C-SCAN 回绕途中是否服务请求？
 SSD 为什么需要 FTL？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 将主机逻辑地址映射到实际闪存位置，并配合设备内部的地址与空间管理。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测11
@@ -6439,13 +6420,12 @@ SSD 为什么需要 FTL？
 SPOOLing 是否使一台物理打印机真正同时打印多个独立作业？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不是。
 
 它实现的是逻辑共享和后台排队。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 自测12
@@ -6453,15 +6433,14 @@ SPOOLing 是否使一台物理打印机真正同时打印多个独立作业？
 设备分配四张表的顺序？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \boxed{
 SDT\rightarrow DCT\rightarrow COCT\rightarrow CHCT
 }
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 第二十二部分：本章最重要的十个结论

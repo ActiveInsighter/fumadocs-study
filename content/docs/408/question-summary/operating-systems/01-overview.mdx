@@ -10,10 +10,10 @@ description: "操作系统特征、内核态与用户态、中断异常、系统
 </Callout>
 
 <Cards>
-  <Card title="基本功能与特征">四大管理功能；并发、共享、虚拟和异步。</Card>
-  <Card title="内核运行机制">特权指令、异常、中断、系统调用和进程切换。</Card>
-  <Card title="程序执行环境">链接、装入、重定位与进程内存映像。</Card>
-  <Card title="内核与虚拟化">宏内核、微内核、引导流程与 Hypervisor。</Card>
+<Card title="基本功能与特征">四大管理功能；并发、共享、虚拟和异步。</Card>
+<Card title="内核运行机制">特权指令、异常、中断、系统调用和进程切换。</Card>
+<Card title="程序执行环境">链接、装入、重定位与进程内存映像。</Card>
+<Card title="内核与虚拟化">宏内核、微内核、引导流程与 Hypervisor。</Card>
 </Cards>
 
 ## 第一部分 本章知识体系与考情分析
@@ -1766,8 +1766,7 @@ D：
 3. Abort。
 
 <Tabs items={["Fault 故障", "Trap 陷阱", "Abort 终止"]} defaultIndex={0}>
-  <Tab value="Fault 故障">
-
+<Tab value="Fault 故障">
 ##### ① Fault：故障
 
 典型特点：
@@ -1780,9 +1779,8 @@ D：
 
 **缺页异常。**
 
-  </Tab>
-  <Tab value="Trap 陷阱">
-
+</Tab>
+<Tab value="Trap 陷阱">
 ##### ② Trap：陷阱
 
 通常是在规定的执行点触发的异常。
@@ -1793,16 +1791,15 @@ D：
 
 但具体返回地址语义由体系结构规定。
 
-  </Tab>
-  <Tab value="Abort 终止">
-
+</Tab>
+<Tab value="Abort 终止">
 ##### ③ Abort：终止性异常
 
 通常表示严重错误，难以精确恢复当前指令执行。
 
 例如某些严重硬件错误。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ##### 对比
@@ -4294,8 +4291,7 @@ P1 正在用户态运行。
 ---
 
 <Accordions>
-  <Accordion title="查看完整答案与解析">
-
+<Accordion title="查看完整答案与解析">
 ##### 第一步：P1 发起系统调用
 
 P1 执行 read。
@@ -4418,7 +4414,7 @@ P1 恢复运行
 - 上下文切换。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4458,8 +4454,7 @@ P1 恢复运行
 ---
 
 <Accordions>
-  <Accordion title="查看完整答案与解析">
-
+<Accordion title="查看完整答案与解析">
 ##### （1）LOAD 指令
 
 LOAD 需要读取内存。
@@ -4522,7 +4517,7 @@ LOAD 需要读取内存。
 | 是否必然切换进程 | 否 |
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4552,8 +4547,7 @@ LOAD 需要读取内存。
 ---
 
 <Accordions>
-  <Accordion title="查看完整答案与解析">
-
+<Accordion title="查看完整答案与解析">
 ##### 宏内核
 
 $$
@@ -4617,7 +4611,7 @@ $$
 实际 IPC 优化、缓存、硬件支持和服务设计都会影响结果。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4650,8 +4644,7 @@ $$
 ---
 
 <Accordions>
-  <Accordion title="查看完整答案与解析">
-
+<Accordion title="查看完整答案与解析">
 ##### （1）需要建立运行环境
 
 操作系统需要建立进程执行所需的地址空间、映射和初始执行状态。
@@ -4685,7 +4678,7 @@ $$
 可以使用相同的虚拟地址值，却映射到不同物理位置。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 第十四部分 考前易混判断
@@ -4738,8 +4731,7 @@ $$
 建议形成固定的判断流程。
 
 <Steps>
-  <Step>
-
+<Step>
 ### 第一步：识别题目考查对象
 
 题目是关于：
@@ -4756,9 +4748,8 @@ $$
 先确定所属知识点。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第二步：判断是否涉及受保护资源
 
 如果涉及：
@@ -4781,9 +4772,8 @@ $$
 通常可以在用户态完成。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第三步：判断事件来源
 
 ```text
@@ -4798,9 +4788,8 @@ $$
 ```
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第四步：判断是否需要进程切换
 
 不要直接认为：
@@ -4817,9 +4806,8 @@ $$
 只有真正从一个进程切换到另一个进程，才发生相应的进程上下文切换。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第五步：判断返回位置
 
 如果是：
@@ -4841,9 +4829,8 @@ Abort：
 通常无法按普通方式恢复。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第六步：判断硬件与软件职责
 
 硬件：
@@ -4862,7 +4849,7 @@ Abort：
 - 决定是否调度其他进程。
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 第十六部分 本章知识总结

@@ -10,10 +10,10 @@ description: "文件逻辑与物理结构、目录与 inode、FAT、多级索引
 </Callout>
 
 <Cards>
-  <Card title="文件与目录">逻辑结构、FCB、inode、路径解析与打开文件</Card>
-  <Card title="物理分配">连续、链式、FAT、索引及混合索引</Card>
-  <Card title="共享与回收">硬链接、软链接、删除与打开引用</Card>
-  <Card title="文件系统">空闲空间、位图、VFS、挂载和一致性</Card>
+<Card title="文件与目录">逻辑结构、FCB、inode、路径解析与打开文件</Card>
+<Card title="物理分配">连续、链式、FAT、索引及混合索引</Card>
+<Card title="共享与回收">硬链接、软链接、删除与打开引用</Card>
+<Card title="文件系统">空闲空间、位图、VFS、挂载和一致性</Card>
 </Cards>
 
 ## 一、本章知识体系与考试重点
@@ -2891,8 +2891,7 @@ III 错误。
 这是本章非常容易出选择题、综合题的部分。
 
 <Tabs items={["硬链接", "软链接"]} defaultIndex={0}>
-  <Tab value="硬链接">
-
+<Tab value="硬链接">
 ### 23.1 硬链接
 
 硬链接的核心：
@@ -2961,9 +2960,8 @@ $$
 
 数据仍然存在。
 
-  </Tab>
-  <Tab value="软链接">
-
+</Tab>
+<Tab value="软链接">
 ### 23.3 软链接
 
 软链接又称符号链接。
@@ -2989,7 +2987,7 @@ link.txt → inode200 → "a.txt"
 - 可以跨文件系统。
 - 目标路径消失后可能失效。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 23.4 两者比较
@@ -4892,8 +4890,7 @@ FCB / inode。
 ### 42.2 文件索引计算五步法
 
 <Steps>
-  <Step>
-
+<Step>
 ### 第一步：统一单位。
 
 例如：
@@ -4906,33 +4903,29 @@ $$
 1\text{ MiB}=2^{20}B
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第二步：计算数据块数。
 
 $$
 n=\left\lceil\frac{S}{B}\right\rceil
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第三步：计算索引扇出。
 
 $$
 N=\left\lfloor\frac{B}{p}\right\rfloor
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第四步：划分直接、一级、二级、三级索引区。
 
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第五步：根据题意计算：
 
 - 最大文件长度。
@@ -4941,42 +4934,37 @@ $$
 - 访问路径。
 - 磁盘读取次数。
 
-  </Step>
+</Step>
 </Steps>
 
 ### 42.3 inode与文件删除五步法
 
 <Steps>
-  <Step>
-
+<Step>
 ### 第一步
 
 确定目录项对应哪个 inode。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第二步
 
 计算 inode 所在盘块。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第三步
 
 判断文件是否与其他目录项共享 inode。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第四步
 
 判断删除后是否还存在硬链接或打开引用。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 ### 第五步
 
 若能够回收，检查：
@@ -4989,7 +4977,7 @@ $$
 - 父目录元数据。
 
 
-  </Step>
+</Step>
 </Steps>
 
 ## 四十三、高频易错判断题
@@ -5053,8 +5041,7 @@ $$
 求最大文件长度。
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 $$
 N=\frac{2048}{4}=512
 $$
@@ -5098,7 +5085,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 强化题2：多级索引边界
@@ -5122,8 +5109,7 @@ inode 已在内存。
 分别需要几次磁盘读取？
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 直接地址覆盖：
 
 $$
@@ -5163,7 +5149,7 @@ $$
 **哪怕只跨过1B，也可能多出一次索引块读取。**
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 强化题3：inode与位图
@@ -5179,8 +5165,7 @@ $$
 还能分配多少个inode？
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 每块：
 
 $$
@@ -5206,7 +5191,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 强化题4：FAT表项
@@ -5224,8 +5209,7 @@ $$
 3. 文件第四个逻辑簇的物理簇号是多少？
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 根据链接关系：
 
 ```text
@@ -5242,7 +5226,7 @@ FAT[100]=EOF
 3. 第四个逻辑簇对应物理簇100。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 强化题5：硬链接与打开引用
@@ -5269,8 +5253,7 @@ unlink("B");
 是否可以立即回收 inode50 的数据块？
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 删除A：
 
 $$
@@ -5292,7 +5275,7 @@ $$
 最后一个打开引用关闭、且不存在其他阻止回收的引用后，才可最终回收相关资源。
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 强化题6：实际索引块数
@@ -5314,8 +5297,7 @@ $$
 5. inode已缓存时读取文件最后一个字节的典型读盘次数。
 
 <Accordions>
-  <Accordion title="查看完整解答">
-
+<Accordion title="查看完整解答">
 第一步：
 
 $$
@@ -5395,7 +5377,7 @@ $$
 $$
 
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 四十五、本章全部高频公式汇总

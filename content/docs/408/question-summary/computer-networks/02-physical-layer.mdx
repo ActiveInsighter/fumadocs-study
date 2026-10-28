@@ -10,10 +10,10 @@ description: "信道容量、奈奎斯特与香农定理、编码调制、复用
 </Callout>
 
 <Cards>
-  <Card title="码元与容量">比特率、波特率、奈奎斯特和香农定理</Card>
-  <Card title="信号处理">编码、调制、PCM 与信道复用</Card>
-  <Card title="传输计算">发送、传播、BDP 与分组流水线</Card>
-  <Card title="物理介质">双绞线、光纤、无线、中继器和 Hub</Card>
+<Card title="码元与容量">比特率、波特率、奈奎斯特和香农定理</Card>
+<Card title="信号处理">编码、调制、PCM 与信道复用</Card>
+<Card title="传输计算">发送、传播、BDP 与分组流水线</Card>
+<Card title="物理介质">双绞线、光纤、无线、中继器和 Hub</Card>
 </Cards>
 
 ## 一、全章知识体系与考情分析
@@ -3341,8 +3341,7 @@ $$
 ---
 
 <Tabs items={["电路交换", "报文交换", "分组交换"]} defaultIndex={0}>
-  <Tab value="电路交换">
-
+<Tab value="电路交换">
 ### 15.2 电路交换
 
 典型过程：
@@ -3408,9 +3407,8 @@ $$
 
 不需要每个中间结点先接收完整报文再发送。
 
-  </Tab>
-  <Tab value="报文交换">
-
+</Tab>
+<Tab value="报文交换">
 ### 15.3 报文交换
 
 报文交换：
@@ -3467,9 +3465,8 @@ $$
 
 导致较大的转发等待时间。
 
-  </Tab>
-  <Tab value="分组交换">
-
+</Tab>
+<Tab value="分组交换">
 ### 15.4 分组交换
 
 分组交换：
@@ -3508,7 +3505,7 @@ $$
 
 因此不同链路能够同时处理不同分组。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 15.5 【2013 年真题】报文交换与分组交换
@@ -3746,8 +3743,7 @@ $$
 求文件全部传输完成时间。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：每个分组有效载荷
 
 分组总长：
@@ -3768,9 +3764,8 @@ $$
 \boxed{D=980\ \mathrm{B}}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：分组数量
 
 $$
@@ -3783,9 +3778,8 @@ $$
 \boxed{N=1000}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：每个分组的发送时间
 
 注意：
@@ -3810,9 +3804,8 @@ $$
 \boxed{t=0.08\ \mathrm{ms}}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：流水线总时间
 
 3 条链路：
@@ -3869,7 +3862,7 @@ $$
 
 用包含首部的实际分组长度计算。
 
-  </Step>
+</Step>
 </Steps>
 
 ### 16.4 【2023 年真题】BDP 与流水线联合
@@ -5822,8 +5815,7 @@ IP 地址：
 求比特率。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 16-QAM：
 
 $$
@@ -5840,7 +5832,7 @@ $$
 \boxed{R_b=10000\ \mathrm{bit/s}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 2
@@ -5854,8 +5846,7 @@ $$
 求最高数据率。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 奈奎斯特：
 
 $$
@@ -5870,7 +5861,7 @@ $$
 \boxed{C_N=2.4\ \mathrm{Mb/s}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 3
@@ -5886,8 +5877,7 @@ $$
 求香农容量。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 20 dB：
 
 $$
@@ -5906,7 +5896,7 @@ $$
 \boxed{C_S\approx13.32\ \mathrm{Mb/s}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 4
@@ -5928,8 +5918,7 @@ $$
 求最短时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 单个分组：
 
 $$
@@ -5968,7 +5957,7 @@ $$
 \boxed{T=12.12\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 5
@@ -5984,8 +5973,7 @@ $$
 求 BDP。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 \mathrm{BDP}=200\times10^6\times0.025
 $$
@@ -6000,7 +5988,7 @@ $$
 
 5 Mbit。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 6
@@ -6018,8 +6006,7 @@ $$
 求 PCM 数据率。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 采样频率：
 
 $$
@@ -6048,7 +6035,7 @@ $$
 \boxed{R=32\ \mathrm{kb/s}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 7
@@ -6066,8 +6053,7 @@ $$
 求最短帧长的理论下界。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 $$
 L_{\min}=2RT_p
 $$
@@ -6088,7 +6074,7 @@ $$
 \boxed{2500\ \mathrm{B}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 8
@@ -6102,8 +6088,7 @@ $$
 若没有提供首个比特之前的电平状态或首位边界变化，能否唯一确定第一个比特？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 不能唯一确定。
 
 因为差分曼彻斯特通过：
@@ -6116,7 +6101,7 @@ $$
 
 但是如果后面各码元的边界完整可见，则后续相应比特仍可能被解码。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 二十八、最后总结：本章真正需要形成的能力

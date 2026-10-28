@@ -10,10 +10,10 @@ description: "计算机系统层次与存储程序、性能评价、CPI、Amdahl
 </Callout>
 
 <Cards>
-  <Card title="系统与程序">硬件、软件、冯·诺依曼结构、ISA 与程序翻译。</Card>
-  <Card title="执行与性能">PC、IR、MAR、MDR、主频、CPI、CPU 时间。</Card>
-  <Card title="优化与加速">局部与整体加速、MIPS、FLOPS、Amdahl 定律。</Card>
-  <Card title="容量与编址">机器字长、存储字长、按字节 / 按字编址。</Card>
+<Card title="系统与程序">硬件、软件、冯·诺依曼结构、ISA 与程序翻译。</Card>
+<Card title="执行与性能">PC、IR、MAR、MDR、主频、CPI、CPU 时间。</Card>
+<Card title="优化与加速">局部与整体加速、MIPS、FLOPS、Amdahl 定律。</Card>
+<Card title="容量与编址">机器字长、存储字长、按字节 / 按字编址。</Card>
 </Cards>
 
 ## 第一部分：全章知识框架
@@ -58,8 +58,7 @@ description: "计算机系统层次与存储程序、性能评价、CPI、Amdahl
 `} />
 
 <Accordions>
-  <Accordion title="展开计算机系统、程序执行与性能的三条主线">
-
+<Accordion title="展开计算机系统、程序执行与性能的三条主线">
 第一条主线：计算机系统的组成和运行。
 
     计算机系统
@@ -119,7 +118,7 @@ description: "计算机系统层次与存储程序、性能评价、CPI、Amdahl
        ↓
     主存容量
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 1.2 考点重要程度
@@ -910,8 +909,7 @@ D. 仅Ⅰ、Ⅲ、Ⅳ
 | 高级语言 | 更接近人的表达方式 | 不能直接执行源代码 |
 
 <Tabs items={["机器语言", "汇编语言", "高级语言"]} defaultIndex={0}>
-  <Tab value="机器语言">
-
+<Tab value="机器语言">
 #### 11.1 机器语言
 
 机器语言是 CPU 最终执行的形式。
@@ -920,9 +918,8 @@ D. 仅Ⅰ、Ⅲ、Ⅳ
 
 所以某种架构的机器代码通常不能直接在另一种不兼容的 ISA 上运行。
 
-  </Tab>
-  <Tab value="汇编语言">
-
+</Tab>
+<Tab value="汇编语言">
 #### 11.2 汇编语言
 
 例如：
@@ -933,9 +930,8 @@ D. 仅Ⅰ、Ⅲ、Ⅳ
 
 必须经过汇编器转换。
 
-  </Tab>
-  <Tab value="高级语言">
-
+</Tab>
+<Tab value="高级语言">
 #### 11.3 高级语言
 
 例如：
@@ -949,7 +945,7 @@ D. 仅Ⅰ、Ⅲ、Ⅳ
 CPU 实际执行的是解释器、虚拟机或编译后代码对应的机器指令。
 
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ### 十二、从源程序到可执行程序
@@ -4346,8 +4342,7 @@ CPU 性能与系统整体性能并不完全相同。
 ### 六十一、性能题的五步法
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：确定指标与已知量
 
 到底要求：
@@ -4359,18 +4354,16 @@ CPU 性能与系统整体性能并不完全相同。
 - 性能比
 - 加速比
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：统一单位
 
 特别注意：
 
 GHz、MHz、ns、微秒、毫秒。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：计算总周期数
 
 如果有多类指令：
@@ -4381,18 +4374,16 @@ N_{\mathrm{cycle}}
 \sum_i IC_iCPI_i
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：建立 CPU 时间关系
 
 $$
 T=\frac{N_{\mathrm{cycle}}}{f}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第五步：比较或移项
 
 对于优化前后比较：
@@ -4414,7 +4405,7 @@ S=\frac1{(1-p)+p/s}
 $$
 
 
-  </Step>
+</Step>
 </Steps>
 
 ### 六十二、概念题的判断策略
@@ -4474,8 +4465,7 @@ CPU 基本运算数据宽度及通用寄存器。
 问平均每秒执行多少条指令？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4490,7 +4480,7 @@ $$
 
 2GIPS。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4511,8 +4501,7 @@ $$
 求 CPU 时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4523,7 +4512,7 @@ $$
 \boxed{0.2\,\mathrm{s}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4540,8 +4529,7 @@ CPI 增加 25%。
 新时间是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4556,7 +4544,7 @@ $$
 
 优化没有提高程序速度。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4569,8 +4557,7 @@ $$
 求整体加速比。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4586,7 +4573,7 @@ $$
 \boxed{S=2.5}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4597,8 +4584,7 @@ $$
 最大可寻址容量是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4609,7 +4595,7 @@ $$
 \boxed{1\,\mathrm{MiB}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4620,8 +4606,7 @@ $$
 最大可寻址容量是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4632,7 +4617,7 @@ $$
 \boxed{4\,\mathrm{MiB}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4641,8 +4626,7 @@ $$
 相同 ISA 的两台处理器，流水线结构一定相同吗？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 不一定。
@@ -4651,7 +4635,7 @@ ISA 规定软件可见的机器行为。
 
 流水线结构属于具体实现。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4666,8 +4650,7 @@ ISA 规定软件可见的机器行为。
 问这类指令占总 CPU 周期的比例。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 总平均 CPI：
@@ -4700,7 +4683,7 @@ $$
 
 20% 的指令消耗了 50% 的执行周期。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4713,8 +4696,7 @@ $$
 若这部分加速 5 倍，整体运行时间是多少？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 $$
@@ -4735,7 +4717,7 @@ $$
 \boxed{S\approx1.471}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 
@@ -4746,8 +4728,7 @@ $$
 是否可以认为其程序执行速度也是另一台的 2 倍？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 不能。
@@ -4768,7 +4749,7 @@ $$
 
 只有其他相关条件相同，主频提高 2 倍才会使对应 CPU 时间变为一半。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ---

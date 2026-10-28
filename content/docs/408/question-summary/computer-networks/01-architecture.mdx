@@ -10,10 +10,10 @@ description: "网络性能指标、OSI与TCP/IP、协议与服务、存储转发
 </Callout>
 
 <Cards>
-  <Card title="网络分层">OSI 七层、TCP/IP 四层与教学五层</Card>
-  <Card title="性能度量">速率、吞吐量、RTT、时延和 BDP</Card>
-  <Card title="交换模型">电路、报文、分组交换与流水线</Card>
-  <Card title="端到端通信">协议/服务/接口、封装、地址与网络设备</Card>
+<Card title="网络分层">OSI 七层、TCP/IP 四层与教学五层</Card>
+<Card title="性能度量">速率、吞吐量、RTT、时延和 BDP</Card>
+<Card title="交换模型">电路、报文、分组交换与流水线</Card>
+<Card title="端到端通信">协议/服务/接口、封装、地址与网络设备</Card>
 </Cards>
 
 ## 一、本章知识体系与考情分析
@@ -1460,8 +1460,7 @@ $$
 ---
 
 <Tabs items={["电路交换", "报文交换", "分组交换"]} defaultIndex={0}>
-  <Tab value="电路交换">
-
+<Tab value="电路交换">
 ### 9.2 电路交换
 
 #### 定义
@@ -1522,9 +1521,8 @@ $$
 
 不必等待中间结点接收完整条报文，再发送下一跳。
 
-  </Tab>
-  <Tab value="报文交换">
-
+</Tab>
+<Tab value="报文交换">
 ### 9.3 报文交换
 
 #### 定义
@@ -1580,9 +1578,8 @@ $$
 - 报文很大时，存储和等待开销较大。
 - 整报文存储转发不利于充分利用流水线。
 
-  </Tab>
-  <Tab value="分组交换">
-
+</Tab>
+<Tab value="分组交换">
 ### 9.4 分组交换
 
 #### 定义
@@ -1625,7 +1622,7 @@ $$
 - 可能产生排队时延。
 - 可能需要更高层执行可靠性控制。
 
-  </Tab>
+</Tab>
 </Tabs>
 
 ## 十、存储转发与流水线：全章最重要的计算模型
@@ -1869,26 +1866,23 @@ D. 25 kb
 **B。**
 
 <Steps>
-  <Step>
-
+<Step>
 #### 第一步：计算分组数
 
 $$
 N=\frac{20}{10}=2
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第二步：计算一跳发送时间
 
 $$
 t=\frac{10}{10}=1\ \mathrm{s}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第三步：计算分组交换总时间
 
 两条链路：
@@ -1911,9 +1905,8 @@ $$
 \boxed{T=3\ \mathrm{s}}
 $$
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 第四步：改为报文交换
 
 设完整报文长度为 $X$。
@@ -1952,7 +1945,7 @@ $$
 
 必须完整接收整条报文，才能继续转发。
 
-  </Step>
+</Step>
 </Steps>
 
 ## 十一、电路交换与分组交换的时延比较
@@ -5380,8 +5373,7 @@ C. 会话层。
 D. 传输层。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **B。**
@@ -5390,7 +5382,7 @@ D. 传输层。
 
 表示层。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 2：协议与服务
@@ -5406,15 +5398,14 @@ C. 对等实体之间遵守协议。
 D. 网络体系结构必须规定协议内部代码。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **C。**
 
 协议约束对等实体。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 3：发送时延
@@ -5432,8 +5423,7 @@ C. 8 ms。
 D. 80 ms。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **B。**
@@ -5446,7 +5436,7 @@ $$
 \boxed{T=0.8\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 4：流水线
@@ -5468,8 +5458,7 @@ C. 14 ms。
 D. 30 ms。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **C。**
@@ -5482,7 +5471,7 @@ $$
 \boxed{T=14\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 5：IP 服务
@@ -5498,8 +5487,7 @@ C. 面向连接且保证顺序。
 D. 无连接且保证不丢包。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **B。**
@@ -5508,7 +5496,7 @@ IP：
 
 无连接、尽最大努力交付。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 6：协议三要素
@@ -5524,8 +5512,7 @@ C. 时序。
 D. 服务。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **A。**
@@ -5534,7 +5521,7 @@ D. 服务。
 
 语法。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 7：设备层次
@@ -5550,8 +5537,7 @@ C. MAC 地址。
 D. 域名。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **C。**
@@ -5560,7 +5546,7 @@ D. 域名。
 
 根据 MAC 地址表转发。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 8：时延带宽积
@@ -5580,8 +5566,7 @@ C. 2 Mbit。
 D. 20 Mbit。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 答案：
 
 **B。**
@@ -5600,7 +5585,7 @@ $$
 \boxed{200\ \mathrm{kbit}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 9：多跳存储转发
@@ -5618,8 +5603,7 @@ $$
 求全部到达时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 两台路由器：
 
 三条链路。
@@ -5658,7 +5642,7 @@ $$
 \boxed{T=12\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 10：封装效率
@@ -5670,8 +5654,7 @@ $$
 求应用有效数据所占比例。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 有效数据：
 
 $$
@@ -5696,7 +5679,7 @@ $$
 \boxed{\eta\approx83.33\%}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 11：不同速率链路
@@ -5714,8 +5697,7 @@ $$
 求全部到达时间。
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 第一条链路：
 
 $$
@@ -5762,7 +5744,7 @@ $$
 \boxed{T=5\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ### 题目 12：电路与分组比较
@@ -5794,8 +5776,7 @@ $$
 电路交换建立时间超过多少时，分组交换更快？
 
 <Accordions>
-  <Accordion title="查看答案与解析">
-
+<Accordion title="查看答案与解析">
 分组交换比电路交换快要求：
 
 $$
@@ -5840,7 +5821,7 @@ $$
 
 则两种交换方式时延相等。
 
-  </Accordion>
+</Accordion>
 </Accordions>
 
 ## 三十七、最终知识框架

@@ -35,12 +35,12 @@ description: "图的存储和遍历、最小生成树、最短路径、拓扑排
 本章所有算法实际上围绕以下问题展开：
 
 <Cards>
-  <Card title="图中有哪些顶点与边？">基本概念、图的存储。</Card>
-  <Card title="从一个顶点能访问哪些顶点？"> DFS、BFS、连通性。</Card>
-  <Card title="如何以最小代价连接全部顶点？">最小生成树。</Card>
-  <Card title="如何从一个顶点以最小代价到达另一个顶点？">最短路径。</Card>
-  <Card title="如何安排存在先后依赖的任务？">拓扑排序。</Card>
-  <Card title="工程最早什么时候能完成？">关键路径。</Card>
+<Card title="图中有哪些顶点与边？">基本概念、图的存储。</Card>
+<Card title="从一个顶点能访问哪些顶点？"> DFS、BFS、连通性。</Card>
+<Card title="如何以最小代价连接全部顶点？">最小生成树。</Card>
+<Card title="如何从一个顶点以最小代价到达另一个顶点？">最短路径。</Card>
+<Card title="如何安排存在先后依赖的任务？">拓扑排序。</Card>
+<Card title="工程最早什么时候能完成？">关键路径。</Card>
 </Cards>
 
 理解这些问题之间的区别，比单纯记忆算法步骤更重要。
@@ -200,10 +200,12 @@ $$
 
 例如：
 
-    A ---> B
-    ^      |
-    |      v
-    D <--- C
+```text
+A ---> B
+^      |
+|      v
+D <--- C
+```
 
 有向边记作：
 
@@ -684,10 +686,12 @@ $$
 
 例如：
 
-    A -> B
-    ^    |
-    |    v
-    D <- C
+```text
+A -> B
+^    |
+|    v
+D <- C
+```
 
 形成一个有向环。
 
@@ -3742,33 +3746,30 @@ $$
 | Floyd | 任意两点最短路径 | 是否经过中间点 |
 
 <Tabs items={["Prim", "Dijkstra", "Floyd"]} defaultIndex={0}>
-  <Tab value="Prim">
-
+<Tab value="Prim">
 #### Prim
 
 $$
 lowcost[v]=\min(lowcost[v],w(u,v))
 $$
 
-  </Tab>
-  <Tab value="Dijkstra">
-
+</Tab>
+<Tab value="Dijkstra">
 #### Dijkstra
 
 $$
 dist[v]=\min(dist[v],dist[u]+w(u,v))
 $$
 
-  </Tab>
-  <Tab value="Floyd">
-
+</Tab>
+<Tab value="Floyd">
 #### Floyd
 
 $$
 dist[i][j]=\min(dist[i][j],dist[i][k]+dist[k][j])
 $$
 
-  </Tab>
+</Tab>
 </Tabs>
 
 三个公式一定要理解。
@@ -5742,8 +5743,7 @@ $$
 从2011、2015、2021、2023、2024、2025等大题可以总结出一套稳定的答题框架。
 
 <Steps>
-  <Step>
-
+<Step>
 #### 49.1 第一步：明确图的类型
 
 先问：
@@ -5767,9 +5767,8 @@ MST针对无向连通带权图。
 
 关键路径针对带权DAG。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 49.2 第二步：明确求解目标
 
 不同目标：
@@ -5789,9 +5788,8 @@ MST针对无向连通带权图。
 | 判断欧拉通路 | 奇度数与连通性 |
 | 求出度大于入度顶点 | 邻接矩阵行列统计 |
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 49.3 第三步：选择辅助结构
 
 常用数组：
@@ -5832,9 +5830,8 @@ Kruskal中判断是否成环。
 
 不能只记数组名称。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 49.4 第四步：写出正确性依据
 
 408算法题除了代码，还可能要求算法设计思想。
@@ -5875,9 +5872,8 @@ Dijkstra：
 
 事件必须等待全部前驱活动完成，因此正向取最大值。
 
-  </Step>
-  <Step>
-
+</Step>
+<Step>
 #### 49.5 第五步：分析复杂度
 
 复杂度不能只看算法名称。
@@ -5916,7 +5912,7 @@ $$
 
 这种区别很容易成为选择题陷阱。
 
-  </Step>
+</Step>
 </Steps>
 
 ## 五十、全章算法复杂度总表
