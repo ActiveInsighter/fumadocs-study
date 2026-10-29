@@ -4,13 +4,18 @@ description: "考研408：排序稳定性、内部排序、快速选择、堆、
 ---
 
 <Cards>
-  <Card title="算法性质">稳定性、比较与移动次数、时间和空间复杂度</Card>
-  <Card title="关键过程">快速划分、堆调整、二路归并、TopK</Card>
-  <Card title="外部排序">置换选择、败者树、最佳归并树与 I/O</Card>
+
+<Card title="算法性质">稳定性、比较与移动次数、时间和空间复杂度</Card>
+
+<Card title="关键过程">快速划分、堆调整、二路归并、TopK</Card>
+
+<Card title="外部排序">置换选择、败者树、最佳归并树与 I/O</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章交互知识图谱" id="ds8-knowledge-map">
+
+<Accordion title="本章交互知识图谱" id="ds8-knowledge-map">
 
     <MindMap
       title="数据结构 第8章：排序知识树"
@@ -38,7 +43,8 @@ description: "考研408：排序稳定性、内部排序、快速选择、堆、
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章不仅要掌握排序算法的复杂度与稳定性，还应能够独立完成过程模拟、算法识别、比较次数、堆操作、快速选择、外部排序与综合算法设计。
@@ -215,32 +221,19 @@ $$
 
 Ⅰ. 希尔排序　Ⅱ. 归并排序　Ⅲ. 快速排序　Ⅳ. 堆排序　Ⅴ. 基数排序
 
-
-
 **A.** Ⅰ、Ⅱ
-
-
-
 
 **B.** Ⅱ、Ⅴ
 
-
-
-
 **C.** Ⅰ、Ⅲ、Ⅳ
-
-
-
 
 **D.** Ⅲ、Ⅳ、Ⅴ
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：C。**
-
 
 **参考答案：C（Ⅰ、Ⅲ、Ⅳ）。**
 
@@ -254,8 +247,8 @@ $$
 
 这一题建议直接掌握，不要依赖临场推导。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -1383,7 +1376,8 @@ $$
 2. 父结点与孩子之间的大小关系。
 
 <Tabs items={['大根堆', '小根堆']} defaultIndex={0}>
-  <Tab value="大根堆">
+
+<Tab value="大根堆">
 
 例如：
 
@@ -1413,8 +1407,9 @@ $$
 
 所以全局第二大元素必然可以在根的孩子中找到。
 
-  </Tab>
-  <Tab value="小根堆">
+</Tab>
+
+<Tab value="小根堆">
 
 例如：
 
@@ -1436,7 +1431,8 @@ $$
 
 因此根结点为最小值。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 12.3 堆不是二叉排序树
@@ -3182,7 +3178,8 @@ $$
 3. 计算归并阶段总磁盘 I/O。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：排序初始段长度
 
@@ -3202,8 +3199,9 @@ $$
 \boxed{N=280}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：确定虚段数量
 
@@ -3243,8 +3241,9 @@ $$
 0,0,12,19,25,33,39,42,49,61
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：第一次归并
 
@@ -3272,8 +3271,9 @@ $$
 25,31,33,39,42,49,61
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：第二次归并
 
@@ -3295,8 +3295,9 @@ $$
 42,49,61,128
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：第三次归并
 
@@ -3314,8 +3315,9 @@ $$
 | 第 2 次 | 25,31,33,39  | 128  |
 | 第 3 次 | 42,49,61,128 | 280  |
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：计算 WPL
 
@@ -3327,8 +3329,9 @@ $$
 \boxed{WPL=439}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第七步：计算 I/O
 
@@ -3368,7 +3371,8 @@ $$
 \boxed{878}
 $$
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 本题标准答题模板
@@ -4298,11 +4302,13 @@ $$
 Ⅴ. 基数排序
 
 <Accordions>
-  <Accordion title="展开第 1 题答案与解析">
+
+<Accordion title="展开第 1 题答案与解析">
 
 答案：Ⅰ、Ⅲ、Ⅳ。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 2：复杂度
@@ -4310,7 +4316,8 @@ $$
 对已经有序的数组，比较直接插入排序和简单选择排序的时间复杂度。
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与解析">
+
+<Accordion title="展开第 2 题答案与解析">
 
 答案：
 
@@ -4326,7 +4333,8 @@ $$
 \Theta(n^2)
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 3：快速排序
@@ -4334,7 +4342,8 @@ $$
 每次以首元素为枢轴，对一个严格升序数组进行普通快速排序，最坏时间复杂度是多少？
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与解析">
+
+<Accordion title="展开第 3 题答案与解析">
 
 答案：
 
@@ -4342,7 +4351,8 @@ $$
 \boxed{\Theta(n^2)}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 4：堆的性质
@@ -4356,13 +4366,15 @@ $$
 问第二大值是多少？
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与解析">
+
+<Accordion title="展开第 4 题答案与解析">
 
 答案：80。
 
 第二大元素一定在根的孩子中。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 5：TopK
@@ -4370,11 +4382,13 @@ $$
 要在线保留最大的 20 个元素，应使用什么堆？
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与解析">
+
+<Accordion title="展开第 5 题答案与解析">
 
 答案：容量为 20 的小根堆。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 6：归并比较次数
@@ -4388,7 +4402,8 @@ $$
 一次标准二路归并最多比较多少次？
 
 <Accordions>
-  <Accordion title="展开第 6 题答案与解析">
+
+<Accordion title="展开第 6 题答案与解析">
 
 答案：
 
@@ -4396,7 +4411,8 @@ $$
 m+n-1=11
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 7：外部归并趟数
@@ -4404,7 +4420,8 @@ $$
 有 81 个初始归并段，采用三路平衡归并，需要多少趟？
 
 <Accordions>
-  <Accordion title="展开第 7 题答案与解析">
+
+<Accordion title="展开第 7 题答案与解析">
 
 答案：
 
@@ -4412,7 +4429,8 @@ $$
 \lceil\log_3 81\rceil=4
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 8：普通分块
@@ -4420,7 +4438,8 @@ $$
 文件 1000 条记录，工作区容量 128 条，普通分块产生多少个初始归并段？
 
 <Accordions>
-  <Accordion title="展开第 8 题答案与解析">
+
+<Accordion title="展开第 8 题答案与解析">
 
 答案：
 
@@ -4428,7 +4447,8 @@ $$
 \left\lceil\frac{1000}{128}\right\rceil=8
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 9：虚段
@@ -4436,7 +4456,8 @@ $$
 11 个初始归并段，采用四路最佳归并，需要补几个虚段？
 
 <Accordions>
-  <Accordion title="展开第 9 题答案与解析">
+
+<Accordion title="展开第 9 题答案与解析">
 
 要求：
 
@@ -4450,7 +4471,8 @@ $$
 \boxed{d=2}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 10：最佳归并树
@@ -4464,7 +4486,8 @@ $$
 采用二路最佳归并。
 
 <Accordions>
-  <Accordion title="展开第 10 题答案与解析">
+
+<Accordion title="展开第 10 题答案与解析">
 
 第一次：
 
@@ -4500,7 +4523,8 @@ $$
 \boxed{2\times52=104}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 第十部分：本章最终速查表

@@ -4,13 +4,18 @@ description: "考研408：ISA、机器指令格式、扩展操作码、寻址方
 ---
 
 <Cards>
-  <Card title="机器指令与 ISA">机器字长、指令编码、扩展操作码、RISC/CISC</Card>
-  <Card title="地址与控制流">立即/直接/间接/变址寻址、PC 相对位移、对齐与大小端</Card>
-  <Card title="程序与机器状态">x86/MIPS、CALL/RET、标志位、机器码解码</Card>
+
+<Card title="机器指令与 ISA">机器字长、指令编码、扩展操作码、RISC/CISC</Card>
+
+<Card title="地址与控制流">立即/直接/间接/变址寻址、PC 相对位移、对齐与大小端</Card>
+
+<Card title="程序与机器状态">x86/MIPS、CALL/RET、标志位、机器码解码</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识图谱：展开本章知识结构" id="co4-map">
+
+<Accordion title="交互知识图谱：展开本章知识结构" id="co4-map">
 
     <MindMap
       title="计算机组成原理 第4章：指令系统思维导图"
@@ -38,7 +43,8 @@ description: "考研408：ISA、机器指令格式、扩展操作码、寻址方
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章重点是理解机器指令的编码、寻址、执行与控制转移规则，并能够根据题目条件独立推导机器状态。
@@ -788,7 +794,8 @@ $M[x]$：内存地址x中的内容。
 这里统计的是取得一个数据操作数通常需要的主存访问次数，不包括取指，也不考虑Cache、TLB等机制。
 
 <Tabs items={['立即寻址', '直接寻址', '存储器间接', '寄存器间接']} defaultIndex={0}>
-  <Tab value="立即寻址">
+
+<Tab value="立即寻址">
 
 操作数直接包含在指令里面。
 
@@ -843,8 +850,9 @@ $$
 
 这两个结果完全不同。
 
-  </Tab>
-  <Tab value="直接寻址">
+</Tab>
+
+<Tab value="直接寻址">
 
 指令中直接给出内存地址。
 
@@ -864,8 +872,9 @@ $$
 
 为了读取数据，需要一次数据访存。
 
-  </Tab>
-  <Tab value="存储器间接">
+</Tab>
+
+<Tab value="存储器间接">
 
 这种寻址方式最容易和直接寻址混淆。
 
@@ -908,8 +917,9 @@ $$
 
 取得数据需要两次访存。
 
-  </Tab>
-  <Tab value="寄存器间接">
+</Tab>
+
+<Tab value="寄存器间接">
 
 假设：
 
@@ -938,7 +948,8 @@ $$
 
 因为寄存器中的地址已经能够直接读到，无需先访问主存寻找指针。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 5.7 选择题：四种寻址方式的区别
@@ -1643,7 +1654,8 @@ $$
 ## 八、RISC与CISC
 
 <Tabs items={['CISC', 'RISC']} defaultIndex={0}>
-  <Tab value="CISC">
+
+<Tab value="CISC">
 
 CISC是复杂指令集计算机。
 
@@ -1657,8 +1669,9 @@ CISC是复杂指令集计算机。
 
 典型代表是x86。
 
-  </Tab>
-  <Tab value="RISC">
+</Tab>
+
+<Tab value="RISC">
 
 RISC是精简指令集计算机。
 
@@ -1672,7 +1685,8 @@ RISC是精简指令集计算机。
 
 典型代表包括MIPS和RISC-V。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 8.3 Load/Store思想
@@ -3583,7 +3597,8 @@ $$
 面对陌生的指令系统综合题，可以按照以下顺序分析。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：列出机器基本参数
 
@@ -3599,8 +3614,9 @@ $$
 
 这里尤其要防止把机器字长、指令字长、数据线宽度和地址线宽度写成同一个数。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：拆分指令字段
 
@@ -3623,8 +3639,9 @@ $$
 
 不能根据十六进制外形猜指令功能。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：明确每个操作数
 
@@ -3642,8 +3659,9 @@ $$
 
 对于寄存器直接寻址，不必强行构造内存EA。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：处理立即数和位移
 
@@ -3655,8 +3673,9 @@ $$
 - 是否需要左移2位；
 - PC使用什么基准。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：执行运算
 
@@ -3676,8 +3695,9 @@ $$
 
 不要因为机器保存了结果，就认为没有溢出。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：跟踪状态变化
 
@@ -3693,14 +3713,16 @@ $$
 
 对于CALL、PUSH、POP、RET，最好额外记录SP和栈顶内容。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第七步：检查结果
 
 主要检查机器码位数、补码转换、地址单位、读写位置、指令长度、跳转目标、溢出及数据对齐是否正确。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ## 十四、考前易混概念总表
@@ -3765,8 +3787,8 @@ $$
 某机器16位定长指令，每个地址字段4位，有三地址指令14条、二地址指令20条、一地址指令100条。最多还能设计多少条零地址指令？
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
@@ -3818,8 +3840,8 @@ $$
 \boxed{1472\text{条}}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3829,7 +3851,8 @@ $$
 机器按字节编址，32位数据采用小端，`0x89ABCDEF` 从2000H开始存储。求2001H和2003H的字节内容。
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与解析">
+
+<Accordion title="展开第 2 题答案与解析">
 
 第2题：小端
 
@@ -3852,7 +3875,8 @@ $$
 \boxed{M[2003H]=89H}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 3
@@ -3860,7 +3884,8 @@ $$
 一条4B长的相对转移指令位于4000H，位移字段为16位补码 `FFFCH`，位移单位4B，基准为下一条指令。求目标地址。
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与解析">
+
+<Accordion title="展开第 3 题答案与解析">
 
 第3题：PC相对转移
 
@@ -3886,7 +3911,8 @@ $$
 \boxed{3FF4H}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 4
@@ -3894,7 +3920,8 @@ $$
 32位x86机器执行 `cmp eax,ebx`，其中 `EAX=7FFFFFFFH`、`EBX=FFFFFFFFH`。按有符号和无符号比较，EAX分别是否小于EBX？
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与解析">
+
+<Accordion title="展开第 4 题答案与解析">
 
 第4题：signed与unsigned
 
@@ -3934,7 +3961,8 @@ $$
 \boxed{\text{有符号不小于，无符号小于}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 5
@@ -3942,7 +3970,8 @@ $$
 某C数组 `int a[10][20]`，每个int为4B，首地址1000H。求 `a[3][7]` 的地址。
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与解析">
+
+<Accordion title="展开第 5 题答案与解析">
 
 第5题：二维数组
 
@@ -3964,7 +3993,8 @@ $$
 \boxed{EA=110CH}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十七、最终复习建议

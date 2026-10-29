@@ -4,13 +4,18 @@ description: "408 操作系统第二章：进程线程、处理机调度、同�
 ---
 
 <Cards>
-  <Card title="时间轴">调度算法、抢占规则、周转与等待时间</Card>
-  <Card title="P/V 依赖关系">临界区、前驱约束、经典同步问题</Card>
-  <Card title="资源向量">死锁四条件、银行家算法、安全序列</Card>
+
+<Card title="时间轴">调度算法、抢占规则、周转与等待时间</Card>
+
+<Card title="P/V 依赖关系">临界区、前驱约束、经典同步问题</Card>
+
+<Card title="资源向量">死锁四条件、银行家算法、安全序列</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：展开本章知识体系" id="os-02-mindmap">
+
+<Accordion title="交互知识树：展开本章知识体系" id="os-02-mindmap">
 
     <MindMap
       title="操作系统 第2章：进程与线程、处理机调度、同步与死锁知识树"
@@ -35,7 +40,8 @@ description: "408 操作系统第二章：进程线程、处理机调度、同�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章是操作系统最重要的章节之一，尤其是 进程调度、P/V 操作、经典同步问题、银行家算法，不仅要理解概念，还必须能够独立完成计算与程序设计。
@@ -463,7 +469,8 @@ fork 后
 `exec()` 成功后，当前进程执行新的程序映像，而不是另外建立一个进程。
 
 <Accordions>
-  <Accordion title="拓展辨析：僵尸进程与孤儿进程">
+
+<Accordion title="拓展辨析：僵尸进程与孤儿进程">
 
 僵尸进程： 子进程已经结束，但退出信息尚未被父进程回收。
 
@@ -483,7 +490,8 @@ fork 后
 
 不要与同一进程内部的多线程相混淆。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 六、线程的概念与多线程模型
@@ -1604,7 +1612,8 @@ V(mutex);
 这是整个 P/V 学习过程的第一道关。
 
 <Tabs items={['互斥', '同步']} defaultIndex={0}>
-  <Tab value="互斥">
+
+<Tab value="互斥">
 
 例如：
 
@@ -1652,8 +1661,9 @@ $$
 \boxed{\text{同一时刻最多一个}}
 $$
 
-  </Tab>
-  <Tab value="同步">
+</Tab>
+
+<Tab value="同步">
 
 例如：
 
@@ -1692,7 +1702,8 @@ process_data();
 
 这里的 `done` 不控制互斥，而是记录读取完成事件。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 16.3 三种最常见信号量
@@ -3598,34 +3609,39 @@ $$
 #### 38.2 安全性算法
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 初始化资源与完成标志
 
     令 `Work = Available`，所有进程的 `Finish` 初始为 `false`。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 寻找可满足的进程
 
     选择尚未完成且各类资源需求均满足 `Need[i] ≤ Work` 的进程。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 假设执行完成并释放占有资源
 
     更新 `Work = Work + Allocation[i]`，并将该进程标为完成；继续寻找下一进程。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 判定安全性
 
     若所有进程均能依次完成，则存在安全序列；否则当前状态不安全。
 
-  </Step>
+</Step>
+
 </Steps>
 
 初始化：
@@ -4515,37 +4531,24 @@ P2 到达后因打印机被占用，不能立即进入就绪队列；P3 在具�
 
 某进程正在执行，随后由于时间片耗尽失去 CPU。此时它的状态变化是（ ）。
 
-
-
 **A.** 运行态 → 阻塞态
-
-
-
 
 **B.** 运行态 → 就绪态
 
-
-
-
 **C.** 运行态 → 终止态
-
-
-
 
 **D.** 阻塞态 → 就绪态
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：B。**
 
-
 **解析：**&#x2060;时间片耗尽触发抢占，进程没有等待其他事件，因此从运行态转为就绪态。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>

@@ -4,13 +4,18 @@ description: "考研408：计算机层次与冯·诺依曼结构、指令执行�
 ---
 
 <Cards>
-  <Card title="系统与程序">ISA、体系结构与组成、冯·诺依曼机、取指流程</Card>
-  <Card title="性能计算">CPU 时间、主频、CPI/IPC、MIPS/FLOPS</Card>
-  <Card title="容量与优化">字长、MAR/MDR、寻址容量、阿姆达尔定律</Card>
+
+<Card title="系统与程序">ISA、体系结构与组成、冯·诺依曼机、取指流程</Card>
+
+<Card title="性能计算">CPU 时间、主频、CPI/IPC、MIPS/FLOPS</Card>
+
+<Card title="容量与优化">字长、MAR/MDR、寻址容量、阿姆达尔定律</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章交互知识图谱" id="co1-knowledge-map">
+
+<Accordion title="本章交互知识图谱" id="co1-knowledge-map">
 
     <MindMap
       title="计算机组成原理 第1章：计算机系统概述知识树"
@@ -38,7 +43,8 @@ description: "考研408：计算机层次与冯·诺依曼结构、指令执行�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章最重要的不是背诵大量概念，而是建立两条主线：
@@ -111,32 +117,19 @@ $$
 
 下列软件中，不属于系统软件的是（ ）。
 
-
-
 **A.** 编译程序
-
-
-
 
 **B.** 操作系统
 
-
-
-
 **C.** 文本处理程序
-
-
-
 
 **D.** 数据库管理系统
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：C。**
-
 
 答案：C。
 
@@ -144,8 +137,8 @@ $$
 
 数据库管理系统容易被误认为应用软件，但在 408 教材分类中通常属于系统软件。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -668,7 +661,8 @@ CPU 执行机器指令
 ```
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 10.1 预处理
 
@@ -683,8 +677,9 @@ int a[N];
 
 预处理器会对宏进行展开。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 10.2 编译
 
@@ -692,8 +687,9 @@ int a[N];
 
 在典型 GCC 教学流程中，可以生成汇编代码。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 10.3 汇编
 
@@ -701,8 +697,9 @@ int a[N];
 
 目标文件中通常还包含符号表和重定位信息。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 10.4 链接
 
@@ -714,8 +711,9 @@ int a[N];
 
 链接器需要确定这个函数的具体位置，建立相应引用关系。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 10.5 装载
 
@@ -723,7 +721,8 @@ int a[N];
 
 操作系统为其准备运行所需的地址空间、相关映射和执行环境。
 
-  </Step>
+</Step>
+
 </Steps>
 
 #### 真题 4：2022 年
@@ -1429,7 +1428,8 @@ $$
 这里尤其容易混淆。
 
 <Tabs items={['CPU 时间', '墙钟时间']} defaultIndex={0}>
-  <Tab value="CPU 时间">
+
+<Tab value="CPU 时间">
 
 CPU 执行时间是处理器实际为程序执行工作消耗的处理时间。
 
@@ -1437,8 +1437,9 @@ CPU 执行时间是处理器实际为程序执行工作消耗的处理时间。
 
 用户 CPU 时间和系统 CPU 时间。
 
-  </Tab>
-  <Tab value="墙钟时间">
+</Tab>
+
+<Tab value="墙钟时间">
 
 墙钟时间是程序开始到结束的实际经历时间。
 
@@ -1446,11 +1447,11 @@ CPU 执行时间是处理器实际为程序执行工作消耗的处理时间。
 
 程序执行、I/O 等待、调度等待等。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 模拟题 2：CPU 时间占比
-
 
 CPU 主频：
 
@@ -1699,7 +1700,6 @@ $$
 ### 二十四、王道模拟题：编译器与机器共同影响性能
 
 这是本章非常有代表性的综合计算题。
-
 
 M1 的主频：
 

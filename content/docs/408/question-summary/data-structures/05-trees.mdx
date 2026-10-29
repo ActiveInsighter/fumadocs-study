@@ -4,13 +4,18 @@ description: "考研408：树的计数、二叉树遍历与重建、BST、AVL、
 ---
 
 <Cards>
-  <Card title="树的性质与遍历">度与边数、完全二叉树、遍历序列重建</Card>
-  <Card title="查找与平衡">BST、AVL 四种旋转、红黑树与树形算法</Card>
-  <Card title="编码与集合">哈夫曼 WPL、前缀编码、并查集优化</Card>
+
+<Card title="树的性质与遍历">度与边数、完全二叉树、遍历序列重建</Card>
+
+<Card title="查找与平衡">BST、AVL 四种旋转、红黑树与树形算法</Card>
+
+<Card title="编码与集合">哈夫曼 WPL、前缀编码、并查集优化</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章知识图谱" id="ds5-knowledge-map">
+
+<Accordion title="本章知识图谱" id="ds5-knowledge-map">
 
     <MindMap
       title="数据结构 第5章：树与二叉树知识树"
@@ -38,7 +43,8 @@ description: "考研408：树的计数、二叉树遍历与重建、BST、AVL、
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 一、先建立整章知识框架
@@ -1720,7 +1726,8 @@ $$
 这张表要熟练掌握。
 
 <Tabs items={['LL：右旋', 'RR：左旋', 'LR：先左后右', 'RL：先右后左']} defaultIndex={0}>
-  <Tab value="LL：右旋">
+
+<Tab value="LL：右旋">
 
 依次插入：
 
@@ -1758,8 +1765,9 @@ $$
 
 恢复平衡。
 
-  </Tab>
-  <Tab value="RR：左旋">
+</Tab>
+
+<Tab value="RR：左旋">
 
 依次插入：
 
@@ -1785,8 +1793,9 @@ $$
     10  30
 ```
 
-  </Tab>
-  <Tab value="LR：先左后右">
+</Tab>
+
+<Tab value="LR：先左后右">
 
 依次插入：
 
@@ -1822,8 +1831,9 @@ $$
     10  30
 ```
 
-  </Tab>
-  <Tab value="RL：先右后左">
+</Tab>
+
+<Tab value="RL：先右后左">
 
 依次插入：
 
@@ -1859,7 +1869,8 @@ $$
     10  30
 ```
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 10.7 AVL 旋转后的检查方法
@@ -2087,7 +2098,8 @@ WPL 使用的是路径边数，不是根为第 1 层时的结点深度。
 初始权值：`2、3、7、9`。每步取出当前权值最小的两棵树，合并后将新权值放回候选集合。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 合并 2 与 3
 
@@ -2097,8 +2109,9 @@ $$
 
     新集合：`5、7、9`。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 合并 5 与 7
 
@@ -2108,8 +2121,9 @@ $$
 
     新集合：`9、12`。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 合并 9 与 12
 
@@ -2119,7 +2133,8 @@ $$
 
     只剩一棵树，构造完成。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 12.4 WPL 的快速计算
@@ -3014,37 +3029,21 @@ $$
 
 以下结构中，**一定**满足所有非叶结点恰好有两个孩子的是（多选）。
 
-
-
 **A.** 完全二叉树
-
-
-
 
 **B.** 满二叉树
 
-
-
-
 **C.** AVL 平衡二叉树
-
-
-
 
 **D.** 标准二叉哈夫曼树
 
-
-
-
 **E.** 二叉排序树（BST）
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：B、D。**
-
 
 **解析：**&#x2060;满二叉树的所有分支结点度为 2；标准二叉哈夫曼树由反复二路合并构造，内部结点度也必为 2。
 
@@ -3060,8 +3059,8 @@ $$
 
 AVL 限制的是高度差，不是孩子数量。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3169,7 +3168,8 @@ $$
 | 10 | BST 中序遍历得到什么顺序？ |
 
 <Accordions>
-  <Accordion title="展开 10 道自测题答案与第 9 题的计算过程">
+
+<Accordion title="展开 10 道自测题答案与第 9 题的计算过程">
 
 | 题号 | 参考答案 |
 | --- | --- |
@@ -3214,7 +3214,8 @@ $$
 \boxed{WPL=19}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十八、建议按这个顺序复习第 5 章

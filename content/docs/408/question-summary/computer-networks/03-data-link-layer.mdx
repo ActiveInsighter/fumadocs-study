@@ -4,13 +4,18 @@ description: "考研408：组帧与CRC、海明码、GBN/SR、信道利用率、
 ---
 
 <Cards>
-  <Card title="帧与差错控制">封装成帧、CRC、海明码、最小码距</Card>
-  <Card title="可靠传输与效率">停止-等待、GBN、SR、滑动窗口、利用率</Card>
-  <Card title="MAC 与局域网">CSMA/CD、CSMA/CA、Ethernet、802.11、VLAN 和交换机</Card>
+
+<Card title="帧与差错控制">封装成帧、CRC、海明码、最小码距</Card>
+
+<Card title="可靠传输与效率">停止-等待、GBN、SR、滑动窗口、利用率</Card>
+
+<Card title="MAC 与局域网">CSMA/CD、CSMA/CA、Ethernet、802.11、VLAN 和交换机</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="net3-mindmap">
+
+<Accordion title="交互知识树：查看本章结构" id="net3-mindmap">
 
     <MindMap
       title="计算机网络 第3章：数据链路层知识树"
@@ -44,7 +49,8 @@ description: "考研408：组帧与CRC、海明码、GBN/SR、信道利用率、
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章的核心是理解：数据怎样在相邻结点之间以帧为单位传输，出现差错后怎么办，多个设备怎样共享信道，以及交换机怎样转发数据帧。
@@ -55,7 +61,8 @@ description: "考研408：组帧与CRC、海明码、GBN/SR、信道利用率、
 ### 1.1 本章的知识结构
 
 <Accordions>
-  <Accordion title="查看章节详细知识结构（文字树）">
+
+<Accordion title="查看章节详细知识结构（文字树）">
 
 ```text
 第3章 数据链路层
@@ -103,7 +110,8 @@ description: "考研408：组帧与CRC、海明码、GBN/SR、信道利用率、
     └── 交换方式
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 1.2 哪些内容最值得投入时间？
@@ -476,7 +484,8 @@ $$
 求应添加的 FCS。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：确定除数
 
@@ -496,8 +505,9 @@ $$
 r=3
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：在原数据后补 3 个 0
 
@@ -507,8 +517,9 @@ $$
 补零后：101110000
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：模 2 除法
 
@@ -543,8 +554,9 @@ $$
 101110011
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：接收端验证
 
@@ -564,7 +576,8 @@ $$
 
 本题正确答案为 C。
 
-  </Step>
+</Step>
+
 </Steps>
 
 #### 4.4.1 CRC 真正要理解的性质
@@ -1025,7 +1038,8 @@ Frame 0 ──────────────────→ 再次收到Fr
 所以即使停止等待协议每次只发送一帧，也需要识别重复帧。
 
 <Tabs items={['停止-等待', 'GBN', 'SR']} defaultIndex={0}>
-  <Tab value="停止-等待">
+
+<Tab value="停止-等待">
 
 协议流程：
 
@@ -1058,8 +1072,9 @@ $$
 
 后面将结合 2018、2020 年真题推导利用率。
 
-  </Tab>
-  <Tab value="GBN">
+</Tab>
+
+<Tab value="GBN">
 
 GBN 可以连续发送多个数据帧，不必每发送一帧就等待确认。
 
@@ -1153,8 +1168,9 @@ $$
 
 收到 ACK3 后，之前 ACK1 的丢失不意味着 F1 必须重传。
 
-  </Tab>
-  <Tab value="SR">
+</Tab>
+
+<Tab value="SR">
 
 SR 与 GBN 最大的区别，是接收方可以接收并缓存窗口范围内的乱序帧。
 
@@ -1212,7 +1228,8 @@ $$
 
 不能重传所有已发送帧，也不能把 F1 再重传一次。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 5.6 GBN、SR 与停等协议的综合比较
@@ -1796,7 +1813,8 @@ $$
 求最少序号位数。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：选择最不利的帧长
 
@@ -1816,8 +1834,9 @@ $$
 L=128\text{ B}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：计算发送时延
 
@@ -1841,8 +1860,9 @@ $$
 RTT=540\text{ ms}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：完整确认周期
 
@@ -1854,8 +1874,9 @@ $$
 T=668\text{ ms}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：求窗口
 
@@ -1867,8 +1888,9 @@ $$
 \boxed{W_{\min}=11}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：求 GBN 序号位数
 
@@ -1919,7 +1941,8 @@ $$
 
 切记不能一开始就根据带宽猜测序号位数。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 6.7 2014 年真题：计算最大平均传输速率
@@ -2631,8 +2654,9 @@ CSMA 的核心是：
 | 非坚持        | 随机等待后重新监听 | 立即发送           |
 | $p$-坚持 | 等待空闲机会    | 以概率 $p$ 发送 |
 
-#<Tabs items={['1-坚持', '非坚持', 'p-坚持']} defaultIndex={0}>
-  <Tab value="1-坚持">
+<Tabs items={['1-坚持', '非坚持', 'p-坚持']} defaultIndex={0}>
+
+<Tab value="1-坚持">
 
 优点是等待时间短。
 
@@ -2640,8 +2664,9 @@ CSMA 的核心是：
 
 #
 
-  </Tab>
-  <Tab value="非坚持">
+</Tab>
+
+<Tab value="非坚持">
 
 发现信道忙时随机等待。
 
@@ -2651,14 +2676,16 @@ CSMA 的核心是：
 
 #
 
-  </Tab>
-  <Tab value="p-坚持">
+</Tab>
+
+<Tab value="p-坚持">
 
 在时隙模型中，信道空闲时以概率 $p$ 发送，以概率 $1-p$ 延后。
 
 兼顾冲突概率和等待时间。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 模拟题的重要结论
@@ -3433,7 +3460,8 @@ Host A → AP1 → AP2 → Host B
 重点掌握三种常见场景。
 
 <Tabs items={['上行 STA→AP', '下行 AP→STA', '无线桥接']} defaultIndex={0}>
-  <Tab value="上行 STA→AP">
+
+<Tab value="上行 STA→AP">
 
 ```text
 STA ─────────→ AP
@@ -3452,8 +3480,9 @@ From DS = 0
 - 地址2：STA。
 - 地址3：最终二层目的。
 
-  </Tab>
-  <Tab value="下行 AP→STA">
+</Tab>
+
+<Tab value="下行 AP→STA">
 
 ```text
 AP ─────────→ STA
@@ -3472,8 +3501,9 @@ From DS = 1
 - 地址2：AP。
 - 地址3：二层原始源。
 
-  </Tab>
-  <Tab value="无线桥接">
+</Tab>
+
+<Tab value="无线桥接">
 
 ```text
 H1 → AP1 ~~~ AP2 → H2
@@ -3497,7 +3527,8 @@ From DS = 1
 
 双 DS 位为 1 时，四个地址依次是：接收、发送、目的、来源。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 12.3 2022 年第 47 题：802.11 下行地址
@@ -4547,15 +4578,15 @@ $$
 问至少需要多少校验位？
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
 **至少需要 5 位。** 普通单错纠正海明码满足 $2^r\ge k+r+1$。当 $k=20$ 时，$r=4$ 得 $16<25$，不满足；$r=5$ 得 $32\ge26$，成立。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -4583,11 +4614,13 @@ $$
 问 GBN 和对称 SR 至少需要多少序号位？
 
 <Accordions>
-  <Accordion title="查看训练 2 的参考答案">
+
+<Accordion title="查看训练 2 的参考答案">
 
 **GBN 需要 4 位，典型对称 SR 需要 5 位。** 题设下含 ACK 发送时间的停等完整周期为 $T_d+RTT+T_a=1.12\,\mathrm{ms}$；使利用率不低于 $0.9$，需要 $W\ge\lceil0.9\times1.12/0.08\rceil=13$。GBN 取 $W\le2^n-1$，故 $n\ge4$；对称 SR 取 $W\le2^{n-1}$，故 $n\ge5$。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 3：CSMA/CD 最小帧长
@@ -4603,11 +4636,13 @@ $$
 求理论碰撞检测所需的最小帧长。
 
 <Accordions>
-  <Accordion title="查看训练 3 的参考答案">
+
+<Accordion title="查看训练 3 的参考答案">
 
 **理论最小帧长为 500 bit，即 62.5 B；若按整字节取整为 63 B。** 单向传播时延 $\tau=500/(2\times10^8)=2.5\,\mu s$，因此 $L_{\min}\ge2\tau\times100\,\mathrm{Mb/s}=500\,\mathrm{bit}$。实际标准以太网还有最短帧长度等要求，不能把理论值直接视为以太网帧长。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 4：交换机与 VLAN
@@ -4628,11 +4663,13 @@ A 向 B 发送一个单播帧。
 问哪些端口转发？
 
 <Accordions>
-  <Accordion title="查看训练 4 的参考答案">
+
+<Accordion title="查看训练 4 的参考答案">
 
 **初始 MAC 表为空时，A 的单播帧在 VLAN 10 内进行未知目的单播泛洪：从端口 1 输入后转发到端口 2，不跨 VLAN 20 的端口 3、4。** 交换机先学习源 MAC A 位于端口 1，随后查找目的 B；没有条目时在同一 VLAN 的其余端口泛洪。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 5：802.11 无线地址
@@ -4651,11 +4688,13 @@ A 经 AP 向 B 发送数据。
 2. AP→B 帧的地址1、2、3。
 
 <Accordions>
-  <Accordion title="查看训练 5 的参考答案">
+
+<Accordion title="查看训练 5 的参考答案">
 
 **A→AP（To DS=1，From DS=0）：地址 1=CC（接收者/AP BSSID），地址 2=AA（发送者），地址 3=BB（最终目的）。** **AP→B（To DS=0，From DS=1）：地址 1=BB（接收者），地址 2=CC（AP/BSSID），地址 3=AA（最初源）。** 这是题设中单 AP 基础设施模式的三地址数据帧。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 训练 6：CRC
@@ -4674,11 +4713,13 @@ $$
 4. CRC 本身是否能自动重传？
 
 <Accordions>
-  <Accordion title="查看训练 6 的参考答案">
+
+<Accordion title="查看训练 6 的参考答案">
 
 生成比特串为 **1011**；CRC 余数长度为 **3 bit**。接收端余数为零只表示没有检测到差错，不保证绝对无误码；CRC 是检错机制，不负责自动重传，重传要由 ARQ 等机制实现。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 二十二、如何真正掌握这一章？

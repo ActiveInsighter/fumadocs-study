@@ -4,13 +4,18 @@ description: "考研408：总线仲裁、带宽与事务、I/O 接口、查询�
 ---
 
 <Cards>
-  <Card title="总线及性能">信号方向、仲裁、同步时序、突发传送与带宽</Card>
-  <Card title="I/O 控制与数据搬运">查询、中断、DMA、通道和 CPU 时间占比</Card>
-  <Card title="综合计算">非突发事务、DMA 周期挪用、时间轴与效率</Card>
+
+<Card title="总线及性能">信号方向、仲裁、同步时序、突发传送与带宽</Card>
+
+<Card title="I/O 控制与数据搬运">查询、中断、DMA、通道和 CPU 时间占比</Card>
+
+<Card title="综合计算">非突发事务、DMA 周期挪用、时间轴与效率</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="co6-knowledge-tree">
+
+<Accordion title="交互知识树：查看本章结构" id="co6-knowledge-tree">
 
     <MindMap
       title="计算机组成原理 第6章：总线与输入/输出系统知识树"
@@ -42,7 +47,8 @@ description: "考研408：总线仲裁、带宽与事务、I/O 接口、查询�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章的核心问题是：
@@ -53,8 +59,10 @@ CPU、主存和外部设备之间，究竟如何交换数据？如何提高数�
 
 ## 一、本章知识体系与考点优先级
 #### 1.1 完整知识地图
+
 <Accordions>
-  <Accordion title="展开详细知识框架（文字版）">
+
+<Accordion title="展开详细知识框架（文字版）">
 
 ```text
 第6章 总线与输入/输出系统
@@ -116,7 +124,8 @@ CPU、主存和外部设备之间，究竟如何交换数据？如何提高数�
     └── CPU 与外设并行工作的时间轴
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 1.2 考点重要程度
@@ -568,7 +577,8 @@ CPU是主设备，主存是从设备。
 | 独立请求    | 每设备独立请求和允许线 | 速度快、优先级灵活 | 线路多、逻辑复杂   |
 
 <Tabs items={['链式查询', '计数器查询', '独立请求']} defaultIndex={0}>
-  <Tab value="链式查询">
+
+<Tab value="链式查询">
 
 ```text
 仲裁器 → 设备A → 设备B → 设备C
@@ -580,8 +590,9 @@ CPU是主设备，主存是从设备。
 
 因此链式查询容易出现饥饿。
 
-  </Tab>
-  <Tab value="计数器查询">
+</Tab>
+
+<Tab value="计数器查询">
 
 ```text
 设备0 → 设备1 → 设备2 → 设备3
@@ -591,8 +602,9 @@ CPU是主设备，主存是从设备。
 
 可以通过改变计数起点改善公平性，但扫描需要时间。
 
-  </Tab>
-  <Tab value="独立请求">
+</Tab>
+
+<Tab value="独立请求">
 
 ```text
 设备A ──请求A──→
@@ -604,7 +616,8 @@ CPU是主设备，主存是从设备。
 
 它通常响应较快，但需要更多控制线路。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 选择题常考
@@ -909,7 +922,8 @@ $$
 求总线带宽。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：计算每秒时钟周期数
 
@@ -917,8 +931,9 @@ $$
 f=10\times10^6\ \mathrm{Hz}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：计算每秒总线周期数
 
@@ -928,8 +943,9 @@ $$
 N=\frac{10\times10^6}{2} =5\times10^6
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：计算带宽
 
@@ -955,7 +971,8 @@ $$
 
 因为这忽略了一个总线周期包含2个时钟周期的条件。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 4.3 真题：2012年突发传输
@@ -1574,7 +1591,8 @@ I/O接口主要承担：
 408主要考两种方式：
 
 <Tabs items={['统一编址 MMIO', '独立编址 PMIO']} defaultIndex={0}>
-  <Tab value="统一编址 MMIO">
+
+<Tab value="统一编址 MMIO">
 
 Memory-Mapped I/O。
 
@@ -1616,8 +1634,9 @@ MOV EAX, [0xF0001000]
 
 注意：MMIO地址属于统一的地址空间，但不代表它是普通RAM。设备寄存器通常还具有特殊的缓存与访问顺序要求。
 
-  </Tab>
-  <Tab value="独立编址 PMIO">
+</Tab>
+
+<Tab value="独立编址 PMIO">
 
 Port-Mapped I/O。
 
@@ -1632,7 +1651,8 @@ IN  AL, 0x60
 OUT 0x3F8, AL
 ```
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 两种方式对比
@@ -3605,8 +3625,8 @@ $$
 理论最大带宽是多少？
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与推导**
 
@@ -3620,8 +3640,8 @@ $$
 \boxed{B=6.4\ \mathrm{GB/s}}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3639,7 +3659,8 @@ $$
 连续读4个64位数据需要多久？
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与推导">
+
+<Accordion title="展开第 2 题答案与推导">
 
 答案：
 
@@ -3661,7 +3682,8 @@ $$
 \boxed{T=240\ \mathrm{ns}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 3：中断占用率
@@ -3673,7 +3695,8 @@ CPU主频400 MHz。
 问CPU占用率。
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与推导">
+
+<Accordion title="展开第 3 题答案与推导">
 
 $$
 \eta=\frac{10^6\times80}{400\times10^6}
@@ -3683,7 +3706,8 @@ $$
 \boxed{\eta=20\%}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 4：DMA管理开销
@@ -3699,7 +3723,8 @@ CPU主频500 MHz。
 问CPU管理时间占比。
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与推导">
+
+<Accordion title="展开第 4 题答案与推导">
 
 每秒DMA块数：
 
@@ -3717,7 +3742,8 @@ $$
 \boxed{\eta=0.4\%}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 5：DMA至少需要多大块才更节省CPU？
@@ -3731,7 +3757,8 @@ $$
 问DMA块至少多大，才能比中断方式节省CPU管理周期？
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与推导">
+
+<Accordion title="展开第 5 题答案与推导">
 
 先比较每字节的CPU开销。
 
@@ -3779,7 +3806,8 @@ $$
 
 如果设备数据率和CPU主频相同，它们在两种方案的占用率比较中会抵消，无须先计算完整占用率。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十六、考场上如何快速判断题型？

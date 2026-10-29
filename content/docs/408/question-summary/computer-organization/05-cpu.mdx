@@ -4,13 +4,18 @@ description: "考研408：CPU 结构、数据通路、控制器与微程序、�
 ---
 
 <Cards>
-  <Card title="CPU 与数据通路">PC/IR/MAR/MDR、RTL、MUX 与单总线控制信号</Card>
-  <Card title="流水线与时序">IF/ID/EX/MEM/WB、RAW、前递、停顿、分支惩罚</Card>
-  <Card title="控制与并行">微程序编码、异常中断、超标量与多线程</Card>
+
+<Card title="CPU 与数据通路">PC/IR/MAR/MDR、RTL、MUX 与单总线控制信号</Card>
+
+<Card title="流水线与时序">IF/ID/EX/MEM/WB、RAW、前递、停顿、分支惩罚</Card>
+
+<Card title="控制与并行">微程序编码、异常中断、超标量与多线程</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识图谱：展开本章知识结构" id="co5-map">
+
+<Accordion title="交互知识图谱：展开本章知识结构" id="co5-map">
 
     <MindMap
       title="计算机组成原理 第5章：中央处理器思维导图"
@@ -43,7 +48,8 @@ description: "考研408：CPU 结构、数据通路、控制器与微程序、�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 这一章是计算机组成原理中最需要理解硬件工作过程的章节之一。
@@ -619,7 +625,8 @@ $$
 | 主要优势       | 控制简单    | 资源利用更灵活 | 吞吐率高     |
 
 <Tabs items={['单周期', '多周期', '流水线']} defaultIndex={0}>
-  <Tab value="单周期">
+
+<Tab value="单周期">
 
 一条指令必须在一个周期内全部完成。
 
@@ -631,8 +638,9 @@ $$
 
 但是，时钟周期必须足够长，保证最慢指令也能执行完毕。
 
-  </Tab>
-  <Tab value="多周期">
+</Tab>
+
+<Tab value="多周期">
 
 不同指令可以占不同数量的时钟周期。
 
@@ -645,8 +653,9 @@ LOAD：取指→译码→算地址→访存→写回
 
 所以不同指令的 CPI 可以不同。
 
-  </Tab>
-  <Tab value="流水线">
+</Tab>
+
+<Tab value="流水线">
 
 虽然一条指令可能经过五个阶段，但多条指令能够重叠运行。
 
@@ -660,7 +669,8 @@ $$
 
 注意：单周期 CPU 与流水线 CPU 的理想 CPI 都可能是 1，但时钟周期长度以及指令重叠方式完全不同。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 3.4 单周期 CPU 的关键路径计算
@@ -963,7 +973,8 @@ $$
 注意：结果写回内存，不是写回 R1。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：找源操作数
 
@@ -973,8 +984,9 @@ $$
 R_0,\qquad M[R_1]
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：确定目的位置
 
@@ -990,8 +1002,9 @@ $$
 M[R_1]+R_0
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：形成地址
 
@@ -999,8 +1012,9 @@ $$
 MAR\leftarrow R_1
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：读取主存
 
@@ -1008,8 +1022,9 @@ $$
 MDR\leftarrow M[MAR]
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：计算加法
 
@@ -1017,8 +1032,9 @@ $$
 AC\leftarrow R_0+MDR
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：准备写回
 
@@ -1026,8 +1042,9 @@ $$
 MDR\leftarrow AC
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第七步：写回主存
 
@@ -1059,7 +1076,8 @@ $$
 4. 内部总线与独立外部数据通路可能同时工作。
 5. 最后写回的是主存，因此必须使用 `MemW`。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 4.6 2015 年第 43 题：数据通路补图
@@ -1795,7 +1813,8 @@ $$
 | Abort | 终止 | 严重错误，通常难以正常恢复 | 严重机器故障 |
 
 <Tabs items={['Fault', 'Trap', 'Abort']} defaultIndex={0}>
-  <Tab value="Fault">
+
+<Tab value="Fault">
 
 例如缺页：
 
@@ -1815,8 +1834,9 @@ LOAD 指令
 
 故障处理后往往重新执行引发异常的指令。
 
-  </Tab>
-  <Tab value="Trap">
+</Tab>
+
+<Tab value="Trap">
 
 例如：
 
@@ -1828,12 +1848,14 @@ syscall
 
 完成后再从后继位置继续。
 
-  </Tab>
-  <Tab value="Abort">
+</Tab>
+
+<Tab value="Abort">
 
 通常表示严重到无法保证精确恢复的异常。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 2015 年真题
@@ -3690,7 +3712,8 @@ $$
 顺序执行时 PC 增量是多少？
 
 <Accordions>
-  <Accordion title="展开第 1 题答案与解析">
+
+<Accordion title="展开第 1 题答案与解析">
 
 答案：
 
@@ -3702,7 +3725,8 @@ $$
 \boxed{PC\leftarrow PC+3}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 2：微程序编码
@@ -3712,7 +3736,8 @@ $$
 最少控制字段位数？
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与解析">
+
+<Accordion title="展开第 2 题答案与解析">
 
 答案：
 
@@ -3728,7 +3753,8 @@ $$
 \boxed{9bit}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 3：无前递 RAW
@@ -3743,7 +3769,8 @@ SUB R4,R1,R5
 无 Forwarding，需要多少 Stall？
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与解析">
+
+<Accordion title="展开第 3 题答案与解析">
 
 答案：
 
@@ -3759,7 +3786,8 @@ $$
 \boxed{2}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 4：Load-Use
@@ -3775,7 +3803,8 @@ SUB R5,R3,R6
 数据停顿多少拍？
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与解析">
+
+<Accordion title="展开第 4 题答案与解析">
 
 答案：
 
@@ -3789,7 +3818,8 @@ $$
 \boxed{1\text{ 拍}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 5：流水性能
@@ -3801,7 +3831,8 @@ $$
 总执行时间？
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与解析">
+
+<Accordion title="展开第 5 题答案与解析">
 
 答案：
 
@@ -3817,7 +3848,8 @@ $$
 \boxed{4800\text{ ps}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 <Callout title="练习题 · 单选题 · 2 分" id="co05-selftest-external-interrupt">
@@ -3828,37 +3860,24 @@ $$
 
 下面哪个属于典型外部中断？
 
-
-
 **A.** 除零
-
-
-
 
 **B.** 系统调用
 
-
-
-
 **C.** 磁盘 I/O 完成
-
-
-
 
 **D.** 非法指令
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：C。**
 
-
 **参考答案：C。** 磁盘 I/O 完成由设备发起，是典型外部中断；除零、系统调用、非法指令都是 CPU 执行指令时产生的内部异常或陷入事件。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3877,7 +3896,8 @@ $$
 求 CF 和 OF。
 
 <Accordions>
-  <Accordion title="展开第 7 题答案与解析">
+
+<Accordion title="展开第 7 题答案与解析">
 
 答案：
 
@@ -3893,7 +3913,8 @@ $$
 OF=1
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 8：分支惩罚
@@ -3905,7 +3926,8 @@ $$
 求 CPI。
 
 <Accordions>
-  <Accordion title="展开第 8 题答案与解析">
+
+<Accordion title="展开第 8 题答案与解析">
 
 答案：
 
@@ -3917,7 +3939,8 @@ $$
 \boxed{CPI=1.075}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 9：数据相关
@@ -3931,7 +3954,8 @@ I3: MUL R1,R6,R7
 判断相关。
 
 <Accordions>
-  <Accordion title="展开第 9 题答案与解析">
+
+<Accordion title="展开第 9 题答案与解析">
 
 答案：
 
@@ -3939,7 +3963,8 @@ I3: MUL R1,R6,R7
 - I1→I3：WAW。
 - I2→I3：WAR。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 10：SMT
@@ -3949,7 +3974,8 @@ I3: MUL R1,R6,R7
 逻辑处理器数量？
 
 <Accordions>
-  <Accordion title="展开第 10 题答案与解析">
+
+<Accordion title="展开第 10 题答案与解析">
 
 答案：
 
@@ -3963,7 +3989,8 @@ $$
 
 但不能认为等价于 16 个独立物理核心。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十四、真题复习清单与推荐顺序

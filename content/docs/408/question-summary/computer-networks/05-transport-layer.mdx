@@ -4,13 +4,18 @@ description: "考研408：UDP、TCP 首部、序号与确认、连接管理、�
 ---
 
 <Cards>
-  <Card title="端到端通信">端口、四元组、UDP 首部与伪首部校验和</Card>
-  <Card title="TCP 序号与状态">三次握手、四次挥手、seq/ack、超时与重传</Card>
-  <Card title="窗口与吞吐率">rwnd、cwnd、ssthresh、慢开始、拥塞避免、BDP</Card>
+
+<Card title="端到端通信">端口、四元组、UDP 首部与伪首部校验和</Card>
+
+<Card title="TCP 序号与状态">三次握手、四次挥手、seq/ack、超时与重传</Card>
+
+<Card title="窗口与吞吐率">rwnd、cwnd、ssthresh、慢开始、拥塞避免、BDP</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="net5-mindmap">
+
+<Accordion title="交互知识树：查看本章结构" id="net5-mindmap">
 
     <MindMap
       title="计算机网络 第5章：传输层知识树"
@@ -42,7 +47,8 @@ description: "考研408：UDP、TCP 首部、序号与确认、连接管理、�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 这一章的核心是 TCP。它既有大量需要记忆和辨析的概念，也有比较复杂的计算题，特别是 TCP 序列号、确认号、滑动窗口、流量控制、拥塞控制和连接管理。
@@ -53,7 +59,8 @@ description: "考研408：UDP、TCP 首部、序号与确认、连接管理、�
 ### 1.1 知识体系
 
 <Accordions>
-  <Accordion title="查看章节详细知识结构（文字树）">
+
+<Accordion title="查看章节详细知识结构（文字树）">
 
 ```text
 第5章 传输层
@@ -109,7 +116,8 @@ description: "考研408：UDP、TCP 首部、序号与确认、连接管理、�
     └── TCP报文抓包分析
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 1.2 考点重要程度
@@ -921,7 +929,8 @@ ack = 2013
 ```
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一次握手
 
@@ -939,8 +948,9 @@ seq = x
 CLOSED → SYN-SENT
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二次握手
 
@@ -963,8 +973,9 @@ LISTEN → SYN-RECEIVED
 
 因为 SYN 即使没有应用数据，也要消耗一个序号。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三次握手
 
@@ -999,7 +1010,8 @@ ack = y+1
 | 第三次握手能否携带数据？      | 可以      |
 | 不带数据的纯 ACK 消耗序号吗？ | 通常不消耗   |
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 5.2 真题：2019 年第三次握手
@@ -1067,7 +1079,8 @@ B → A
 ```
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一次挥手
 
@@ -1079,8 +1092,9 @@ A 发送 FIN，表示自己不再发送数据。
 ESTABLISHED → FIN-WAIT-1
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二次挥手
 
@@ -1102,8 +1116,9 @@ FIN-WAIT-2
 
 这称为半关闭。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三次挥手
 
@@ -1115,8 +1130,9 @@ B 进入：
 LAST-ACK
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四次挥手
 
@@ -1132,7 +1148,8 @@ B 收到最后 ACK 后进入 `CLOSED`。
 
 A 经过 $2MSL$ 后进入 `CLOSED`。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 5.4 为什么通常需要四次挥手？
@@ -1982,7 +1999,8 @@ $$
 转入拥塞避免阶段。
 
 <Tabs items={['慢开始', '拥塞避免']} defaultIndex={0}>
-  <Tab value="慢开始">
+
+<Tab value="慢开始">
 
 在经典 408 计算模型中，经常假设：
 
@@ -2026,8 +2044,9 @@ $$
 
 真实 TCP 的窗口增长要结合 ACK 及其确认的数据量，408 整 RTT 题目采用的是理想化近似。
 
-  </Tab>
-  <Tab value="拥塞避免">
+</Tab>
+
+<Tab value="拥塞避免">
 
 当：
 
@@ -2057,7 +2076,8 @@ $$
 
 这体现的是加性增大思想。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 7.5 慢开始与拥塞避免的完整例子
@@ -2252,7 +2272,8 @@ $$
 因此 TCP Reno 类算法通常不会像超时那样直接退回初始慢开始状态。
 
 <Tabs items={['教材简化模型', 'Tahoe 与 Reno', 'Reno 细节']} defaultIndex={0}>
-  <Tab value="教材简化模型">
+
+<Tab value="教材简化模型">
 
 假设：
 
@@ -2276,8 +2297,9 @@ $$
 
 然后进入拥塞避免。
 
-  </Tab>
-  <Tab value="Tahoe 与 Reno">
+</Tab>
+
+<Tab value="Tahoe 与 Reno">
 
 | 事件           | Tahoe 典型处理 | Reno 典型处理       |
 | ------------ | ---------- | --------------- |
@@ -2285,8 +2307,9 @@ $$
 | 3 个重复 ACK    | 快速重传后重新慢开始 | 快速重传、快速恢复       |
 | 丢包后是否直接回到慢开始 | 是          | 3 个重复 ACK 时通常不是 |
 
-  </Tab>
-  <Tab value="Reno 细节">
+</Tab>
+
+<Tab value="Reno 细节">
 
 在经典 Reno 快速恢复过程中，收到第 3 个重复 ACK 后可能暂时设置：
 
@@ -2311,7 +2334,8 @@ $$
 
 如果题目明确给出拥塞控制算法和调整规则，必须以题设为准。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 7.10 超时与三次重复 ACK 的终极区别
@@ -3703,7 +3727,8 @@ seq=5000
 B 正确、按序接收，求累计确认号。
 
 <Accordions>
-  <Accordion title="查看练习 1 的解析">
+
+<Accordion title="查看练习 1 的解析">
 
 $$
 ACK=5000+1200
@@ -3713,7 +3738,8 @@ $$
 \boxed{ACK=6200}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 2：乱序累计确认
@@ -3731,7 +3757,8 @@ B 收到 D1、D3，但是 D2 丢失。
 求累计确认号。
 
 <Accordions>
-  <Accordion title="查看练习 2 的解析">
+
+<Accordion title="查看练习 2 的解析">
 
 D1 覆盖：
 
@@ -3755,7 +3782,8 @@ $$
 
 D3 虽然到达，但不能让累计 ACK 越过 D2 的缺口。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 3：发送窗口
@@ -3777,7 +3805,8 @@ $$
 求还能发送多少新数据。
 
 <Accordions>
-  <Accordion title="查看练习 3 的解析">
+
+<Accordion title="查看练习 3 的解析">
 
 $$
 W=\min(12000,8000)=8000\text{ B}
@@ -3791,7 +3820,8 @@ $$
 \boxed{3000\text{ B}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 4：拥塞窗口轨迹
@@ -3811,7 +3841,8 @@ $$
 求第 6 个 RTT 结束后的窗口。
 
 <Accordions>
-  <Accordion title="查看练习 4 的解析">
+
+<Accordion title="查看练习 4 的解析">
 
 ```text
 初始：1
@@ -3829,7 +3860,8 @@ $$
 \boxed{11MSS}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 <Callout title="练习题 · 综合题 · 10 分" id="net05-review-file-window">
@@ -3869,8 +3901,8 @@ $$
 问从发起 TCP 连接，到最后一个数据段的 ACK 返回，需要多少时间？
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
@@ -3921,8 +3953,8 @@ $$
 \boxed{0.8\text{ Mb/s}}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3964,7 +3996,8 @@ $$
 5. 目前最多可以新发送多少字节？
 
 <Accordions>
-  <Accordion title="查看练习 6 的解析">
+
+<Accordion title="查看练习 6 的解析">
 
 第一步：SYN 已占用序号 500。
 
@@ -4028,7 +4061,8 @@ $$
 
 这道题把握手序号、乱序缓存、累计确认和发送窗口合并到了一起。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十四、真正做 TCP 综合大题的统一方法
@@ -4036,7 +4070,8 @@ $$
 我建议考试时建立“三本账”。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一本账：序号账本
 
@@ -4070,8 +4105,9 @@ $$
 
 不要把双方序号加在同一个账本中。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二本账：窗口账本
 
@@ -4122,8 +4158,9 @@ $$
 
 如果题目问的是窗口上限，到第一步即可；如果问的是还能继续发送多少，再做第二步。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三本账：时间账本
 
@@ -4154,7 +4191,8 @@ $$
 
 而一个数据段从发送到收到确认，通常按一个 RTT 计算。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ## 十五、复习顺序与掌握标准

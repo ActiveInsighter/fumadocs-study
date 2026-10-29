@@ -4,13 +4,18 @@ description: "考研408操作系统：I/O控制方式、软件层次、缓冲、
 ---
 
 <Cards>
-  <Card title="设备请求链">查询 / 中断 / DMA 与四层 I/O 软件</Card>
-  <Card title="效率优化">单缓冲、双缓冲、设备分配与 SPOOLing</Card>
-  <Card title="磁盘与存储">CHS、寻道计算、SCAN/LOOK 与 SSD</Card>
+
+<Card title="设备请求链">查询 / 中断 / DMA 与四层 I/O 软件</Card>
+
+<Card title="效率优化">单缓冲、双缓冲、设备分配与 SPOOLing</Card>
+
+<Card title="磁盘与存储">CHS、寻道计算、SCAN/LOOK 与 SSD</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：展开本章知识结构" id="os5-knowledge-map">
+
+<Accordion title="交互知识树：展开本章知识结构" id="os5-knowledge-map">
 
     <MindMap
       title="操作系统 第5章：输入／输出（I/O）管理知识树"
@@ -35,7 +40,8 @@ description: "考研408操作系统：I/O控制方式、软件层次、缓冲、
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章的核心，不是单纯记住各种设备管理技术，而是弄懂三个问题：
@@ -231,7 +237,8 @@ SSD 同样是块设备，只是没有机械寻道和旋转延迟。
 408 主要考查程序查询、中断驱动和 DMA。
 
 <Tabs items={['程序查询', '中断驱动', 'DMA']} defaultIndex={0}>
-  <Tab value="程序查询">
+
+<Tab value="程序查询">
 
 也叫程序直接控制方式或轮询方式。
 
@@ -268,8 +275,9 @@ read_device_data();
 
 考试按经典模型比较即可。
 
-  </Tab>
-  <Tab value="中断驱动">
+</Tab>
+
+<Tab value="中断驱动">
 
 中断方式的改进在于：
 
@@ -307,8 +315,9 @@ CPU 进入中断服务程序
 
 在经典中断驱动模型中，CPU 仍需要通过指令完成相应的数据搬运。
 
-  </Tab>
-  <Tab value="DMA">
+</Tab>
+
+<Tab value="DMA">
 
 DMA：Direct Memory Access，直接存储器访问。
 
@@ -350,7 +359,8 @@ DMA 减少的是 CPU 对数据搬运的直接参与。
 
 CPU 仍需要初始化 DMA 控制器、管理传输资源、处理完成事件等。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 三种方式的重要对比
@@ -2176,7 +2186,8 @@ $$
 答案 B。
 
 <Accordions>
-  <Accordion title="拓展：MBR、GPT、BIOS、UEFI 的关系">
+
+<Accordion title="拓展：MBR、GPT、BIOS、UEFI 的关系">
 
 这里有两类概念。
 
@@ -2224,7 +2235,8 @@ UEFI 固件
 
 要注意，UEFI 与 GPT 经常配套出现，但并不是完全相同的技术概念。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 8.4 2021 年第 46 题：系统引导综合大题
@@ -2585,7 +2597,8 @@ $$
 另外，如果两个请求距离相同，SSTF 本身没有规定唯一的选择顺序，需要根据题目给定的额外规则处理。
 
 <Tabs items={['SCAN', 'LOOK']} defaultIndex={0}>
-  <Tab value="SCAN">
+
+<Tab value="SCAN">
 
 也叫电梯算法。
 
@@ -2627,8 +2640,9 @@ $$
 
 但如果要求实际移动距离，就必须确定边界。
 
-  </Tab>
-  <Tab value="LOOK">
+</Tab>
+
+<Tab value="LOOK">
 
 LOOK 与 SCAN 的区别：
 
@@ -2677,7 +2691,8 @@ $$
 
 这就是 SCAN 与 LOOK 的关键区别。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 10.6 C-SCAN：循环扫描
@@ -3341,8 +3356,8 @@ $$
 求严格 SCAN 和 LOOK 的移动距离。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案：严格 SCAN 为 478 个磁道，LOOK 为 240 个磁道。**
 
@@ -3384,8 +3399,8 @@ $$
 
 这题主要考“到物理边界”与“到最后一个请求”的区别。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3518,27 +3533,31 @@ $$
 ## 十七、最后建立一套统一解题方法
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 识别考点和设备模型
 
     判断属于 I/O 控制、软件层次、缓冲区、磁盘地址、调度还是访问时间；区分 HDD 与 SSD。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 固定题目约束
 
     写清缓冲数、复制/处理能否重叠、磁头初始方向、磁道上下界、请求序列及缓存假设。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 画流程或时间轴并计算
 
     控制方式画数据传送路径，缓冲题画流水时间轴，磁盘调度题画服务路径；最后检查单位与边界。
 
-  </Step>
+</Step>
+
 </Steps>
 
 遇到本章题目，可以按以下思路迅速判断。

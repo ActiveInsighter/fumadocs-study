@@ -4,13 +4,18 @@ description: "考研408操作系统：文件组织、inode、文件系统、索�
 ---
 
 <Cards>
-  <Card title="文件访问路径">路径解析、目录项、inode、fd 与当前偏移</Card>
-  <Card title="空间分配">连续 / 链式 / FAT / 多级索引及访盘次数</Card>
-  <Card title="文件系统维护">硬链接、软链接、位图、空闲块与 VFS</Card>
+
+<Card title="文件访问路径">路径解析、目录项、inode、fd 与当前偏移</Card>
+
+<Card title="空间分配">连续 / 链式 / FAT / 多级索引及访盘次数</Card>
+
+<Card title="文件系统维护">硬链接、软链接、位图、空闲块与 VFS</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：展开本章知识结构" id="os4-knowledge-map">
+
+<Accordion title="交互知识树：展开本章知识结构" id="os4-knowledge-map">
 
     <MindMap
       title="操作系统 第4章：文件管理知识树"
@@ -34,7 +39,8 @@ description: "考研408操作系统：文件组织、inode、文件系统、索�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章的核心不是记住 inode、FAT、目录和索引分配几个名词，而是彻底理解：文件如何被找到、如何被存储、如何被访问、如何被共享，以及删除后如何回收资源。
@@ -1286,7 +1292,8 @@ $$
 ## 八、文件共享：硬链接与软链接
 
 <Tabs items={['硬链接', '软链接']} defaultIndex={0}>
-  <Tab value="硬链接">
+
+<Tab value="硬链接">
 
 硬链接让多个目录项指向同一个 inode。
 
@@ -1308,8 +1315,9 @@ b.txt ──┘
 
 硬链接计数记录引用同一 inode 的硬链接数量。
 
-  </Tab>
-  <Tab value="软链接">
+</Tab>
+
+<Tab value="软链接">
 
 软链接（符号链接）是独立的文件，其内容保存目标路径。
 
@@ -1339,7 +1347,8 @@ link.txt 仍然存在
 
 软链接不会因为目标消失就自动删除。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 8.3 硬链接与软链接对比
@@ -1684,7 +1693,8 @@ $$
 综合题不能漏掉其中一类元数据。
 
 <Accordions>
-  <Accordion title="拓展辨析：成组链接法的分配思想">
+
+<Accordion title="拓展辨析：成组链接法的分配思想">
 
 成组链接法将空闲块分组管理。
 
@@ -1698,7 +1708,8 @@ $$
 
 后面结合王道模拟第7套详细分析。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十、VFS 与文件系统挂载
@@ -3078,7 +3089,8 @@ $$
 建议按照下面的顺序分析。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：识别对象
 
@@ -3091,8 +3103,9 @@ $$
 - 空闲块：看位图或 FAT；
 - 打开文件：看 fd 和打开状态。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：统一单位
 
@@ -3108,8 +3121,9 @@ $$
 
 并且区分 bit 与 byte。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：先算基本容量
 
@@ -3119,8 +3133,9 @@ $$
 - 每个索引块有多少地址；
 - 文件实际需要多少数据块。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：判断索引区间
 
@@ -3142,8 +3157,9 @@ $$
                       └── 否：三级间接
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：按实际访问链数 I/O
 
@@ -3165,8 +3181,9 @@ inode 所在块
 
 如果问“读取整个文件”，要考虑索引块复用。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：检查是否发生资源变化
 
@@ -3179,7 +3196,8 @@ inode 所在块
 - 两种位图是否需要更新；
 - 是否存在其他硬链接或打开引用。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ## 十六、综合强化训练
@@ -3281,8 +3299,8 @@ $$
 最多存放多少个这样的文件？
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案：最多 32000 个文件。**
 
@@ -3322,8 +3340,8 @@ $$
 
 瓶颈是 inode 数量。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>

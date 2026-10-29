@@ -4,13 +4,18 @@ description: "考研408：IPv4、VLSM/CIDR、路由聚合、分片、ARP/DHCP/IC
 ---
 
 <Cards>
-  <Card title="地址规划与转发">CIDR、FLSM/VLSM、路由聚合与最长前缀匹配</Card>
-  <Card title="数据报与辅助协议">IPv4 首部与分片、ARP、DHCP、ICMP、NAT</Card>
-  <Card title="路由与综合拓扑">RIP、OSPF、BGP、IPv6 与逐跳封装分析</Card>
+
+<Card title="地址规划与转发">CIDR、FLSM/VLSM、路由聚合与最长前缀匹配</Card>
+
+<Card title="数据报与辅助协议">IPv4 首部与分片、ARP、DHCP、ICMP、NAT</Card>
+
+<Card title="路由与综合拓扑">RIP、OSPF、BGP、IPv6 与逐跳封装分析</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="net4-mindmap">
+
+<Accordion title="交互知识树：查看本章结构" id="net4-mindmap">
 
     <MindMap
       title="计算机网络 第4章：网络层知识树"
@@ -44,7 +49,8 @@ description: "考研408：IPv4、VLSM/CIDR、路由聚合、分片、ARP/DHCP/IC
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章是计算机网络中计算题和综合应用题最集中的章节之一，也是理解整个 TCP/IP 网络通信过程的关键。
@@ -74,7 +80,8 @@ description: "考研408：IPv4、VLSM/CIDR、路由聚合、分片、ARP/DHCP/IC
 ### 1.2 网络层知识框架
 
 <Accordions>
-  <Accordion title="查看章节详细知识结构（文字树）">
+
+<Accordion title="查看章节详细知识结构（文字树）">
 
 ```text
 计算机网络 第4章 网络层
@@ -131,7 +138,8 @@ description: "考研408：IPv4、VLSM/CIDR、路由聚合、分片、ARP/DHCP/IC
     └── 跨网段综合题
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 1.3 结合题目确定复习优先级
@@ -517,7 +525,8 @@ $$
 这一部分是 408 必须掌握的大题技能。
 
 <Tabs items={['FLSM 定长', 'VLSM 变长']} defaultIndex={0}>
-  <Tab value="FLSM 定长">
+
+<Tab value="FLSM 定长">
 
 FLSM 指所有子网采用相同长度的子网掩码。
 
@@ -595,8 +604,9 @@ $$
 \boxed{32\text{ 个子网，每个 }6\text{ 个可用地址}}
 $$
 
-  </Tab>
-  <Tab value="VLSM 变长">
+</Tab>
+
+<Tab value="VLSM 变长">
 
 VLSM 允许不同子网采用不同前缀长度。
 
@@ -703,7 +713,8 @@ $$
 
 这也是 2027 王道冲刺第 5 套第 47 题的设计思路。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 4.3 子网划分还会考“最小子网”
@@ -1278,7 +1289,8 @@ $$
 3. 各片偏移是多少？
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：计算原始数据长度
 
@@ -1286,8 +1298,9 @@ $$
 D=1500-20=1480\text{ B}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：计算最大数据长度
 
@@ -1319,8 +1332,9 @@ $$
 
 这是分片题最常见的扣分点。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：计算分片数
 
@@ -1340,8 +1354,9 @@ $$
 
 所以需要两片。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：计算偏移
 
@@ -1357,8 +1372,9 @@ $$
 Offset_2=\frac{776}{8}=97
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：计算每片总长度
 
@@ -1387,7 +1403,8 @@ $$
 - 至少分成 2 片。
 - 偏移量分别为 0 和 97。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 7.5 2021 年分片选择题：为什么第二片不是 800B？
@@ -2779,8 +2796,10 @@ BGP 的路径选择不等价于：
 它可以根据多种属性和运营策略选路。
 
 ### 16.2 eBGP 与 iBGP
+
 <Tabs items={['eBGP', 'iBGP']} defaultIndex={0}>
-  <Tab value="eBGP">
+
+<Tab value="eBGP">
 
 External BGP。
 
@@ -2792,8 +2811,9 @@ AS1               AS2
         eBGP
 ```
 
-  </Tab>
-  <Tab value="iBGP">
+</Tab>
+
+<Tab value="iBGP">
 
 Internal BGP。
 
@@ -2809,7 +2829,8 @@ R1 ------ R2
 
 iBGP 虽然发生在 AS 内部，但仍然是 BGP 的一部分，不等于 RIP、OSPF 这样的传统 IGP。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 16.3 BGP 报文类型
@@ -3102,14 +3123,16 @@ IPv6 没有 IPv4 首部中的分片字段，不代表 IPv6 完全没有分片机
 每组 16 bit，共 8 组。
 
 <Tabs items={['省略前导零', '连续零组压缩']} defaultIndex={0}>
-  <Tab value="省略前导零">
+
+<Tab value="省略前导零">
 
 变为：
 
 `2001:db8:85a3:0:0:8a2e:370:7334`
 
-  </Tab>
-  <Tab value="连续零组压缩">
+</Tab>
+
+<Tab value="连续零组压缩">
 
 变为：
 
@@ -3125,7 +3148,8 @@ IPv6 没有 IPv4 首部中的分片字段，不代表 IPv6 完全没有分片机
 
 因为两处 `::` 分别表示多少组 0 无法唯一确定。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 反向展开
@@ -3819,7 +3843,8 @@ IP：10.0.0.20/24
 A 要向 B 发送数据。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：判断是否同网段
 
@@ -3835,8 +3860,9 @@ B 所属网络：
 
 因此 A 必须使用路由转发。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：选择下一跳
 
@@ -3846,8 +3872,9 @@ A 查询本地路由信息，发现 B 是远端目的地址。
 
 `192.168.1.1`
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：解析下一跳 MAC
 
@@ -3863,8 +3890,9 @@ A 查询 ARP 缓存。
 
 获得 R1 局域网接口的 MAC。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：构造第一跳数据帧
 
@@ -3882,8 +3910,9 @@ IP 数据报：
 目的 MAC：R1 内网接口 MAC
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：R1 转发
 
@@ -3901,8 +3930,9 @@ R1：
 10. 更新 IPv4 首部校验和。
 11. 重新封装链路层帧。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：R2 转发
 
@@ -3916,8 +3946,9 @@ R2 重复相同的逐跳处理过程。
 
 如果输出链路为以太网，R2 解析 B 的 MAC。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第七步：B 接收
 
@@ -3935,7 +3966,8 @@ B 收到目的 MAC 属于自己的以太网帧。
 
 这就是网络层的完整通信主线。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ## 二十四、最容易丢分的 20 个易错点
@@ -4110,8 +4142,8 @@ $$
 - 最大可用 IP。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
@@ -4136,8 +4168,8 @@ $$
 | 最小可用 | `172.20.72.1`   |
 | 最大可用 | `172.20.79.254` |
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -4155,7 +4187,8 @@ $$
 求一种节约地址的分配方案。
 
 <Accordions>
-  <Accordion title="查看练习 2 的答案与解析">
+
+<Accordion title="查看练习 2 的答案与解析">
 
 100 个：
 
@@ -4189,7 +4222,8 @@ $$
 10.1.0.192/27
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 3：路由匹配
@@ -4210,7 +4244,8 @@ $$
 选择哪个接口？
 
 <Accordions>
-  <Accordion title="查看练习 3 的答案与解析">
+
+<Accordion title="查看练习 3 的答案与解析">
 
 $$
 \boxed{C}
@@ -4218,7 +4253,8 @@ $$
 
 因为 `/24` 是匹配项中的最长前缀。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 4：分片
@@ -4233,7 +4269,8 @@ IPv4 数据报：
 求各片数据长度、总长度、Offset 和 MF。
 
 <Accordions>
-  <Accordion title="查看练习 4 的答案与解析">
+
+<Accordion title="查看练习 4 的答案与解析">
 
 原始数据：
 
@@ -4255,7 +4292,8 @@ $$
 | 2  | 1000 | 1020 | 125    | 1  |
 | 3  | 1000 | 1020 | 250    | 0  |
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 5：ARP 与 MAC
@@ -4275,7 +4313,8 @@ B：
 问：A 发送给 B 的第一跳帧的目的 MAC 是谁？
 
 <Accordions>
-  <Accordion title="查看练习 5 的答案与解析">
+
+<Accordion title="查看练习 5 的答案与解析">
 
 默认网关接口的 MAC。
 
@@ -4285,7 +4324,8 @@ IP 目的地址仍是：
 
 `10.0.0.10`
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 练习 6：路由协议
@@ -4299,7 +4339,8 @@ IP 目的地址仍是：
 3. 该分组的初始 TTL 至少需要多少，才能确保经过 18 台路由器后正常交付？
 
 <Accordions>
-  <Accordion title="查看练习 6 的答案与解析">
+
+<Accordion title="查看练习 6 的答案与解析">
 
 1. RIP 不适合，因为 RIP 有效距离最大为 15。
 2. OSPF 可以作为候选。
@@ -4309,7 +4350,8 @@ $$
 \boxed{19}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 二十七、最后的复习路线：怎样真正掌握网络层？

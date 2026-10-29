@@ -4,13 +4,18 @@ description: "考研408：串、朴素匹配、最长真前后缀、LPS、next�
 ---
 
 <Cards>
-  <Card title="基本概念">空串 / 空格串、子串与子序列、BF 匹配</Card>
-  <Card title="核心数组">LPS、0 基 / 1 基 next、nextval</Card>
-  <Card title="综合推导">失配跳转、字符比较次数、周期与重叠匹配</Card>
+
+<Card title="基本概念">空串 / 空格串、子串与子序列、BF 匹配</Card>
+
+<Card title="核心数组">LPS、0 基 / 1 基 next、nextval</Card>
+
+<Card title="综合推导">失配跳转、字符比较次数、周期与重叠匹配</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章知识结构（交互展开）" id="ds4-mindmap">
+
+<Accordion title="本章知识结构（交互展开）" id="ds4-mindmap">
 
     <MindMap
       title="数据结构 第4章：串与 KMP 模式匹配知识树"
@@ -37,7 +42,8 @@ description: "考研408：串、朴素匹配、最长真前后缀、LPS、next�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 一、本章学习重点与知识体系
@@ -839,7 +845,8 @@ $$
 因为 `ababac` 的末尾是 `c`，而它的开头是 `a`，不存在非空的相等真前后缀。
 
 <Tabs items={['经典 0 基 next', '传统 1 基 next']} defaultIndex={0}>
-  <Tab value="经典 0 基 next">
+
+<Tab value="经典 0 基 next">
 
 先采用下述经典 0 基定义：
 
@@ -903,8 +910,9 @@ $$
 
 考场技巧：求 `next[j]`，先把位置 $j$ 对应的字符遮住，只看它前面的部分。
 
-  </Tab>
-  <Tab value="传统 1 基 next">
+</Tab>
+
+<Tab value="传统 1 基 next">
 
 这是教材与真题中常见的另一种定义。
 
@@ -979,7 +987,8 @@ $$
 
 因为 `aca` 的首尾字符都是 `a`，最长相等真前后缀长度为 1，再加 1，得到 2。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 4. 同一个模式串，为什么 next 结果不同？
@@ -2993,8 +3002,8 @@ $$
 给定模式串 `P = "aabaac"`（0 基下标），计算 **LPS、经典 0 基 `next` 和 `nextval`** 三个数组。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析：**
 
@@ -3026,8 +3035,8 @@ P[1] = a
 
 跳到位置 1 仍然会比较同一字符。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3183,7 +3192,8 @@ $$
 注意，这里的“最小重复单元”要求至少重复两次，因此长度等于整个串本身的不算。
 
 <Accordions>
-  <Accordion title="展开：KMP 的 16 个高频易错点">
+
+<Accordion title="展开：KMP 的 16 个高频易错点">
 
 这张表适合考前反复查看。
 
@@ -3270,33 +3280,38 @@ $$
 
 `nextval` 的主要作用是减少某些输入上的无效字符比较，而不是将复杂度从一个量级降到另一个量级。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十四、考场必背公式与解题模板
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 确定下标与哨兵规则
 
     先确认模式串是 0 基还是 1 基、`next[0]` 或 `next[1]` 的初值，并核对匹配主循环。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 推导前后缀与 next
 
     求前缀函数 LPS，再按题设定义转换为 `next`；需要时根据重复失配规则构造 `nextval`。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 模拟并核算
 
     用表格记录每次真正执行的字符比较，明确失配回退后的下一比较位置、右移距离和匹配起点。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 1. 公式速查

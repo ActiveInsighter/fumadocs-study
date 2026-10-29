@@ -4,13 +4,18 @@ description: "考研408：码元与比特率、奈奎斯特/香农、编码调�
 ---
 
 <Cards>
-  <Card title="信号与容量">码元、波特率、奈奎斯特、香农与 dB</Card>
-  <Card title="编码与调制">NRZ、曼彻斯特、ASK/PSK/QAM、PCM 与多路复用</Card>
-  <Card title="时延与介质">传输/传播时延、BDP、流水线、光纤与集线器</Card>
+
+<Card title="信号与容量">码元、波特率、奈奎斯特、香农与 dB</Card>
+
+<Card title="编码与调制">NRZ、曼彻斯特、ASK/PSK/QAM、PCM 与多路复用</Card>
+
+<Card title="时延与介质">传输/传播时延、BDP、流水线、光纤与集线器</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="net2-knowledge-tree">
+
+<Accordion title="交互知识树：查看本章结构" id="net2-knowledge-tree">
 
     <MindMap
       title="计算机网络 第2章：物理层知识树"
@@ -45,7 +50,8 @@ description: "考研408：码元与比特率、奈奎斯特/香农、编码调�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章按照概念、原理、公式、典型题型、综合计算和易错辨析的顺序组织。
@@ -1917,7 +1923,8 @@ $$
 | 码分多址   | CDMA | 按码片序列区分  |
 
 <Tabs items={['频分 FDM', '时分 TDM', '统计时分 STDM', '波分 WDM']} defaultIndex={0}>
-  <Tab value="频分 FDM">
+
+<Tab value="频分 FDM">
 
 假设某条链路有一段连续频谱。
 
@@ -1937,8 +1944,9 @@ $$
 
 FDM 的核心是同时、不同频率。
 
-  </Tab>
-  <Tab value="时分 TDM">
+</Tab>
+
+<Tab value="时分 TDM">
 
 多个用户在不同时间片使用同一信道。
 
@@ -1954,8 +1962,9 @@ FDM 的核心是同时、不同频率。
 
 某用户没有数据发送时，它分配到的时隙可能浪费。
 
-  </Tab>
-  <Tab value="统计时分 STDM">
+</Tab>
+
+<Tab value="统计时分 STDM">
 
 根据用户实际发送需求动态分配时间资源。
 
@@ -1967,8 +1976,9 @@ FDM 的核心是同时、不同频率。
 
 它更适合突发式数据业务。
 
-  </Tab>
-  <Tab value="波分 WDM">
+</Tab>
+
+<Tab value="波分 WDM">
 
 WDM 主要用于光纤通信。
 
@@ -1986,7 +1996,8 @@ $$
 
 WDM 可以看作光通信领域利用不同波长进行复用的技术。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 十八、CDMA 码分多址
@@ -2410,7 +2421,8 @@ $$
 是否预先建立并预留端到端通信资源，以及中间结点以多大的数据单位进行转发。
 
 <Tabs items={['电路交换', '报文交换', '分组交换']} defaultIndex={0}>
-  <Tab value="电路交换">
+
+<Tab value="电路交换">
 
 典型过程：
 
@@ -2432,8 +2444,9 @@ $$
 - 即使暂时没有数据发送，预留资源也可能闲置。
 - 对突发式数据业务，资源利用率可能偏低。
 
-  </Tab>
-  <Tab value="报文交换">
+</Tab>
+
+<Tab value="报文交换">
 
 报文交换以完整报文为单位进行存储转发。
 
@@ -2451,8 +2464,9 @@ A 发送一个 8 Mb 的报文。
 
 这会导致较长的等待时间。
 
-  </Tab>
-  <Tab value="分组交换">
+</Tab>
+
+<Tab value="分组交换">
 
 分组交换把大报文拆成许多小分组。
 
@@ -2479,7 +2493,8 @@ A 发送一个 8 Mb 的报文。
 
 流水线传输。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 4. 三者比较
@@ -2614,7 +2629,8 @@ D. 80.24 ms
 答案：C
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：求每个分组的有效载荷
 
@@ -2640,8 +2656,9 @@ $$
 \boxed{D=980\ \mathrm{B}}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：计算分组数量
 
@@ -2671,8 +2688,9 @@ $$
 
 因为 1000 B 包含 20 B 首部，并不全部用来承载文件。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：计算单个分组发送时间
 
@@ -2698,8 +2716,9 @@ $$
 \boxed{t=0.08\ \mathrm{ms}}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：计算流水线时间
 
@@ -2725,7 +2744,8 @@ $$
 
 所以选择 C。
 
-  </Step>
+</Step>
+
 </Steps>
 
 #### 这道题的三个关键陷阱
@@ -3951,15 +3971,15 @@ $$
 某系统采用 16-QAM，码元速率为 2500 Baud，求比特率。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案：** 10000 bit/s
 
 **关键计算 / 判断：** $2500\times4$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3969,13 +3989,15 @@ $$
 某理想无噪声低通信道带宽为 400 kHz，采用 8 个信号状态，求最大数据率。
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与计算">
+
+<Accordion title="展开第 2 题答案与计算">
 
 **参考答案：** 2.4 Mb/s
 
 **关键计算 / 判断：** $2\times400000\times3$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 3：香农容量
@@ -3983,13 +4005,15 @@ $$
 信道带宽为 2 MHz，信噪比为 20 dB，求香农容量。
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与计算">
+
+<Accordion title="展开第 3 题答案与计算">
 
 **参考答案：** 约 13.32 Mb/s
 
 **关键计算 / 判断：** $2\times10^6\log_2(101)$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 4：分组流水线
@@ -3997,13 +4021,15 @@ $$
 100 个分组，每个 1500 B，经过两条 100 Mb/s 的等速链路，忽略传播及其他开销，求最短传输时间。
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与计算">
+
+<Accordion title="展开第 4 题答案与计算">
 
 **参考答案：** 12.12 ms
 
 **关键计算 / 判断：** $101\times1500\times8/(100\times10^6)$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 5：BDP
@@ -4011,13 +4037,15 @@ $$
 链路速率为 200 Mb/s，单向传播时延为 25 ms，求时延带宽积。
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与计算">
+
+<Accordion title="展开第 5 题答案与计算">
 
 **参考答案：** 5 Mbit
 
 **关键计算 / 判断：** $200\times10^6\times0.025$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 6：PCM
@@ -4025,13 +4053,15 @@ $$
 模拟信号最高频率为 4 kHz，采用理论最低采样率，量化为 16 个等级，求单声道 PCM 数据率。
 
 <Accordions>
-  <Accordion title="展开第 6 题答案与计算">
+
+<Accordion title="展开第 6 题答案与计算">
 
 **参考答案：** 32 kb/s
 
 **关键计算 / 判断：** $8000\times4$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 7：CSMA/CD
@@ -4039,13 +4069,15 @@ $$
 某经典共享介质模型中，单向传播时延为 10 μs，链路速率为 1 Gb/s，求理论最小帧长。
 
 <Accordions>
-  <Accordion title="展开第 7 题答案与计算">
+
+<Accordion title="展开第 7 题答案与计算">
 
 **参考答案：** 20000 bit
 
 **关键计算 / 判断：** $2\times10^{-5}\times10^9$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 自测 8：编码判断
@@ -4053,13 +4085,15 @@ $$
 某编码方式规定：每个比特中点必跳变，数据由比特开始位置是否跳变表示。问这是什么编码方式？
 
 <Accordions>
-  <Accordion title="展开第 8 题答案与计算">
+
+<Accordion title="展开第 8 题答案与计算">
 
 **参考答案：** 差分曼彻斯特
 
 **关键计算 / 判断：** 中点同步，起始边界判数据
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 第十四部分：真题复习顺序与最终总结

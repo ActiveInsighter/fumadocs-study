@@ -4,13 +4,18 @@ description: "考研408：图的基本性质与存储、DFS/BFS、最小生成�
 ---
 
 <Cards>
-  <Card title="图与遍历">度数、连通性、邻接矩阵与表、DFS/BFS</Card>
-  <Card title="优化算法">Prim/Kruskal 最小生成树、Dijkstra/Floyd 最短路</Card>
-  <Card title="依赖与时序">DAG、拓扑排序、AOE、关键路径和欧拉通路</Card>
+
+<Card title="图与遍历">度数、连通性、邻接矩阵与表、DFS/BFS</Card>
+
+<Card title="优化算法">Prim/Kruskal 最小生成树、Dijkstra/Floyd 最短路</Card>
+
+<Card title="依赖与时序">DAG、拓扑排序、AOE、关键路径和欧拉通路</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章知识图谱" id="ds6-knowledge-map">
+
+<Accordion title="本章知识图谱" id="ds6-knowledge-map">
 
     <MindMap
       title="数据结构 第6章：图知识树"
@@ -38,7 +43,8 @@ description: "考研408：图的基本性质与存储、DFS/BFS、最小生成�
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章的核心目标不是单纯记住 DFS、BFS、Prim、Kruskal、Dijkstra 等算法的名字，而是建立完整的图论解题体系：能够判断图的性质，理解不同算法解决的问题，手算算法执行过程，并能独立完成 408 算法设计大题。
@@ -1261,7 +1267,8 @@ $$
 即对每个连通分量分别求一棵 MST。
 
 <Tabs items={['Prim：扩张顶点集合', 'Kruskal：合并连通分量']} defaultIndex={0}>
-  <Tab value="Prim：扩张顶点集合">
+
+<Tab value="Prim：扩张顶点集合">
 
 Prim 的核心思想：
 
@@ -1421,8 +1428,9 @@ $$
 
 就是合法的 Prim 选边过程。
 
-  </Tab>
-  <Tab value="Kruskal：合并连通分量">
+</Tab>
+
+<Tab value="Kruskal：合并连通分量">
 
 Kruskal 的核心思想：
 
@@ -1555,7 +1563,8 @@ $$
 \boxed{O(E\log E)}
 $$
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 17. Prim 与 Kruskal 对比
@@ -1903,7 +1912,8 @@ $$
 要求从 S 出发，求到所有顶点的最短路径。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：初始化
 
@@ -1913,8 +1923,9 @@ $$
 
 其他顶点为无穷大。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：确定 S
 
@@ -1928,8 +1939,9 @@ $$
 dist[B]=1
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：确定 B
 
@@ -1959,8 +1971,9 @@ $$
 dist[D]=1+10=11
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：确定 A
 
@@ -1982,8 +1995,9 @@ $$
 dist[D]=\min(11,3+7)=10
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：确定 C
 
@@ -1999,8 +2013,9 @@ $$
 dist[D]=\min(10,4+3)=7
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第六步：确定 D
 
@@ -2038,7 +2053,8 @@ $$
 \boxed{1+2+1+3=7}
 $$
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 考场特别提醒
@@ -3676,8 +3692,8 @@ $$
 一个无向简单图有 **8 个顶点**。至少需要多少条边，才能保证无论怎样选择这些边，图都一定连通？写出推理过程。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案：22 条边。**
 
@@ -3695,8 +3711,8 @@ $$
 
 条边。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>

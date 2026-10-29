@@ -4,13 +4,18 @@ description: "考研408：数制、原反补移码、ALU、标志位、乘除法
 ---
 
 <Cards>
-  <Card title="整数表示与运算">数制、补码、移码、位宽、标志位与移位</Card>
-  <Card title="硬件运算">加法器与 ALU、乘法器、除法器和异常</Card>
-  <Card title="浮点与语言语义">IEEE 754、GRS 舍入、精度、C 类型转换</Card>
+
+<Card title="整数表示与运算">数制、补码、移码、位宽、标志位与移位</Card>
+
+<Card title="硬件运算">加法器与 ALU、乘法器、除法器和异常</Card>
+
+<Card title="浮点与语言语义">IEEE 754、GRS 舍入、精度、C 类型转换</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="本章交互知识图谱" id="co2-knowledge-map">
+
+<Accordion title="本章交互知识图谱" id="co2-knowledge-map">
 
     <MindMap
       title="计算机组成原理 第2章：数据的表示和运算知识树"
@@ -39,7 +44,8 @@ description: "考研408：数制、原反补移码、ALU、标志位、乘除法
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章是计算机组成原理中非常重要的一章，也是 408 中容易出现综合计算、隐含条件和概念陷阱的章节。
@@ -355,7 +361,8 @@ $$
 | 补码 | `00000101` | `11111011` |
 
 <Tabs items={['原码', '反码', '补码']} defaultIndex={0}>
-  <Tab value="原码">
+
+<Tab value="原码">
 
 最高位是符号位：
 
@@ -372,8 +379,9 @@ $$
 
 原码的优点是直观，但是加减法实现复杂，而且存在两个零。
 
-  </Tab>
-  <Tab value="反码">
+</Tab>
+
+<Tab value="反码">
 
 正数反码与原码相同。
 
@@ -390,8 +398,9 @@ $$
 
 反码仍然存在两个零。
 
-  </Tab>
-  <Tab value="补码">
+</Tab>
+
+<Tab value="补码">
 
 正数补码和原码相同。
 
@@ -418,7 +427,8 @@ $$
 - 符号位直接参与运算。
 - 能比同位数的原码多表示一个负数。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 3.3 三种编码的表示范围
@@ -2873,7 +2883,8 @@ $$
 实际硬件还需要正确处理特殊值、额外精度和舍入异常。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：对阶
 
@@ -2897,8 +2908,9 @@ $$
 
 现在两个指数相同。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：尾数相加
 
@@ -2918,8 +2930,9 @@ $$
 X+Y=10.0001_2\times2^3
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：规格化
 
@@ -2931,8 +2944,9 @@ $$
 10.0001_2\times2^3 =1.00001_2\times2^4
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：舍入
 
@@ -2940,8 +2954,9 @@ $$
 
 如果有被丢弃的有效低位，则根据规定舍入。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：判断最终指数
 
@@ -2949,7 +2964,8 @@ $$
 
 若指数超过最大允许值，则发生浮点上溢。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 11.6 左规和右规的区别
@@ -4761,32 +4777,19 @@ $$
 
 8 位机器数 `A5H` 按补码解释是多少？
 
-
-
 **A.** 165
-
-
-
 
 **B.** -91
 
-
-
-
 **C.** -37
-
-
-
 
 **D.** 91
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：B。**
-
 
 答案：B。
 
@@ -4800,8 +4803,8 @@ $$
 165-256=\boxed{-91}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -4824,7 +4827,8 @@ $$
 求低 8 位、OF、SF、ZF。
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -4850,7 +4854,8 @@ $$
 \boxed{OF=1,\ SF=0,\ ZF=0}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目三：CF 与 OF
@@ -4864,7 +4869,8 @@ $$
 求 CF 与 OF。
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -4898,7 +4904,8 @@ $$
 \boxed{CF=1,\ OF=0}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目四：符号扩展
@@ -4910,7 +4917,8 @@ $$
 扩展为 16 位。
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -4922,7 +4930,8 @@ $$
 
 其真值仍为 $-11$。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目五：有符号乘法
@@ -4936,7 +4945,8 @@ $$
 求完整 16 位乘积。
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -4956,7 +4966,8 @@ $$
 
 能够正确表示 $-2$，所以缩窄到 8 位不发生有符号溢出。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目六：除法异常
@@ -4971,7 +4982,8 @@ b = FFFFFFFFH
 执行有符号除法，会发生什么？
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -4995,7 +5007,8 @@ $$
 \boxed{\text{商溢出异常}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目七：IEEE 754 特殊值
@@ -5007,7 +5020,8 @@ $$
 表示什么？
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -5021,7 +5035,8 @@ $$
 
 不是正无穷。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目八：浮点精度
@@ -5035,7 +5050,8 @@ $$
 能否被单精度 float 精确表示？
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：不能。
 
@@ -5045,7 +5061,8 @@ $$
 \boxed{2^{24}+1\rightarrow2^{24}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目九：负的非规格化数
@@ -5057,7 +5074,8 @@ $$
 按单精度解释，数值是多少？
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -5073,7 +5091,8 @@ $$
 \boxed{-2^{-149}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目十：C 类型转换
@@ -5090,7 +5109,8 @@ x > y
 ```
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：真。
 
@@ -5106,7 +5126,8 @@ $$
 2^{32}-1>2
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目十一：float 转 int
@@ -5119,7 +5140,8 @@ int x = (int)f;
 求 x。
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -5129,7 +5151,8 @@ $$
 
 因为 C 语言浮点转整数向零截断。
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 题目十二：小端存储
@@ -5141,7 +5164,8 @@ $$
 若采用小端存储，低地址到高地址的四个字节是什么？
 
 <Accordions>
-  <Accordion title="展开本题答案与解析">
+
+<Accordion title="展开本题答案与解析">
 
 答案：
 
@@ -5149,7 +5173,8 @@ $$
 00 00 74 C1
 ```
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十九、考前复习优先级与最终掌握标准

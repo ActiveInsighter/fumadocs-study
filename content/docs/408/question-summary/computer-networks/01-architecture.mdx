@@ -4,13 +4,18 @@ description: "考研408：协议与分层、网络性能指标、分组交换、
 ---
 
 <Cards>
-  <Card title="分层与协议">OSI、TCP/IP、协议三要素、PDU 与封装</Card>
-  <Card title="网络性能">速率、吞吐量、发送/传播时延与 BDP</Card>
-  <Card title="交换与设备">电路/报文/分组交换、路由器/交换机、冲突域</Card>
+
+<Card title="分层与协议">OSI、TCP/IP、协议三要素、PDU 与封装</Card>
+
+<Card title="网络性能">速率、吞吐量、发送/传播时延与 BDP</Card>
+
+<Card title="交换与设备">电路/报文/分组交换、路由器/交换机、冲突域</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识树：查看本章结构" id="net1-knowledge-tree">
+
+<Accordion title="交互知识树：查看本章结构" id="net1-knowledge-tree">
 
     <MindMap
       title="计算机网络 第1章：体系结构与基本概念知识树"
@@ -43,7 +48,8 @@ description: "考研408：协议与分层、网络性能指标、分组交换、
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章以网络性能计算、分层体系结构和交换方式为主线，结合典型概念题与综合计算题，建立后续章节所需的分析框架。
@@ -617,7 +623,8 @@ $$
 3. 分组交换。
 
 <Tabs items={['电路交换', '报文交换', '分组交换']} defaultIndex={0}>
-  <Tab value="电路交换">
+
+<Tab value="电路交换">
 
 电路交换的过程是：
 
@@ -635,8 +642,9 @@ $$
 
 缺点是建立连接需要时间，而且资源可能被空闲连接占用。
 
-  </Tab>
-  <Tab value="报文交换">
+</Tab>
+
+<Tab value="报文交换">
 
 报文交换把完整报文作为存储转发单位。
 
@@ -672,8 +680,9 @@ $$
 
 这里忽略传播、处理和排队时延。
 
-  </Tab>
-  <Tab value="分组交换">
+</Tab>
+
+<Tab value="分组交换">
 
 分组交换将较大的报文拆成较小的数据分组。
 
@@ -691,7 +700,8 @@ $$
 
 因为不同分组可以同时占用不同链路，所以能够形成流水线。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 9.4 三种交换方式的比较
@@ -1020,7 +1030,8 @@ C. 20 kb
 D. 25 kb
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：计算分组数量
 
@@ -1028,8 +1039,9 @@ $$
 N=\frac{20}{10}=2
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：确定链路数
 
@@ -1045,8 +1057,9 @@ $$
 k=2
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：计算一个分组的发送时间
 
@@ -1054,8 +1067,9 @@ $$
 t=\frac{10}{10}=1\ \mathrm{s}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：计算分组交换总时间
 
@@ -1071,8 +1085,9 @@ $$
 \boxed{T=3\ \mathrm{s}}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：改用报文交换
 
@@ -1105,7 +1120,8 @@ $$
 - 报文交换：整条报文逐跳存储转发；
 - 分组交换：多个分组在不同链路上流水发送。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ### 十三、电路交换和分组交换哪个更快？
@@ -1401,7 +1417,8 @@ SAP 是 Service Access Point。
 | 时序 Synchronization | 通信动作什么时候发生、先后如何  | 请求和响应的交互顺序     |
 
 <Tabs items={['语法 Syntax', '语义 Semantics', '时序 Timing']} defaultIndex={0}>
-  <Tab value="语法 Syntax">
+
+<Tab value="语法 Syntax">
 
 关注数据的结构与格式。
 
@@ -1411,8 +1428,9 @@ TCP 首部的前16位表示源端口号，后16位表示目的端口号。
 
 这属于语法。
 
-  </Tab>
-  <Tab value="语义 Semantics">
+</Tab>
+
+<Tab value="语义 Semantics">
 
 关注字段的含义及对应行为。
 
@@ -1422,8 +1440,9 @@ HTTP 服务器收到 GET 请求后，根据请求执行相应操作。
 
 这属于语义。
 
-  </Tab>
-  <Tab value="时序 Timing">
+</Tab>
+
+<Tab value="时序 Timing">
 
 关注消息发送、接收及响应的顺序。
 
@@ -1440,7 +1459,8 @@ A                       B
 
 这个图主要表达消息交互的先后顺序，因此属于时序。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 #### 17.4 2020年真题
@@ -3115,11 +3135,13 @@ C. 将相关网络功能组合到同一层。
 OSI 自下而上第五层是什么？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 会话层
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 <Callout title="练习题 · 单选题 · 2 分" id="net01-selftest-service-vs-protocol">
@@ -3128,37 +3150,24 @@ OSI 自下而上第五层是什么？
 
 下层向上层提供的是协议还是服务？
 
-
-
 **A.** 协议
-
-
-
 
 **B.** 服务
 
-
-
-
 **C.** 物理信号
-
-
-
 
 **D.** 路由表
 
-
-
 <Accordions>
+
 <Accordion title="查看答案与解析">
 
 **参考答案：B。**
 
-
 **解析：** 协议是对等实体之间通信的规则，服务是下层向上层提供的功能。
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3168,11 +3177,13 @@ OSI 自下而上第五层是什么？
 HTTP GET 后执行操作属于语法、语义还是时序？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 语义
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 4
@@ -3180,11 +3191,13 @@ HTTP GET 后执行操作属于语法、语义还是时序？
 1000 B 分组经过10 Mb/s链路，发送时延？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 0.8 ms
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 5
@@ -3192,11 +3205,13 @@ HTTP GET 后执行操作属于语法、语义还是时序？
 20 Mb/s链路，单向传播10 ms，BDP？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 200 kbit
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 6
@@ -3204,11 +3219,13 @@ HTTP GET 后执行操作属于语法、语义还是时序？
 5个分组经过3条等速链路，每跳发送2 ms，总时间？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 14 ms
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 7
@@ -3216,11 +3233,13 @@ HTTP GET 后执行操作属于语法、语义还是时序？
 二层交换机主要依据什么转发？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** MAC 地址
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 8
@@ -3228,11 +3247,13 @@ HTTP GET 后执行操作属于语法、语义还是时序？
 IP 提供什么服务？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 无连接、尽最大努力
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 9
@@ -3240,11 +3261,13 @@ IP 提供什么服务？
 1000 B有效数据加200 B首尾开销，效率？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** 约83.33%
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 #### 速答 10
@@ -3252,11 +3275,13 @@ IP 提供什么服务？
 电路与分组交换相等时的建链时间？
 
 <Accordions>
-  <Accordion title="展开答案">
+
+<Accordion title="展开答案">
 
 **参考答案：** $S=(k-1)P/R$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 <Callout title="练习题 · 综合题 · 8 分" id="net01-selftest-unequal-link-rate">
@@ -3282,8 +3307,8 @@ $$
 求全部到达时间。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
@@ -3301,8 +3326,8 @@ $$
 \boxed{T=5\ \mathrm{ms}}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -3332,7 +3357,8 @@ $$
 问电路建立时间超过多少时，分组交换更快？
 
 <Accordions>
-  <Accordion title="展开答案与推导">
+
+<Accordion title="展开答案与推导">
 
 答案：
 
@@ -3348,7 +3374,8 @@ $$
 \boxed{S>20\ \mathrm{ms}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 第十四部分：最终复习总结

@@ -4,13 +4,18 @@ description: "考研408：半导体存储器、主存扩展、多体交叉、Cac
 ---
 
 <Cards>
-  <Card title="主存与芯片">SRAM/DRAM、芯片扩展、交叉存储、访问时序</Card>
-  <Card title="Cache 与局部性">映射、标记、替换、写策略、数组访问与 AMAT</Card>
-  <Card title="虚拟存储与外存">页表、TLB、VIPT、缺页、RAID 和磁盘</Card>
+
+<Card title="主存与芯片">SRAM/DRAM、芯片扩展、交叉存储、访问时序</Card>
+
+<Card title="Cache 与局部性">映射、标记、替换、写策略、数组访问与 AMAT</Card>
+
+<Card title="虚拟存储与外存">页表、TLB、VIPT、缺页、RAID 和磁盘</Card>
+
 </Cards>
 
 <Accordions>
-  <Accordion title="交互知识图谱：展开本章知识结构" id="co3-map">
+
+<Accordion title="交互知识图谱：展开本章知识结构" id="co3-map">
 
     <MindMap
       title="计算机组成原理 第3章：存储系统思维导图"
@@ -38,7 +43,8 @@ description: "考研408：半导体存储器、主存扩展、多体交叉、Cac
 `}
     />
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 本章围绕存储器、Cache、TLB、主存组织及性能计算，结合典型综合题建立完整的分析框架。
@@ -1344,7 +1350,8 @@ $$
 接下来需要确定这个主存块能放入 Cache 的什么位置。
 
 <Tabs items={['直接映射', '全相联', '组相联']} defaultIndex={0}>
-  <Tab value="直接映射">
+
+<Tab value="直接映射">
 
 直接映射规定：
 
@@ -1392,8 +1399,9 @@ $$
 
 缺点是灵活性差，容易发生冲突。
 
-  </Tab>
-  <Tab value="全相联">
+</Tab>
+
+<Tab value="全相联">
 
 全相联规定：
 
@@ -1424,8 +1432,9 @@ $$
 - 成本较高；
 - Cache 满时需要替换算法。
 
-  </Tab>
-  <Tab value="组相联">
+</Tab>
+
+<Tab value="组相联">
 
 组相联是直接映射和全相联的折中方案。
 
@@ -1500,7 +1509,8 @@ $$
 
 这里的“无映射冲突失效”并不代表全相联永远不缺失，仍然有强制失效和容量失效。
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 6.6 Cache 地址划分——必须熟练掌握
@@ -3215,7 +3225,8 @@ TLB 未命中不一定缺页，Cache 未命中也不一定缺页。先判断页�
 先查 TLB。
 
 <Tabs items={['TLB 命中', 'TLB 未命中但页面驻留', '发生缺页']} defaultIndex={0}>
-  <Tab value="TLB 命中">
+
+<Tab value="TLB 命中">
 
 TLB 中存在有效翻译，得到 PFN。
 
@@ -3223,8 +3234,9 @@ TLB 中存在有效翻译，得到 PFN。
 
 随后访问 Cache。
 
-  </Tab>
-  <Tab value="TLB 未命中但页面驻留">
+</Tab>
+
+<Tab value="TLB 未命中但页面驻留">
 
 TLB 不包含该翻译。
 
@@ -3236,8 +3248,9 @@ TLB 不包含该翻译。
 
 TLB Miss，但没有 Page Fault。
 
-  </Tab>
-  <Tab value="发生缺页">
+</Tab>
+
+<Tab value="发生缺页">
 
 这才发生缺页异常。
 
@@ -3262,7 +3275,8 @@ $$
 \boxed{ \text{Cache Miss}\ne\text{Page Fault} }
 $$
 
-  </Tab>
+</Tab>
+
 </Tabs>
 
 ### 10.4 缺页次数与页面置换次数
@@ -3711,7 +3725,8 @@ VA = 0x067A
 读取一个 16 位 `short`。
 
 <Steps>
-  <Step>
+
+<Step>
 
     ### 第一步：拆虚拟地址
 
@@ -3730,8 +3745,9 @@ VPN    = 06H
 Offset = 7AH
 ```
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第二步：查 TLB
 
@@ -3773,8 +3789,9 @@ PFN = 19H
 
 因此 TLB Hit。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第三步：组成物理地址
 
@@ -3794,8 +3811,9 @@ $$
 \boxed{PA=\texttt{0x197A}}
 $$
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第四步：拆 Cache 地址
 
@@ -3854,8 +3872,9 @@ Offset 2
 
 因此 Cache Hit。
 
-  </Step>
-  <Step>
+</Step>
+
+<Step>
 
     ### 第五步：读取小端数据
 
@@ -3923,7 +3942,8 @@ Cache Hit
 
 如果能够独立完成这类题，说明已经基本掌握本章最重要的联合地址转换过程。
 
-  </Step>
+</Step>
+
 </Steps>
 
 ## 十二、2025 年真题：Cache、非对齐数组、AMAT、缺页综合
@@ -5267,8 +5287,8 @@ $$
 求芯片数、位扩展倍数、字扩展倍数，以及逻辑字地址位数。
 
 <Accordions>
-<Accordion title="查看答案与解析">
 
+<Accordion title="查看答案与解析">
 
 **参考答案与解析**
 
@@ -5302,8 +5322,8 @@ $$
 \boxed{16\text{片，4倍位扩展，4倍字扩展，15位字地址}}
 $$
 
-
 </Accordion>
+
 </Accordions>
 
 </Callout>
@@ -5315,7 +5335,8 @@ $$
 求 Tag、Index、Offset。
 
 <Accordions>
-  <Accordion title="展开第 2 题答案与推导">
+
+<Accordion title="展开第 2 题答案与推导">
 
 $$
 L=65536/64=1024
@@ -5339,7 +5360,8 @@ $$
 \boxed{18\mid8\mid6}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 3：多体交叉
@@ -5351,7 +5373,8 @@ $$
 求最大带宽和连续读取 16 个字所需时间。
 
 <Accordions>
-  <Accordion title="展开第 3 题答案与推导">
+
+<Accordion title="展开第 3 题答案与推导">
 
 理想启动间隔：
 
@@ -5383,7 +5406,8 @@ $$
 \boxed{345\text{ ns}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 4：虚拟地址转换
@@ -5395,7 +5419,8 @@ VA 为 32 位，PA 为 28 位，页面大小 4KB。
 求物理地址。
 
 <Accordions>
-  <Accordion title="展开第 4 题答案与推导">
+
+<Accordion title="展开第 4 题答案与推导">
 
 页内偏移：
 
@@ -5415,7 +5440,8 @@ $$
 \boxed{\texttt{0x2345ABC}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 5：非对齐数组
@@ -5427,7 +5453,8 @@ Cache 块大小 64B，数组首地址块内偏移为 20B。
 求数组占用几个块。
 
 <Accordions>
-  <Accordion title="展开第 5 题答案与推导">
+
+<Accordion title="展开第 5 题答案与推导">
 
 数据量：
 
@@ -5447,7 +5474,8 @@ $$
 \boxed{7\text{ 块}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ### 自测 6：磁盘访问时间
@@ -5461,7 +5489,8 @@ $$
 求读取一个扇区的理想平均访问时间，不计额外控制器开销。
 
 <Accordions>
-  <Accordion title="展开第 6 题答案与推导">
+
+<Accordion title="展开第 6 题答案与推导">
 
 一圈：
 
@@ -5493,7 +5522,8 @@ $$
 \boxed{10.1\text{ ms}}
 $$
 
-  </Accordion>
+</Accordion>
+
 </Accordions>
 
 ## 十九、最后的复习建议：怎样真正掌握第 3 章？
