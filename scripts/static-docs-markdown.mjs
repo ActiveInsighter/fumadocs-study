@@ -1,3 +1,4 @@
+import { exportQuestionMarkdown } from './question-markdown.mjs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -63,10 +64,6 @@ function countUnbalancedDelimiters(text) {
     if (character === '}' || character === ')' || character === ']') depth -= 1;
   }
   return depth;
-}
-
-function isCodeFenceLine(trimmedLine) {
-  return /^(```|~~~)/.test(trimmedLine);
 }
 
 const JSX_OPEN_TAG = /^<([A-Z][\w.-]*)((?:\s[^<>]*)?)\/?>/;
@@ -152,9 +149,9 @@ function unwrapJsxComponentLine(trimmedLine) {
  * text nested inside components, and fenced code blocks untouched.
  */
 export function stripMdxRuntimeSyntax(body) {
-  const lines = body.split(/\r?\n/);
+  const lines = exportQuestionMarkdown(body).split(/\r?\n/);
   const kept = [];
-  let insideCodeFence = false;
+  let codeFence = null;
   let statementDepth = 0;
   // Scanner state while inside an opening tag whose attributes span lines.
   let openTag = null;
@@ -168,16 +165,19 @@ export function stripMdxRuntimeSyntax(body) {
       continue;
     }
 
-    if (isCodeFenceLine(trimmed)) {
-      insideCodeFence = !insideCodeFence;
+    const fence = /^ {0,3}(`{3,}|~{3,})(.*)/.exec(line);
+    if (codeFence) {
+      if (fence && fence[1][0] === codeFence[0] && fence[1].length >= codeFence.length && !fence[2].trim()) codeFence = null;
       kept.push(line);
       continue;
     }
-
-    if (insideCodeFence) {
+    if (fence) {
+      codeFence = fence[1];
       kept.push(line);
       continue;
     }
+    // Component expansion adds paragraph boundaries; avoid excessive blank lines.
+    if (!trimmed && kept.at(-1)?.trim() === '') continue;
 
     if (statementDepth > 0) {
       statementDepth += countUnbalancedDelimiters(line);
@@ -214,8 +214,8 @@ export function stripMdxRuntimeSyntax(body) {
 }
 
 /**
- * Render a source document as a standalone markdown file, mirroring the
- * output format of `lib/get-llm-text.ts` used by the previous route handler.
+ * Render a source document as standalone Markdown, shared by static downloads
+ * and the LLM route through `lib/get-llm-text.ts`.
  */
 export async function renderStaticMarkdown(content, { title, url }) {
   const { body } = splitFrontmatter(content);
