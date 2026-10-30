@@ -1,2742 +1,3637 @@
 ---
-title: "第六节 第二类曲面积分（数一）"
-description: "通量与定向面积元、直接投影、高斯公式、补面与挖洞，以及斯托克斯公式的综合应用。"
+title: "第九模块 · 第六节｜第二类曲面积分"
+description: "考研数学一：有向面积元、通量、投影法、高斯公式、补面、奇点及斯托克斯公式。"
 ---
+
+<Callout type="idea" title="本节解题主线">
+
+先判断曲面的取向与封闭性，再检查场在积分区域内是否光滑；在直接投影、高斯公式、补面法和斯托克斯公式之间作出选择，最后利用对称性简化计算。
+
+</Callout>
+
+## 知识导览
 
 <Cards>
 
-<Card title="有向面积与通量">
+<Card title="有向通量">
 
-辨认上侧、下侧、内侧、外侧，检查投影和方向符号。
-
-</Card>
-
-<Card title="高斯公式与补面">
-
-封闭曲面转三重积分；开曲面补面及奇点挖洞。
+法向量、曲面侧别、三种坐标投影与参数曲面。
 
 </Card>
 
-<Card title="斯托克斯综合">
+<Card title="高斯公式">
 
-旋度计算、空间闭曲线方向及简化跨界面。
+散度、封闭曲面、球体矩与对称体积分。
+
+</Card>
+
+<Card title="补面与奇点">
+
+开放曲面补片、法向反转、挖洞与点源通量。
+
+</Card>
+
+<Card title="跨公式综合">
+
+斯托克斯公式、旋度、空间曲线与含参场。
 
 </Card>
 
 </Cards>
 
-<Callout type="idea" title="本节解题方法主线">
+### 一、先建立整节的知识体系
 
-先判定曲面的有向法向，再检查闭合性和奇点；优先比较直接投影、高斯补面与斯托克斯换面的成本。
+第二类曲面积分的难点，不是求积分本身，而是判断该如何把原题转化成更容易计算的积分。
+
+整个知识体系可以归纳为：
+
+| 题目特征                      | 首选方法      | 必须检查          |
+| ------------------------- | --------- | ------------- |
+| 已知 $z=f(x,y)$，给出上侧或下侧 | 直接投影法     | 法向量符号         |
+| 曲面给出参数方程                  | 参数化计算     | 叉积方向          |
+| 封闭曲面、取外侧                  | 高斯公式      | 场是否在内部光滑      |
+| 非闭曲面，能方便补面                | 补面法＋高斯公式  | 补面的方向与通量      |
+| 被积函数含未知函数                 | 结构化简、切向消项 | 是否能直接消去       |
+| 场含 $1/r^3$ 等奇性        | 挖洞法、奇点通量  | 奇点是否被包围       |
+| 空间闭曲线积分                   | 斯托克斯公式    | 曲线与曲面方向匹配     |
+| 球、圆锥、椭球等对称区域              | 对称性＋坐标变换  | 对称的对象是否是整个积分域 |
+| 参数要求对任意半径成立               | 积分化简＋幂次比较 | 条件是一个半径还是所有半径 |
+
+特别要记住三个判断：
+
+第一，曲面是否封闭；第二，取的是哪一侧；第三，向量场是否光滑。
+
+这三个判断直接决定能不能使用高斯公式。
+
+## 第一部分：从基础概念彻底理解第二类曲面积分
+
+### 二、第二类曲面积分到底是什么？
+
+#### 1. 从流体运动理解
+
+想象有一片弯曲的薄膜，水流不断穿过薄膜。
+
+用向量场描述每一点的流速：
+
+$$
+\mathbf F(x,y,z)=(P,Q,R).
+$$
+
+薄膜上的单位法向量为：
+
+$$
+\mathbf n=(\cos\alpha,\cos\beta,\cos\gamma).
+$$
+
+速度沿法向的分量为：
+
+$$
+\mathbf F\cdot\mathbf n =P\cos\alpha+Q\cos\beta+R\cos\gamma.
+$$
+
+一小块面积 $\mathrm dS$ 上的有向流量是：
+
+$$
+\mathrm d\Phi =(\mathbf F\cdot\mathbf n)\,\mathrm dS.
+$$
+
+整个曲面的通量就是：
+
+$$
+\boxed{ \Phi=\iint_\Sigma\mathbf F\cdot\mathbf n\,\mathrm dS }
+$$
+
+即
+
+$$
+\boxed{ \iint_\Sigma P\,\mathrm dy\,\mathrm dz+ Q\,\mathrm dz\,\mathrm dx+ R\,\mathrm dx\,\mathrm dy }
+$$
+
+这就是第二类曲面积分。
+
+#### 2. 为什么要特别强调方向？
+
+因为通量是有正负的。
+
+当 $\mathbf F$ 与法向量方向相同时，点积为正；方向相反时，点积为负；互相垂直时，点积为零。
+
+因此，如果把曲面的方向反过来：
+
+$$
+\mathbf n\longrightarrow-\mathbf n,
+$$
+
+就有
+
+$$
+\boxed{ \iint_{\Sigma^-}\mathbf F\cdot\mathbf n\,\mathrm dS = -\iint_{\Sigma^+}\mathbf F\cdot\mathbf n\,\mathrm dS }
+$$
+
+这是第一类曲面积分与第二类曲面积分最本质的区别。
+
+第一类曲面积分：
+
+$$
+\iint_\Sigma f(x,y,z)\,\mathrm dS
+$$
+
+计算的是标量在曲面上的累积量，不涉及取向。
+
+第二类曲面积分计算的是有向通量，必须知道曲面的方向。
+
+#### 3. 为什么三个微分的顺序不能乱？
+
+公式中：
+
+$$
+\mathrm dy\,\mathrm dz,\qquad \mathrm dz\,\mathrm dx,\qquad \mathrm dx\,\mathrm dy
+$$
+
+分别对应三个坐标方向上的有向投影面积。
+
+在标准记法下：
+
+$$
+\begin{aligned} \mathrm dy\,\mathrm dz&=n_x\,\mathrm dS,\\ \mathrm dz\,\mathrm dx&=n_y\,\mathrm dS,\\ \mathrm dx\,\mathrm dy&=n_z\,\mathrm dS. \end{aligned}
+$$
+
+这里 $n_x,n_y,n_z$ 是单位法向量的三个分量。
+
+因此：
+
+$$
+\iint_\Sigma P\,\mathrm dy\,\mathrm dz = \iint_\Sigma Pn_x\,\mathrm dS.
+$$
+
+其他两项同理。
+
+考场上一定保持 $P,Q,R$ 与三个有向面积微元一一对应。 例如只出现 $\mathrm dz\,\mathrm dx$ 的项，对应的就是向量场的第二个分量，而不是第三个。
+
+### 三、最重要的计算公式：三种投影法
+
+#### 1. 曲面 $z=f(x,y)$
+
+设
+
+$$
+\Sigma:z=f(x,y),
+$$
+
+投影区域为 $D_{xy}$。
+
+曲面参数方程可以直接写成：
+
+$$
+\mathbf r(x,y)=(x,y,f(x,y)).
+$$
+
+求两个切向量：
+
+$$
+\mathbf r_x=(1,0,f_x), \qquad \mathbf r_y=(0,1,f_y).
+$$
+
+做叉积：
+
+$$
+\mathbf r_x\times\mathbf r_y =(-f_x,-f_y,1).
+$$
+
+这个向量的第三个分量为正，所以指向上侧。
+
+于是，上侧的有向面积向量为：
+
+$$
+\boxed{ \mathbf n\,\mathrm dS =(-f_x,-f_y,1)\,\mathrm dx\,\mathrm dy }
+$$
+
+下侧则为：
+
+$$
+\boxed{ \mathbf n\,\mathrm dS =(f_x,f_y,-1)\,\mathrm dx\,\mathrm dy }
+$$
+
+因此，上侧：
+
+$$
+\boxed{ I=\iint_{D_{xy}} \left[ -Pf_x-Qf_y+R \right]_{z=f(x,y)} \,\mathrm dx\,\mathrm dy }
+$$
+
+下侧：
+
+$$
+\boxed{ I=\iint_{D_{xy}} \left[ Pf_x+Qf_y-R \right]_{z=f(x,y)} \,\mathrm dx\,\mathrm dy }
+$$
+
+注意，这里不需要再乘
+
+$$
+\sqrt{1+f_x^2+f_y^2}.
+$$
+
+因为该面积因子已经包含在有向面积向量中。
+
+#### 2. 曲面 $x=g(y,z)$
+
+如果曲面写成：
+
+$$
+x=g(y,z),
+$$
+
+那么适合投影到 $yOz$ 平面。
+
+前侧，即法向量的 $x$ 分量为正：
+
+$$
+\boxed{ \mathbf n\,\mathrm dS =(1,-g_y,-g_z)\,\mathrm dy\,\mathrm dz }
+$$
+
+后侧：
+
+$$
+\boxed{ \mathbf n\,\mathrm dS =(-1,g_y,g_z)\,\mathrm dy\,\mathrm dz }
+$$
+
+例如后侧：
+
+$$
+I=\iint_{D_{yz}} [-P+Qg_y+Rg_z]\,\mathrm dy\,\mathrm dz.
+$$
+
+#### 3. 曲面 $y=h(z,x)$
+
+同理，如果曲面写成：
+
+$$
+y=h(z,x),
+$$
+
+取法向量的 $y$ 分量为正的一侧：
+
+$$
+\boxed{ \mathbf n\,\mathrm dS =(-h_x,1,-h_z)\,\mathrm dz\,\mathrm dx }
+$$
+
+反侧取负号即可。
+
+#### 4. 不要死背三个公式，记住一个统一原理
+
+对于任何光滑参数曲面：
+
+$$
+\mathbf r=\mathbf r(u,v),
+$$
+
+都有
+
+$$
+\boxed{ I=\iint_D \mathbf F(\mathbf r(u,v)) \cdot (\mathbf r_u\times\mathbf r_v) \,\mathrm du\,\mathrm dv }
+$$
+
+如果叉积指向错误的一侧，就整体乘以 $-1$。
+
+这是最通用的计算方法。
+
+### 四、方向究竟怎么判断？
+
+<Callout type="warn" title="方向符号决定正负">
+
+对有向曲面，翻转法向量会令通量改变符号；投影法计算前必须先确定上侧、下侧或外侧。
 
 </Callout>
 
-## 本节思维导图
+考试中常见的方向描述如下。
 
-<MindMap title="第六节 第二类曲面积分（数一） · 知识结构图" height={520} initialExpandLevel={2} markdown={String.raw`
-# 第六节 第二类曲面积分
-## 基础概念
-### 向量场通量
-### 有向面积元
-### 内外侧及上下侧
-## 直接投影
-### z=g(x,y) 的通量公式
-### x方向与y方向投影
-## 高斯散度定理
-### 闭曲面与散度
-### 补面法及方向修正
-### 奇点挖洞处理
-## 斯托克斯定理
-### 旋度与有向曲面
-### 空间闭曲线与跨界面
-## 数学一常考题型
-### 区域对称性
-### 椭球与斜轴圆锥
-### 例题与自测
-`} />
+| 题目表述                          | 数学含义        |
+| ----------------------------- | ----------- |
+| 上侧                            | $n_z>0$ |
+| 下侧                            | $n_z<0$ |
+| 前侧                            | $n_x>0$ |
+| 后侧                            | $n_x<0$ |
+| 右侧                            | $n_y>0$ |
+| 左侧                            | $n_y<0$ |
+| 外侧                            | 法向量指向立体外部   |
+| 内侧                            | 法向量指向立体内部   |
+| 与 $z$ 轴正向夹角为锐角            | $n_z>0$ |
+| 与 $y$ 轴正向夹角大于 $\pi/2$ | $n_y<0$ |
 
-## 一、本节核心框架
+其中，外侧和内侧必须结合所围立体判断，不能机械地理解成上侧或下侧。
 
-第二类曲面积分的标准形式是
-
+例如球面：
 
 $$
-\boxed{ I=\iint_\Sigma P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy }
+x^2+y^2+z^2=R^2.
 $$
 
-
-其向量形式为
-
+外法向量为：
 
 $$
-\boxed{ I=\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS, \qquad \boldsymbol F=(P,Q,R) }
+\mathbf n=\frac{(x,y,z)}{R}.
 $$
 
+在上半球，外侧是上侧；在下半球，外侧是下侧。
 
-这两个写法完全等价。
+因此，外侧不等于永远向上。
 
+## 第二部分：核心题目与基础题型精讲
 
-它计算的是向量场通过有向曲面的通量。
+### 五、题型一：已知曲面，直接投影计算
 
+这是本节所有复杂题目的基础。
 
-本节正文整理了九类典型模型，考研中可以归纳为五大方法：
+#### 核心题 1：上半球的有向投影
 
-
-- 直接投影：2024年数一。
-- 封闭曲面使用高斯公式：2016、2021、2023年数一。
-- 开曲面补面后使用高斯公式：2018、2025年数一。
-- 利用法向量正交消去未知函数：2020年数一。
-- 奇点挖洞与斯托克斯公式：2009、2022、2024年相关数一题。
-
-
-其中最值得精读的是 2020年未知函数消元题、2009年奇点通量题、2024年空间曲线斯托克斯综合题。这几道题最能体现数学一考查的判断能力。
-
-## 二、基础概念：什么是通量？
-
-### 1. 从流体穿过曲面理解
-
-
-设空间中有一个流速场：
-
-
-$$
-\boldsymbol F(x,y,z)=(P,Q,R).
-$$
-
-
-取一个很小的曲面片，面积为 $dS$，单位法向量为 $\boldsymbol n$。
-
-
-单位时间内穿过这个小面片的有向流量为
-
-
-$$
-d\Phi=(\boldsymbol F\cdot\boldsymbol n)\,dS.
-$$
-
-
-因此总通量为
-
-
-$$
-\boxed{ \Phi=\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS }.
-$$
-
-
-这里的点积
-
-
-$$
-\boldsymbol F\cdot\boldsymbol n
-$$
-
-
-提取出向量场沿法向的分量。
-
-
-如果流体方向与曲面相切，那么
-
-
-$$
-\boldsymbol F\cdot\boldsymbol n=0,
-$$
-
-
-意味着没有流体穿过该面片。
-
-
-如果流体向法向指定的一侧穿过，通量为正；反向穿过则为负。
-
-
-### 2. 为什么本节必须考虑方向？
-
-
-对于同一曲面，将法向量反向：
-
-
-$$
-\boldsymbol n\longrightarrow-\boldsymbol n,
-$$
-
-
-便有
-
-
-$$
-\iint_\Sigma\boldsymbol F\cdot(-\boldsymbol n)\,dS =-\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS.
-$$
-
-
-因此
-
-
-$$
-\boxed{\text{曲面反向，第二类曲面积分整体变号}}
-$$
-
-
-这与上一节第一类曲面积分形成直接对比。
-
-
-| 第一类曲面积分                    | 第二类曲面积分                                                 |
-| -------------------------- | ------------------------------------------------------- |
-| $\iint_\Sigma f\,dS$ | $\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS$ |
-| 面积加权累加                     | 有向通量                                                    |
-| 与法向方向无关                    | 与法向方向有关                                                 |
-| 用于面积、薄壳质量                  | 用于流量、通量                                                 |
-
-## 三、理解有向面积元
-
-### 1. 三个面积微分究竟代表什么？
-
-
-记单位法向量为
-
-
-$$
-\boldsymbol n=(n_x,n_y,n_z).
-$$
-
-
-那么有向面积向量是
-
-
-$$
-d\boldsymbol S=\boldsymbol n\,dS.
-$$
-
-
-在相应的有向投影意义下，
-
-
-$$
-dy\,dz=n_x\,dS,
-$$
-
-
-$$
-dz\,dx=n_y\,dS,
-$$
-
-
-$$
-dx\,dy=n_z\,dS.
-$$
-
-
-因此
-
-
-$$
-P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy =(Pn_x+Qn_y+Rn_z)\,dS.
-$$
-
-
-这就是
-
-
-$$
-\boxed{ P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy =\boldsymbol F\cdot d\boldsymbol S }.
-$$
-
-
-注意这里三个微元并不是三个普通的非负面积，符号由曲面定向决定。
-
-
-### 2. 如何识别曲面方向？
-
-
-| 题目用语             | 法向量的要求      |
-| ---------------- | ----------- |
-| 上侧               | $n_z>0$ |
-| 下侧               | $n_z<0$ |
-| 朝 $x$ 正方向的一侧 | $n_x>0$ |
-| 朝 $x$ 负方向的一侧 | $n_x<0$ |
-| 外侧               | 指向所围立体外部    |
-| 内侧               | 指向所围立体内部    |
-
-
-不同教材可能采用“前侧、后侧、左侧、右侧”的习惯称呼。考试中最好结合所选坐标轴和曲面方程确定，不要仅凭字面猜测。
-
-## 四、最重要的计算公式：显函数曲面的直接投影
+题目来源：考研核心题目·第六节第一部分
 
 设
 
-
 $$
-\Sigma:\ z=g(x,y),\qquad(x,y)\in D.
-$$
-
-
-曲面参数化为
-
-
-$$
-\boldsymbol r(x,y)=(x,y,g(x,y)).
+\Sigma:z=\sqrt{1-x^2-y^2}, \qquad x\le0,\quad y\ge0,
 $$
 
-
-计算两个切向量：
-
+取上侧，计算形式为：
 
 $$
-\boldsymbol r_x=(1,0,g_x), \qquad \boldsymbol r_y=(0,1,g_y).
+I=\iint_\Sigma P\,\mathrm dy\,\mathrm dz+ Q\,\mathrm dz\,\mathrm dx.
 $$
 
+要求化为二重积分。
 
-叉积得到
+第一步：识别曲面。
 
+它是单位上半球在第二象限的四分之一曲面。
 
-$$
-\boldsymbol r_x\times\boldsymbol r_y =(-g_x,-g_y,1).
-$$
-
-
-这个向量的第三个分量为正，故它对应上侧。
-
-
-因此上侧的有向面积元为
-
+投影区域：
 
 $$
-\boxed{ \boldsymbol n\,dS=(-g_x,-g_y,1)\,dxdy }.
+D=\{(x,y):x^2+y^2\le1,\ x\le0,\ y\ge0\}.
 $$
 
-
-于是
-
-
-$$
-\boxed{ \iint_\Sigma P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy =\iint_D(-Pg_x-Qg_y+R)\,dxdy }
-$$
-
-
-其中 $P,Q,R$ 均须代入 $z=g(x,y)$。
-
-
-如果取下侧，则整个右边乘以 $-1$。
-
-
-特别地：
-
-
-$$
-\boxed{ \begin{aligned} dy\,dz&=-g_x\,dxdy,\\ dz\,dx&=-g_y\,dxdy,\\ dx\,dy&=dxdy \end{aligned} \qquad\text{（上侧）} }
-$$
-
-
-### 为什么第二类曲面积分的公式没有平方根？
-
-
-第一类曲面积分使用
-
-
-$$
-dS=\sqrt{1+g_x^2+g_y^2}\,dxdy.
-$$
-
-
-第二类曲面积分使用
-
-
-$$
-\boldsymbol n\,dS=(-g_x,-g_y,1)\,dxdy.
-$$
-
-
-因为单位法向量本身含有归一化因子
-
-
-$$
-\frac1{\sqrt{1+g_x^2+g_y^2}},
-$$
-
-
-它与 $dS$ 中的平方根抵消。
-
-
-因此第二类曲面积分的投影公式通常比第一类更简洁，但必须小心正负号。
-
-
-### 其他两个投影方向
-
-
-若曲面为 $x=g(y,z)$，取 $x$ 分量为正的法向：
-
-
-$$
-\boxed{ \boldsymbol n\,dS=(1,-g_y,-g_z)\,dydz }.
-$$
-
-
-若曲面为 $y=g(x,z)$，取 $y$ 分量为正的法向：
-
-
-$$
-\boxed{ \boldsymbol n\,dS=(-g_x,1,-g_z)\,dxdz }.
-$$
-
-
-若取相反方向，整体乘 $-1$。
-
-
-对于复杂曲面，不必死记三个坐标投影公式。更稳妥的办法是参数化并计算叉积，再根据题目要求调整其方向。
-
-## 五、高斯公式：封闭曲面的第一选择
-
-设 $\Omega$ 是有界空间区域，边界 $\partial\Omega$ 分片光滑，取外法向，向量场 $\boldsymbol F$ 在包含闭区域的适当邻域内连续可微，则
-
-
-$$
-\boxed{ \oiint_{\partial\Omega} \boldsymbol F\cdot\boldsymbol n\,dS = \iiint_\Omega\nabla\cdot\boldsymbol F\,dV }
-$$
-
-
-其中
-
-
-$$
-\boxed{ \nabla\cdot\boldsymbol F =P_x+Q_y+R_z }
-$$
-
-
-称为散度。
-
-
-从直观上讲：
-
-
-- 散度描述某一点附近流场的净流出强度；
-- 三重积分累加区域内所有净流出强度；
-- 闭曲面积分计算整个边界的净流出量。
-
-
-高斯公式说明，这两个总量相等。
-
-
-### 1. 散度为常数
-
-
-若
-
-
-$$
-\nabla\cdot\boldsymbol F=c,
-$$
-
-
-则
-
-
-$$
-\boxed{\Phi=cV_\Omega}.
-$$
-
-
-这时通量题直接变成求体积。
-
-
-### 2. 散度为线性函数
-
-
-若
-
-
-$$
-\nabla\cdot\boldsymbol F=ax+by+cz+d,
-$$
-
-
-而区域体积及其均匀体积形心为
-
-
-$$
-V,\qquad(\bar x,\bar y,\bar z),
-$$
-
-
-则
-
-
-$$
-\boxed{ \Phi=V(a\bar x+b\bar y+c\bar z+d) }.
-$$
-
-
-2016年数学一就适合这一方法。
-
-
-### 3. 散度包含奇函数
-
-
-如果区域关于 $x=0$ 对称，那么
-
-
-$$
-\iiint_\Omega x\,dV=0.
-$$
-
-
-关于其他坐标轴的对称性类似。
-
-
-2021年与2023年数学一都要求先使用高斯公式，再通过对称性减少计算。
-
-
-### 4. 高斯公式的两条限制
-
-
-第一，曲面必须是所选立体的完整闭合边界；如果不是，就需要补面。
-
-
-第二，向量场必须满足相应的区域内连续可微条件。如果区域内部包含奇点，就不能直接使用高斯公式。
-
-
-因此“闭曲面”和“内部无奇点”是使用高斯公式之前必须检查的两件事。
-
-## 六、考研数学一真题：按方法逐题精讲
-
-### 例1：2024年数学一——直接投影与方向符号
-
-
-核心模型：上侧曲面、带符号投影、选择题快速判断
-
-
-设 $\Sigma$ 为单位球面的一个曲面片：
-
-
-$$
-z=\sqrt{1-x^2-y^2}, \qquad x\le0,\quad y\ge0,
-$$
-
-
-取上侧。
-
-
-将
-
-
-$$
-I=\iint_\Sigma P\,dy\,dz+Q\,dz\,dx
-$$
-
-
-化成 $xOy$ 平面的二重积分。
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：判断曲面方向
-
-
-题目明确说取上侧，因此法向量的 $z$ 分量为正。
-
+第二步：求偏导。
 
 设
 
-
-$$
-z=g(x,y)=\sqrt{1-x^2-y^2}.
-$$
-
-
-计算：
-
-
-$$
-g_x=-\frac{x}{\sqrt{1-x^2-y^2}}=-\frac{x}{z},
-$$
-
-
-$$
-g_y=-\frac{y}{z}.
-$$
-
-</Step>
-
-<Step>
-
-#### 第二步：使用有向面积元
-
-
-上侧的有向面积元为
-
-
-$$
-\boldsymbol n\,dS=(-g_x,-g_y,1)\,dxdy.
-$$
-
-
-因此
-
-
-$$
-dy\,dz=-g_x\,dxdy=\frac{x}{z}\,dxdy,
-$$
-
-
-$$
-dz\,dx=-g_y\,dxdy=\frac{y}{z}\,dxdy.
-$$
-
-
-所以
-
-
-$$
-\boxed{ I=\iint_D \left(\frac{x}{z}P+\frac{y}{z}Q\right)dxdy }
-$$
-
-
-其中
-
-
-$$
-D=\{(x,y):x^2+y^2\le1,\ x\le0,\ y\ge0\}
-$$
-
-
-是第二象限的四分之一单位圆盘，积分中的 $z$ 要代入 $\sqrt{1-x^2-y^2}$。
-
-
-与分类真题选项对照，对应 A。
-
-</Step>
-
-</Steps>
-
-#### 为什么不能只根据 $x\le0$ 判断符号？
-
-
-注意：
-
-
-$$
-\frac{x}{z}\le0,\qquad \frac{y}{z}\ge0.
-$$
-
-
-这是两个系数在具体投影区域内的数值正负，并不改变有向面积元公式本身。
-
-
-不能把上侧公式中的 $-g_x$ 随意写成 $|g_x|$。
-
-
-此外，赤道边缘 $z=0$ 上投影公式的分母可能为零，通常通过相应的可积极限处理；不能直接把整块曲面视作光滑单值图形的闭区域。
-
-
-### 例2：2016年数学一——封闭四面体，直接高斯公式
-
-
-核心模型：散度 + 四面体体积与形心
-
-
-区域 $\Omega$ 由三个坐标平面与
-
-
-$$
-2x+y+2z=2
-$$
-
-
-围成。
-
-
-设 $\Sigma$ 是其整个边界曲面，取外侧。
-
-
-求
-
-
-$$
-I=\iint_\Sigma (x^2+1)\,dy\,dz -2y\,dz\,dx +3z\,dx\,dy.
-$$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：确定向量场
-
-
-$$
-\boldsymbol F=(x^2+1,-2y,3z).
-$$
-
-
-由于 $\Sigma$ 是完整闭曲面的外侧，可以直接使用高斯公式。
-
-</Step>
-
-<Step>
-
-#### 第二步：求散度
-
-
-$$
-\begin{aligned} \nabla\cdot\boldsymbol F &=\frac{\partial(x^2+1)}{\partial x} +\frac{\partial(-2y)}{\partial y} +\frac{\partial(3z)}{\partial z}\\ &=2x-2+3\\ &=2x+1. \end{aligned}
-$$
-
-
-所以
-
-
-$$
-I=\iiint_\Omega(2x+1)\,dV.
-$$
-
-</Step>
-
-</Steps>
-
-
-<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
-
-<Tab value="解法一">
-
-#### 解法一：四面体形心法（推荐）
-
-
-平面的三个坐标截距为
-
-
-$$
-x=1,\qquad y=2,\qquad z=1.
-$$
-
-
-所以四面体的四个顶点为
-
-
-$$
-O=(0,0,0),\quad A=(1,0,0),\quad B=(0,2,0),\quad C=(0,0,1).
-$$
-
-
-体积为
-
-
-$$
-V=\frac16\cdot1\cdot2\cdot1=\frac13.
-$$
-
-
-形心的横坐标为
-
-
-$$
-\bar x=\frac{0+1+0+0}{4}=\frac14.
-$$
-
-
-故
-
-
-$$
-\begin{aligned} I &=2\iiint_\Omega x\,dV+\iiint_\Omega1\,dV\\ &=2V\bar x+V\\ &=2\cdot\frac13\cdot\frac14+\frac13\\ &=\boxed{\frac12}. \end{aligned}
-$$
-
-</Tab>
-
-<Tab value="解法二">
-
-#### 解法二：直接三重积分
-
-
-若不熟悉形心法，可以先写区域：
-
-
-$$
-0\le x\le1,
-$$
-
-
-$$
-0\le y\le2-2x,
-$$
-
-
-$$
-0\le z\le1-x-\frac y2.
-$$
-
-
-于是
-
-
-$$
-I=\int_0^1(2x+1) \int_0^{2-2x} \int_0^{1-x-y/2} dz\,dy\,dx.
-$$
-
-
-先对 $z,y$ 积分：
-
-
-$$
-I=\int_0^1(2x+1)(1-x)^2\,dx.
-$$
-
-
-展开：
-
-
-$$
-(2x+1)(1-x)^2=1-3x^2+2x^3.
-$$
-
-
-因此
-
-
-$$
-I=\left[x-x^3+\frac{x^4}{2}\right]_0^1 =\frac12.
-$$
-
-
-两种方法都正确，但形心法明显更快。
-
-
-本题启示：高斯公式后，如果散度是一阶多项式，可以优先考虑体积与形心，而不是直接展开三重积分。
-
-</Tab>
-
-</Tabs>
-
-### 例3：2021年数学一——高斯公式后对称消项
-
-
-设 $\Sigma$ 为椭圆柱体
-
-
-$$
-\Omega=\{(x,y,z):x^2+4y^2\le4,\ 0\le z\le2\}
-$$
-
-
-的完整边界，取外侧。
-
-
-求
-
-
-$$
-I=\iint_\Sigma x^2\,dy\,dz+y^2\,dz\,dx+z\,dx\,dy.
-$$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：求散度
-
-
-$$
-\boldsymbol F=(x^2,y^2,z).
-$$
-
-
-因此
-
-
-$$
-\nabla\cdot\boldsymbol F=2x+2y+1.
-$$
-
-
-高斯公式给出
-
-
-$$
-I=\iiint_\Omega(2x+2y+1)\,dV.
 $$
-
-</Step>
-
-<Step>
-
-#### 第二步：利用空间区域对称性
-
-
-椭圆柱体关于 $x=0$、$y=0$ 平面对称。
-
-
-因此
-
-
+f(x,y)=\sqrt{1-x^2-y^2}.
 $$
-\iiint_\Omega x\,dV=0, \qquad \iiint_\Omega y\,dV=0.
-$$
-
-
-故
-
-
-$$
-I=\iiint_\Omega1\,dV=V_\Omega.
-$$
-
-</Step>
-
-<Step>
 
-#### 第三步：求体积
+则：
 
-
-底面椭圆为
-
-
 $$
-\frac{x^2}{4}+y^2\le1.
+f_x=-\frac{x}{\sqrt{1-x^2-y^2}}=-\frac{x}{z},
 $$
-
-
-两个半轴分别为 $2$、$1$，面积为 $2\pi$。
-
-
-高度为 $2$，所以
-
 
 $$
-\boxed{I=V_\Omega=4\pi}.
+f_y=-\frac{y}{z}.
 $$
 
+第三步：代入上侧公式。
 
-本题可以浓缩成三步：
-
-
 $$
-\boxed{ \text{闭曲面} \rightarrow \text{高斯} \rightarrow \text{对称性} }.
+\begin{aligned} I &=\iint_D(-Pf_x-Qf_y)\,\mathrm dx\,\mathrm dy\\ &=\boxed{ \iint_D \left(\frac{xP}{z}+\frac{yQ}{z}\right) \,\mathrm dx\,\mathrm dy }. \end{aligned}
 $$
-
-
-同类题反复出现时，不应每次都从头写柱坐标或三重积分限。
-
-</Step>
-
-</Steps>
-
-### 例4：2018年数学一——开曲面补面，再使用高斯公式
-
-
-核心模型：前半椭球 + 补平面 + 椭球变量变换
 
+对应原文选择题的 A 选项。
 
-设曲面 $\Sigma$ 为
+#### 这道题真正考什么？
 
+不是球面上的积分运算，而是考你是否理解：
 
 $$
-x=\sqrt{1-3y^2-3z^2}
+\mathrm dy\,\mathrm dz =-f_x\,\mathrm dx\,\mathrm dy.
 $$
 
+题目即使改成：
 
-的前侧，求
-
-
 $$
-I=\iint_\Sigma x\,dy\,dz+(y^3+2)\,dz\,dx+z^3\,dx\,dy.
+z=2-\sqrt{x^2+y^2},
 $$
-
-
 
-<Steps>
+或者把“上侧”改为“与 $z$ 轴负方向夹角为锐角”，做法仍然完全一致。
 
-<Step>
+遇到陌生曲面，第一反应应该是求偏导、定方向，而不是盲目套高斯公式。
 
-#### 第一步：分析曲面
+### 六、核心题 2：圆锥曲面的下侧通量——两种解法
 
+题目来源：考研核心题目·第六节第一部分
 
-等式平方得到
+设
 
-
 $$
-x^2+3y^2+3z^2=1.
+\Sigma:z=\sqrt{x^2+y^2}, \qquad 0\le z\le1,
 $$
-
 
-因为
+取下侧，计算：
 
-
 $$
-x=\sqrt{1-3y^2-3z^2}\ge0,
+I=\iint_\Sigma x\,\mathrm dy\,\mathrm dz+ 2y\,\mathrm dz\,\mathrm dx+ 3(z-1)\,\mathrm dx\,\mathrm dy.
 $$
-
-
-所以 $\Sigma$ 是椭球面的前半面。
 
+<Tabs items={['直接投影', '高斯公式']} defaultIndex={0}>
 
-题目取前侧，意味着法向量 $x$ 分量为正，恰好是该半椭球体的外法向。
-
-</Step>
-
-<Step>
-
-#### 第二步：补面
-
-
-补上平面圆盘
-
-
-$$
-\Sigma_0:\quad x=0,\qquad y^2+z^2\le\frac13.
-$$
+<Tab value="直接投影">
 
+**解法一：直接投影法**
 
 令
 
-
-$$
-\Omega=\{x\ge0,\ x^2+3y^2+3z^2\le1\}.
-$$
-
-
-此时
-
-
-$$
-\partial\Omega=\Sigma\cup\Sigma_0.
-$$
-
-
-补面 $\Sigma_0$ 的外法向指向负 $x$ 方向。
-
-
-向量场为
-
-
-$$
-\boldsymbol F=(x,y^3+2,z^3).
-$$
-
-
-补面上 $x=0$，且法向只有 $x$ 分量，所以
-
-
-$$
-\iint_{\Sigma_0}\boldsymbol F\cdot\boldsymbol n\,dS=0.
-$$
-
-
-因此本题无需单独计算补面通量。
-
-</Step>
-
-<Step>
-
-#### 第三步：高斯公式
-
-
-$$
-\nabla\cdot\boldsymbol F=1+3y^2+3z^2.
-$$
-
-
-所以
-
-
-$$
-I=\iiint_\Omega(1+3y^2+3z^2)\,dV.
-$$
-
-</Step>
-
-<Step>
-
-#### 第四步：椭球变为球
-
-
-令
-
-
-$$
-X=x,\qquad Y=\sqrt3y,\qquad Z=\sqrt3z.
-$$
-
-
-则
-
-
-$$
-X^2+Y^2+Z^2\le1,\qquad X\ge0.
-$$
-
-
-体积雅可比是
-
-
-$$
-dV=\frac13\,dXdYdZ.
-$$
-
-
-被积函数变为
-
-
-$$
-1+Y^2+Z^2.
-$$
-
-
-因此
-
-
-$$
-I=\frac13 \iiint_{\substack{X^2+Y^2+Z^2\le1\\X\ge0}} (1+Y^2+Z^2)\,dXdYdZ.
-$$
-
-</Step>
-
-<Step>
-
-#### 第五步：利用半球体积和对称性
-
-
-单位半球体积：
-
-
-$$
-\iiint_{\text{半球}}1\,dV'=\frac{2\pi}{3}.
-$$
-
-
-单位球体内，
-
-
-$$
-\iiint_{\text{整球}}Y^2\,dV'=\frac{4\pi}{15}.
-$$
-
-
-前半球恰好占一半，所以
-
-
-$$
-\iiint_{\text{半球}}Y^2\,dV' =\frac{2\pi}{15}.
-$$
-
-
-同理
-
-
-$$
-\iiint_{\text{半球}}Z^2\,dV' =\frac{2\pi}{15}.
-$$
-
-
-于是
-
-
-$$
-\begin{aligned} I &=\frac13\left( \frac{2\pi}{3}+\frac{2\pi}{15}+\frac{2\pi}{15} \right)\\ &=\boxed{\frac{14\pi}{45}}. \end{aligned}
-$$
-
-</Step>
-
-</Steps>
-
-### 这题的突破口在哪里？
-
-
-不是先计算椭球面的有向面积元，而是先观察：
-
-
-$$
-P=x.
-$$
-
-
-当补面选为 $x=0$ 时，补面通量自动为零。
-
-
-所以补面不仅仅是为了把曲面变成闭曲面，还应当尽量选择使辅助面通量容易计算或直接为零的面。
-
-
-### 例5：2020年数学一——任意函数为什么会自动消失？
-
-
-本节重点核心题：圆锥法向量与径向向量正交
-
-
-设 $\Sigma$ 为圆锥面
-
-
-$$
-z=\sqrt{x^2+y^2}, \qquad1\le x^2+y^2\le4
-$$
-
-
-的下侧，$f$ 为连续函数。
-
-
-求
-
-
-$$
-\begin{aligned} I={}&\iint_\Sigma [xf(xy)+2x-y]\,dy\,dz\\ &+[yf(xy)+2y+x]\,dz\,dx\\ &+[zf(xy)+z]\,dx\,dy. \end{aligned}
-$$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：明确投影区域
-
-
-令
-
-
-$$
-r=\sqrt{x^2+y^2}.
-$$
-
-
-曲面为
-
-
-$$
-z=r.
-$$
-
-
-其投影区域是圆环
-
-
-$$
-1\le r\le2.
-$$
-
-</Step>
-
-<Step>
-
-#### 第二步：写下侧的有向面积元
-
-
-对
-
-
-$$
-z=r=\sqrt{x^2+y^2},
-$$
-
-
-有
-
-
-$$
-z_x=\frac xr,\qquad z_y=\frac yr.
-$$
-
-
-由于曲面取下侧，
-
-
-$$
-\boxed{ \boldsymbol n\,dS= \left(\frac xr,\frac yr,-1\right)dxdy }.
-$$
-
-</Step>
-
-<Step>
-
-#### 第三步：拆分向量场
-
-
-原向量场可写成
-
-
-$$
-\boldsymbol F= f(xy)(x,y,z)+(2x-y,2y+x,z).
-$$
-
-
-分为两部分：
-
-
-$$
-\boldsymbol F_1=f(xy)(x,y,z),
-$$
-
-
-$$
-\boldsymbol F_2=(2x-y,2y+x,z).
-$$
-
-
-先计算未知函数这一部分的贡献：
-
-
-$$
-\begin{aligned} \boldsymbol F_1\cdot\boldsymbol n\,dS &=f(xy) \left( \frac{x^2}{r}+\frac{y^2}{r}-z \right)dxdy\\ &=f(xy)(r-z)\,dxdy\\ &=0, \end{aligned}
-$$
-
-
-因为在圆锥面上 $z=r$。
-
-
-于是整个未知函数 $f$ 无论具体是什么，都不影响积分。
-
-</Step>
-
-<Step>
-
-#### 第四步：计算剩余项
-
-
-$$
-\begin{aligned} \boldsymbol F_2\cdot\boldsymbol n\,dS &=\left[ \frac{x(2x-y)+y(2y+x)}r-z \right]dxdy\\ &=\left[ \frac{2x^2+2y^2}{r}-r \right]dxdy\\ &=r\,dxdy. \end{aligned}
-$$
-
-
-所以
-
-
-$$
-I=\iint_Dr\,dxdy.
-$$
-
-
-改为极坐标：
-
-
-$$
-\begin{aligned} I &=\int_0^{2\pi}\int_1^2r^2\,drd\theta\\ &=2\pi\left[\frac{r^3}{3}\right]_1^2\\ &=\boxed{\frac{14\pi}{3}}. \end{aligned}
-$$
-
-</Step>
-
-</Steps>
-
-#### 为什么一定要掌握这道题的几何意义？
-
-
-圆锥的母线方向与位置向量
-
-
-$$
-(x,y,z)
-$$
-
-
-平行。
-
-
-而圆锥的法向量垂直于母线方向。
-
-
-因此
-
-
-$$
-(x,y,z)\cdot\boldsymbol n=0.
-$$
-
-
-未知函数 $f(xy)$ 只是这个切向量前面的一个标量系数，无论它怎样变化，仍然不会贡献法向通量。
-
-
-数学一最重要的思维：看到“任意函数”时，不要急着求导或求函数，而要检查它对应的向量是否与曲面法向量正交。
-
-
-另外，本题只要求 $f$ 连续，并未保证可微，所以不能未经检查便对含 $f$ 的向量场使用高斯公式。
-
-
-### 例6：2009年数学一——原点有奇点，散度为零却有非零通量
-
-
-必会难点：三维挖洞法、奇点通量、球面替换
-
-
-设 $\Sigma$ 是椭球面
-
-
-$$
-2x^2+2y^2+z^2=4
-$$
-
-
-的外侧。
-
-
-求
-
-
-$$
-I=\oiint_\Sigma \frac{x\,dy\,dz+y\,dz\,dx+z\,dx\,dy} {(x^2+y^2+z^2)^{3/2}}.
-$$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：观察奇点
-
-
-向量场是
-
-
-$$
-\boldsymbol F =\frac{(x,y,z)}{(x^2+y^2+z^2)^{3/2}}.
-$$
-
-
-记
-
-
-$$
-r=\sqrt{x^2+y^2+z^2}.
-$$
-
-
-则
-
-
-$$
-\boldsymbol F=\frac{\boldsymbol r}{r^3}.
-$$
-
-
-它在原点没有定义。
-
-
-而原点处于椭球内部，所以不能直接对整个椭球体使用高斯公式。
-
-</Step>
-
-<Step>
-
-#### 第二步：验证原点以外的散度
-
-
-在 $r>0$ 时：
-
-
-$$
-\begin{aligned} \nabla\cdot\boldsymbol F &=\frac{\partial}{\partial x}(xr^{-3}) +\frac{\partial}{\partial y}(yr^{-3}) +\frac{\partial}{\partial z}(zr^{-3})\\ &=3r^{-3}-3(x^2+y^2+z^2)r^{-5}\\ &=0. \end{aligned}
-$$
-
-
-所以该向量场在原点以外散度为零。
-
-
-但这不意味着椭球面的通量为零。
-
-</Step>
-
-<Step>
-
-#### 第三步：在原点附近挖去小球
-
-
-取半径 $\varepsilon>0$ 的小球，要求它完全位于椭球内部。
-
-
-挖去该球后，剩余区域记为 $\Omega_\varepsilon$。
-
-
-它的边界有两个部分：
-
-
-- 外椭球面 $\Sigma$，法向指向椭球外部；
-- 内小球面，作为挖洞区域的边界，其外法向指向小球内部，即朝向原点。
-
-
-由高斯公式：
-
-
-$$
-\oiint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS + \oiint_{S_\varepsilon}^{\text{朝向原点}} \boldsymbol F\cdot\boldsymbol n\,dS =0.
-$$
-
-
-所以原积分等于小球面按远离原点方向计算的通量：
-
-
-$$
-I= \oiint_{S_\varepsilon}^{\text{远离原点}} \boldsymbol F\cdot\boldsymbol n\,dS.
-$$
-
-</Step>
-
-<Step>
-
-#### 第四步：小球面上直接计算
-
-
-在半径为 $\varepsilon$ 的球面上：
-
-
-$$
-\boldsymbol F=\frac{\boldsymbol e_r}{\varepsilon^2},
-$$
-
-
-外法向为
-
-
-$$
-\boldsymbol n=\boldsymbol e_r.
-$$
-
-
-于是
-
-
-$$
-\boldsymbol F\cdot\boldsymbol n =\frac1{\varepsilon^2}.
-$$
-
-
-小球面面积为
-
-
-$$
-4\pi\varepsilon^2.
-$$
-
-
-因此
-
-
-$$
-I=\frac1{\varepsilon^2}\cdot4\pi\varepsilon^2 =\boxed{4\pi}.
-$$
-
-</Step>
-
-</Steps>
-
-### 与上一节的奇点问题有什么联系？
-
-
-上一节第二类曲线积分中有经典角形式：
-
-
-$$
-\oint_C \frac{-y\,dx+x\,dy}{x^2+y^2} =2\pi
-$$
-
-
-当 $C$ 逆时针绕原点一周。
-
-
-本题的三维对应模型是
-
-
-$$
-\oiint_\Sigma \frac{(x,y,z)\cdot\boldsymbol n} {(x^2+y^2+z^2)^{3/2}}\,dS =4\pi,
 $$
-
-
-当 $\Sigma$ 是包围原点的适当定向闭曲面，取外侧。
-
-
-直观上：
-
-
-- 二维角形式计算绕原点的总角度变化；
-- 三维径向场通量对应闭曲面对原点的有向立体角总量。
-
-
-两道题的共同陷阱是：
-
-
-$$
-\boxed{ \text{在奇点以外局部导数为零，不代表包围奇点的整体积分为零。} }
-$$
-
-
-### 例7：2023年数学一——高斯之后不是立刻积分，而是再次利用对称性
-
-
-设空间区域
-
-
-$$
-\Omega=\{x^2+y^2\le1,\ 0\le z\le1-x\},
-$$
-
-
-$\Sigma$ 为整个边界曲面的外侧。
-
-
-求
-
-
-$$
-\begin{aligned} I=\iint_\Sigma &2xz\,dy\,dz +xz\cos y\,dz\,dx\\ &+3yz\sin x\,dx\,dy. \end{aligned}
+r=\sqrt{x^2+y^2}, \qquad z=r.
 $$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：计算散度
-
-
-取
-
-
-$$
-\boldsymbol F=(2xz,xz\cos y,3yz\sin x).
-$$
-
-
-那么
-
-
-$$
-\nabla\cdot\boldsymbol F =2z-xz\sin y+3y\sin x.
-$$
-
-
-所以
-
-
-$$
-I=\iiint_\Omega (2z-xz\sin y+3y\sin x)\,dV.
-$$
-
-</Step>
-
-<Step>
-
-#### 第二步：先对 $z$ 积分
-
-
-投影区域为
 
+投影区域为单位圆盘：
 
 $$
 D:x^2+y^2\le1.
 $$
 
+因为：
 
-高度满足
-
-
-$$
-0\le z\le1-x.
-$$
-
-
-因此
-
-
 $$
-\begin{aligned} I=\iint_D\Bigg[ &(1-x)^2\\ &-\frac{x\sin y}{2}(1-x)^2\\ &+3y\sin x(1-x) \Bigg]dxdy. \end{aligned}
+z_x=\frac{x}{r}, \qquad z_y=\frac{y}{r},
 $$
-
-</Step>
-
-<Step>
-
-#### 第三步：判断哪些项积分为零
-
-
-区域 $D$ 关于 $y=0$ 对称。
-
-
-第二项含 $\sin y$，关于 $y$ 为奇函数，积分为零。
-
-
-第三项含 $y$，关于 $y$ 也为奇函数，积分同样为零。
-
 
-因此
+而曲面取下侧，所以：
 
-
 $$
-I=\iint_D(1-x)^2\,dxdy.
+\mathbf n\,\mathrm dS = \left(\frac{x}{r},\frac{y}{r},-1\right) \,\mathrm dx\,\mathrm dy.
 $$
-
 
-展开：
+向量场为：
 
-
 $$
-(1-x)^2=1-2x+x^2.
+\mathbf F=(x,2y,3(z-1)).
 $$
-
 
-又因为
+于是：
 
-
 $$
-\iint_Dx\,dxdy=0,
+\begin{aligned} I &=\iint_D\left( \frac{x^2}{r}+\frac{2y^2}{r}-3(r-1) \right)\mathrm dx\,\mathrm dy. \end{aligned}
 $$
-
 
-所以
+换极坐标：
 
-
 $$
-I=\iint_D1\,dxdy+\iint_Dx^2\,dxdy.
+x=r\cos\theta,\qquad y=r\sin\theta.
 $$
-
-
-在单位圆盘中：
 
+得到：
 
 $$
-\iint_D1\,dxdy=\pi,
+I=\int_0^{2\pi}\int_0^1 \left[ r\cos^2\theta+2r\sin^2\theta-3r+3 \right]r\,\mathrm dr\,\mathrm d\theta.
 $$
 
+利用：
 
 $$
-\iint_Dx^2\,dxdy=\frac\pi4.
+\int_0^{2\pi}\cos^2\theta\,\mathrm d\theta = \int_0^{2\pi}\sin^2\theta\,\mathrm d\theta =\pi,
 $$
 
+有：
 
-故
-
-
 $$
-\boxed{I=\frac{5\pi}{4}}.
+\begin{aligned} I &=\int_0^1(3\pi r^2-6\pi r^2+6\pi r)\,\mathrm dr\\ &=-\pi+3\pi\\ &=\boxed{2\pi}. \end{aligned}
 $$
 
-</Step>
+</Tab>
 
-</Steps>
+<Tab value="高斯公式">
 
-### 一道题的两层降维
+**解法二：高斯公式**
 
+这是这道题更值得掌握的解法。
 
-本题经历了：
+圆锥侧面本身不是封闭曲面。
 
+但可以补上：
 
 $$
-\boxed{ \text{曲面积分} \rightarrow \text{三重积分} \rightarrow \text{二重积分} \rightarrow \text{圆盘矩} }
+S_0:z=1,\qquad x^2+y^2\le1.
 $$
-
-
-这是一道典型的数学一综合题。若高斯后直接盲目计算三重积分，不仅步骤更长，还可能错过后续的奇偶对称性。
-
-
-### 例8：2025年数学一——斜轴圆锥与补面高斯
-
-
-空间几何综合：先识别旋转面，再用圆锥体积与补面通量
-
 
-设曲面 $\Sigma$ 由直线
+整个立体为：
 
-
 $$
-x=0,\qquad y=0
+\Omega: \quad \sqrt{x^2+y^2}\le z\le1.
 $$
-
 
-即 $z$ 轴，绕轴线
+这里必须注意：圆锥侧面取下侧，恰好是该立体的外侧。
 
+令：
 
 $$
-x=y=z
+\mathbf F=(x,2y,3(z-1)).
 $$
-
-
-旋转一周得到。
 
+求散度：
 
-取 $\Sigma$ 介于平面
-
-
 $$
-x+y+z=0
+\nabla\cdot\mathbf F=1+2+3=6.
 $$
 
+圆锥体积：
 
-和
-
-
 $$
-x+y+z=1
+V=\frac13\pi\cdot1^2\cdot1=\frac\pi3.
 $$
-
 
-之间的部分，记为 $\Sigma_1$，取相应圆锥体的外侧。
+所以完整闭曲面的通量为：
 
-
-求
-
-
 $$
-I=\iint_{\Sigma_1} x\,dy\,dz+(y+1)\,dz\,dx+(z+2)\,dx\,dy.
+\Phi_{\text{闭}} =6V=2\pi.
 $$
-
-
-
-<Steps>
-
-<Step>
-
-#### 第一步：识别旋转面
-
 
-原母线是 $z$ 轴，旋转轴方向为
+再看补面。
 
+在 $z=1$ 上：
 
 $$
-\boldsymbol a=(1,1,1).
+R=3(z-1)=0.
 $$
 
+补面的外法向沿 $+z$ 方向，因此：
 
-两个方向之间的夹角 $\alpha$ 满足
-
-
 $$
-\cos\alpha =\frac{(0,0,1)\cdot(1,1,1)} {\|(0,0,1)\|\|(1,1,1)\|} =\frac1{\sqrt3}.
+\Phi_{S_0}=0.
 $$
-
-
-因此
 
+所以：
 
 $$
-\tan\alpha=\sqrt2.
+I=\Phi_{\text{闭}}-\Phi_{S_0} =\boxed{2\pi}.
 $$
-
-
-所得曲面是以原点为顶点、以 $x=y=z$ 为轴的圆锥面。
-
-</Step>
-
-<Step>
-
-#### 第二步：求圆锥的高与底面半径
 
+</Tab>
 
-上截面为
+</Tabs>
 
+#### 两种方法怎么选？
 
-$$
-x+y+z=1.
-$$
-
-
-它垂直于圆锥轴。
+| 直接投影法        | 补面＋高斯公式       |
+| ------------ | ------------- |
+| 需要求偏导        | 只需求散度         |
+| 要做极坐标积分      | 只需要圆锥体积       |
+| 对局部曲面很通用     | 对容易补成闭面的曲面更快  |
+| 不要求场在整个体域有定义 | 必须检查高斯公式的适用条件 |
 
+本题第二种方法明显更高效。
 
-原点到此平面的距离为
+由此得到一个重要的考场习惯：
 
+如果看到圆锥、抛物面、半球面等开放曲面，除了想直接投影，还要立即检查补面后的散度是否简单。
 
-$$
-h=\frac1{\sqrt3}.
-$$
+## 第三部分：高斯公式——本节最重要的解题工具
 
+### 七、高斯公式从哪里来？
 
-圆锥底面半径为
+<Callout type="info" title="使用高斯公式前先核验">
 
-
-$$
-r=h\tan\alpha =\frac1{\sqrt3}\cdot\sqrt2 =\sqrt{\frac23}.
-$$
+只有在闭合、取外侧且向量场在区域及边界满足所需光滑条件时，才可以直接由曲面通量换为散度的三重积分。
 
+</Callout>
 
-底面积为
+#### 1. 先理解散度
 
+设：
 
 $$
-A=\pi r^2=\frac{2\pi}{3}.
+\mathbf F=(P,Q,R).
 $$
 
+散度定义为：
 
-圆锥体积为
-
-
 $$
-V=\frac13Ah =\frac13\cdot\frac{2\pi}{3}\cdot\frac1{\sqrt3} =\frac{2\pi}{9\sqrt3}.
+\boxed{ \nabla\cdot\mathbf F = \frac{\partial P}{\partial x} + \frac{\partial Q}{\partial y} + \frac{\partial R}{\partial z} }
 $$
-
-</Step>
-
-<Step>
 
-#### 第三步：补上底面
+散度可以直观理解为：某点附近单位体积内的净流出量。
 
+例如：
 
-令
-
-
 $$
-\boldsymbol F=(x,y+1,z+2).
+\mathbf F=(x,y,z).
 $$
 
+则：
 
-则
-
-
 $$
-\nabla\cdot\boldsymbol F=1+1+1=3.
+\nabla\cdot\mathbf F=3.
 $$
-
 
-补上圆锥上端的圆盘，得到闭曲面。
+也就是说，这个向量场在每一点都具有正的局部净流出量。
 
+如果把空间中一小块体积内所有局部净流出量加起来，内部相邻小块之间的流量会相互抵消。
 
-根据高斯公式：
+最终只剩下穿过整个边界的净流量。
 
+这就是高斯公式背后的思想。
 
-$$
-I+\Phi_{\text{底盘}}=3V.
-$$
+#### 2. 高斯公式
 
+设 $\Omega$ 是空间中的有界区域，边界 $\Sigma=\partial\Omega$ 是分片光滑闭曲面，取外侧。
 
-即
+如果 $P,Q,R$ 在包含 $\overline\Omega$ 的适当邻域内具有连续的一阶偏导数，则：
 
-
 $$
-I+\Phi_{\text{底盘}} =\frac{2\pi}{3\sqrt3}.
+\boxed{ \oiint_\Sigma P\,\mathrm dy\,\mathrm dz+ Q\,\mathrm dz\,\mathrm dx+ R\,\mathrm dx\,\mathrm dy = \iiint_\Omega (P_x+Q_y+R_z)\,\mathrm dV }
 $$
-
-</Step>
 
-<Step>
+简写为：
 
-#### 第四步：求底盘通量
-
-
-底盘作为圆锥体的上端封闭面，其外法向为
-
-
 $$
-\boldsymbol n=\frac1{\sqrt3}(1,1,1).
+\boxed{ \oiint_{\partial\Omega}\mathbf F\cdot\mathbf n\,\mathrm dS = \iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV }
 $$
-
 
-所以
+对于内侧，积分结果需要整体变号。
 
+#### 3. 三个特别重要的结论
 
-$$
-\boldsymbol F\cdot\boldsymbol n =\frac{x+y+z+3}{\sqrt3}.
-$$
-
-
-在底盘上
+结论一：散度为常数。
 
+如果：
 
 $$
-x+y+z=1,
+\nabla\cdot\mathbf F=c,
 $$
 
+则：
 
-故
-
-
 $$
-\boldsymbol F\cdot\boldsymbol n =\frac4{\sqrt3}.
+\boxed{\Phi=cV_\Omega}
 $$
 
+结论二：散度为零。
 
-因此
+如果整个体域内场足够光滑，而且：
 
-
 $$
-\Phi_{\text{底盘}} =\frac4{\sqrt3}\cdot\frac{2\pi}{3} =\frac{8\pi}{3\sqrt3}.
+\nabla\cdot\mathbf F=0,
 $$
-
-</Step>
-
-<Step>
 
-#### 第五步：求侧面通量
+那么：
 
-
 $$
-\begin{aligned} I &=\frac{2\pi}{3\sqrt3} -\frac{8\pi}{3\sqrt3}\\ &=-\frac{6\pi}{3\sqrt3}\\ &=\boxed{-\frac{2\sqrt3\pi}{3}}. \end{aligned}
+\boxed{\Phi=0}
 $$
-
-</Step>
-
-</Steps>
-
-#### 为什么这道题重要？
-
-
-真正的难点发生在高斯公式之前：
-
-
-- 旋转轴不是坐标轴；
-- 必须先求圆锥半顶角；
-- 上截面不是水平面，却垂直于圆锥轴；
-- 上底面外法向不是 $(0,0,1)$。
-
 
-如果把斜截面误认为普通 $z=\text{常数}$ 的水平圆盘，后续体积、底面积和通量都会算错。
+但内部存在奇点时，这个结论不能直接使用。
 
-## 七、斯托克斯公式：空间闭曲线积分为什么会变成曲面积分？
+结论三：散度包含奇函数。
 
-前面讲的都是题目直接给出第二类曲面积分。
+例如：
 
-
-但数学一经常以空间闭曲线积分为题面，要求通过斯托克斯公式转化成曲面通量。
-
-
-设
-
-
 $$
-\boldsymbol F=(P,Q,R),
+\nabla\cdot\mathbf F=2x+3y+1,
 $$
-
 
-其旋度为
+如果体域分别关于 $x=0$ 和 $y=0$ 对称，那么：
 
-
 $$
-\boxed{ \nabla\times\boldsymbol F =(R_y-Q_z,\ P_z-R_x,\ Q_x-P_y) }.
+\iiint_\Omega x\,\mathrm dV = \iiint_\Omega y\,\mathrm dV=0.
 $$
-
-
-若 $L=\partial S$，曲面定向与曲线方向满足右手法则，且向量场满足相应连续可微条件，则
 
+因此：
 
 $$
-\boxed{ \oint_L\boldsymbol F\cdot d\boldsymbol r = \iint_S(\nabla\times\boldsymbol F)\cdot\boldsymbol n\,dS }.
+\Phi=V_\Omega.
 $$
-
-
-### 高斯公式与斯托克斯公式的区别
-
-
-| 公式     | 左边      | 右边     | 导数量 |
-| ------ | ------- | ------ | --- |
-| 高斯公式   | 闭曲面通量   | 三重积分   | 散度  |
-| 斯托克斯公式 | 空间闭曲线环流 | 有向曲面通量 | 旋度  |
-
-
-它们都有“边界积分转换成内部积分”的结构，但不能混用。
-
-
-斯托克斯公式最重要的应用技巧，是在保证边界方向一致且满足光滑条件的情况下，将复杂的跨界曲面换成简单的平面片。
-
 
-### 例9：2024年数学一——球面交圆，改用平面片计算斯托克斯积分
+这里有一个经常考的陷阱：必须是整个三维积分区域对称，而不是仅仅某个截面看起来对称。
 
+### 八、核心题 3：球面的高斯公式与二次矩
 
-本节重点综合题：旋度 + 平面替换 + 投影椭圆面积
+题目来源：考研核心题目·第二部分
 
+设：
 
-曲线 $L$ 是球面
-
-
-$$
-x^2+y^2+z^2=2x
-$$
-
-
-与平面
-
-
 $$
-2x-z-1=0
+\Sigma:x^2+y^2+z^2=1,
 $$
-
 
-的交线。
+取外侧，计算：
 
-
-从 $z$ 轴正向往负向看，$L$ 为逆时针方向。
-
-
-求
-
-
 $$
-I=\oint_L (6xyz-yz^2)\,dx +2x^2z\,dy +xyz\,dz.
+I=\oiint_\Sigma x^3\,\mathrm dy\,\mathrm dz+ y^3\,\mathrm dz\,\mathrm dx+ z^3\,\mathrm dx\,\mathrm dy.
 $$
-
-
-
-<Steps>
-
-<Step>
 
 #### 第一步：识别向量场
 
-
 $$
-\boldsymbol F =(6xyz-yz^2,\ 2x^2z,\ xyz).
-$$
-
-</Step>
-
-<Step>
-
-#### 第二步：求旋度
-
-
-$$
-\nabla\times\boldsymbol F = (R_y-Q_z,\ P_z-R_x,\ Q_x-P_y).
+\mathbf F=(x^3,y^3,z^3).
 $$
 
+曲面为单位球面，封闭、外侧、无奇点。
 
-分别计算：
+符合高斯公式的条件。
 
-
-$$
-R_y=xz,\qquad Q_z=2x^2,
-$$
-
-
-所以第一个分量为
-
+#### 第二步：求散度
 
 $$
-xz-2x^2=x(z-2x).
+\begin{aligned} \nabla\cdot\mathbf F &=3x^2+3y^2+3z^2\\ &=3(x^2+y^2+z^2). \end{aligned}
 $$
 
-
-又有
-
+于是：
 
 $$
-P_z=6xy-2yz,\qquad R_x=yz,
+I=3\iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV.
 $$
 
+#### 第三步：球坐标
 
-所以第二个分量为
-
-
-$$
-6xy-3yz=3y(2x-z).
-$$
-
-
-最后
-
+令：
 
 $$
-Q_x=4xz,\qquad P_y=6xz-z^2,
+x=\rho\sin\varphi\cos\theta,
 $$
 
-
-所以第三个分量为
-
-
 $$
-z^2-2xz=z(z-2x).
+y=\rho\sin\varphi\sin\theta,
 $$
 
-
-综上，
-
-
 $$
-\boxed{ \nabla\times\boldsymbol F =\bigl(x(z-2x),\,3y(2x-z),\,z(z-2x)\bigr) }.
+z=\rho\cos\varphi.
 $$
 
-</Step>
-
-<Step>
-
-#### 第三步：选择最容易的跨界面
-
-
-原曲线位于平面
-
+则：
 
 $$
-z=2x-1.
+x^2+y^2+z^2=\rho^2.
 $$
 
-
-与其直接在球面上做积分，不如选择交圆所围成的平面椭圆盘 $S$。
-
-
-由于从正 $z$ 轴方向看曲线为逆时针，需要选择 $z$ 分量为正的法向。
-
-
-该平面的有向面积元为
-
+体积微元：
 
 $$
-\boxed{ \boldsymbol n\,dS=(-2,0,1)\,dxdy }.
+\mathrm dV =\rho^2\sin\varphi\,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta.
 $$
 
-</Step>
-
-<Step>
-
-#### 第四步：利用平面关系化简旋度
-
-
-在平面上：
-
+因此：
 
 $$
-z-2x=-1, \qquad 2x-z=1.
+\begin{aligned} I &=3\int_0^{2\pi}\int_0^\pi\int_0^1 \rho^4\sin\varphi \,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta\\ &=3\cdot\frac15\cdot2\cdot2\pi\\ &=\boxed{\frac{12\pi}{5}}. \end{aligned}
 $$
 
+#### 第二种更快的方法：利用球对称性
 
-因此
-
-
-$$
-\nabla\times\boldsymbol F=(-x,3y,-z).
-$$
-
-
-与有向面积元点乘：
-
+单位球体上：
 
 $$
-\begin{aligned} (\nabla\times\boldsymbol F)\cdot(-2,0,1) &=2x-z\\ &=1. \end{aligned}
+\iiint_\Omega x^2\,\mathrm dV = \iiint_\Omega y^2\,\mathrm dV = \iiint_\Omega z^2\,\mathrm dV.
 $$
 
-
-这意味着复杂的空间曲线积分直接变为：
-
+并且：
 
 $$
-I=\iint_D1\,dxdy.
+\iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV =\frac{4\pi}{5}.
 $$
 
-
-也就是交圆在 $xOy$ 平面上的投影面积。
-
-</Step>
-
-<Step>
-
-#### 第五步：求投影椭圆
-
-
-将
-
+故：
 
 $$
-z=2x-1
+I=3\cdot\frac{4\pi}{5} =\boxed{\frac{12\pi}{5}}.
 $$
 
+#### 需要记住的球体积分公式
 
-代入球面：
-
-
-$$
-x^2+y^2+(2x-1)^2=2x.
-$$
-
-
-化简：
-
+半径为 $R$ 的球体 $B_R$：
 
 $$
-5x^2-6x+y^2+1=0.
+\boxed{ \iiint_{B_R}(x^2+y^2+z^2)\,\mathrm dV =\frac{4\pi R^5}{5} }
 $$
 
-
-配方：
-
+由于三个坐标方向完全对称：
 
 $$
-\boxed{ 5\left(x-\frac35\right)^2+y^2=\frac45 }.
+\boxed{ \iiint_{B_R}x^2\,\mathrm dV = \iiint_{B_R}y^2\,\mathrm dV = \iiint_{B_R}z^2\,\mathrm dV =\frac{4\pi R^5}{15} }
 $$
 
-
-椭圆两个半轴为
-
+相应地，半径为 $R$ 的圆盘 $D_R$ 满足：
 
 $$
-a=\frac25,\qquad b=\frac2{\sqrt5}.
+\boxed{ \iint_{D_R}x^2\,\mathrm dx\,\mathrm dy = \iint_{D_R}y^2\,\mathrm dx\,\mathrm dy =\frac{\pi R^4}{4} }
 $$
 
+这些是数学一计算曲面积分、三重积分时非常值得熟练掌握的公式。
 
-因此面积为
+### 九、核心题 4：球面与圆锥围成的空间区域
 
+题目来源：考研核心题目·第二部分
 
-$$
-S_D=\pi ab =\frac{4\pi}{5\sqrt5}.
-$$
-
-
-最终
-
+设 $\Omega$ 是由：
 
 $$
-\boxed{ I=\frac{4\pi}{5\sqrt5} }.
+z=\sqrt{x^2+y^2}
 $$
 
-</Step>
-
-</Steps>
-
-### 这道题的最优解法为什么不是直接参数化？
-
-
-如果直接参数化空间交圆，需要先求圆心、半径、圆所在平面内的正交基，再代入复杂的三变量多项式。
-
-
-使用斯托克斯公式，则有：
-
+和：
 
 $$
-\boxed{ \text{求旋度} \rightarrow \text{换成平面片} \rightarrow \text{方向面积元} \rightarrow \text{投影椭圆面积} }.
+z=\sqrt{R^2-x^2-y^2}
 $$
 
+围成的区域，$\Sigma$ 为整个边界的外侧。
 
-这就是数学一综合题中的高效方法。
-
-
-### 例10：2022年数学一——斯托克斯公式与对称积分
-
-
-设 $L$ 是第一卦限椭球面片
-
+求：
 
 $$
-4x^2+y^2+z^2=1,\qquad x,y,z\ge0
+I=\oiint_\Sigma x\,\mathrm dy\,\mathrm dz+ y\,\mathrm dz\,\mathrm dx+ z\,\mathrm dx\,\mathrm dy.
 $$
 
-
-的边界。
-
-
-曲面取朝上方向，曲线方向与曲面定向满足右手法则。
-
-
-求
-
+#### 第一步：先处理向量场
 
 $$
-I=\oint_L (yz^2-\cos z)\,dx +2xz^2\,dy +(2xyz+x\sin z)\,dz.
+\mathbf F=(x,y,z).
 $$
 
+所以：
 
+$$
+\nabla\cdot\mathbf F=3.
+$$
+
+于是：
+
+$$
+I=3V_\Omega.
+$$
+
+问题直接转化成求体积。
+
+#### 第二步：选坐标系
+
+这道题有两种求体积的方法。
+
+方法一：柱坐标
+
+令：
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+上下曲面为：
+
+$$
+z=r,\qquad z=\sqrt{R^2-r^2}.
+$$
+
+求交线：
+
+$$
+r=\sqrt{R^2-r^2}.
+$$
+
+得到：
+
+$$
+r=\frac{R}{\sqrt2}.
+$$
+
+所以：
+
+$$
+V_\Omega = 2\pi\int_0^{R/\sqrt2} r\left(\sqrt{R^2-r^2}-r\right)\,\mathrm dr.
+$$
+
+计算后：
+
+$$
+V_\Omega=\frac{\pi R^3}{3}(2-\sqrt2).
+$$
+
+因此：
+
+$$
+\boxed{ I=(2-\sqrt2)\pi R^3 }
+$$
+
+方法二：球坐标
+
+圆锥：
+
+$$
+z=\sqrt{x^2+y^2}
+$$
+
+化为：
+
+$$
+\rho\cos\varphi=\rho\sin\varphi.
+$$
+
+因此：
+
+$$
+\varphi=\frac\pi4.
+$$
+
+球面对应：
+
+$$
+\rho=R.
+$$
+
+区域为：
+
+$$
+0\le\rho\le R,\qquad 0\le\varphi\le\frac\pi4,\qquad 0\le\theta\le2\pi.
+$$
+
+于是：
+
+$$
+\begin{aligned} I &=3\int_0^{2\pi} \int_0^{\pi/4} \int_0^R \rho^2\sin\varphi \,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta\\ &=2\pi R^3 \left(1-\cos\frac\pi4\right)\\ &=\boxed{(2-\sqrt2)\pi R^3}. \end{aligned}
+$$
+
+#### 方法比较
+
+球坐标更方便，因为球面与圆锥都可以用非常简单的球坐标条件表示。
+
+由此得到一个高价值判断：
+
+球面与顶点在原点的圆锥组成的立体，优先考虑球坐标。
+
+但是如果球面中心不在原点，径向上界通常就不是常数，不能直接写成 $0\le\rho\le R$。
+
+## 第四部分：补面法——开放曲面如何使用高斯公式
+
+### 十、补面法的标准逻辑
+
+<Callout type="idea" title="补面通量的符号">
+
+补上缺失的面并按照封闭区域外法向定向，再使用“原曲面通量＝封闭曲面通量－补面通量”。
+
+</Callout>
+
+如果题目给出一个开放曲面 $\Sigma$，不能直接使用高斯公式。
+
+可以添加辅助曲面 $S_0$，使：
+
+$$
+\Sigma\cup S_0=\partial\Omega.
+$$
+
+假设原曲面方向与区域的外侧一致。
+
+那么：
+
+$$
+\iint_\Sigma\mathbf F\cdot\mathbf n\,\mathrm dS + \iint_{S_0}\mathbf F\cdot\mathbf n\,\mathrm dS = \iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV.
+$$
+
+所以：
+
+$$
+\boxed{ I_\Sigma = \iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV - I_{S_0} }
+$$
+
+最容易犯的错误，是把补面的外法向量取反。
+
+特别是：
+
+- 上半球补底面，底面通常取下侧。
+- 下半球补顶面，顶面通常取上侧。
+- 圆锥上方封口，封口通常取上侧。
+- 立体位于 $x=g(y,z)$ 的右侧时，左边界取朝负 $x$ 的外法向。
+
+补面以后，必须从整个立体内部往外看每一片边界。
+
+### 十一、核心题 5：上半球补面，掌握负通量相减
+
+题目来源：考研核心题目·第三部分
+
+设 $S$ 为球面：
+
+$$
+x^2+y^2+z^2=4,\qquad z\ge0
+$$
+
+的外侧，计算：
+
+$$
+I=\iint_S yz\,\mathrm dz\,\mathrm dx+ 2\,\mathrm dx\,\mathrm dy.
+$$
 
 <Steps>
 
 <Step>
 
-#### 第一步：求旋度
+### 第一步：补面
 
-
-取
-
+补上圆盘：
 
 $$
-\boldsymbol F =(yz^2-\cos z,\ 2xz^2,\ 2xyz+x\sin z).
+S_0:z=0,\qquad x^2+y^2\le4.
 $$
 
-
-由旋度定义计算：
-
+对于上半球体，底面的外法向量为：
 
 $$
-\boxed{ \nabla\times\boldsymbol F=(-2xz,0,z^2) }.
+\mathbf n_0=(0,0,-1).
 $$
 
 </Step>
 
 <Step>
 
-#### 第二步：投影到 $xOy$ 平面
-
-
-因为
-
+### 第二步：计算散度
 
 $$
-z=\sqrt{1-4x^2-y^2},
+\mathbf F=(0,yz,2).
 $$
 
-
-朝上方向的有向面积元为
-
+所以：
 
 $$
-\boldsymbol n\,dS =\left(\frac{4x}{z},\frac{y}{z},1\right)dxdy.
+\nabla\cdot\mathbf F = \frac{\partial(yz)}{\partial y} =z.
 $$
 
-
-因此
-
+于是：
 
 $$
-\begin{aligned} I &=\iint_D (-2xz,0,z^2) \cdot \left(\frac{4x}{z},\frac{y}{z},1\right)dxdy\\ &=\iint_D(z^2-8x^2)\,dxdy. \end{aligned}
-$$
-
-
-其中
-
-
-$$
-D=\{x\ge0,\ y\ge0,\ 4x^2+y^2\le1\}.
+I+I_0=\iiint_\Omega z\,\mathrm dV.
 $$
 
 </Step>
 
 <Step>
 
-#### 第三步：椭圆变为四分之一圆
+### 第三步：利用水平截面积分
 
+高度为 $z$ 的截面是一个圆盘：
 
-令
+$$
+x^2+y^2\le4-z^2.
+$$
 
+面积为：
+
+$$
+A(z)=\pi(4-z^2).
+$$
+
+于是：
+
+$$
+\begin{aligned} I+I_0 &=\pi\int_0^2z(4-z^2)\,\mathrm dz\\ &=\pi\left[2z^2-\frac{z^4}{4}\right]_0^2\\ &=4\pi. \end{aligned}
+$$
+
+</Step>
+
+<Step>
+
+### 第四步：计算补面通量
+
+在底面：
+
+$$
+\mathbf F=(0,0,2).
+$$
+
+因此：
+
+$$
+\mathbf F\cdot\mathbf n_0=-2.
+$$
+
+底面积：
+
+$$
+A_0=4\pi.
+$$
+
+所以：
+
+$$
+I_0=-8\pi.
+$$
+
+最终：
+
+$$
+\begin{aligned} I &=4\pi-(-8\pi)\\ &=\boxed{12\pi}. \end{aligned}
+$$
+
+这里最值得记住的是：
+
+$$
+\boxed{\text{原通量}=\text{闭曲面通量}-\text{补面通量}}
+$$
+
+补面通量本身可能是负数。
+
+</Step>
+
+</Steps>
+
+### 十二、核心题 6：旋转抛物面补面——如何判断空间方向？
+
+题目来源：考研核心题目·第三部分
+
+计算：
+
+$$
+\begin{aligned} I=\iint_\Sigma &x(8y+1)\,\mathrm dy\,\mathrm dz\\ &+2(1-y^2)\,\mathrm dz\,\mathrm dx\\ &-4yz\,\mathrm dx\,\mathrm dy, \end{aligned}
+$$
+
+其中 $\Sigma$ 是曲线：
+
+$$
+x=0,\qquad z=\sqrt{y-1}, \qquad 1\le y\le3
+$$
+
+绕 $y$ 轴旋转一周得到的曲面。
+
+法向量与 $y$ 轴正方向的夹角大于 $\pi/2$。
+
+这道题比前面难，因为必须先把旋转曲面还原出来。
+
+#### 第一步：写出曲面方程
+
+原曲线满足：
+
+$$
+z^2=y-1.
+$$
+
+绕 $y$ 轴旋转时，原来的 $z^2$ 要变成：
+
+$$
+x^2+z^2.
+$$
+
+因此：
+
+$$
+\boxed{y=1+x^2+z^2}
+$$
+
+这是一张绕 $y$ 轴旋转的抛物面。
+
+#### 第二步：判断法向量
+
+题目说法向量与 $+y$ 轴夹角为钝角，所以：
+
+$$
+n_y<0.
+$$
+
+考察：
+
+$$
+\Omega: 1+x^2+z^2\le y\le3.
+$$
+
+该立体位于抛物面的 $+y$ 方向一侧。
+
+在抛物面上，从立体内部向外的方向正好具有负的 $y$ 分量。
+
+所以原曲面取的是这个立体的外侧。
+
+#### 第三步：补顶面
+
+补上：
+
+$$
+S_0:y=3,\qquad x^2+z^2\le2.
+$$
+
+顶面外法向量为：
+
+$$
+\mathbf n_0=(0,1,0).
+$$
+
+#### 第四步：用高斯公式
+
+向量场为：
+
+$$
+\mathbf F= \left( x(8y+1),\, 2(1-y^2),\, -4yz \right).
+$$
+
+求散度：
+
+$$
+\begin{aligned} \nabla\cdot\mathbf F &=(8y+1)-4y-4y\\ &=1. \end{aligned}
+$$
+
+因此：
+
+$$
+I+I_0=V_\Omega.
+$$
+
+取绕 $y$ 轴的柱坐标：
+
+$$
+r=\sqrt{x^2+z^2}.
+$$
+
+则：
+
+$$
+V_\Omega = 2\pi\int_0^{\sqrt2} [3-(1+r^2)]r\,\mathrm dr.
+$$
+
+即：
+
+$$
+\begin{aligned} V_\Omega &=2\pi\int_0^{\sqrt2}(2-r^2)r\,\mathrm dr\\ &=2\pi. \end{aligned}
+$$
+
+#### 第五步：补面通量
+
+在 $y=3$ 上：
+
+$$
+Q=2(1-9)=-16.
+$$
+
+圆盘面积为：
+
+$$
+2\pi.
+$$
+
+所以：
+
+$$
+I_0=-32\pi.
+$$
+
+最终：
+
+$$
+\boxed{ I=2\pi-(-32\pi)=34\pi }
+$$
+
+#### 本题的迁移规律
+
+以后看到绕不同坐标轴的旋转曲面：
+
+- 绕 $x$ 轴：常利用 $y^2+z^2$。
+- 绕 $y$ 轴：常利用 $x^2+z^2$。
+- 绕 $z$ 轴：常利用 $x^2+y^2$。
+
+先还原空间几何，再判断法向量，最后决定能否补面。
+
+不要一看到旋转曲面，就立即进行复杂参数化。
+
+### 十三、李正元代表题：上半椭球的补面与截面矩
+
+题目来源：李正元第十章；核心文档第六部分也收录了同型题。
+
+设 $a,b,c>0$，曲面 $S$ 为：
+
+$$
+\frac{x^2}{a^2} + \frac{y^2}{b^2} + \frac{z^2}{c^2} =1,\qquad z\ge0
+$$
+
+的上侧，计算：
+
+$$
+\begin{aligned} I=\iint_S &(x^2-y^2)\,\mathrm dy\,\mathrm dz\\ +&(y^2-z^2)\,\mathrm dz\,\mathrm dx\\ +&(z^2-x^2)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+这道题把高斯公式、补面、椭球变换以及二次矩放在了一起。
+
+#### 第一步：补上底面
+
+补面为：
+
+$$
+S_0:z=0,\qquad \frac{x^2}{a^2}+\frac{y^2}{b^2}\le1.
+$$
+
+取下侧。
+
+设：
+
+$$
+\mathbf F=(x^2-y^2,y^2-z^2,z^2-x^2).
+$$
+
+散度：
+
+$$
+\nabla\cdot\mathbf F=2x+2y+2z.
+$$
+
+#### 第二步：利用对称性
+
+上半椭球体关于 $x=0$ 和 $y=0$ 对称。
+
+因此：
+
+$$
+\iiint_\Omega x\,\mathrm dV = \iiint_\Omega y\,\mathrm dV=0.
+$$
+
+所以：
+
+$$
+I+I_0=2\iiint_\Omega z\,\mathrm dV.
+$$
+
+高度 $z$ 处的水平截面为椭圆，其面积：
+
+$$
+A(z)=\pi ab\left(1-\frac{z^2}{c^2}\right).
+$$
+
+于是：
+
+$$
+\begin{aligned} I+I_0 &=2\pi ab\int_0^c z\left(1-\frac{z^2}{c^2}\right)\,\mathrm dz\\ &=\frac{\pi abc^2}{2}. \end{aligned}
+$$
+
+#### 第三步：计算底面
+
+在 $z=0$ 上：
+
+$$
+R=z^2-x^2=-x^2.
+$$
+
+由于底面取下侧：
+
+$$
+\mathbf n_0=(0,0,-1),
+$$
+
+所以：
+
+$$
+\mathbf F\cdot\mathbf n_0=x^2.
+$$
+
+于是：
+
+$$
+I_0=\iint_Dx^2\,\mathrm dx\,\mathrm dy.
+$$
+
+作伸缩变换：
+
+$$
+x=ar\cos\theta,\qquad y=br\sin\theta.
+$$
+
+雅可比为：
+
+$$
+\mathrm dx\,\mathrm dy=ab\,r\,\mathrm dr\,\mathrm d\theta.
+$$
+
+因此：
+
+$$
+\begin{aligned} I_0 &=a^3b \int_0^{2\pi}\cos^2\theta\,\mathrm d\theta \int_0^1r^3\,\mathrm dr\\ &=\frac{\pi a^3b}{4}. \end{aligned}
+$$
+
+最终：
+
+$$
+\boxed{ I=\frac{\pi ab}{4}(2c^2-a^2) }
+$$
+
+#### 为什么这道题特别值得做？
+
+它说明补面通量并不一定简单到等于零。
+
+如果考场上看到底面 $z=0$，便直接认为底面通量为零，就会漏掉：
+
+$$
+\frac{\pi a^3b}{4}.
+$$
+
+判断补面通量，必须看法向对应的向量场分量。
+
+### 十四、张宇代表题：高斯公式与球坐标的结合
+
+题目来源：张宇1000题第十八章基础部分。
+
+设 $\Sigma$ 是上半球体：
+
+$$
+0\le z\le\sqrt{a^2-x^2-y^2}
+$$
+
+的整个外表面，$a>0$。
+
+求：
+
+$$
+\begin{aligned} I=\oiint_\Sigma &xz^2\,\mathrm dy\,\mathrm dz\\ +&(x^2y-z^3)\,\mathrm dz\,\mathrm dx\\ +&(2xy+y^2z)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+注意“整个外表面”已经包含底面。
+
+因此不需要额外补面。
+
+#### 求散度
+
+$$
+\begin{aligned} \nabla\cdot\mathbf F &=z^2+x^2+y^2\\ &=x^2+y^2+z^2. \end{aligned}
+$$
+
+所以：
+
+$$
+I=\iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV.
+$$
+
+改用球坐标：
+
+$$
+I= \int_0^{2\pi} \int_0^{\pi/2} \int_0^a \rho^4\sin\varphi \,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta.
+$$
+
+因此：
+
+$$
+\boxed{ I=\frac{2\pi a^5}{5} }
+$$
+
+从这道题可以进一步总结：
+
+$$
+\boxed{ \iiint_{B_R^+}\rho^k\,\mathrm dV = \frac{2\pi R^{k+3}}{k+3} \qquad(k>-3) }
+$$
+
+其中 $B_R^+$ 是以原点为中心、半径为 $R$ 的上半球体。
+
+这个公式能快速解决许多高斯公式后的径向积分。
+
+## 第五部分：高价值综合题——结构消项、奇点与抽象函数
+
+这一部分非常重要，因为考研综合题往往不会直接告诉你该用什么公式，而是把真正的简化结构隐藏在复杂表达式中。
+
+### 十五、核心题 7：未知函数为什么可以完全消失？
+
+题目来源：考研核心题目·第四部分
+
+设：
+
+$$
+\Sigma:z=\sqrt{x^2+y^2}, \qquad 1\le x^2+y^2\le4,
+$$
+
+取下侧。
+
+$f(x)$ 为连续函数，计算：
+
+$$
+\begin{aligned} I=\iint_\Sigma& [xf(xy)+2x-y]\,\mathrm dy\,\mathrm dz\\ +&[yf(xy)+2y+x]\,\mathrm dz\,\mathrm dx\\ +&[zf(xy)+z]\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+这道题最容易让人产生一个错误想法：既然 $f$ 未知，是否应该先想办法求 $f$？
+
+实际上完全没有必要。
+
+#### 第一步：把复杂向量场拆开
+
+原向量场：
+
+$$
+\mathbf F= \left( xf(xy)+2x-y,\, yf(xy)+2y+x,\, zf(xy)+z \right).
+$$
+
+可以写成：
+
+$$
+\boxed{ \mathbf F=f(xy)(x,y,z)+(2x-y,2y+x,z) }
+$$
+
+这样一拆，结构就清楚了。
+
+#### 第二步：研究圆锥面的法向量
+
+令：
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+曲面为 $z=r$。
+
+下侧的有向面积向量：
+
+$$
+\mathbf n\,\mathrm dS = \left(\frac{x}{r},\frac{y}{r},-1\right) \mathrm dx\,\mathrm dy.
+$$
+
+考察未知函数对应的向量：
+
+$$
+(x,y,z).
+$$
+
+与法向量点乘：
+
+$$
+\begin{aligned} &(x,y,z)\cdot \left(\frac xr,\frac yr,-1\right)\\ &=\frac{x^2+y^2}{r}-z\\ &=r-r\\ &=0. \end{aligned}
+$$
+
+因此：
+
+$$
+f(xy)(x,y,z)\cdot\mathbf n=0.
+$$
+
+无论 $f$ 是什么连续函数，它对这个圆锥面的通量都为零。
+
+#### 第三步：只计算剩下的部分
+
+$$
+\begin{aligned} &(2x-y,2y+x,z)\cdot \left(\frac xr,\frac yr,-1\right)\\ &=\frac{2x^2-xy+2y^2+xy}{r}-z\\ &=2r-r\\ &=r. \end{aligned}
+$$
+
+所以：
+
+$$
+I=\iint_Dr\,\mathrm dx\,\mathrm dy.
+$$
+
+其中：
+
+$$
+D:1\le r\le2.
+$$
+
+换极坐标：
+
+$$
+\begin{aligned} I &=\int_0^{2\pi}\int_1^2r^2\,\mathrm dr\,\mathrm d\theta\\ &=2\pi\cdot\frac{8-1}{3}\\ &=\boxed{\frac{14\pi}{3}}. \end{aligned}
+$$
+
+#### 深层理解：径向向量为什么与圆锥相切？
+
+过原点的圆锥有一个特殊性质：
+
+从原点出发，沿着圆锥母线方向移动，始终留在圆锥面上。
+
+而：
+
+$$
+(x,y,z)
+$$
+
+正是点 $(x,y,z)$ 处的径向向量，也是圆锥母线的切向量。
+
+切向量与法向量垂直，所以通量为零。
+
+这个事实可以推广。
+
+对于任何光滑齐次方程：
+
+$$
+H(x,y,z)=0, \qquad H(tx,ty,tz)=t^mH(x,y,z),
+$$
+
+根据欧拉齐次函数定理：
+
+$$
+xH_x+yH_y+zH_z=mH.
+$$
+
+在曲面 $H=0$ 上：
+
+$$
+(x,y,z)\cdot\nabla H=0.
+$$
+
+所以径向向量与曲面相切。
+
+看到圆锥面上有 $g(x,y,z)(x,y,z)$ 这样的向量场，优先检查是否能利用切向性直接消项。
+
+这类思路比单纯记积分公式更有迁移价值。
+
+### 十六、核心题 8：任意闭曲面通量为零，反求未知函数
+
+题目来源：考研核心题目·第四部分
+
+设在半空间 $x>0$ 内，对任意光滑闭曲面 $S$，都有：
+
+$$
+\oiint_S xf(x)\,\mathrm dy\,\mathrm dz -xyf(x)\,\mathrm dz\,\mathrm dx -e^{2x}z\,\mathrm dx\,\mathrm dy=0.
+$$
+
+且：
+
+$$
+\lim_{x\to0^+}f(x)=1.
+$$
+
+求 $f(x)$。
+
+这道题的关键是把积分条件转化为微分方程。
+
+#### 第一步：识别向量场
+
+$$
+\mathbf F= \left( xf(x),-xyf(x),-e^{2x}z \right).
+$$
+
+题目说对任意闭曲面通量均为零。
+
+根据高斯公式：
+
+$$
+\iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV=0.
+$$
+
+由于这个结论对半空间内任意足够小的区域都成立，而且散度连续，因此：
+
+$$
+\boxed{\nabla\cdot\mathbf F=0}
+$$
+
+在整个 $x>0$ 的区域内成立。
+
+注意：
+
+从某一个闭曲面的通量等于零，不能直接推出散度处处为零。
+
+这里真正起作用的是“任意闭曲面”。
+
+#### 第二步：计算散度
+
+$$
+\begin{aligned} \nabla\cdot\mathbf F &=\frac{\partial(xf(x))}{\partial x} +\frac{\partial[-xyf(x)]}{\partial y} +\frac{\partial[-e^{2x}z]}{\partial z}\\ &=f(x)+xf'(x)-xf(x)-e^{2x}. \end{aligned}
+$$
+
+因此：
+
+$$
+xf'(x)+(1-x)f(x)=e^{2x}.
+$$
+
+#### 第三步：解微分方程
+
+两边除以 $x$：
+
+$$
+f'(x)+\left(\frac1x-1\right)f(x) =\frac{e^{2x}}x.
+$$
+
+积分因子为：
+
+$$
+\mu(x)=xe^{-x}.
+$$
+
+于是：
+
+$$
+(xe^{-x}f(x))'=e^x.
+$$
+
+积分得到：
+
+$$
+xe^{-x}f(x)=e^x+C.
+$$
+
+所以：
+
+$$
+f(x)=\frac{e^{2x}+Ce^x}{x}.
+$$
+
+#### 第四步：利用极限条件
+
+当 $x\to0^+$ 时，$f(x)$ 有有限极限。
+
+因此分子常数项必须为零：
+
+$$
+1+C=0.
+$$
+
+所以：
+
+$$
+C=-1.
+$$
+
+最终：
+
+$$
+\boxed{ f(x)=\frac{e^x(e^x-1)}{x} }
+$$
+
+并且：
+
+$$
+\lim_{x\to0^+}f(x)=1.
+$$
+
+#### 这类综合题的识别信号
+
+看到以下表述，应立即想到“高斯公式＋微分方程”：
+
+- 对任意闭曲面，通量恒为零。
+- 对任意有界空间区域，某个体积分恒为零。
+- 求满足某种通量条件的未知函数。
+- 场中出现 $f(x)$、$f'(x)$ 等抽象函数。
+
+它考查的是不同章节之间的联系，而不只是曲面积分计算。
+
+### 十七、核心题 9：奇点通量——为什么散度为零，积分却不是零？
+
+<Callout type="warn" title="奇点不可直接忽略">
+
+点源场在奇点以外的散度为零，并不意味着包围奇点的闭曲面通量为零。应挖洞分析奇点的贡献。
+
+</Callout>
+
+题目来源：考研核心题目·第四部分
+
+设：
+
+$$
+\Sigma:2x^2+2y^2+z^2=4
+$$
+
+取外侧，计算：
+
+$$
+I=\oiint_\Sigma \frac{ x\,\mathrm dy\,\mathrm dz+ y\,\mathrm dz\,\mathrm dx+ z\,\mathrm dx\,\mathrm dy }{ (x^2+y^2+z^2)^{3/2} }.
+$$
+
+#### 第一步：观察向量场
+
+令：
+
+$$
+r=\sqrt{x^2+y^2+z^2}.
+$$
+
+那么：
+
+$$
+\mathbf F=\frac{(x,y,z)}{r^3}.
+$$
+
+对于 $r\ne0$，可以算出：
+
+$$
+\nabla\cdot\mathbf F=0.
+$$
+
+能不能直接说：
+
+$$
+I=0?
+$$
+
+不能。
+
+因为：
+
+$$
+\mathbf F
+$$
+
+在原点没有定义，而椭球内部包含原点。
+
+高斯公式的光滑性条件被破坏。
+
+#### 第二步：挖去奇点
+
+在原点周围挖去一个足够小的球：
+
+$$
+B_\varepsilon:r<\varepsilon.
+$$
+
+剩下的区域记为：
+
+$$
+\Omega_\varepsilon=\Omega\setminus B_\varepsilon.
+$$
+
+这个区域的边界包括：
+
+1. 原来的椭球面 $\Sigma$。
+2. 小球面 $S_\varepsilon$，但方向指向球心。
+
+在剩下的区域内，场是光滑的，而且散度为零。
+
+因此：
+
+$$
+0= I-\iint_{S_\varepsilon} \mathbf F\cdot\mathbf n_{\text{球外}}\,\mathrm dS.
+$$
+
+所以：
+
+$$
+I= \iint_{S_\varepsilon} \mathbf F\cdot\mathbf n_{\text{球外}}\,\mathrm dS.
+$$
+
+#### 第三步：计算小球通量
+
+在小球面上：
+
+$$
+r=\varepsilon.
+$$
+
+外单位法向量：
+
+$$
+\mathbf n_{\text{球外}} =\frac{(x,y,z)}{\varepsilon}.
+$$
+
+于是：
+
+$$
+\mathbf F\cdot\mathbf n_{\text{球外}} =\frac1{\varepsilon^2}.
+$$
+
+小球面积为：
+
+$$
+4\pi\varepsilon^2.
+$$
+
+故：
+
+$$
+I=\frac1{\varepsilon^2}\cdot4\pi\varepsilon^2.
+$$
+
+最终：
+
+$$
+\boxed{I=4\pi}
+$$
+
+#### 这道题必须记住的模型
+
+$$
+\boxed{ \mathbf F=\frac{(x,y,z)}{(x^2+y^2+z^2)^{3/2}} }
+$$
+
+对于不经过原点的简单闭曲面，取外侧：
+
+$$
+\boxed{ \Phi= \begin{cases} 4\pi,&\text{原点在内部},\\ 0,&\text{原点在外部}. \end{cases} }
+$$
+
+如果方向反过来，结果整体变号。
+
+对于位于点 $(a,b,c)$ 的奇点，只需将场平移为：
+
+$$
+\mathbf F= \frac{(x-a,y-b,z-c)} {\left[(x-a)^2+(y-b)^2+(z-c)^2\right]^{3/2}}.
+$$
+
+结论不变，只需要判断闭曲面是否包围 $(a,b,c)$。
+
+#### 进一步推广：径向场
+
+设：
+
+$$
+\mathbf F=\frac{(x,y,z)}{r^p}.
+$$
+
+在 $r>0$ 处：
+
+$$
+\boxed{ \nabla\cdot\mathbf F=(3-p)r^{-p} }
+$$
+
+在半径为 $R$ 的球面上，外向通量为：
+
+$$
+\boxed{ \Phi(R)=4\pi R^{3-p} }
+$$
+
+当 $p=3$ 时，通量与半径无关，这正是奇点模型特殊的原因。
+
+### 十八、李林880题：有奇点的闭曲面，直接分片反而更合适
+
+题目来源：李林880题第九章。
+
+设 $S$ 为：
+
+$$
+x^2+y^2=1,\qquad -1\le z\le1
+$$
+
+所围成的圆柱体全表面，取外侧。
+
+计算：
+
+$$
+I= \oiint_S \frac{ x\,\mathrm dy\,\mathrm dz+ z^2\,\mathrm dx\,\mathrm dy }{ x^2+y^2+z^2 }.
+$$
+
+这道题与上一道奇点题形成很好的对比。
+
+#### 第一步：判断高斯公式的适用性
+
+向量场为：
+
+$$
+\mathbf F= \left( \frac{x}{x^2+y^2+z^2}, 0, \frac{z^2}{x^2+y^2+z^2} \right).
+$$
+
+在原点没有定义。
+
+原点位于圆柱内部。
+
+因此不能直接对整个圆柱体使用通常形式的高斯公式。
+
+#### 第二步：把曲面分成三片
+
+包括：
+
+- 上底面 $z=1$。
+- 下底面 $z=-1$。
+- 圆柱侧面 $x^2+y^2=1$。
+
+在上下底面上，只有向量场的第三个分量产生通量。
+
+但：
+
+$$
+\left. \frac{z^2}{x^2+y^2+z^2} \right|_{z=1} = \left. \frac{z^2}{x^2+y^2+z^2} \right|_{z=-1}.
+$$
+
+上下底面的方向相反，所以通量互相抵消。
+
+#### 第三步：计算侧面通量
+
+取参数方程：
+
+$$
+x=\cos\theta,\qquad y=\sin\theta,\qquad -1\le z\le1.
+$$
+
+外单位法向量为：
+
+$$
+\mathbf n=(\cos\theta,\sin\theta,0).
+$$
+
+面积元：
+
+$$
+\mathrm dS=\mathrm d\theta\,\mathrm dz.
+$$
+
+于是：
+
+$$
+\mathbf F\cdot\mathbf n = \frac{\cos^2\theta}{1+z^2}.
+$$
+
+因此：
+
+$$
+\begin{aligned} I &=\int_{-1}^1 \int_0^{2\pi} \frac{\cos^2\theta}{1+z^2} \,\mathrm d\theta\,\mathrm dz\\ &= \left(\int_0^{2\pi}\cos^2\theta\,\mathrm d\theta\right) \left(\int_{-1}^1\frac{\mathrm dz}{1+z^2}\right)\\ &=\pi\cdot\frac\pi2\\ &=\boxed{\frac{\pi^2}{2}}. \end{aligned}
+$$
+
+#### 这两道奇点题的区别
+
+前一道核心题利用挖洞法，把未知椭球面的通量转移到小球面上。
+
+本题由于曲面能够简单分成三片，直接计算非常方便。
+
+因此：
+
+场有奇点不代表一定要挖洞。它意味着必须停止机械套用高斯公式，然后比较挖洞、分片计算和其他合法方法的复杂程度。
+
+## 第六部分：斯托克斯公式——把空间曲线积分转化为曲面积分
+
+### 十九、为什么斯托克斯公式也要在本节掌握？
+
+<Callout type="idea" title="边界定向一致">
+
+用斯托克斯公式时，曲面法向与边界曲线方向须符合右手定则；同一闭曲线可优先选择最易积分的跨越曲面。
+
+</Callout>
+
+高斯公式解决的是：
+
+$$
+\text{封闭曲面通量} \longrightarrow \text{三重积分}.
+$$
+
+斯托克斯公式解决的是：
+
+$$
+\text{空间闭曲线环流} \longrightarrow \text{曲面上的旋度通量}.
+$$
+
+虽然二者形式不同，但都通过边界与内部之间的关系来简化计算。
+
+#### 1. 旋度的定义
+
+设：
+
+$$
+\mathbf F=(P,Q,R).
+$$
+
+则：
+
+$$
+\boxed{ \nabla\times\mathbf F = \left( R_y-Q_z,\, P_z-R_x,\, Q_x-P_y \right) }
+$$
+
+也可以用形式行列式记忆：
+
+$$
+\nabla\times\mathbf F = \begin{vmatrix} \mathbf i&\mathbf j&\mathbf k\\ \partial_x&\partial_y&\partial_z\\ P&Q&R \end{vmatrix}.
+$$
+
+注意中间分量的符号，建议考试时直接用分量公式核对。
+
+#### 2. 斯托克斯公式
+
+设 $L=\partial\Sigma$ 为有向曲面 $\Sigma$ 的边界，方向满足右手法则，并满足相应的光滑性条件。
+
+那么：
+
+$$
+\boxed{ \oint_L P\,\mathrm dx+Q\,\mathrm dy+R\,\mathrm dz = \iint_\Sigma (\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS }
+$$
+
+右边仍然是第二类曲面积分。
+
+#### 3. 右手法则究竟如何用？
+
+右手拇指指向曲面选定的法向量方向，四指弯曲的方向，就是边界曲线的正向。
+
+例如，在水平圆盘上：
+
+- 法向量朝 $+z$：从 $z$ 轴正向俯视，曲线逆时针。
+- 法向量朝 $-z$：从 $z$ 轴正向俯视，曲线顺时针。
+
+对于倾斜曲面、空间闭曲线，必须认真对应给出的观察方向。
+
+不能把“逆时针”当成脱离观察方向的绝对概念。
+
+### 二十、核心题 10：椭球曲面边界的斯托克斯公式
+
+题目来源：考研核心题目·第五部分；张宇1000题也有同型题。
+
+设曲面：
+
+$$
+\Sigma: 4x^2+y^2+z^2=1, \qquad x,y,z\ge0,
+$$
+
+取上侧。
+
+$L$ 为其有向边界，且方向与曲面方向符合右手法则。
+
+计算：
+
+$$
+\begin{aligned} I=\oint_L &(yz^2-\cos z)\,\mathrm dx\\ +&2xz^2\,\mathrm dy\\ +&(2xyz+x\sin z)\,\mathrm dz. \end{aligned}
+$$
+
+#### 第一步：识别向量场
+
+$$
+\mathbf F= (yz^2-\cos z,\, 2xz^2,\, 2xyz+x\sin z).
+$$
+
+空间曲线直接参数化会非常麻烦。
+
+优先使用斯托克斯公式：
+
+$$
+I=\iint_\Sigma(\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS.
+$$
+
+#### 第二步：计算旋度
+
+按三个分量依次计算：
+
+$$
+\begin{aligned} R_y-Q_z &=2xz-4xz\\ &=-2xz, \end{aligned}
+$$
+
+$$
+\begin{aligned} P_z-R_x &=(2yz+\sin z)-(2yz+\sin z)\\ &=0, \end{aligned}
+$$
+
+$$
+Q_x-P_y=2z^2-z^2=z^2.
+$$
+
+因此：
+
+$$
+\boxed{ \nabla\times\mathbf F=(-2xz,0,z^2) }
+$$
+
+#### 第三步：进行曲面投影
+
+上半椭球：
+
+$$
+z=\sqrt{1-4x^2-y^2}.
+$$
+
+则：
+
+$$
+z_x=-\frac{4x}{z}, \qquad z_y=-\frac{y}{z}.
+$$
+
+曲面上侧的有向面积向量：
+
+$$
+\mathbf n\,\mathrm dS= \left(\frac{4x}{z},\frac yz,1\right) \,\mathrm dx\,\mathrm dy.
+$$
+
+代入：
+
+$$
+\begin{aligned} I &=\iint_D (-2xz,0,z^2)\cdot \left(\frac{4x}{z},\frac yz,1\right) \,\mathrm dx\,\mathrm dy\\ &=\iint_D(z^2-8x^2)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+其中：
+
+$$
+D: 4x^2+y^2\le1,\qquad x,y\ge0.
+$$
+
+因为：
+
+$$
+z^2=1-4x^2-y^2,
+$$
+
+所以：
+
+$$
+I=\iint_D(1-12x^2-y^2)\,\mathrm dx\,\mathrm dy.
+$$
+
+#### 第四步：将椭圆化为圆
+
+令：
 
 $$
 u=2x,\qquad v=y.
 $$
 
-
-则
-
+则：
 
 $$
-dxdy=\frac12dudv,
+\mathrm dx\,\mathrm dy=\frac12\,\mathrm du\,\mathrm dv.
 $$
 
+新区域：
 
 $$
-z^2=1-u^2-v^2,\qquad8x^2=2u^2.
+D': u^2+v^2\le1,\qquad u,v\ge0.
 $$
 
-
-所以
-
+于是：
 
 $$
-I=\frac12 \iint_{D'} (1-3u^2-v^2)\,dudv,
+I=\frac12\iint_{D'} (1-3u^2-v^2)\,\mathrm du\,\mathrm dv.
 $$
 
-
-其中 $D'$ 是单位圆盘第一象限的四分之一部分。
-
-</Step>
-
-<Step>
-
-#### 第四步：利用对称性
-
-
-在 $D'$ 上：
-
+利用四分之一圆盘的面积与二次矩：
 
 $$
-\iint_{D'}1\,dudv=\frac\pi4,
+\iint_{D'}1\,\mathrm du\,\mathrm dv=\frac\pi4,
 $$
 
-
 $$
-\iint_{D'}u^2\,dudv =\iint_{D'}v^2\,dudv =\frac\pi{16}.
-$$
-
-
-因此
-
-
-$$
-\begin{aligned} I &=\frac12\left( \frac\pi4-3\frac\pi{16}-\frac\pi{16} \right)\\ &=\boxed{0}. \end{aligned}
+\iint_{D'}u^2\,\mathrm du\,\mathrm dv = \iint_{D'}v^2\,\mathrm du\,\mathrm dv =\frac\pi{16}.
 $$
 
-
-本题说明斯托克斯公式之后，仍然需要灵活运用二重积分的坐标变换和对称性。
-
-</Step>
-
-</Steps>
-
-## 八、典型练习：从基础到综合
-
-以下五题保留原自测考点，提供完整的静态参考答案。
-
-
-### 练习 1：抛物面的上侧通量
-
-
-设 $\Sigma$ 为 $z=x^2+y^2$、$x^2+y^2\le1$ 的上侧，计算
-
+得到：
 
 $$
-I=\iint_\Sigma x\,dy\,dz+y\,dz\,dx+z\,dx\,dy.
+\begin{aligned} I &=\frac12 \left( \frac\pi4 -\frac{3\pi}{16} -\frac\pi{16} \right)\\ &=\boxed{0}. \end{aligned}
 $$
 
+#### 本题的关键价值
 
-**答案：** $\boxed{-\dfrac\pi2}$。
+它一次训练了四项能力：
 
+1. 由空间曲线积分识别斯托克斯公式。
+2. 正确计算旋度。
+3. 把第二类曲面积分投影为二重积分。
+4. 通过椭圆伸缩变换和对称性简化积分。
 
-**解析：** 对上侧图形 $z=g(x,y)=x^2+y^2$，有 $\boldsymbol n\,dS=(-g_x,-g_y,1)\,dx\,dy$。于是
+未来题目即使把椭球改成其他二次曲面，这套思路仍然适用。
 
+### 二十一、核心题 11：空间交圆的斯托克斯公式——选平面而不是球面
 
-$$
-\begin{aligned}
-I&=\iint_{x^2+y^2\le1}\big[-2x^2-2y^2+(x^2+y^2)\big]dx\,dy\\
-&=-\int_0^{2\pi}\!d\theta\int_0^1r^3\,dr=-\frac\pi2.
-\end{aligned}
-$$
+题目来源：考研核心题目·第五部分
 
-
-### 练习 2：完整球面的外向通量
-
-
-$\Sigma$ 为半径 $R>0$ 的整个球面，取外侧，求
-
+设 $L$ 是球面：
 
 $$
-I=\oiint_\Sigma x\,dy\,dz+y\,dz\,dx+z\,dx\,dy.
+x^2+y^2+z^2=2x
 $$
 
-
-**答案：** $\boxed{4\pi R^3}$。
-
-
-**解析：** 向量场 $\boldsymbol F=(x,y,z)$ 的散度为 $3$，应用高斯公式得到 $I=3\cdot(4\pi R^3/3)=4\pi R^3$。
-
-
-### 练习 3：上半球的一个通量分量
-
-
-上半球面 $x^2+y^2+z^2=R^2$、$z\ge0$ 取外侧，求
-
+与平面：
 
 $$
-I=\iint_\Sigma z\,dx\,dy.
+2x-z-1=0
 $$
 
+的交线。
 
-**答案：** $\boxed{\dfrac{2\pi R^3}{3}}$。
+从 $z$ 轴正向朝负向观察，曲线为逆时针方向。
 
-
-**解析：** 上半球外法向的 $z$ 分量为正，$dx\,dy$ 是有向投影面积元。由于投影到 $xOy$ 平面恰为半径 $R$ 的圆盘，且 $z$ 为被积函数，不能直接把积分认成投影面积。实际有 $\boldsymbol F=(0,0,z)$，故
-
-
-$$
-I=\iint_{x^2+y^2\le R^2}\sqrt{R^2-x^2-y^2}\,dx\,dy
-=2\pi\int_0^Rr\sqrt{R^2-r^2}\,dr
-=\boxed{\frac{2\pi R^3}{3}}.
-$$
-
-
-也可将上半球和底面闭合，利用 $\nabla\cdot(0,0,z)=1$；底面上 $z=0$，因而通量等于半球体积 $2\pi R^3/3$。
-
-
-### 练习 4：带原点奇点的径向场
-
-
-单位球面 $x^2+y^2+z^2=1$ 取外侧，求
-
+计算：
 
 $$
-I=\oiint_\Sigma\frac{x\,dy\,dz+y\,dz\,dx+z\,dx\,dy}{(x^2+y^2+z^2)^{3/2}}.
+\begin{aligned} I=\oint_L &(6xyz-yz^2)\,\mathrm dx\\ +&2x^2z\,\mathrm dy\\ +&xyz\,\mathrm dz. \end{aligned}
 $$
 
+#### 第一步：选择最简单的跨越曲面
 
-**答案：** $\boxed{4\pi}$。
+曲线是球面与平面的交圆。
 
+斯托克斯公式允许我们在满足条件的情况下，选择以 $L$ 为边界的其他定向曲面。
 
-**解析：** 单位球面上 $\boldsymbol F=(x,y,z)$，且外单位法向 $\boldsymbol n=(x,y,z)$，所以 $\boldsymbol F\cdot\boldsymbol n=1$；积分即面积 $4\pi$。由于原点是场的奇点，不能在含原点的整个球体上直接套用普通高斯公式。
-
-
-### 练习 5：闭合圆柱侧面加上下底面
-
-
-$\Sigma$ 是 $x^2+y^2=1$、$0\le z\le2$ 的完整圆柱边界，取外侧，求
-
+与其选弯曲球面，不如直接选择：
 
 $$
-I=\oiint_\Sigma x^2\,dy\,dz+y^2\,dz\,dx+z\,dx\,dy.
+z=2x-1
 $$
 
+上的平面圆盘。
 
-**答案：** $\boxed{2\pi}$。
+由于题目规定从 $+z$ 方向观察为逆时针，选取法向量的 $z$ 分量为正的方向。
 
-
-**解析：** 散度为 $2x+2y+1$，圆柱关于 $x=0$ 与 $y=0$ 对称，$x,y$ 项积分为零；剩余项给出圆柱体积 $\pi\cdot1^2\cdot2=2\pi$。
-
-## 九、考场看到题目之后，怎么最快决定方法？
-
-| 题面信息                       | 首选思路      | 关键检查        |
-| -------------------------- | --------- | ----------- |
-| 明确给出 $z=g(x,y)$ 的上侧或下侧 | 直接投影      | 有向面积元正负     |
-| 曲面为完整闭合边界的外侧               | 高斯公式      | 散度与内部光滑性    |
-| 曲面不封闭，边界是一个简单平面曲线          | 补面后高斯     | 补面外法向       |
-| 向量场包含未知函数                  | 法向点积、正交消元 | 是否无需对未知函数求导 |
-| 闭曲面内部有奇点                   | 挖洞法       | 小球面的取向      |
-| 题目给空间闭曲线积分                 | 斯托克斯公式    | 旋度与右手法则     |
-| 球面与平面的交线                   | 换成平面片     | 投影区域与方向     |
-| 高斯后散度含奇函数                  | 使用区域对称性   | 对称性是否被积分限破坏 |
-| 斜轴旋转曲面                     | 先做空间解析几何  | 圆锥高、半径和法向   |
-
-
-最重要的考场决策链是：
-
+于是：
 
 $$
-\boxed{ \text{认曲面} \rightarrow \text{判定向} \rightarrow \text{查奇点} \rightarrow \text{选投影或转换公式} \rightarrow \text{利用对称性} \rightarrow \text{计算} }
+\mathbf n\,\mathrm dS=(-2,0,1)\,\mathrm dx\,\mathrm dy.
 $$
 
-## 十、本节十大易错点
+#### 第二步：计算旋度
+
+向量场：
+
+$$
+\mathbf F= (6xyz-yz^2,\, 2x^2z,\, xyz).
+$$
+
+求得：
+
+$$
+\nabla\times\mathbf F = \left( x(z-2x),\, 3y(2x-z),\, z(z-2x) \right).
+$$
+
+在平面上：
+
+$$
+z=2x-1.
+$$
+
+所以：
+
+$$
+z-2x=-1.
+$$
+
+得到：
+
+$$
+\nabla\times\mathbf F=(-x,3y,-z).
+$$
+
+与有向面积向量点乘：
+
+$$
+\begin{aligned} (\nabla\times\mathbf F)\cdot(-2,0,1) &=2x-z\\ &=1. \end{aligned}
+$$
+
+因此，原题已经化为：
+
+$$
+I=\iint_D1\,\mathrm dx\,\mathrm dy.
+$$
+
+也就是求水平投影面积。
+
+#### 第三步：求投影区域
+
+将：
+
+$$
+z=2x-1
+$$
+
+代入球面：
+
+$$
+x^2+y^2+(2x-1)^2=2x.
+$$
+
+整理：
+
+$$
+5x^2-6x+y^2+1=0.
+$$
+
+配方：
+
+$$
+5\left(x-\frac35\right)^2+y^2=\frac45.
+$$
+
+这是一个椭圆，半轴为：
+
+$$
+a=\frac25,\qquad b=\frac2{\sqrt5}.
+$$
+
+因此：
+
+$$
+\boxed{ I=\pi ab=\frac{4\pi}{5\sqrt5} }
+$$
+
+#### 与上一道题相比，最重要的进步是什么？
+
+上一题利用原来的椭球曲面投影。
+
+这一题则主动把积分曲面替换为平面圆盘。
+
+因此：
+
+斯托克斯公式不仅能把曲线积分改成曲面积分，还允许在同一边界、方向匹配且场在相关区域足够光滑时，主动选择更容易计算的曲面。
+
+这是一项处理空间闭曲线积分的核心能力。
+
+## 第七部分：李正元、李林、张宇的高阶训练题
+
+下面选几道与核心题互补的题目。重点不只是把题做出来，而是看它们如何改变常规题型的解题条件。
+
+### 二十二、李正元：被积函数有奇性时，如何分片计算？
+
+题目来源：李正元第十章。
+
+设 $\Sigma$ 为：
+
+$$
+y=x^2+z^2
+$$
+
+与平面 $y=1$、$y=2$ 所围立体的整个表面，取外侧。
+
+计算：
+
+$$
+I=\oiint_\Sigma \frac{e^{\sqrt y}}{\sqrt{x^2+z^2}} \,\mathrm dz\,\mathrm dx.
+$$
+
+#### 题型识别
+
+只有：
+
+$$
+\mathrm dz\,\mathrm dx
+$$
+
+这一项，所以通量只与法向量的 $y$ 分量有关。
+
+令：
+
+$$
+r=\sqrt{x^2+z^2}.
+$$
+
+向量场的第二个分量为：
+
+$$
+Q=\frac{e^{\sqrt y}}r.
+$$
+
+在 $r=0$ 处存在奇性，因此不宜不加检查地直接使用高斯公式。
+
+考虑分成上底面、下底面、侧面计算。
+
+#### 第一步：上底面
+
+$$
+y=2,\qquad r\le\sqrt2.
+$$
+
+外法向量沿 $+y$。
+
+因此：
+
+$$
+\begin{aligned} I_1 &=\iint_{r\le\sqrt2}\frac{e^{\sqrt2}}r\,\mathrm dx\,\mathrm dz\\ &=2\pi e^{\sqrt2}\int_0^{\sqrt2}\mathrm dr\\ &=2\sqrt2\pi e^{\sqrt2}. \end{aligned}
+$$
+
+#### 第二步：下底面
+
+$$
+y=1,\qquad r\le1.
+$$
+
+外法向量沿 $-y$。
+
+所以：
+
+$$
+\begin{aligned} I_2 &=-\iint_{r\le1}\frac er\,\mathrm dx\,\mathrm dz\\ &=-2\pi e. \end{aligned}
+$$
+
+#### 第三步：抛物面侧面
+
+侧面为：
+
+$$
+y=x^2+z^2=r^2, \qquad1\le r\le\sqrt2.
+$$
+
+立体位于 $y\ge r^2$ 的一侧，因此侧面外法向量的 $y$ 分量为负。
+
+投影到 $xOz$ 平面：
+
+$$
+\begin{aligned} I_3 &=-\iint_{1\le r\le\sqrt2}\frac{e^r}{r}\,\mathrm dx\,\mathrm dz\\ &=-2\pi\int_1^{\sqrt2}e^r\,\mathrm dr\\ &=-2\pi(e^{\sqrt2}-e). \end{aligned}
+$$
+
+#### 第四步：相加
+
+$$
+\begin{aligned} I &=I_1+I_2+I_3\\ &=2\sqrt2\pi e^{\sqrt2} -2\pi e -2\pi(e^{\sqrt2}-e)\\ &=\boxed{2\pi(\sqrt2-1)e^{\sqrt2}}. \end{aligned}
+$$
+
+#### 本题的迁移价值
+
+要区分三个不同的问题：
+
+1. 向量场在曲面上是否有定义。
+2. 曲面积分作为广义积分是否收敛。
+3. 能否直接在整个体域内使用高斯公式。
+
+本题上、下底面的被积函数有 $1/r$ 型奇性，但由于二维极坐标面积微元包含 $r$，对应的广义积分收敛。
+
+因此可以通过极限计算这些分片积分。
+
+以后看到奇性时，不应只做“有奇点就不能算”的判断，而要研究具体积分是否收敛。
+
+### 二十三、张宇：复杂根式与奇偶性组合
+
+题目来源：张宇1000题第十八章强化部分。
+
+设：
+
+$$
+\Sigma:z=1-x^2-y^2,\qquad z\ge-3,
+$$
+
+取上侧。
+
+计算：
+
+$$
+\begin{aligned} I=\iint_\Sigma &yz\sqrt{x^2+y^2+z^2}\,\mathrm dy\,\mathrm dz\\ +&xz\sqrt{x^2+y^2+z^2}\,\mathrm dz\,\mathrm dx\\ +&\left( x^2y^2-2xy\sqrt{x^2+y^2+z^2} \right)\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+初看这道题，计算量似乎很大。
+
+但它真正考的是投影后的对称性。
+
+#### 第一步：确定投影区域
+
+由：
+
+$$
+1-x^2-y^2\ge-3
+$$
+
+得到：
+
+$$
+D:x^2+y^2\le4.
+$$
+
+设：
+
+$$
+\rho=\sqrt{x^2+y^2+z^2}.
+$$
+
+由于：
+
+$$
+z_x=-2x,\qquad z_y=-2y,
+$$
+
+上侧有向面积向量为：
+
+$$
+\mathbf n\,\mathrm dS=(2x,2y,1)\,\mathrm dx\,\mathrm dy.
+$$
+
+#### 第二步：化为二重积分
+
+向量场：
+
+$$
+\mathbf F= (yz\rho,xz\rho,x^2y^2-2xy\rho).
+$$
+
+点乘得到：
+
+$$
+\begin{aligned} \mathbf F\cdot\mathbf n\,\mathrm dS &= \left( 2xyz\rho+2xyz\rho+x^2y^2-2xy\rho \right)\mathrm dx\,\mathrm dy\\ &= \left[ 2xy\rho(2z-1)+x^2y^2 \right]\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+#### 第三步：判断奇偶性
+
+因为：
+
+$$
+z=1-x^2-y^2,
+$$
+
+而：
+
+$$
+\rho= \sqrt{x^2+y^2+(1-x^2-y^2)^2},
+$$
+
+所以：
+
+$$
+\rho(2z-1)
+$$
+
+关于 $x$、$y$ 都是偶函数。
+
+因此：
+
+$$
+2xy\rho(2z-1)
+$$
+
+关于 $x$ 是奇函数，关于 $y$ 也是奇函数。
+
+积分区域 $D$ 关于两个坐标轴均对称。
+
+故这一项积分为零。
+
+原题简化成：
+
+$$
+I=\iint_Dx^2y^2\,\mathrm dx\,\mathrm dy.
+$$
+
+#### 第四步：极坐标计算
+
+$$
+x=r\cos\theta,\qquad y=r\sin\theta.
+$$
+
+于是：
+
+$$
+I= \int_0^{2\pi}\int_0^2 r^5\cos^2\theta\sin^2\theta \,\mathrm dr\,\mathrm d\theta.
+$$
+
+由于：
+
+$$
+\int_0^{2\pi}\cos^2\theta\sin^2\theta\,\mathrm d\theta =\frac\pi4,
+$$
+
+$$
+\int_0^2r^5\,\mathrm dr=\frac{32}{3},
+$$
+
+所以：
+
+$$
+\boxed{ I=\frac{8\pi}{3} }
+$$
+
+#### 从这道题学到什么？
+
+遇到复杂根式时，先不要急着展开。
+
+如果根式只依赖：
+
+$$
+x^2,\quad y^2,\quad x^2+y^2
+$$
+
+等偶函数结构，就应检查整个被积函数是否因某个 $x$、$y$ 因子而成为奇函数。
+
+很多看似复杂的第二类曲面积分，在正确投影后，真正需要计算的可能只有一个多项式积分。
+
+### 二十四、李林880：通过高斯公式求最优曲面
+
+题目来源：李林880题第九章拓展题。
+
+设 $\Sigma$ 为光滑闭曲面，取外侧。
+
+定义：
+
+$$
+\begin{aligned} I=\oiint_\Sigma &(x^3-x)\,\mathrm dy\,\mathrm dz\\ +&(y^3-y)\,\mathrm dz\,\mathrm dx\\ +&(z^3-z)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+要求：
+
+（1）确定使 $I$ 取得最小值的曲面，并求最小值。
+
+（2）该曲面位于圆锥：
+
+$$
+z=\sqrt{x^2+y^2}
+$$
+
+上方部分的面积是多少？
+
+#### 第一问：为什么这是一个空间区域选择问题？
+
+通过高斯公式：
+
+$$
+\begin{aligned} I &=\iiint_\Omega (3x^2+3y^2+3z^2-3)\,\mathrm dV\\ &=3\iiint_\Omega (x^2+y^2+z^2-1)\,\mathrm dV. \end{aligned}
+$$
+
+令：
+
+$$
+r^2=x^2+y^2+z^2.
+$$
+
+则：
+
+$$
+I=3\iiint_\Omega(r^2-1)\,\mathrm dV.
+$$
+
+注意被积函数的符号：
+
+当：
+
+$$
+r<1
+$$
+
+时：
+
+$$
+r^2-1<0.
+$$
+
+当：
+
+$$
+r>1
+$$
+
+时：
+
+$$
+r^2-1>0.
+$$
+
+如果我们要使积分最小，就应该尽可能包含所有负值区域，而不包含正值区域。
+
+因此最优体域为：
+
+$$
+\boxed{\Omega=\{x^2+y^2+z^2\le1\}}
+$$
+
+即单位球体。
+
+对应的曲面是单位球面：
+
+$$
+\boxed{\Sigma:x^2+y^2+z^2=1}.
+$$
+
+#### 第二步：计算最小值
+
+用球坐标：
+
+$$
+\begin{aligned} I_{\min} &=3\iiint_{r\le1}(r^2-1)\,\mathrm dV\\ &=12\pi\int_0^1(r^4-r^2)\,\mathrm dr\\ &=12\pi\left(\frac15-\frac13\right)\\ &=\boxed{-\frac{8\pi}{5}}. \end{aligned}
+$$
+
+#### 第二问：球冠面积
+
+圆锥：
+
+$$
+z=\sqrt{x^2+y^2}
+$$
+
+对应球坐标极角：
+
+$$
+\varphi=\frac\pi4.
+$$
+
+单位球面位于圆锥上方的部分满足：
+
+$$
+0\le\varphi\le\frac\pi4.
+$$
+
+球面面积微元：
+
+$$
+\mathrm dS=\sin\varphi\,\mathrm d\varphi\,\mathrm d\theta.
+$$
+
+于是：
+
+$$
+\begin{aligned} S &=\int_0^{2\pi}\int_0^{\pi/4} \sin\varphi\,\mathrm d\varphi\,\mathrm d\theta\\ &=2\pi\left(1-\cos\frac\pi4\right)\\ &=\boxed{(2-\sqrt2)\pi}. \end{aligned}
+$$
+
+#### 这道题最值得掌握的思维
+
+通常的积分题是给出区域，求积分值。
+
+这道题反过来：
+
+积分的表达式已经确定，让你选择积分区域。
+
+遇到这类题时，应当优先研究高斯公式转换后被积函数的正负分布。
+
+更一般地，如果：
+
+$$
+J(\Omega)=\iiint_\Omega g(x,y,z)\,\mathrm dV,
+$$
+
+允许选择的区域足够广泛，而且没有额外体积、形状等约束，那么：
+
+- 最小化时，优先包含 $g<0$ 的区域。
+- 最大化时，优先包含 $g>0$ 的区域。
+
+这是积分最值题中非常重要的整体选择思想。
+
+## 第八部分：两种公式联动与参数综合题
+
+### 二十五、核心文档原创变式：同一题用两种方法计算
+
+设：
+
+$$
+\Sigma:z=\sqrt{R^2-x^2-y^2}, \qquad R>0,
+$$
+
+取上侧。
+
+求：
+
+$$
+I=\iint_\Sigma x\,\mathrm dy\,\mathrm dz+ y\,\mathrm dz\,\mathrm dx+ (\lambda z+\mu)\,\mathrm dx\,\mathrm dy.
+$$
+
+并求使一切 $R>0$ 都有 $I=0$ 的参数。
+
+#### 方法一：补面＋高斯公式
+
+向量场：
+
+$$
+\mathbf F=(x,y,\lambda z+\mu).
+$$
+
+散度：
+
+$$
+\nabla\cdot\mathbf F=2+\lambda.
+$$
+
+补上底面 $z=0$。
+
+半球体积：
+
+$$
+V=\frac{2\pi R^3}{3}.
+$$
+
+完整闭面的通量：
+
+$$
+\Phi_{\text{闭}} =(2+\lambda)\frac{2\pi R^3}{3}.
+$$
+
+底面外法向量为 $(0,0,-1)$。
+
+底面通量：
+
+$$
+I_0=-\mu\pi R^2.
+$$
+
+所以：
+
+$$
+\boxed{ I= \frac{2\pi R^3}{3}(2+\lambda)+\mu\pi R^2 }
+$$
+
+#### 方法二：直接投影
+
+在上半球：
+
+$$
+z=\sqrt{R^2-r^2}.
+$$
+
+上侧：
+
+$$
+\mathbf n\,\mathrm dS = \left(\frac{x}{z},\frac{y}{z},1\right) \,\mathrm dx\,\mathrm dy.
+$$
+
+所以：
+
+$$
+\begin{aligned} I &=\iint_D\left( \frac{x^2+y^2}{z}+\lambda z+\mu \right)\mathrm dx\,\mathrm dy\\ &=2\pi\int_0^R \left( \frac{r^3}{\sqrt{R^2-r^2}} +\lambda r\sqrt{R^2-r^2} +\mu r \right)\mathrm dr. \end{aligned}
+$$
+
+分别计算：
+
+$$
+\int_0^R\frac{r^3}{\sqrt{R^2-r^2}}\,\mathrm dr =\frac{2R^3}{3},
+$$
+
+$$
+\int_0^Rr\sqrt{R^2-r^2}\,\mathrm dr =\frac{R^3}{3},
+$$
+
+$$
+\int_0^Rr\,\mathrm dr=\frac{R^2}{2}.
+$$
+
+代入得到相同结果：
+
+$$
+\boxed{ I= \frac{2\pi R^3}{3}(2+\lambda)+\mu\pi R^2 }
+$$
+
+#### 反求参数
+
+要求对所有 $R>0$：
+
+$$
+I=0.
+$$
+
+因此：
+
+$$
+\frac{2\pi R^3}{3}(2+\lambda) +\mu\pi R^2=0.
+$$
+
+除以 $\pi R^2$：
+
+$$
+\frac23(2+\lambda)R+\mu=0.
+$$
+
+由于对一切正数 $R$ 成立，所以：
+
+$$
+\boxed{\lambda=-2,\qquad\mu=0}.
+$$
+
+#### 高阶迁移：识别几何尺度
+
+体积具有三次尺度：
+
+$$
+V\propto R^3.
+$$
+
+面积具有二次尺度：
+
+$$
+S\propto R^2.
+$$
+
+当题目要求某个恒等式对所有半径成立时，往往可以通过不同幂次的系数比较，反推出参数。
+
+这个方法可以推广到含参数的曲面积分、三重积分与几何最值问题。
+
+### 二十六、三个积分定理的联系与区别
+
+在数学一中，建议把格林公式、高斯公式和斯托克斯公式作为一组知识来理解。
+
+| 公式     | 左边      | 右边      | 核心条件         |
+| ------ | ------- | ------- | ------------ |
+| 格林公式   | 平面闭曲线积分 | 二重积分    | 平面区域及正向边界    |
+| 高斯公式   | 闭曲面的通量  | 三重积分    | 闭曲面、外侧及内部光滑性 |
+| 斯托克斯公式 | 空间闭曲线积分 | 旋度的曲面通量 | 曲线与曲面按右手法则定向 |
+
+#### 格林公式
+
+$$
+\boxed{ \oint_LP\,\mathrm dx+Q\,\mathrm dy = \iint_D(Q_x-P_y)\,\mathrm dx\,\mathrm dy }
+$$
+
+其中 $L$ 为正向边界。
+
+#### 高斯公式
+
+$$
+\boxed{ \oiint_{\partial\Omega}\mathbf F\cdot\mathbf n\,\mathrm dS = \iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV }
+$$
+
+#### 斯托克斯公式
+
+$$
+\boxed{ \oint_{\partial\Sigma}\mathbf F\cdot\mathrm d\mathbf r = \iint_\Sigma(\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS }
+$$
+
+你需要形成一个判断习惯：
+
+如果原题是封闭曲面的通量，先考虑散度。
+
+如果原题是空间闭曲线的环流，先考虑旋度。
+
+如果原题是平面闭曲线的环流，先考虑格林公式。
+
+三者不能因为都涉及边界就随意互换。
+
+## 第九部分：面对新题时的完整解题流程
+
+### 二十七、考场上的六步判断法
+
+拿到一道第二类曲面积分题，建议严格按照下面的顺序思考。
+
+#### 第一步：提取向量场
+
+将：
+
+$$
+P\,\mathrm dy\,\mathrm dz+ Q\,\mathrm dz\,\mathrm dx+ R\,\mathrm dx\,\mathrm dy
+$$
+
+写成：
+
+$$
+\mathbf F=(P,Q,R).
+$$
+
+不要把三个分量对应错。
+
+#### 第二步：判断方向
+
+明确：
+
+$$
+n_x,\quad n_y,\quad n_z
+$$
+
+中哪个分量被题目指定为正或负。
+
+如果是封闭曲面，明确外侧还是内侧。
+
+#### 第三步：判断是否封闭
+
+如果已经封闭，考虑高斯公式。
+
+如果不封闭，考虑能否补面。
+
+如果是空间闭曲线积分，考虑斯托克斯公式。
+
+#### 第四步：检查奇点
+
+对于高斯公式，不仅要检查曲面本身，还要检查其所围区域内部。
+
+常见危险形式：
+
+$$
+\frac1{x^2+y^2+z^2},
+$$
+
+$$
+\frac{(x,y,z)}{(x^2+y^2+z^2)^{3/2}},
+$$
+
+$$
+\frac1{\sqrt{x^2+z^2}}.
+$$
+
+要根据实际奇点位置、积分收敛性和光滑性条件决定处理方法。
+
+#### 第五步：先化简，再积分
+
+寻找：
+
+- 奇偶性。
+- 旋转对称性。
+- 曲面约束。
+- 散度为常数。
+- 未知函数与法向量点乘为零。
+- 某个补面通量为零。
+- 适合利用的形心或几何矩。
+
+#### 第六步：选择最合适的坐标
+
+| 区域特点       | 常用坐标    |
+| ---------- | ------- |
+| 圆盘、圆环      | 平面极坐标   |
+| 圆柱、旋转抛物面体  | 柱坐标     |
+| 球、球扇形、锥面截球 | 球坐标     |
+| 椭圆、椭球      | 伸缩变换    |
+| 斜平面截出的简单区域 | 投影到坐标平面 |
+| 具有一般参数化的曲面 | 参数曲面法   |
+
+这套流程的重点是：先用题目的结构减少运算，再决定需要计算什么积分。
+
+## 第十部分：高价值补充训练
+
+下面是依据本节考点设计的原创变式，不是上述书籍中的原题。每道题对应一项容易在新题中遇到的能力。
+
+### 训练 1：一个开放曲面，怎样选择最快的解法？
+
+设：
+
+$$
+S:z=1-x^2-y^2,\qquad z\ge0,
+$$
+
+取上侧。
+
+计算：
+
+$$
+I=\iint_S x\,\mathrm dy\,\mathrm dz+ y\,\mathrm dz\,\mathrm dx+ z\,\mathrm dx\,\mathrm dy.
+$$
+
+方法一：直接投影
+
+上侧的有向面积向量：
+
+$$
+(2x,2y,1)\,\mathrm dx\,\mathrm dy.
+$$
+
+因此：
+
+$$
+\begin{aligned} I &=\iint_D(2x^2+2y^2+z)\,\mathrm dx\,\mathrm dy\\ &=\iint_D[2r^2+(1-r^2)]\,\mathrm dx\,\mathrm dy\\ &=\iint_D(1+r^2)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+其中 $D:r\le1$。
+
+所以：
+
+$$
+\begin{aligned} I &=2\pi\int_0^1(1+r^2)r\,\mathrm dr\\ &=\boxed{\frac{3\pi}{2}}. \end{aligned}
+$$
+
+方法二：补面＋高斯公式
+
+向量场：
+
+$$
+\mathbf F=(x,y,z).
+$$
+
+散度：
+
+$$
+\nabla\cdot\mathbf F=3.
+$$
+
+补上底面 $z=0$，其通量为零。
+
+体积：
+
+$$
+V=\int_0^{2\pi}\int_0^1(1-r^2)r\,\mathrm dr\,\mathrm d\theta =\frac\pi2.
+$$
+
+所以：
+
+$$
+I=3V=\boxed{\frac{3\pi}{2}}.
+$$
+
+训练目的： 学会比较直接投影与补面法。
+
+### 训练 2：倾斜平面上的通量
+
+设：
+
+$$
+S:z=1-x-y,\qquad x,y,z\ge0,
+$$
+
+取上侧。
+
+求：
+
+$$
+I=\iint_S x\,\mathrm dy\,\mathrm dz+ y\,\mathrm dz\,\mathrm dx+ z\,\mathrm dx\,\mathrm dy.
+$$
+
+由于：
+
+$$
+z_x=z_y=-1,
+$$
+
+所以：
+
+$$
+\mathbf n\,\mathrm dS=(1,1,1)\,\mathrm dx\,\mathrm dy.
+$$
+
+因此：
+
+$$
+\begin{aligned} I &=\iint_D(x+y+z)\,\mathrm dx\,\mathrm dy\\ &=\iint_D1\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
+
+其中 $D$ 为：
+
+$$
+x\ge0,\qquad y\ge0,\qquad x+y\le1.
+$$
+
+其面积为：
+
+$$
+\frac12.
+$$
+
+故：
+
+$$
+\boxed{I=\frac12}.
+$$
+
+也可以利用高斯公式，把该三角形补成四面体。
+
+由于另外三个坐标平面上的通量均为零，故：
+
+$$
+I=3\cdot\frac16=\frac12.
+$$
+
+训练目的： 理解平面方程可以直接简化向量场与法向量的点积。
+
+### 训练 3：奇点是否位于闭曲面内部？
+
+设：
+
+$$
+\mathbf F= \frac{(x,y,z)} {(x^2+y^2+z^2)^{3/2}}.
+$$
+
+分别求它通过以下球面外侧的通量。
+
+（1）
+
+$$
+S_1:x^2+y^2+z^2=9.
+$$
+
+（2）
+
+$$
+S_2:(x-3)^2+y^2+z^2=1.
+$$
+
+（3）
+
+$$
+S_3:(x-1)^2+y^2+z^2=4.
+$$
+
+解题思路：
+
+这个向量场唯一的奇点是原点。
+
+对于 $S_1$，原点在球内，所以：
+
+$$
+\Phi_1=4\pi.
+$$
+
+对于 $S_2$，球心为 $(3,0,0)$，半径为 $1$，原点在球外，所以：
+
+$$
+\Phi_2=0.
+$$
+
+对于 $S_3$，球心为 $(1,0,0)$，半径为 $2$，原点在球内，所以：
+
+$$
+\Phi_3=4\pi.
+$$
+
+最终：
+
+$$
+\boxed{ \Phi_1=4\pi,\qquad \Phi_2=0,\qquad \Phi_3=4\pi }
+$$
+
+训练目的： 奇点型通量题先判断位置，通常不需要直接参数化曲面。
 
 <Accordions>
 
-<Accordion title="展开本节易错点与辨析">
+<Accordion title="强化练习｜斯托克斯公式与直接参数化">
 
-| 常见错误                  | 为什么错        | 改正办法                                           |
-| --------------------- | ----------- | ---------------------------------------------- |
-| 把第二类面积元当成第一类 $dS$ | 忽略法向量与符号    | 始终写 $\boldsymbol F\cdot\boldsymbol n\,dS$ |
-| 投影公式中直接写平方根面积因子       | 混淆第一类与第二类   | 使用带符号的有向面积向量                                   |
-| 上侧和下侧只改部分分量的符号        | 法向量必须整体反向   | 有向面积向量整体乘 $-1$                             |
-| 开曲面直接用高斯公式            | 缺少封闭边界      | 补面，或直接投影                                       |
-| 半球补底面时底面法向取向上         | 底面外法向应向下    | 先确定立体内部                                        |
-| 内部有奇点仍直接使用高斯公式        | 光滑性不满足      | 挖洞后再应用                                         |
-| 散度为零就判任意闭曲面通量为零       | 忽略包围奇点的情况   | 检查定义域及整体几何                                     |
-| 遇到未知函数立刻求导            | 可能根本不需要求函数  | 先做法向点积                                         |
-| 斯托克斯公式改变跨界面后丢失方向      | 新旧曲面定向不一致   | 用右手法则重新核对                                      |
-| 高斯后直接暴力三重积分           | 未利用区域对称性或形心 | 先筛选奇函数与几何矩                                     |
+设：
+
+$$
+L:x^2+y^2=1,\qquad z=0,
+$$
+
+从 $z$ 轴正方向观察为逆时针。
+
+求：
+
+$$
+I=\oint_L y\,\mathrm dx+z\,\mathrm dy+x\,\mathrm dz.
+$$
+
+#### 方法一：直接参数化
+
+取：
+
+$$
+x=\cos t,\qquad y=\sin t,\qquad z=0.
+$$
+
+其中：
+
+$$
+0\le t\le2\pi.
+$$
+
+因此：
+
+$$
+\mathrm dx=-\sin t\,\mathrm dt, \qquad \mathrm dy=\cos t\,\mathrm dt, \qquad \mathrm dz=0.
+$$
+
+所以：
+
+$$
+\begin{aligned} I &=-\int_0^{2\pi}\sin^2t\,\mathrm dt\\ &=\boxed{-\pi}. \end{aligned}
+$$
+
+#### 方法二：斯托克斯公式
+
+$$
+\mathbf F=(y,z,x).
+$$
+
+其旋度：
+
+$$
+\nabla\times\mathbf F=(-1,-1,-1).
+$$
+
+选取单位圆盘：
+
+$$
+z=0,\qquad x^2+y^2\le1,
+$$
+
+并取上侧。
+
+因此：
+
+$$
+\begin{aligned} I &=\iint_D(-1,-1,-1)\cdot(0,0,1)\,\mathrm dA\\ &=-\iint_D1\,\mathrm dA\\ &=\boxed{-\pi}. \end{aligned}
+$$
+
+训练目的： 对简单圆周，两种方法都可用；对于复杂空间交线，斯托克斯公式通常更有优势。
 
 </Accordion>
 
 </Accordions>
 
-## 十一、与前后知识的联系
+### 训练 5：含参数的闭曲面通量
 
-### 1. 与第一类曲面积分
-
-
-第一类曲面积分使用无向面积元：
-
+设 $S_R$ 为球面：
 
 $$
-\iint_\Sigma f\,dS.
+x^2+y^2+z^2=R^2
 $$
 
+的外侧。
 
-第二类曲面积分使用有向面积元：
-
-
-$$
-\iint_\Sigma\boldsymbol F\cdot\boldsymbol n\,dS.
-$$
-
-
-两者可以通过单位法向量联系，但不能随意忽略其定向差别。
-
-
-### 2. 与三重积分
-
-
-高斯公式
-
+求：
 
 $$
-\oiint_{\partial\Omega}\boldsymbol F\cdot\boldsymbol n\,dS =\iiint_\Omega\nabla\cdot\boldsymbol F\,dV
+I(R)=\oiint_{S_R} x^3\,\mathrm dy\,\mathrm dz+ y^3\,\mathrm dz\,\mathrm dx+ z^3\,\mathrm dx\,\mathrm dy.
 $$
 
-
-将曲面上的通量转化为体内散度的总和。
-
-
-因此之前学过的三重积分、柱坐标、球坐标、截面法、对称性和形心法，在这一节中全部可能用到。
-
-
-### 3. 与第二类曲线积分
-
-
-格林公式研究平面闭曲线的环流，而斯托克斯公式处理空间闭曲线的环流。
-
-
-格林公式可以理解为斯托克斯公式在平面情况下的特殊形式：
-
+再求：
 
 $$
-\oint_LP\,dx+Q\,dy =\iint_D(Q_x-P_y)\,dxdy.
+\lim_{R\to0^+}\frac{I(R)}{R^5}.
 $$
 
-
-因此上一节学到的曲线方向、闭路积分、旋度思想，在本节进一步推广到三维空间。
-
-
-### 4. 与向量微积分
-
-
-本节实际上把三个重要运算联系起来：
-
+由高斯公式：
 
 $$
-\operatorname{grad}u=\nabla u,
+I(R)=3\iiint_{B_R}r^2\,\mathrm dV.
 $$
 
+所以：
 
 $$
-\operatorname{div}\boldsymbol F=\nabla\cdot\boldsymbol F,
+I(R)=3\cdot\frac{4\pi R^5}{5}.
 $$
 
+即：
 
 $$
-\operatorname{rot}\boldsymbol F=\nabla\times\boldsymbol F.
+\boxed{ I(R)=\frac{12\pi R^5}{5} }
 $$
 
-
-梯度描述标量函数变化最快的方向；散度描述向量场的局部源汇；旋度描述向量场的局部旋转。
-
-
-高斯公式与斯托克斯公式分别将散度、旋度与相应的整体积分联系起来。
-
-## 十二、本节最终复习结论
-
-建议把本节分成三个掌握层次。
-
-
-基础层：熟练写出三个坐标面的有向面积元，正确处理上侧、下侧、内侧、外侧；以2024年直接投影小题和2021年高斯小题为检验。
-
-
-强化层：熟练掌握高斯公式、补面法、散度后的对称性；重点练习2016、2018、2023、2025年数学一题。
-
-
-综合层：重点掌握2020年未知函数正交消元、2009年原点奇点挖洞、2022和2024年斯托克斯题。这些题最能检验是否真正理解公式的使用条件与几何意义。
-
-
-最后请记住本节最重要的三句话：
-
+于是：
 
 $$
-\boxed{\text{第二类曲面积分首先是有向通量，方向不能错。}}
+\boxed{ \lim_{R\to0^+}\frac{I(R)}{R^5} =\frac{12\pi}{5} }
 $$
 
+训练目的： 识别空间积分随区域缩放的变化规律。
+
+对于齐次函数 $g$：
 
 $$
-\boxed{\text{封闭且光滑，优先考虑高斯；开曲面考虑补面或投影。}}
+g(tx,ty,tz)=t^kg(x,y,z),
 $$
 
+若体域按比例 $R$ 缩放，则：
 
 $$
-\boxed{\text{内部有奇点先挖洞；空间闭曲线优先考虑斯托克斯。}}
+\boxed{ \iiint_{R\Omega}g\,\mathrm dV = R^{k+3}\iiint_\Omega g\,\mathrm dV }
 $$
 
+这一规律对积分极限和含参积分十分有用。
 
-学完这一节后，模块九中二重积分、三重积分、曲线积分与曲面积分的主要计算方法已经连成一个完整体系。接下来复习时，最有价值的训练不是继续孤立记忆公式，而是看到一道题就能迅速判断：积分对象是什么、方向怎么规定、公式能不能用、哪种转换最省计算。
+### 训练 6：李林880型——变动球域与抽象函数极限
 
+设：
 
-## 配套知识与题目索引
+$$
+\Omega_t: x^2+(y-t)^2+z^2\le t^2,\qquad t>0.
+$$
 
-<Cards>
+边界 $\Sigma_t$ 取外侧。
 
+已知 $f$ 在 $0$ 附近连续，且：
 
+$$
+f(0)=1.
+$$
 
-<Card title="分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-f03e2afa/06-9f0b2286/">
+定义：
 
-结合历年分类真题检验方法应用。
+$$
+\begin{aligned} I(t)=\oiint_{\Sigma_t} &xf(z)\,\mathrm dy\,\mathrm dz\\ +&zf(x)\,\mathrm dz\,\mathrm dx\\ +&xf(y)\,\mathrm dx\,\mathrm dy. \end{aligned}
+$$
 
-</Card>
+求：
 
-<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/09-1c3b8dd1/06-9f0b2286/">
+$$
+\lim_{t\to0^+}\frac{I(t)}{t^3}.
+$$
 
-利用精选母题与拓展练习巩固解题策略。
+这是李林880题中的对应题型。
 
-</Card>
+#### 第一步：高斯公式
 
-</Cards>
+向量场：
 
-**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-09/06-vector-surface-integrals/)
+$$
+\mathbf F=(xf(z),zf(x),xf(y)).
+$$
+
+散度：
+
+$$
+\begin{aligned} \nabla\cdot\mathbf F &=\frac{\partial[xf(z)]}{\partial x} +\frac{\partial[zf(x)]}{\partial y} +\frac{\partial[xf(y)]}{\partial z}\\ &=f(z). \end{aligned}
+$$
+
+因此：
+
+$$
+I(t)=\iiint_{\Omega_t}f(z)\,\mathrm dV.
+$$
+
+#### 第二步：利用区域收缩
+
+球域的半径为 $t$，球心为：
+
+$$
+(0,t,0).
+$$
+
+当 $t\to0^+$ 时，整个区域收缩到原点。
+
+因此在这个区域内：
+
+$$
+f(z)\longrightarrow f(0)=1
+$$
+
+而且这种收敛在该收缩区域上一致成立。
+
+球体积：
+
+$$
+V(t)=\frac{4\pi t^3}{3}.
+$$
+
+所以：
+
+$$
+I(t)=\frac{4\pi t^3}{3}+o(t^3).
+$$
+
+最终：
+
+$$
+\boxed{ \lim_{t\to0^+}\frac{I(t)}{t^3} =\frac{4\pi}{3} }
+$$
+
+训练目的： 把高斯公式、抽象函数的连续性和收缩区域上的积分渐近结合起来。
+
+这类题不一定需要求出三重积分的精确表达式，抓住最高阶主项即可。
+
+## 第十一部分：常见错误与诊断方法
+
+### 二十八、这十类错误需要重点排除
+
+| 常见错误          | 为什么错         | 正确处理                  |
+| ------------- | ------------ | --------------------- |
+| 把上侧与外侧混为一谈    | 外侧随立体位置改变    | 先确定立体内部               |
+| 将第二类曲面积分当成第一类 | 忽略法向量方向      | 使用有向面积向量              |
+| 投影后又乘面积因子     | 重复计算面积伸缩     | 用 $(-f_x,-f_y,1)$ |
+| 开放曲面直接套高斯公式   | 不是完整边界       | 补面或直接投影               |
+| 忘记减去补面通量      | 高斯公式计算的是完整闭面 | 写出 $I+I_0=\iiint$ |
+| 底面方向选错        | 上半球底面通常朝下    | 从立体内部判断               |
+| 散度为零就认为通量为零   | 内部可能有奇点      | 检查场在体域内的光滑性           |
+| 看到未知函数就先求函数   | 未知函数项可能为切向场  | 先与法向量点乘               |
+| 斯托克斯公式方向取反    | 曲线方向与法向量不匹配  | 使用右手法则                |
+| 未检查对称性就展开复杂积分 | 可能计算大量零项     | 先分析积分域和奇偶性            |
+
+#### 最重要的三个检查动作
+
+检查一：方向。
+
+如果题目取向反过来，第二类曲面积分的结果一定整体反号。
+
+检查二：补面。
+
+每次补面后都先写：
+
+$$
+I_{\text{原}}+I_{\text{补}}=I_{\text{闭}}.
+$$
+
+再代入具体数值。
+
+检查三：光滑性。
+
+高斯公式前先检查：
+
+$$
+P,Q,R
+$$
+
+在所围区域内部是否有不连续点或不可定义点。
+
+这三个动作能避免大量非计算性失分。
+
+## 第十二部分：考试时需要达到什么掌握程度？
+
+### 二十九、四个掌握层次
+
+#### 第一层：基础计算
+
+看到：
+
+$$
+z=f(x,y)
+$$
+
+能够立即写出：
+
+$$
+\mathbf n\,\mathrm dS =\pm(-f_x,-f_y,1)\,\mathrm dx\,\mathrm dy.
+$$
+
+能够独立完成：
+
+- 球面、圆锥面、抛物面的有向投影。
+- 三种坐标平面的投影。
+- 圆盘、圆环、椭圆域积分。
+- 曲面方向与积分符号的判断。
+
+#### 第二层：方法选择
+
+能够根据题目决定：
+
+$$
+\text{直接投影} \quad\text{还是}\quad \text{高斯公式}.
+$$
+
+并且能够正确使用补面法。
+
+这一层重点训练核心文档第二、三部分。
+
+#### 第三层：结构识别
+
+能够识别：
+
+- 向量场中的切向部分。
+- 体域的对称性。
+- 奇点和挖洞法。
+- 抽象函数条件。
+- 高斯公式产生的积分最值问题。
+
+这一层重点训练核心文档第四、六、七部分，以及李林880和张宇1000的综合题。
+
+#### 第四层：跨章节综合
+
+能够把：
+
+$$
+\text{空间曲线积分}
+$$
+
+通过斯托克斯公式转化为：
+
+$$
+\text{第二类曲面积分}.
+$$
+
+或者通过高斯公式，把曲面积分转化为：
+
+$$
+\text{三重积分}
+$$
+
+再结合微分方程、极限、最优化、几何矩和坐标变换解决问题。
+
+达到这一层后，面对新题就不会只是在记忆题型，而是在识别数学结构。
+
+### 三十、本节最终必背公式
+
+| 内容                | 公式                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 第二类曲面积分           | $\displaystyle \iint_\Sigma\mathbf F\cdot\mathbf n\,\mathrm dS$                                                                       |
+| $z=f(x,y)$ 上侧 | $\displaystyle (-f_x,-f_y,1)\,\mathrm dx\,\mathrm dy$                                                                                 |
+| $z=f(x,y)$ 下侧 | $\displaystyle (f_x,f_y,-1)\,\mathrm dx\,\mathrm dy$                                                                                  |
+| $x=g(y,z)$ 前侧 | $\displaystyle (1,-g_y,-g_z)\,\mathrm dy\,\mathrm dz$                                                                                 |
+| 参数曲面              | $\displaystyle \mathbf r_u\times\mathbf r_v\,\mathrm du\,\mathrm dv$                                                                  |
+| 散度                | $\displaystyle P_x+Q_y+R_z$                                                                                                             |
+| 高斯公式              | $\displaystyle \oiint_{\partial\Omega}\mathbf F\cdot\mathbf n\,\mathrm dS=\iiint_\Omega\nabla\cdot\mathbf F\,\mathrm dV$            |
+| 补面法               | $\displaystyle I_{\text{原}}=I_{\text{闭}}-I_{\text{补}}$                                                                               |
+| 旋度                | $\displaystyle (R_y-Q_z,P_z-R_x,Q_x-P_y)$                                                                                               |
+| 斯托克斯公式            | $\displaystyle \oint_{\partial\Sigma}\mathbf F\cdot\mathrm d\mathbf r=\iint_\Sigma(\nabla\times\mathbf F)\cdot\mathbf n\,\mathrm dS$ |
+| 单位圆盘二次矩           | $\displaystyle \iint_Dx^2\,\mathrm dA=\frac\pi4$                                                                                       |
+| 单位球体径向二次矩         | $\displaystyle \iiint_Br^2\,\mathrm dV=\frac{4\pi}{5}$                                                                                 |
+| 原点点源通量            | $\displaystyle \oiint_\Sigma\frac{\mathbf r}{r^3}\cdot\mathbf n\,\mathrm dS=4\pi$（包围原点、取外侧）                                           |
+
+## 最后：如何把这一节真正学透？
+
+对于本节，建议不要只按题目顺序练习，而是按以下能力顺序训练：
+
+第一轮：基础方向与投影。 重点完成核心文档第一部分，以及李林880中圆锥上下侧、抛物面下侧的基础题。目标是看到曲面就能写出正确的有向面积向量。
+
+第二轮：高斯公式与补面。 重点完成核心文档第二、三部分，并配合李正元第十章的半椭球与分片曲面题。目标是看到开放曲面就能判断补面是否值得使用，并且不再算错补面方向。
+
+第三轮：结构综合。 重点完成核心文档第四、六、七部分，以及李林880的奇点、未知函数和最优化题、张宇1000的强化题。目标是面对复杂表达式先寻找消项、对称性及几何关系。
+
+第四轮：公式联动。 重点完成核心文档第五部分的斯托克斯题，并尝试用不同曲面处理同一条空间闭曲线。目标是自主选择最优方法，而不是依赖固定套路。
+
+真正应该形成的解题能力是：
+
+$$
+\boxed{ \text{读懂曲面与方向} \longrightarrow \text{识别向量场结构} \longrightarrow \text{检查公式条件} \longrightarrow \text{选择最优转化} \longrightarrow \text{利用对称性完成计算} }
+$$
+
+这一节最核心的不是记住多少道题的答案，而是理解“通量、方向、边界、散度、旋度”这五个概念如何联系起来。 一旦建立了这种联系，无论新题使用球面、椭球、旋转曲面、抽象函数、奇点还是空间交线，都能从同一套原理出发分析，而不必重新背一套解题模板。

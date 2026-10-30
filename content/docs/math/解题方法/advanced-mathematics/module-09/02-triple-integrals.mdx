@@ -1,2018 +1,3475 @@
 ---
-title: "第二节 三重积分"
-description: "三重积分的投影穿透法与截面法、柱坐标与球坐标、空间对称性及质量形心。"
+title: "第九模块 · 第二节｜三重积分"
+description: "考研数学一：空间区域、三种坐标系、柱球交域、积分换序、形心、含参积分与对称性。"
 ---
+
+<Callout type="idea" title="本节解题主线">
+
+先识别立体、截面及交线，再用对称性删去无效项；选择最自然的坐标系后，逐层写积分限并检验雅可比和区域边界。
+
+</Callout>
+
+## 知识导览
 
 <Cards>
 
-<Card title="知识主线">
+<Card title="几何与性质">
 
-投影穿透法与截面法
-
-</Card>
-
-<Card title="核心方法">
-
-柱坐标、球坐标与体积元
+体积、质量、形心、比较与空间对称性。
 
 </Card>
 
-<Card title="综合迁移">
+<Card title="三种坐标系">
 
-空间对称性、形心与转动惯量
+直角坐标、柱坐标、球坐标与雅可比。
+
+</Card>
+
+<Card title="典型空间区域">
+
+球锥交域、球面与抛物面、双球交集和绝对值分区。
+
+</Card>
+
+<Card title="综合与迁移">
+
+积分换序、形心、奇点、参数及截面法。
 
 </Card>
 
 </Cards>
 
-<Callout type="idea" title="解题方法导航">
+## 第一部分：从零建立三重积分的知识体系
 
-先理解三维区域，再比较投影穿透法与截面法。柱坐标体积元含 $r$，球坐标体积元含 $\rho^2\sin\varphi$，选择坐标系不能只看被积函数。
+### 二、三重积分究竟是什么？
+
+#### 1. 从定积分、二重积分理解三重积分
+
+你已经学过：
+
+一元定积分：
+
+$$
+\int_a^b f(x)\,\mathrm dx
+$$
+
+可以理解为对一维区间内各处的函数值进行连续加权求和。
+
+二重积分：
+
+$$
+\iint_D f(x,y)\,\mathrm dA
+$$
+
+是对平面区域内各处的函数值进行连续加权求和。
+
+三重积分：
+
+$$
+\boxed{I=\iiint_\Omega f(x,y,z)\,\mathrm dV}
+$$
+
+则是对三维立体区域内各处的函数值进行连续加权求和。
+
+其定义来自黎曼和：
+
+$$
+\iiint_\Omega f\,\mathrm dV = \lim_{\lambda\to0} \sum_{i=1}^n f(\xi_i,\eta_i,\zeta_i)\Delta V_i.
+$$
+
+这里：
+
+- $\Omega$ 是空间立体区域；
+- $\Delta V_i$ 是划分后的小体积；
+- $f(\xi_i,\eta_i,\zeta_i)$ 是对应小块中的函数值；
+- $\lambda$ 是划分的最大直径。
+
+要求区域及函数满足相应的可积条件。在考研常规计算题中，区域通常有界，函数连续或只有可处理的局部奇性。
+
+#### 2. 三重积分的三个重要几何意义
+
+第一种：计算体积。
+
+当被积函数为 $1$ 时：
+
+$$
+\boxed{V(\Omega)=\iiint_\Omega1\,\mathrm dV}
+$$
+
+这是最基本的几何意义。
+
+第二种：计算质量。
+
+若物体密度为 $\rho(x,y,z)$，则：
+
+$$
+\boxed{M=\iiint_\Omega\rho(x,y,z)\,\mathrm dV}
+$$
+
+第三种：计算静矩、形心。
+
+对均匀物体：
+
+$$
+\bar x=\frac{\iiint_\Omega x\,\mathrm dV}{V}, \qquad \bar y=\frac{\iiint_\Omega y\,\mathrm dV}{V}, \qquad \bar z=\frac{\iiint_\Omega z\,\mathrm dV}{V}.
+$$
+
+如果密度不均匀：
+
+$$
+\boxed{ \bar z= \frac{\iiint_\Omega z\rho(x,y,z)\,\mathrm dV} {\iiint_\Omega\rho(x,y,z)\,\mathrm dV} }
+$$
+
+另外，$\iiint_\Omega x^2\,\mathrm dV$ 等积分可以用于描述物体的二阶矩。
+
+这些物理意义不仅是应用题知识，还能帮助我们从几何上理解积分结果。
+
+### 三、三重积分必须掌握的六类基本性质
+
+<Callout type="warn" title="对称性先看奇偶">
+
+只有区域对某坐标反射不变，且被积函数在该反射下变号，相应积分才能判断为零。
 
 </Callout>
 
-## 本节思维导图
-
-
-
-<MindMap title="第二节 三重积分 · 核心知识图谱" height={550} initialExpandLevel={2} markdown={String.raw`
-# 第二节 三重积分
-## 概念与性质
-### 几何体积和质量
-### 线性与积分估值
-## 空间区域建模
-### 投影穿透法
-### 截面法
-### 积分换序与分块
-## 柱坐标
-### 圆柱及旋转面
-### 雅可比r
-## 球坐标
-### 球面和圆锥边界
-### 体积微元ρ²sinφ
-## 对称性和物理意义
-### 奇偶对称与轮换对称
-### 形心静矩与转动惯量
-### 平移截面中心
-## 典型真题与自测
-`} />
-
-## 一、本节学习重点
-
-三重积分与上一节二重积分的本质相同，都是连续求和。但空间从二维变成三维，最难的部分也随之变化。
-
-上一节：二重积分
-
-$\displaystyle\iint_D f\,d\sigma$
-
-核心：描述平面区域 $D$
-
-本节：三重积分
-
-$\displaystyle\iiint_\Omega f\,dV$
-
-核心：描述空间区域 $\Omega$
-
-三重积分的标准解题流程
-
-识别立体
-
-分析对称性
-
-选择截面与坐标系
-
-写积分限
-
-计算
-
-依据本节题型讲义，核心内容包括：三重积分的定义与性质、投影穿透法、截面法、柱坐标、球坐标、空间对称性、形心与质量、积分次序变换，以及复杂曲面交域的计算。
-
-对数学一而言，尤其需要吃透三类高价值母题：
-
-1. 球域轮换对称：先利用对称性，把三个平方项化成径向积分。
-2. 球面与圆锥面围成的立体：学会把曲面方程准确转成柱坐标或球坐标的不等式。
-3. 旋转体的形心：把三重积分降为截面积加权的一重积分。
-
-下面首先把概念、公式和坐标方法讲透，再结合真实数学一题目逐步推导，并对容易混淆的题库答案作独立核查。
-
-## 二、基础概念：三重积分究竟在计算什么？
-
-### 1. 从二重积分升级到三重积分
-
-一元积分在区间上累加，二重积分在平面区域上累加，三重积分则是在空间立体内部累加。
-
-设空间有界区域为 $\Omega$，把它分成很多小体积元 $\Delta V_k$。选取小块中的点 $(\xi_k,\eta_k,\zeta_k)$，构造和：
+#### 性质1：线性性
 
 $$
-\sum_{k=1}^n f(\xi_k,\eta_k,\zeta_k)\Delta V_k.
+\iiint_\Omega(af+bg)\,\mathrm dV = a\iiint_\Omega f\,\mathrm dV + b\iiint_\Omega g\,\mathrm dV.
 $$
 
-当分割的最大直径趋于 $0$，若极限存在且与合理的分割、取点方式无关，就得到三重积分：
+它意味着复杂被积函数可以拆开计算。
 
-$$
-\boxed{ \iiint_\Omega f(x,y,z)\,dV =\lim_{\lambda\to0}\sum_{k=1}^nf(\xi_k,\eta_k,\zeta_k)\Delta V_k }
-$$
-
-其中 $dV$ 是体积微元。
-
-常规考研题中，区域有界、边界分段光滑且被积函数连续，通常就可以使用三重积分的标准计算公式。
-
-### 2. 三重积分的三种基本意义
-
-| 被积函数                           | 三重积分的含义              |
-| ------------------------------ | -------------------- |
-| $f(x,y,z)=1$               | 立体体积 $V_\Omega$ |
-| $f(x,y,z)=\rho(x,y,z)\ge0$ | 非均匀物体的质量             |
-| 一般实函数 $f(x,y,z)$           | 三维空间中的带符号加权累加        |
-
-特别地：
-
-$$
-\boxed{V_\Omega=\iiint_\Omega1\,dV}
-$$
-
-若质量密度为 $\rho(x,y,z)$：
-
-$$
-\boxed{m=\iiint_\Omega\rho(x,y,z)\,dV}.
-$$
-
-不要混淆两个不同概念：三重积分是在三维立体内部积分，而第一类曲面积分是在二维曲面上积分。 尽管曲面位于三维空间，曲面上的面积元仍是 $dS$，不是 $dV$。
-
-### 3. 基本性质与使用条件
-
-三重积分具有线性性、区域可加性、比较性与积分估值性。
-
-若
-
-$$
-m_0\le f(x,y,z)\le M_0
-$$
-
-在 $\Omega$ 上成立，则
-
-$$
-m_0V_\Omega \le\iiint_\Omega f\,dV \le M_0V_\Omega.
-$$
-
-若 $f$ 在连通的紧致立体上连续，且体积非零，则存在一点 $(\xi,\eta,\zeta)\in\Omega$，使
-
-$$
-\iiint_\Omega f\,dV =f(\xi,\eta,\zeta)V_\Omega.
-$$
-
-从平均值角度理解：
-
-$$
-\frac1{V_\Omega}\iiint_\Omega f\,dV
-$$
-
-是函数在整个立体内的体积平均值。
-
-它不是简单的“函数在几何中心的值”，只有具有额外对称性或特殊函数形式时，才能进一步简化。
-
-## 三、三重积分最核心的两种区域处理方法
-
-<Tabs items={["方法一", "方法二"]} defaultIndex={0}>
-
-<Tab value="方法一">
-
-### 方法一：投影穿透法——先一后二
-
-如果立体上下由两个曲面围成：
-
-$$
-z_1(x,y)\le z\le z_2(x,y), \qquad (x,y)\in D,
-$$
-
-则
-
-$$
-\boxed{ \iiint_\Omega f(x,y,z)\,dV =\iint_D \left[\int_{z_1(x,y)}^{z_2(x,y)} f(x,y,z)\,dz\right]dxdy }.
-$$
-
-直观上：先把立体投影到 $xOy$ 平面，找到底部区域 $D$，再从区域内每一点竖直穿过整个立体。
-
-最重要的几何量是
-
-$$
-\boxed{\text{上曲面}-\text{下曲面}}.
-$$
+不过实际做题时，不要急着展开。
 
 例如：
 
 $$
-\Omega=\{(x,y,z):x^2+y^2\le z\le1\}.
+\iiint_\Omega(x+y+z)^2\,\mathrm dV
 $$
 
-投影满足
+如果区域具有对称性，应先分析对称性，再决定哪些项需要真正计算。
+
+#### 性质2：区域可加性
+
+若两个区域内部互不相交，且并集为 $\Omega$，则：
 
 $$
-x^2+y^2\le1.
+\iiint_\Omega f\,\mathrm dV = \iiint_{\Omega_1}f\,\mathrm dV + \iiint_{\Omega_2}f\,\mathrm dV.
 $$
 
-求体积：
+对于包含绝对值、分段函数、复杂交域的题目，这个性质非常重要。
+
+三重积分中的分段，本质上就是把一个复杂立体分割为若干个容易积分的立体。
+
+#### 性质3：比较性质
+
+若在 $\Omega$ 上：
 
 $$
-\begin{aligned} V &=\iint_{x^2+y^2\le1} \int_{x^2+y^2}^1 dz\,dxdy\\ &=\iint_{x^2+y^2\le1} (1-x^2-y^2)\,dxdy. \end{aligned}
+f(x,y,z)\le g(x,y,z),
 $$
 
-使用极坐标：
+则：
 
 $$
-V=2\pi\int_0^1(1-r^2)r\,dr =\boxed{\frac\pi2}.
+\iiint_\Omega f\,\mathrm dV \le \iiint_\Omega g\,\mathrm dV.
 $$
 
-这是一个典型的“三重积分通过投影降为二重积分”的例子。
-
-</Tab>
-
-<Tab value="方法二">
-
-### 方法二：截面法——先二后一
-
-如果固定高度 $z$，水平截面很容易描述，则使用
+特别地，若：
 
 $$
-\boxed{ \iiint_\Omega f\,dV =\int_a^b \left[\iint_{D_z}f(x,y,z)\,dxdy\right]dz }.
+m\le f(x,y,z)\le M,
 $$
 
-其中 $D_z$ 是高度 $z$ 处的平面截面。
-
-当被积函数只依赖于 $z$，令截面积为
+则：
 
 $$
-A(z)=\iint_{D_z}1\,dxdy,
+mV(\Omega) \le \iiint_\Omega f\,\mathrm dV \le MV(\Omega).
 $$
 
-则有重要降维公式：
+遇到无法直接计算的三重积分，可以先考虑上下界估计。
+
+#### 性质4：对称性
+
+这是本节最重要的计算技巧之一。
+
+例如，单位球：
 
 $$
-\boxed{ \iiint_\Omega f(z)\,dV =\int_a^b f(z)A(z)\,dz }.
+\Omega:x^2+y^2+z^2\le1.
 $$
 
-继续使用上一题：
+因为关于 $x=0$ 对称：
 
 $$
-x^2+y^2\le z\le1.
+\boxed{\iiint_\Omega x\,\mathrm dV=0}
 $$
 
-固定 $z$，有
+但：
 
 $$
-0\le z\le1,\qquad x^2+y^2\le z.
+\iiint_\Omega x^2\,\mathrm dV>0.
 $$
 
-截面是半径 $\sqrt z$ 的圆盘，面积为
+要分清：
+
+区域关于某个平面对称，并不意味着所有含该坐标的积分都等于零。必须同时检查被积函数的变号性质。
+
+后面专门讲如何判断。
+
+#### 性质5：积分中值定理
+
+若 $\Omega$ 是有界闭连通区域，$f$ 连续，则存在 $(\xi,\eta,\zeta)\in\Omega$，使：
 
 $$
-A(z)=\pi z.
+\iiint_\Omega f\,\mathrm dV = f(\xi,\eta,\zeta)V(\Omega).
 $$
 
-于是
+这个性质说明：
 
 $$
-V=\int_0^1\pi z\,dz =\boxed{\frac\pi2}.
+\frac1{V(\Omega)}\iiint_\Omega f\,\mathrm dV
 $$
 
-两种方法得出相同结果，却用了完全不同的积分顺序。
+就是函数在整个立体上的平均值。
 
-</Tab>
+#### 性质6：仿射函数与形心
 
-</Tabs>
-
-### 3. 两种方法怎么选？
-
-| 判断标准 | 投影穿透法       | 截面法         |
-| ---- | ----------- | ----------- |
-| 几何特征 | 上下曲面容易表示    | 固定高度截面很简单   |
-| 优势   | 易转化为二重积分    | 易转化为一重积分    |
-| 典型题目 | 球面与抛物面夹成的立体 | 旋转体、圆盘截面、形心 |
-| 最需注意 | 上下曲面的交线     | 截面半径和圆心是否变化 |
-
-在考场中，优先选能让复杂度降得最多的方法，而不是固定使用某种积分顺序。
-
-## 四、柱坐标：处理绕轴旋转的立体
-
-### 1. 基本公式
-
-标准柱坐标是
+如果 $\Omega$ 是均匀立体，其形心为：
 
 $$
-x=r\cos\theta,\qquad y=r\sin\theta,\qquad z=z.
+G=(\bar x,\bar y,\bar z),
 $$
 
-其中
-
-$$
-r=\sqrt{x^2+y^2}\ge0.
-$$
-
-体积微元是
-
-$$
-\boxed{dV=r\,dr\,d\theta\,dz}.
-$$
-
-为什么仍然有 $r$？
-
-因为柱坐标可以理解为：先在 $xOy$ 平面使用极坐标，得到底面积元 $r\,drd\theta$，再乘竖直厚度 $dz$。
-
-### 2. 常见曲面翻译
-
-| 空间曲面                   | 柱坐标形式             |
-| ---------------------- | ----------------- |
-| $x^2+y^2=R^2$      | $r=R$         |
-| $z=x^2+y^2$        | $z=r^2$       |
-| $z=\sqrt{x^2+y^2}$ | $z=r$         |
-| $x^2+y^2+z^2=R^2$  | $r^2+z^2=R^2$ |
-| $x^2+y^2=2az$      | $r^2=2az$     |
-
-典型适用场景是圆柱、圆锥、旋转抛物面，以及绕 $z$ 轴旋转对称的空间区域。
-
-需要特别注意：柱坐标并不一定必须绕 $z$ 轴。如果题目绕 $x$ 轴旋转，可以令
-
-$$
-y=r\cos\theta,\qquad z=r\sin\theta,
-$$
-
-把 $x$ 保持不变，体积微元依然有 $r$。
-
-## 五、球坐标：处理球体和圆锥交域
-
-这是数学一必须熟练掌握的坐标变换。
-
-### 1. 球坐标的三个变量
-
-统一使用如下约定：
-
-$$
-\begin{cases} x=\rho\sin\varphi\cos\theta,\\ y=\rho\sin\varphi\sin\theta,\\ z=\rho\cos\varphi. \end{cases}
-$$
-
-其中：
-
-- $\rho$：点到原点的距离；
-- $\varphi$：与 $z$ 轴正方向的夹角，称极角；
-- $\theta$：在 $xOy$ 平面的方位角。
-
-通常取
-
-$$
-\rho\ge0,\qquad 0\le\varphi\le\pi,\qquad 0\le\theta<2\pi.
-$$
-
-### 2. 最重要的体积微元
-
-$$
-\boxed{ dV=\rho^2\sin\varphi\, d\rho\,d\varphi\,d\theta }
-$$
-
-理解这个公式比单纯记忆更有价值。
-
-沿径向的长度近似为 $d\rho$，极角方向的小弧长为 $\rho\,d\varphi$，方位角方向的小弧长为 $\rho\sin\varphi\,d\theta$。
-
-三者相乘：
-
-$$
-dV\approx d\rho\cdot\rho\,d\varphi \cdot\rho\sin\varphi\,d\theta.
-$$
-
-因此自然得到 $\rho^2\sin\varphi$。
-
-这里有两种高频错误：漏掉 $\rho^2$，或者把 $\sin\varphi$ 误写成 $\cos\varphi$。
-
-### 3. 高频曲面与不等式转换
-
-| 空间条件                                 | 球坐标条件                                                |
-| ------------------------------------ | ---------------------------------------------------- |
-| $x^2+y^2+z^2\le R^2$             | $0\le\rho\le R$                                  |
-| $z\ge0$                          | $0\le\varphi\le\pi/2$                            |
-| $z\ge\sqrt{x^2+y^2}$             | $0\le\varphi\le\pi/4$                            |
-| $z\ge k\sqrt{x^2+y^2}$，$k>0$ | $0\le\varphi\le\arctan(1/k)$                     |
-| $x^2+y^2+z^2\le2az$，$a>0$    | $0\le\rho\le2a\cos\varphi,\ 0\le\varphi\le\pi/2$ |
-
-特别需要理解圆锥：
-
-$$
-z=\sqrt{x^2+y^2}.
-$$
-
-在球坐标中，
-
-$$
-\rho\cos\varphi=\rho\sin\varphi.
-$$
-
-除去原点，得到
-
-$$
-\varphi=\frac\pi4.
-$$
-
-因此：
-
-$$
-\boxed{ z\ge\sqrt{x^2+y^2} \Longleftrightarrow 0\le\varphi\le\frac\pi4 }
-$$
-
-而圆锥外部、上半空间中的部分对应 $\pi/4\le\varphi\le\pi/2$。
-
-### 4. 柱坐标与球坐标的选择
-
-| 题目结构                        | 建议方法     |
-| --------------------------- | -------- |
-| 球体、球冠，函数含 $x^2+y^2+z^2$ | 球坐标      |
-| 球面和过原点的圆锥面                  | 球坐标      |
-| 球面和旋转抛物面                    | 通常优先柱坐标  |
-| 圆柱、圆环柱体                     | 柱坐标      |
-| 固定高度截面是圆盘，函数只含 $z$      | 截面法      |
-| 四面体、平面围成的多面体                | 直角坐标或形心法 |
-
-最重要的判断标准不是“题中有球”，而是哪种坐标能够同时让区域与被积函数变得简单。
-
-## 六、空间对称性、形心与转动惯量
-
-### 1. 空间奇偶对称
-
-若 $\Omega$ 关于 $x=0$ 平面对称，同时
-
-$$
-f(-x,y,z)=-f(x,y,z),
-$$
-
-则
-
-$$
-\boxed{\iiint_\Omega f\,dV=0}.
-$$
-
-关于 $y=0$、$z=0$ 也有相同结论。
-
-例如球体内：
-
-$$
-\iiint_\Omega xyz\,dV=0.
-$$
-
-因为对 $x$ 进行反射，区域不变而被积函数变号。
-
-### 2. 轮换对称
-
-对球域
-
-$$
-\Omega=\{x^2+y^2+z^2\le R^2\},
-$$
-
-交换 $x,y,z$ 后区域不变，所以
-
-$$
-\iiint_\Omega x^2\,dV =\iiint_\Omega y^2\,dV =\iiint_\Omega z^2\,dV.
-$$
-
-于是
-
-$$
-\boxed{ \iiint_\Omega z^2\,dV =\frac13\iiint_\Omega(x^2+y^2+z^2)\,dV }.
-$$
-
-注意，这并不是说空间每一点上都有 $x^2=y^2=z^2$，而是说三个积分整体相等。
-
-### 3. 形心与质量
-
-设均匀立体体积为 $V$，形心为 $(\bar x,\bar y,\bar z)$，则
-
-$$
-\boxed{ \bar x=\frac1V\iiint_\Omega x\,dV,\qquad \bar y=\frac1V\iiint_\Omega y\,dV,\qquad \bar z=\frac1V\iiint_\Omega z\,dV }.
-$$
-
-对非均匀立体，分母要换成总质量
-
-$$
-m=\iiint_\Omega\rho\,dV,
-$$
-
-分子则分别乘上密度 $\rho$。
-
-特别有用的公式是：
-
-$$
-\boxed{ \bar z= \frac{\int_a^b zA(z)\,dz} {\int_a^b A(z)\,dz} }
-$$
-
-前提是均匀立体，且 $A(z)$ 为相应高度的截面积。
-
-### 4. 线性函数与形心
-
-若立体均匀，且已知形心，则对任何线性函数
+那么对任意仿射函数：
 
 $$
 f(x,y,z)=ax+by+cz+d,
 $$
 
-都有
+都有：
 
 $$
-\boxed{ \iiint_\Omega f\,dV =V(a\bar x+b\bar y+c\bar z+d) }.
+\boxed{\iiint_\Omega f\,\mathrm dV=V(\Omega)f(G)}
 $$
 
-这是因为积分具有线性性，而各坐标的体积平均值就是形心坐标。
+注意，这一结论一般不能直接用于 $x^2+y^2+z^2$ 等非线性函数。
 
-对于非线性函数，例如 $x^2+y^2$，不能直接把形心坐标代入函数，再乘体积。
+这一技巧在四面体、球体和旋转体题中非常实用。
 
-### 5. 转动惯量与对称性
+## 第二部分：三种坐标系与三重积分计算
 
-公式手册还列出了均匀或非均匀物体关于坐标轴的转动惯量。
+### 四、直角坐标：先一后二、先二后一
 
-例如关于 $z$ 轴：
+这是最基础的计算方法。
 
-$$
-I_z=\iiint_\Omega(x^2+y^2)\rho(x,y,z)\,dV.
-$$
+#### 1. 先一后二
 
-它计算的是物体质量相对于转轴的平方距离加权累加。
-
-这类题可以与柱坐标直接结合，因为
+假设：
 
 $$
-x^2+y^2=r^2.
+\Omega= \left\{ (x,y,z): (x,y)\in D,\  z_1(x,y)\le z\le z_2(x,y) \right\}.
 $$
 
-当球体均匀且对称时，三个坐标轴的转动惯量相等，也可用轮换对称减少计算。
-
-## 七、数学一真题与核心题库逐题精讲
-
-接下来选取具有代表性的真实数学一题目。重点不只是计算答案，而是训练判断题型和选择最优方法的能力。
-
-### 例1：2009年数学一真题——球域轮换对称
-
-核心模型：轮换对称 + 球坐标
-
-设
+那么：
 
 $$
-\Omega=\{(x,y,z):x^2+y^2+z^2\le1\},
+\boxed{ \iiint_\Omega f\,\mathrm dV = \iint_D \left[ \int_{z_1(x,y)}^{z_2(x,y)} f(x,y,z)\,\mathrm dz \right]\mathrm dx\,\mathrm dy }
 $$
 
-求
+理解为：先固定平面上的一个点 $(x,y)$，沿着竖直方向从立体底部积到顶部，再遍历整个投影区域。
+
+所以解题的基本步骤是：
+
+1. 找下表面；
+2. 找上表面；
+3. 求两表面的交线；
+4. 找到 $xOy$ 平面上的投影区域；
+5. 写出累次积分。
+
+其中最关键的是求交线、确定投影范围。
+
+#### 2. 先二后一
+
+若固定 $z$ 时，水平截面为：
 
 $$
-I=\iiint_\Omega z^2\,dV.
+D_z=\{(x,y):(x,y,z)\in\Omega\},
 $$
 
-<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
-
-<Tab value="解法一">
-
-#### 解法一：轮换对称（推荐）
-
-整个球体对 $x,y,z$ 完全对称，因此
+则：
 
 $$
-\iiint_\Omega x^2\,dV =\iiint_\Omega y^2\,dV =\iiint_\Omega z^2\,dV=I.
+\boxed{ \iiint_\Omega f\,\mathrm dV = \int_a^b \left[ \iint_{D_z}f(x,y,z)\,\mathrm dx\,\mathrm dy \right]\mathrm dz }
 $$
 
-三个积分相加：
+特别地，若 $f$ 只依赖于 $z$，就有：
 
 $$
-3I=\iiint_\Omega(x^2+y^2+z^2)\,dV.
+\boxed{ \iiint_\Omega f(z)\,\mathrm dV = \int_a^b f(z)A(z)\,\mathrm dz }
 $$
 
-令
+其中 $A(z)$ 是高度为 $z$ 的水平截面面积。
+
+这个公式非常值得记住。
+
+例如：
+
+$$
+\Omega:\quad 0\le z\le2,\qquad x^2+y^2\le z^2.
+$$
+
+每个水平截面都是半径为 $z$ 的圆盘：
+
+$$
+A(z)=\pi z^2.
+$$
+
+因此：
+
+$$
+\iiint_\Omega z\,\mathrm dV = \pi\int_0^2z^3\,\mathrm dz =4\pi.
+$$
+
+整个题目甚至不需要写完整的三层积分。
+
+### 五、柱坐标：解决绕某条轴旋转的立体
+
+<Callout type="info" title="柱坐标体积元">
+
+绕 $z$ 轴使用柱坐标时，$dV=r\,dr\,d\theta\,dz$（积分次序可调整），切勿遗漏 $r$。
+
+</Callout>
+
+令：
+
+$$
+\begin{cases} x=r\cos\theta,\\ y=r\sin\theta,\\ z=z. \end{cases}
+$$
+
+其中：
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+对应的体积元为：
+
+$$
+\boxed{ \mathrm dV = r\,\mathrm dr\,\mathrm d\theta\,\mathrm dz }
+$$
+
+**注意：**&#x2060;必须乘上 $r$。
+
+#### 为什么要乘 $r$？
+
+在平面极坐标中，一块微小区域的两条边可以近似看成：
+
+- 径向长度 $\mathrm dr$；
+- 圆周方向长度 $r\,\mathrm d\theta$。
+
+面积近似为：
+
+$$
+\mathrm dA=r\,\mathrm dr\,\mathrm d\theta.
+$$
+
+再乘竖直方向长度 $\mathrm dz$，得到：
+
+$$
+\mathrm dV=r\,\mathrm dr\,\mathrm d\theta\,\mathrm dz.
+$$
+
+因此，柱坐标不是简单地把 $x,y$ 换成 $r,\theta$，还必须改变体积元。
+
+#### 什么时候优先考虑柱坐标？
+
+看题目有没有：
+
+$$
+x^2+y^2.
+$$
+
+例如：
+
+$$
+x^2+y^2=R^2
+$$
+
+是圆柱面；
+
+$$
+z=\sqrt{x^2+y^2}
+$$
+
+是圆锥面；
+
+$$
+z=x^2+y^2
+$$
+
+是旋转抛物面；
+
+$$
+x^2+y^2+z^2=R^2
+$$
+
+是球面。
+
+如果多条边界都含 $x^2+y^2$，柱坐标通常是很好的候选方法。
+
+但有一个重要例外：
+
+如果球面与圆锥面能够同时转化为简单的球坐标积分限，球坐标可能更加简洁。
+
+### 六、球坐标：解决球体、球面和圆锥交域
+
+<Callout type="warn" title="球坐标雅可比">
+
+若 $\varphi$ 是从正 $z$ 轴量起的极角，则 $dV=\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta$。
+
+</Callout>
+
+采用考研高数中常用的约定：
+
+$$
+\boxed{ \begin{cases} x=\rho\sin\varphi\cos\theta,\\ y=\rho\sin\varphi\sin\theta,\\ z=\rho\cos\varphi. \end{cases} }
+$$
+
+其中：
+
+- $\rho$：点到原点的距离；
+- $\varphi$：点与 $z$ 轴正向的夹角，称为极角；
+- $\theta$：在 $xOy$ 平面上的方位角。
+
+标准范围为：
+
+$$
+\rho\ge0,\qquad 0\le\varphi\le\pi,\qquad 0\le\theta<2\pi.
+$$
+
+体积元：
+
+$$
+\boxed{ \mathrm dV = \rho^2\sin\varphi\, \mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta }
+$$
+
+柱坐标乘 $r$，球坐标乘 $\rho^2\sin\varphi$。这是绝不能混淆的两个公式。
+
+#### 1. 常见曲面如何转化？
+
+| 直角坐标条件                               | 球坐标条件                                                      |
+| ------------------------------------ | ---------------------------------------------------------- |
+| $x^2+y^2+z^2\le R^2$             | $0\le\rho\le R$                                        |
+| $z\ge0$                          | $0\le\varphi\le\pi/2$                                  |
+| $z\ge\sqrt{x^2+y^2}$             | $0\le\varphi\le\pi/4$                                  |
+| $z\ge k\sqrt{x^2+y^2}$，$k>0$ | $0\le\varphi\le\arctan(1/k)$                           |
+| $x^2+y^2+z^2\le2az$，$a>0$    | $0\le\rho\le2a\cos\varphi$，且 $0\le\varphi\le\pi/2$ |
+
+#### 2. 球坐标最容易误解的地方
+
+例如：
+
+$$
+z\ge\sqrt{x^2+y^2}.
+$$
+
+代入球坐标：
+
+$$
+\rho\cos\varphi\ge\rho\sin\varphi.
+$$
+
+对 $\rho>0$：
+
+$$
+\cos\varphi\ge\sin\varphi.
+$$
+
+于是：
+
+$$
+\boxed{0\le\varphi\le\frac\pi4}
+$$
+
+这里代表的是圆锥内部、靠近 $z$ 轴正向的部分。
+
+不是 $\pi/4\le\varphi\le\pi/2$。
+
+后者代表第一卦限上半空间内圆锥外侧的部分。
+
+#### 3. 坐标选择的核心原则
+
+| 区域特征                                       | 优先方法       |
+| ------------------------------------------ | ---------- |
+| 边界由 $x,y,z$ 的简单不等式给出                   | 直角坐标       |
+| 上下曲面容易写成 $z=z_1(x,y)$、$z=z_2(x,y)$ | 先一后二       |
+| 水平截面积 $A(z)$ 简单，被积函数仅含 $z$         | 先二后一       |
+| 圆柱面、旋转抛物面、绕轴旋转体                            | 柱坐标        |
+| 球域、球与圆锥形成的交域                               | 球坐标        |
+| 被积函数含有奇函数项，区域高度对称                          | 先用对称性      |
+| 被积函数含绝对值                                   | 先找变号曲面，再分区 |
+
+最后一条通用原则：
+
+先把立体区域分析清楚，再选择坐标系；不要因为看见球面就机械地使用球坐标。
+
+## 第三部分：核心题目逐题精讲
+
+这一部分是整节的重点。我会对每道代表题说明：为什么选这种方法、关键转化是什么、有没有更简单的解法，以及题目变化后该怎么办。
+
+### 七、题型一：空间对称性与三重积分
+
+#### 核心题1：半球与第一卦限的积分关系
+
+设：
+
+$$
+\Omega_1: x^2+y^2+z^2\le R^2,\quad z\ge0,
+$$
+
+$$
+\Omega_2: x^2+y^2+z^2\le R^2,\quad x,y,z\ge0.
+$$
+
+判断：
+
+$$
+\begin{aligned} \mathrm A.\quad& \iiint_{\Omega_1}x\,\mathrm dV =4\iiint_{\Omega_2}x\,\mathrm dV,\\ \mathrm B.\quad& \iiint_{\Omega_1}y\,\mathrm dV =4\iiint_{\Omega_2}y\,\mathrm dV,\\ \mathrm C.\quad& \iiint_{\Omega_1}z\,\mathrm dV =4\iiint_{\Omega_2}z\,\mathrm dV,\\ \mathrm D.\quad& \iiint_{\Omega_1}xyz\,\mathrm dV =4\iiint_{\Omega_2}xyz\,\mathrm dV. \end{aligned}
+$$
+
+**答案：**&#x2060;C。
+
+**第一步：认识区域**
+
+$\Omega_1$ 是上半球。
+
+$\Omega_2$ 是上半球在第一卦限内的部分。
+
+通过 $x=0$ 和 $y=0$ 两个平面，上半球可以分成四个全等区域。
+
+但这只能说明四个部分的体积相等，不能直接说明任何函数在四块区域上的积分都相等。
+
+**第二步：检查反射后的函数变化**
+
+对函数 $z$，无论把 $x$ 变成 $-x$，还是把 $y$ 变成 $-y$，都有：
+
+$$
+z(-x,y,z)=z(x,y,z),
+$$
+
+$$
+z(x,-y,z)=z(x,y,z).
+$$
+
+所以四块区域上的 $z$ 积分相等：
+
+$$
+\boxed{ \iiint_{\Omega_1}z\,\mathrm dV = 4\iiint_{\Omega_2}z\,\mathrm dV }
+$$
+
+而对于 $x$：
+
+$$
+\iiint_{\Omega_1}x\,\mathrm dV=0,
+$$
+
+因为区域关于 $x=0$ 对称，被积函数对 $x$ 为奇函数。
+
+但是：
+
+$$
+\iiint_{\Omega_2}x\,\mathrm dV>0.
+$$
+
+所以 A 错。
+
+B 和 D 同理。
+
+**这道题真正考什么？**
+
+考的是：
+
+$$
+\boxed{\text{区域对称性}+\text{被积函数的变换性质}}
+$$
+
+而不是单纯考体积比例。
+
+**必须掌握的推广**
+
+如果：
+
+$$
+\Omega: x^2+y^2+z^2\le R^2,
+$$
+
+那么：
+
+$$
+\iiint_\Omega x^{m}y^{n}z^{p}\,\mathrm dV
+$$
+
+只要 $m,n,p$ 中至少有一个是奇数，积分就为零。
+
+原因是整个球域分别关于三个坐标平面对称。
+
+但如果积分区域只取第一卦限，这个结论一般不成立。
+
+例如：
+
+$$
+\iiint_{\Omega_+}xyz\,\mathrm dV>0.
+$$
+
+做题时必须先判断区域是否仍具有所需的对称性。
+
+#### 核心题2：单位球的二阶矩
+
+设：
+
+$$
+\Omega:x^2+y^2+z^2\le1.
+$$
+
+求：
+
+$$
+I=\iiint_\Omega z^2\,\mathrm dV.
+$$
+
+这道题值得掌握两种方法。
+
+<Tabs items={['球坐标直接计算', '利用球对称性']} defaultIndex={0}>
+
+<Tab value="球坐标直接计算">
+
+**方法一：球坐标直接计算**
+
+球坐标下：
+
+$$
+z=\rho\cos\varphi,
+$$
+
+$$
+\mathrm dV=\rho^2\sin\varphi\, \mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta.
+$$
+
+所以：
+
+$$
+I= \int_0^{2\pi}\mathrm d\theta \int_0^\pi\mathrm d\varphi \int_0^1 \rho^4\cos^2\varphi\sin\varphi \,\mathrm d\rho.
+$$
+
+三个积分分别计算：
+
+$$
+\int_0^1\rho^4\,\mathrm d\rho=\frac15,
+$$
+
+$$
+\int_0^\pi\cos^2\varphi\sin\varphi\,\mathrm d\varphi =\frac23,
+$$
+
+$$
+\int_0^{2\pi}\mathrm d\theta=2\pi.
+$$
+
+因此：
+
+$$
+\boxed{I=\frac{4\pi}{15}}
+$$
+
+</Tab>
+
+<Tab value="利用球对称性">
+
+**方法二：利用球对称性**
+
+因为球域在交换三个坐标后保持不变：
+
+$$
+\iiint_\Omega x^2\,\mathrm dV = \iiint_\Omega y^2\,\mathrm dV = \iiint_\Omega z^2\,\mathrm dV.
+$$
+
+因此：
+
+$$
+3I= \iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV.
+$$
+
+球坐标中：
 
 $$
 x^2+y^2+z^2=\rho^2.
 $$
 
-使用球坐标：
+所以：
 
 $$
-\begin{aligned} 3I &=\int_0^{2\pi}d\theta \int_0^\pi\sin\varphi\,d\varphi \int_0^1\rho^4\,d\rho\\ &=2\pi\cdot2\cdot\frac15\\ &=\frac{4\pi}{5}. \end{aligned}
+3I=4\pi\int_0^1\rho^4\,\mathrm d\rho =\frac{4\pi}{5}.
 $$
 
-所以
+得到：
 
 $$
-\boxed{I=\frac{4\pi}{15}}.
+\boxed{I=\frac{4\pi}{15}}
 $$
 
-</Tab>
-
-<Tab value="解法二">
-
-#### 解法二：直接球坐标
-
-因为
-
-$$
-z^2=\rho^2\cos^2\varphi,
-$$
-
-所以
-
-$$
-\begin{aligned} I &=\int_0^{2\pi}d\theta \int_0^\pi\cos^2\varphi\sin\varphi\,d\varphi \int_0^1\rho^4\,d\rho\\ &=2\pi\cdot\frac23\cdot\frac15\\ &=\frac{4\pi}{15}. \end{aligned}
-$$
-
-两种解法都正确，但第一种不需要直接处理 $\cos^2\varphi\sin\varphi$。
+第二种方法更简洁。
 
 </Tab>
 
 </Tabs>
 
-#### 常见推广
+**高价值推广：任意半径的球**
 
-对半径为 $R$ 的球体：
-
-$$
-\boxed{ \iiint_\Omega x^2\,dV =\iiint_\Omega y^2\,dV =\iiint_\Omega z^2\,dV =\frac{4\pi R^5}{15} }.
-$$
-
-因此
+若：
 
 $$
-\boxed{ \iiint_\Omega(ax^2+by^2+cz^2)\,dV =\frac{4\pi R^5}{15}(a+b+c) }.
+\Omega_R:x^2+y^2+z^2\le R^2,
 $$
 
-但对于非球形、非轮换对称的立体，不能直接套用这一结论。
-
-### 例2：1989年数学一真题——圆锥面与球面围成立体
-
-核心模型：曲面交线 + 对称性 + 柱坐标与球坐标比较
-
-区域 $\Omega$ 由
+则：
 
 $$
-z=\sqrt{x^2+y^2}
+\boxed{ \iiint_{\Omega_R}x^2\,\mathrm dV = \iiint_{\Omega_R}y^2\,\mathrm dV = \iiint_{\Omega_R}z^2\,\mathrm dV = \frac{4\pi R^5}{15} }
 $$
 
-和
+注意结果是 $R^5$，不是 $R^3$。
+
+因为被积函数是长度的平方，体积元是长度的三次方。
+
+**对应张宇1000题**
+
+张宇强化部分有：
 
 $$
-z=\sqrt{1-x^2-y^2}
+\Omega:x^2+y^2+z^2\le1,\qquad x,y,z\ge0,
 $$
 
-围成，求
+求：
 
 $$
-I=\iiint_\Omega(x+z)\,dV.
+I=\iiint_\Omega(x^2+2y^2+3z^2)\,\mathrm dV.
 $$
 
-#### 第一步：利用对称性
+第一卦限占完整球体的八分之一。
 
-区域绕 $z$ 轴旋转对称。
-
-因此
+而平方项在各卦限中的积分相同，因此：
 
 $$
-\iiint_\Omega x\,dV=0.
+\iiint_\Omega x^2\,\mathrm dV=\frac18\cdot\frac{4\pi}{15} =\frac{\pi}{30}.
 $$
 
-于是只需计算
+同理：
 
 $$
-I=\iiint_\Omega z\,dV.
+\iiint_\Omega y^2\,\mathrm dV = \iiint_\Omega z^2\,\mathrm dV =\frac{\pi}{30}.
 $$
 
-<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
-
-<Tab value="解法一">
-
-#### 解法一：柱坐标
-
-令 $r=\sqrt{x^2+y^2}$。
-
-下曲面是
+所以：
 
 $$
-z=r,
+I=(1+2+3)\frac{\pi}{30}.
 $$
 
-上曲面是
+最终：
 
 $$
-z=\sqrt{1-r^2}.
+\boxed{I=\frac{\pi}{5}}
 $$
 
-先求交线：
+这类题优先用对称性，不要一看三重积分就直接写三层积分。
+
+#### 核心题3：第一卦限球体上的 $xyz$ 积分
+
+计算：
 
 $$
-r=\sqrt{1-r^2}.
+I=\iiint_\Omega xyz\,\mathrm dV,
 $$
 
-两边平方：
+其中：
 
 $$
-2r^2=1,
+\Omega: x^2+y^2+z^2\le1,\qquad x,y,z\ge0.
 $$
 
-故
+这道题容易因为看到 $xyz$ 就错误地判断为零。
+
+但区域只取第一卦限：
 
 $$
-r=\frac1{\sqrt2},\qquad z=\frac1{\sqrt2}.
+xyz\ge0.
 $$
 
-所以
+所以积分应当为正。
+
+使用球坐标：
 
 $$
-0\le r\le\frac1{\sqrt2}, \qquad r\le z\le\sqrt{1-r^2}, \qquad 0\le\theta\le2\pi.
+x=\rho\sin\varphi\cos\theta,
 $$
 
-建立三重积分：
-
 $$
-I=\int_0^{2\pi}d\theta \int_0^{1/\sqrt2}r\,dr \int_r^{\sqrt{1-r^2}}z\,dz.
+y=\rho\sin\varphi\sin\theta,
 $$
-
-先对 $z$ 积分：
-
-$$
-\begin{aligned} I &=2\pi\int_0^{1/\sqrt2} \frac12[(1-r^2)-r^2]r\,dr\\ &=\pi\int_0^{1/\sqrt2}(r-2r^3)\,dr\\ &=\pi\left[\frac{r^2}{2}-\frac{r^4}{2}\right]_0^{1/\sqrt2}. \end{aligned}
-$$
-
-最终
-
-$$
-\boxed{I=\frac\pi8}.
-$$
-
-</Tab>
-
-<Tab value="解法二">
-
-#### 解法二：球坐标（更简洁）
-
-从原点观察，区域正是单位球内、圆锥
-
-$$
-z=\sqrt{x^2+y^2}
-$$
-
-上方的部分。
-
-因此球坐标范围是
-
-$$
-0\le\rho\le1,\qquad 0\le\varphi\le\frac\pi4,\qquad 0\le\theta\le2\pi.
-$$
-
-又有
 
 $$
 z=\rho\cos\varphi.
 $$
 
-所以
+区域为：
 
 $$
-\begin{aligned} I &=\int_0^{2\pi}d\theta \int_0^{\pi/4}\sin\varphi\cos\varphi\,d\varphi \int_0^1\rho^3\,d\rho\\ &=2\pi\cdot\frac14\cdot\frac14\\ &=\boxed{\frac\pi8}. \end{aligned}
+0\le\rho\le1, \quad 0\le\varphi\le\frac\pi2, \quad 0\le\theta\le\frac\pi2.
 $$
 
-</Tab>
-
-</Tabs>
-
-#### 两种解法比较
-
-| 比较  | 柱坐标                    | 球坐标                                              |
-| --- | ---------------------- | ------------------------------------------------ |
-| 交线  | 要求 $r=1/\sqrt2$    | 直接使用圆锥极角                                         |
-| 上下界 | 含根号                    | 常数范围                                             |
-| 微元  | $r\,drd\theta dz$ | $\rho^2\sin\varphi\,d\rho d\varphi d\theta$ |
-| 计算量 | 较少                     | 更少                                               |
-
-这道题是“球面＋圆锥”模型的标准母题，理解透彻后可以直接迁移到同类坐标表达题。
-
-### 例3：2026年数学一资料中的坐标表达题——特别注意录入歧义
-
-题库中的现有题面给出由
+代入：
 
 $$
-z=\sqrt{4-x^2-y^2}
+xyz= \rho^3\sin^2\varphi\cos\varphi \sin\theta\cos\theta.
 $$
 
-与
+乘上体积元：
 
 $$
-z=\sqrt{x^2+y^2}
+xyz\,\mathrm dV = \rho^5\sin^3\varphi\cos\varphi \sin\theta\cos\theta \,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta.
 $$
 
-围成的有界区域 $\Omega$，要求表示
+三个积分可以分离：
 
 $$
-\iiint_\Omega f(x^2+y^2+z^2)\,dV.
+I= \left(\int_0^1\rho^5\,\mathrm d\rho\right) \left(\int_0^{\pi/2}\sin^3\varphi\cos\varphi\,\mathrm d\varphi\right) \left(\int_0^{\pi/2}\sin\theta\cos\theta\,\mathrm d\theta\right).
 $$
 
-<Tabs items={["方法一", "方法二"]} defaultIndex={0}>
-
-<Tab value="方法一">
-
-#### 方法一：柱坐标表示
-
-两曲面的交线满足
+计算：
 
 $$
-r=\sqrt{4-r^2}.
+I=\frac16\cdot\frac14\cdot\frac12.
 $$
 
-于是
+因此：
 
 $$
-2r^2=4, \qquad r=\sqrt2.
+\boxed{I=\frac1{48}}
 $$
 
-积分区域为
+本题提示我们：被积函数是否为奇函数，与该积分是否为零，是两个不同的问题。只有积分区域也具有相应的对称性，才能得出零积分结论。
+
+### 八、题型二：形心与线性函数积分
+
+#### 核心题4：四面体上的线性函数
+
+设：
 
 $$
-0\le r\le\sqrt2, \quad r\le z\le\sqrt{4-r^2}, \quad 0\le\theta\le2\pi.
+\Omega: x+y+z\le1,\qquad x,y,z\ge0.
 $$
 
-因此
+计算：
 
 $$
-\boxed{ \int_0^{2\pi}d\theta \int_0^{\sqrt2}r\,dr \int_r^{\sqrt{4-r^2}} f(r^2+z^2)\,dz }.
+I=\iiint_\Omega(x+2y+3z)\,\mathrm dV.
 $$
 
-</Tab>
+**方法一：直接积分**
 
-<Tab value="方法二">
-
-#### 方法二：球坐标表示
-
-上半球对应
+区域写成：
 
 $$
-0\le\rho\le2.
+0\le x\le1,
 $$
 
-圆锥内部对应
-
 $$
-0\le\varphi\le\frac\pi4.
+0\le y\le1-x,
 $$
 
-所以
-
 $$
-\boxed{ \int_0^{2\pi}d\theta \int_0^{\pi/4}\sin\varphi\,d\varphi \int_0^2 f(\rho^2)\rho^2\,d\rho }.
+0\le z\le1-x-y.
 $$
 
-两个表达式完全等价。
-
-资料核对提醒： Fumadocs 当前分类真题录入的选择题中，以上两种等价表达式分别出现在不同选项中，因此不能依据现有转写版本认定它只有一个正确选项。对应核心题库明确标注该问题并未收录为无歧义单选题。
-
-复习时应该掌握两个积分表达式的推导，而不是记忆现有资料中的选项字母。
-
-</Tab>
-
-</Tabs>
-
-### 例4：1991年数学一真题——旋转抛物面
-
-核心模型：旋转曲面 + 柱坐标 + 水平截面
-
-空间曲面由
+因此：
 
 $$
-\begin{cases} y^2=2z,\\ x=0 \end{cases}
+I= \int_0^1\mathrm dx \int_0^{1-x}\mathrm dy \int_0^{1-x-y} (x+2y+3z)\,\mathrm dz.
 $$
 
-绕 $z$ 轴旋转一周而成，并与平面 $z=4$ 围成区域 $\Omega$。
+直接计算当然可以，但这不是最快的方法。
 
-求
+**方法二：形心法**
 
-$$
-I=\iiint_\Omega(x^2+y^2+z)\,dV.
-$$
-
-<Steps>
-
-<Step>
-
-#### 第一步：识别旋转曲面
-
-曲线 $y^2=2z$ 绕 $z$ 轴旋转后，变成
+四面体四个顶点为：
 
 $$
-x^2+y^2=2z.
+O=(0,0,0),
 $$
 
-柱坐标下即
-
 $$
-r^2=2z.
+A=(1,0,0),\quad B=(0,1,0),\quad C=(0,0,1).
 $$
 
-固定高度 $z$，截面圆盘的半径为
+形心为：
 
 $$
-R(z)=\sqrt{2z}.
+G=\frac{O+A+B+C}{4}.
 $$
 
-所以范围为
+所以：
 
 $$
-0\le z\le4,\quad 0\le r\le\sqrt{2z},\quad 0\le\theta\le2\pi.
+G=\left(\frac14,\frac14,\frac14\right).
 $$
 
-</Step>
-
-<Step>
-
-#### 第二步：转换被积函数
-
-$$
-x^2+y^2+z=r^2+z.
-$$
-
-因此
-
-$$
-I=\int_0^4dz\int_0^{2\pi}d\theta \int_0^{\sqrt{2z}}(r^2+z)r\,dr.
-$$
-
-</Step>
-
-<Step>
-
-#### 第三步：计算
-
-$$
-\begin{aligned} I &=2\pi\int_0^4 \left[\frac{r^4}{4}+\frac{zr^2}{2}\right]_0^{\sqrt{2z}}dz\\ &=2\pi\int_0^4(z^2+z^2)\,dz\\ &=4\pi\int_0^4z^2\,dz\\ &=\boxed{\frac{256\pi}{3}}. \end{aligned}
-$$
-
-</Step>
-
-</Steps>
-
-#### 迁移思路
-
-若给出的被积函数只是 $f(z)$，就可以直接使用
-
-$$
-\iiint_\Omega f(z)\,dV =\int_0^4 f(z)A(z)\,dz.
-$$
-
-在本题中
-
-$$
-A(z)=\pi R^2(z)=2\pi z.
-$$
-
-所以这类旋转抛物面题的真正基础是：把固定高度的截面看成半径随高度变化的圆盘。
-
-### 例5：2015年数学一真题——四面体上的线性函数积分
-
-设
-
-$$
-\Omega=\{(x,y,z):x\ge0,\ y\ge0,\ z\ge0,\ x+y+z\le1\},
-$$
-
-求
-
-$$
-I=\iiint_\Omega(x+2y+3z)\,dV.
-$$
-
-<Tabs items={["解法一", "解法二"]} defaultIndex={0}>
-
-<Tab value="解法一">
-
-#### 解法一：形心法（推荐）
-
-区域是第一卦限中的四面体，四个顶点分别为
-
-$$
-(0,0,0),\quad(1,0,0),\quad(0,1,0),\quad(0,0,1).
-$$
-
-其体积为
+体积：
 
 $$
 V=\frac16.
 $$
 
-四面体的形心就是四个顶点坐标的算术平均：
+因为：
 
 $$
-(\bar x,\bar y,\bar z) =\left(\frac14,\frac14,\frac14\right).
+f(x,y,z)=x+2y+3z
 $$
 
-由于被积函数为线性函数：
+是线性函数，所以：
 
 $$
-\begin{aligned} I &=V(\bar x+2\bar y+3\bar z)\\ &=\frac16\left(\frac14+\frac24+\frac34\right)\\ &=\boxed{\frac14}. \end{aligned}
+I=Vf(G).
 $$
 
-</Tab>
-
-<Tab value="解法二">
-
-#### 解法二：直接利用轮换对称
-
-区域在交换 $x,y,z$ 后不变，因此
+因此：
 
 $$
-\iiint_\Omega x\,dV =\iiint_\Omega y\,dV =\iiint_\Omega z\,dV.
+I= \frac16\left( \frac14+\frac24+\frac34 \right).
 $$
 
-记三者为 $A$，则
+得到：
 
 $$
-I=6A.
+\boxed{I=\frac14}
 $$
 
-直接计算其中一个：
+**进一步推广**
+
+若第一卦限四面体满足：
 
 $$
-\begin{aligned} A &=\int_0^1dx \int_0^{1-x}dy \int_0^{1-x-y}x\,dz\\ &=\int_0^1dx \int_0^{1-x}x(1-x-y)\,dy\\ &=\frac12\int_0^1x(1-x)^2\,dx\\ &=\frac1{24}. \end{aligned}
+\frac xa+\frac yb+\frac zc\le1, \qquad a,b,c>0,
 $$
 
-所以
+则：
 
 $$
-I=6\cdot\frac1{24}=\boxed{\frac14}.
+V=\frac{abc}{6},
 $$
 
-这道题非常值得掌握两种方法：形心法最快，而直接积分法可以帮助理解为什么形心公式成立。
-
-</Tab>
-
-</Tabs>
-
-### 例6：2010年数学一真题——旋转抛物面形心
-
-已知
+形心为：
 
 $$
-\Omega=\{(x,y,z):x^2+y^2\le z\le1\},
+G=\left(\frac a4,\frac b4,\frac c4\right).
 $$
 
-求形心的竖坐标 $\bar z$。
-
-<Steps>
-
-<Step>
-
-#### 第一步：用对称性确定形心位置
-
-立体绕 $z$ 轴旋转对称，因此
+于是：
 
 $$
-\bar x=\bar y=0.
+\boxed{ \iiint_\Omega(px+qy+rz+s)\,\mathrm dV = \frac{abc}{6} \left( \frac{pa+qb+rc}{4}+s \right) }
 $$
 
-只需计算 $\bar z$。
+这是可以直接用于考研填空题的公式。
 
-</Step>
+但不要死记。理解四面体形心和线性函数积分的关系即可。
 
-<Step>
+## 第四部分：柱坐标核心计算题
 
-#### 第二步：求截面积
+### 九、题型三：球面与圆锥面围成的立体
 
-固定 $z$，截面为
+#### 核心题5：1989年数学一真题模型
 
-$$
-x^2+y^2\le z.
-$$
-
-半径为 $\sqrt z$，面积
+计算：
 
 $$
-A(z)=\pi z.
+I=\iiint_\Omega(x+z)\,\mathrm dV,
 $$
 
-</Step>
-
-<Step>
-
-#### 第三步：求体积
+其中区域由：
 
 $$
-V=\int_0^1A(z)\,dz =\pi\int_0^1z\,dz =\frac\pi2.
+z=\sqrt{x^2+y^2}
 $$
 
-</Step>
-
-<Step>
-
-#### 第四步：求静矩
+与：
 
 $$
-M_{xy}=\int_0^1zA(z)\,dz =\pi\int_0^1z^2\,dz =\frac\pi3.
+z=\sqrt{1-x^2-y^2}
 $$
 
-因此
+围成。
 
-$$
-\boxed{ \bar z=\frac{M_{xy}}V=\frac23 }.
-$$
-
-</Step>
-
-</Steps>
-
-#### 为什么不是 $\frac12$？
-
-因为这个立体在高处的横截面更大。
-
-随着 $z$ 增大，
-
-$$
-A(z)=\pi z
-$$
-
-不断增大，更多体积位于上方，所以形心高于整体高度的中点。
-
-这是理解截面积加权平均的最好例子之一。
-
-### 例7：2019年数学一真题——水平圆盘的圆心也在移动
-
-核心模型：斜圆锥 + 动态截面圆心 + 形心
-
-设
-
-$$
-\Omega=\{(x,y,z): x^2+(y-z)^2\le(1-z)^2,\ 0\le z\le1\}.
-$$
-
-求均匀立体的形心。
-
-本题与普通正圆锥的最大区别是：水平截面的圆心并不固定在 $z$ 轴上。
+这是非常典型的考研三重积分题。
 
 <Steps>
 
 <Step>
 
-#### 第一步：固定高度，分析截面
+### 第一步：判断曲面
 
-当 $z$ 固定时：
-
-$$
-x^2+(y-z)^2\le(1-z)^2.
-$$
-
-这表示 $xy$ 平面上的一个圆盘，其圆心是
+令：
 
 $$
-C(z)=(0,z),
+r=\sqrt{x^2+y^2}.
 $$
 
-半径为
+两曲面变为：
 
 $$
-R(z)=1-z.
+z=r,
 $$
 
-面积：
+$$
+z=\sqrt{1-r^2}.
+$$
 
-$$
-A(z)=\pi(1-z)^2.
-$$
+第一条是圆锥面，第二条是单位球的上半球面。
+
+立体位于圆锥上方、球面下方。
 
 </Step>
 
 <Step>
 
-#### 第二步：利用对称性
+### 第二步：求交圈
 
-区域关于 $x=0$ 平面对称，所以
-
-$$
-\boxed{\bar x=0}.
-$$
-
-但是区域并不关于 $y=0$ 平面对称，因此不能认定 $\bar y=0$。
-
-</Step>
-
-<Step>
-
-#### 第三步：求 $\bar z$
+交圈处两曲面高度相同：
 
 $$
-V=\pi\int_0^1(1-z)^2\,dz=\frac\pi3.
-$$
-
-$$
-M_{xy}=\pi\int_0^1z(1-z)^2\,dz.
-$$
-
-展开：
-
-$$
-z(1-z)^2=z-2z^2+z^3.
-$$
-
-因此
-
-$$
-\begin{aligned} M_{xy} &=\pi\left[\frac{z^2}{2} -\frac{2z^3}{3}+\frac{z^4}{4}\right]_0^1\\ &=\frac\pi{12}. \end{aligned}
-$$
-
-所以
-
-$$
-\bar z=\frac{\pi/12}{\pi/3}=\frac14.
-$$
-
-</Step>
-
-<Step>
-
-#### 第四步：求 $\bar y$
-
-每一层圆盘都关于它自己的圆心对称。
-
-所以固定 $z$ 时，该圆盘上 $y$ 坐标的平均值是 $z$。
-
-即
-
-$$
-\iint_{D_z}y\,dxdy=zA(z).
-$$
-
-因此
-
-$$
-\bar y =\frac{\int_0^1zA(z)\,dz}{\int_0^1A(z)\,dz} =\frac14.
-$$
-
-最终
-
-$$
-\boxed{ (\bar x,\bar y,\bar z) =\left(0,\frac14,\frac14\right) }.
-$$
-
-</Step>
-
-</Steps>
-
-#### 和普通圆锥有什么区别？
-
-普通绕 $z$ 轴的正圆锥，每层圆盘圆心始终为 $(0,0)$，所以 $\bar x=\bar y=0$。
-
-这道题的截面圆心沿着 $y=z$ 移动，因此 $\bar y\ne0$。
-
-本题最重要的思维升级是：求形心不光要看截面积，还要看每一个截面的形心位置。
-
-## 八、综合提高：更复杂的积分区域怎么处理？
-
-### 例8：李正元练习——球面与抛物面的交域
-
-求
-
-$$
-I=\iiint_\Omega z\,dV,
-$$
-
-其中
-
-$$
-\Omega=\{(x,y,z): x^2+y^2+z^2\le2,\ x^2+y^2\le z\}.
-$$
-
-<Steps>
-
-<Step>
-
-#### 第一步：判断坐标系
-
-一个边界是球面，另一个是旋转抛物面。
-
-二者都绕 $z$ 轴对称，但抛物面在柱坐标下非常简单：
-
-$$
-z=r^2.
-$$
-
-因此优先考虑柱坐标，而不是球坐标。
-
-</Step>
-
-<Step>
-
-#### 第二步：确定上下曲面
-
-由区域条件：
-
-$$
-z\ge r^2.
-$$
-
-球面给出：
-
-$$
-z\le\sqrt{2-r^2}.
-$$
-
-所以
-
-$$
-r^2\le z\le\sqrt{2-r^2}.
-$$
-
-</Step>
-
-<Step>
-
-#### 第三步：求交线
-
-令
-
-$$
-r^2=\sqrt{2-r^2}.
+r=\sqrt{1-r^2}.
 $$
 
 平方：
 
 $$
+r^2=1-r^2.
+$$
+
+因此：
+
+$$
+r=\frac1{\sqrt2}.
+$$
+
+于是：
+
+$$
+0\le r\le\frac1{\sqrt2}.
+$$
+
+</Step>
+
+<Step>
+
+### 第三步：利用对称性
+
+区域绕 $z$ 轴旋转对称。
+
+所以：
+
+$$
+\iiint_\Omega x\,\mathrm dV=0.
+$$
+
+因此：
+
+$$
+I=\iiint_\Omega z\,\mathrm dV.
+$$
+
+</Step>
+
+<Step>
+
+### 第四步：柱坐标计算
+
+积分范围：
+
+$$
+0\le\theta\le2\pi,
+$$
+
+$$
+0\le r\le\frac1{\sqrt2},
+$$
+
+$$
+r\le z\le\sqrt{1-r^2}.
+$$
+
+所以：
+
+$$
+I= \int_0^{2\pi}\mathrm d\theta \int_0^{1/\sqrt2}r\,\mathrm dr \int_r^{\sqrt{1-r^2}}z\,\mathrm dz.
+$$
+
+先积 $z$：
+
+$$
+\int_r^{\sqrt{1-r^2}}z\,\mathrm dz = \frac12(1-2r^2).
+$$
+
+于是：
+
+$$
+I= \pi\int_0^{1/\sqrt2}(r-2r^3)\,\mathrm dr.
+$$
+
+计算：
+
+$$
+I= \pi\left[ \frac{r^2}{2}-\frac{r^4}{2} \right]_0^{1/\sqrt2}.
+$$
+
+最终：
+
+$$
+\boxed{I=\frac\pi8}
+$$
+
+</Step>
+
+</Steps>
+
+#### 方法二：球坐标更快
+
+注意这个区域也可以写成：
+
+$$
+x^2+y^2+z^2\le1,
+$$
+
+$$
+z\ge\sqrt{x^2+y^2}.
+$$
+
+转成球坐标：
+
+$$
+0\le\rho\le1,
+$$
+
+$$
+0\le\varphi\le\frac\pi4,
+$$
+
+$$
+0\le\theta\le2\pi.
+$$
+
+因此：
+
+$$
+I= \int_0^{2\pi}\mathrm d\theta \int_0^{\pi/4}\mathrm d\varphi \int_0^1 \rho^3\cos\varphi\sin\varphi \,\mathrm d\rho.
+$$
+
+直接分离：
+
+$$
+I= 2\pi\cdot\frac14\cdot\frac14.
+$$
+
+所以：
+
+$$
+\boxed{I=\frac\pi8}
+$$
+
+#### 两种方法比较
+
+| 方法  | 关键步骤                 | 计算特点   |
+| --- | -------------------- | ------ |
+| 柱坐标 | 求交圈半径 $1/\sqrt2$ | 积分限含根号 |
+| 球坐标 | 圆锥变成固定极角 $\pi/4$ | 积分完全分离 |
+
+这道题的关键启示是：
+
+球面和以原点为顶点的圆锥面组合，通常优先尝试球坐标。
+
+但如果题目中的被积函数或其他边界更适合柱坐标，也不必强求球坐标。
+
+### 十、题型四：球面与抛物面交域
+
+<Callout type="idea" title="求交圈后再设限">
+
+两曲面相交的位置通常决定积分限的分段界；先写边界相等的方程，避免凭直觉直接列限。
+
+</Callout>
+
+#### 核心题6：李正元经典结构
+
+计算：
+
+$$
+I=\iiint_\Omega z\,\mathrm dV,
+$$
+
+其中：
+
+$$
+\Omega: x^2+y^2+z^2\le2,
+$$
+
+$$
+x^2+y^2\le z.
+$$
+
+**第一步：分析区域**
+
+柱坐标下：
+
+$$
+r^2+z^2\le2,
+$$
+
+$$
+z\ge r^2.
+$$
+
+由于：
+
+$$
+r^2\ge0,
+$$
+
+所以：
+
+$$
+z\ge0.
+$$
+
+球面只需要取上半部分：
+
+$$
+z\le\sqrt{2-r^2}.
+$$
+
+**第二步：求交圈**
+
+两个边界相交时：
+
+$$
+r^2=\sqrt{2-r^2}.
+$$
+
+平方得：
+
+$$
 r^4+r^2-2=0.
 $$
 
-分解：
+因式分解：
 
 $$
 (r^2-1)(r^2+2)=0.
 $$
 
-由于 $r\ge0$，得到
+考虑 $r\ge0$：
 
 $$
-r=1,\qquad z=1.
+r=1.
 $$
 
-因此
+因此：
 
 $$
-0\le r\le1,\quad 0\le\theta\le2\pi.
+0\le r\le1.
 $$
 
-</Step>
-
-<Step>
-
-#### 第四步：计算
+**第三步：写积分**
 
 $$
-\begin{aligned} I &=\int_0^{2\pi}d\theta \int_0^1r\,dr \int_{r^2}^{\sqrt{2-r^2}}z\,dz\\ &=2\pi\int_0^1 \frac12(2-r^2-r^4)r\,dr\\ &=\pi\int_0^1(2r-r^3-r^5)\,dr\\ &=\pi\left(1-\frac14-\frac16\right). \end{aligned}
+I= \int_0^{2\pi}\mathrm d\theta \int_0^1r\,\mathrm dr \int_{r^2}^{\sqrt{2-r^2}} z\,\mathrm dz.
 $$
 
-所以
+先对 $z$ 积分：
 
 $$
-\boxed{I=\frac{7\pi}{12}}.
+I= \pi\int_0^1r(2-r^2-r^4)\,\mathrm dr.
 $$
 
-这一类题有一个固定步骤：
+所以：
 
 $$
-\boxed{ \text{列出曲面} \to\text{求交线} \to\text{确定投影} \to\text{写上下界} }.
+I= \pi\left[ r^2-\frac{r^4}{4}-\frac{r^6}{6} \right]_0^1.
 $$
 
-</Step>
-
-</Steps>
-
-### 例9：李正元练习——三重积分改变积分次序
-
-将
+即：
 
 $$
-I=\int_0^1dx\int_0^1dy \int_0^{x^2+y^2}f(x,y,z)\,dz
+I= \pi\left(1-\frac14-\frac16\right).
 $$
 
-改写为最内层先对 $y$ 积分、最外层对 $x$ 积分。
-
-<Steps>
-
-<Step>
-
-#### 第一步：还原空间区域
+最终：
 
 $$
-\Omega=\{(x,y,z): 0\le x\le1,\ 0\le y\le1,\ 0\le z\le x^2+y^2\}.
+\boxed{I=\frac{7\pi}{12}}
 $$
 
-因为 $x$ 要放在最外层，所以先固定 $x$。
+#### 为什么不优先用球坐标？
 
-接下来研究 $yz$ 平面中的截面。
-
-</Step>
-
-<Step>
-
-#### 第二步：确定 $z$ 的范围
-
-固定 $x$ 后，$y\in[0,1]$，因此
+因为：
 
 $$
-0\le z\le x^2+1.
+z=r^2
 $$
 
-但仅有这一层范围还不够，接下来必须判断 $y$ 的范围。
-
-</Step>
-
-<Step>
-
-#### 第三步：由 $z\le x^2+y^2$ 反解 $y$
+在球坐标下变成：
 
 $$
-y^2\ge z-x^2.
+\rho\cos\varphi = \rho^2\sin^2\varphi.
 $$
 
-当
+因此：
 
 $$
-0\le z\le x^2
+\rho= \frac{\cos\varphi}{\sin^2\varphi}
 $$
 
-时，右侧非正，因此整个 $0\le y\le1$ 都满足。
+会成为一个随角度变化的边界。
 
-当
-
-$$
-x^2<z\le x^2+1
-$$
-
-时，必须满足
+而球面本身是：
 
 $$
-\sqrt{z-x^2}\le y\le1.
+\rho=\sqrt2.
 $$
 
-</Step>
+两种边界可能需要进一步讨论径向上限。
 
-<Step>
-
-#### 第四步：写出结果
+相比之下，柱坐标中的：
 
 $$
-\boxed{ \begin{aligned} I=\int_0^1dx\Bigg[ &\int_0^{x^2}dz\int_0^1f(x,y,z)\,dy\\ +&\int_{x^2}^{x^2+1}dz \int_{\sqrt{z-x^2}}^1f(x,y,z)\,dy \Bigg]. \end{aligned} }
+r^2\le z\le\sqrt{2-r^2}
 $$
 
-这道题的关键是发现 $z=x^2$ 为控制边界的切换位置。
+直接而简单。
 
-三重积分换序比二重积分更容易漏分段，因为固定一个变量后，剩下的仍是一个二维区域。
+所以不是所有球面相关的题都应该用球坐标。
 
-</Step>
+### 十一、题型五：柱坐标中的绝对值与分区
 
-</Steps>
+#### 核心题7：李林880综合题
 
-### 例10：张宇1000题——改变旋转轴的柱坐标
+设：
 
-平面曲线
+$$
+\Omega: 0\le z\le1,\qquad x^2+y^2\le2.
+$$
+
+计算：
+
+$$
+I=\iiint_\Omega \left|z-\sqrt{x^2+y^2}\right| \,\mathrm dV.
+$$
+
+这类题具有很强的考研综合性。
+
+难点不是求原函数，而是找正确的分区。
+
+**第一步：转柱坐标**
+
+令：
+
+$$
+r=\sqrt{x^2+y^2}.
+$$
+
+于是：
+
+$$
+0\le r\le\sqrt2,
+$$
+
+$$
+0\le z\le1,
+$$
+
+$$
+0\le\theta\le2\pi.
+$$
+
+被积函数变为：
+
+$$
+|z-r|.
+$$
+
+**第二步：找变号面**
+
+绝对值内部为零时：
+
+$$
+z=r.
+$$
+
+现在在 $rz$ 平面中，积分区域是：
+
+$$
+0\le r\le\sqrt2,\qquad0\le z\le1.
+$$
+
+而直线：
+
+$$
+z=r
+$$
+
+只在 $0\le r\le1$ 的部分穿过该区域。
+
+因此分区为：
+
+$$
+\begin{cases} 0\le r\le1,\quad 0\le z\le r,\\ 0\le r\le1,\quad r\le z\le1,\\ 1\le r\le\sqrt2,\quad0\le z\le1. \end{cases}
+$$
+
+**第三步：拆成三个积分**
+
+$$
+\begin{aligned} I=2\pi\Bigg[ &\int_0^1r\,\mathrm dr\int_0^r(r-z)\,\mathrm dz\\ +&\int_0^1r\,\mathrm dr\int_r^1(z-r)\,\mathrm dz\\ +&\int_1^{\sqrt2}r\,\mathrm dr\int_0^1(r-z)\,\mathrm dz \Bigg]. \end{aligned}
+$$
+
+分别计算内层积分：
+
+$$
+\int_0^r(r-z)\,\mathrm dz=\frac{r^2}{2},
+$$
+
+$$
+\int_r^1(z-r)\,\mathrm dz=\frac{(1-r)^2}{2},
+$$
+
+$$
+\int_0^1(r-z)\,\mathrm dz=r-\frac12.
+$$
+
+所以：
+
+$$
+\begin{aligned} \frac{I}{2\pi} ={}& \frac12\int_0^1r^3\,\mathrm dr\\ &+\frac12\int_0^1r(1-r)^2\,\mathrm dr\\ &+\int_1^{\sqrt2}\left(r^2-\frac r2\right)\mathrm dr. \end{aligned}
+$$
+
+前三项计算结果分别为：
+
+$$
+\frac18,\qquad \frac1{24},\qquad \frac{2\sqrt2}{3}-\frac7{12}.
+$$
+
+于是：
+
+$$
+\frac{I}{2\pi} = \frac{2\sqrt2}{3}-\frac5{12}.
+$$
+
+最终：
+
+$$
+\boxed{ I=\frac{\pi(8\sqrt2-5)}6 }
+$$
+
+#### 本题最重要的判断
+
+遇到：
+
+$$
+|g(x,y,z)|
+$$
+
+一定要考虑曲面：
+
+$$
+g(x,y,z)=0.
+$$
+
+它可能把积分区域分成两个，也可能分成三个或更多积分块。
+
+不能只看到绝对值就机械地拆成正负两个积分，而不检查变号曲面是否在整个区域内有效。
+
+### 十二、题型六：旋转轴不是 $z$ 轴
+
+#### 核心题8：张宇1000题基础部分
+
+平面曲线：
 
 $$
 z^2=2x
 $$
 
-绕 $x$ 轴旋转一周，再由 $x=1$、$x=2$ 截取出空间区域 $\Omega$。
-
-求
+绕 $x$ 轴旋转一周，所得旋转曲面与：
 
 $$
-I=\iiint_\Omega\frac{1}{x^2+y^2+z^2}\,dV.
+x=1,\qquad x=2
 $$
 
-<Steps>
+围成区域 $\Omega$。
 
-<Step>
-
-#### 第一步：注意旋转轴是 $x$ 轴
-
-绕 $x$ 轴旋转得到的曲面是
+计算：
 
 $$
-y^2+z^2=2x.
+I=\iiint_\Omega \frac1{x^2+y^2+z^2} \,\mathrm dV.
 $$
 
-令
+**第一步：建立旋转曲面**
+
+这是绕 $x$ 轴旋转。
+
+所以点到旋转轴的距离平方为：
+
+$$
+r^2=y^2+z^2.
+$$
+
+旋转面方程为：
+
+$$
+\boxed{y^2+z^2=2x}
+$$
+
+不是 $x^2+y^2=2x$。
+
+**第二步：建立以 $x$ 轴为轴线的柱坐标**
+
+令：
 
 $$
 y=r\cos\theta,\qquad z=r\sin\theta.
 $$
 
-则
+区域为：
 
 $$
-y^2+z^2=r^2.
+1\le x\le2,
 $$
 
-所以区域为
-
-$$
-1\le x\le2,\quad 0\le r\le\sqrt{2x},\quad 0\le\theta\le2\pi.
-$$
-
-</Step>
-
-<Step>
-
-#### 第二步：计算
-
-$$
-I=\int_1^2dx \int_0^{2\pi}d\theta \int_0^{\sqrt{2x}}\frac{r}{x^2+r^2}\,dr.
-$$
-
-先积分 $r$：
-
-$$
-\int\frac{r}{x^2+r^2}\,dr =\frac12\ln(x^2+r^2).
-$$
-
-得到
-
-$$
-I=\pi\int_1^2 \ln\frac{x^2+2x}{x^2}\,dx =\pi\int_1^2\ln\left(1+\frac2x\right)dx.
-$$
-
-令
-
-$$
-G(x)=(x+2)\ln(x+2)-x\ln x-2.
-$$
-
-则
-
-$$
-G'(x)=\ln\left(1+\frac2x\right).
-$$
-
-因此
-
-$$
-\begin{aligned} I &=\pi[G(2)-G(1)]\\ &=\pi(6\ln2-3\ln3). \end{aligned}
-$$
-
-最终
-
-$$
-\boxed{I=3\pi\ln\frac43}.
-$$
-
-本题的最核心陷阱：柱坐标不是只能绕 $z$ 轴使用。
-
-</Step>
-
-</Steps>
-
-## 九、数学一综合证明题：把三重积分转化为一元积分不等式
-
-核心题库中的 2003 年数学一真题，是三重积分与参数函数、单调性、柯西不等式的综合。
-
-设 $f$ 连续且恒正，定义
-
-$$
-\Omega(t)=\{x^2+y^2+z^2\le t^2\}, \qquad D(t)=\{x^2+y^2\le t^2\}.
-$$
-
-考虑
-
-$$
-F(t)= \frac{\iiint_{\Omega(t)}f(x^2+y^2+z^2)\,dV} {\iint_{D(t)}f(x^2+y^2)\,d\sigma},
-$$
-
-以及
-
-$$
-G(t)= \frac{\iint_{D(t)}f(x^2+y^2)\,d\sigma} {\int_{-t}^tf(x^2)\,dx}.
-$$
-
-题目要求证明 $F(t)$ 严格递增以及
-
-$$
-F(t)>\frac2\pi G(t)\qquad(t>0).
-$$
-
-这类题的突破口不是直接对复杂商式求导，而是统一径向积分。
-
-<Steps>
-
-<Step>
-
-### 第一步：构造共同的一元积分
-
-令
-
 $$
-A_j(t)=\int_0^t r^jf(r^2)\,dr, \qquad j=0,1,2.
+0\le r\le\sqrt{2x},
 $$
 
-球坐标给出：
-
 $$
-\iiint_{\Omega(t)}f(x^2+y^2+z^2)\,dV =4\pi A_2(t).
+0\le\theta\le2\pi.
 $$
 
-极坐标给出：
+体积元仍然是：
 
 $$
-\iint_{D(t)}f(x^2+y^2)\,d\sigma =2\pi A_1(t).
+\mathrm dV=r\,\mathrm dr\,\mathrm d\theta\,\mathrm dx.
 $$
 
-一元积分的对称性给出：
+**第三步：代入**
 
 $$
-\int_{-t}^tf(x^2)\,dx=2A_0(t).
+I= \int_1^2\mathrm dx \int_0^{2\pi}\mathrm d\theta \int_0^{\sqrt{2x}} \frac{r}{x^2+r^2}\,\mathrm dr.
 $$
 
-因此
+对 $r$ 积分：
 
 $$
-\boxed{ F(t)=\frac{2A_2(t)}{A_1(t)}, \qquad G(t)=\frac{\pi A_1(t)}{A_0(t)} }.
+\int\frac{r}{x^2+r^2}\,\mathrm dr = \frac12\ln(x^2+r^2).
 $$
-
-</Step>
 
-<Step>
+所以：
 
-### 第二步：证明单调性
-
-由商的求导法则：
-
 $$
-F'(t) =2\frac{A_2'(t)A_1(t)-A_2(t)A_1'(t)} {A_1^2(t)}.
+I= \pi\int_1^2 \ln\frac{x^2+2x}{x^2}\,\mathrm dx.
 $$
 
-注意
+由于 $x>0$：
 
 $$
-A_2'(t)=t^2f(t^2),\qquad A_1'(t)=tf(t^2).
+\frac{x^2+2x}{x^2}=\frac{x+2}{x}.
 $$
 
-因此
+因此：
 
 $$
-F'(t) =\frac{2tf(t^2)}{A_1^2(t)} [tA_1(t)-A_2(t)].
+I= \pi\int_1^2 [\ln(x+2)-\ln x]\,\mathrm dx.
 $$
 
-又有
+积分：
 
 $$
-tA_1(t)-A_2(t) =\int_0^t r(t-r)f(r^2)\,dr.
+I= \pi\left[ (x+2)\ln(x+2)-x\ln x \right]_1^2.
 $$
-
-由于 $t>0$、$f>0$，所以积分严格大于零。
 
-因此
+最终：
 
 $$
-\boxed{F'(t)>0}.
+\boxed{I=3\pi\ln\frac43}
 $$
 
-</Step>
+#### 举一反三
 
-<Step>
+如果曲线绕 $y$ 轴旋转，那么径向变量应当取：
 
-### 第三步：证明不等式
-
-原不等式等价于
-
 $$
-\frac{2A_2}{A_1} > 2\frac{A_1}{A_0},
+r=\sqrt{x^2+z^2}.
 $$
 
-即
+如果绕 $z$ 轴旋转：
 
 $$
-A_0A_2>A_1^2.
+r=\sqrt{x^2+y^2}.
 $$
-
-使用积分形式的柯西—施瓦茨不等式：
 
-$$
-\left(\int_0^t r f(r^2)\,dr\right)^2 \le \left(\int_0^t f(r^2)\,dr\right) \left(\int_0^t r^2f(r^2)\,dr\right).
-$$
+因此，旋转体题第一件事是找旋转轴，而不是直接套标准柱坐标。
 
-也就是
+## 第五部分：球坐标的高阶题型
 
-$$
-A_1^2\le A_0A_2.
-$$
+### 十三、题型七：偏心球与圆锥的交域
 
-因为权函数 $f(r^2)>0$，且 $r$ 在非退化区间 $[0,t]$ 上不是常数，故等号不成立。
+#### 核心题9：李正元与核心题目共同涉及的模型
 
-所以
+设：
 
 $$
-\boxed{ F(t)>\frac2\pi G(t) }.
+\Omega: x^2+y^2+z^2\le2az,
 $$
-
-综合题启示： 三重积分只是问题的第一层外壳，转化为径向一元积分后，真正考查的是求导、积分不等式与函数单调性。
-
-</Step>
-
-</Steps>
 
-## 十、含参数球锥区域：进一步提高
-
-对应核心题库还给出一个原创综合变式，可以将球坐标公式、对称性和参数联系起来。
-
-设
-
 $$
-\Omega_k=\{x^2+y^2+z^2\le R^2,\  z\ge k\sqrt{x^2+y^2}\},
+\sqrt{x^2+y^2}\le z,\qquad a>0.
 $$
 
-其中 $R>0,k>0$。
+计算：
 
-求
-
 $$
-I(k,\lambda) =\iiint_{\Omega_k} [z^2+\lambda(x^2+y^2)]\,dV.
+I=\iiint_\Omega(x+y+z)\,\mathrm dV.
 $$
 
-由圆锥条件：
+**第一步：利用对称性**
 
-$$
-\rho\cos\varphi\ge k\rho\sin\varphi,
-$$
+区域绕 $z$ 轴旋转对称。
 
-得到
+因此：
 
 $$
-0\le\varphi\le\alpha=\arctan\frac1k.
+\iiint_\Omega x\,\mathrm dV = \iiint_\Omega y\,\mathrm dV=0.
 $$
 
-因此
+所以：
 
 $$
-0\le\rho\le R,\quad 0\le\theta\le2\pi,\quad 0\le\varphi\le\alpha.
+I=\iiint_\Omega z\,\mathrm dV.
 $$
 
-被积函数转化为
+**第二步：识别偏心球**
 
-$$
-\rho^2(\cos^2\varphi+\lambda\sin^2\varphi).
-$$
-
-乘体积微元：
+球面：
 
 $$
-I=2\pi\int_0^\alpha (\cos^2\varphi+\lambda\sin^2\varphi) \sin\varphi\,d\varphi \int_0^R\rho^4\,d\rho.
+x^2+y^2+z^2=2az
 $$
 
-令
+配方得到：
 
 $$
-c=\cos\alpha=\frac{k}{\sqrt{1+k^2}},
+x^2+y^2+(z-a)^2=a^2.
 $$
 
-化简得
+这是球心在：
 
 $$
-\boxed{ I(k,\lambda) =\frac{2\pi R^5}{15} [1-c^3+\lambda(2-3c+c^3)] }.
+(0,0,a)
 $$
 
-这一题有两个重要参数：
-
-$$
-k\longrightarrow\text{圆锥开口角},
-$$
+半径为 $a$ 的球。
 
-$$
-\lambda\longrightarrow\text{被积函数各平方项的权重}.
-$$
+它不是以原点为球心的球。
 
-不要误以为 $k$ 影响球的径向半径；它改变的是极角上界。
+**第三步：建立球坐标积分限**
 
-当 $\lambda=1$ 时，被积函数变成 $\rho^2$，可以独立检验：
+球面条件：
 
 $$
-I(k,1)=\frac{2\pi R^5}{5}(1-c).
+\rho^2\le2a\rho\cos\varphi.
 $$
-
-## 十一、考场如何快速判断三重积分题型？
 
-把全部题型压缩成下表。
+因此：
 
-| 题目特征                     | 第一反应            | 典型考点         |
-| ------------------------ | --------------- | ------------ |
-| 球体内积分 $x^2,y^2,z^2$  | 轮换对称            | 2009 数一      |
-| 球面与过原点圆锥面                | 球坐标             | 1989 数一及相关变式 |
-| 圆柱、抛物面、旋转曲面              | 柱坐标             | 1991 数一      |
-| 简单四面体上积分线性函数             | 形心法             | 2015 数一      |
-| 给出水平截面半径                 | 截面积法            | 2010 数一      |
-| 截面圆心随高度平移                | 移动圆心加权          | 2019 数一      |
-| 球面与抛物面相交                 | 先求交线，再投影        | 李正元练习        |
-| 旋转轴为 $x$ 或 $y$ 轴 | 改用对应轴柱坐标        | 张宇1000       |
-| 改变积分次序                   | 固定外层变量，重新描述二维截面 | 李正元练习        |
-| 含参数的球域、圆盘、线段积分           | 同一径向函数统一化       | 2003 数一      |
-
-一个很实用的优先顺序是：
-
 $$
-\boxed{ \text{对称性} \rightarrow \text{截面} \rightarrow \text{曲面交线} \rightarrow \text{坐标系} \rightarrow \text{累次积分} }.
+0\le\rho\le2a\cos\varphi.
 $$
-
-## 十二、常见陷阱：这些错误最容易扣分
-
-<Accordions>
-
-<Accordion title="展开原文易错辨析与对应策略">
-
-
-
-</Accordion>
-
-</Accordions>
-
-### 1. 把圆锥“上方”和“外部”混淆
 
-对于
+圆锥条件：
 
 $$
-z=\sqrt{x^2+y^2},
+z\ge\sqrt{x^2+y^2}
 $$
 
-圆锥上方即靠近正 $z$ 轴的一侧：
+对应：
 
 $$
 0\le\varphi\le\frac\pi4.
 $$
 
-### 2. 球坐标极角定义不统一
-
-本讲使用 $\varphi$ 表示与正 $z$ 轴的夹角。
-
-有些教材使用其他符号或约定，不能不看定义便套积分范围。
-
-### 3. 两曲面的交线只凭图猜
-
-例如
+方位角：
 
 $$
-z=r^2,\qquad z=\sqrt{2-r^2}.
+0\le\theta\le2\pi.
 $$
 
-必须先求得 $r=1$，再判断上、下曲面。
-
-### 4. 球坐标漏掉体积雅可比
-
-一定是
+**第四步：计算**
 
 $$
-dV=\rho^2\sin\varphi\,d\rho d\varphi d\theta,
+I= \int_0^{2\pi}\mathrm d\theta \int_0^{\pi/4}\mathrm d\varphi \int_0^{2a\cos\varphi} \rho^3\cos\varphi\sin\varphi \,\mathrm d\rho.
 $$
 
-不是简单的 $d\rho d\varphi d\theta$。
-
-### 5. 立体对称就认定所有积分相等
-
-只有被积函数在相应变换下具有正确的对称关系，才能使用对称性或倍数关系。
-
-### 6. 把每层圆盘都当成圆心在原点
-
-2019 数一真题中的圆心是 $(0,z)$，不能直接判定 $\bar y=0$。
-
-### 7. 形心直接取两个端点的平均值
-
-只有体积沿高度分布恰好具备对应的对称性时，才能这么做。
-
-一般应使用
+先对 $\rho$ 积分：
 
 $$
-\bar z=\frac{\int zA(z)dz}{\int A(z)dz}.
+I= 8\pi a^4 \int_0^{\pi/4} \cos^5\varphi\sin\varphi \,\mathrm d\varphi.
 $$
 
-### 8. 多重积分换序时漏分段
-
-新的积分次序必须覆盖原立体、且不能多算或少算。
-
-必要时画固定某个变量后的二维截面，而不是直接排列 $dx,dy,dz$。
-
-## 十三、典型练习：检测是否真正掌握
-
-本节四题覆盖球坐标、柱坐标、球锥交域和均匀立体形心。
-
-### 练习 1：球域上的径向积分
-
-设 $\Omega=\{x^2+y^2+z^2\le4\}$，求 $\iiint_\Omega(x^2+y^2+z^2)\,dV$。
-
-**答案：** $\boxed{128\pi/5}$。
-
-**解析：** 取球坐标 $\rho\in[0,2]$，被积函数为 $\rho^2$，体积微元为 $\rho^2\sin\varphi\,d\rho\,d\varphi\,d\theta$，所以
+令：
 
 $$
-I=4\pi\int_0^2\rho^4\,d\rho=\frac{128\pi}{5}.
+u=\cos\varphi.
 $$
 
-### 练习 2：旋转抛物面下的体积
-
-求由 $x^2+y^2\le z\le2$ 围成的立体体积。
-
-**答案：** $\boxed{2\pi}$。
-
-**解析：** 柱坐标下 $0\le r\le\sqrt2$、$r^2\le z\le2$，于是
+则：
 
 $$
-V=2\pi\int_0^{\sqrt2}(2-r^2)r\,dr=2\pi.
+I= 8\pi a^4\int_{\sqrt2/2}^1u^5\,\mathrm du.
 $$
 
-### 练习 3：球锥交域
-
-求单位球内满足 $z\ge\sqrt3\sqrt{x^2+y^2}$ 的立体体积。
-
-**答案：** $\boxed{\dfrac\pi3(2-\sqrt3)}$。
-
-**解析：** 球坐标下圆锥对应 $0\le\varphi\le\pi/6$；再用 $0\le\rho\le1$，可得
+所以：
 
 $$
-V=\int_0^{2\pi}\!d\theta\int_0^{\pi/6}\sin\varphi\,d\varphi
-\int_0^1\rho^2\,d\rho
-=\frac{2\pi}{3}\left(1-\frac{\sqrt3}{2}\right).
+I= \frac{8\pi a^4}{6} \left(1-\frac18\right).
 $$
 
-### 练习 4：实心圆锥的形心
-
-均匀立体由 $0\le z\le3$、$x^2+y^2\le z^2$ 围成，求形心的竖坐标 $\bar z$。
-
-**答案：** $\boxed{9/4}$。
-
-**解析：** 在高度 $z$ 处的横截面积为 $A(z)=\pi z^2$。沿 $z$ 轴的形心坐标为
+得到：
 
 $$
-\bar z=\frac{\int_0^3 z A(z)\,dz}{\int_0^3 A(z)\,dz}
-=\frac{\int_0^3z^3\,dz}{\int_0^3z^2\,dz}=\frac94.
+\boxed{I=\frac{7\pi a^4}{6}}
 $$
 
-注意圆锥质量沿高度不均匀分布，形心不是区间中点 $3/2$。
+#### 本题必须记住的模型
 
-## 十四、与前后章节的联系
-
-前置知识：二重积分
-
-区域投影、积分次序、极坐标、对称性
-
-本节：三重积分
-
-空间立体、截面、柱坐标、球坐标、质量与形心
-
-曲线积分与曲面积分
-
-曲面参数化、投影和面积元
-
-高斯公式与场论
-
-闭曲面通量与散度的体积分
-
-尤其要注意高斯公式：
+当：
 
 $$
-\oiint_{\partial\Omega} P\,dy\,dz+Q\,dz\,dx+R\,dx\,dy = \iiint_\Omega \left( \frac{\partial P}{\partial x} +\frac{\partial Q}{\partial y} +\frac{\partial R}{\partial z} \right)dV.
+x^2+y^2+z^2\le2az
 $$
 
-当向量场具有所需的连续可微性，区域及边界满足相应正则条件，且闭曲面取外侧时成立。
-
-它把第二类曲面积分转换为三重积分。因此即使后面开始复习曲面积分，柱坐标、球坐标、空间对称性仍然会反复出现。
-
-## 十五、本节最终复习结论
-
-三重积分的公式其实不多，考研数学一真正需要反复训练的是空间几何能力与坐标选择能力。
-
-从本次 Fumadocs 核对的题型正文和核心题库来看，最值得重点复盘的是以下六道真实数学一题目：
-
-| 真题           | 最需要掌握的能力  |
-| ------------ | --------- |
-| 2009年球域平方积分  | 轮换对称      |
-| 1989年球面与圆锥交域 | 柱坐标和球坐标比较 |
-| 1991年旋转抛物面   | 空间截面与柱坐标  |
-| 2015年四面体线性积分 | 形心法与对称性   |
-| 2010年旋转体形心   | 截面积加权平均   |
-| 2019年斜圆锥形心   | 移动截面圆心    |
-
-若这些题能够独立完成，并能主动判断何时换坐标、何时换次序、何时先用对称性，那么三重积分的核心方法就已经建立起来了。
-
-最后把整节内容压缩为一句话：
+时：
 
 $$
-\boxed{ \text{先看立体与对称性，再找截面和交线，选好坐标系，最后降维积分。} }
+\boxed{\rho\le2a\cos\varphi}
 $$
 
-对于数学一，不应该只满足于算出三重积分，还应能解释为什么选这个坐标系、为什么这些积分限恰好描述原区域，以及如何把这些方法迁移到后续的曲面积分、高斯公式和场论综合题中。
+而当：
 
-## 配套知识与题目索引
+$$
+x^2+y^2+z^2\le R^2
+$$
 
-<Cards>
+时：
 
+$$
+\boxed{\rho\le R}
+$$
 
+两者不能混淆。
 
-<Card title="分类真题" href="https://exam.any1.tech/docs/math/past-exams/01-2f981f64/s-f03e2afa/02-817ad710/">
+是否以原点为球心，直接决定球坐标径向上限是否为常数。
 
-结合原题复核考法、题型和答案。
+### 十四、题型八：两个球体的公共部分
 
-</Card>
+#### 核心题10：李林880与核心题目共同涉及的模型
 
-<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/01-b69fd298/09-1c3b8dd1/02-817ad710/">
+设：
 
-对照核心母题、综合变式及解题方法。
+$$
+\Omega_1: x^2+y^2+z^2\le R^2,
+$$
 
-</Card>
+$$
+\Omega_2: x^2+y^2+(z-R)^2\le R^2.
+$$
 
-</Cards>
+令：
 
-**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/advanced-mathematics/module-09/02-triple-integrals/)
+$$
+\Omega=\Omega_1\cap\Omega_2.
+$$
+
+计算：
+
+$$
+I=\iiint_\Omega z^2\,\mathrm dV.
+$$
+
+这是一类非常典型的交域分段题。
+
+**第一步：分别求水平截面**
+
+对第一个球：
+
+$$
+x^2+y^2\le R^2-z^2.
+$$
+
+所以其水平截面半径平方为：
+
+$$
+r_1^2=R^2-z^2.
+$$
+
+对第二个球：
+
+$$
+x^2+y^2\le R^2-(z-R)^2.
+$$
+
+化简：
+
+$$
+r_2^2=2Rz-z^2.
+$$
+
+**第二步：公共截面取较小圆盘**
+
+在同一高度 $z$，公共部分必须同时属于两个球。
+
+所以：
+
+$$
+r^2\le\min(r_1^2,r_2^2).
+$$
+
+找到两个截面半径相等的位置：
+
+$$
+R^2-z^2=2Rz-z^2.
+$$
+
+得到：
+
+$$
+z=\frac R2.
+$$
+
+于是：
+
+$$
+0\le z\le\frac R2
+$$
+
+时，由第二个球决定截面大小：
+
+$$
+A(z)=\pi(2Rz-z^2).
+$$
+
+而：
+
+$$
+\frac R2\le z\le R
+$$
+
+时，由第一个球决定截面大小：
+
+$$
+A(z)=\pi(R^2-z^2).
+$$
+
+**第三步：使用先二后一**
+
+因为被积函数只有 $z$：
+
+$$
+I=\int z^2A(z)\,\mathrm dz.
+$$
+
+所以：
+
+$$
+\begin{aligned} I={}& \pi\int_0^{R/2} z^2(2Rz-z^2)\,\mathrm dz\\ &+ \pi\int_{R/2}^R z^2(R^2-z^2)\,\mathrm dz. \end{aligned}
+$$
+
+分别积分：
+
+$$
+\begin{aligned} \frac I\pi ={}& \left[\frac R2z^4-\frac15z^5\right]_0^{R/2}\\ &+ \left[\frac{R^2}{3}z^3-\frac15z^5\right]_{R/2}^R. \end{aligned}
+$$
+
+计算得到：
+
+$$
+\boxed{I=\frac{59\pi R^5}{480}}
+$$
+
+#### 如果改成两个球体的并集呢？
+
+对于交集，水平截面取较小圆盘。
+
+对于并集，若两截面同心，水平截面取较大圆盘，但还要考虑各高度是否只有其中一个球存在。
+
+所以：
+
+$$
+\boxed{ \text{交集取共同满足的条件，并集取至少满足一个条件} }
+$$
+
+这个几何逻辑比背任何积分限都重要。
+
+## 第六部分：积分次序转换
+
+### 十五、题型九：三重积分换序
+
+#### 李正元代表题
+
+将：
+
+$$
+I= \int_0^1\mathrm dx \int_0^1\mathrm dy \int_0^{x^2+y^2} f(x,y,z)\,\mathrm dz
+$$
+
+改写为先对 $y$ 积分、最后对 $x$ 积分。
+
+也就是：
+
+$$
+\mathrm dy\,\mathrm dz\,\mathrm dx.
+$$
+
+这类题不要求真的计算积分，而是考空间区域的几何分析。
+
+**第一步：还原区域**
+
+原积分代表：
+
+$$
+0\le x\le1,
+$$
+
+$$
+0\le y\le1,
+$$
+
+$$
+0\le z\le x^2+y^2.
+$$
+
+**第二步：固定最外层变量 $x$**
+
+对于固定的 $x$，有：
+
+$$
+0\le y\le1,
+$$
+
+$$
+z\le x^2+y^2.
+$$
+
+整理：
+
+$$
+y^2\ge z-x^2.
+$$
+
+因为：
+
+$$
+y\ge0,
+$$
+
+所以需要讨论 $z-x^2$ 的符号。
+
+**第三步：分段**
+
+第一种情况：
+
+$$
+0\le z\le x^2.
+$$
+
+这时：
+
+$$
+z-x^2\le0.
+$$
+
+由于：
+
+$$
+y^2\ge0,
+$$
+
+所以任意 $0\le y\le1$ 都满足条件。
+
+因此：
+
+$$
+0\le y\le1.
+$$
+
+第二种情况：
+
+$$
+x^2<z\le x^2+1.
+$$
+
+这时：
+
+$$
+y^2\ge z-x^2>0.
+$$
+
+所以：
+
+$$
+\sqrt{z-x^2}\le y\le1.
+$$
+
+**第四步：写出新积分**
+
+$$
+\boxed{ \begin{aligned} I=\int_0^1\Bigg[ &\int_0^{x^2}\mathrm dz \int_0^1 f(x,y,z)\,\mathrm dy\\ +&\int_{x^2}^{x^2+1}\mathrm dz \int_{\sqrt{z-x^2}}^1f(x,y,z)\,\mathrm dy \Bigg]\mathrm dx \end{aligned} }
+$$
+
+#### 换序题通用思路
+
+最容易出错的是直接交换积分号，却没有重新分析变量范围。
+
+正确方法是：
+
+原积分还原立体 → 固定新顺序最外层变量 → 画二维截面 → 确定内层变量范围 → 检查是否需要分段。
+
+尤其当出现：
+
+$$
+z=x^2+y^2
+$$
+
+之类的曲面时，换序往往需要按照某个临界高度进行分段。
+
+### 十六、题型十：三种坐标系之间的转换
+
+李正元题库中还有一道很好的综合题。
+
+已知：
+
+$$
+I= \int_0^{2\pi}\mathrm d\theta \int_0^{\sqrt2}\mathrm dr \int_r^{\sqrt{4-r^2}}3r\,\mathrm dz.
+$$
+
+要求把它转化为直角坐标和球坐标形式，并计算其值。
+
+#### 第一步：识别立体与被积函数
+
+原积分的几何区域为：
+
+$$
+r\le z\le\sqrt{4-r^2}.
+$$
+
+也就是：
+
+$$
+z\ge\sqrt{x^2+y^2},
+$$
+
+$$
+x^2+y^2+z^2\le4.
+$$
+
+而：
+
+$$
+3r\,\mathrm dz\,\mathrm dr\,\mathrm d\theta
+$$
+
+对应直角坐标：
+
+$$
+3\,\mathrm dV.
+$$
+
+因此真正的被积函数是常数 $3$。
+
+#### 第二步：写直角坐标形式
+
+投影圆盘为：
+
+$$
+x^2+y^2\le2.
+$$
+
+所以：
+
+$$
+\boxed{ I= \int_{-\sqrt2}^{\sqrt2}\mathrm dx \int_{-\sqrt{2-x^2}}^{\sqrt{2-x^2}}\mathrm dy \int_{\sqrt{x^2+y^2}}^{\sqrt{4-x^2-y^2}} 3\,\mathrm dz }
+$$
+
+#### 第三步：写球坐标形式
+
+球面半径为 $2$：
+
+$$
+0\le\rho\le2.
+$$
+
+圆锥内部：
+
+$$
+0\le\varphi\le\frac\pi4.
+$$
+
+完整旋转：
+
+$$
+0\le\theta\le2\pi.
+$$
+
+所以：
+
+$$
+I= 3\int_0^{2\pi}\mathrm d\theta \int_0^{\pi/4}\sin\varphi\,\mathrm d\varphi \int_0^2\rho^2\,\mathrm d\rho.
+$$
+
+计算：
+
+$$
+I= 3\cdot2\pi \left(1-\frac{\sqrt2}{2}\right) \frac83.
+$$
+
+最终：
+
+$$
+\boxed{I=8\pi(2-\sqrt2)}
+$$
+
+对于只要求转换积分的题，重点是还原同一个区域和同一个被积函数，不能漏掉坐标变换的雅可比因子。
+
+## 第七部分：三重积分综合应用
+
+### 十七、题型十一：形心问题
+
+<Callout type="info" title="形心与重心">
+
+均匀密度时形心坐标是坐标函数的体积平均值；密度变化时，分母应使用质量而非体积。
+
+</Callout>
+
+#### 核心题11：旋转抛物面围成立体的形心
+
+设：
+
+$$
+\Omega: x^2+y^2\le z\le1.
+$$
+
+求均匀立体的形心竖坐标：
+
+$$
+\bar z.
+$$
+
+**第一步：分析水平截面**
+
+固定：
+
+$$
+0\le z\le1.
+$$
+
+区域满足：
+
+$$
+x^2+y^2\le z.
+$$
+
+这是一个半径为：
+
+$$
+r=\sqrt z
+$$
+
+的圆盘。
+
+所以截面积：
+
+$$
+A(z)=\pi z.
+$$
+
+**第二步：求体积**
+
+$$
+V=\int_0^1A(z)\,\mathrm dz.
+$$
+
+因此：
+
+$$
+V=\pi\int_0^1z\,\mathrm dz=\frac\pi2.
+$$
+
+**第三步：求关于 $xOy$ 平面的静矩**
+
+$$
+M_{xy}=\iiint_\Omega z\,\mathrm dV.
+$$
+
+利用截面法：
+
+$$
+M_{xy}=\int_0^1zA(z)\,\mathrm dz.
+$$
+
+所以：
+
+$$
+M_{xy}=\pi\int_0^1z^2\,\mathrm dz=\frac\pi3.
+$$
+
+**第四步：求形心**
+
+$$
+\bar z=\frac{M_{xy}}V.
+$$
+
+因此：
+
+$$
+\boxed{\bar z=\frac23}
+$$
+
+#### 一个很有价值的推广
+
+若：
+
+$$
+0\le z\le h,
+$$
+
+且水平截面积满足：
+
+$$
+A(z)=Cz^p, \qquad C>0,\ p>-1,
+$$
+
+则：
+
+$$
+V=C\frac{h^{p+1}}{p+1},
+$$
+
+$$
+M_{xy}=C\frac{h^{p+2}}{p+2}.
+$$
+
+所以：
+
+$$
+\boxed{\bar z=\frac{p+1}{p+2}h}
+$$
+
+例如：
+
+对于圆锥：
+
+$$
+A(z)\propto z^2,
+$$
+
+所以：
+
+$$
+\bar z=\frac34h
+$$
+
+这里 $z=0$ 取在锥顶。
+
+对于上面的旋转抛物面立体：
+
+$$
+A(z)\propto z,
+$$
+
+所以：
+
+$$
+\bar z=\frac23h.
+$$
+
+这样就把具体题目推广成了一类通用模型。
+
+#### 核心题12：非均匀密度球体的重心
+
+设半径为 $R$ 的实心球，球心在原点。
+
+取球面上的定点：
+
+$$
+P_0=(R,0,0).
+$$
+
+球内密度与点到 $P_0$ 的距离平方成正比。
+
+求重心位置。
+
+**第一步：写密度**
+
+令比例常数为 $k>0$。
+
+那么：
+
+$$
+\rho(x,y,z) = k[(x-R)^2+y^2+z^2].
+$$
+
+展开：
+
+$$
+\rho=k(x^2+y^2+z^2+R^2-2Rx).
+$$
+
+**第二步：利用对称性**
+
+因为密度对 $y,z$ 均为偶函数，而球域关于 $y=0,z=0$ 对称：
+
+$$
+\bar y=\bar z=0.
+$$
+
+只需求：
+
+$$
+\bar x.
+$$
+
+**第三步：计算质量**
+
+$$
+M=\iiint_\Omega\rho\,\mathrm dV.
+$$
+
+由：
+
+$$
+\iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV =\frac{4\pi R^5}{5},
+$$
+
+和：
+
+$$
+V=\frac{4\pi R^3}{3},
+$$
+
+以及：
+
+$$
+\iiint_\Omega x\,\mathrm dV=0,
+$$
+
+得到：
+
+$$
+M=k\left( \frac{4\pi R^5}{5} +\frac{4\pi R^5}{3} \right).
+$$
+
+所以：
+
+$$
+M=\frac{32\pi kR^5}{15}.
+$$
+
+**第四步：计算 $x$ 方向的静矩**
+
+$$
+M_{yz}=\iiint_\Omega x\rho\,\mathrm dV.
+$$
+
+展开后，奇函数项积分为零，只剩：
+
+$$
+M_{yz} =-2kR\iiint_\Omega x^2\,\mathrm dV.
+$$
+
+由于：
+
+$$
+\iiint_\Omega x^2\,\mathrm dV =\frac{4\pi R^5}{15},
+$$
+
+所以：
+
+$$
+M_{yz}=-\frac{8\pi kR^6}{15}.
+$$
+
+因此：
+
+$$
+\bar x=\frac{M_{yz}}M.
+$$
+
+得到：
+
+$$
+\boxed{ (\bar x,\bar y,\bar z) = \left(-\frac R4,0,0\right) }
+$$
+
+#### 物理直觉验证
+
+球体中距离 $P_0$ 越远的地方，密度越大。
+
+所以重心应当向远离 $P_0$ 的方向偏移。
+
+计算结果：
+
+$$
+\bar x<0
+$$
+
+符合这一判断。
+
+这类题解完后，最好用物理直觉检查重心的方向。
+
+### 十八、题型十二：抽象函数与积分不等式
+
+核心文档中还有一道很有价值的综合证明题。
+
+设 $f$ 在 $[0,+\infty)$ 上连续且严格为正，定义：
+
+$$
+F(t)= \frac{ \iiint_{x^2+y^2+z^2\le t^2} f(x^2+y^2+z^2)\,\mathrm dV }{ \iint_{x^2+y^2\le t^2} f(x^2+y^2)\,\mathrm dA },
+$$
+
+$$
+G(t)= \frac{ \iint_{x^2+y^2\le t^2} f(x^2+y^2)\,\mathrm dA }{ \int_{-t}^t f(x^2)\,\mathrm dx }.
+$$
+
+证明：
+
+$$
+F'(t)>0,\qquad t>0,
+$$
+
+并证明：
+
+$$
+F(t)>\frac2\pi G(t).
+$$
+
+这道题综合了球坐标、极坐标、导数和柯西不等式。
+
+#### 第一步：统一径向积分
+
+设：
+
+$$
+A_j(t)=\int_0^t r^j f(r^2)\,\mathrm dr, \quad j=0,1,2.
+$$
+
+球域积分：
+
+$$
+\iiint f(x^2+y^2+z^2)\,\mathrm dV =4\pi A_2(t).
+$$
+
+圆域积分：
+
+$$
+\iint f(x^2+y^2)\,\mathrm dA =2\pi A_1(t).
+$$
+
+线段积分：
+
+$$
+\int_{-t}^t f(x^2)\,\mathrm dx =2A_0(t).
+$$
+
+因此：
+
+$$
+\boxed{F(t)=\frac{2A_2(t)}{A_1(t)}}
+$$
+
+$$
+\boxed{G(t)=\frac{\pi A_1(t)}{A_0(t)}}
+$$
+
+复杂的三维、二维、一维积分问题被统一为一元积分。
+
+#### 第二步：证明 $F'(t)>0$
+
+求导：
+
+$$
+F'(t) = 2\frac{ A_2'(t)A_1(t)-A_2(t)A_1'(t) }{ A_1(t)^2 }.
+$$
+
+根据微积分基本定理：
+
+$$
+A_2'(t)=t^2f(t^2),
+$$
+
+$$
+A_1'(t)=tf(t^2).
+$$
+
+于是：
+
+$$
+F'(t)= \frac{2tf(t^2)}{A_1(t)^2} [tA_1(t)-A_2(t)].
+$$
+
+而：
+
+$$
+tA_1(t)-A_2(t) = \int_0^t r(t-r)f(r^2)\,\mathrm dr.
+$$
+
+因为在 $0<r<t$ 上：
+
+$$
+r(t-r)f(r^2)>0,
+$$
+
+所以：
+
+$$
+\boxed{F'(t)>0}
+$$
+
+#### 第三步：证明不等式
+
+要证明：
+
+$$
+F(t)>\frac2\pi G(t).
+$$
+
+代入：
+
+$$
+\frac{2A_2}{A_1} > \frac{2A_1}{A_0}.
+$$
+
+因为 $A_0,A_1>0$，等价于：
+
+$$
+\boxed{A_0A_2>A_1^2}
+$$
+
+**注意：**
+
+$$
+A_1=\int_0^t r\sqrt{f(r^2)}\sqrt{f(r^2)} \,\mathrm dr.
+$$
+
+使用柯西—施瓦茨不等式：
+
+$$
+\left( \int_0^t r f(r^2)\,\mathrm dr \right)^2 \le \left( \int_0^t r^2f(r^2)\,\mathrm dr \right) \left( \int_0^t f(r^2)\,\mathrm dr \right).
+$$
+
+因此：
+
+$$
+A_1^2\le A_2A_0.
+$$
+
+由于 $f>0$，且 $r$ 不可能在整个 $[0,t]$ 上为常数，等号不能成立。
+
+所以：
+
+$$
+\boxed{A_0A_2>A_1^2}
+$$
+
+原不等式得证。
+
+#### 另一种理解：加权方差
+
+还可以证明：
+
+$$
+\begin{aligned} A_0A_2-A_1^2 =\frac12 \int_0^t\int_0^t (r-s)^2f(r^2)f(s^2) \,\mathrm dr\,\mathrm ds. \end{aligned}
+$$
+
+因为 integrand 非负，而且在一片正面积区域上严格为正，所以：
+
+$$
+A_0A_2-A_1^2>0.
+$$
+
+这相当于证明一个正权重下的方差严格为正。
+
+这道题最大的价值，是学习如何将不同维数的径向积分转化为同一组一元积分，再用一元分析工具解决。
+
+## 第八部分：进一步强化与新题型
+
+### 十九、球坐标含参题：圆锥开口变化
+
+这是核心文档最后的原创综合变式，值得作为提高题掌握。
+
+设：
+
+$$
+\Omega_k: x^2+y^2+z^2\le R^2,
+$$
+
+$$
+z\ge k\sqrt{x^2+y^2},
+$$
+
+其中 $R>0,k>0$。
+
+求：
+
+$$
+I(k,\lambda) = \iiint_{\Omega_k} [z^2+\lambda(x^2+y^2)]\,\mathrm dV.
+$$
+
+其中 $\lambda\in\mathbb R$。
+
+#### 第一步：将参数转化为极角
+
+圆锥条件：
+
+$$
+\rho\cos\varphi\ge k\rho\sin\varphi.
+$$
+
+因此：
+
+$$
+\tan\varphi\le\frac1k.
+$$
+
+令：
+
+$$
+\alpha=\arctan\frac1k.
+$$
+
+那么：
+
+$$
+0\le\varphi\le\alpha.
+$$
+
+再令：
+
+$$
+c=\cos\alpha =\frac{k}{\sqrt{1+k^2}}.
+$$
+
+#### 第二步：转化被积函数
+
+有：
+
+$$
+z^2=\rho^2\cos^2\varphi,
+$$
+
+$$
+x^2+y^2=\rho^2\sin^2\varphi.
+$$
+
+所以：
+
+$$
+z^2+\lambda(x^2+y^2) = \rho^2(\cos^2\varphi+\lambda\sin^2\varphi).
+$$
+
+#### 第三步：写积分
+
+$$
+I= 2\pi \int_0^\alpha \sin\varphi (\cos^2\varphi+\lambda\sin^2\varphi) \,\mathrm d\varphi \int_0^R\rho^4\,\mathrm d\rho.
+$$
+
+径向积分：
+
+$$
+\int_0^R\rho^4\,\mathrm d\rho=\frac{R^5}{5}.
+$$
+
+角积分中的两个部分：
+
+$$
+\int_0^\alpha\sin\varphi\cos^2\varphi\,\mathrm d\varphi =\frac{1-c^3}{3},
+$$
+
+$$
+\int_0^\alpha\sin^3\varphi\,\mathrm d\varphi =\frac{2-3c+c^3}{3}.
+$$
+
+因此：
+
+$$
+\boxed{ I(k,\lambda) = \frac{2\pi R^5}{15} \left[ 1-c^3+\lambda(2-3c+c^3) \right] }
+$$
+
+其中：
+
+$$
+c=\frac{k}{\sqrt{1+k^2}}.
+$$
+
+#### 如何检验结果？
+
+令：
+
+$$
+\lambda=1.
+$$
+
+被积函数变成：
+
+$$
+x^2+y^2+z^2=\rho^2.
+$$
+
+直接积分应当得到：
+
+$$
+I(k,1) = \frac{2\pi R^5}{5}(1-c).
+$$
+
+代入前面的通式：
+
+$$
+1-c^3+2-3c+c^3=3(1-c).
+$$
+
+结果一致。
+
+这个检验方法非常实用。
+
+当含参积分难以直接检查时，可以选择一个让被积函数显著简化的参数值，验证通式。
+
+### 二十、补充提高题：椭球域上的积分
+
+这是一道我补充的高价值题，用来训练坐标缩放与雅可比。
+
+设：
+
+$$
+\Omega: \frac{x^2}{a^2}+ \frac{y^2}{b^2}+ \frac{z^2}{c^2}\le1, \qquad a,b,c>0.
+$$
+
+计算：
+
+$$
+I=\iiint_\Omega x^2\,\mathrm dV.
+$$
+
+#### 第一步：把椭球化为单位球
+
+令：
+
+$$
+x=au,\qquad y=bv,\qquad z=cw.
+$$
+
+那么区域变成：
+
+$$
+u^2+v^2+w^2\le1.
+$$
+
+雅可比绝对值：
+
+$$
+\left| \frac{\partial(x,y,z)}{\partial(u,v,w)} \right| =abc.
+$$
+
+因此：
+
+$$
+\mathrm dV=abc\,\mathrm du\,\mathrm dv\,\mathrm dw.
+$$
+
+#### 第二步：变换积分
+
+因为：
+
+$$
+x^2=a^2u^2,
+$$
+
+所以：
+
+$$
+I=a^3bc \iiint_{u^2+v^2+w^2\le1}u^2\,\mathrm du\,\mathrm dv\,\mathrm dw.
+$$
+
+已知：
+
+$$
+\iiint_{\text{单位球}}u^2\,\mathrm dV=\frac{4\pi}{15}.
+$$
+
+所以：
+
+$$
+\boxed{ I=\frac{4\pi a^3bc}{15} }
+$$
+
+同理：
+
+$$
+\boxed{ \iiint_\Omega y^2\,\mathrm dV = \frac{4\pi ab^3c}{15} }
+$$
+
+$$
+\boxed{ \iiint_\Omega z^2\,\mathrm dV = \frac{4\pi abc^3}{15} }
+$$
+
+#### 这道题的推广意义
+
+考试可能不直接给单位球，而是给椭球：
+
+$$
+Ax^2+By^2+Cz^2\le1.
+$$
+
+这时先进行线性缩放，将区域变成单位球，再利用标准球体的对称性。
+
+这比直接在椭球上建立复杂的三重积分高效得多。
+
+### 二十一、补充提高题：具有可积奇点的三重积分
+
+李林880中有：
+
+$$
+I=\iiint_\Omega \frac{\mathrm e^z}{\sqrt{x^2+y^2}} \,\mathrm dV,
+$$
+
+其中：
+
+$$
+1\le z\le2,
+$$
+
+$$
+x^2+y^2\le z^2.
+$$
+
+#### 第一步：分析奇点
+
+分母：
+
+$$
+\sqrt{x^2+y^2}=r.
+$$
+
+在 $r=0$ 处函数有奇性。
+
+但不能立刻判断积分发散。
+
+因为柱坐标的体积元包含 $r$。
+
+#### 第二步：柱坐标转换
+
+$$
+I= \int_1^2\mathrm dz \int_0^{2\pi}\mathrm d\theta \int_0^z \frac{\mathrm e^z}{r}r\,\mathrm dr.
+$$
+
+其中 $r>0$ 时：
+
+$$
+\frac{\mathrm e^z}{r}r=\mathrm e^z.
+$$
+
+通过先从 $r=\varepsilon$ 积分再令 $\varepsilon\to0^+$，可以严格处理轴线奇点。
+
+于是：
+
+$$
+I= 2\pi\int_1^2 z\mathrm e^z\,\mathrm dz.
+$$
+
+利用分部积分：
+
+$$
+\int z\mathrm e^z\,\mathrm dz =(z-1)\mathrm e^z.
+$$
+
+所以：
+
+$$
+I= 2\pi[(z-1)\mathrm e^z]_1^2.
+$$
+
+得到：
+
+$$
+\boxed{I=2\pi\mathrm e^2}
+$$
+
+#### 高价值结论：柱坐标下的奇性判别
+
+如果靠近 $r=0$，被积函数满足：
+
+$$
+f(r)\sim \frac1{r^p},
+$$
+
+而区域在轴线附近包含一段正常的圆盘邻域，那么径向积分的主要部分为：
+
+$$
+\int_0^\varepsilon r^{1-p}\,\mathrm dr.
+$$
+
+它收敛的条件是：
+
+$$
+1-p>-1.
+$$
+
+即：
+
+$$
+\boxed{p<2}
+$$
+
+所以柱坐标中：
+
+$$
+\frac1r
+$$
+
+的奇性是可以积分的。
+
+但：
+
+$$
+\frac1{r^2}
+$$
+
+属于临界发散情形。
+
+类似地，三维球坐标中的径向奇性：
+
+$$
+\frac1{\rho^p}
+$$
+
+对应：
+
+$$
+\int_0^\varepsilon\rho^{2-p}\,\mathrm d\rho.
+$$
+
+收敛条件是：
+
+$$
+\boxed{p<3}
+$$
+
+这些结论适用于原点附近具有完整角向范围、且被积函数的径向量级如上所述的典型区域。
+
+## 第九部分：解题方法的统一总结
+
+### 二十二、如何快速判断应该使用哪一种方法？
+
+以下是针对考研数学一的一套实战判断顺序。
+
+| 看到的题目特征                 | 第一反应      | 常见陷阱                   |
+| ----------------------- | --------- | ---------------------- |
+| 球体上积分 $x^2,y^2,z^2$ | 坐标交换对称性   | 忘记半径的五次方               |
+| 积分中含 $x,y,xy,xz$    | 判断区域反射对称性 | 只看函数，不看区域              |
+| 区域由上下两个曲面围成             | 先一后二      | 忘记求交线                  |
+| 被积函数只含 $z$          | 水平截面法     | 忘记截面大小随高度变化            |
+| 球面与原点圆锥面                | 优先试球坐标    | 极角取反                   |
+| 球面与旋转抛物面                | 优先试柱坐标    | 径向上下限错误                |
+| 球心不在原点                  | 配方后判断径向上限 | 把偏心球当作原点球              |
+| 两个球的交域                  | 截面取较小的圆盘  | 把交集当成并集                |
+| 被积函数含绝对值                | 找变号曲面     | 分段不完整                  |
+| 绕 $x$ 或 $y$ 轴旋转 | 改变柱坐标轴线   | 机械使用 $x^2+y^2=r^2$ |
+| 椭球域                     | 线性缩放      | 忘记雅可比                  |
+| 形心、质量、静矩                | 截面法与对称性   | 误把均匀形心用于非均匀密度          |
+| 含参圆锥、球域                 | 参数转化为积分限  | 忽略参数范围                 |
+
+#### 三重积分的根本解题框架
+
+可以将任何三重积分题拆成三个层面：
+
+第一层：几何层面。
+
+确定：
+
+$$
+\Omega=\{(x,y,z):\text{满足的空间条件}\}.
+$$
+
+需要清楚哪些曲面是边界、哪一侧属于区域。
+
+第二层：代数层面。
+
+寻找简化被积函数和区域的方法。
+
+例如：
+
+$$
+x^2+y^2=r^2,
+$$
+
+$$
+x^2+y^2+z^2=\rho^2.
+$$
+
+同时考虑奇偶性、坐标置换对称性、形心与积分的关系。
+
+第三层：积分层面。
+
+确定积分变量顺序、积分限、雅可比，然后完成一元积分计算。
+
+很多同学的错误在于跳过前两个层面，直接开始写积分号。
+
+### 二十三、最容易造成失分的八类错误
+
+#### 错误一：遗漏体积元中的雅可比
+
+柱坐标：
+
+$$
+\mathrm dV=r\,\mathrm dr\,\mathrm d\theta\,\mathrm dz.
+$$
+
+球坐标：
+
+$$
+\mathrm dV=\rho^2\sin\varphi \,\mathrm d\rho\,\mathrm d\varphi\,\mathrm d\theta.
+$$
+
+漏掉这些因子，整个结果都会错误。
+
+#### 错误二：没有求交线就直接写积分限
+
+例如：
+
+$$
+z=r, \qquad z=\sqrt{1-r^2}.
+$$
+
+交圈半径是：
+
+$$
+r=\frac1{\sqrt2}.
+$$
+
+不是 $r=1$。
+
+#### 错误三：忽略球面的上下半支
+
+例如：
+
+$$
+x^2+y^2+z^2=R^2.
+$$
+
+解出 $z$ 时：
+
+$$
+z=\pm\sqrt{R^2-x^2-y^2}.
+$$
+
+如果区域还有：
+
+$$
+z\ge0,
+$$
+
+才能只取正号。
+
+#### 错误四：错用对称性
+
+$$
+\iiint_\Omega x\,\mathrm dV=0
+$$
+
+要求区域关于 $x=0$ 对称，且变换后积分具有相应的抵消性质。
+
+仅仅看到被积函数含 $x$，并不足以判断其积分为零。
+
+#### 错误五：把球心位置判断错
+
+$$
+x^2+y^2+z^2=2az
+$$
+
+必须配方成：
+
+$$
+x^2+y^2+(z-a)^2=a^2.
+$$
+
+球心为：
+
+$$
+(0,0,a).
+$$
+
+#### 错误六：绝对值分区不完整
+
+例如：
+
+$$
+|z-r|.
+$$
+
+一定要同时考虑变号面 $z=r$ 与区域的上下边界。
+
+#### 错误七：积分换序时只调换积分符号
+
+换序以后，每个变量的范围必须重新确定。
+
+#### 错误八：不检查答案是否合理
+
+三重积分算完后至少检查符号和量纲。
+
+例如：
+
+$$
+\iiint_\Omega z^2\,\mathrm dV
+$$
+
+如果区域尺度为 $R$，结果通常应当具有：
+
+$$
+R^5
+$$
+
+的量纲。
+
+再比如：
+
+$$
+\iiint_\Omega f\,\mathrm dV
+$$
+
+若：
+
+$$
+f\ge0,
+$$
+
+结果不可能为负。
+
+## 第十部分：考研综合训练
+
+下面这些题是我根据上述核心题型设计的变式，目的是训练你面对新题时能否独立选择方法。
+
+### 训练1：锥体的二阶矩
+
+设：
+
+$$
+\Omega: 0\le z\le h,\qquad x^2+y^2\le z^2.
+$$
+
+求：
+
+$$
+I=\iiint_\Omega(x^2+y^2+z^2)\,\mathrm dV.
+$$
+
+思路： 使用柱坐标，并以 $z$ 为最外层变量。
+
+$$
+I= 2\pi\int_0^h\mathrm dz \int_0^z(r^2+z^2)r\,\mathrm dr.
+$$
+
+内层积分：
+
+$$
+\int_0^z(r^3+z^2r)\,\mathrm dr = \frac{z^4}{4}+\frac{z^4}{2}.
+$$
+
+所以：
+
+$$
+I=\frac{3\pi}{2}\int_0^hz^4\,\mathrm dz.
+$$
+
+最终：
+
+$$
+\boxed{I=\frac{3\pi h^5}{10}}
+$$
+
+这也是前面张宇题中利用对称性消去混合项以后所得到的积分模型。
+
+### 训练2：球与一般圆锥的交域体积
+
+设：
+
+$$
+\Omega: x^2+y^2+z^2\le R^2,
+$$
+
+$$
+z\ge k\sqrt{x^2+y^2}, \qquad k>0.
+$$
+
+求体积。
+
+令：
+
+$$
+\alpha=\arctan\frac1k.
+$$
+
+球坐标下：
+
+$$
+V= \int_0^{2\pi}\mathrm d\theta \int_0^\alpha\sin\varphi\,\mathrm d\varphi \int_0^R\rho^2\,\mathrm d\rho.
+$$
+
+因此：
+
+$$
+V= 2\pi(1-\cos\alpha)\frac{R^3}{3}.
+$$
+
+又：
+
+$$
+\cos\alpha=\frac{k}{\sqrt{1+k^2}}.
+$$
+
+所以：
+
+$$
+\boxed{ V= \frac{2\pi R^3}{3} \left( 1-\frac{k}{\sqrt{1+k^2}} \right) }
+$$
+
+检查：
+
+当 $k\to0^+$，区域趋近于上半球：
+
+$$
+V\to\frac{2\pi R^3}{3}.
+$$
+
+当 $k\to+\infty$，圆锥不断收窄：
+
+$$
+V\to0.
+$$
+
+两个极限都符合几何直觉。
+
+<Accordions>
+
+<Accordion title="综合练习｜截面法求非均匀密度重心">
+
+设立体：
+
+$$
+\Omega: 0\le z\le1,\qquad x^2+y^2\le z.
+$$
+
+密度为：
+
+$$
+\rho(x,y,z)=z.
+$$
+
+求重心竖坐标。
+
+注意，这与前面均匀密度的形心题不同。
+
+质量：
+
+$$
+M=\iiint_\Omega z\,\mathrm dV.
+$$
+
+因为：
+
+$$
+A(z)=\pi z,
+$$
+
+所以：
+
+$$
+M=\pi\int_0^1z^2\,\mathrm dz=\frac\pi3.
+$$
+
+关于 $xOy$ 平面的静矩：
+
+$$
+M_{xy}=\iiint_\Omega z\rho\,\mathrm dV.
+$$
+
+因此：
+
+$$
+M_{xy} =\pi\int_0^1z^3\,\mathrm dz =\frac\pi4.
+$$
+
+所以：
+
+$$
+\boxed{\bar z=\frac34}
+$$
+
+而均匀密度时：
+
+$$
+\bar z=\frac23.
+$$
+
+因为本题密度在较高位置更大，所以重心上移，结果合理。
+
+</Accordion>
+
+</Accordions>
+
+### 训练4：球体上的混合二次型
+
+设：
+
+$$
+\Omega:x^2+y^2+z^2\le R^2.
+$$
+
+求：
+
+$$
+I=\iiint_\Omega (ax^2+by^2+cz^2+dxy+exz+fyz) \,\mathrm dV.
+$$
+
+利用球域关于三个坐标平面的对称性：
+
+$$
+\iiint_\Omega xy\,\mathrm dV=0,
+$$
+
+$$
+\iiint_\Omega xz\,\mathrm dV=0,
+$$
+
+$$
+\iiint_\Omega yz\,\mathrm dV=0.
+$$
+
+另外：
+
+$$
+\iiint_\Omega x^2\,\mathrm dV = \iiint_\Omega y^2\,\mathrm dV = \iiint_\Omega z^2\,\mathrm dV =\frac{4\pi R^5}{15}.
+$$
+
+所以：
+
+$$
+\boxed{ I=\frac{4\pi R^5}{15}(a+b+c) }
+$$
+
+这道题可以进一步推广为：
+
+若：
+
+$$
+q(\boldsymbol x)=\boldsymbol x^{\mathsf T}A\boldsymbol x
+$$
+
+为三维二次型，则：
+
+$$
+\boxed{ \iiint_{\|\boldsymbol x\|\le R}q(\boldsymbol x)\,\mathrm dV = \frac{4\pi R^5}{15}\operatorname{tr}(A) }
+$$
+
+其中 $\operatorname{tr}(A)$ 是矩阵的迹。
+
+这个推广将三重积分与线性代数的二次型联系了起来。
+
+## 第十一部分：三位老师练习题的学习重点
+
+综合阅读的三套资料，在三重积分这一小节可以这样安排练习。
+
+| 资料      | 值得重点训练的内容                   | 对应能力       |
+| ------- | --------------------------- | ---------- |
+| 李正元     | 基本累次积分、积分换序、不同坐标系之间转换、偏心球   | 正确建立区域和积分限 |
+| 李林880   | 交球区域、复杂截面、绝对值分区、形心与积分计算     | 复杂几何分析与分段  |
+| 张宇1000题 | 球域二阶矩、非标准旋转轴、平方项综合积分        | 对称化简与计算效率  |
+| 核心题目    | 球锥交域、柱坐标、球坐标、形心、抽象函数证明、含参积分 | 综合判断和方法迁移  |
+
+这些资料不需要简单地按题目数量重复刷。
+
+更高效的方式是把每个题目归入某一种几何模型，并在做完后追问：换一个边界、换一个被积函数、换一个积分次序后，我还会不会？
+
+例如，前面球面与圆锥交域题已经可以衍生为：
+
+$$
+\iiint_\Omega1\,\mathrm dV,
+$$
+
+$$
+\iiint_\Omega z\,\mathrm dV,
+$$
+
+$$
+\iiint_\Omega z^2\,\mathrm dV,
+$$
+
+$$
+\iiint_\Omega(x^2+y^2)\,\mathrm dV,
+$$
+
+以及含参形式：
+
+$$
+\iiint_{\Omega_k} [z^2+\lambda(x^2+y^2)]\,\mathrm dV.
+$$
+
+它们的几何区域非常接近，但方法选择与具体计算有所不同。
+
+真正掌握以后，你应当能从一个模型自行推导出这一整组题目的计算方法。
+
+## 第十二部分：最后必须形成的考研解题能力
+
+这一节可以归结为一套完整的方法体系。
+
+| 能力     | 必须达到的程度               |
+| ------ | --------------------- |
+| 认识空间区域 | 能根据方程判断球、锥、柱、旋转抛物面与交域 |
+| 分析空间边界 | 能求交线、投影区域和水平截面        |
+| 使用对称性  | 会判断奇项抵消、坐标交换和形心关系     |
+| 选择坐标系  | 能解释为什么某种坐标系更简单        |
+| 建立累次积分 | 不漏积分范围和雅可比            |
+| 处理复杂区域 | 能完成交域、绝对值和积分换序的分段     |
+| 简化综合题  | 会利用截面法、变量代换、几何量和参数检验  |
+| 处理新题   | 能把陌生区域转化成已经掌握的标准几何模型  |
+
+### 最终方法总结
+
+三重积分的核心并不是积分计算本身。
+
+大多数常规考研题，在正确建立积分以后，剩下的计算只是简单的一元积分。
+
+真正决定能否解出来的，是下面这个过程：
+
+$$
+\boxed{ \text{识别立体} \longrightarrow \text{分析边界} \longrightarrow \text{寻找对称性} \longrightarrow \text{选择坐标系} \longrightarrow \text{确定积分限} \longrightarrow \text{计算与检验} }
+$$
+
+其中最需要强化的是前三步。
+
+如果你以后遇到一道完全没见过的三重积分题，不要急着回忆它像哪一道原题，而是主动判断：
+
+它的几何结构是什么？哪一个方向的截面最简单？经过什么坐标变换，边界和被积函数能够同时得到简化？
+
+能够独立回答这些问题，说明你已经不只是会计算三重积分，而是掌握了这一小节最重要的迁移能力。

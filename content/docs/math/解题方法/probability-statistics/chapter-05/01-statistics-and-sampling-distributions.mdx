@@ -1,1917 +1,4671 @@
 ---
-title: "第一节 统计量"
-description: "总体样本与统计量、样本均值方差、无偏性及卡方t和F分布的构造、识别、自由度。"
+title: "概率论与数理统计 · 第五章第一节｜统计量与抽样分布"
+description: "考研数学一：统计量、样本矩、样本方差、卡方分布、t分布、F分布、正态抽样定理、残差与经验分布函数。"
 ---
+
+<Callout type="idea" title="解题主线">
+
+先判断总体是否正态，再把目标写成样本均值、离均差平方和或正态线性组合；最后逐一核对标准化系数、独立性与自由度，再确定分布。
+
+</Callout>
+
+## 本节导览
 
 <Cards>
 
-<Card title="核心概念">
+<Card title="基本统计量">
 
-统计量、样本均值与无偏样本方差。
-
-</Card>
-
-<Card title="方法重点">
-
-卡方、t、F 分布的构造与识别。
+随机样本、样本均值、原点矩、中心矩和无偏样本方差。
 
 </Card>
 
-<Card title="考场提醒">
+<Card title="三大抽样分布">
 
-正态抽样独立性、自由度及双样本统计。
+卡方、t、F 的构造，独立性与自由度。
+
+</Card>
+
+<Card title="正态样本核心题">
+
+残差协方差、重叠样本、两组样本和最优加权。
+
+</Card>
+
+<Card title="综合拓展">
+
+经验分布函数、无偏性、分位数与分布辨析。
 
 </Card>
 
 </Cards>
 
-<Callout type="idea" title="本节解题切入点">
+## 一、先建立本节的完整知识框架
 
-判断卡方、t、F 结构时必须严格核对标准化、独立性和自由度。样本方差的分母 n−1 与总体均值已知时的离差平方和不可混用。
-
-</Callout>
-
-<Callout type="info" title="考场解题路线">
-
-先写出样本来自哪个总体及独立性 → 判断统计量是否含未知参数、中心化方式 → 按自由度和独立性匹配抽样分布。
-
-</Callout>
-
-## 解题路线对照
-
-<Tabs items={["样本数字特征", "卡方与 t 分布", "F 比值及多样本"]} defaultIndex={0}>
-
-<Tab value="样本数字特征">
-
-先确认总体期望、方差是否存在，再用样本均值和样本方差的恒等式计算期望、方差或无偏性。
-
-</Tab>
-
-<Tab value="卡方与 t 分布">
-
-识别独立标准正态平方和的自由度；t 分布分子分母需要特定独立结构。
-
-</Tab>
-
-<Tab value="F 比值及多样本">
-
-先检查两组样本是否独立、分母是否为对应自由度的卡方统计量，再组合出 F 分布与分位数关系。
-
-</Tab>
-
-</Tabs>
-
-
-
-## 本节思维导图
-
-<MindMap title="第一节 统计量 · 解题结构" height={520} initialExpandLevel={2} maxWidth={300} markdown={String.raw`
-# 统计量
-## 基本概念
-### 总体与简单随机样本
-### 参数与统计量
-### 无偏估计
-## 常见统计量
-### 样本均值
-### 样本方差
-### 样本矩
-### 经验分布函数
-## 正态抽样分布
-### 卡方分布
-### t分布
-### F分布
-### 自由度
-### 独立性
-## 典型题型
-### 方差平方和
-### 两样本比值
-### 配对与隐藏结构
-## 自测解析
-`} />
-
-## 本节学习目标
-
-
-本节围绕**常见统计量的基本性质**和**正态总体的抽样分布**两条主线展开。前者包括样本均值、样本方差、样本矩及经验分布函数，后者聚焦 $\chi^2$、$t$、$F$ 分布的构造、自由度及独立条件。
-
+学习统计量，要理解一条主线：
 
 $$
-\boxed{\text{识别统计量结构}\ \longrightarrow\
-\text{核对独立性与自由度}\ \longrightarrow\
-\text{判断抽样分布}}
+\boxed{ \text{总体分布} \longrightarrow \text{随机样本} \longrightarrow \text{统计量} \longrightarrow \text{抽样分布} \longrightarrow \text{统计推断} }
 $$
 
+例如，我们知道某种产品的长度服从正态分布：
 
-本节还涉及无偏性、重新构造样本、配对样本均值差，以及隐藏的伯努利平均等重要题型，为点估计、区间估计和假设检验奠定基础。
+$$
+X\sim N(\mu,\sigma^2)
+$$
 
+但不知道 $\mu,\sigma^2$。
 
-## 一、先建立全节知识框架
+现在随机抽取 $n$ 个产品，得到：
 
+$$
+X_1,X_2,\ldots,X_n
+$$
 
-结合知识讲义，完整的内容实际上可以归纳为三个层次。
+可以利用这些数据构造：
 
+$$
+\overline X=\frac1n\sum_{i=1}^nX_i
+$$
 
-第一层：总体与样本
+和
 
+$$
+S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\overline X)^2
+$$
+
+我们需要研究：
+
+- $\overline X$ 能否反映总体均值？
+- $S^2$ 能否反映总体方差？
+- $\overline X$、$S^2$ 本身服从什么分布？
+- 它们是否独立？
+- 它们经过某种组合后，为什么会出现 $t$ 分布或 $F$ 分布？
+
+这就是本节的主要研究内容。
+
+#### 1. 本节题型总览
+
+| 题型                | 核心任务           | 关键突破口        |
+| ----------------- | -------------- | ------------ |
+| 统计量判断             | 判断表达式是否为统计量    | 是否含未知参数      |
+| 样本矩与方差            | 求期望、方差、证明无偏    | 展开平方和        |
+| 样本均值分布            | 求分布或概率         | 正态线性组合、二项和   |
+| 经验分布函数            | 求均值、方差、分布      | 示性变量         |
+| $\chi^2$ 分布识别 | 判断平方和的分布       | 标准正态、独立、自由度  |
+| $t$ 分布识别      | 判断正态与平方和的比值    | 分子分母标准化      |
+| $F$ 分布识别      | 判断两个平方和之比      | 两个独立卡方量      |
+| 独立性证明             | 证明复杂统计量独立      | 联合正态、不相关、分组  |
+| 参数求解              | 求使统计量具有指定分布的系数 | 反向匹配标准形式     |
+| 综合题               | 混合多个知识点        | 先构造分布，再求矩或概率 |
+
+数学一真正有区分度的题目，通常不是直接问：
+
+$$
+\frac{\sqrt n(\overline X-\mu)}{S}
+$$
+
+服从什么分布。
+
+而是把分子改写成几个样本均值之差，把分母改写成复杂平方和，再要求你自己找出其中隐藏的标准正态量和卡方量。
+
+所以，本节最重要的能力是：
+
+面对一个没见过的统计量，能够拆开、标准化、检查独立性，再还原到已知分布。
+
+## 二、基础概念：总体、样本、统计量
+
+### 2.1 什么是总体？
+
+总体并不一定表示许多个实体。
+
+在概率论中，总体通常指研究对象所服从的概率分布。
+
+例如：
+
+$$
+X\sim N(\mu,\sigma^2)
+$$
+
+这里 $X$ 代表总体随机变量。
+
+它的分布由参数 $\mu,\sigma^2$ 决定。
+
+如果研究的是抛硬币：
+
+$$
+X\sim B(1,p)
+$$
+
+那么总体就是参数为 $p$ 的0-1分布。
+
+### 2.2 什么是简单随机样本？
+
+从总体 $X$ 中抽取：
+
+$$
+X_1,X_2,\ldots,X_n
+$$
+
+如果满足：
+
+1. 每个 $X_i$ 都与总体 $X$ 同分布；
+2. $X_1,\ldots,X_n$ 相互独立；
+
+那么称其为容量为 $n$ 的简单随机样本。
+
+记作：
 
 $$
 X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}F
 $$
 
+其中 i.i.d. 表示独立同分布。
 
-明确独立同分布、总体参数和样本容量
+这两个条件都很重要。
 
-
-第二层：构造统计量
-
-
-$$
-\bar X,\quad S^2,\quad A_k,\quad F_n(x)
-$$
-
-
-计算期望、方差、协方差及无偏性
-
-
-第三层：研究抽样分布
-
+例如，独立性保证：
 
 $$
-N,\quad\chi^2,\quad t,\quad F
+D\left(\sum_{i=1}^nX_i\right) =\sum_{i=1}^nDX_i
 $$
 
-
-标准化、自由度、独立性、构造分布
-
-
-用于后续统计推断
-
-
-点估计 → 区间估计 → 假设检验
-
-
-考研复习时，第一层必须理解定义，第二层要熟练推导，第三层则必须达到看到式子就能判断分布的程度。
-
-
-## 二、基础概念：总体、样本、统计量
-
-
-### 1. 总体和样本到底是什么
-
-
-假设研究一批零件的长度，记随机抽取一个零件的长度为 $X$，并假定
-
+同分布保证：
 
 $$
-X\sim N(\mu,\sigma^2).
+EX_i=\mu,\qquad DX_i=\sigma^2
 $$
 
-
-这里 $X$ 表示总体随机变量，$\mu,\sigma^2$ 是总体参数。
-
-
-从总体中抽取 $n$ 次，得到
-
+因此：
 
 $$
-X_1,X_2,\ldots,X_n.
+\boxed{E\overline X=\mu}
 $$
 
-
-考研中的简单随机样本，是指它们相互独立且与总体同分布，即
-
-
 $$
-X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}F.
+\boxed{D\overline X=\frac{\sigma^2}{n}}
 $$
 
+这两条结论只要求独立同分布且方差有限，不要求正态分布。
 
-这里要注意两个词：
+### 2.3 什么是统计量？
 
+<Callout type="warn" title="统计量不能包含未知参数">
 
-- 独立：不同抽样结果之间没有统计依赖。
-- 同分布：每次抽样都遵循相同的总体分布。
+由样本计算的统计量必须是样本的函数，不能含有未知总体参数；其抽样分布可以依赖未知参数。
 
+</Callout>
 
-缺少任意一个条件，就不能直接套用本节所有的标准结论。
-
-
-抽样之前，$X_i$ 是随机变量；抽样之后，得到具体数字 $x_i$，称为样本观测值。
-
-
-### 2. 统计量的严格定义
-
-
-设
-
+设：
 
 $$
-T=g(X_1,\ldots,X_n).
+X_1,\ldots,X_n
 $$
 
+为样本。
 
-若 $g$ 是样本的函数，并且不含未知参数，则 $T$ 称为统计量。
+如果：
 
+$$
+T=T(X_1,\ldots,X_n)
+$$
+
+只依赖样本及已知常数，不含未知总体参数，那么 $T$ 就是统计量。
 
 例如：
 
-
 $$
-\bar X=\frac1n\sum_{i=1}^nX_i
-$$
-
-
-和
-
-
-$$
-S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\bar X)^2
+\overline X=\frac1n\sum X_i
 $$
 
-
-都是统计量。
-
-
-但若 $\mu$ 未知，
-
+是统计量。
 
 $$
-\bar X-\mu
+S^2=\frac1{n-1}\sum(X_i-\overline X)^2
 $$
 
+也是统计量。
 
-严格来说不是统计量，因为其中含有未知参数。
-
-
-这个区别在后面研究参数估计时很重要。含未知参数的标准化表达式仍可以作为研究抽样分布的枢轴量；当假设检验给定 $\mu=\mu_0$ 时，代入已知假设值构造的表达式才成为可以直接由样本计算的检验统计量。
-
-
-### 3. 参数、统计量、估计量的区别
-
-
-| 名称   | 数学性质       | 例子                                 |
-| ---- | ---------- | ---------------------------------- |
-| 总体参数 | 固定但可能未知    | $\mu,\sigma^2,p$               |
-| 统计量  | 由样本决定的随机变量 | $\bar X,S^2$                   |
-| 估计量  | 用来估计参数的统计量 | $\hat\mu=\bar X$               |
-| 估计值  | 抽样后的具体数值   | $\bar x=5.2$                   |
-| 抽样分布 | 统计量本身的概率分布 | $\bar X\sim N(\mu,\sigma^2/n)$ |
-
-
-重要理解： 总体分布描述单个观测值如何变化；抽样分布描述反复抽取一组样本并计算统计量后，统计量如何变化。
-
-
-## 三、常见统计量的基本性质
-
-
-### 1. 样本均值的期望与方差
-
-
-设简单随机样本满足
-
+但是：
 
 $$
-EX_i=\mu,\qquad DX_i=\sigma^2<\infty.
+\frac{\overline X-\mu}{\sigma}
 $$
 
+在 $\mu,\sigma$ 均未知时，严格来说不是统计量，因为它包含未知参数。
 
-由于期望具有线性性质，
+不过，它可以是一个枢轴量：虽然表达式含未知参数，但其概率分布可能不依赖这些参数。它在区间估计中非常重要。
 
+一个容易忽略的细节是：统计量不是某个固定数字，而是随机变量。
 
-$$
-E\bar X =E\left(\frac1n\sum_{i=1}^nX_i\right) =\frac1n\sum_{i=1}^nEX_i =\mu.
-$$
-
-
-利用样本独立性，
-
+例如抽样之前：
 
 $$
-\begin{aligned} D\bar X &=D\left(\frac1n\sum_{i=1}^nX_i\right)\\ &=\frac1{n^2}\sum_{i=1}^nDX_i\\ &=\frac{\sigma^2}{n}. \end{aligned}
+\overline X
 $$
 
+是随机变量。
 
-得到：
-
-
-$$
-\boxed{E\bar X=\mu,\qquad D\bar X=\frac{\sigma^2}{n}}
-$$
-
-
-这两个公式只要求简单随机样本及相应矩存在，不要求总体为正态分布。
-
-
-直观上，抽样越多，随机误差越容易相互抵消。但需要注意，样本均值的标准差是
-
+抽样之后，观测到：
 
 $$
-\sigma_{\bar X}=\frac{\sigma}{\sqrt n},
+x_1=2,\quad x_2=3,\quad x_3=4
 $$
 
-
-不是 $\sigma/n$。
-
-
-因此想让标准误差减半，需要把样本量扩大为原来的 $4$ 倍。
-
-
-### 2. 样本方差为什么除以 $n-1$
-
-
-定义
-
+于是：
 
 $$
-S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\bar X)^2,\qquad n\ge2.
+\overline x=3
 $$
 
+这个具体数字称为统计量的观测值。
 
-为什么不是除以 $n$？
+## 三、样本均值、样本矩与样本方差
 
+这是后面所有抽样分布题目的基础。
 
-因为先利用样本计算出了 $\bar X$，再计算每个观测值与 $\bar X$ 的偏差。
+### 3.1 样本均值
 
-
-这些偏差满足
-
-
-$$
-\sum_{i=1}^n(X_i-\bar X)=0.
-$$
-
-
-所以只要知道前 $n-1$ 个偏差，最后一个偏差就被确定了。
-
-
-这说明偏差虽然有 $n$ 个，但只有 $n-1$ 个自由方向。
-
-
-更重要的是，分母 $n-1$ 能保证无偏性。
-
-
-### 3. 推导样本方差的无偏性
-
-
-这个推导建议亲手写一遍，因为它可以解决很多看似不同的题。
-
-
-先建立恒等式：
-
+定义：
 
 $$
-\boxed{ \sum_{i=1}^n(X_i-\bar X)^2 =\sum_{i=1}^n(X_i-\mu)^2-n(\bar X-\mu)^2 }
+\boxed{ \overline X=\frac1n\sum_{i=1}^nX_i }
 $$
 
-
-两边取期望：
-
+如果总体均值为 $\mu$，方差为 $\sigma^2$，则：
 
 $$
-\begin{aligned} E\sum_{i=1}^n(X_i-\bar X)^2 &=\sum_{i=1}^nE(X_i-\mu)^2\\ &\quad-nE(\bar X-\mu)^2\\ &=n\sigma^2-n\frac{\sigma^2}{n}\\ &=(n-1)\sigma^2. \end{aligned}
+E\overline X=\mu
 $$
 
-
-因此
-
-
 $$
-\boxed{ES^2=\sigma^2}.
+D\overline X=\frac{\sigma^2}{n}
 $$
 
-
-这一结论同样不要求正态分布。
-
-
-还可以把上述恒等式改写为
-
+注意，如果总体服从正态分布：
 
 $$
-\sum_{i=1}^n(X_i-a)^2 = \sum_{i=1}^n(X_i-\bar X)^2+n(\bar X-a)^2,
+X\sim N(\mu,\sigma^2)
 $$
 
-
-其中 $a$ 为任意常数。
-
-
-因为右边第二项非负，所以平方偏差和在 $a=\bar X$ 时取最小值。这也是最小二乘法的基本思想。
-
-
-### 4. 样本方差与二阶中心矩不同
-
-
-定义样本二阶中心矩
-
+那么由于独立正态随机变量的线性组合仍然服从正态分布：
 
 $$
-B_2=\frac1n\sum_{i=1}^n(X_i-\bar X)^2.
+\boxed{ \overline X\sim N\left(\mu,\frac{\sigma^2}{n}\right) }
 $$
 
+这是精确分布，对任意正整数 $n$ 成立。
 
-于是
+而如果总体不是正态分布，一般不能直接写成这个正态分布。
 
-
-$$
-\boxed{B_2=\frac{n-1}{n}S^2}.
-$$
-
-
-因此
-
+当总体均值与方差存在且满足中心极限定理的条件时，才有：
 
 $$
-EB_2=\frac{n-1}{n}\sigma^2.
+\frac{\sqrt n(\overline X-\mu)}{\sigma} \xrightarrow{d}N(0,1)
 $$
 
+这是渐近分布，不是有限样本下的精确分布。
 
-它通常有偏，偏差为
+考研陷阱：精确服从正态与渐近服从正态，不能混淆。
 
-
-$$
-EB_2-\sigma^2=-\frac{\sigma^2}{n}.
-$$
-
-
-还要区别
-
-
-$$
-ES^2=\sigma^2
-$$
-
-
-与
-
-
-$$
-ES=\sigma.
-$$
-
-
-后者一般不成立。事实上，对于非退化样本标准差，由平方根函数的凹性可知通常有 $ES<\sigma$。
-
-
-### 5. 样本原点矩与中心矩
-
+### 3.2 样本原点矩与中心矩
 
 第 $k$ 阶样本原点矩：
 
+$$
+\boxed{ A_k=\frac1n\sum_{i=1}^nX_i^k }
+$$
+
+例如：
 
 $$
-A_k=\frac1n\sum_{i=1}^nX_i^k.
+A_1=\overline X
 $$
 
+$$
+A_2=\frac1n\sum_{i=1}^nX_i^2
+$$
 
 第 $k$ 阶样本中心矩：
 
-
 $$
-B_k=\frac1n\sum_{i=1}^n(X_i-\bar X)^k.
-$$
-
-
-特别地，
-
-
-$$
-A_1=\bar X,\qquad A_2=\frac1n\sum_{i=1}^nX_i^2.
+\boxed{ B_k=\frac1n\sum_{i=1}^n(X_i-\overline X)^k }
 $$
 
-
-有重要恒等式：
-
+特别地：
 
 $$
-\boxed{B_2=A_2-\bar X^2}.
+B_2=\frac1n\sum_{i=1}^n(X_i-\overline X)^2
 $$
 
-
-若总体的第 $k$ 阶矩存在，则
-
+展开：
 
 $$
-EA_k=EX^k.
+\begin{aligned} B_2 &=\frac1n\sum_{i=1}^n (X_i^2-2X_i\overline X+\overline X^2)\\ &=\frac1n\sum_{i=1}^nX_i^2 -2\overline X^2+\overline X^2\\ &=A_2-\overline X^2 \end{aligned}
 $$
 
-
-例如
-
+因此：
 
 $$
-EA_2=EX^2=\sigma^2+\mu^2.
+\boxed{B_2=A_2-A_1^2}
 $$
 
-
-这一点直接连接下一节的矩估计法。
-
-
-### 6. 经验分布函数：隐藏的伯努利样本均值
-
-
-经验分布函数定义为
-
+它对应总体的公式：
 
 $$
-F_n(x)=\frac1n\sum_{i=1}^nI_{\{X_i\le x\}},
+DX=E(X^2)-(EX)^2
 $$
 
+但一定要注意：样本二阶中心矩 $B_2$ 与通常定义的无偏样本方差 $S^2$ 不同。
 
-其中示性函数满足
+### 3.3 为什么样本方差除以 $n-1$，而不是 $n$？
 
+<Callout type="info" title="自由度与无偏性">
 
-$$
-I_{\{X_i\le x\}}= \begin{cases} 1,&X_i\le x,\\ 0,&X_i>x. \end{cases}
-$$
+无偏样本方差用 $n-1$ 作分母；与之对应，正态总体的离均差平方和有 $n-1$ 个自由度。
 
+</Callout>
 
-固定一个 $x$，令
-
-
-$$
-p=F(x)=P(X\le x).
-$$
-
-
-那么
-
+通常样本方差定义为：
 
 $$
-I_{\{X_i\le x\}}\sim B(1,p).
+\boxed{ S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\overline X)^2 }
 $$
 
-
-所以
-
+因此：
 
 $$
-nF_n(x)\sim B(n,p).
+\boxed{ S^2=\frac{n}{n-1}B_2 }
 $$
 
-
-立即得到
-
+或者：
 
 $$
-\boxed{EF_n(x)=F(x)}
+\boxed{ S^2=\frac1{n-1} \left(\sum_{i=1}^nX_i^2-n\overline X^2\right) }
 $$
 
+最后这个展开式需要熟练掌握。
 
-以及
+下面解释 $n-1$ 从何而来。
 
-
-$$
-\boxed{ DF_n(x)=\frac{F(x)[1-F(x)]}{n} }.
-$$
-
-
-直观地说，$F_n(x)$ 是样本中“不超过 $x$”的观测值所占比例。
-
-
-解题技巧：看到经验分布函数，立即将它拆成示性随机变量的平均。
-
-
-这一思想也可以推广到任意事件出现的样本频率。
-
-
-## 四、抽样分布：正态、卡方、$t$、$F$
-
-
-这是本节数学一综合题的关键。
-
-
-### 1. 四类分布的基本构造
-
-
-| 分布              | 标准结构                | 最关键条件                |
-| --------------- | ------------------- | -------------------- |
-| $N(0,1)$    | 正态变量减均值、除标准差        | 正态性                  |
-| $\chi^2(r)$ | $r$ 个独立标准正态的平方和 | 独立、标准化               |
-| $t(r)$      | $Z/\sqrt{V/r}$  | $Z$ 与 $V$ 独立 |
-| $F(r,s)$    | $(U/r)/(V/s)$   | $U$ 与 $V$ 独立 |
-
-
-这里
-
+设总体：
 
 $$
-Z\sim N(0,1),\quad U\sim\chi^2(r),\quad V\sim\chi^2(s),
+EX_i=\mu,\qquad DX_i=\sigma^2
 $$
 
-
-并在使用比值构造时满足相应独立条件。
-
-
-### 2. 卡方分布的理解
-
-
-若
-
+利用平方和分解恒等式：
 
 $$
-Z_1,\ldots,Z_r\overset{\mathrm{i.i.d.}}{\sim}N(0,1),
+\boxed{ \sum_{i=1}^n(X_i-\mu)^2 = \sum_{i=1}^n(X_i-\overline X)^2 +n(\overline X-\mu)^2 }
 $$
 
+它的直观意义是：
 
-则
+样本相对于真实均值的总波动，可以分解为样本内部的波动，加上样本均值偏离真实均值的波动。
 
+两边取期望。
 
-$$
-\boxed{\sum_{i=1}^rZ_i^2\sim\chi^2(r)}.
-$$
-
-
-性质：
-
+左边：
 
 $$
-E[\chi^2(r)]=r, \qquad D[\chi^2(r)]=2r.
+E\sum_{i=1}^n(X_i-\mu)^2=n\sigma^2
 $$
 
-
-如果两个卡方变量独立，
-
+右边第二项：
 
 $$
-U\sim\chi^2(r),\quad V\sim\chi^2(s),
+nE(\overline X-\mu)^2 =nD\overline X =\sigma^2
 $$
 
-
-则
-
+因此：
 
 $$
-U+V\sim\chi^2(r+s).
+E\sum_{i=1}^n(X_i-\overline X)^2 =n\sigma^2-\sigma^2
 $$
 
-
-注意：不能只看“平方和”的外形。每个被平方的变量必须正确标准化，还要处理它们之间的独立性。
-
-
-### 3. 正态总体最重要的抽样结论
-
-
-设
-
+所以：
 
 $$
-X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2), \qquad \sigma>0.
+\boxed{ E\sum_{i=1}^n(X_i-\overline X)^2 =(n-1)\sigma^2 }
 $$
 
+除以 $n-1$：
+
+$$
+\boxed{ES^2=\sigma^2}
+$$
+
+这说明 $S^2$ 是总体方差的无偏估计量。
+
+而：
+
+$$
+EB_2=\frac{n-1}{n}\sigma^2
+$$
+
+因此 $B_2$ 一般有向下的偏差。
+
+#### 从自由度角度理解
+
+设：
+
+$$
+R_i=X_i-\overline X
+$$
 
 那么：
 
-
 $$
-\boxed{\bar X\sim N\left(\mu,\frac{\sigma^2}{n}\right)}
+R_1+R_2+\cdots+R_n=0
 $$
 
+也就是说，虽然有 $n$ 个残差，但它们之间存在一个约束。
 
-$$
-\boxed{ \frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1) }
-$$
+知道前 $n-1$ 个残差，最后一个就被确定了。
 
+因此残差向量只有 $n-1$ 个自由变化的方向。
 
-$$
-\boxed{\bar X\perp S^2}
-$$
+这就是为什么样本残差平方和涉及 $n-1$ 个自由度。
 
+不过需要区分：
 
-这三条是整节最重要的基础结论。
+- 除以 $n-1$ 形成无偏方差，只需要独立同分布、有限方差。
+- 残差平方和服从 $\chi^2(n-1)$ 分布，则需要正态总体等更强条件。
 
+这两件事不能混为一谈。
 
-尤其是第三条：样本均值与样本方差独立，是正态总体下的特殊性质，不能直接推广到一般总体。
+## 四、必须掌握的三大抽样分布
 
+接下来进入本节最核心、最容易考综合题的部分。
 
-### 4. 为什么出现 $n-1$ 个自由度
+### 4.1 $\chi^2$ 分布：独立标准正态的平方和
 
+<Callout type="idea" title="卡方构造必须逐项独立">
 
-可以从平方和分解理解：
+只有相互独立的标准正态变量的平方和，才能直接用卡方分布及其自由度结论。
 
+</Callout>
 
+设：
+
 $$
-\boxed{ \frac1{\sigma^2}\sum_{i=1}^n(X_i-\mu)^2 = \frac1{\sigma^2}\sum_{i=1}^n(X_i-\bar X)^2 + \frac{n(\bar X-\mu)^2}{\sigma^2} }
+Z_1,Z_2,\ldots,Z_k
 $$
-
 
-三个部分分别对应：
+相互独立，且：
 
-
 $$
-\underbrace{\chi^2(n)}_{\text{总平方和}} = \underbrace{\chi^2(n-1)}_{\text{残差平方和}} + \underbrace{\chi^2(1)}_{\text{均值部分}}.
+Z_i\sim N(0,1)
 $$
-
-
-这里不仅有数值恒等式，正态样本还保证右边两部分独立。
-
-
-直观理解为：原来有 $n$ 个独立正态随机方向，其中一个方向被样本均值占据，其余 $n-1$ 个方向构成样本离差。
-
-
-这也是后续线性回归残差自由度计算的基本原型。
-
 
-### 5. $t$ 分布怎样产生
+那么：
 
-
-假设总体方差 $\sigma^2$ 已知，那么
-
-
 $$
-Z=\frac{\sqrt n(\bar X-\mu)}{\sigma}\sim N(0,1).
+\boxed{ U=\sum_{i=1}^kZ_i^2\sim\chi^2(k) }
 $$
 
+其中 $k$ 称为自由度。
 
-但实际统计问题中，$\sigma$ 往往未知。
+必须记住：
 
-
-如果用样本标准差 $S$ 替代 $\sigma$，则得到
-
-
 $$
-T=\frac{\sqrt n(\bar X-\mu)}{S}.
+\boxed{EU=k}
 $$
-
 
-根据
-
-
 $$
-V=\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)
+\boxed{DU=2k}
 $$
-
-
-以及 $Z\perp V$，有
 
+特别地：
 
 $$
-T=\frac{Z}{\sqrt{V/(n-1)}}.
+Z\sim N(0,1) \quad\Longrightarrow\quad Z^2\sim\chi^2(1)
 $$
 
+#### 如何识别？
 
-所以
+看到平方和：
 
-
 $$
-\boxed{ \frac{\sqrt n(\bar X-\mu)}{S}\sim t(n-1) }.
+X_1^2+\cdots+X_n^2
 $$
-
-
-注意这是正态总体下的精确分布结论。
-
 
-总体非正态时，在适当条件下可利用大样本理论得到近似正态结论，但一般不能直接声称上述统计量精确服从 $t(n-1)$。
+先问三个问题：
 
+第一，每一项是否由标准正态变量平方得到？
 
-### 6. $F$ 分布怎样产生
+第二，这些标准正态变量是否相互独立？
 
+第三，平方和中究竟有多少个独立的标准正态变量？
 
-若
+三个问题确认以后，才能写自由度。
 
+例如：
 
 $$
-U\sim\chi^2(r),\qquad V\sim\chi^2(s),
+X_i\sim N(0,4)
 $$
 
+不能写：
 
-且 $U,V$ 独立，那么
+$$
+\sum X_i^2\sim\chi^2(n)
+$$
 
+正确的是：
 
 $$
-\boxed{ \frac{U/r}{V/s}\sim F(r,s) }.
+\boxed{ \frac14\sum_{i=1}^nX_i^2\sim\chi^2(n) }
 $$
 
+因为：
 
-这里 $r$ 是分子自由度，$s$ 是分母自由度，顺序不能交换。
+$$
+\frac{X_i}{2}\sim N(0,1)
+$$
 
+卡方分布是标准正态的平方和，而不是任意正态变量的平方和。
 
-两个重要关系：
+### 4.2 $t$ 分布：标准正态除以卡方的平方根
 
+设：
 
 $$
-\boxed{T\sim t(r)\Longrightarrow T^2\sim F(1,r)}
+Z\sim N(0,1)
 $$
-
 
 $$
-\boxed{F\sim F(r,s)\Longrightarrow \frac1F\sim F(s,r)}.
+U\sim\chi^2(k)
 $$
-
-
-这一组关系经常出现在选择题和统计分位数题中。
 
+且：
 
-### 7. 上侧分位点
+$$
+Z\perp U
+$$
 
+则：
 
-讲义使用上侧 $\alpha$ 分位点的记号，例如
+$$
+\boxed{ T=\frac{Z}{\sqrt{U/k}}\sim t(k) }
+$$
 
+注意分子分母的标准形式：
 
 $$
-P\{\chi^2(r)>\chi^2_\alpha(r)\}=\alpha.
+\frac{\text{标准正态}} {\sqrt{\text{独立卡方}/\text{自由度}}}
 $$
 
+少了分母中的自由度 $k$，就不一定是标准 $t$ 分布。
 
-同样，
+#### $t$ 分布的重要性质
 
+$t(k)$ 分布关于零对称：
 
 $$
-P\{T>t_\alpha(r)\}=\alpha,
+P(T>a)=P(T<-a)
 $$
 
+并且：
 
 $$
-P\{F>F_\alpha(r,s)\}=\alpha.
+\boxed{T^2\sim F(1,k)}
 $$
-
-
-要注意不同教材可能使用下侧累计概率记号，不能单凭下标决定左尾还是右尾。
-
-
-## 五、考研题型判断：先识别结构，再选方法
 
+自由度很小时，$t$ 分布的尾部较厚。
 
-| 题面特征                     | 第一反应          | 常用方法                 |
-| ------------------------ | ------------- | -------------------- |
-| $\bar X$ 的期望、方差      | 样本均值          | 线性性质、独立性             |
-| $\sum(X_i-\bar X)^2$ | 离差平方和         | 转为 $(n-1)S^2$    |
-| $\bar X^2$           | 注意均值平方不等于平方均值 | $EY^2=DY+(EY)^2$ |
-| 经验分布函数                   | 伯努利变量平均       | 示性函数                 |
-| 配对样本均值差                  | 同一对可能相关       | 保留协方差                |
-| 正态平方和                    | 可能是卡方         | 标准化、数自由度             |
-| 正态与平方和之比                 | 可能是 $t$   | 正态、卡方、独立             |
-| 两组平方和之比                  | 可能是 $F$   | 分别除方差和自由度            |
-| 两个线性组合共享样本               | 不能直接判独立       | 算协方差，检查联合正态          |
+随着自由度增大：
 
-
-下面用原资料的典型母题逐步示范。
+$$
+t(k)\xrightarrow{d}N(0,1)
+$$
 
+特别地，$t(1)$ 就是标准柯西分布，它没有有限的数学期望和方差。
 
-## 六、真题与核心题逐步精讲
+所以不能对所有 $t(k)$ 都直接套用常规的均值、方差公式。
 
+### 4.3 $F$ 分布：两个独立卡方变量的比值
 
-### 例 1｜2001 年数学一：复杂离差平方和
+设：
 
+$$
+U\sim\chi^2(m)
+$$
 
-基础母题
+$$
+V\sim\chi^2(n)
+$$
 
+且：
 
-题目：设 $X_1,\ldots,X_{2n}$ 为来自 $N(\mu,\sigma^2)$ 的简单随机样本，记
+$$
+U\perp V
+$$
 
+则：
 
 $$
-\bar X=\frac1{2n}\sum_{i=1}^{2n}X_i.
+\boxed{ F=\frac{U/m}{V/n}\sim F(m,n) }
 $$
 
+注意：
 
-求
+- 分子自由度在前；
+- 分母自由度在后；
+- 分子分母必须分别除以自己的自由度；
+- 两个卡方变量必须独立。
 
+一个特别重要的性质：
 
 $$
-Y=\sum_{i=1}^n(X_i+X_{n+i}-2\bar X)^2
+\boxed{ F\sim F(m,n) \Longrightarrow \frac1F\sim F(n,m) }
 $$
 
+倒数会交换两个自由度。
 
-的期望。
+#### 三大分布的统一结构
 
+| 分布              | 标准构造                        | 最重要的条件                                       |
+| --------------- | --------------------------- | -------------------------------------------- |
+| $\chi^2(k)$ | $\sum_{i=1}^kZ_i^2$    | 各 $Z_i$ 独立且为标准正态                         |
+| $t(k)$      | $\dfrac{Z}{\sqrt{U/k}}$ | $Z\sim N(0,1)$，$U\sim\chi^2(k)$，相互独立 |
+| $F(m,n)$    | $\dfrac{U/m}{V/n}$      | $U,V$ 是相互独立的卡方变量                         |
 
-方法一：重新构造样本，最推荐。
+这张表不是让你机械背外形，而是用于反向分析题目。
 
+以后看到陌生统计量，先尝试把它拆成这三种结构。
 
-看到
+## 五、正态总体抽样定理：整节最重要的一组公式
 
+设：
 
 $$
-X_i+X_{n+i}-2\bar X
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2)
 $$
-
-
-应考虑把成对相加的部分定义为新变量。
 
+其中：
 
-令
-
-
 $$
-Z_i=X_i+X_{n+i},\qquad i=1,\ldots,n.
+\sigma>0,\qquad n\ge2
 $$
-
-
-因为不同 $i$ 使用的原样本不重叠，所以 $Z_i$ 独立同分布，且
 
+定义：
 
 $$
-EZ_i=2\mu,\qquad DZ_i=2\sigma^2.
+\overline X=\frac1n\sum_{i=1}^nX_i
 $$
 
-
-计算新样本均值：
-
-
 $$
-\begin{aligned} \bar Z &=\frac1n\sum_{i=1}^nZ_i\\ &=\frac1n\sum_{i=1}^{2n}X_i\\ &=2\bar X. \end{aligned}
+S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\overline X)^2
 $$
 
+则有以下结论。
 
-因此原统计量化为
+#### 结论一：样本均值的分布
 
-
 $$
-Y=\sum_{i=1}^n(Z_i-\bar Z)^2.
+\boxed{ \frac{\sqrt n(\overline X-\mu)}{\sigma} \sim N(0,1) }
 $$
-
 
-直接套用离差平方和期望公式：
+#### 结论二：样本方差的分布
 
-
 $$
-EY=(n-1)DZ_i.
+\boxed{ \frac{(n-1)S^2}{\sigma^2} \sim\chi^2(n-1) }
 $$
-
 
-故
+#### 结论三：样本均值与样本方差独立
 
-
 $$
-\boxed{EY=2(n-1)\sigma^2}.
+\boxed{ \overline X\perp S^2 }
 $$
-
 
-方法二：直接展开，用于理解。
+由此还能直接推导：
 
+#### 结论四：经典 $t$ 统计量
 
 $$
-Y=\sum_{i=1}^nZ_i^2-n\bar Z^2.
+\boxed{ \frac{\sqrt n(\overline X-\mu)}{S} \sim t(n-1) }
 $$
 
+以及：
 
-于是
+#### 结论五：经典 $F$ 统计量
 
-
 $$
-E(Z_i^2)=2\sigma^2+4\mu^2,
+\boxed{ \frac{n(\overline X-\mu)^2}{S^2} \sim F(1,n-1) }
 $$
 
+这些公式是整个第五章的核心基础。
 
-以及
+### 5.1 为什么样本方差对应 $n-1$ 个自由度？
 
+设：
 
 $$
-E(\bar Z^2)=\frac{2\sigma^2}{n}+4\mu^2.
+Z_i=\frac{X_i-\mu}{\sigma}
 $$
-
 
-所以
+则：
 
-
 $$
-\begin{aligned} EY &=nE(Z_i^2)-nE(\bar Z^2)\\ &=n(2\sigma^2+4\mu^2) -n\left(\frac{2\sigma^2}{n}+4\mu^2\right)\\ &=2(n-1)\sigma^2. \end{aligned}
+Z_1,\ldots,Z_n\overset{\mathrm{i.i.d.}}{\sim}N(0,1)
 $$
-
-
-两种方法比较：第一种结构清楚，计算量小，适合考场；第二种适用于新变量不容易构造，但能整理为平方和的情况。
-
 
-迁移技巧：复杂统计量中出现一组组合变量的偏差平方和，先考虑重新定义样本，而不是立即展开。
+所以：
 
-
-### 例 2｜2008 年数学一：构造 $\mu^2$ 的无偏估计
-
-
-综合计算
-
-
-已知正态简单随机样本，定义
-
-
 $$
-T=\bar X^2-\frac1nS^2.
+\sum_{i=1}^nZ_i^2\sim\chi^2(n)
 $$
-
-
-要求：
-
-
-（1）证明 $T$ 是 $\mu^2$ 的无偏估计量。
-
-
-（2）当 $\mu=0,\sigma^2=1$ 时，计算 $DT$。
-
-
-第一问：检查期望。
 
+前面已经得到：
 
-首先
-
-
 $$
-E(\bar X^2)=D\bar X+(E\bar X)^2.
+\sum_{i=1}^n(X_i-\mu)^2 = \sum_{i=1}^n(X_i-\overline X)^2 +n(\overline X-\mu)^2
 $$
-
 
-所以
+除以 $\sigma^2$：
 
-
 $$
-E(\bar X^2)=\frac{\sigma^2}{n}+\mu^2.
+\boxed{ \sum_{i=1}^n\left(\frac{X_i-\mu}{\sigma}\right)^2 = \frac{(n-1)S^2}{\sigma^2} + \frac{n(\overline X-\mu)^2}{\sigma^2} }
 $$
-
 
-又因为
+左边是 $n$ 个独立标准正态平方的和。
 
+右边第二项：
 
 $$
-ES^2=\sigma^2,
+\frac{n(\overline X-\mu)^2}{\sigma^2} \sim\chi^2(1)
 $$
 
+它对应样本均值所在的方向。
 
-所以
+剩余的 $n-1$ 个正交方向组成：
 
-
 $$
-\begin{aligned} ET &=E(\bar X^2)-\frac1nES^2\\ &=\frac{\sigma^2}{n}+\mu^2-\frac{\sigma^2}{n}\\ &=\mu^2. \end{aligned}
+\frac{(n-1)S^2}{\sigma^2} \sim\chi^2(n-1)
 $$
-
 
-因此
+可以把它理解成：
 
-
 $$
-\boxed{ET=\mu^2}.
+\boxed{ n\text{ 个方向} = 1\text{ 个均值方向} + (n-1)\text{ 个残差方向} }
 $$
-
 
-这说明 $\bar X^2$ 本身有偏，需要减去 $S^2/n$ 修正。
+对于正态样本，正交的高斯分量相互独立，因此均值部分与残差部分独立。
 
+这同时解释了：
 
-第二问：利用正态抽样分布。
+1. 为什么样本方差对应 $n-1$；
+2. 为什么样本均值与样本方差独立；
+3. 为什么二者可以组成标准的 $t$ 分布。
 
+### 5.2 重要区别：减去 $\mu$ 和减去 $\overline X$
 
-当 $\mu=0,\sigma^2=1$ 时，
+这几乎是必考陷阱。
 
+当总体正态时：
 
 $$
-\sqrt n\bar X\sim N(0,1).
+\boxed{ \frac1{\sigma^2} \sum_{i=1}^n(X_i-\mu)^2 \sim\chi^2(n) }
 $$
-
-
-所以
 
+而：
 
 $$
-n\bar X^2\sim\chi^2(1).
+\boxed{ \frac1{\sigma^2} \sum_{i=1}^n(X_i-\overline X)^2 \sim\chi^2(n-1) }
 $$
 
+区别是：
 
-因为卡方分布的方差等于两倍自由度，
+- 减去真实均值 $\mu$：没有损失自由度。
+- 减去样本均值 $\overline X$：损失一个自由度。
 
+更进一步，不能认为：
 
 $$
-D(n\bar X^2)=2.
+\overline X \perp \sum_{i=1}^n(X_i-\mu)^2
 $$
 
+因为后一个平方和包含：
 
-得到
-
-
 $$
-D(\bar X^2)=\frac2{n^2}.
+n(\overline X-\mu)^2
 $$
 
+它与样本均值有关。
 
-另一方面，
+正确的独立关系是：
 
-
 $$
-(n-1)S^2\sim\chi^2(n-1).
+\overline X\perp \sum_{i=1}^n(X_i-\overline X)^2
 $$
-
 
-因此
+掌握这些基础后，下面进入核心题目的实战分析。
 
+## 六、核心题型一：样本矩、样本方差与离差平方和
 
-$$
-D[(n-1)S^2]=2(n-1),
-$$
+### 例1：李正元练习题——0-1总体的样本均值与方差
 
+题目
 
-即
+设：
 
-
 $$
-D(S^2)=\frac2{n-1}.
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}B(1,p)
 $$
+
+其中 $0<p<1$。
 
+求：
 
-正态样本保证 $\bar X$ 与 $S^2$ 独立，因此
+（1）样本均值 $\overline X$ 的概率分布；
 
+（2）证明：
 
 $$
-\begin{aligned} DT &=D(\bar X^2)+\frac1{n^2}D(S^2)\\ &=\frac2{n^2}+\frac2{n^2(n-1)}\\ &=\boxed{\frac2{n(n-1)}}. \end{aligned}
+\frac{n-1}{n}S^2=\overline X(1-\overline X)
 $$
-
-
-本题真正的难点不是无偏性，而是第二问必须知道两个平方型统计量的分布，并正确使用独立性。
-
-
-### 例 3｜2017 年数学一：卡方分布判断
 
+#### 第一步：识别二项分布
 
-经典易错选择
+因为每个 $X_i$ 都服从0-1分布：
 
-
-设 $X_1,\ldots,X_n$ 来自 $N(\mu,1)$，判断以下四个量哪些服从卡方分布：
-
-
 $$
-\begin{array}{ll} A:&\displaystyle\sum_{i=1}^n(X_i-\mu)^2,\\[4pt] B:&2(X_n-X_1)^2,\\[4pt] C:&\displaystyle\sum_{i=1}^n(X_i-\bar X)^2,\\[4pt] D:&n(\bar X-\mu)^2. \end{array}
+P(X_i=1)=p
 $$
-
 
-判断 A：
+所以：
 
-
-由于 $X_i-\mu$ 是独立标准正态，
-
-
 $$
-\boxed{A\sim\chi^2(n)}.
+K=\sum_{i=1}^nX_i\sim B(n,p)
 $$
-
 
-判断 C：
+又因为：
 
-
-正态样本的残差平方和满足
-
-
 $$
-\boxed{C\sim\chi^2(n-1)}.
+\overline X=\frac Kn
 $$
 
+因此：
 
-判断 D：
-
-
 $$
-\sqrt n(\bar X-\mu)\sim N(0,1).
+\boxed{ P\left(\overline X=\frac kn\right) =\binom nkp^k(1-p)^{n-k} }
 $$
-
-
-因此
 
+其中：
 
 $$
-\boxed{D\sim\chi^2(1)}.
+k=0,1,\ldots,n
 $$
 
+特别注意：
 
-判断 B：
-
-
 $$
-X_n-X_1\sim N(0,2).
+\overline X
 $$
 
+本身不服从二项分布，而是二项随机变量 $K$ 除以 $n$。
 
-正确标准化是
+#### 第二步：利用0-1分布的特殊性质
 
+对于0-1变量：
 
 $$
-\frac{X_n-X_1}{\sqrt2}\sim N(0,1).
+X_i^2=X_i
 $$
 
+这是突破点。
 
-所以
+由样本二阶中心矩：
 
-
 $$
-\frac{(X_n-X_1)^2}{2}\sim\chi^2(1).
+B_2=\frac1n\sum_{i=1}^nX_i^2-\overline X^2
 $$
-
 
-而题目给的是
+可得：
 
-
 $$
-2(X_n-X_1)^2,
+\begin{aligned} B_2 &=\frac1n\sum_{i=1}^nX_i-\overline X^2\\ &=\overline X-\overline X^2\\ &=\overline X(1-\overline X) \end{aligned}
 $$
-
-
-等于上述卡方变量的 $4$ 倍，不是标准卡方分布。
-
 
-故不正确的是 B。
+又因为：
 
-
-这题说明：识别卡方不能只看平方，必须检查平方里面变量的方差是否已经变成 $1$。
-
-
-### 例 4｜2023 年数学一：两个正态总体构造 $F$
-
-
-高价值真题
-
-
-设两组相互独立的样本分别来自
-
-
 $$
-X\sim N(\mu_1,\sigma^2),
+B_2=\frac{n-1}{n}S^2
 $$
 
+所以：
 
 $$
-Y\sim N(\mu_2,2\sigma^2).
+\boxed{ \frac{n-1}{n}S^2 =\overline X(1-\overline X) }
 $$
-
-
-样本容量为 $n,m$，样本方差分别为 $S_1^2,S_2^2$。
 
+#### 第三步：深入理解
 
-求
+这说明，对于0-1样本，样本方差完全由样本均值决定。
 
+事实上：
 
 $$
-\frac{2S_1^2}{S_2^2}
+S^2=\frac{n}{n-1}\overline X(1-\overline X)
 $$
 
+这还说明：
 
-的分布。
+对于伯努利样本，样本均值和样本方差一般不独立。
 
+因为样本方差已经是样本均值的函数。
 
-第一步：分别构造卡方。
+这与正态总体中：
 
-
 $$
-U=\frac{(n-1)S_1^2}{\sigma^2} \sim\chi^2(n-1).
+\overline X\perp S^2
 $$
 
+形成鲜明对比。
 
-第二个总体方差是 $2\sigma^2$，所以
+#### 方法迁移
 
+以后遇到离散总体，尤其是：
 
 $$
-V=\frac{(m-1)S_2^2}{2\sigma^2} \sim\chi^2(m-1).
+X_i\in\{0,1\}
 $$
-
-
-第二步：验证独立性。
-
 
-题目说明两组样本相互独立，所以由各自样本构造的 $U,V$ 也独立。
+优先利用：
 
-
-第三步：拼成标准 $F$。
-
-
 $$
-\begin{aligned} \frac{U/(n-1)}{V/(m-1)} &=\frac{S_1^2/\sigma^2}{S_2^2/(2\sigma^2)}\\ &=\frac{2S_1^2}{S_2^2}. \end{aligned}
+X_i^2=X_i
 $$
 
+而不是逐项计算：
 
-故
-
-
 $$
-\boxed{ \frac{2S_1^2}{S_2^2}\sim F(n-1,m-1) }.
+(X_i-\overline X)^2
 $$
-
-
-本题容易错在两个地方：漏掉第二总体方差中的系数 $2$；把自由度写成 $n,m$，而非 $n-1,m-1$。
 
+通常可以大幅简化运算。
 
-### 例 5｜2013 年数学一：$t$ 与 $F$ 的分位数关系
+### 例2：核心题目——泊松样本的离差方差
 
+题目
 
-已知
+设：
 
-
 $$
-X\sim t(r),\qquad Y\sim F(1,r),
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}P(1)
 $$
-
 
-且
+记：
 
-
 $$
-P(X>c)=\alpha,\qquad 0<\alpha<\frac12.
+Y_i=X_i-\overline X
 $$
-
 
-求
-
-
 $$
-P(Y>c^2).
+T=\sum_{i=1}^n(X_i-\overline X)^2
 $$
-
-
-因为
 
+求：
 
 $$
-X^2\sim F(1,r),
+DY_i,\qquad ET
 $$
 
+<Tabs items={['协方差法', '平方和展开']} defaultIndex={0}>
 
-所以 $Y$ 与 $X^2$ 同分布。
+<Tab value="协方差法">
 
+**解法一：协方差法**
 
-又由于 $t$ 分布关于原点对称，并且 $\alpha<1/2$，故 $c>0$。
+因为：
 
-
-于是
-
-
 $$
-\begin{aligned} P(Y>c^2) &=P(X^2>c^2)\\ &=P(X>c)+P(X<-c)\\ &=\alpha+\alpha\\ &=\boxed{2\alpha}. \end{aligned}
+EX_i=DX_i=1
 $$
-
 
-这里不要求 $X,Y$ 彼此独立，因为我们只利用它们的分布关系，并没有计算两者的联合概率。
+并且：
 
-
-### 例 6｜配对样本均值差：协方差不能漏
-
-
-这是主讲义收录的重要数学一母题。
+$$
+D\overline X=\frac1n
+$$
 
+需要特别注意：
 
-设
+$$
+X_i
+$$
 
+与：
 
 $$
-(X_i,Y_i),\qquad i=1,\ldots,n
+\overline X
 $$
 
+不独立。
 
-是二维总体的简单随机样本，并设
+因为 $\overline X$ 本身包含 $X_i$。
 
+计算：
 
 $$
-EX=\mu_1,\quad EY=\mu_2,
+\begin{aligned} \operatorname{Cov}(X_i,\overline X) &=\operatorname{Cov}\left(X_i,\frac1n\sum_{j=1}^nX_j\right)\\ &=\frac1nDX_i\\ &=\frac1n \end{aligned}
 $$
 
+因此：
 
 $$
-DX=\sigma_1^2,\quad DY=\sigma_2^2,
+\begin{aligned} DY_i &=D(X_i-\overline X)\\ &=DX_i+D\overline X -2\operatorname{Cov}(X_i,\overline X)\\ &=1+\frac1n-\frac2n \end{aligned}
 $$
 
+所以：
 
 $$
-\operatorname{Cov}(X,Y)=\rho\sigma_1\sigma_2.
+\boxed{DY_i=\frac{n-1}{n}}
 $$
-
 
-令
+再计算：
 
-
 $$
-\hat\theta=\bar X-\bar Y,\qquad \theta=\mu_1-\mu_2.
+ET =E\sum_{i=1}^n(X_i-\overline X)^2
 $$
 
+利用前面证明过的恒等式：
 
-首先
+$$
+ET=(n-1)DX_i
+$$
 
+得到：
 
 $$
-E\hat\theta=E\bar X-E\bar Y =\mu_1-\mu_2=\theta.
+\boxed{ET=n-1}
 $$
-
 
-所以 $\hat\theta$ 是无偏估计。
+</Tab>
 
+<Tab value="平方和展开">
 
-再求方差。必须保留协方差：
+**解法二：展开平方和**
 
+由于：
 
 $$
-D(\bar X-\bar Y) =D\bar X+D\bar Y-2\operatorname{Cov}(\bar X,\bar Y).
+T=\sum_{i=1}^nX_i^2-n\overline X^2
 $$
 
+所以：
 
-由于不同样本对独立，
+$$
+ET=nEX_i^2-nE\overline X^2
+$$
 
+泊松分布满足：
 
 $$
-\operatorname{Cov}(\bar X,\bar Y) =\frac{\rho\sigma_1\sigma_2}{n}.
+EX_i^2=DX_i+(EX_i)^2=2
 $$
 
+而：
 
-于是
+$$
+E\overline X^2 =D\overline X+(E\overline X)^2 =\frac1n+1
+$$
 
+故：
 
 $$
-\boxed{ D\hat\theta = \frac{\sigma_1^2+\sigma_2^2-2\rho\sigma_1\sigma_2}{n} }.
+\begin{aligned} ET &=2n-n\left(1+\frac1n\right)\\ &=n-1 \end{aligned}
 $$
 
+结果一致。
 
-另一种解法：直接先做差。
+</Tab>
 
+</Tabs>
 
-令
+#### 两种解法怎么选？
 
+如果题目是：
 
 $$
-Z_i=X_i-Y_i.
+E\sum(X_i-\overline X)^2
 $$
-
 
-则 $Z_i$ 相互独立同分布，且
+优先直接使用：
 
-
 $$
-DZ_i=\sigma_1^2+\sigma_2^2-2\rho\sigma_1\sigma_2.
+\boxed{ E\sum(X_i-\overline X)^2=(n-1)\sigma^2 }
 $$
-
 
-又因为
+如果题目给出的平方和经过复杂变形，就先展开：
 
-
 $$
-\hat\theta=\bar Z,
+\sum X_i^2-n\overline X^2
 $$
 
+再分别求期望。
 
-所以
+#### 进阶推广
 
+如果总体方差为 $\sigma^2$，则对任意独立同分布样本：
 
 $$
-D\hat\theta=\frac{DZ_i}{n}.
+\boxed{ D(X_i-\overline X)=\frac{n-1}{n}\sigma^2 }
 $$
-
 
-这种“先组合每一对，再取平均”的方法通常更直观。
+以及：
 
+$$
+\boxed{ E\sum(X_i-\overline X)^2=(n-1)\sigma^2 }
+$$
 
-关键区别：不同下标的样本对彼此独立，不意味着同一对内部的 $X_i,Y_i$ 独立。
+这两条公式都不要求总体正态。
 
+### 例3：核心题目——不同样本残差的相关系数
 
-### 例 7｜2025 年数学三：经验分布函数
+这是李正元与核心题目共同收录的一道重要证明题。
 
+题目
 
-数一适用的知识迁移题；分类真题库明确标为数学三。
+设：
 
+$$
+EX_i=\mu,\qquad DX_i=\sigma^2>0
+$$
 
-设总体分布函数为 $F(x)$，样本经验分布函数为 $F_n(x)$，求
+且 $X_1,\ldots,X_n$ 独立同分布。
 
+证明对 $i\ne j$：
 
 $$
-DF_n(x).
+\boxed{ \rho(X_i-\overline X,X_j-\overline X) =-\frac1{n-1} }
 $$
 
+#### 解法一：直接计算
 
-令
+令：
 
-
 $$
-I_i=I_{\{X_i\le x\}}, \qquad p=F(x).
+R_i=X_i-\overline X
 $$
-
 
-由于
+前面已经知道：
 
-
 $$
-I_i\sim B(1,p),
+DR_i=\frac{n-1}{n}\sigma^2
 $$
 
+现在求：
 
-所以
+$$
+\operatorname{Cov}(R_i,R_j)
+$$
 
+展开：
 
 $$
-DI_i=p(1-p).
+\begin{aligned} \operatorname{Cov}(R_i,R_j) &=\operatorname{Cov}(X_i-\overline X,X_j-\overline X)\\ &=\operatorname{Cov}(X_i,X_j) -\operatorname{Cov}(X_i,\overline X)\\ &\quad-\operatorname{Cov}(\overline X,X_j) +D\overline X \end{aligned}
 $$
 
+由于 $i\ne j$：
 
-又
+$$
+\operatorname{Cov}(X_i,X_j)=0
+$$
 
+并且：
 
 $$
-F_n(x)=\frac1n\sum_{i=1}^nI_i,
+\operatorname{Cov}(X_i,\overline X) =\frac{\sigma^2}{n}
 $$
 
+所以：
 
-因此
+$$
+\begin{aligned} \operatorname{Cov}(R_i,R_j) &=0-\frac{\sigma^2}{n} -\frac{\sigma^2}{n} +\frac{\sigma^2}{n}\\ &=-\frac{\sigma^2}{n} \end{aligned}
+$$
 
+因此：
 
 $$
-\begin{aligned} DF_n(x) &=\frac1{n^2}\sum_{i=1}^nDI_i\\ &=\frac{np(1-p)}{n^2}\\ &=\boxed{\frac{F(x)[1-F(x)]}{n}}. \end{aligned}
+\begin{aligned} \rho(R_i,R_j) &=\frac{-\sigma^2/n} {\sqrt{\frac{n-1}{n}\sigma^2 \frac{n-1}{n}\sigma^2}}\\ &=-\frac1{n-1} \end{aligned}
 $$
 
+证毕。
 
-进一步变式：经验分布函数的协方差。
+#### 解法二：利用残差和为零
 
+这是更值得掌握的方法。
 
-若 $x<y$，令
+因为：
 
-
 $$
-I_i=I_{\{X_i\le x\}}, \quad J_i=I_{\{X_i\le y\}}.
+R_1+\cdots+R_n=0
 $$
-
 
-因为事件 $\{X_i\le x\}$ 包含于事件 $\{X_i\le y\}$，所以
+所以：
 
-
 $$
-I_iJ_i=I_i.
+\operatorname{Cov}\left(R_i,\sum_{j=1}^nR_j\right)=0
 $$
-
 
-于是
+展开：
 
-
 $$
-\operatorname{Cov}(I_i,J_i) =F(x)-F(x)F(y).
+DR_i+\sum_{j\ne i}\operatorname{Cov}(R_i,R_j)=0
 $$
-
 
-再利用不同样本下标之间的独立性，
+由于样本的对称性，不同残差之间的协方差相同。
 
+设：
 
 $$
-\boxed{ \operatorname{Cov}(F_n(x),F_n(y)) =\frac{F(x)[1-F(y)]}{n} }.
+DR_i=v
 $$
-
-
-这个变式非常适合训练“示性函数 + 协方差”的综合能力。
 
-
-### 例 8｜李林 880：共享样本的线性组合为何仍可独立
-
-
-设
-
-
 $$
-X_1,X_2,X_3\overset{\mathrm{i.i.d.}}{\sim}N(0,\sigma^2).
+\operatorname{Cov}(R_i,R_j)=c
 $$
 
+则：
 
-求统计量
+$$
+v+(n-1)c=0
+$$
 
+因此：
 
 $$
-T=\sqrt{\frac23}\frac{X_1+X_2+X_3}{|X_2-X_3|}
+c=-\frac{v}{n-1}
 $$
 
+于是：
 
-的分布。
-
+$$
+\boxed{ \rho(R_i,R_j)=\frac cv=-\frac1{n-1} }
+$$
 
-难点在于分子和分母都出现了 $X_2,X_3$。
+这个方法几乎不用具体计算。
 
+#### 深层理解
 
-第一步：定义两个线性组合。
+为什么残差之间存在负相关？
 
+因为它们必须满足：
 
 $$
-L_1=X_1+X_2+X_3,
+R_1+\cdots+R_n=0
 $$
+
+一个残差偏大时，其他残差必须在整体上作出抵消。
 
+特别地，当 $n=2$ 时：
 
 $$
-L_2=X_2-X_3.
+R_1=-R_2
 $$
 
+所以：
 
-容易得到
-
-
 $$
-L_1\sim N(0,3\sigma^2),
+\rho(R_1,R_2)=-1
 $$
 
+完全符合：
 
 $$
-L_2\sim N(0,2\sigma^2).
+-\frac1{n-1}=-1
 $$
 
+当 $n$ 增大时，任意两个残差之间的负相关程度逐渐减弱。
 
-第二步：证明独立。
+迁移价值： 遇到一组随机变量满足固定的线性约束，优先考虑利用约束关系计算协方差，而不是全部展开。
 
+## 七、核心题型二：统计量的无偏性与方差
 
-由于两者都是独立正态样本的线性组合，所以联合正态。
+### 例4：核心题目重点——构造 $\mu^2$ 的无偏估计量
 
+题目
 
-求协方差：
+设：
 
-
 $$
-\begin{aligned} \operatorname{Cov}(L_1,L_2) &=\operatorname{Cov}(X_1+X_2+X_3,X_2-X_3)\\ &=DX_2-DX_3\\ &=\sigma^2-\sigma^2=0. \end{aligned}
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2)
 $$
-
 
-由联合正态和零协方差，
+定义：
 
-
 $$
-L_1\perp L_2.
+T=\overline X^2-\frac{S^2}{n}
 $$
-
-
-第三步：标准化。
-
 
-令
+（1）证明：
 
-
 $$
-Z=\frac{L_1}{\sqrt3\sigma}\sim N(0,1),
+ET=\mu^2
 $$
 
+（2）当：
 
 $$
-V=\frac{L_2^2}{2\sigma^2}\sim\chi^2(1).
+\mu=0,\qquad \sigma^2=1
 $$
-
 
-且 $Z,V$ 独立。
+时，求 $DT$。
 
+这道题综合了样本矩、无偏估计、卡方分布以及独立性，特别值得认真掌握。
 
-因此
+### 第一问：证明无偏性
 
+由于：
 
 $$
-T=\frac{Z}{\sqrt{V/1}}.
+E\overline X=\mu
 $$
-
-
-所以
 
-
 $$
-\boxed{T\sim t(1)}.
+D\overline X=\frac{\sigma^2}{n}
 $$
-
-
-这道题最值得学习的不是最终答案，而是：共享原始样本并不必然意味着两个线性组合相关；正态样本可以用协方差为零来证明它们独立。
-
 
-## 七、几个需要深刻理解的常见陷阱
+所以：
 
+$$
+E\overline X^2 =D\overline X+(E\overline X)^2
+$$
 
+即：
 
-<Accordions>
+$$
+E\overline X^2 =\frac{\sigma^2}{n}+\mu^2
+$$
 
-<Accordion title="陷阱 1：把无偏性当成独立性">
+又因为：
 
 $$
 ES^2=\sigma^2
 $$
 
-
-只说明 $S^2$ 是 $\sigma^2$ 的无偏估计。
-
-
-它不能推出 $\bar X$ 与 $S^2$ 独立，也不能推出 $S$ 对 $\sigma$ 无偏。
-
-</Accordion>
-
-<Accordion title="陷阱 2：卡方自由度按原始样本个数数">
-
-若
-
+因此：
 
 $$
-Z=\frac{X_1+X_2+X_3}{\sqrt3\sigma} \sim N(0,1),
+\begin{aligned} ET &=E\left(\overline X^2-\frac{S^2}{n}\right)\\ &=\mu^2+\frac{\sigma^2}{n} -\frac{\sigma^2}{n}\\ &=\mu^2 \end{aligned}
 $$
 
-
-则
-
+所以：
 
 $$
-Z^2\sim\chi^2(1),
+\boxed{ET=\mu^2}
 $$
 
+注意这里第一问实际上不需要总体正态，只需独立同分布且存在有限方差。
 
-而不是 $\chi^2(3)$。
+#### 为什么要减去 $\dfrac{S^2}{n}$？
 
-
-因为这里只有一个标准正态随机变量被平方。原本用了三个样本，并不意味着有三个独立平方项。
-
-</Accordion>
-
-<Accordion title="陷阱 3：关于总体均值的平方和与关于样本均值的平方和混淆">
-
-对于正态总体：
-
+因为直接使用：
 
 $$
-\frac1{\sigma^2}\sum_{i=1}^n(X_i-\mu)^2 \sim\chi^2(n),
+\overline X^2
 $$
 
-
-而
-
+估计：
 
 $$
-\frac1{\sigma^2}\sum_{i=1}^n(X_i-\bar X)^2 \sim\chi^2(n-1).
+\mu^2
 $$
 
-
-并且如果分母使用关于 $\mu$ 的总平方和，它通常会包含分子中的样本均值信息，因此不能直接构造标准 $t$ 统计量。
-
-</Accordion>
-
-<Accordion title="陷阱 4：见到绝对值就认为不是 $t$">
-
-如果 $Z,W$ 是两个独立标准正态变量，
-
+会产生：
 
 $$
-\frac{Z}{|W|} =\frac{Z}{\sqrt{W^2}} \sim t(1).
+\frac{\sigma^2}{n}
 $$
 
+的正偏差。
 
-但
-
-
-$$
-\frac{|Z|}{|W|}
-$$
-
-
-只能取非负值，因此不可能服从对称的 $t(1)$ 分布。
-
-
-这两个式子看起来很像，分布却不同。
-
-</Accordion>
-
-<Accordion title="陷阱 5：误用中心极限定理">
-
-如果总体不正态，那么
-
+所以减去：
 
 $$
-E\bar X=\mu,\qquad D\bar X=\frac{\sigma^2}{n}
+\frac{S^2}{n}
 $$
 
+就是对偏差进行修正。
 
-仍然成立。
-
-
-但
-
+这是一种非常通用的构造思路：
 
 $$
-\bar X\sim N\left(\mu,\frac{\sigma^2}{n}\right)
+\boxed{ \text{无偏估计量} = \text{原估计量} - \text{可无偏估计的偏差} }
 $$
 
+### 第二问：求 $DT$
 
-不一定是精确结论。
+现在：
 
+$$
+X_i\sim N(0,1)
+$$
 
-在独立同分布且具有有限、正方差等条件下，中心极限定理给出大样本正态近似，而不是对任意有限 $n$ 的精确分布。
+首先：
+
+$$
+\sqrt n\,\overline X\sim N(0,1)
+$$
+
+所以：
+
+$$
+n\overline X^2\sim\chi^2(1)
+$$
+
+由于卡方分布满足：
+
+$$
+D[\chi^2(k)]=2k
+$$
+
+得到：
+
+$$
+D(n\overline X^2)=2
+$$
+
+即：
+
+$$
+\boxed{ D(\overline X^2)=\frac2{n^2} }
+$$
+
+另一方面：
+
+$$
+(n-1)S^2\sim\chi^2(n-1)
+$$
+
+所以：
+
+$$
+D[(n-1)S^2]=2(n-1)
+$$
+
+因此：
+
+$$
+\boxed{ D(S^2)=\frac2{n-1} }
+$$
+
+由于正态样本有：
+
+$$
+\overline X\perp S^2
+$$
+
+因此：
+
+$$
+\overline X^2\perp S^2
+$$
+
+所以：
+
+$$
+\begin{aligned} DT &=D\left(\overline X^2-\frac{S^2}{n}\right)\\ &=D(\overline X^2)+\frac1{n^2}D(S^2)\\ &=\frac2{n^2}+\frac2{n^2(n-1)}\\ &=\frac{2(n-1)+2}{n^2(n-1)} \end{aligned}
+$$
+
+最终：
+
+$$
+\boxed{ DT=\frac2{n(n-1)} }
+$$
+
+### 更高价值的解法：把它化成样本两两乘积
+
+注意：
+
+$$
+S^2 =\frac1{n-1} \left(\sum X_i^2-n\overline X^2\right)
+$$
+
+代入：
+
+$$
+T=\overline X^2-\frac{S^2}{n}
+$$
+
+得到：
+
+$$
+\begin{aligned} T &=\frac{n}{n-1}\overline X^2 -\frac1{n(n-1)}\sum X_i^2\\ &=\frac{(\sum X_i)^2-\sum X_i^2}{n(n-1)} \end{aligned}
+$$
+
+因为：
+
+$$
+\left(\sum X_i\right)^2 =\sum X_i^2+2\sum_{i<j}X_iX_j
+$$
+
+所以：
+
+$$
+\boxed{ T=\frac{2}{n(n-1)} \sum_{i<j}X_iX_j }
+$$
+
+这就揭示了它为什么能够无偏估计 $\mu^2$。
+
+对于 $i\ne j$，独立性给出：
+
+$$
+E(X_iX_j)=EX_iEX_j=\mu^2
+$$
+
+一共有：
+
+$$
+\binom n2=\frac{n(n-1)}2
+$$
+
+项，因此：
+
+$$
+ET=\mu^2
+$$
+
+这种两两乘积构造也与统计学中的 U 统计量思想相联系。
+
+#### 如何用第二种方法计算方差？
+
+在：
+
+$$
+\mu=0,\qquad \sigma^2=1
+$$
+
+时，每个乘积：
+
+$$
+X_iX_j
+$$
+
+均值为0，方差为1。
+
+对于不同的无序指标对 $(i,j)$，即使它们共享一个指标，对应乘积的协方差仍为0。
+
+例如：
+
+$$
+E[(X_1X_2)(X_1X_3)] =EX_1^2EX_2EX_3=0
+$$
+
+所以：
+
+$$
+\begin{aligned} DT &=\frac4{n^2(n-1)^2} \binom n2\\ &=\boxed{\frac2{n(n-1)}} \end{aligned}
+$$
+
+与卡方分布方法一致。
+
+#### 两种方法的区别
+
+| 方法    | 优点     | 适用范围        |
+| ----- | ------ | ----------- |
+| 卡方分布法 | 快速、规范  | 正态总体        |
+| 两两乘积法 | 揭示构造原理 | 更一般的独立同分布总体 |
+
+这道题最值得迁移的不是最后一个答案，而是：
+
+当题目要求构造 $\mu^2$、$\sigma^2$ 或其他总体矩的无偏估计量时，可以尝试利用独立样本乘积消除偏差。
+
+## 八、核心题型三：识别隐藏的卡方分布
+
+### 例5：核心题目与李林880共同题——配方构造 $\chi^2$
+
+题目
+
+设：
+
+$$
+X_1,\ldots,X_{2n}\overset{\mathrm{i.i.d.}}{\sim}N(0,1)
+$$
+
+求：
+
+$$
+T_1= \frac12\sum_{i=1}^{2n}X_i^2 +\sum_{i=1}^nX_{2i-1}X_{2i}
+$$
+
+的分布。
+
+#### 第一步：不要直接数平方项
+
+题目里看似有：
+
+$$
+2n
+$$
+
+个平方项。
+
+但还存在交叉乘积：
+
+$$
+X_1X_2,\quad X_3X_4,\ldots
+$$
+
+所以不能直接认为：
+
+$$
+T_1\sim\chi^2(2n)
+$$
+
+必须先进行配方。
+
+#### 第二步：两两配方
+
+注意：
+
+$$
+\frac12(a^2+b^2)+ab=\frac12(a+b)^2
+$$
+
+因此：
+
+$$
+\begin{aligned} T_1 &=\frac12(X_1+X_2)^2 +\frac12(X_3+X_4)^2\\ &\quad+\cdots+ \frac12(X_{2n-1}+X_{2n})^2 \end{aligned}
+$$
+
+整理：
+
+$$
+T_1=\sum_{i=1}^n \left(\frac{X_{2i-1}+X_{2i}}{\sqrt2}\right)^2
+$$
+
+#### 第三步：构造独立标准正态变量
+
+令：
+
+$$
+Z_i=\frac{X_{2i-1}+X_{2i}}{\sqrt2}
+$$
+
+因为：
+
+$$
+X_{2i-1}+X_{2i}\sim N(0,2)
+$$
+
+所以：
+
+$$
+Z_i\sim N(0,1)
+$$
+
+而不同 $Z_i$ 使用的样本不重叠，因此它们相互独立。
+
+于是：
+
+$$
+T_1=\sum_{i=1}^nZ_i^2
+$$
+
+所以：
+
+$$
+\boxed{ T_1\sim\chi^2(n) }
+$$
+
+#### 为什么自由度是 $n$，不是 $2n$？
+
+因为实际组成平方和的是：
+
+$$
+Z_1,\ldots,Z_n
+$$
+
+这 $n$ 个独立标准正态变量。
+
+原题虽然使用了 $2n$ 个样本，但经过两两合并，只留下 $n$ 个独立线性组合方向。
+
+这是一个非常重要的认识：
+
+卡方自由度数的是独立标准正态平方项的个数，而不是原始样本的个数。
+
+### 例6：李正元练习题——反向构造卡方分布
+
+设：
+
+$$
+X_1,\ldots,X_{10}\overset{\mathrm{i.i.d.}}{\sim}N(0,4)
+$$
+
+求 $a,b,c,d$，使：
+
+$$
+\begin{aligned} Q={}&aX_1^2+b(X_2+X_3)^2\\ &+c(X_4+X_5+X_6)^2\\ &+d(X_7+X_8+X_9+X_{10})^2 \end{aligned}
+$$
+
+成为四个独立标准正态平方之和，并求其自由度。
+
+#### 第一步：分别计算线性组合的方差
+
+因为原始样本独立：
+
+$$
+DX_1=4
+$$
+
+$$
+D(X_2+X_3)=8
+$$
+
+$$
+D(X_4+X_5+X_6)=12
+$$
+
+$$
+D(X_7+\cdots+X_{10})=16
+$$
+
+#### 第二步：把每组平方除以自己的方差
+
+因此：
+
+$$
+\frac{X_1^2}{4}\sim\chi^2(1)
+$$
+
+$$
+\frac{(X_2+X_3)^2}{8}\sim\chi^2(1)
+$$
+
+$$
+\frac{(X_4+X_5+X_6)^2}{12}\sim\chi^2(1)
+$$
+
+$$
+\frac{(X_7+\cdots+X_{10})^2}{16}\sim\chi^2(1)
+$$
+
+不同组使用不重叠的样本，故这四项相互独立。
+
+所以：
+
+$$
+\boxed{ a=\frac14,\quad b=\frac18,\quad c=\frac1{12},\quad d=\frac1{16} }
+$$
+
+以及：
+
+$$
+\boxed{Q\sim\chi^2(4)}
+$$
+
+这里默认四个平方项都要保留。如果允许某些系数为0，也可以得到自由度更小的卡方变量。
+
+#### 重要通法
+
+对于：
+
+$$
+X_i\sim N(0,\sigma^2)
+$$
+
+若：
+
+$$
+Y=\sum_{i=1}^kX_i
+$$
+
+且这些样本独立，那么：
+
+$$
+Y\sim N(0,k\sigma^2)
+$$
+
+所以：
+
+$$
+\boxed{ \frac{Y^2}{k\sigma^2}\sim\chi^2(1) }
+$$
+
+不是：
+
+$$
+\chi^2(k)
+$$
+
+这一点特别容易出错。
+
+一个包含 $k$ 个样本的线性和，平方之后仍然只对应一个标准正态平方项。
+
+## 九、核心题型四：$t$ 分布的标准化与独立性
+
+### 例7：核心题目——三个统计量的统一识别
+
+沿用例5中的样本：
+
+$$
+X_1,\ldots,X_{2n}\overset{\mathrm{i.i.d.}}{\sim}N(0,1)
+$$
+
+求：
+
+$$
+T_2= \frac{\sqrt{2n-1}X_1} {\sqrt{\sum_{i=2}^{2n}X_i^2}}
+$$
+
+及：
+
+$$
+T_3= \frac{(2n-3)\sum_{i=1}^3X_i^2} {3\sum_{i=4}^{2n}X_i^2}
+$$
+
+的分布。
+
+#### 第一问：识别 $t$ 分布
+
+定义：
+
+$$
+V=\sum_{i=2}^{2n}X_i^2
+$$
+
+则：
+
+$$
+V\sim\chi^2(2n-1)
+$$
+
+并且：
+
+$$
+X_1\perp V
+$$
+
+将题目改写为：
+
+$$
+T_2=\frac{X_1}{\sqrt{V/(2n-1)}}
+$$
+
+所以：
+
+$$
+\boxed{ T_2\sim t(2n-1) }
+$$
+
+#### 第二问：识别 $F$ 分布
+
+定义：
+
+$$
+U=\sum_{i=1}^3X_i^2
+$$
+
+则：
+
+$$
+U\sim\chi^2(3)
+$$
+
+再定义：
+
+$$
+V=\sum_{i=4}^{2n}X_i^2
+$$
+
+则：
+
+$$
+V\sim\chi^2(2n-3)
+$$
+
+由于样本指标不重叠：
+
+$$
+U\perp V
+$$
+
+因此：
+
+$$
+\begin{aligned} T_3 &=\frac{(2n-3)U}{3V}\\ &=\frac{U/3}{V/(2n-3)} \end{aligned}
+$$
+
+所以：
+
+$$
+\boxed{ T_3\sim F(3,2n-3) }
+$$
+
+与前面的例5合起来：
+
+$$
+\boxed{ T_1\sim\chi^2(n) }
+$$
+
+$$
+\boxed{ T_2\sim t(2n-1) }
+$$
+
+$$
+\boxed{ T_3\sim F(3,2n-3) }
+$$
+
+这三道题可以用同一套思路解决：
+
+拆分正态变量 → 标准化 → 检查独立性 → 对齐标准分布。
+
+### 例8：核心重点——分子分母使用相同样本，如何证明独立？
+
+<Callout type="warn" title="同一样本不必然独立">
+
+分子、分母来自同一批样本时，不能仅凭各自形式判断独立；可利用正态线性组合的协方差或正态样本均值与方差独立的定理。
+
+</Callout>
+
+这是李林880与核心题目的共同综合题。
+
+题目
+
+设：
+
+$$
+X_1,X_2,X_3
+$$
+
+相互独立且均服从：
+
+$$
+N(0,\sigma^2)
+$$
+
+证明：
+
+$$
+T=\sqrt{\frac23} \frac{X_1+X_2+X_3}{|X_2-X_3|} \sim t(1)
+$$
+
+#### 第一步：标准化分子
+
+由于：
+
+$$
+X_1+X_2+X_3\sim N(0,3\sigma^2)
+$$
+
+令：
+
+$$
+U=\frac{X_1+X_2+X_3}{\sqrt3\sigma}
+$$
+
+则：
+
+$$
+U\sim N(0,1)
+$$
+
+#### 第二步：标准化分母
+
+由于：
+
+$$
+X_2-X_3\sim N(0,2\sigma^2)
+$$
+
+令：
+
+$$
+V=\frac{X_2-X_3}{\sqrt2\sigma}
+$$
+
+则：
+
+$$
+V\sim N(0,1)
+$$
+
+因此：
+
+$$
+V^2\sim\chi^2(1)
+$$
+
+#### 第三步：独立性证明
+
+这是整道题最关键的一步。
+
+虽然 $U,V$ 都涉及：
+
+$$
+X_2,X_3
+$$
+
+但不意味着它们一定不独立。
+
+计算：
+
+$$
+\begin{aligned} &\operatorname{Cov}(X_1+X_2+X_3,X_2-X_3)\\ &=\operatorname{Cov}(X_2,X_2) -\operatorname{Cov}(X_3,X_3)\\ &=\sigma^2-\sigma^2\\ &=0 \end{aligned}
+$$
+
+这里已经利用原始样本相互独立，消去了其他交叉项。
+
+由于 $U,V$ 是联合正态向量的线性组合，所以 $U,V$ 联合正态。
+
+联合正态 + 协方差为0，可以推出独立。
+
+因此：
+
+$$
+U\perp V
+$$
+
+从而：
+
+$$
+U\perp V^2
+$$
+
+#### 第四步：还原标准形式
+
+$$
+\begin{aligned} \frac{U}{\sqrt{V^2}} &=\frac{ \frac{X_1+X_2+X_3}{\sqrt3\sigma} }{ \frac{|X_2-X_3|}{\sqrt2\sigma} }\\ &=\sqrt{\frac23} \frac{X_1+X_2+X_3}{|X_2-X_3|} \end{aligned}
+$$
+
+所以：
+
+$$
+\boxed{T\sim t(1)}
+$$
+
+#### 这道题比普通 $t$ 分布题难在哪里？
+
+普通题目往往由不重叠的样本构造分子和分母。
+
+这道题的样本有重叠，所以不能直接根据样本独立性得出结论。
+
+必须使用：
+
+$$
+\boxed{ \text{联合正态} + \operatorname{Cov}(U,V)=0 \Longrightarrow U\perp V }
+$$
+
+#### 高价值推广：系数向量正交法
+
+假设：
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(0,\sigma^2)
+$$
+
+构造：
+
+$$
+U=\sum_{i=1}^na_iX_i
+$$
+
+$$
+V=\sum_{i=1}^nb_iX_i
+$$
+
+那么：
+
+$$
+\operatorname{Cov}(U,V) =\sigma^2\sum_{i=1}^na_ib_i
+$$
+
+由于 $U,V$ 联合正态，因此：
+
+$$
+\boxed{ \sum_{i=1}^na_ib_i=0 \Longrightarrow U\perp V }
+$$
+
+例如：
+
+$$
+U=X_1+X_2+X_3
+$$
+
+对应系数：
+
+$$
+(1,1,1)
+$$
+
+而：
+
+$$
+V=X_2-X_3
+$$
+
+对应系数：
+
+$$
+(0,1,-1)
+$$
+
+两个系数向量的内积：
+
+$$
+1\cdot0+1\cdot1+1\cdot(-1)=0
+$$
+
+所以它们独立。
+
+以后遇到复杂的正态线性组合题，直接计算系数向量内积通常比逐项展开更快。
+
+### 例9：核心题目——容易弄错的样本方差系数
+
+题目
+
+设：
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2)
+$$
+
+定义：
+
+$$
+S_1^2=\frac1{n-1}\sum(X_i-\overline X)^2
+$$
+
+$$
+S_2^2=\frac1n\sum(X_i-\overline X)^2
+$$
+
+判断下列哪个服从 $t(n-1)$：
+
+A.
+
+$$
+\frac{\overline X-\mu}{S_1/\sqrt{n-1}}
+$$
+
+B.
+
+$$
+\frac{\overline X-\mu}{S_2/\sqrt{n-1}}
+$$
+
+#### 第一步：先写标准答案形式
+
+$$
+\boxed{ T_0=\frac{\sqrt n(\overline X-\mu)}{S_1} \sim t(n-1) }
+$$
+
+也就是：
+
+$$
+T_0=\frac{\overline X-\mu}{S_1/\sqrt n}
+$$
+
+#### 第二步：比较两个样本方差
+
+因为：
+
+$$
+S_2^2=\frac{n-1}{n}S_1^2
+$$
+
+所以：
+
+$$
+S_2=\sqrt{\frac{n-1}{n}}S_1
+$$
+
+于是：
+
+$$
+\frac{S_2}{\sqrt{n-1}} =\frac{S_1}{\sqrt n}
+$$
+
+所以：
+
+$$
+\boxed{ \frac{\overline X-\mu}{S_2/\sqrt{n-1}} \sim t(n-1) }
+$$
+
+答案是 B。
+
+#### 这类题应该怎样快速判断？
+
+不要记住题目里某一个特定的根号组合。
+
+只需要记住：
+
+$$
+\boxed{ \frac{\sqrt n(\overline X-\mu)}S \sim t(n-1) }
+$$
+
+然后把所有候选式统一化成这个形式。
+
+这种题的主要考点不是分布理论本身，而是根号、分母 $n$ 与 $n-1$ 的代数处理。
+
+## 十、核心题型五：新观测值与旧样本均值
+
+### 例10：核心题目——求系数使统计量服从 $F$ 分布
+
+<Callout type="idea" title="优先反向匹配分布定义">
+
+先将式子整理成两个独立卡方变量除以各自自由度后的比值，再决定所需系数与自由度顺序。
+
+</Callout>
+
+题目
+
+设：
+
+$$
+X_1,\ldots,X_n,X_{n+1}
+$$
+
+是来自：
+
+$$
+N(\mu,\sigma^2)
+$$
+
+的简单随机样本。
+
+其中：
+
+$$
+\overline X=\frac1n\sum_{i=1}^nX_i
+$$
+
+$$
+S^2=\frac1{n-1}\sum_{i=1}^n(X_i-\overline X)^2
+$$
+
+定义：
+
+$$
+Y=\frac{n}{(n+1)\sigma^2} (X_{n+1}-\overline X)^2
+$$
+
+以及：
+
+$$
+T=\frac{k(X_{n+1}-\overline X)^2}{S^2}
+$$
+
+求：
+
+$$
+EY,\qquad DY
+$$
+
+以及使 $T$ 服从标准 $F$ 分布的系数 $k$。
+
+#### 第一步：先求新观测与旧样本均值之差的分布
+
+因为：
+
+$$
+X_{n+1}\sim N(\mu,\sigma^2)
+$$
+
+$$
+\overline X\sim N\left(\mu,\frac{\sigma^2}{n}\right)
+$$
+
+且：
+
+$$
+X_{n+1}\perp\overline X
+$$
+
+所以：
+
+$$
+E(X_{n+1}-\overline X)=0
+$$
+
+方差：
+
+$$
+\begin{aligned} D(X_{n+1}-\overline X) &=DX_{n+1}+D\overline X\\ &=\sigma^2+\frac{\sigma^2}{n}\\ &=\frac{n+1}{n}\sigma^2 \end{aligned}
+$$
+
+因此：
+
+$$
+X_{n+1}-\overline X \sim N\left(0,\frac{n+1}{n}\sigma^2\right)
+$$
+
+#### 第二步：识别 $Y$ 的分布
+
+标准化：
+
+$$
+Z=\frac{X_{n+1}-\overline X} {\sigma\sqrt{(n+1)/n}}
+$$
+
+则：
+
+$$
+Z\sim N(0,1)
+$$
+
+而：
+
+$$
+Y=Z^2
+$$
+
+所以：
+
+$$
+\boxed{Y\sim\chi^2(1)}
+$$
+
+因此：
+
+$$
+\boxed{EY=1,\qquad DY=2}
+$$
+
+#### 第三步：证明与样本方差独立
+
+正态总体中：
+
+$$
+\overline X\perp S^2
+$$
+
+同时，新观测值 $X_{n+1}$ 与前 $n$ 个样本组成的整个随机向量独立。
+
+由正态抽样定理及样本分组独立性，可得：
+
+$$
+S^2\perp(X_{n+1},\overline X)
+$$
+
+因此：
+
+$$
+S^2\perp(X_{n+1}-\overline X)^2
+$$
+
+而：
+
+$$
+V=\frac{(n-1)S^2}{\sigma^2} \sim\chi^2(n-1)
+$$
+
+所以：
+
+$$
+\frac{Y/1}{V/(n-1)} \sim F(1,n-1)
+$$
+
+代入：
+
+$$
+\frac{Y}{S^2/\sigma^2} = \frac{n}{n+1} \frac{(X_{n+1}-\overline X)^2}{S^2}
+$$
+
+于是：
+
+$$
+\boxed{ k=\frac{n}{n+1} }
+$$
+
+最终：
+
+$$
+\boxed{ T\sim F(1,n-1) }
+$$
+
+#### 高价值推广：预测型 $t$ 统计量
+
+既然：
+
+$$
+X_{n+1}-\overline X \sim N\left(0,\sigma^2\left(1+\frac1n\right)\right)
+$$
+
+那么：
+
+$$
+\boxed{ \frac{X_{n+1}-\overline X} {S\sqrt{1+1/n}} \sim t(n-1) }
+$$
+
+这是经典的预测型 $t$ 统计量。
+
+对比普通样本均值的 $t$ 统计量：
+
+$$
+\frac{\overline X-\mu}{S/\sqrt n} \sim t(n-1)
+$$
+
+两者的分母完全不同。
+
+| 场景         | 被标准化的随机变量                  | 标准差尺度                    |
+| ---------- | -------------------------- | ------------------------ |
+| 样本均值估计总体均值 | $\overline X-\mu$      | $\sigma/\sqrt n$     |
+| 新观测预测误差    | $X_{n+1}-\overline X$ | $\sigma\sqrt{1+1/n}$ |
+
+为什么预测误差尺度更大？
+
+因为预测一个新观测时，不仅有样本均值估计的不确定性，还有新观测本身的随机波动。
+
+这也是未来遇到新型统计量时必须理解的思想。
+
+## 十一、核心题型六：两组正态样本的联合分布
+
+### 例11：李正元练习题——两组样本的 $F$ 分布与合并方差
+
+设两组样本相互独立：
+
+$$
+X_1,\ldots,X_m\sim N(\mu_1,\sigma^2)
+$$
+
+$$
+Y_1,\ldots,Y_n\sim N(\mu_2,\sigma^2)
+$$
+
+样本方差分别为：
+
+$$
+S_X^2,\qquad S_Y^2
+$$
+
+#### 第一部分：求样本方差比的分布
+
+由正态抽样定理：
+
+$$
+U=\frac{(m-1)S_X^2}{\sigma^2} \sim\chi^2(m-1)
+$$
+
+$$
+V=\frac{(n-1)S_Y^2}{\sigma^2} \sim\chi^2(n-1)
+$$
+
+并且：
+
+$$
+U\perp V
+$$
+
+因此：
+
+$$
+\frac{U/(m-1)}{V/(n-1)} =\frac{S_X^2}{S_Y^2}
+$$
+
+故：
+
+$$
+\boxed{ \frac{S_X^2}{S_Y^2} \sim F(m-1,n-1) }
+$$
+
+#### 第二部分：为什么 $S_X^2+S_Y^2$ 不能直接当作卡方分布？
+
+因为卡方分布要求平方和经过标准化。
+
+这里真正成立的是：
+
+$$
+\boxed{ \frac{(m-1)S_X^2+(n-1)S_Y^2}{\sigma^2} \sim\chi^2(m+n-2) }
+$$
+
+而不是：
+
+$$
+S_X^2+S_Y^2\sim\chi^2(m+n-2)
+$$
+
+#### 第三部分：推导两样本合并方差
+
+定义：
+
+$$
+\boxed{ S_p^2= \frac{(m-1)S_X^2+(n-1)S_Y^2}{m+n-2} }
+$$
+
+于是：
+
+$$
+\frac{(m+n-2)S_p^2}{\sigma^2} \sim\chi^2(m+n-2)
+$$
+
+另一方面：
+
+$$
+\overline X-\overline Y \sim N\left( \mu_1-\mu_2, \sigma^2\left(\frac1m+\frac1n\right) \right)
+$$
+
+所以：
+
+$$
+Z= \frac{ \overline X-\overline Y-(\mu_1-\mu_2) }{ \sigma\sqrt{\frac1m+\frac1n} } \sim N(0,1)
+$$
+
+利用正态样本均值与样本方差的独立性，以及两组样本独立，可以证明 $Z$ 与合并卡方变量独立。
+
+于是：
+
+$$
+\boxed{ \frac{ \overline X-\overline Y-(\mu_1-\mu_2) }{ S_p\sqrt{\frac1m+\frac1n} } \sim t(m+n-2) }
+$$
+
+这是两独立正态总体、方差相同但未知时的经典两样本 $t$ 统计量。
+
+#### 思考：如果两组总体方差不同呢？
+
+假设：
+
+$$
+DX_i=\sigma_1^2
+$$
+
+$$
+DY_j=\sigma_2^2
+$$
+
+则：
+
+$$
+\frac{S_X^2/\sigma_1^2} {S_Y^2/\sigma_2^2} \sim F(m-1,n-1)
+$$
+
+也就是：
+
+$$
+\boxed{ \frac{\sigma_2^2S_X^2}{\sigma_1^2S_Y^2} \sim F(m-1,n-1) }
+$$
+
+不能再直接把：
+
+$$
+\frac{S_X^2}{S_Y^2}
+$$
+
+当作标准 $F$ 分布。
+
+这也是核心题目中两组总体方差分别为 $\sigma^2$ 与 $2\sigma^2$ 时，要额外乘上系数 $2$ 的原因。
+
+## 十二、核心题型七：$t$ 与 $F$ 分布的相互转换
+
+### 例12：核心题目——由 $t$ 分布求 $F$ 分布尾概率
+
+题目
+
+设：
+
+$$
+X\sim t(n)
+$$
+
+$$
+Y\sim F(1,n)
+$$
+
+且：
+
+$$
+0<\alpha<\frac12
+$$
+
+已知常数 $c$ 满足：
+
+$$
+P(X>c)=\alpha
+$$
+
+求：
+
+$$
+P(Y>c^2)
+$$
+
+#### 第一步：利用分布转换
+
+由于：
+
+$$
+X\sim t(n)
+$$
+
+所以：
+
+$$
+X^2\sim F(1,n)
+$$
+
+而：
+
+$$
+Y\sim F(1,n)
+$$
+
+因此：
+
+$$
+Y\overset d=X^2
+$$
+
+注意这里表示同分布，并不是说：
+
+$$
+Y=X^2
+$$
+
+题目也不需要 $X,Y$ 独立。
+
+#### 第二步：判断 $c$ 的符号
+
+由于 $t$ 分布关于0对称：
+
+$$
+P(X>0)=\frac12
+$$
+
+而：
+
+$$
+P(X>c)=\alpha<\frac12
+$$
+
+所以：
+
+$$
+c>0
+$$
+
+#### 第三步：利用对称性
+
+$$
+\begin{aligned} P(Y>c^2) &=P(X^2>c^2)\\ &=P(|X|>c)\\ &=P(X>c)+P(X<-c) \end{aligned}
+$$
+
+由于：
+
+$$
+P(X<-c)=P(X>c)=\alpha
+$$
+
+所以：
+
+$$
+\boxed{ P(Y>c^2)=2\alpha }
+$$
+
+#### 相关变式
+
+如果求：
+
+$$
+P(Y\le c^2)
+$$
+
+则：
+
+$$
+\boxed{ P(Y\le c^2)=1-2\alpha }
+$$
+
+这正是张宇1000基础部分中一道同类题的思路。
+
+### 例13：核心题目——取倒数以后自由度如何变化？
+
+设：
+
+$$
+X\sim t(n)
+$$
+
+定义：
+
+$$
+Y=\frac1{X^2}
+$$
+
+求 $Y$ 的分布。
+
+由：
+
+$$
+X^2\sim F(1,n)
+$$
+
+以及：
+
+$$
+F\sim F(m,n) \Longrightarrow \frac1F\sim F(n,m)
+$$
+
+得到：
+
+$$
+\boxed{ Y\sim F(n,1) }
+$$
+
+需要理解为什么自由度交换。
+
+假设：
+
+$$
+X=\frac Z{\sqrt{V/n}}
+$$
+
+其中：
+
+$$
+Z\sim N(0,1),\qquad V\sim\chi^2(n)
+$$
+
+相互独立。
+
+那么：
+
+$$
+X^2=\frac{Z^2/1}{V/n}
+$$
+
+取倒数：
+
+$$
+\frac1{X^2}=\frac{V/n}{Z^2/1}
+$$
+
+分子和分母的位置交换，所以自由度也交换。
+
+#### 李林880的延伸
+
+若：
+
+$$
+F\sim F(n,n)
+$$
+
+那么：
+
+$$
+\frac1F\sim F(n,n)
+$$
+
+因此：
+
+$$
+F\overset d=\frac1F
+$$
+
+若：
+
+$$
+P(F>a)=0.05
+$$
+
+则：
+
+$$
+\begin{aligned} P\left(F>\frac1a\right) &=P\left(\frac1F<a\right)\\ &=1-P\left(\frac1F>a\right)\\ &=0.95 \end{aligned}
+$$
+
+所以：
+
+$$
+\boxed{ P\left(F>\frac1a\right)=0.95 }
+$$
+
+这类题不需要知道 $F$ 分布的密度函数。
+
+使用分布转换和对称性即可。
+
+## 十三、核心题型八：样本方差的方差与最优权重
+
+### 例14：核心题目与张宇1000共同题——哪个估计量方差最小？
+
+设两组样本相互独立，且来自同一个正态总体：
+
+$$
+N(0,\sigma^2)
+$$
+
+第一组样本容量为9，样本方差为：
+
+$$
+S_X^2
+$$
+
+第二组样本容量为11，样本方差为：
+
+$$
+S_Y^2
+$$
+
+定义：
+
+$$
+S_1^2=\frac12(S_X^2+S_Y^2)
+$$
+
+$$
+S_2^2=\frac19(4S_X^2+5S_Y^2)
+$$
+
+比较：
+
+$$
+S_X^2,\quad S_Y^2,\quad S_1^2,\quad S_2^2
+$$
+
+哪个方差最小。
+
+#### 第一步：推出正态样本方差的方差
+
+由于：
+
+$$
+\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)
+$$
+
+而：
+
+$$
+D[\chi^2(n-1)]=2(n-1)
+$$
+
+所以：
+
+$$
+\frac{(n-1)^2}{\sigma^4}D(S^2) =2(n-1)
+$$
+
+于是：
+
+$$
+\boxed{ D(S^2)=\frac{2\sigma^4}{n-1} }
+$$
+
+这是一条非常有用的公式，但要求正态总体。
+
+#### 第二步：计算四个方差
+
+第一组：
+
+$$
+D(S_X^2)=\frac{2\sigma^4}{8} =\frac{\sigma^4}{4}
+$$
+
+第二组：
+
+$$
+D(S_Y^2)=\frac{2\sigma^4}{10} =\frac{\sigma^4}{5}
+$$
+
+由于两组样本独立：
+
+$$
+D(S_1^2) =\frac14[D(S_X^2)+D(S_Y^2)]
+$$
+
+因此：
+
+$$
+D(S_1^2) =\frac14\left(\frac14+\frac15\right)\sigma^4 =\frac9{80}\sigma^4
+$$
+
+同理：
+
+$$
+\begin{aligned} D(S_2^2) &=\frac1{81} [16D(S_X^2)+25D(S_Y^2)]\\ &=\frac1{81}\left(4+5\right)\sigma^4\\ &=\frac19\sigma^4 \end{aligned}
+$$
+
+比较：
+
+$$
+\frac19<\frac9{80}<\frac15<\frac14
+$$
+
+所以：
+
+$$
+\boxed{ S_2^2 }
+$$
+
+的方差最小。
+
+#### 更重要的解法：直接求最优权重
+
+设：
+
+$$
+H=wS_X^2+(1-w)S_Y^2
+$$
+
+因为两个样本方差都是 $\sigma^2$ 的无偏估计量，所以：
+
+$$
+EH=\sigma^2
+$$
+
+对任意实数 $w$ 都成立。
+
+再计算：
+
+$$
+D(H)=w^2\frac{\sigma^4}{4} +(1-w)^2\frac{\sigma^4}{5}
+$$
+
+要使其最小，对 $w$ 求导：
+
+$$
+\frac{dD(H)}{dw} =\frac{\sigma^4}{2}w -\frac{2\sigma^4}{5}(1-w)
+$$
+
+令导数等于0：
+
+$$
+\frac w4=\frac{1-w}{5}
+$$
+
+得到：
+
+$$
+5w=4-4w
+$$
+
+所以：
+
+$$
+w=\frac49
+$$
+
+于是：
+
+$$
+H=\frac49S_X^2+\frac59S_Y^2
+$$
+
+正好就是：
+
+$$
+\boxed{S_2^2}
+$$
+
+#### 一般公式
+
+设两个独立无偏估计量 $T_1,T_2$ 的方差分别为：
+
+$$
+v_1,\qquad v_2
+$$
+
+考虑：
+
+$$
+T=wT_1+(1-w)T_2
+$$
+
+使方差最小的权重为：
+
+$$
+\boxed{ w=\frac{v_2}{v_1+v_2} }
+$$
+
+因此：
+
+$$
+\boxed{ T_{\mathrm{opt}} =\frac{v_2}{v_1+v_2}T_1 +\frac{v_1}{v_1+v_2}T_2 }
+$$
+
+这叫做逆方差加权的思想。
+
+哪个估计量自身方差小，哪个就应该得到更大的权重。
+
+对于两个独立正态样本方差：
+
+$$
+D(S_X^2)=\frac{2\sigma^4}{n_1-1}
+$$
+
+$$
+D(S_Y^2)=\frac{2\sigma^4}{n_2-1}
+$$
+
+因此最优权重为：
+
+$$
+\boxed{ w=\frac{n_1-1}{n_1+n_2-2} }
+$$
+
+也就是说，按自由度进行加权。
+
+于是最优组合就是：
+
+$$
+\boxed{ S_p^2= \frac{(n_1-1)S_X^2+(n_2-1)S_Y^2} {n_1+n_2-2} }
+$$
+
+你会发现，它恰好就是上一节推导的合并样本方差。
+
+这说明合并样本方差中的自由度权重并不是随意设计的，它同时具有方差最小化的意义。
+
+## 十四、核心题型九：随机权重与样本均值的独立性
+
+### 例15：核心题目——随机权重加权均值的期望
+
+设两组独立正态样本来自：
+
+$$
+N(\mu,\sigma_1^2)
+$$
+
+与：
+
+$$
+N(\mu,\sigma_2^2)
+$$
+
+分别记样本均值为：
+
+$$
+\overline X,\qquad\overline Y
+$$
+
+样本方差为：
+
+$$
+S_X^2,\qquad S_Y^2
+$$
+
+定义随机权重：
+
+$$
+\alpha=\frac{S_X^2}{S_X^2+S_Y^2}
+$$
+
+$$
+\beta=\frac{S_Y^2}{S_X^2+S_Y^2}
+$$
+
+以及：
+
+$$
+Z=\alpha\overline X+\beta\overline Y
+$$
+
+求：
+
+$$
+EZ
+$$
+
+#### 第一步：不要把权重当常数
+
+$\alpha,\beta$ 本身也是随机变量。
+
+因此不能未经证明就写：
+
+$$
+E(\alpha\overline X)=E\alpha E\overline X
+$$
+
+必须先证明独立性。
+
+#### 第二步：利用正态样本的独立性
+
+正态总体中：
+
+$$
+\overline X\perp S_X^2
+$$
+
+$$
+\overline Y\perp S_Y^2
+$$
+
+而两组样本相互独立。
+
+所以均值向量：
+
+$$
+(\overline X,\overline Y)
+$$
+
+与方差向量：
+
+$$
+(S_X^2,S_Y^2)
+$$
+
+相互独立。
+
+因此：
+
+$$
+E(\alpha\overline X)=E\alpha E\overline X
+$$
+
+$$
+E(\beta\overline Y)=E\beta E\overline Y
+$$
+
+#### 第三步：利用权重之和为1
+
+因为：
+
+$$
+E\overline X=E\overline Y=\mu
+$$
+
+所以：
+
+$$
+\begin{aligned} EZ &=E(\alpha\overline X+\beta\overline Y)\\ &=\mu E\alpha+\mu E\beta\\ &=\mu E(\alpha+\beta) \end{aligned}
+$$
+
+又因为：
+
+$$
+\alpha+\beta=1
+$$
+
+所以：
+
+$$
+\boxed{EZ=\mu}
+$$
+
+#### 更高级的思考
+
+本题不需要知道 $\alpha,\beta$ 具体服从什么分布。
+
+只需知道权重与样本均值独立，并且权重之和为1。
+
+这类综合题很容易让人陷入计算随机权重分布的复杂工作。
+
+真正的突破口是先寻找结构：
+
+$$
+\boxed{ \alpha+\beta=1 }
+$$
+
+以及独立性。
+
+所以遇到复杂随机分式，不要第一反应就去求分布函数或密度。
+
+先检查它是否存在能够直接简化期望的代数关系。
+
+## 十五、核心题型十：经验分布函数
+
+这部分公式简单，但能够与二项分布、大数定律、中心极限定理结合。
+
+### 15.1 经验分布函数的定义
+
+设总体分布函数为：
+
+$$
+F(x)=P(X\le x)
+$$
+
+随机样本为：
+
+$$
+X_1,\ldots,X_n
+$$
+
+经验分布函数定义为：
+
+$$
+\boxed{ F_n(x)=\frac1n\sum_{i=1}^n \mathbf1_{\{X_i\le x\}} }
+$$
+
+这里：
+
+$$
+\mathbf1_{\{X_i\le x\}} = \begin{cases} 1,&X_i\le x\\ 0,&X_i>x \end{cases}
+$$
+
+直观来说：
+
+$$
+F_n(x)
+$$
+
+就是样本中小于等于 $x$ 的观测值所占的比例。
+
+例如，样本为：
+
+$$
+1,\quad2,\quad2,\quad4,\quad5
+$$
+
+那么：
+
+$$
+F_5(2)=\frac35
+$$
+
+因为有三个观测值小于等于2。
+
+### 15.2 核心题目：求经验分布函数的方差
+
+<Callout type="info" title="经验分布函数用指示变量">
+
+固定 $x$ 时，$F_n(x)$ 是独立伯努利指示变量的均值，故其方差为 $F(x)(1-F(x))/n$。
+
+</Callout>
+
+对固定的 $x$，定义：
+
+$$
+I_i=\mathbf1_{\{X_i\le x\}}
+$$
+
+那么：
+
+$$
+P(I_i=1)=F(x)
+$$
+
+所以：
+
+$$
+I_i\sim B(1,F(x))
+$$
+
+因此：
+
+$$
+EI_i=F(x)
+$$
+
+$$
+DI_i=F(x)[1-F(x)]
+$$
+
+而：
+
+$$
+F_n(x)=\frac1n\sum I_i
+$$
+
+所以：
+
+$$
+\boxed{ EF_n(x)=F(x) }
+$$
+
+$$
+\boxed{ DF_n(x)=\frac{F(x)[1-F(x)]}{n} }
+$$
+
+同时：
+
+$$
+\boxed{ nF_n(x)\sim B(n,F(x)) }
+$$
+
+这三条关系非常重要。
+
+#### 为什么不要求总体连续？
+
+因为：
+
+$$
+I_i=\mathbf1_{\{X_i\le x\}}
+$$
+
+天然就是一个0-1随机变量。
+
+不管原来的总体是离散型、连续型还是混合型，这个示性变量都服从伯努利分布。
+
+因此经验分布函数的结论具有普遍适用性。
+
+### 15.3 补充高价值题：两个经验分布函数值的协方差
+
+设：
+
+$$
+x<y
+$$
+
+求：
+
+$$
+\operatorname{Cov}(F_n(x),F_n(y))
+$$
+
+定义：
+
+$$
+I_i=\mathbf1_{\{X_i\le x\}}
+$$
+
+$$
+J_i=\mathbf1_{\{X_i\le y\}}
+$$
+
+因为 $x<y$，所以：
+
+$$
+\{X_i\le x\}\subseteq\{X_i\le y\}
+$$
+
+因此：
+
+$$
+I_iJ_i=I_i
+$$
+
+于是：
+
+$$
+E(I_iJ_i)=F(x)
+$$
+
+所以：
+
+$$
+\begin{aligned} \operatorname{Cov}(I_i,J_i) &=E(I_iJ_i)-EI_iEJ_i\\ &=F(x)-F(x)F(y)\\ &=F(x)[1-F(y)] \end{aligned}
+$$
+
+由于不同样本指标对应的示性变量相互独立：
+
+$$
+\boxed{ \operatorname{Cov}(F_n(x),F_n(y)) =\frac{F(x)[1-F(y)]}{n} }
+$$
+
+这道题的迁移价值在于：
+
+当随机变量是事件的指示函数时，求协方差可以直接转换成事件交集概率。
+
+## 十六、补充重点：独立、不相关与正态性的三个陷阱
+
+这一部分是上述核心题目共同反复强调的考点。
+
+### 陷阱一：各自正态，不代表联合正态
+
+核心题目、李林880和张宇1000中都出现过类似题目：
+
+设：
+
+$$
+X\sim N(0,1),\qquad Y\sim N(0,1)
+$$
+
+判断下列结论哪些一定成立：
+
+$$
+X+Y\text{ 服从正态分布}
+$$
+
+$$
+X^2+Y^2\sim\chi^2(2)
+$$
+
+$$
+\frac{X^2}{Y^2}\sim F(1,1)
+$$
+
+$$
+X^2\sim\chi^2(1)
+$$
+
+答案只有最后一条一定成立。
+
+为什么？
+
+因为题目只给出了边际分布，没有给出 $X,Y$ 的联合分布。
+
+特别地：
+
+$$
+X^2\sim\chi^2(1)
+$$
+
+只依赖 $X$ 本身的分布。
+
+而：
+
+$$
+X^2+Y^2\sim\chi^2(2)
+$$
+
+需要满足相应的独立标准正态平方和构造条件。
+
+对于 $X+Y$，也不能仅由两个边际正态就断言其仍然正态。
+
+例如，取独立于 $X$ 的随机符号 $S$，满足：
+
+$$
+P(S=1)=P(S=-1)=\frac12
+$$
+
+令：
+
+$$
+Y=SX
+$$
+
+则 $Y$ 仍然服从标准正态分布。
+
+但是当 $S=-1$ 时：
+
+$$
+X+Y=0
+$$
+
+这意味着 $X+Y$ 在0点具有正概率，不能服从非退化正态分布。
+
+因此：
+
+$$
+\boxed{ \text{两个变量各自正态} \not\Rightarrow \text{二者联合正态} }
+$$
+
+### 陷阱二：不相关不代表独立
+
+核心题目中有一道题：
+
+设：
+
+$$
+X_i\sim N(0,\sigma^2)
+$$
+
+证明：
+
+$$
+\operatorname{Cov}(X_1,S^2)=0
+$$
+
+由于样本整体关于原点对称：
+
+$$
+(X_1,\ldots,X_n) \overset d=(-X_1,\ldots,-X_n)
+$$
+
+而 $S^2$ 在整体变号下保持不变，因此：
+
+$$
+E(X_1S^2)=0
+$$
+
+再利用：
+
+$$
+EX_1=0
+$$
+
+可得：
+
+$$
+\boxed{ \operatorname{Cov}(X_1,S^2)=0 }
+$$
+
+但这不意味着：
+
+$$
+X_1\perp S^2
+$$
+
+事实上，样本方差包含 $X_1$，二者一般不独立。
+
+#### 一个更有说服力的反例
+
+令 $n=2$，总体服从：
+
+$$
+N(0,\sigma^2)
+$$
+
+则：
+
+$$
+S^2=\frac{(X_1-X_2)^2}{2}
+$$
+
+可以计算：
+
+$$
+E(X_1^2S^2)=2\sigma^4
+$$
+
+而：
+
+$$
+EX_1^2\cdot ES^2=\sigma^4
+$$
+
+因此：
+
+$$
+\operatorname{Cov}(X_1^2,S^2)=\sigma^4>0
+$$
+
+所以 $X_1$ 与 $S^2$ 不可能独立。
+
+这说明：
+
+$$
+\operatorname{Cov}(X_1,S^2)=0
+$$
+
+仅仅代表它们之间没有线性相关性。
+
+### 陷阱三：$\sqrt{F}$ 不等于 $t$
+
+设：
+
+$$
+T\sim t(n)
+$$
+
+则：
+
+$$
+T^2\sim F(1,n)
+$$
+
+但反过来，如果：
+
+$$
+U\sim F(1,n)
+$$
+
+不能写：
+
+$$
+\sqrt U\sim t(n)
+$$
+
+原因是：
+
+$$
+\sqrt U\ge0
+$$
+
+而 $t$ 分布可以取负值。
+
+正确理解是：
+
+$$
+\boxed{ \sqrt U\overset d=|T| }
+$$
+
+而不是 $T$。
+
+这在张宇强化题中也有体现。
+
+考试时，只要看到候选统计量恒非负，就可以立即排除它服从非退化正态分布或 $t$ 分布的可能性。
+
+## 十七、考研数学一做题：建立统一判断流程
+
+上面讲了很多题，接下来把它们提炼为真正可以迁移的方法。
+
+<Steps>
+
+<Step>
+
+### 第一步：先判断总体是不是正态
+
+如果总体正态，那么可以直接利用：
+
+$$
+\overline X\sim N\left(\mu,\frac{\sigma^2}{n}\right)
+$$
+
+$$
+\frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1)
+$$
+
+以及：
+
+$$
+\overline X\perp S^2
+$$
+
+如果总体不正态，不要直接使用后两条。
+
+应该考虑一般的样本矩、二项分布、示性变量、期望方差公式等。
+
+</Step>
+
+<Step>
+
+### 第二步：看题目究竟要求什么
+
+| 求解目标                   | 优先使用                 |
+| ---------------------- | -------------------- |
+| $E\overline X$     | 期望线性性质               |
+| $D\overline X$     | 独立样本方差公式             |
+| $ES^2$             | 样本方差无偏性              |
+| $D(S^2)$           | 正态卡方分布               |
+| $E(\overline X^2)$ | $EX^2=DX+(EX)^2$ |
+| $D(\overline X^2)$ | 正态平方与卡方矩             |
+| 平方和分布                  | 卡方标准化                |
+| 线性组合除以平方根              | $t$ 分布           |
+| 两个平方和之比                | $F$ 分布           |
+| 独立性                    | 样本分组、正交、联合正态         |
+| 分位数与概率                 | 分布对称性、倒数、平方转换        |
+
+</Step>
+
+<Step>
+
+### 第三步：如果出现正态线性组合，先算均值和方差
+
+对于：
+
+$$
+L=\sum_{i=1}^na_iX_i
+$$
+
+如果：
+
+$$
+X_i\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2)
+$$
+
+则：
+
+$$
+\boxed{ EL=\mu\sum_{i=1}^na_i }
+$$
+
+$$
+\boxed{ DL=\sigma^2\sum_{i=1}^na_i^2 }
+$$
+
+所以：
+
+$$
+L\sim N\left( \mu\sum a_i,\, \sigma^2\sum a_i^2 \right)
+$$
+
+由此直接标准化：
+
+$$
+Z= \frac{L-EL}{\sqrt{DL}} \sim N(0,1)
+$$
+
+以后不论分子是：
+
+$$
+X_1-X_2
+$$
+
+还是：
+
+$$
+2X_1-X_2+3X_4
+$$
+
+都可以用这套方法。
+
+</Step>
+
+<Step>
+
+### 第四步：如果分子分母有重叠样本，检查协方差
+
+对于两个正态线性组合：
+
+$$
+U=\sum a_iX_i,\qquad V=\sum b_iX_i
+$$
+
+如果总体样本独立同分布：
+
+$$
+\operatorname{Cov}(U,V) =\sigma^2\sum a_ib_i
+$$
+
+若：
+
+$$
+\sum a_ib_i=0
+$$
+
+则联合正态性保证：
+
+$$
+U\perp V
+$$
+
+这就是处理高难度 $t$ 分布构造题的关键方法。
+
+</Step>
+
+<Step>
+
+### 第五步：永远检查自由度与系数
+
+判断 $\chi^2$、$t$、$F$ 分布时，需要同时满足标准化系数、自由度与独立性。
+
+不能因为外形相似就直接写分布。
+
+特别是：
+
+$$
+\frac{\sqrt n(\overline X-\mu)}S
+$$
+
+中的 $\sqrt n$；
+
+$$
+\frac{(n-1)S^2}{\sigma^2}
+$$
+
+中的 $n-1$；
+
+以及：
+
+$$
+\frac{U/m}{V/n}
+$$
+
+中的自由度次序，都必须核对。
+
+</Step>
+
+</Steps>
+
+## 十八、高价值补充练习：训练未来的新题
+
+下面这些题目是根据本节知识点设计的迁移训练，不是冒充原资料中的原题。每道题都针对一种重要能力。
+
+### 练习1：自由度与平方和分解
+
+设：
+
+$$
+X_1,\ldots,X_8\overset{\mathrm{i.i.d.}}{\sim}N(\mu,\sigma^2)
+$$
+
+求：
+
+$$
+Q=\frac1{\sigma^2}\sum_{i=1}^8(X_i-\mu)^2 -\frac8{\sigma^2}(\overline X-\mu)^2
+$$
+
+的分布。
+
+解：
+
+利用平方和分解：
+
+$$
+\sum(X_i-\mu)^2 =\sum(X_i-\overline X)^2 +8(\overline X-\mu)^2
+$$
+
+所以：
+
+$$
+Q=\frac1{\sigma^2} \sum_{i=1}^8(X_i-\overline X)^2
+$$
+
+因此：
+
+$$
+\boxed{Q\sim\chi^2(7)}
+$$
+
+关键不是计算积分，而是识别平方和分解。
+
+### 练习2：分子分母有重叠样本
+
+设：
+
+$$
+X_1,X_2\overset{\mathrm{i.i.d.}}{\sim}N(0,\sigma^2)
+$$
+
+求：
+
+$$
+T=\frac{X_1+X_2}{|X_1-X_2|}
+$$
+
+的分布。
+
+解：
+
+令：
+
+$$
+U=\frac{X_1+X_2}{\sqrt2\sigma}
+$$
+
+$$
+V=\frac{X_1-X_2}{\sqrt2\sigma}
+$$
+
+则：
+
+$$
+U,V\sim N(0,1)
+$$
+
+并且：
+
+$$
+\operatorname{Cov}(X_1+X_2,X_1-X_2) =\sigma^2-\sigma^2=0
+$$
+
+所以：
+
+$$
+U\perp V
+$$
+
+因此：
+
+$$
+T=\frac U{|V|}
+$$
+
+得到：
+
+$$
+\boxed{T\sim t(1)}
+$$
+
+本题与前面三样本题虽然外形不同，但数学结构完全相同。
+
+### 练习3：样本均值的精确分布
+
+设：
+
+$$
+X_i\overset{\mathrm{i.i.d.}}{\sim}B\left(1,\frac12\right)
+$$
+
+样本容量为3。
+
+求：
+
+$$
+P\left(\overline X>\frac13\right)
+$$
+
+这是张宇强化篇中的典型基础题。
+
+解：
+
+令：
+
+$$
+K=\sum_{i=1}^3X_i
+$$
+
+则：
+
+$$
+K\sim B\left(3,\frac12\right)
+$$
+
+由于：
+
+$$
+\overline X=\frac K3
+$$
+
+所以：
+
+$$
+\overline X>\frac13 \iff K>1 \iff K\ge2
+$$
+
+因此：
+
+$$
+\begin{aligned} P\left(\overline X>\frac13\right) &=P(K=2)+P(K=3)\\ &=\binom32\frac1{2^3} +\binom33\frac1{2^3}\\ &=\frac38+\frac18 \end{aligned}
+$$
+
+所以：
+
+$$
+\boxed{\frac12}
+$$
+
+注意离散型随机变量的不等号转换：
+
+$$
+K>1\iff K\ge2
+$$
+
+### 练习4：两个独立正态样本均值的差
+
+设两组独立样本都来自：
+
+$$
+N(\mu,\sigma^2)
+$$
+
+样本容量均为 $n$，均值为：
+
+$$
+\overline X,\qquad \overline Y
+$$
+
+要求：
+
+$$
+P(|\overline X-\overline Y|>\sigma) \le0.05
+$$
+
+已知：
+
+$$
+\Phi(1.96)=0.975
+$$
+
+求 $n$ 的最小值。
+
+解：
+
+由于：
+
+$$
+D(\overline X-\overline Y) =\frac{\sigma^2}{n}+\frac{\sigma^2}{n} =\frac{2\sigma^2}{n}
+$$
+
+所以：
+
+$$
+\frac{\overline X-\overline Y} {\sigma\sqrt{2/n}} \sim N(0,1)
+$$
+
+于是：
+
+$$
+P(|\overline X-\overline Y|>\sigma) = 2\left[1-\Phi\left(\sqrt{\frac n2}\right)\right]
+$$
+
+要求它不超过 $0.05$，即：
+
+$$
+\Phi\left(\sqrt{\frac n2}\right)\ge0.975
+$$
+
+因此：
+
+$$
+\sqrt{\frac n2}\ge1.96
+$$
+
+所以：
+
+$$
+n\ge2(1.96)^2=7.6832
+$$
+
+最终：
+
+$$
+\boxed{n_{\min}=8}
+$$
+
+这道题最容易错在：两个独立样本均值之差的方差是：
+
+$$
+\frac{2\sigma^2}{n}
+$$
+
+而不是：
+
+$$
+\frac{\sigma^2}{n}
+$$
+
+### 练习5：构造无偏估计量
+
+设总体满足：
+
+$$
+EX=0,\qquad DX=\sigma^2
+$$
+
+样本为：
+
+$$
+X_1,\ldots,X_n
+$$
+
+构造：
+
+$$
+T=a(n\overline X^2+S^2)
+$$
+
+求 $a$，使 $T$ 成为 $\sigma^2$ 的无偏估计量。
+
+解：
+
+因为：
+
+$$
+E\overline X=0
+$$
+
+所以：
+
+$$
+E(n\overline X^2) =nD\overline X =\sigma^2
+$$
+
+又：
+
+$$
+ES^2=\sigma^2
+$$
+
+因此：
+
+$$
+ET=a(2\sigma^2)
+$$
+
+无偏性要求：
+
+$$
+ET=\sigma^2
+$$
+
+所以：
+
+$$
+2a=1
+$$
+
+得到：
+
+$$
+\boxed{a=\frac12}
+$$
+
+本题不要求正态总体。
+
+### 练习6：最优加权样本方差
+
+设两组独立样本来自同一个正态总体，样本容量分别为：
+
+$$
+n_1=6,\qquad n_2=10
+$$
+
+对应无偏样本方差为：
+
+$$
+S_1^2,\qquad S_2^2
+$$
+
+考虑：
+
+$$
+T=aS_1^2+(1-a)S_2^2
+$$
+
+求使 $DT$ 最小的 $a$。
+
+解：
+
+因为：
+
+$$
+D(S_1^2)=\frac{2\sigma^4}{5}
+$$
+
+$$
+D(S_2^2)=\frac{2\sigma^4}{9}
+$$
+
+所以最优权重：
+
+$$
+a= \frac{2\sigma^4/9} {2\sigma^4/5+2\sigma^4/9}
+$$
+
+化简：
+
+$$
+\boxed{a=\frac5{14}}
+$$
+
+另一个权重：
+
+$$
+1-a=\frac9{14}
+$$
+
+于是：
+
+$$
+\boxed{ T=\frac5{14}S_1^2+\frac9{14}S_2^2 }
+$$
+
+再次体现了按自由度加权的原则。
+
+<Accordions>
+
+<Accordion title="强化辨析｜看似 t 分布却不满足条件">
+
+设：
+
+$$
+X_1,\ldots,X_n\overset{\mathrm{i.i.d.}}{\sim}N(0,1)
+$$
+
+判断：
+
+$$
+T=\sqrt{ \frac{(n-1)X_n^2} {\sum_{i=1}^{n-1}X_i^2} }
+$$
+
+是否服从 $t(n-1)$。
+
+解：
+
+由样本独立性：
+
+$$
+\frac{(n-1)X_n^2} {\sum_{i=1}^{n-1}X_i^2} \sim F(1,n-1)
+$$
+
+所以：
+
+$$
+T
+$$
+
+服从 $t(n-1)$ 随机变量的绝对值分布。
+
+但是：
+
+$$
+T\ge0
+$$
+
+而 $t(n-1)$ 分布关于0对称，可以取负值。
+
+所以：
+
+$$
+\boxed{ T\not\sim t(n-1) }
+$$
+
+如果改成：
+
+$$
+T^*= \frac{\sqrt{n-1}X_n} {\sqrt{\sum_{i=1}^{n-1}X_i^2}}
+$$
+
+则：
+
+$$
+\boxed{ T^*\sim t(n-1) }
+$$
+
+这就是保留分子符号与将分子平方后再开根号之间的区别。
 
 </Accordion>
 
 </Accordions>
 
-## 八、与前后知识的联系
+### 练习8：无偏性与相合性的区别
 
-
-本节在整个概率统计体系中起承上启下的作用。
-
-
-| 前后章节      | 联系                              |
-| --------- | ------------------------------- |
-| 随机变量及其分布  | 统计量本身就是样本的函数，需要研究其分布            |
-| 期望、方差、协方差 | 所有统计量基本性质都依赖数字特征运算              |
-| 大数定律      | 解释样本均值、样本矩为什么可用于认识总体            |
-| 中心极限定理    | 解释非正态总体下样本均值为何常可近似正态            |
-| 点估计       | 使用 $\bar X,S^2,A_k$ 构造参数估计量 |
-| 区间估计      | 利用 $Z,t,\chi^2$ 的分位数构造置信区间  |
-| 假设检验      | 利用抽样分布计算临界值和拒绝域                 |
-| 线性代数      | 正态向量的正交分解帮助理解独立性和自由度            |
-
-
-特别是后续数一的区间估计和假设检验，不能只记最终的区间公式，而应当知道它们来自哪个标准化统计量，以及为什么该统计量服从相应分布。
-
-
-## 九、自测：检验是否真正掌握（附解析）
-
-
-### 第 1 题：样本离差平方和的期望
-
-
-设 $X_1,\ldots,X_6$ 是来自泊松总体 $P(3)$ 的简单随机样本，求 $E\sum_{i=1}^6(X_i-\overline X)^2$。
-
-
-A. $12$  B. $15$  C. $18$  D. $21$
-
-
-**答案：B。**&#x2060;样本方差 $S^2=\frac1{n-1}\sum(X_i-\overline X)^2$ 为总体方差的无偏估计，泊松总体方差为 $3$，于是
-
+设：
 
 $$
-E\sum_{i=1}^6(X_i-\overline X)^2
-=(6-1)E(S^2)=5\cdot3=\boxed{15}.
+X_1,\ldots,X_n
 $$
 
-
-### 第 2 题：正态样本离差平方和的分布
-
-
-设 $X_1,\ldots,X_8$ 为正态总体 $N(\mu,\sigma^2)$ 的简单随机样本。求 $\sum_{i=1}^8(X_i-\overline X)^2/\sigma^2$ 的分布。
-
-
-A. $\chi^2(8)$  B. $\chi^2(7)$  C. $t(7)$  D. $F(1,7)$
-
-
-**答案：B。**&#x2060;正态总体的基本抽样分布结论为
-
+独立同分布，且：
 
 $$
-\frac{(n-1)S^2}{\sigma^2}=\frac{\sum_{i=1}^n(X_i-\overline X)^2}{\sigma^2}\sim\chi^2(n-1).
+EX=\mu,\qquad DX=\sigma^2<\infty
 $$
 
-
-取 $n=8$，得 $\boxed{\chi^2(7)}$。减去样本均值时损失一个自由度。
-
-
-### 第 3 题：两独立样本方差之比
-
-
-两组独立正态样本的容量为 $6$ 和 $10$，总体方差分别为 $\sigma^2$ 和 $4\sigma^2$。求 $4S_1^2/S_2^2$ 的分布。
-
-
-A. $F(6,10)$  B. $F(5,9)$  C. $F(9,5)$  D. $\chi^2(14)$
-
-
-**答案：B。**&#x2060;若采用无偏样本方差，则
-
+定义：
 
 $$
-\frac{(6-1)S_1^2}{\sigma^2}\sim\chi^2(5),\qquad
-\frac{(10-1)S_2^2}{4\sigma^2}\sim\chi^2(9),
+S^2=\frac1{n-1}\sum(X_i-\overline X)^2
 $$
 
-
-且两统计量相互独立。因此
-
+证明：
 
 $$
-\frac{S_1^2/\sigma^2}{S_2^2/(4\sigma^2)}
-=\frac{4S_1^2}{S_2^2}\sim\boxed{F(5,9)}.
+S^2\xrightarrow{P}\sigma^2
 $$
 
+解：
 
-## 十、考前应达到的熟练程度
-
-
-这节最值得反复练的，是两个固定流程。
-
-
-流程一：求统计量的期望与方差
-
+利用：
 
 $$
-\boxed{ \text{识别结构} \rightarrow \text{化为和或平方和} \rightarrow \text{利用独立性、协方差} \rightarrow \text{计算数字特征} }
+S^2= \frac n{n-1} \left( \frac1n\sum X_i^2-\overline X^2 \right)
 $$
 
-
-流程二：识别抽样分布
-
+由大数定律：
 
 $$
-\boxed{ \text{识别正态部分} \rightarrow \text{正确标准化} \rightarrow \text{核对自由度} \rightarrow \text{证明独立} \rightarrow \text{拼成目标分布} }
+\frac1n\sum X_i^2 \xrightarrow{P}EX^2
 $$
 
-
-尤其要形成以下条件反射：
-
+以及：
 
 $$
-\boxed{ \begin{gathered} E\bar X=\mu,\qquad D\bar X=\frac{\sigma^2}{n},\\ ES^2=\sigma^2,\\ \frac{(n-1)S^2}{\sigma^2}\sim\chi^2(n-1),\\ \frac{\sqrt n(\bar X-\mu)}{S}\sim t(n-1),\\ \frac{S_1^2/\sigma_1^2}{S_2^2/\sigma_2^2} \sim F(n_1-1,n_2-1). \end{gathered} }
+\overline X\xrightarrow{P}\mu
 $$
 
+所以：
 
-其中后三个抽样分布公式须满足正态总体及相应独立条件。
+$$
+\overline X^2\xrightarrow{P}\mu^2
+$$
 
-## 配套知识与题目索引
+又：
 
-<Cards>
+$$
+\frac n{n-1}\to1
+$$
 
+于是：
 
+$$
+S^2\xrightarrow{P}EX^2-\mu^2
+$$
 
-<Card title="历年分类真题" href="https://exam.any1.tech/docs/math/past-exams/03-611e560f/s-6a68da01/01-7f38a69d/">
+即：
 
-对照历年真题、题型分类及其解析。
+$$
+\boxed{ S^2\xrightarrow{P}\sigma^2 }
+$$
 
-</Card>
+进一步，由平方根函数的连续性：
 
-<Card title="核心题库" href="https://exam.any1.tech/docs/math/core-questions/03-611e560f/s-6a68da01/01-7f38a69d/">
+$$
+\boxed{ S\xrightarrow{P}\sigma }
+$$
 
-对比母题、综合变式及易错处理。
+因此样本标准差 $S$ 是总体标准差的相合估计量。
 
-</Card>
+但是一般：
 
-</Cards>
+$$
+ES\ne\sigma
+$$
 
-**原文来源：** [Fumadocs 解题方法原文](https://fumadocscf.any1.tech/docs/math/%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95/probability-statistics/chapter-05/01-statistics-and-sampling-distributions/)
+所以它一般不是无偏估计量。
+
+这也是核心题目和张宇1000中出现的判断题。
+
+## 十九、知识边界：无偏、一致、最大似然不要混淆
+
+虽然点估计主要在下一节，但本节核心题目已经涉及无偏性与相合性，必须先区分清楚。
+
+#### 1. 无偏性
+
+估计量 $T_n$ 估计参数 $\theta$，如果：
+
+$$
+\boxed{E_\theta T_n=\theta}
+$$
+
+则称其无偏。
+
+这是关于期望的性质。
+
+#### 2. 相合性（一致性）
+
+如果：
+
+$$
+\boxed{ T_n\xrightarrow{P}\theta }
+$$
+
+则称其相合。
+
+这是关于样本容量趋于无穷时的收敛性质。
+
+两者没有简单的互相推出关系。
+
+无偏估计量未必相合，相合估计量也未必无偏。
+
+#### 3. 最大似然估计
+
+最大似然估计需要先给出总体分布族：
+
+$$
+f(x;\theta)
+$$
+
+然后构造似然函数：
+
+$$
+L(\theta)=\prod_{i=1}^nf(X_i;\theta)
+$$
+
+并寻找使似然函数达到最大值的参数。
+
+如果题目没有指定总体分布族，就一般不能断言某个样本统计量是最大似然估计量。
+
+#### 4. 样本方差与样本标准差的区别
+
+$$
+\boxed{ES^2=\sigma^2}
+$$
+
+但不能由此推出：
+
+$$
+ES=\sigma
+$$
+
+因为：
+
+$$
+E\sqrt{S^2}
+$$
+
+一般不等于：
+
+$$
+\sqrt{ES^2}
+$$
+
+当 $\sigma>0$ 且 $S$ 非退化时，由平方根函数的严格凹性：
+
+$$
+ES<\sqrt{ES^2}=\sigma
+$$
+
+所以样本标准差通常有向下的偏差。
+
+这类题真正考查的是：对估计量进行非线性变换后，无偏性通常不会自动保留。
+
+## 二十、最后补充：考场上必须会的分位数与查表
+
+本节还有一个容易忽略的应用：由抽样分布求概率或反求临界值。
+
+例如李正元练习题中：
+
+$$
+X_1,\ldots,X_{16}
+$$
+
+来自正态总体：
+
+$$
+N(\mu,\sigma^2)
+$$
+
+求：
+
+$$
+P\left(\frac{S^2}{\sigma^2}\le2.039\right)
+$$
+
+因为：
+
+$$
+\frac{15S^2}{\sigma^2}\sim\chi^2(15)
+$$
+
+所以：
+
+$$
+\begin{aligned} P\left(\frac{S^2}{\sigma^2}\le2.039\right) &=P\left(\frac{15S^2}{\sigma^2}\le30.585\right)\\ &=P(\chi^2(15)\le30.585) \end{aligned}
+$$
+
+查卡方分布表：
+
+$$
+P(\chi^2(15)\le30.585)\approx0.99
+$$
+
+因此：
+
+$$
+\boxed{P\approx0.99}
+$$
+
+#### 特别注意分位数的记号
+
+有些教材把：
+
+$$
+\chi_\alpha^2(n)
+$$
+
+定义为右尾概率为 $\alpha$ 的分位点：
+
+$$
+P\left(\chi^2(n)>\chi_\alpha^2(n)\right)=\alpha
+$$
+
+而有些资料使用左尾概率记号。
+
+这两种约定不能混用。
+
+考场上应优先看清题目或所给分布表的定义，再决定使用：
+
+$$
+\alpha
+$$
+
+还是：
+
+$$
+1-\alpha
+$$
+
+同理，$t$ 分布和 $F$ 分布的分位数也要注意左右尾的定义。
+
+## 二十一、把本节所有题型压缩成一张复习表
+
+| 知识点        | 必须记住的结论                                              | 常见陷阱                       |
+| ---------- | ---------------------------------------------------- | -------------------------- |
+| 样本均值       | $E\overline X=\mu$，$D\overline X=\sigma^2/n$ | 非正态总体未必精确正态                |
+| 样本方差       | $ES^2=\sigma^2$                                  | 分母是 $n-1$              |
+| 二阶中心矩      | $B_2=\frac{n-1}{n}S^2$                           | 不等于无偏样本方差                  |
+| 离差平方和      | $E\sum(X_i-\overline X)^2=(n-1)\sigma^2$         | 不要求正态                      |
+| 残差相关       | $\rho(R_i,R_j)=-1/(n-1)$                         | 残差不是相互独立的                  |
+| 正态样本均值     | $\overline X\sim N(\mu,\sigma^2/n)$              | 标准化系数是 $\sqrt n$       |
+| 正态样本方差     | $(n-1)S^2/\sigma^2\sim\chi^2(n-1)$               | 自由度损失1                     |
+| 均值与方差      | $\overline X\perp S^2$                           | 一般不能替换为 $X_i\perp S^2$ |
+| 卡方分布       | $U=\sum Z_i^2\sim\chi^2(k)$                      | $Z_i$ 必须独立标准正态         |
+| $t$ 分布 | $Z/\sqrt{U/k}\sim t(k)$                          | 检查独立性与根号                   |
+| $F$ 分布 | $(U/m)/(V/n)\sim F(m,n)$                         | 自由度顺序不能颠倒                  |
+| 分布转换       | $T^2\sim F(1,n)$                                 | $\sqrt F$ 不等于 $t$  |
+| 倒数         | $1/F(m,n)\sim F(n,m)$                            | 自由度要交换                     |
+| 方差的方差      | $D(S^2)=2\sigma^4/(n-1)$                         | 要求正态总体                     |
+| 经验分布函数     | $DF_n(x)=F(x)[1-F(x)]/n$                         | 不要求总体连续                    |
+| 无偏性        | $ET=\theta$                                      | 不等于相合性                     |
+| 相合性        | $T_n\xrightarrow P\theta$                        | 不代表一定无偏                    |
+
+## 二十二、如何训练到能够解决未来的新题？
+
+学完本节，不应该只记住：
+
+$$
+\chi^2,\quad t,\quad F
+$$
+
+的定义。
+
+应该形成三层能力。
+
+#### 第一层：直接识别
+
+看到：
+
+$$
+\sum Z_i^2
+$$
+
+知道要检查卡方分布。
+
+看到：
+
+$$
+\frac Z{\sqrt{U/k}}
+$$
+
+知道要检查 $t$ 分布。
+
+看到：
+
+$$
+\frac{U/m}{V/n}
+$$
+
+知道要检查 $F$ 分布。
+
+这一层可以解决基础选择题、填空题。
+
+#### 第二层：主动构造
+
+面对：
+
+$$
+\frac{X_1+X_2+X_3}{|X_2-X_3|}
+$$
+
+能够自己构造：
+
+$$
+U=\frac{X_1+X_2+X_3}{\sqrt3\sigma}
+$$
+
+$$
+V=\frac{X_2-X_3}{\sqrt2\sigma}
+$$
+
+再证明：
+
+$$
+U\perp V
+$$
+
+最终识别 $t(1)$。
+
+面对两组样本方差，能够自动想到：
+
+$$
+\frac{(n_1-1)S_1^2}{\sigma_1^2}
+$$
+
+与：
+
+$$
+\frac{(n_2-1)S_2^2}{\sigma_2^2}
+$$
+
+而不是直接把两个样本方差相除。
+
+这一层是数学一综合题的基本要求。
+
+#### 第三层：突破常规外形
+
+看到：
+
+$$
+\frac12\sum X_i^2+\sum X_{2i-1}X_{2i}
+$$
+
+能够通过配方找到隐藏的独立正态平方项。
+
+看到：
+
+$$
+X_{n+1}-\overline X
+$$
+
+能够立即意识到其方差是：
+
+$$
+\sigma^2\left(1+\frac1n\right)
+$$
+
+而不是：
+
+$$
+\frac{\sigma^2}{n}
+$$
+
+看到：
+
+$$
+\alpha\overline X+\beta\overline Y
+$$
+
+且权重由样本方差产生，能够意识到需要证明随机权重与样本均值独立。
+
+看到：
+
+$$
+\operatorname{Cov}(X_1,S^2)=0
+$$
+
+能够意识到不能直接推出独立。
+
+这一层才是你真正掌握本节的标志。
+
+### 最后总结：本节最值得反复训练的五个核心能力
+
+第一，区分通用结论与正态特有结论。
+
+$$
+E\overline X=\mu,\quad D\overline X=\frac{\sigma^2}{n},\quad ES^2=\sigma^2
+$$
+
+不要求正态，而：
+
+$$
+\frac{(n-1)S^2}{\sigma^2} \sim\chi^2(n-1)
+$$
+
+通常需要正态假设。
+
+第二，掌握离差平方和的两种结构。
+
+代数展开：
+
+$$
+\sum(X_i-\overline X)^2 =\sum X_i^2-n\overline X^2
+$$
+
+以及正交分解：
+
+$$
+\sum(X_i-\mu)^2 =\sum(X_i-\overline X)^2+n(\overline X-\mu)^2
+$$
+
+前者解决计算，后者解释自由度和独立性。
+
+第三，熟练构造 $\chi^2$、$t$、$F$ 分布。
+
+面对陌生统计量，要能够分别找出标准正态变量、卡方变量与独立性条件。
+
+第四，学会处理复杂的正态线性组合。
+
+特别是：
+
+$$
+\operatorname{Cov}\left(\sum a_iX_i,\sum b_iX_i\right) =\sigma^2\sum a_ib_i
+$$
+
+利用系数向量正交判断独立性，是解决高难度构造题的关键。
+
+第五，不只会套公式，还能检查公式使用的前提。
+
+正态性、独立性、自由度、标准化系数、未知参数是否出现、分布是否非负，这些都是判断一道新题能不能套用经典结论的重要依据。
+
+学到这里，你应该能够把这一节的大多数题目归入几种固定的数学结构，而不是把每道题当作完全陌生的问题。
+
+对于考研数学一，本节最重要的一句话是：
+
+$$
+\boxed{ \text{先识别随机结构，再标准化，最后检查独立性和自由度。} }
+$$
+
+真正把这个过程练熟，比单纯记住几十道题的答案更有价值。
