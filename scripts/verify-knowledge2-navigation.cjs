@@ -62,7 +62,7 @@ async function verifyKnowledge2Course(page, base, [slug, title]) {
   await page.locator(`#docs-body a[href="${SUMMARY}"]`).click();
   await verifyDocument(page, SUMMARY);
   await page.locator('#nd-subnav button[aria-label="Open Sidebar"]').click();
-  for (const folder of ['408 知识点总结 2（优化版）', title]) {
+  for (const folder of ['知识点总结 2', title]) {
     const found = await page.evaluate((label) => {
       const button = Array.from(document.querySelectorAll('#nd-sidebar-mobile button'))
         .find((element) => element.textContent.trim() === label);
