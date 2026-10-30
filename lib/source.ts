@@ -1,4 +1,5 @@
 import { docs } from 'collections/dynamic';
+import { optimizeStudySidebarTitle } from './study-navigation-titles';
 import { blog } from 'collections/server';
 import type * as PageTree from 'fumadocs-core/page-tree';
 import { loader } from 'fumadocs-core/source';
@@ -13,8 +14,17 @@ export const source = loader({
     typedPlugin({
       name: 'collapsed-study-folders',
       transformPageTree: {
+        file(node) {
+          if (typeof node.name === 'string') {
+            node.name = optimizeStudySidebarTitle(node.name, 'file');
+          }
+          return node;
+        },
         folder(node) {
           node.defaultOpen = false;
+          if (typeof node.name === 'string') {
+            node.name = optimizeStudySidebarTitle(node.name, 'folder');
+          }
           return node;
         },
       },

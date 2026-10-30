@@ -13,16 +13,7 @@ description: "考研408操作系统：文件组织、inode、文件系统、索�
 
 </Cards>
 
-<Accordions>
-
-<Accordion title="交互知识树：展开本章知识结构" id="os4-knowledge-map">
-
-    <MindMap
-      title="操作系统 第4章：文件管理知识树"
-      height={380}
-      initialExpandLevel={2}
-      maxWidth={255}
-      markdown={String.raw`
+```mindmap
 # 文件管理
 ## 文件对象与操作
 ### FCB、inode、文件描述符
@@ -36,12 +27,7 @@ description: "考研408操作系统：文件组织、inode、文件系统、索�
 ## 文件系统
 ### inode 表、位图、空闲块
 ### VFS、挂载、删除与资源回收
-`}
-    />
-
-</Accordion>
-
-</Accordions>
+```
 
 本章的核心不是记住 inode、FAT、目录和索引分配几个名词，而是彻底理解：文件如何被找到、如何被存储、如何被访问、如何被共享，以及删除后如何回收资源。
 
