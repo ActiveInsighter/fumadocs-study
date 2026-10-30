@@ -3,6 +3,7 @@
   "pages": [
     "01-linear-representation",
     "02-linear-dependence",
+    "02-similarity-summary",
     "03-maximal-independent-set-and-rank",
     "04-homogeneous-linear-systems",
     "05-nonhomogeneous-linear-systems",
