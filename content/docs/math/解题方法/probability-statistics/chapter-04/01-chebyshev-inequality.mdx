@@ -273,7 +273,7 @@ $$
 
 这个证明非常值得掌握，因为它能帮助你理解公式为什么必须有平方，以及为什么不能随意反推。
 
-<Tabs items={[{"'平方偏差法', '马尔可夫法'"}]} defaultIndex={0}>
+<Tabs items={['平方偏差法', '马尔可夫法']} defaultIndex={0}>
 
 <Tab value="平方偏差法">
 
@@ -1726,11 +1726,11 @@ $$
 
 | 题目事件                                            | 对应处理           |
 | ----------------------------------------------- | -------------- |
-| $P(\lvertX-\mu\rvert\ge\varepsilon)$                | 直接求上界          |
-| $P(\lvertX-\mu\rvert<\varepsilon)$                  | 利用补事件求下界       |
+| $P(\lvert X-\mu\rvert\ge\varepsilon)$                | 直接求上界          |
+| $P(\lvert X-\mu\rvert<\varepsilon)$                  | 利用补事件求下界       |
 | $P(a<X<b)$                                | 尝试整理成中心偏差事件    |
 | $P(X\ge a)$                                 | 判断是否能包含进双侧偏差事件 |
-| $P(\lvertX-a\rvert\ge\varepsilon)$，其中 $a\ne EX$ | 先处理中心不一致的问题    |
+| $P(\lvert X-a\rvert\ge\varepsilon)$，其中 $a\ne EX$ | 先处理中心不一致的问题    |
 
 ### 第四步：判断能不能直接求组合的方差
 
@@ -2846,7 +2846,7 @@ $$
 | ---------- | ---------------------------------------- | ------------------------------------ |
 | 把上界当精确概率   | $P=\frac{DX}{\varepsilon^2}$         | 应为 $\le$，不一定取等                   |
 | 忘记平方       | 分母写成 $\varepsilon$                   | 必须为 $\varepsilon^2$              |
-| 忽略事件中心     | 把任意 $\lvertX-a\rvert$ 当作 $\lvertX-EX\rvert$      | 先检查 $a=EX$                       |
+| 忽略事件中心     | 把任意 $\lvert X-a\rvert$ 当作 $\lvert X-EX\rvert$      | 先检查 $a=EX$                       |
 | 把和与均值混淆    | $D\overline X=n\sigma^2$             | 独立同方差时 $D\overline X=\sigma^2/n$ |
 | 忽略协方差      | 总写 $D(X+Y)=DX+DY$                    | 一般要加 $2\operatorname{Cov}(X,Y)$  |
 | 函数方差计算错误   | $D(X^2)=(DX)^2$                      | 应为 $EX^4-(EX^2)^2$               |
@@ -2893,11 +2893,11 @@ $$
 
 | 看到的题目结构                        | 第一反应               | 应用公式                                     |
 | ------------------------------ | ------------------ | ---------------------------------------- |
-| $P(\lvertX-\mu\rvert\ge k\sigma)$  | 标准差倍数              | $\le1/k^2$                           |
-| $P(\lvertX-\mu\rvert<\varepsilon)$ | 取补事件               | $\ge1-\sigma^2/\varepsilon^2$        |
+| $P(\lvert X-\mu\rvert\ge k\sigma)$  | 标准差倍数              | $\le1/k^2$                           |
+| $P(\lvert X-\mu\rvert<\varepsilon)$ | 取补事件               | $\ge1-\sigma^2/\varepsilon^2$        |
 | $P(a<X<b)$               | 找区间中心、半宽           | 转化为中心偏差                                  |
-| $P(\lvertX+Y\rvert\ge a)$          | 计算和的均值、方差          | 注意协方差                                    |
-| $P(\lvertX-Y\rvert\ge a)$          | 计算差的均值、方差          | 协方差前是负号                                  |
+| $P(\lvert X+Y\rvert\ge a)$          | 计算和的均值、方差          | 注意协方差                                    |
+| $P(\lvert X-Y\rvert\ge a)$          | 计算差的均值、方差          | 协方差前是负号                                  |
 | $\frac1n\sum X_i^2$        | 令 $Y_i=X_i^2$  | $DY_i=EX_i^4-(EX_i^2)^2$             |
 | $\frac1n\sum g(X_i)$       | 令 $Y_i=g(X_i)$ | $D\overline Y=DY_i/n$                |
 | 求满足精度的 $n$                 | 用样本均值方差            | $n\ge\sigma^2/(\alpha\varepsilon^2)$ |

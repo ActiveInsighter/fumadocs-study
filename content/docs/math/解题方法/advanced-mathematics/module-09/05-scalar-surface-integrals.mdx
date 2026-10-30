@@ -379,7 +379,7 @@ $$
 | 球面 $x^2+y^2+z^2=R^2$       | $R^2\sin\varphi\,\mathrm d\varphi\,\mathrm d\theta$     |
 | 圆柱侧面 $x^2+y^2=R^2$         | $R\,\mathrm d\theta\,\mathrm dz$                        |
 | 上半球 $z=\sqrt{R^2-x^2-y^2}$ | $\dfrac{R}{\sqrt{R^2-x^2-y^2}}\,\mathrm dx\,\mathrm dy$ |
-| 一般隐式曲面 $F=0$               | $\dfrac{\lvert\nabla F\rvert}{\lvertF_z\rvert}\,\mathrm dx\,\mathrm dy$ |
+| 一般隐式曲面 $F=0$               | $\dfrac{\lvert\nabla F\rvert}{\lvert F_z\rvert}\,\mathrm dx\,\mathrm dy$ |
 
 必须区分两类因子：
 
@@ -3413,13 +3413,13 @@ $$
 | ---------------------------------- | ------------------------------------------------------- |
 | $\iint_\Sigma f\,\mathrm dS$ | 第一类曲面积分、与取向无关                                           |
 | $z=z(x,y)$                     | $\sqrt{1+z_x^2+z_y^2}$                              |
-| $F(x,y,z)=0$                   | $\dfrac{\lvert\nabla F\rvert}{\lvertF_z\rvert}$                     |
+| $F(x,y,z)=0$                   | $\dfrac{\lvert\nabla F\rvert}{\lvert F_z\rvert}$                     |
 | $z=kr$                         | $\mathrm dS=\sqrt{1+k^2}\,\mathrm dx\,\mathrm dy$ |
 | $x^2+y^2=R^2$                  | 圆柱侧面参数法                                                 |
 | $x^2+y^2+z^2=R^2$              | 球面参数法、球面对称                                              |
 | 球面上 $f(z)$                     | 高度公式 $2\pi R\int f(z)\mathrm dz$                    |
 | 完整球面上二次函数                          | 平移、对称、二次矩                                               |
-| 复杂根号与绝对值                           | 检查是否是 $\lvert\nabla F\rvert$、$\lvertF_z\rvert$                  |
+| 复杂根号与绝对值                           | 检查是否是 $\lvert\nabla F\rvert$、$\lvert F_z\rvert$                  |
 | 曲面由多片组成                            | 各片分别积分后相加                                               |
 | 球冠面积最值                             | $S=2\pi RH$                                         |
 | 球面与圆柱面比较                           | 分别选择对应面积元                                               |

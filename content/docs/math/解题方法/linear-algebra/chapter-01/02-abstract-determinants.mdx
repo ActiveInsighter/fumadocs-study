@@ -184,14 +184,14 @@ $$
 
 | 公式                                 | 使用时最容易犯的错误         |
 | ---------------------------------- | ------------------ |
-| $\lvertAB\rvert=\lvertA\rvert\lvertB\rvert$            | 用到非方阵的 $A,B$ 上 |
-| $\lvertA^{\mathrm T}\rvert=\lvertA\rvert$      | 误以为转置会改变符号         |
-| $\lvertkA\rvert=k^n\lvertA\rvert$              | 忘记指数 $n$       |
-| $\lvertA^{-1}\rvert=\dfrac1{\lvertA\rvert}$    | 未判断 $A$ 是否可逆   |
-| $\lvertA^m\rvert=\lvertA\rvert^m$              | 把矩阵幂和矩阵数乘混淆        |
-| $\lvertA^*\rvert=\lvertA\rvert^{n-1}$         | 将指数记成 $n$      |
-| $\lvertP^{-1}AP\rvert=\lvertA\rvert$           | 未确认 $P$ 可逆     |
-| $\lvertA+B\rvert\ne \lvertA\rvert+\lvertB\rvert$（一般情况） | 错用整体线性性            |
+| $\lvert AB\rvert=\lvert A\rvert\lvert B\rvert$            | 用到非方阵的 $A,B$ 上 |
+| $\lvert A^{\mathrm T}\rvert=\lvert A\rvert$      | 误以为转置会改变符号         |
+| $\lvert kA\rvert=k^n\lvert A\rvert$              | 忘记指数 $n$       |
+| $\lvert A^{-1}\rvert=\dfrac1{\lvert A\rvert}$    | 未判断 $A$ 是否可逆   |
+| $\lvert A^m\rvert=\lvert A\rvert^m$              | 把矩阵幂和矩阵数乘混淆        |
+| $\lvert A^*\rvert=\lvert A\rvert^{n-1}$         | 将指数记成 $n$      |
+| $\lvert P^{-1}AP\rvert=\lvert A\rvert$           | 未确认 $P$ 可逆     |
+| $\lvert A+B\rvert\ne \lvert A\rvert+\lvert B\rvert$（一般情况） | 错用整体线性性            |
 
 这里的 $A^*$ 表示伴随矩阵。伴随行列式公式通常按 $n\ge2$ 使用。
 
@@ -1201,10 +1201,10 @@ $$
 
 | 表达式                                  | 首先做什么                  |
 | ------------------------------------ | ---------------------- |
-| $\left\lvert\,\rvertA^*\lvertA\,\right\rvert$ | 先把 $\lvertA^*\rvert$ 当作标量 |
+| $\left\lvert\,\rvert A^*\lvert A\,\right\rvert$ | 先把 $\lvert A^*\rvert$ 当作标量 |
 | $\lvert(2A)^*\rvert$                    | 先求数乘矩阵的伴随              |
 | $\lvert2A^*\rvert$                      | 直接按数乘行列式处理             |
-| $\lvertA^*A\rvert$                      | 直接按矩阵乘积处理              |
+| $\lvert A^*A\rvert$                      | 直接按矩阵乘积处理              |
 
 这四种表达式必须能一眼区分。
 
@@ -3349,16 +3349,16 @@ $$
 | ------------------------------------------- | ------------------ | ---------------------------- |
 | 两个矩阵有若干列相同                                  | 多重线性性              | 先按列相加，再提出系数                  |
 | 新列向量由旧列向量线性组合                               | 系数矩阵               | 写成 $B=AC$                |
-| $\lvertA\rvert=0$                               | 秩不足                | 转化为列向量线性相关                   |
+| $\lvert A\rvert=0$                               | 秩不足                | 转化为列向量线性相关                   |
 | 矩形矩阵相乘                                      | 乘积秩不等式             | 比较中间维数                       |
-| $A^*$                                  | $AA^*=\lvertA\rvertE$ | 转化为行列式或逆矩阵                   |
+| $A^*$                                  | $AA^*=\lvert A\rvert E$ | 转化为行列式或逆矩阵                   |
 | $A^*=A^{\mathrm T}$                    | 平方和结构              | 比较 $AA^{\mathrm T}$ 的对角元 |
 | $A^*=kA^{\mathrm T}$                   | 可逆性与行列式方程          | 先证非零，再约去                     |
 | $\begin{pmatrix}O&A\\B&O\end{pmatrix}$ | 分块交换               | 注意 $(-1)^{mn}$           |
 | $ABA^*=2BA^*+E$                       | 提取共同矩阵因子           | 转成 $XBY=E$               |
 | $A^2B-A-B=E$                            | 矩阵因式分解             | 判断是否可以约去矩阵                   |
 | $A^{-1}+B^{-1}$                         | 逆矩阵之和转乘积           | 使用 $A^{-1}(A+B)B^{-1}$   |
-| $\lvertA-\lambda E\rvert=0$                     | 特征值                | 利用 $\lambda$ 求目标行列式      |
+| $\lvert A-\lambda E\rvert=0$                     | 特征值                | 利用 $\lambda$ 求目标行列式      |
 | $r(\lambda E-A)=n-k$                    | 特征空间维数             | 特征值几何重数为 $k$             |
 | $A^2=A$                                 | 幂等矩阵               | 特征值只能是0或1                    |
 | $A=uv^{\mathrm T}$                      | 秩一矩阵               | 秩不超过1                        |

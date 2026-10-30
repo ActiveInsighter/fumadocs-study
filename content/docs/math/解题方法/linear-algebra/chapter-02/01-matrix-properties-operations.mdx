@@ -180,8 +180,8 @@ $(AB)^{-1}=B^{-1}A^{-1}$ 需要相关矩阵可逆；求逆和转置会颠倒乘�
 | 分配律   | $A(B+C)=AB+AC$                                | 注意顺序        |
 | 转置    | $(AB)^{\mathrm T}=B^{\mathrm T}A^{\mathrm T}$ | 顺序颠倒        |
 | 逆矩阵   | $(AB)^{-1}=B^{-1}A^{-1}$                      | 两个矩阵可逆      |
-| 行列式   | $\lvertAB\rvert=\lvertA\rvert\lvertB\rvert$                           | 同阶方阵        |
-| 伴随矩阵  | $AA^*=A^*A=\lvertA\rvertE$                          | 对所有方阵成立     |
+| 行列式   | $\lvert AB\rvert=\lvert A\rvert\lvert B\rvert$                           | 同阶方阵        |
+| 伴随矩阵  | $AA^*=A^*A=\lvert A\rvert E$                          | 对所有方阵成立     |
 | 相似矩阵  | $A=PBP^{-1}$                                  | $P$ 可逆  |
 | 矩阵的幂  | $A^mA^n=A^{m+n}$                              | 同一个方阵       |
 | 矩阵多项式 | $f(A)g(A)=g(A)f(A)$                           | 都是同一个矩阵的多项式 |
@@ -4020,8 +4020,8 @@ $$
 | 出现 $uv^{\mathrm T}$ | 秩一结构                       | 利用 $U^2=cU$        |
 | 出现 $A^m=O$          | 幂零矩阵                       | 有限几何级数求逆               |
 | 出现 $AP=PB$          | 相似关系                       | $A=PBP^{-1}$       |
-| 出现 $A^*$           | 伴随恒等式                      | $AA^*=\lvertA\rvertE$     |
-| 出现分块伴随矩阵                | 先求逆与行列式                    | $M^*=\lvertM\rvertM^{-1}$ |
+| 出现 $A^*$           | 伴随恒等式                      | $AA^*=\lvert A\rvert E$     |
+| 出现分块伴随矩阵                | 先求逆与行列式                    | $M^*=\lvert M\rvert M^{-1}$ |
 | 出现矩阵等价                  | 看秩                         | $r(A)=r(B)$        |
 | 出现 $AB=C$ 是否有解      | 看列空间                       | $r(A)=r(A,C)$      |
 | 出现实反对称矩阵                | 想到 $x^{\mathrm T}Ax=0$ | 证明 $E\pm A$ 可逆     |
@@ -4041,7 +4041,7 @@ $$
 | $(AB)^{-1}=A^{-1}B^{-1}$                      | 应反转次序              |
 | $AB=O\Rightarrow A=O$ 或 $B=O$             | 一般不成立              |
 | $AB=AC\Rightarrow B=C$                        | 需要 $A$ 可逆      |
-| $\lvertA\rvert=0\Rightarrow r(A)=n-1$                 | 只能得到 $r(A)<n$ |
+| $\lvert A\rvert=0\Rightarrow r(A)=n-1$                 | 只能得到 $r(A)<n$ |
 | $(A+B)^{-1}=A^{-1}+B^{-1}$                    | 一般不成立              |
 | $A^2=A\Rightarrow A=E$                        | 还可能有非单位的幂等矩阵       |
 
