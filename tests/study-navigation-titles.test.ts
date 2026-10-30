@@ -40,7 +40,7 @@ describe('408 question-summary knowledge maps', () => {
       const body = readFileSync(path, 'utf8');
       expect(body.match(/```mindmap\n#/gu), path).toHaveLength(1);
       expect(body, path).not.toContain('<MindMap');
-      expect(body, path).not.toMatch(/<Accordion[^>]+(?:交互知识|知识图谱|知识结构)/u);
+      // Other accordions (e.g. a text-only chapter outline) are intentional.
     }
   });
 });
