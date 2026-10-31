@@ -1,0 +1,150 @@
+---
+title: 卡片与卡片步骤
+description: 卡片组件支持直接写 Lucide 图标名；新的 CardSteps 用一张卡片概括一个步骤，并按内容长短自动横排或竖排。附实时预览、用法与扩展方式。
+date: 2026-10-31
+author: Study 编辑部
+---
+
+文档里的 `Card` 现在可以直接写图标名：`icon="rocket"` 就是一枚火箭。在它之上新增了 `CardSteps`：每一步是一张卡片，内容短时并排成一行，内容长时自动竖排。
+
+每个示例右上角都可以切换 **预览 / 代码**，代码可以直接复制进任意 MDX 文档。
+
+## 卡片：写图标名就行
+
+`icon` 接受 [Lucide](https://lucide.dev/icons) 的任意图标名。大小写和分隔符都不限，Lucide 的别名也能用。图标在构建时渲染成 SVG，页面只带上用到的那几枚。
+
+```mdx preview title="图标名 + 标题 + 正文"
+<Cards>
+  <Card icon="braces" title="先定义状态">
+    明确 `dp` 数组每个维度和下标的含义，这是所有递推的基础。
+  </Card>
+  <Card icon="git-branch" title="再找状态来源">
+    从“最后一步从哪里来”或“当前有哪些选择”推导状态转移。
+  </Card>
+  <Card icon="circle-dot" title="初始化服从语义">
+    初始值必须与状态定义一致，而不是习惯性全部填 0。
+  </Card>
+  <Card icon="arrow-right" title="顺序服从依赖">
+    保证每个状态计算时，依赖的前驱状态已经准备好。
+  </Card>
+</Cards>
+```
+
+下面四种写法指向同一个图标。如果名字写错，卡片照常显示，只是没有图标，构建日志会给出提示；测试也会检查所有文档里的图标名。
+
+```mdx preview title="写法不限：四种写法，同一个图标"
+<Cards columns={4}>
+  <Card icon="rocket" title="rocket" />
+  <Card icon="Rocket" title="Rocket" />
+  <Card icon="RocketIcon" title="RocketIcon" />
+  <Card icon="LucideRocket" title="LucideRocket" />
+</Cards>
+```
+
+`columns` 设置每行最多几张，窄屏会自动减少列数。`tone` 用主题的语义色给图标块着色，`href` 让整张卡片变成链接。不是图标名的文字，比如 emoji，会原样显示在图标位。
+
+```mdx preview title="列数、色调、链接与 emoji"
+<Cards columns={3}>
+  <Card icon="book-open" tone="info" title="图表画廊" href="/blog/chart-gallery" description="跳到图表组件的实时示例" />
+  <Card icon="triangle-alert" tone="warning" title="易错点" description="边界条件与下标越界" />
+  <Card icon="🎯" title="本章目标" description="emoji 也能直接放进图标位" />
+</Cards>
+```
+
+正文里需要单个图标时，用 `<Icon name="terminal" />`：它跟随文字大小，默认对读屏软件隐藏，加上 `label` 后才会被读出。
+
+```mdx preview title="正文里的图标"
+在 <Icon name="terminal" /> 终端里运行，结果会写进 <Icon name="folder-tree" /> 输出目录。
+```
+
+| 属性 | 说明 |
+| --- | --- |
+| `icon` | Lucide 图标名、emoji，或任意 React 节点 |
+| `title` / `description` | 标题与一行描述，正文写在标签之间 |
+| `href` / `external` | 整卡链接；外链自动识别 |
+| `tone` | `primary`、`info`、`success`、`warning`、`error`、`idea` |
+| `Cards columns` | 每行最多几张，1–4，默认 2 |
+
+## 卡片步骤
+
+官方的 `Steps` 适合写详细过程：每一步下面有段落、代码和截图。`CardSteps` 用来概括：每一步一张卡片，一个标题、一两句话，读者一眼就能看到全程。
+
+```mdx preview title="内容短：自动排成一行"
+<CardSteps>
+  <CardStep icon="scan-search" title="读题">圈出已知量和所求量。</CardStep>
+  <CardStep icon="route" title="选方法">按题型匹配解题模板。</CardStep>
+  <CardStep icon="pencil-line" title="演算">分步写出关键式子。</CardStep>
+  <CardStep icon="check-check" tone="success" title="验算">代回原式检查结果。</CardStep>
+</CardSteps>
+```
+
+同样的组件，内容变长后会自动竖排：图标块移到左侧，文字占满整行，箭头改为向下。
+
+```mdx preview title="内容长：自动竖排"
+<CardSteps>
+  <CardStep icon="braces" title="定义状态">
+    先说清楚 `dp[i][j]` 表示什么：前 i 个物品、容量为 j 时能得到的最大价值。状态定义决定了后面每一步怎么写：定义含糊，转移方程就会写错；定义多了一维，空间和时间都会白白翻倍。写下定义后，先用一个小例子手算两三个状态，确认含义没有歧义。
+  </CardStep>
+  <CardStep icon="git-branch" title="推导转移">
+    看最后一步有哪些选择：第 i 个物品放或不放。不放时等于 `dp[i-1][j]`，放时等于 `dp[i-1][j-w]` 加上它的价值，两者取较大值。放之前要先判断 `j >= w`，否则下标越界；这一步写对了，整道题就完成了大半。
+  </CardStep>
+  <CardStep icon="circle-dot" title="确定初始值">
+    没有物品时价值为 0，所以第 0 行全部为 0。初始值要和状态定义一致，不要习惯性地全部填 0 或填无穷大：求最小值的题目常常要把不可达状态设为无穷大，求方案数的题目则要把空集的方案数设为 1。
+  </CardStep>
+  <CardStep icon="arrow-down-wide-narrow" title="安排遍历顺序">
+    `dp[i]` 只依赖 `dp[i-1]`，所以外层按物品递增；压缩成一维数组时，容量必须倒序遍历，避免同一物品被重复放入。如果题目允许物品无限次使用，那就反过来正序遍历，这正是 0-1 背包和完全背包在代码上的唯一区别。
+  </CardStep>
+</CardSteps>
+```
+
+不写 `icon` 时，图标块显示步骤序号。步骤超过四个时会分成几行，每行数量尽量均匀，比如五步排成 3 + 2。
+
+```mdx preview title="不写图标：序号；五步排成 3 + 2"
+<CardSteps>
+  <CardStep title="拉取代码" />
+  <CardStep title="安装依赖" />
+  <CardStep title="类型检查" />
+  <CardStep title="云端构建" />
+  <CardStep title="发布上线" tone="success" />
+</CardSteps>
+```
+
+需要时可以手动指定：`layout` 固定横排或竖排，`columns` 固定每行几张，`start` 设置起始序号，`step` 把序号换成任意文字。
+
+```mdx preview title="手动指定：layout、columns、start 与 step"
+<CardSteps layout="row" columns={2} start={3}>
+  <CardStep title="第三步" description="序号从 3 开始" />
+  <CardStep title="第四步" description="每行固定两张" />
+  <CardStep step="A" title="方案 A" description="用字母代替序号" />
+  <CardStep step="B" title="方案 B" description="序号位放什么都行" />
+</CardSteps>
+```
+
+### 布局怎么选
+
+`layout="auto"`（默认）在构建时估算每一步的文字量：中文按一个字宽，英文和数字约半个字宽。所有步骤在一行四张、三张或两张的卡片里都不超过四行时，就横排；任一步含代码块、表格、公式块，或超过两个段落，就竖排。
+
+横排还会参考实际宽度：页面变窄时，一行四张先变成两张，再变成竖排；一行三张直接变成竖排。所以手机上看到的总是竖排。
+
+| 属性 | 说明 |
+| --- | --- |
+| `layout` | `auto`（默认）、`row`、`column` |
+| `columns` | 横排时每行几张，2–4；默认按步骤数自动均分 |
+| `start` | 第一步的序号，默认 1 |
+| `CardStep step` | 用任意文字代替序号 |
+| `CardStep` 其余属性 | 与 `Card` 相同：`icon`、`title`、`description`、`href`、`tone` |
+
+## 扩展
+
+卡片由几个小部件拼成：`CardRoot`、`CardIcon`、`CardTitle`、`CardDescription`、`CardBody`。`Card` 和 `CardStep` 都只是它们的组合，新的卡片变体也从这里拼，外观自然一致。
+
+<Cards>
+  <Card icon="palette" title="加一种色调">
+    在 `styles/doc-card.css` 里为新的 `data-tone` 写一行颜色，`tone` 属性就能用。
+  </Card>
+  <Card icon="ruler" title="调整横排阈值">
+    改 `components/mdx/card/layout.ts` 里的 `CARD_STEPS_ROW`：版心宽度、每张卡片最多几行。
+  </Card>
+</Cards>
+
+组件都是服务端组件，不带额外的客户端脚本。完整说明见仓库里的 `docs/cards.md`。

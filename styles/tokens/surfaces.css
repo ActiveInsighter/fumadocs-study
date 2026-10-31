@@ -26,6 +26,8 @@
 
   /* Callouts: tint strength of the semantic colour over the panel */
   --ui-callout-tint: 8%;
+  /* Card icon tiles with a tone: tint strength of the tone colour */
+  --ui-card-tone-tint: 13%;
 
   /* Navigation fills retain the pre-flat-theme hover and selected strengths.
      Fumadocs owns tree lines, markers, gradients and their animations. */
@@ -74,6 +76,7 @@
   --ui-fill-strong: color-mix(in oklch, var(--foreground) 17%, transparent);
 
   --ui-callout-tint: 14%;
+  --ui-card-tone-tint: 20%;
 
   --ui-nav-hover: rgb(255 255 255 / 7%);
   --ui-nav-active: rgb(255 255 255 / 10%);
