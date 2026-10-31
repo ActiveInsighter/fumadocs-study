@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import {
@@ -8,10 +8,15 @@ import {
   type WordCardData,
 } from '../components/vocabulary/word-cards';
 import { WORD_CARD_MODE_STORAGE_KEY, readStoredMode, storeMode } from '../components/vocabulary/word-card-mode';
+import { getSensePercentage, getTone, senseColor, summarizeSenses } from '../components/vocabulary/model';
+import { SenseExample } from '../components/vocabulary/sense-example';
 
+const vocabularyDir = new URL('../components/vocabulary/', import.meta.url);
+const vocabularyFile = (file: string) => readFileSync(new URL(file, vocabularyDir), 'utf8');
 const componentSource = () =>
-  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail.tsx', 'use-compact-masonry.ts']
-    .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
+  readdirSync(vocabularyDir)
+    .filter((file) => /\.tsx?$/u.test(file))
+    .map(vocabularyFile)
     .join('\n');
 
 const deckSource = () => readFileSync(new URL('../components/ui/study-card.tsx', import.meta.url), 'utf8');
@@ -145,7 +150,10 @@ describe('WordCards', () => {
     expect(deck).toContain('<Modal open={open} onOpenChange={onOpenChange}>');
     expect(component).toContain("titleProps={{ lang: 'en', className: 'wc-detail-title' }}");
     expect(component).toContain('data-tone={getTone(index)}');
-    expect(component).toContain('onClick={() => openDetail(wordIndex)}');
+    expect(component).toContain('onOpen={openDetail}');
+    expect(component).toContain('onClick={() => onOpen(index)}');
+    expect(component).toContain('const WordCard = memo(function WordCard(');
+    expect(component).toMatch(/const openDetail = useCallback\(/u);
     expect(component).toContain(":scope > .word-card .wc-expand-button')[detailIndex] ?? true");
     expect(component).toContain('finalFocus={detailFinalFocus}');
     expect(component).not.toContain('<dialog');
@@ -154,7 +162,8 @@ describe('WordCards', () => {
   it('lets the detail modal step through cards with buttons and arrow keys', () => {
     const component = componentSource();
     const deck = deckSource();
-    expect(component).toContain("labels={{ group: '切换单词', prev: '上一个单词', next: '下一个单词' }}");
+    expect(component).toContain("const DECK_LABELS = { group: '切换单词', prev: '上一个单词', next: '下一个单词' };");
+    expect(component).toContain('labels={DECK_LABELS}');
     expect(deck).toContain('aria-label={labels.prev}');
     expect(deck).toContain('aria-label={labels.next}');
     expect(deck).toContain('event.key === "ArrowLeft" && hasPrev');
@@ -275,15 +284,16 @@ describe('WordCards', () => {
     expect(cardCss).toMatch(/\.dark \.word-card,\s*\.dark \.wc-detail\s*\{/u);
     expect(component).toContain('height="44rem"');
     expect(component).toContain('<StudyCardAside className="wc-detail-side">');
-    expect(component).toContain('<StudyCardStage ratio={0.38}>');
+    expect(component).toContain('const ASIDE_RATIO = 0.42;');
+    expect(component).toContain('<StudyCardStage ratio={ASIDE_RATIO}>');
     expect(detailCss).toMatch(/--modal-pane-muted:\s*var\(--card-bg\)/u);
     expect(detailCss).toMatch(/\.wc-detail,\s*\.dark \.wc-detail\s*\{[^}]*--word-text:\s*var\(--foreground\)[^}]*--phrase-text:\s*var\(--foreground\)/u);
     expect(component).toContain('titleMode="scrolled"');
     expect(deckCss()).toMatch(/\[data-study-card\] \[data-slot='modal-page'\]\[data-scrolled\] \[data-sc-title='scrolled'\]\s*\{[^}]*opacity:\s*1/u);
     expect(component).toContain('<StudyPieChart');
     expect(component).toContain('variant="inline"');
-    expect(component).toContain('<SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />');
-    expect(component).toContain('<WordCardBody key={itemKey}');
+    expect(component).toContain('<SenseDistribution word={word.word} summary={summary} order={word.meanings.length} onSelect={showSense} />');
+    expect(component).toContain('<WordCardBody key={itemKey} word={word} />');
     expect(component).toContain('<SenseExample example={example} />');
     expect(component).not.toContain('wc-detail-example-translation');
     expect(detailCss).toMatch(/\.wc-detail-swatch\s*\{[^}]*var\(--wc-sense-color\)/u);
@@ -294,14 +304,17 @@ describe('WordCards', () => {
 
 
   it('keeps the sense distribution immersive and isolates right-hand interactions from the donut', () => {
-    const detail = readFileSync(new URL('../components/vocabulary/word-card-detail.tsx', import.meta.url), 'utf8');
+    const detail = vocabularyFile('word-card-detail.tsx');
+    const distribution = vocabularyFile('sense-distribution.tsx');
     const styles = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
     const pie = readFileSync(new URL('../components/charts/types/pie-chart.tsx', import.meta.url), 'utf8');
-    const rightPane = detail.slice(detail.indexOf('function WordMain('));
+    // The chart's hover state lives in its own component; the main pane never touches it.
+    const rightPane = detail.slice(detail.indexOf('function SenseContexts('));
 
-    expect(detail).toContain('const [active, setActive] = useState<string | null>(null);');
-    expect(detail).toContain('const data = useMemo(');
-    expect(detail).toContain('const colors = useMemo(');
+    expect(distribution).toContain('const [active, setActive] = useState<string | null>(null);');
+    expect(distribution).toContain('const data = useMemo(');
+    expect(distribution).toContain('const colors = useMemo(');
+    expect(detail).not.toContain('useState');
     expect(rightPane).not.toContain('setActive(');
     expect(rightPane).not.toContain('highlight={highlight}');
     expect(rightPane).not.toContain('data-active={active');
@@ -322,7 +335,7 @@ describe('WordCards', () => {
   it('flips and shifts example tooltips so they stay inside an enclosing modal or the viewport', () => {
     const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
     const component = componentSource();
-    expect(component).toContain(`root.closest<HTMLElement>('[data-slot="modal-page"]')`);
+    expect(component).toContain(`const page = root.closest<HTMLElement>('[data-slot="modal-page"]');`);
     expect(component).toContain("page.querySelector<HTMLElement>('[data-slot=\"modal-header\"]')");
     expect(component).toContain('const { offsetWidth: width, offsetHeight: height } = tooltip;');
     expect(component).toContain("root.dataset.placement = placement");
@@ -369,5 +382,45 @@ describe('WordCards', () => {
     expect(css).toMatch(/\.wc-word\s*\{[^}]*overflow-wrap:\s*break-word/u);
     expect(css).toMatch(/\.wc-word\s*\{[^}]*hyphens:\s*auto/u);
     expect(component).toMatch(/className="wc-word" lang="en"/u);
+  });
+
+  it('resolves sense counts and shares once in the pure model', () => {
+    const summary = summarizeSenses([
+      { gloss: 'a', count: 3 },
+      { gloss: 'b', count: -2 },
+      { gloss: 'c', count: 1, percentage: 140 },
+    ]);
+    expect(summary.total).toBe(4);
+    expect(summary.senses.map((sense) => [sense.count, sense.percentage])).toEqual([
+      [3, 75],
+      [0, 0],
+      [1, 100],
+    ]);
+    expect(summarizeSenses(undefined)).toBe(summarizeSenses([]));
+    expect(getSensePercentage({ gloss: 'x', count: 1 }, 0)).toBe(0);
+    expect(getTone(0)).toBe(1);
+    expect(getTone(7)).toBe(1);
+    expect(senseColor(9)).toContain('30%');
+  });
+
+  it('shows only the translation in example tooltips, without a caption', () => {
+    const html = renderToStaticMarkup(<SenseExample example={{ text: 'A sentence.', translation: '一句译文内容。' }} />);
+    expect(html).toMatch(/<span[^>]*class="wc-example-tooltip"[^>]*>一句译文内容。<\/span>/u);
+    expect(html).not.toContain('wc-example-tooltip-label');
+    expect(html).not.toContain('>译文<');
+    const css = readFileSync(new URL('../styles/word-card-interactions.css', import.meta.url), 'utf8');
+    expect(css).not.toContain('.wc-example-tooltip-label');
+    expect(css).toMatch(/\.wc-example-tooltip::before\s*\{[^}]*var\(--tooltip-mark\)/u);
+  });
+
+  it('puts the priority on a header badge shaped like the toolbar and tinted by the card tone', () => {
+    const component = componentSource();
+    const deck = deckSource();
+    const detailCss = readFileSync(new URL('../styles/word-card-detail.css', import.meta.url), 'utf8');
+    expect(component).toContain('badge={label}');
+    expect(deck).toContain('data-slot="sc-badge"');
+    expect(deckCss()).toMatch(/\[data-slot='sc-badge'\]\s*\{[^}]*height:\s*2\.25rem[^}]*background-color:\s*var\(--sc-badge-bg,\s*var\(--modal-glass\)\)[^}]*box-shadow:\s*var\(--modal-glass-shadow\)/u);
+    expect(detailCss).toMatch(/\.wc-detail\s*\{[^}]*--sc-badge-bg:\s*color-mix\(in oklab, var\(--wc-accent\)/u);
+    expect(detailCss).toMatch(/\.dark \.wc-detail\s*\{[^}]*--sc-badge-bg:/u);
   });
 });

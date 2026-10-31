@@ -225,31 +225,38 @@ html[data-wc-mode-transition]::view-transition-new(root) {
   outline-offset: 2px;
 }
 
+/*
+ * The translation alone, no caption: a tone-washed bubble with a slim accent
+ * bar leading the text, so it reads as a gloss of the sentence above it.
+ */
 .wc-example-tooltip {
-  --tooltip-bg: color-mix(in oklab, var(--wc-accent) 6%, var(--popover));
+  --tooltip-bg: color-mix(in oklab, var(--wc-accent) 7%, var(--popover));
   --tooltip-border: color-mix(in oklab, var(--wc-accent) 22%, var(--border));
+  --tooltip-mark: color-mix(in oklab, var(--wc-accent) 78%, var(--wc-ink));
   position: absolute;
   z-index: 30;
   inset-inline-start: var(--wc-tooltip-shift, 0px);
   top: auto;
   bottom: calc(100% + 6px);
   width: max-content;
-  max-width: min(380px, calc(100vw - 32px));
+  max-width: min(400px, calc(100vw - 32px));
   box-sizing: border-box;
-  padding: 10px 14px 12px;
+  padding: 9px 15px 10px 21px;
   border: 1px solid var(--tooltip-border);
   border-radius: 12px;
   background: var(--tooltip-bg);
   color: var(--popover-foreground);
   box-shadow: var(--word-card-example-tooltip-shadow);
   font-family: var(--wc-body-font);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-style: normal;
   font-weight: 500;
-  line-height: 1.7;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
   text-align: left;
   white-space: normal;
   overflow-wrap: anywhere;
+  text-wrap: pretty;
   opacity: 0;
   visibility: hidden;
   transform: translateY(4px) scale(0.97);
@@ -261,13 +268,15 @@ html[data-wc-mode-transition]::view-transition-new(root) {
     visibility 0s linear 180ms;
 }
 
-.wc-example-tooltip-label {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--muted-foreground);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  line-height: 1.5;
+.wc-example-tooltip::before {
+  content: '';
+  position: absolute;
+  inset-block: 11px;
+  inset-inline-start: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--tooltip-mark);
+  opacity: 0.72;
 }
 
 .wc-example-tooltip::after {
@@ -336,6 +345,7 @@ html[data-wc-mode-transition]::view-transition-new(root) {
 .dark .wc-example-tooltip {
   --tooltip-bg: color-mix(in oklab, var(--wc-accent) 9%, var(--popover));
   --tooltip-border: color-mix(in oklab, var(--wc-accent) 16%, var(--word-card-dark-tooltip-border));
+  --tooltip-mark: color-mix(in oklab, var(--wc-accent) 55%, var(--word-card-dark-light-ink));
   color: var(--word-card-dark-tooltip-ink);
   box-shadow: var(--word-card-dark-tooltip-shadow);
 }
