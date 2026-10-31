@@ -3,21 +3,27 @@ import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { propsOf, topLevelElements } from './children';
 
 /*
- * How CardSteps lays itself out, decided on the server from the steps'
- * content. Pure functions over React nodes: no rendering, no DOM.
+ * How Cards and CardSteps lay themselves out, decided on the server from
+ * their content. Pure functions over React nodes: no rendering, no DOM.
+ *
+ * CardSteps picks a layout:
  *
  *   row     steps side by side, wrapping into balanced rows (up to 4 a row)
  *   column  steps stacked, one full-width card each
  *
  * `auto` picks a row when every step is short enough to read comfortably in
  * a card of that width, and a column otherwise. Below the width a row needs,
- * the stylesheet (styles/doc-card-steps.css) folds it into a column anyway.
+ * the stylesheet (styles/doc-card-steps.css) folds it into a column anyway,
+ * unless the steps are compact enough to stay two a row on a phone.
+ *
+ * Cards picks the narrowest a card may get before the grid drops a column:
+ * short cards sit two a row on a phone, long ones keep the full width.
  */
 
 export type CardStepsLayout = 'row' | 'column';
 export type CardStepsLayoutOption = CardStepsLayout | 'auto';
 
-export interface CardStepMetrics {
+export interface CardMetrics {
   /** Title width in full-width characters. */
   title: number;
   /** Description and body width in full-width characters. */
@@ -32,6 +38,20 @@ export interface ResolvedCardStepsLayout {
   layout: CardStepsLayout;
   /** Cards per row; 1 for a column. */
   columns: number;
+  /** A row whose cards read comfortably at COMPACT_CARD wide: two a row even on a phone. */
+  compact: boolean;
+}
+
+/** Line limits a card is judged by. */
+export interface CardMeasure {
+  /** A card's horizontal padding, both sides (rem). */
+  padding: number;
+  /** Body text size (rem); a full-width character is about this wide. */
+  fontSize: number;
+  maxTitleLines: number;
+  maxBodyLines: number;
+  /** Most top-level blocks in a card's body. */
+  maxBlocks: number;
 }
 
 /**
@@ -56,6 +76,25 @@ export const CARD_STEPS_ROW = {
   /** Most top-level blocks in a row card's body. */
   maxBlocks: 2,
 } as const;
+
+/**
+ * The narrowest card worth laying out side by side (rem): two of them and a
+ * gap fit a 360px phone. styles/doc-card-steps.css and styles/doc-card.css
+ * hold the matching widths.
+ */
+export const COMPACT_CARD = 9;
+
+/** How Cards judges its cards. */
+export const CARDS_GRID = {
+  padding: 2.25,
+  fontSize: 0.875,
+  maxTitleLines: 2,
+  maxBodyLines: 3,
+  maxBlocks: 1,
+  /** Narrowest and widest a card may shrink to before the grid drops a column (rem). */
+  minWidth: COMPACT_CARD,
+  maxWidth: 15,
+} as const satisfies CardMeasure & { minWidth: number; maxWidth: number };
 
 /** Full-width characters per line in a row card, with `columns` cards a row. */
 export function charactersPerLine(columns: number, row = CARD_STEPS_ROW): number {
@@ -133,8 +172,8 @@ function sum(parts: { width: number; wide: boolean }[]) {
   });
 }
 
-/** Metrics for one step from its props (`title`, `description`, `children`). */
-export function measureStep(props: { title?: ReactNode; description?: ReactNode; children?: ReactNode }): CardStepMetrics {
+/** Metrics for one card or step from its props (`title`, `description`, `children`). */
+export function measureCard(props: { title?: ReactNode; description?: ReactNode; children?: ReactNode }): CardMetrics {
   const title = measureNode(props.title);
   const description = measureNode(props.description);
   const body = measureNode(props.children);
@@ -150,8 +189,28 @@ export function measureStep(props: { title?: ReactNode; description?: ReactNode;
 /* Choosing the layout                                                       */
 /* ------------------------------------------------------------------------ */
 
+/**
+ * Width (rem) of the narrowest card that holds every item within the line
+ * limits; Infinity when an item keeps its own width or has too many blocks.
+ */
+export function cardWidth(items: CardMetrics[], limits: CardMeasure = CARD_STEPS_ROW): number {
+  let line = 0;
+  for (const item of items) {
+    if (item.wide || item.blocks > limits.maxBlocks) return Infinity;
+    line = Math.max(line, item.title / limits.maxTitleLines, item.body / limits.maxBodyLines);
+  }
+  return line * limits.fontSize + limits.padding;
+}
+
+/** Narrowest a card in Cards may get (rem, in quarter steps): as narrow as its content allows, 9–15rem. */
+export function cardsMinWidth(items: CardMetrics[], grid = CARDS_GRID): number {
+  if (items.length === 0) return grid.maxWidth;
+  const width = Math.min(Math.max(cardWidth(items, grid), grid.minWidth), grid.maxWidth);
+  return Math.ceil(width * 4) / 4;
+}
+
 /** Whether a step reads comfortably in a row card, with `columns` cards a row. */
-export function fitsRow(step: CardStepMetrics, columns: number, row = CARD_STEPS_ROW): boolean {
+export function fitsRow(step: CardMetrics, columns: number, row = CARD_STEPS_ROW): boolean {
   const line = charactersPerLine(columns, row);
   return (
     !step.wide &&
@@ -173,21 +232,25 @@ export interface CardStepsLayoutOptions {
  * the steps when neither reads comfortably.
  */
 export function resolveCardStepsLayout(
-  steps: CardStepMetrics[],
+  steps: CardMetrics[],
   { layout = 'auto', columns }: CardStepsLayoutOptions = {},
 ): ResolvedCardStepsLayout {
   const count = steps.length;
-  if (layout === 'column') return { layout: 'column', columns: 1 };
-  if (layout === 'row') {
-    return { layout: 'row', columns: clampColumns(columns ?? rowColumns(count)) };
-  }
-  if (count < 2) return { layout: 'column', columns: 1 };
+  const stacked = { layout: 'column', columns: 1, compact: false } as const;
+  const row = (cards: number): ResolvedCardStepsLayout => ({
+    layout: 'row',
+    columns: cards,
+    compact: cardWidth(steps) <= COMPACT_CARD,
+  });
+  if (layout === 'column') return stacked;
+  if (layout === 'row') return row(clampColumns(columns ?? rowColumns(count)));
+  if (count < 2) return stacked;
 
   const candidates = columns !== undefined
     ? [clampColumns(columns)]
     : [rowColumns(count), ...(count > 2 && count % 2 === 0 ? [2] : [])];
   for (const candidate of new Set(candidates)) {
-    if (steps.every((step) => fitsRow(step, candidate))) return { layout: 'row', columns: candidate };
+    if (steps.every((step) => fitsRow(step, candidate))) return row(candidate);
   }
-  return { layout: 'column', columns: 1 };
+  return stacked;
 }

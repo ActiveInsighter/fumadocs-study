@@ -2,22 +2,28 @@
  * CardSteps (components/mdx/card/steps.tsx), on the card parts of
  * styles/doc-card.css.
  *
- *   [data-slot='card-steps'][data-layout][data-columns]   container
- *     > ol[data-slot='card-steps-list']                     counter, grid
+ *   [data-slot='card-steps'][data-layout][data-columns][data-density]   container
+ *     > ol[data-slot='card-steps-list']                                   counter, grid
  *       > li[data-slot='card-step']
- *         > [data-slot='card']                              the card parts
- *           > [data-slot='card-step-index']                 01 when the tile holds an icon
- *         > [data-slot='card-step-connector']               arrow into the next step
+ *         > [data-slot='card'][data-card-step]
+ *           > [data-slot='card-icon']                                     tile
+ *           > [data-slot='card-step-index']                               01 beside an icon
+ *           > [data-slot='card-step-text']                                title, description, body
+ *         > [data-slot='card-step-connector']                             arrow into the next step
  *
  * The server picks the layout (components/mdx/card/layout.ts); the width the
- * list actually has picks the flow. Every list starts stacked: tiles beside
- * the text, arrows pointing down. A row layout switches to its columns only
- * once its container is wide enough (about 9.5rem a card plus gaps, the
- * measure CARD_STEPS_ROW judges `auto` by), with tiles over the text and
- * arrows pointing right; four a row passes through two a row on the way down.
+ * list actually has picks the flow, as one number: --card-steps-cols, the
+ * cards a row. Everything else follows from it through --card-steps-row
+ * (0 stacked, 1 in a row):
  *
- * The flow is a set of custom properties on the list, so a breakpoint swaps
- * the whole anatomy in one rule and the card rules never repeat.
+ *   stacked  tile beside the text, title centred on it, arrows pointing down
+ *   row      tile over the text, arrows pointing right, none at a row's end
+ *
+ * Every list starts stacked. A row layout takes its columns once its
+ * container is wide enough, about 9.5rem a card plus gaps (the measure
+ * CARD_STEPS_ROW judges `auto` by); four a row passes through two a row on
+ * the way down. Compact rows (data-density, every step fits a 9rem card,
+ * COMPACT_CARD) stay two a row down to a 360px phone.
  */
 
 [data-slot='card-steps'] {
@@ -27,24 +33,13 @@
   margin-block: 1.25rem;
 }
 
-/*
- * Stacked flow, the default: tile beside the text, title centred on the
- * tile, arrows pointing down under the tile. A row switches every variable
- * below at once (see the end of the file).
- */
 [data-slot='card-steps-list'] {
-  --card-step-columns: auto minmax(0, 1fr);
-  --card-step-areas: 'tile title' 'tile description' 'tile body';
-  --card-step-tile-space: 0;
-  --card-step-title-space: 0.25rem;
-  /* Keeps a title clear of the corner index on its line. */
-  --card-step-title-end: 2rem;
-  --card-step-connector-x: 2.125rem;
-  --card-step-connector-y: calc(100% + var(--card-steps-gap-y) / 2);
-  --card-step-connector-rotate: 90deg;
+  --card-steps-cols: 1;
+  --card-steps-row: clamp(0, var(--card-steps-cols) - 1, 1);
+  --card-steps-stack: calc(1 - var(--card-steps-row));
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--card-steps-gap-y) var(--card-steps-gap-x);
+  grid-template-columns: repeat(var(--card-steps-cols), minmax(0, 1fr));
+  gap: calc(var(--card-steps-gap-y) * var(--card-steps-stack) + 0.875rem * var(--card-steps-row)) var(--card-steps-gap-x);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -59,39 +54,36 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Card anatomy, laid out by the list's variables
+ * Card anatomy: the text sits beside the tile, or wraps under it in a row
  * ------------------------------------------------------------------------- */
 
-[data-slot='card-steps-list'] > li > [data-slot='card'] {
-  display: grid;
-  grid-template-columns: var(--card-step-columns);
-  grid-template-areas: var(--card-step-areas);
-  align-content: start;
+[data-slot='card'][data-card-step] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
   column-gap: 0.875rem;
   height: 100%;
 }
 
-[data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-icon'] {
-  grid-area: tile;
-  margin: 0 0 var(--card-step-tile-space);
+[data-slot='card'][data-card-step] > [data-slot='card-icon'] {
+  flex: none;
+  margin: 0 0 calc(0.625rem * var(--card-steps-row));
 }
 
-:is(#docs-body, #blog-body) [data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-title'],
-[data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-title'] {
-  grid-area: title;
-  padding-block-start: var(--card-step-title-space);
+[data-slot='card-step-text'] {
+  flex: 1 1 calc(100% * var(--card-steps-row));
+  min-width: 0;
 }
 
-[data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-step-index'] ~ [data-slot='card-title'] {
-  padding-inline-end: var(--card-step-title-end);
+:is(#docs-body, #blog-body) [data-slot='card-step-text'] > [data-slot='card-title'],
+[data-slot='card-step-text'] > [data-slot='card-title'] {
+  padding-block-start: calc(0.25rem * var(--card-steps-stack));
 }
 
-[data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-description'] {
-  grid-area: description;
-}
-
-[data-slot='card-steps-list'] > li > [data-slot='card'] > [data-slot='card-body'] {
-  grid-area: body;
+/* Keep a title on the tile's line clear of the corner index. */
+[data-slot='card-step-index'] ~ [data-slot='card-step-text'] > [data-slot='card-title'] {
+  padding-inline-end: calc(2rem * var(--card-steps-stack));
 }
 
 /* ---------------------------------------------------------------------------
@@ -118,16 +110,17 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Connectors
+ * Connectors: under the tile's centre pointing down, or halfway into the
+ * gap at tile height pointing right
  * ------------------------------------------------------------------------- */
 
 [data-slot='card-step-connector'] {
   position: absolute;
-  inset-inline-start: var(--card-step-connector-x);
-  inset-block-start: var(--card-step-connector-y);
+  inset-inline-start: calc(2.125rem * var(--card-steps-stack) + (100% + var(--card-steps-gap-x) / 2) * var(--card-steps-row));
+  inset-block-start: calc((100% + var(--card-steps-gap-y) / 2) * var(--card-steps-stack) + 2rem * var(--card-steps-row));
   display: flex;
   translate: -50% -50%;
-  rotate: var(--card-step-connector-rotate);
+  rotate: calc(90deg * var(--card-steps-stack));
   color: var(--muted-foreground);
   pointer-events: none;
 }
@@ -142,22 +135,23 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Row flow, once the container is wide enough: tile over the text, arrows
- * pointing right at tile height, none at the end of a row.
+ * Row flow, once the container is wide enough
  * ------------------------------------------------------------------------- */
+
+/* Compact rows: two a row from a 360px phone up to where their own columns take over. */
+@container card-steps (19.5rem <= width < 34rem) {
+  [data-slot='card-steps'][data-layout='row'][data-density='compact'] > ol {
+    --card-steps-cols: 2;
+  }
+
+  [data-slot='card-steps'][data-layout='row'][data-density='compact'] > ol > li:nth-child(2n) > [data-slot='card-step-connector'] {
+    display: none;
+  }
+}
 
 @container card-steps (min-width: 24rem) {
   [data-slot='card-steps'][data-layout='row'][data-columns='2'] > ol {
-    --card-step-columns: minmax(0, 1fr);
-    --card-step-areas: 'tile' 'title' 'description' 'body';
-    --card-step-tile-space: 0.625rem;
-    --card-step-title-space: 0;
-    --card-step-title-end: 0;
-    --card-step-connector-x: calc(100% + var(--card-steps-gap-x) / 2);
-    --card-step-connector-y: 2rem;
-    --card-step-connector-rotate: 0deg;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 0.875rem;
+    --card-steps-cols: 2;
   }
 
   [data-slot='card-steps'][data-layout='row'][data-columns='2'] > ol > li:nth-child(2n) > [data-slot='card-step-connector'] {
@@ -167,16 +161,7 @@
 
 @container card-steps (24rem <= width < 42rem) {
   [data-slot='card-steps'][data-layout='row'][data-columns='4'] > ol {
-    --card-step-columns: minmax(0, 1fr);
-    --card-step-areas: 'tile' 'title' 'description' 'body';
-    --card-step-tile-space: 0.625rem;
-    --card-step-title-space: 0;
-    --card-step-title-end: 0;
-    --card-step-connector-x: calc(100% + var(--card-steps-gap-x) / 2);
-    --card-step-connector-y: 2rem;
-    --card-step-connector-rotate: 0deg;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 0.875rem;
+    --card-steps-cols: 2;
   }
 
   [data-slot='card-steps'][data-layout='row'][data-columns='4'] > ol > li:nth-child(2n) > [data-slot='card-step-connector'] {
@@ -186,16 +171,7 @@
 
 @container card-steps (min-width: 34rem) {
   [data-slot='card-steps'][data-layout='row'][data-columns='3'] > ol {
-    --card-step-columns: minmax(0, 1fr);
-    --card-step-areas: 'tile' 'title' 'description' 'body';
-    --card-step-tile-space: 0.625rem;
-    --card-step-title-space: 0;
-    --card-step-title-end: 0;
-    --card-step-connector-x: calc(100% + var(--card-steps-gap-x) / 2);
-    --card-step-connector-y: 2rem;
-    --card-step-connector-rotate: 0deg;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: 0.875rem;
+    --card-steps-cols: 3;
   }
 
   [data-slot='card-steps'][data-layout='row'][data-columns='3'] > ol > li:nth-child(3n) > [data-slot='card-step-connector'] {
@@ -205,16 +181,7 @@
 
 @container card-steps (min-width: 42rem) {
   [data-slot='card-steps'][data-layout='row'][data-columns='4'] > ol {
-    --card-step-columns: minmax(0, 1fr);
-    --card-step-areas: 'tile' 'title' 'description' 'body';
-    --card-step-tile-space: 0.625rem;
-    --card-step-title-space: 0;
-    --card-step-title-end: 0;
-    --card-step-connector-x: calc(100% + var(--card-steps-gap-x) / 2);
-    --card-step-connector-y: 2rem;
-    --card-step-connector-rotate: 0deg;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    row-gap: 0.875rem;
+    --card-steps-cols: 4;
   }
 
   [data-slot='card-steps'][data-layout='row'][data-columns='4'] > ol > li:nth-child(4n) > [data-slot='card-step-connector'] {

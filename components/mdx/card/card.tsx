@@ -1,6 +1,7 @@
 import { Fragment, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 
 import { topLevelElements, topLevelItems } from './children';
+import { CARDS_GRID, cardsMinWidth, measureCard } from './layout';
 import { CardBody, CardDescription, CardIcon, CardRoot, CardTitle, hasContent, type CardRootProps } from './parts';
 
 /*
@@ -39,19 +40,27 @@ export type CardsProps = HTMLAttributes<HTMLDivElement> & {
   columns?: number;
 };
 
-/** One-line `<Card>…</Card>`s that MDX wrapped in a paragraph become grid cells again. */
-function cardItems(children: ReactNode): ReactNode {
+/**
+ * Up to `columns` cards a row. A row drops a column once a card would get
+ * narrower than its content allows (layout.ts, `cardsMinWidth`): short cards
+ * stay two a row on a phone, cards with a paragraph each take the full width.
+ * One-line `<Card>…</Card>`s that MDX wrapped in a paragraph become grid
+ * cells again.
+ */
+export function Cards({ columns, style, children, ...props }: CardsProps) {
   const items = topLevelItems(children, (item) => item.type === Card);
   const unwrapped = items.length !== topLevelElements(children).length;
-  return unwrapped ? items.map((item, index) => <Fragment key={item.key ?? index}>{item}</Fragment>) : children;
-}
-
-export function Cards({ columns, style, children, ...props }: CardsProps) {
   const count = columns === undefined ? undefined : Math.min(Math.max(Math.round(columns), 1), 4);
-  const columnStyle = count === undefined ? style : ({ '--cards-columns': count, ...style } as CSSProperties);
+  const minWidth = cardsMinWidth(items.map((item) => measureCard(item.type === Card ? (item.props as CardProps) : { children: item })));
+  const vars = {
+    ...(count === undefined ? null : { '--cards-columns': count }),
+    ...(minWidth < CARDS_GRID.maxWidth ? { '--cards-min': `${minWidth}rem` } : null),
+  };
+  const gridStyle = Object.keys(vars).length > 0 ? ({ ...vars, ...style } as CSSProperties) : style;
+
   return (
-    <div data-slot="cards" style={columnStyle} {...props}>
-      {cardItems(children)}
+    <div data-slot="cards" style={gridStyle} {...props}>
+      {unwrapped ? items.map((item, index) => <Fragment key={item.key ?? index}>{item}</Fragment>) : children}
     </div>
   );
 }
