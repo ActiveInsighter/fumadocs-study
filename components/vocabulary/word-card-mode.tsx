@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from 'react';
 import { flushSync } from 'react-dom';
-import { prefersReducedMotion } from './word-card-content';
+import { prefersReducedMotion } from './reduced-motion';
 
 export type WordCardMode = 'compact' | 'dictation' | 'translation' | 'full';
 

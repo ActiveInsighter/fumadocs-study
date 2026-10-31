@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo, useState, type CSSProperties } from 'react';
-import { StudyPieChart } from '@/components/charts';
+import { useCallback, useId, useMemo, type CSSProperties } from 'react';
 import {
   StudyCard,
   StudyCardAside,
@@ -12,16 +11,40 @@ import {
   StudyCardStage,
   studyCardReveal,
 } from '@/components/ui/study-card';
+import { MeaningText, PosTag } from './meaning-text';
 import {
-  MeaningText,
-  SenseExample,
-  getSensePercentage,
+  cardLabel,
+  formatOrder,
   getTone,
   hasPhraseMeaning,
-  prefersReducedMotion,
+  senseColor,
+  summarizeSenses,
+  type SenseStat,
+  type SenseSummary,
   type WordCardData,
-  type WordSense,
-} from './word-card-content';
+} from './model';
+import { prefersReducedMotion } from './reduced-motion';
+import { SenseDistribution } from './sense-distribution';
+import { SenseExample } from './sense-example';
+
+/*
+ * The full card of a compact word: only the vocabulary content. The study
+ * card deck (components/ui/study-card.tsx) owns everything else: the modal,
+ * the split, the header badge and pager, ←/→ and swipes, and the motion.
+ *
+ *   aside   on the card's tone: headword, phonetic, meanings, and a donut
+ *           of how the senses share the occurrences (sense-distribution.tsx)
+ *   main    one bar-list row per sense (its share fills the row behind the
+ *           gloss, in the sense's colour from the donut), then examples whose
+ *           translation shows on hover or tap (sense-example.tsx)
+ *
+ * Text stays neutral; only backgrounds and marks carry the tone.
+ */
+
+/** The aside's share of the width on wide screens. */
+const ASIDE_RATIO = 0.42;
+const FLASH_MS = 1100;
+const DECK_LABELS = { group: '切换单词', prev: '上一个单词', next: '下一个单词' };
 
 type WordCardDetailProps = {
   words: readonly WordCardData[];
@@ -33,50 +56,11 @@ type WordCardDetailProps = {
   finalFocus: () => HTMLElement | boolean | null | undefined;
 };
 
-/*
- * The full card of a compact word: only the vocabulary content. The study
- * card deck (components/ui/study-card.tsx) owns everything else: the modal,
- * the split, the pager, ←/→ and swipes, and the card-to-card motion.
- *
- *   aside   on the card's tone: headword, phonetic, meanings, and a
- *           donut of how the senses share the occurrences, with a legend
- *           that highlights a slice and jumps to its sense
- *   main    one bar-list row per sense (its share fills the row behind the
- *           gloss, in the sense's colour from the donut; count and share on
- *           the right), then examples whose translation shows on hover or
- *           tap (the same tooltip as the page)
- *
- * The left-hand chart and legend highlight each other; right-hand sense
- * interactions stay local to the right pane, without rerendering the chart.
- *
- * Text stays neutral; only backgrounds and marks carry the tone.
- */
-
-/** Sense colours: the card's bar colour, each later sense lighter. */
-function senseColor(order: number) {
-  return `color-mix(in oklab, var(--bar-fill) ${Math.max(30, 100 - order * 22)}%, var(--card-bg))`;
-}
-
-function senseStyle(order: number) {
-  return { '--wc-sense-color': senseColor(order) } as CSSProperties;
-}
-
-function formatOrder(order: number) {
-  return String(order + 1).padStart(2, '0');
-}
-
-function senseId(word: string, order: number) {
-  return `wc-detail-${encodeURIComponent(word)}-${order}`;
-}
-
-const FLASH_MS = 1100;
-
 export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, finalFocus }: WordCardDetailProps) {
   const word = words[index];
   if (!word) return null;
 
-  const label = word.label?.trim() || null;
-  const senses = word.senses ?? [];
+  const label = cardLabel(word);
   const itemKey = `${index}:${word.word}`;
 
   return (
@@ -87,7 +71,7 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
       index={index}
       onIndexChange={onNavigate}
       itemKey={itemKey}
-      labels={{ group: '切换单词', prev: '上一个单词', next: '下一个单词' }}
+      labels={DECK_LABELS}
       size="lg"
       height="44rem"
       className={`wc-detail${hasPhraseMeaning(word) ? ' has-phrase' : ''}`}
@@ -98,201 +82,96 @@ export function WordCardDetail({ words, index, open, onNavigate, onOpenChange, f
         title={word.word}
         titleMode="scrolled"
         titleProps={{ lang: 'en', className: 'wc-detail-title' }}
-      >
-        {label ? <span className="wc-label wc-detail-priority">{label}</span> : null}
-      </StudyCardHeader>
-      <StudyCardStage ratio={0.38}>
-        <WordCardBody key={itemKey} word={word} senses={senses} />
+        badge={label}
+      />
+      <StudyCardStage ratio={ASIDE_RATIO}>
+        <WordCardBody key={itemKey} word={word} />
       </StudyCardStage>
     </StudyCard>
   );
 }
 
-/** Keep chart hover state inside the aside; right-pane interaction must not touch it. */
-function WordCardBody({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
+/** Scrolls a sense into view in its pane and briefly outlines it. */
+function revealSense(id: string) {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  target.dataset.flash = '';
+  window.setTimeout(() => delete target.dataset.flash, FLASH_MS);
+}
+
+/** One card's two panes; keyed by card so each step starts from fresh state. */
+function WordCardBody({ word }: { word: WordCardData }) {
+  const idPrefix = useId();
+  const summary = useMemo(() => summarizeSenses(word.senses), [word.senses]);
+  const senseId = useCallback((order: number) => `${idPrefix}-sense-${order}`, [idPrefix]);
+  const showSense = useCallback((order: number) => revealSense(senseId(order)), [senseId]);
+
   return (
     <>
-      <WordAside word={word} senses={senses} />
-      <WordMain word={word} senses={senses} />
+      <StudyCardAside className="wc-detail-side">
+        <WordHero word={word} />
+        {summary.senses.length ? (
+          <SenseDistribution word={word.word} summary={summary} order={word.meanings.length} onSelect={showSense} />
+        ) : null}
+      </StudyCardAside>
+      <StudyCardMain>
+        <SenseContexts summary={summary} senseId={senseId} />
+      </StudyCardMain>
     </>
   );
 }
 
-function WordAside({
-  word,
-  senses,
-}: {
-  word: WordCardData;
-  senses: readonly WordSense[];
-}) {
+function WordHero({ word }: { word: WordCardData }) {
   return (
-    <StudyCardAside className="wc-detail-side">
-      <StudyCardHero
-        className="wc-detail-hero"
-        title={word.word}
-        titleProps={{ lang: 'en', className: 'wc-detail-word' }}
-        subtitle={word.phonetic ? <span className="wc-detail-phonetic">{word.phonetic}</span> : null}
-      >
-        <div className="wc-detail-meanings" aria-label="释义" role="list">
-          {word.meanings.map((meaning, meaningIndex) => (
-            <div
-              role="listitem"
-              className={`wc-detail-meaning${meaning.key ? ' is-key' : ''}`}
-              key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
-              {...studyCardReveal(meaningIndex)}
-            >
-              <span className="wc-detail-pos">{meaning.pos ? <span className="wc-pos">{meaning.pos}</span> : null}</span>
-              <span className="wc-detail-meaning-text">
-                <MeaningText meaning={meaning} />
-              </span>
-            </div>
-          ))}
-        </div>
-      </StudyCardHero>
-      {senses.length ? (
-        <SenseDistribution word={word.word} senses={senses} offset={word.meanings.length} />
-      ) : null}
-    </StudyCardAside>
+    <StudyCardHero
+      className="wc-detail-hero"
+      title={word.word}
+      titleProps={{ lang: 'en', className: 'wc-detail-word' }}
+      subtitle={word.phonetic ? <span className="wc-detail-phonetic">{word.phonetic}</span> : null}
+    >
+      <div className="wc-detail-meanings" aria-label="释义" role="list">
+        {word.meanings.map((meaning, meaningIndex) => (
+          <div
+            role="listitem"
+            className={`wc-detail-meaning${meaning.key ? ' is-key' : ''}`}
+            key={`${meaning.pos ?? 'meaning'}-${meaningIndex}`}
+            {...studyCardReveal(meaningIndex)}
+          >
+            <span className="wc-detail-pos">
+              <PosTag pos={meaning.pos} />
+            </span>
+            <span className="wc-detail-meaning-text">
+              <MeaningText meaning={meaning} />
+            </span>
+          </div>
+        ))}
+      </div>
+    </StudyCardHero>
   );
 }
 
-/**
- * How the occurrences split across senses: the study donut, total in the
- * hole, beside a legend. Hovering the chart or legend highlights only
- * the aside; choosing a sense scrolls the right pane to it.
- */
-function SenseDistribution({
-  word,
-  senses,
-  offset,
-}: {
-  word: string;
-  senses: readonly WordSense[];
-  offset: number;
-}) {
-  const [active, setActive] = useState<string | null>(null);
-  const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
-  // Preserve Pie.data identity when the active slice changes: Recharts otherwise
-  // treats hover as fresh data and can replay its entry animation.
-  const data = useMemo(() => senses.map((sense) => ({ gloss: sense.gloss, count: Math.max(0, sense.count) })), [senses]);
-  const colors = useMemo(() => Object.fromEntries(senses.map((sense, order) => [sense.gloss, senseColor(order)])), [senses]);
-
-  const show = (order: number) => {
-    setActive(senses[order]?.gloss ?? null);
-    const target = document.getElementById(senseId(word, order));
-    if (!target) return;
-    target.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-    target.dataset.flash = '';
-    window.setTimeout(() => delete target.dataset.flash, FLASH_MS);
-  };
-  const showByName = (name: string) => {
-    const order = senses.findIndex((sense) => sense.gloss === name);
-    if (order >= 0) show(order);
-  };
-
+function SenseContexts({ summary, senseId }: { summary: SenseSummary; senseId: (order: number) => string }) {
+  const { senses } = summary;
   return (
-    <StudyCardSection
-      className="wc-detail-summary"
-      label="义项分布"
-      meta={`${senses.length} 个义项 · 共 ${total} 次`}
-      {...studyCardReveal(offset)}
-    >
-      <div className="wc-detail-distribution">
-        <div className="wc-detail-donut">
-          <StudyPieChart
-            variant="inline"
-            title={`${word} 的义项分布`}
-            summary={senses.map((sense) => `${sense.gloss} ${getSensePercentage(sense, total)}%`).join('，')}
-            data={data}
-            nameKey="gloss"
-            valueKey="count"
-            donut
-            centerLabel={String(total)}
-            centerCaption="次出现"
-            colors={colors}
-            maxSlices={Math.max(1, senses.length)}
-            height={156}
-            activeName={active}
-            onActiveNameChange={setActive}
-            onSliceClick={showByName}
-          />
-        </div>
-        <ol className="wc-detail-legend" onPointerLeave={() => setActive(null)}>
+    <StudyCardSection label="真题语境" meta={senses.length ? '悬停或点按例句查看译文' : null}>
+      {senses.length ? (
+        <ol className="wc-detail-sense-list">
           {senses.map((sense, order) => (
-            <li key={`${sense.gloss}-${order}`}>
-              <button
-                type="button"
-                className="wc-detail-legend-item"
-                title={sense.gloss}
-                data-active={active === sense.gloss ? '' : undefined}
-                data-dim={active && active !== sense.gloss ? '' : undefined}
-                style={senseStyle(order)}
-                onPointerEnter={(event) => {
-                  if (event.pointerType === 'mouse') setActive(sense.gloss);
-                }}
-                onFocus={(event) => {
-                  if (event.currentTarget.matches(':focus-visible')) setActive(sense.gloss);
-                }}
-                onBlur={() => setActive(null)}
-                onClick={() => show(order)}
-              >
-                <span className="wc-detail-swatch" aria-hidden="true" />
-                <span className="wc-detail-legend-gloss">{sense.gloss}</span>
-                <span className="wc-detail-legend-pct">{getSensePercentage(sense, total)}%</span>
-              </button>
-            </li>
+            <SenseBlock key={`${sense.gloss}-${order}`} id={senseId(order)} sense={sense} order={order} />
           ))}
         </ol>
-      </div>
+      ) : (
+        <p className="wc-detail-empty">这个词暂时没有收录真题例句。</p>
+      )}
     </StudyCardSection>
   );
 }
 
-function WordMain({ word, senses }: { word: WordCardData; senses: readonly WordSense[] }) {
-  const total = senses.reduce((sum, sense) => sum + Math.max(0, sense.count), 0);
+function SenseBlock({ id, sense, order }: { id: string; sense: SenseStat; order: number }) {
+  const style = { '--wc-sense-color': senseColor(order), '--wc-share': `${sense.percentage}%` } as CSSProperties;
   return (
-    <StudyCardMain>
-      <StudyCardSection label="真题语境" meta={senses.length ? '悬停或点按例句查看译文' : null}>
-        {senses.length ? (
-          <ol className="wc-detail-sense-list">
-            {senses.map((sense, order) => (
-              <SenseBlock
-                key={`${sense.gloss}-${order}`}
-                id={senseId(word.word, order)}
-                sense={sense}
-                order={order}
-                total={total}
-              />
-            ))}
-          </ol>
-        ) : (
-          <p className="wc-detail-empty">这个词暂时没有收录真题例句。</p>
-        )}
-      </StudyCardSection>
-    </StudyCardMain>
-  );
-}
-
-function SenseBlock({
-  id,
-  sense,
-  order,
-  total,
-}: {
-  id: string;
-  sense: WordSense;
-  order: number;
-  total: number;
-}) {
-  const percentage = getSensePercentage(sense, total);
-  const count = Math.max(0, sense.count);
-  const style = { ...senseStyle(order), '--wc-share': `${percentage}%` } as CSSProperties;
-  return (
-    <li
-      id={id}
-      className="wc-detail-sense"
-      {...studyCardReveal(order + 1, style)}
-    >
+    <li id={id} className="wc-detail-sense" {...studyCardReveal(order + 1, style)}>
       {/* A bar list row: the share fills the row behind the gloss. */}
       <div className="wc-detail-sense-row">
         <span className="wc-detail-sense-fill" aria-hidden="true" />
@@ -302,10 +181,10 @@ function SenseBlock({
         <span className="wc-detail-sense-gloss">{sense.gloss}</span>
         <span className="wc-detail-sense-stats">
           <span className="wc-detail-count">
-            {count}
+            {sense.count}
             <span className="wc-detail-unit">次</span>
           </span>
-          <span className="wc-detail-pct">{percentage}%</span>
+          <span className="wc-detail-pct">{sense.percentage}%</span>
         </span>
       </div>
       {sense.examples?.length ? (

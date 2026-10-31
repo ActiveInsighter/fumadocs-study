@@ -40,26 +40,19 @@
   font-weight: 720;
 }
 
-/* Keep the priority visible in the toolbar, before the scroll-revealed title. */
-.wc-detail .wc-detail-priority {
-  order: -1;
-  gap: 7px;
-  height: 2rem;
-  padding-inline: 11px;
-  border: 1px solid color-mix(in oklab, var(--wc-accent) 32%, transparent);
-  background: var(--freq-bg);
-  color: var(--foreground);
-  font-size: 0.75rem;
-  font-weight: 650;
-  box-shadow: var(--word-card-badge-shadow);
+/*
+ * The priority badge (StudyCardHeader `badge`): the toolbar's glass capsule,
+ * frosted in the card's own tone so it belongs to the aside it floats over.
+ */
+.wc-detail {
+  --sc-badge-bg: color-mix(in oklab, var(--wc-accent) 16%, rgb(255 255 255 / 58%));
+  --sc-badge-fg: var(--wc-ink);
+  --sc-badge-dot: var(--bar-fill);
 }
 
-.wc-detail-priority::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--bar-fill);
+.dark .wc-detail {
+  --sc-badge-bg: color-mix(in oklab, var(--wc-accent) 26%, rgb(255 255 255 / 7%));
+  --sc-badge-fg: color-mix(in oklab, var(--wc-accent) 28%, var(--word-card-dark-light-ink));
 }
 
 @media (width >= 48rem) {

@@ -403,7 +403,7 @@
   }
 }
 
-.word-list > .word-card:nth-of-type(7n + 1),
+/* Seven palettes, chosen by data-tone (model.ts getTone). */
 .word-card[data-tone='1'],
 .wc-detail[data-tone='1'] {
   --wc-surface: var(--word-card-sage-surface);
@@ -411,7 +411,6 @@
   --wc-ink: var(--word-card-sage-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 2),
 .word-card[data-tone='2'],
 .wc-detail[data-tone='2'] {
   --wc-surface: var(--word-card-tone-2-surface);
@@ -419,7 +418,6 @@
   --wc-ink: var(--word-card-tone-2-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 3),
 .word-card[data-tone='3'],
 .wc-detail[data-tone='3'] {
   --wc-surface: var(--word-card-tone-3-surface);
@@ -427,7 +425,6 @@
   --wc-ink: var(--word-card-tone-3-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 4),
 .word-card[data-tone='4'],
 .wc-detail[data-tone='4'] {
   --wc-surface: var(--word-card-tone-4-surface);
@@ -435,7 +432,6 @@
   --wc-ink: var(--word-card-tone-4-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 5),
 .word-card[data-tone='5'],
 .wc-detail[data-tone='5'] {
   --wc-surface: var(--word-card-tone-5-surface);
@@ -443,7 +439,6 @@
   --wc-ink: var(--word-card-tone-5-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 6),
 .word-card[data-tone='6'],
 .wc-detail[data-tone='6'] {
   --wc-surface: var(--word-card-tone-6-surface);
@@ -451,7 +446,6 @@
   --wc-ink: var(--word-card-tone-6-ink);
 }
 
-.word-list > .word-card:nth-of-type(7n + 7),
 .word-card[data-tone='7'],
 .wc-detail[data-tone='7'] {
   --wc-surface: var(--word-card-tone-7-surface);

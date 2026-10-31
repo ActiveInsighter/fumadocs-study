@@ -87,6 +87,54 @@
     animation: sc-title-prev 380ms var(--sc-ease);
   }
 
+  /*
+   * The badge leads the row on the toolbar's capsule: same height, glass,
+   * rim and shadow, and the pager count's type. --sc-badge-bg tints it.
+   */
+  [data-slot='sc-badge'] {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding-inline: 0.8125rem 0.9375rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: var(--sc-badge-bg, var(--modal-glass));
+    color: var(--sc-badge-fg, var(--foreground));
+    -webkit-backdrop-filter: var(--modal-glass-blur);
+    backdrop-filter: var(--modal-glass-blur);
+    box-shadow: var(--modal-glass-shadow);
+    font-size: 0.8125rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* A dot in the badge's own accent, like a status light. */
+  [data-slot='sc-badge']::before {
+    content: '';
+    flex-shrink: 0;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: var(--sc-badge-dot, currentColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sc-badge-dot, currentColor) 20%, transparent);
+  }
+
+  [data-slot='sc-badge-text'] {
+    display: inline-block;
+  }
+
+  [data-slot='sc-badge-text'][data-direction='next'] {
+    animation: sc-count-next 320ms var(--sc-ease);
+  }
+
+  [data-slot='sc-badge-text'][data-direction='prev'] {
+    animation: sc-count-prev 320ms var(--sc-ease);
+  }
+
   [data-slot='sc-pager'] {
     display: inline-flex;
     align-items: center;
@@ -330,6 +378,7 @@
     [data-sc-stage] [data-slot='sc-content'],
     [data-sc-stage='current'] [data-sc-reveal],
     [data-slot='sc-pager-current'],
+    [data-slot='sc-badge-text'],
     [data-slot='sc-title-text'] {
       animation: none !important;
     }

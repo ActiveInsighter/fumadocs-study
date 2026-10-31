@@ -20,7 +20,7 @@ import {
  * who renders the current item into the slots.
  *
  *   <StudyCard count index onIndexChange open onOpenChange tint>
- *     <StudyCardHeader title tags actions />        pager joins the toolbar
+ *     <StudyCardHeader badge title tags actions />  badge leads, pager joins the toolbar
  *     <StudyCardStage ratio={0.45}>
  *       <StudyCardAside>                            left on wide screens,
  *         <StudyCardHero /> <StudyCardSection />    on the card's tone
@@ -208,11 +208,14 @@ function StudyCard({
  * `titleMode="scrolled"` keeps the title out of sight until the card has
  * scrolled under the header on phones, for cards whose hero already names
  * the item; side by side it stays hidden (still read by screen readers).
+ * `badge` leads the row on a capsule shaped like the toolbar's; callers
+ * tint it through --sc-badge-bg (neutral glass by default).
  */
 function StudyCardHeader({
   title,
   titleProps,
   titleMode = "always",
+  badge,
   tags,
   tagsProps,
   actions,
@@ -224,6 +227,8 @@ function StudyCardHeader({
   title: React.ReactNode
   titleProps?: Omit<React.ComponentProps<typeof ModalTitle>, "children">
   titleMode?: "always" | "scrolled"
+  /** A short status capsule at the start of the row, such as a rank or level. */
+  badge?: React.ReactNode
   tags?: React.ReactNode
   tagsProps?: Omit<React.ComponentProps<typeof ModalTags>, "children">
   /** Extra toolbar buttons, before the pager. */
@@ -236,6 +241,14 @@ function StudyCardHeader({
   const showPager = pager && count > 1
   return (
     <ModalHeader {...props}>
+      {badge ? (
+        <span data-slot="sc-badge">
+          {/* Keyed by card, so the value rolls in from the side stepped to, like the pager. */}
+          <span key={itemKey} data-slot="sc-badge-text" data-direction={direction ?? undefined}>
+            {badge}
+          </span>
+        </span>
+      ) : null}
       <ModalTitle data-sc-title={titleMode} {...titleProps}>
         {/* Keyed by card, so a step slides the new title in from the side stepped to. */}
         <span key={itemKey} data-slot="sc-title-text" data-direction={direction ?? undefined}>

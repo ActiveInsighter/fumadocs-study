@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
@@ -8,9 +8,11 @@ import {
   type WordCardData,
 } from '../components/vocabulary/word-cards';
 
+const vocabularyDir = new URL('../components/vocabulary/', import.meta.url);
 const componentSource = () =>
-  ['word-cards.tsx', 'word-card-content.tsx', 'word-card-mode.tsx', 'word-card-detail.tsx', 'use-compact-masonry.ts']
-    .map((file) => readFileSync(new URL(`../components/vocabulary/${file}`, import.meta.url), 'utf8'))
+  readdirSync(vocabularyDir)
+    .filter((file) => /\.tsx?$/u.test(file))
+    .map((file) => readFileSync(new URL(file, vocabularyDir), 'utf8'))
     .join('\n');
 
 const word: WordCardData = {
