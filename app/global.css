@@ -24,6 +24,9 @@
 @import '../styles/doc-table.css';
 /* MDX callouts: tinted official anatomy (components/mdx/callout.tsx). */
 @import '../styles/doc-callout.css';
+/* MDX cards with Lucide icons by name, and card steps (components/mdx/card). */
+@import '../styles/doc-card.css';
+@import '../styles/doc-card-steps.css';
 /* MDX and code-fence tabs: gliding underline, panel fade, height easing (components/mdx/tabs.tsx). */
 @import '../styles/doc-tabs.css';
 

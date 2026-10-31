@@ -36,6 +36,15 @@ code highlighting and a variable watch panel. Scene components such as
 `SequenceDiagram`, `ArrayTrack`, `BlockGrid`, `AddressBits` and `FlowGraph` are
 registered globally for MDX. See the [authoring guide](docs/motion-stage.md).
 
+## Cards and card steps
+
+MDX `Card` takes a Lucide icon by name (`<Card icon="git-branch" … />`, any case
+or separator, emoji too), plus `tone` and `Cards columns`. `CardSteps` /
+`CardStep` summarise a process as one card per step and choose a row or a
+column from the steps' length. `<Icon name="terminal" />` puts an icon in
+running text. Live examples: `/blog/card-components`; design notes:
+[docs/cards.md](docs/cards.md).
+
 ## Charts and blog heroes
 
 The Study chart family (`components/charts`, shadcn/ui + Recharts 3) covers line,

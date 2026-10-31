@@ -16,9 +16,11 @@ import {
 import { MotionScene } from '@/components/blog-hero/motion-scene';
 import { MathPlot2D, MathPlot3D } from '@/components/math-plot';
 import { Callout } from '@/components/mdx/callout';
+import { Card, CardStep, CardSteps, Cards } from '@/components/mdx/card';
 import { Mermaid } from '@/components/mdx/mermaid';
 import { MindMap } from '@/components/mdx/mind-map';
 import { DocTable } from '@/components/mdx/doc-table';
+import { Icon } from '@/components/mdx/icon';
 import { InlineSvg } from '@/components/mdx/inline-svg';
 import { MdxPreview, MdxPreviewCanvas } from '@/components/mdx/mdx-preview';
 import * as TabsComponents from '@/components/mdx/tabs';
@@ -47,11 +49,13 @@ import type { MDXComponents } from 'mdx/types';
 /**
  * Global MDX component registry.
  *
- * Cards come from Fumadocs' default mapping. Callout, Tabs / Tab and the
- * code-fence tabs (CodeBlockTabs*) are the official components with stable
- * styling hooks and smoother tab switching (components/mdx/callout.tsx,
- * tabs.tsx), and Markdown tables replace its `table` with DocTable (wrapping
- * columns, copy and expand). The component groups below are registered
+ * Card / Cards keep the official props and add Lucide icons by name, tones
+ * and column counts; CardSteps / CardStep tell a process as a row or column
+ * of cards; Icon puts a Lucide icon in running text (components/mdx/card,
+ * icon.tsx). Callout, Tabs / Tab and the code-fence tabs (CodeBlockTabs*) are
+ * the official components with stable styling hooks and smoother tab
+ * switching (components/mdx/callout.tsx, tabs.tsx), and Markdown tables
+ * replace its `table` with DocTable (wrapping columns, copy and expand). The component groups below are registered
  * globally so documentation can use Tabs, Accordions, Steps, Files,
  * TypeTable, Mermaid, WordCards, the shared vocabulary display toggle, MindMap, inline SVG diagrams, the reusable Study
  * chart family, the MotionStage animated-demo family and the interactive math
@@ -69,6 +73,11 @@ export function getMDXComponents(components?: MDXComponents) {
     ...StepsComponents,
     ...TabsComponents,
     Callout,
+    Card,
+    Cards,
+    CardStep,
+    CardSteps,
+    Icon,
     table: DocTable,
     MathPlot2D,
     MathPlot3D,
