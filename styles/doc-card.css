@@ -15,7 +15,9 @@
 
 /* ---------------------------------------------------------------------------
  * Grid: as many columns as asked for, fewer once a card would drop below
- * --cards-min, so no breakpoints are needed.
+ * --cards-min, so no breakpoints are needed. Cards sets --cards-min from its
+ * content (9rem for short cards, two a row on a phone; components/mdx/card/
+ * layout.ts, cardsMinWidth); 15rem holds a paragraph.
  * ------------------------------------------------------------------------- */
 
 [data-slot='cards'] {

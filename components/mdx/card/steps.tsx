@@ -4,7 +4,7 @@ import { Fragment, type CSSProperties, type HTMLAttributes, type ReactElement, t
 import { renderIcon } from '@/components/mdx/icon';
 
 import { topLevelItems } from './children';
-import { measureStep, resolveCardStepsLayout, type CardStepsLayoutOption } from './layout';
+import { measureCard, resolveCardStepsLayout, type CardStepsLayoutOption } from './layout';
 import { CardBody, CardDescription, CardIcon, CardRoot, CardTitle, hasContent, type CardRootProps } from './parts';
 
 /*
@@ -20,7 +20,8 @@ import { CardBody, CardDescription, CardIcon, CardRoot, CardTitle, hasContent, t
  * Layout. `auto` (the default) measures each step's text on the server
  * (components/mdx/card/layout.ts) and puts short steps side by side, up to
  * four a row in balanced rows, and stacks longer ones. A row too wide for
- * its column folds into a stack, four a row passing through two a row.
+ * its column folds into a stack, four a row passing through two a row; a
+ * compact row (every step a line or two) stays two a row even on a phone.
  *
  * Steps may be written one per line (`<CardStep title="…">一句话</CardStep>`)
  * or with their content on lines of their own; MDX wraps one-liners in a
@@ -55,16 +56,19 @@ export function CardStep({ icon, title, description, step, children, ...props }:
 
   return (
     <li data-slot="card-step">
-      <CardRoot {...props}>
+      <CardRoot data-card-step="" {...props}>
         <CardIcon icon={glyph} fallback={label} aria-hidden="true" />
         {hasIcon ? (
           <span data-slot="card-step-index" aria-hidden="true">
             {label}
           </span>
         ) : null}
-        <CardTitle>{title}</CardTitle>
-        {description ? <CardDescription>{description}</CardDescription> : null}
-        {hasContent(children) ? <CardBody>{children}</CardBody> : null}
+        {/* Beside the tile in a stack, under it in a row. */}
+        <div data-slot="card-step-text">
+          <CardTitle>{title}</CardTitle>
+          {description ? <CardDescription>{description}</CardDescription> : null}
+          {hasContent(children) ? <CardBody>{children}</CardBody> : null}
+        </div>
       </CardRoot>
       <span data-slot="card-step-connector" aria-hidden="true">
         <ChevronRight focusable="false" />
@@ -90,12 +94,18 @@ function measuredProps(item: ReactElement) {
 
 export function CardSteps({ layout = 'auto', columns, start, children, ...props }: CardStepsProps) {
   const items = topLevelItems(children, (item) => item.type === CardStep);
-  const resolved = resolveCardStepsLayout(items.map((item) => measureStep(measuredProps(item))), { layout, columns });
+  const resolved = resolveCardStepsLayout(items.map((item) => measureCard(measuredProps(item))), { layout, columns });
   const first = start === undefined ? 1 : Math.round(start);
   const listStyle: CSSProperties | undefined = first === 1 ? undefined : { counterReset: `card-step ${first - 1}` };
 
   return (
-    <div data-slot="card-steps" data-layout={resolved.layout} data-columns={resolved.columns} {...props}>
+    <div
+      data-slot="card-steps"
+      data-layout={resolved.layout}
+      data-columns={resolved.columns}
+      data-density={resolved.compact ? 'compact' : undefined}
+      {...props}
+    >
       <ol data-slot="card-steps-list" start={first === 1 ? undefined : first} style={listStyle}>
         {items.map((item, index) => (
           <Fragment key={item.key ?? index}>

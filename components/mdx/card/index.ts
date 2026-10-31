@@ -11,9 +11,12 @@ export {
 } from './parts';
 export {
   CARD_STEPS_ROW,
-  measureStep,
+  CARDS_GRID,
+  COMPACT_CARD,
+  cardsMinWidth,
+  measureCard,
   resolveCardStepsLayout,
-  type CardStepMetrics,
+  type CardMetrics,
   type CardStepsLayout,
   type CardStepsLayoutOption,
   type ResolvedCardStepsLayout,
